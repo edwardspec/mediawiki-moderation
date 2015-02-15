@@ -1,0 +1,10 @@
+List of known limitations:
+
+- summary of the previous edit (still pending moderation) is only preloaded for existing pages.
+	[This is because "EditFormInitialText" hook doesn't provide EditPage object]
+
+- Unless the user has 'skip-moderation' right: 1) only uploads via conventional Special:Upload are supported. 2) Upload via API is disabled. 3) All other uploading extensions (like Extension:MultipleUpload) won't work, unless they are providing the very same fields as Special:Upload.
+	[This is because "before-upload" hooks of MediaWiki (like VerifyFile) don't provide things like comment, text etc., so we have to get them from $wgRequest, using the methods of Special:Upload. If $wgRequest doesn't have those - we abort.]
+
+- if anonymous user who never edited before clicks Submit twice in a short period of time, two equal pending edits can be created. This is not a problem (one of them should be simply rejected by a moderator, and this doesn't impact preloading for this user).
+	[This is because the user doesn't have a session until the first edit, so if two simultaneous Submit requests are sent, PHP generates two sessions. It doesn't affect further preloading, because after the edit this user has the session, and it can be only one. We also can't suppress two edits with the same text and IP in a short period of time, because we don't know which of the two sessions was saved in user's browser.]
