@@ -1,6 +1,12 @@
 TODO:
 
 Background-prio (may not be needed):
-* (interface) Ask "Really approve all edits from <user>?" when clicking "Approve all" (NOT via JavaScript).
-* (interface) For each folder, display the number of new entries there in the last day and week.
-* (interface) After the actions like Approve return to the moderation page, displaying the message like "Approved N edits" in the page header.
+
+* (interface) Ask "Really approve all edits from <user>?" when
+	clicking "Approve all" (NOT via JavaScript).
+
+* (interface) For each folder, display the number of new entries there
+	in the last day and week.
+
+* (interface) After the actions like Approve return to the moderation page,
+	displaying the message like "Approved N edits" in the page header.
