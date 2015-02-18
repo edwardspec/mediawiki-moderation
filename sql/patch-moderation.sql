@@ -19,12 +19,12 @@
 --	2) rejected changes (for some period of time)
 --
 --	It does NOT list approved changes or logs.
---	"Who approved what" is in a separate logfile.
+--	"Who approved what" is in the general logging table.
 --
 --	This table is very similar to the recentchanges table.
 --
---	NOTE: changes to the text are represented by the resulting text (mod_text).
---	If other edits were made to the page in question
+--	NOTE: changes to the text are represented by the resulting text
+--	(mod_text). If other edits were made to the page in question
 --	(while this edit was awaiting moderation), a unified diff
 --	will be generated and the newest revision will be patched.
 
@@ -68,18 +68,22 @@ CREATE TABLE /*_*/moderation (
 	mod_header_ua varbinary(255) NULL default '', -- contents of 'User-Agent' request header
 
 	--	Part 3. Moderation-specific fields.
-	mod_preload_id varchar(256) binary NOT NULL, -- Identifies both logged-in and anonymous users (allows sequential edits, even if not logged in). See ModerationPreload::_getPreloadId() for details.
+
+	-- mod_preload_id:
+	-- Identifies both logged-in and anonymous users. Allows sequential
+	-- edits, even if not logged in. See ModerationPreload.php for details.
+	mod_preload_id varchar(256) binary NOT NULL,
 
 	mod_rejected tinyint NOT NULL default 0, -- Set to 1 if rejected
 	mod_rejected_by_user int unsigned NOT NULL default 0, -- Moderator's user ID
-	mod_rejected_by_user_text varchar(255) binary DEFAULT NULL,
+	mod_rejected_by_user_text varchar(255) binary DEFAULT NULL, -- Moderator's username
 
 	mod_rejected_batch tinyint NOT NULL default 0, -- Set to 1 if "reject all edits by this user" button was used
 	mod_rejected_auto tinyint NOT NULL default 0, -- Set to 1 if this user was marked with "reject all future edits from this user"
 
 	mod_preloadable tinyint NOT NULL default 1, -- Whether the user can continue changing this edit. Set to 0 for merged and rejected edits, but not for rejected automatically (rejected_auto=1)
 
-	mod_conflict tinyint NOT NULL default 0, -- Set to 1 if moderator tried to approve this, got "needs manual merging" error, and noone merged this yet
+	mod_conflict tinyint NOT NULL default 0, -- Set to 1 if moderator tried to approve this, but "needs manual merging" error occured
 	mod_merged_revid int unsigned NOT NULL default 0, -- If not 0, moderator has already merged this, and this is the revision number of the result.
 
 	mod_text MEDIUMBLOB, -- Resulting text of proposed edit
