@@ -37,6 +37,12 @@ tests/phpunit/phpunit.php extensions/Moderation/tests/phpunit/*.php
 	Here we check if the page is indeed modified when Approve is clicked
 	and that the newly approved edit is removed from Special:Moderation.
 
+3. [ModerationTestReject.php]
+	Answers the question: "Does the Reject link work as expected?"
+	Here we check that rejected edit is removed from the Pending folder
+	and added to the Rejected folder,
+	and that the moderator's name is recorded.
+
 == Writing new tests ==
 
 File [tests/phpunit/ModerationTestsuite.php] is the general framework
