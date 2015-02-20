@@ -294,6 +294,10 @@ class ModerationTestsuiteEntry
 	public $blockLink;
 	public $unblockLink;
 
+	public $rejected_by_user;
+	public $rejected_batch = false; /* TODO */
+	public $rejected_auto = false; /* TODO */
+
 	static public function fromDOMElement($span)
 	{
 		$e = new ModerationTestsuiteEntry;
@@ -303,7 +307,24 @@ class ModerationTestsuiteEntry
 		{
 			if(strpos($link->getAttribute('class'), 'mw-userlink') != false)
 			{
-				$e->user = $link->textContent;
+				$text = $link->textContent;
+
+				# This is
+				# 1) either the user who made an edit,
+				# 2) or the moderator who rejected it.
+				# Let's check the text BEFORE this link for
+				# the presence of 'moderation-rejected-by'.
+
+				if(strpos($link->previousSibling->textContent,
+					"moderation-rejected-by") != false)
+				{
+					$e->rejected_by_user = $text;
+				}
+				else
+				{
+					$e->user = $text;
+				}
+
 				continue;
 			}
 
