@@ -120,7 +120,12 @@ class ModerationTestsuite
 	{
 		global $wgServer, $wgScriptPath;
 
-		$url = wfExpandUrl($wgServer, PROTO_HTTP) . $wgScriptPath . '/index.php?title=Special:Moderation&limit=150&uselang=qqx';
+		# When "uselang=qqx" is specified, messages are replaced with
+		# their names, so parsing process is translation-independent.
+		# (see ModerationTestsuiteEntry::fromDOMElement)
+
+		$url = wfExpandUrl($wgServer, PROTO_HTTP) . $wgScriptPath .
+			'/index.php?title=Special:Moderation&limit=150&uselang=qqx';
 		if($folder != 'DEFAULT')
 			$url .= '&folder=' . $folder;
 
@@ -223,11 +228,12 @@ class ModerationTestsuite
 
 	public function doTestEdit()
 	{
-		$title = $this->generateRandomTitle(); // E.g. "Test page 1234", simple string, no underscores
+		$title = $this->generateRandomTitle();
 		$text = $this->generateRandomText();
 		$summary = $this->generateEditSummary();
 
-		/* TODO: ensure that page $title doesn't already contain $text (to avoid extremely rare test failures due to random collisions) */
+		# TODO: ensure that page $title doesn't already contain $text
+		# (to avoid extremely rare test failures due to random collisions)
 
 		$res = $this->query(array(
 			'action' => 'edit',
@@ -247,6 +253,8 @@ class ModerationTestsuite
 	}
 	function generateRandomTitle()
 	{
+		/* Simple string, no underscores */
+
 		return "Test page 1"; /* TODO: randomize */
 	}
 
