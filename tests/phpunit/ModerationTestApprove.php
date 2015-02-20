@@ -52,9 +52,9 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$res_page = array_shift($res['query']['pages']);
 		$rev = $res_page['revisions'][0];
 
-		$this->assertEquals($rev['user'], $t->lastEdit['User']);
-		$this->assertEquals($rev['*'], $t->lastEdit['Text']);
-		$this->assertEquals($rev['comment'], $t->lastEdit['Summary']);
+		$this->assertEquals($t->lastEdit['User'], $rev['user']);
+		$this->assertEquals($t->lastEdit['Text'], $rev['*']);
+		$this->assertEquals($t->lastEdit['Summary'], $rev['comment']);
 
 		/*
 			NOTE: checking 'timestamp' can't be in this test, because
@@ -68,8 +68,8 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 		$this->assertCount(0, $t->new_entries, "testApprove(): Something was added into Pending folder during modaction=accept");
 		$this->assertCount(1, $t->deleted_entries, "testApprove(): One edit was accepted, but number of deleted entries in Pending folder isn't 1");
-		$this->assertEquals($t->deleted_entries[0]->id, $entry->id);
-		$this->assertEquals($t->deleted_entries[0]->user, $t->lastEdit['User']);
-		$this->assertEquals($t->deleted_entries[0]->title, $t->lastEdit['Title']);
+		$this->assertEquals($entry->id, $t->deleted_entries[0]->id);
+		$this->assertEquals($t->lastEdit['User'], $t->deleted_entries[0]->user);
+		$this->assertEquals($t->lastEdit['Title'], $t->deleted_entries[0]->title);
 	}
 }

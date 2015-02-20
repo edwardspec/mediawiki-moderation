@@ -39,7 +39,7 @@ class ModerationTestInterceptEdit extends MediaWikiTestCase
 		));
 
 		$this->assertArrayHasKey('error', $ret);
-		$this->assertEquals($ret['error']['code'], 'edit-hook-aborted');
+		$this->assertEquals('edit-hook-aborted', $ret['error']['code']);
 	}
 
 	public function testQueued() {
@@ -52,7 +52,7 @@ class ModerationTestInterceptEdit extends MediaWikiTestCase
 
 		$this->assertCount(1, $t->new_entries, "testQueued(): One edit was queued for moderation, but number of added entries in Pending folder isn't 1");
 		$this->assertCount(0, $t->deleted_entries, "testQueued(): Something was deleted from Pending folder during the queueing");
-		$this->assertEquals($t->new_entries[0]->user, $t->lastEdit['User']);
-		$this->assertEquals($t->new_entries[0]->title, $t->lastEdit['Title']);
+		$this->assertEquals($t->lastEdit['User'], $t->new_entries[0]->user);
+		$this->assertEquals($t->lastEdit['Title'], $t->new_entries[0]->title);
 	}
 }
