@@ -1,0 +1,52 @@
+Extension:Moderation has an automated testsuite.
+
+== What is the automated testsuite? ==
+
+This is a collection of tests which check operability of Moderation extension.
+
+By running those tests, we can check if some modification to Moderation or to
+the MediaWiki core itself (e.g. when new version of MediaWiki is released)
+causes a regression (side effect bug).
+
+The tests of Moderation are focused on "black box" testing,
+meaning that instead of checking internal database only,
+we check the exact behavior that real users face by duplicating their actions
+and looking at the results through the user interface
+and parts of MediaWiki API not related to Moderation.
+
+== Invocation ==
+
+1) Checkout 'core/tests' from the MediaWiki core repository
+(this directory is not supplied in MediaWiki release tarballs).
+
+2) Go into the MediaWiki directory.
+
+3) Run the following command:
+
+tests/phpunit/phpunit.php extensions/Moderation/tests/phpunit/*.php
+
+== List of existing tests ==
+
+1. [ModerationTestInterceptEdit.php]
+	Answers the question: "Are the new edits indeed intercepted?"
+	Here we check that edits are stopped with 'edit-hook-aborted' code
+	and new entry appears on Special:Moderation.
+
+2. [ModerationTestApprove.php]
+	Answers the question: "Does the Approve link work as expected?"
+	Here we check if the page is indeed modified when Approve is clicked
+	and that the newly approved edit is removed from Special:Moderation.
+
+== Writing new tests ==
+
+File [tests/phpunit/ModerationTestsuite.php] is the general framework
+for blackbox testing of Extension:Moderation.
+
+It provides the following:
+
+1) methods to access the MediaWiki API (NOT via internal invocation).
+
+2) automated creation of test users and clean test environment.
+
+3) methods to fetch Special:Moderation, parse it into the array of entries
+(ModerationTestsuiteEntry) and compare two snapshots of Special:Moderation.
