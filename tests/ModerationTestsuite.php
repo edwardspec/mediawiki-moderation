@@ -78,20 +78,16 @@ class ModerationTestsuite
 
 	public function login($username) {
 		# Step 1. Get the token.
-		$ret = $this->query(array(
+		$q = array(
 			'action' => 'login',
 			'lgname' => $username,
 			'lgpassword' => $this->TEST_PASSWORD
-		));
-		$token = $ret['login']['token'];
+		);
+		$ret = $this->query($q);
 
 		# Step 2. Actual login.
-		$ret = $this->query(array(
-			'action' => 'login',
-			'lgname' => $username,
-			'lgpassword' => $this->TEST_PASSWORD,
-			'lgtoken' => $token
-		));
+		$q['lgtoken'] = $ret['login']['token'];
+		$ret = $this->query($q);
 
 		if($ret['login']['result'] == 'Success') {
 			$this->getEditToken(); # It's different for a logged-in user
