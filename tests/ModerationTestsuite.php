@@ -275,22 +275,22 @@ class ModerationTestsuite
 */
 class ModerationTestsuiteEntry
 {
-	public $id;
-	public $user;
-	public $comment; /* TODO */
-	public $title;
+	public $id = null;
+	public $user = null;
+	public $comment = null; /* TODO */
+	public $title = null;
 
-	public $showLink;
-	public $approveLink;
-	public $approveAllLink;
-	public $rejectLink;
-	public $rejectAllLink;
-	public $blockLink;
-	public $unblockLink;
+	public $showLink = null;
+	public $approveLink = null;
+	public $approveAllLink = null;
+	public $rejectLink = null;
+	public $rejectAllLink = null;
+	public $blockLink = null;
+	public $unblockLink = null;
 
-	public $rejected_by_user;
-	public $rejected_batch = false; /* TODO */
-	public $rejected_auto = false; /* TODO */
+	public $rejected_by_user = null;
+	public $rejected_batch = null; /* TODO */
+	public $rejected_auto = null; /* TODO */
 
 	static public function fromDOMElement($span)
 	{
