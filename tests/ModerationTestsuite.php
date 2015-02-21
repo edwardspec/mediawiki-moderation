@@ -220,9 +220,11 @@ class ModerationTestsuite
 		$this->t_loggedInAs = $user;
 	}
 
-	public function doTestEdit()
+	public function doTestEdit($title = null)
 	{
-		$title = $this->generateRandomTitle();
+		if(!$title)
+			$title = $this->generateRandomTitle();
+
 		$text = $this->generateRandomText();
 		$summary = $this->generateEditSummary();
 
@@ -245,19 +247,20 @@ class ModerationTestsuite
 		$this->lastEdit['Text'] = $text;
 		$this->lastEdit['Summary'] = $summary;
 	}
-	function generateRandomTitle()
+
+	public function generateRandomTitle()
 	{
 		/* Simple string, no underscores */
 
 		return "Test page 1"; /* TODO: randomize */
 	}
 
-	function generateRandomText()
+	private function generateRandomText()
 	{
 		return "Hello, World!"; /* TODO: randomize */
 	}
 
-	function generateEditSummary()
+	private function generateEditSummary()
 	{
 		/*
 			NOTE: No wikitext! Plaintext only.
@@ -398,5 +401,15 @@ class ModerationTestsuiteEntry
 				$diff[] = $e;
 		}
 		return $diff;
+	}
+
+	static public function findById($array, $id)
+	{
+		foreach($array as $e)
+		{
+			if($e->id == $id)
+				return $e;
+		}
+		return null;
 	}
 }

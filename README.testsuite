@@ -38,10 +38,10 @@ for i in extensions/Moderation/tests/phpunit/*.php; do tests/phpunit/phpunit.php
 	and that the newly approved edit is removed from Special:Moderation.
 
 3. [ModerationTestReject.php]
-	Answers the question: "Does the Reject link work as expected?"
-	Here we check that rejected edit is removed from the Pending folder
-	and added to the Rejected folder,
-	and that the moderator's name is recorded.
+	Answers the question: "Does the Reject(all) link work as expected?"
+	Here we check that rejected edits are removed from the Pending folder
+	and added to the Rejected folder, that the moderator's name is
+	recorded and that rejection flags (batch/auto) are set properly.
 
 == Writing new tests ==
 
