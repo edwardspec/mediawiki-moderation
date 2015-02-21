@@ -77,7 +77,7 @@ class ModerationTestReject extends MediaWikiTestCase
 		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
 
-		for($i = 0; $i < 3; $i ++)
+		for($i = 0; $i < $TEST_EDITS_COUNT; $i ++)
 			$t->doTestEdit('Page' . $i);
 		$t->fetchSpecialAndDiff();
 
