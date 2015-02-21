@@ -23,7 +23,7 @@ and parts of MediaWiki API not related to Moderation.
 
 3) Run the following command:
 
-tests/phpunit/phpunit.php extensions/Moderation/tests/phpunit/*.php
+for i in extensions/Moderation/tests/phpunit/*.php; do tests/phpunit/phpunit.php $i; done
 
 == List of existing tests ==
 
@@ -45,7 +45,7 @@ tests/phpunit/phpunit.php extensions/Moderation/tests/phpunit/*.php
 
 == Writing new tests ==
 
-File [tests/phpunit/ModerationTestsuite.php] is the general framework
+File [tests/ModerationTestsuite.php] is the general framework
 for blackbox testing of Extension:Moderation.
 
 It provides the following:
