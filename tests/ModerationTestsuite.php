@@ -289,12 +289,22 @@ class ModerationTestsuiteEntry
 	public $unblockLink = null;
 
 	public $rejected_by_user = null;
-	public $rejected_batch = null; /* TODO */
-	public $rejected_auto = null; /* TODO */
+	public $rejected_batch = false;
+	public $rejected_auto = false;
 
 	static public function fromDOMElement($span)
 	{
 		$e = new ModerationTestsuiteEntry;
+
+		foreach($span->childNodes as $child)
+		{
+			$text = $child->textContent;
+			if(strpos($text, '(moderation-rejected-auto)') != false)
+				$e->rejected_auto = true;
+
+			if(strpos($text, '(moderation-rejected-batch)') != false)
+				$e->rejected_batch = true;
+		}
 
 		$links = $span->getElementsByTagName('a');
 		foreach($links as $link)
