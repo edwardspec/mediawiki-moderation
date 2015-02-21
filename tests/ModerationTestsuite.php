@@ -67,11 +67,9 @@ class ModerationTestsuite
 		if(array_key_exists('token', $query))
 			$query['token'] = $this->editToken;
 
-		$url = wfAppendQuery($this->apiUrl, $query);
-
-		$req = $this->makeHttpRequest($url);
+		$req = $this->makeHttpRequest($this->apiUrl);
+		$req->setData($query);
 		$status = $req->execute();
-
 		if(!$status->isOK())
 			return false;
 
