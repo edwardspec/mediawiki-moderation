@@ -100,7 +100,7 @@ class ModerationTestReject extends MediaWikiTestCase
 		$this->assertCount(0, $t->new_entries,
 			"testRejectAll(): Something was added into Pending folder during modaction=rejectall");
 		$this->assertCount($t->TEST_EDITS_COUNT, $t->deleted_entries,
-			"testRejectAll(): One edit was rejected, but number of deleted entries in Pending folder isn't " . $t->TEST_EDITS_COUNT);
+			"testRejectAll(): Several edits were rejected, but number of deleted entries in Pending folder doesn't match");
 
 		foreach($entries as $entry)
 		{
@@ -113,7 +113,7 @@ class ModerationTestReject extends MediaWikiTestCase
 
 		$t->fetchSpecialAndDiff('rejected');
 		$this->assertCount($t->TEST_EDITS_COUNT, $t->new_entries,
-			"testRejectAll(): One edit was rejected, but number of new entries in Rejected folder isn't " . $t->TEST_EDITS_COUNT);
+			"testRejectAll(): Several edits were rejected, but number of new entries in Rejected folder doesn't match");
 		$this->assertCount(0, $t->deleted_entries,
 			"testRejectAll(): Something was deleted from Rejected folder during modaction=rejectall");
 
