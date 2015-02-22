@@ -415,4 +415,18 @@ class ModerationTestsuiteEntry
 		}
 		return null;
 	}
+
+	static public function findByUser($array, $user)
+	{
+		if(get_class($user) == 'User')
+			$user = $user->getName();
+
+		$entries = [];
+		foreach($array as $entry)
+		{
+			if($entry->user == $user)
+				$entries[] = $entry;
+		}
+		return $entries;
+	}
 }

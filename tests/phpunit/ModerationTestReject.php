@@ -93,12 +93,11 @@ class ModerationTestReject extends MediaWikiTestCase
 		}
 		$t->fetchSpecialAndDiff();
 
-		$entries = []; # Find edits by user A (they will be rejected)
-		foreach($t->new_entries as $entry)
-		{
-			if($entry->user == $t->unprivilegedUser->getName())
-				$entries[] = $entry;
-		}
+		# Find edits by user A (they will be rejected)
+		$entries = ModerationTestsuiteEntry::findByUser(
+			$t->new_entries,
+			$t->unprivilegedUser
+		);
 		$t->fetchSpecial('rejected');
 
 		$req = $t->makeHttpRequest($entries[0]->rejectAllLink, 'GET');
