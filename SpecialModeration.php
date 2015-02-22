@@ -324,7 +324,7 @@ class SpecialModeration extends QueryPage {
 
 		$html = Xml::tags('span', array('class' => $class), $line);
 
-		wfProfileIn( __METHOD__ );
+		wfProfileOut( __METHOD__ );
 		return $html;
 	}
 
