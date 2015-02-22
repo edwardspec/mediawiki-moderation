@@ -73,15 +73,32 @@ class ModerationTestReject extends MediaWikiTestCase
 		$TEST_EDITS_COUNT = 3;
 
 		$t = new ModerationTestsuite();
-
 		$t->fetchSpecial();
-		$t->loginAs($t->unprivilegedUser);
+
+		# We edit with two users:
+		#	$t->unprivilegedUser (A)
+		#	and $t->unprivilegedUser2 (B)
+		# We're applying rejectall to one of the edits by A.
+		# Expected result is:
+		# 1) All edits by A were rejected,
+		# 2) No edits by B were touched during rejectall.
 
 		for($i = 0; $i < $TEST_EDITS_COUNT; $i ++)
+		{
+			$t->loginAs($t->unprivilegedUser);
 			$t->doTestEdit('Page' . $i);
+
+			$t->loginAs($t->unprivilegedUser2);
+			$t->doTestEdit('AnotherPage' . $i);
+		}
 		$t->fetchSpecialAndDiff();
 
-		$entries = $t->new_entries;
+		$entries = []; # Find edits by user A (they will be rejected)
+		foreach($t->new_entries as $entry)
+		{
+			if($entry->user == $t->unprivilegedUser->getName())
+				$entries[] = $entry;
+		}
 		$t->fetchSpecial('rejected');
 
 		$req = $t->makeHttpRequest($entries[0]->rejectAllLink, 'GET');

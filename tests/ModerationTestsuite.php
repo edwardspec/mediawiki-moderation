@@ -194,6 +194,8 @@ class ModerationTestsuite
 			$this->createTestUser('User 4', array('rollback'));
 		$this->unprivilegedUser =
 			$this->createTestUser('User 5', array());
+		$this->unprivilegedUser2 =
+			$this->createTestUser('User 6', array());
 
 		$dbw->commit();
 	}
@@ -206,6 +208,7 @@ class ModerationTestsuite
 	public $rollback;
 	public $automoderated;
 	public $unprivilegedUser;
+	public $unprivilegedUser2;
 
 	private $t_loggedInAs;
 
