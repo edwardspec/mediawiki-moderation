@@ -249,6 +249,8 @@ class ModerationTestsuite
 		$this->lastEdit['Title'] = $title;
 		$this->lastEdit['Text'] = $text;
 		$this->lastEdit['Summary'] = $summary;
+
+		return $res;
 	}
 
 	public function generateRandomTitle()

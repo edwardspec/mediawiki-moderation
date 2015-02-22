@@ -30,13 +30,8 @@ class ModerationTestInterceptEdit extends MediaWikiTestCase
 	public function testInterceptEdit() {
 		$t = new ModerationTestsuite();
 
-		$ret = $t->query(array(
-			'action' => 'edit',
-			'title' => 'AutomatedTestPage',
-			'summary' => 'Sample edit summary',
-			'text' => 'Hello, World!',
-			'token' => null
-		));
+		$t->loginAs($t->unprivilegedUser);
+		$ret = $t->doTestEdit();
 
 		$this->assertArrayHasKey('error', $ret);
 		$this->assertEquals('edit-hook-aborted', $ret['error']['code']);
