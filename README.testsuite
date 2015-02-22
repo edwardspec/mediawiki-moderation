@@ -48,6 +48,7 @@ for i in extensions/Moderation/tests/phpunit/*.php; do tests/phpunit/phpunit.php
 	2) rejected edits are added to the Rejected folder,
 	3) the moderator's name is recorded,
 	4) rejection flags (batch/auto) are set properly.
+	5) edits by other users are unaffected by Rejectall.
 
 == Writing new tests ==
 
