@@ -31,19 +31,23 @@ for i in extensions/Moderation/tests/phpunit/*.php; do tests/phpunit/phpunit.php
 
 1. [ModerationTestInterceptEdit.php]
 	Answers the question: "Are the new edits indeed intercepted?"
-	Here we check that edits are stopped with 'edit-hook-aborted' code
-	and new entry appears on Special:Moderation.
+	Here we check that
+	1) edits are stopped with 'edit-hook-aborted' code,
+	2) new entry appears on Special:Moderation.
 
 2. [ModerationTestApprove.php]
 	Answers the question: "Does the Approve link work as expected?"
-	Here we check if the page is indeed modified when Approve is clicked
-	and that the newly approved edit is removed from Special:Moderation.
+	Here we check that
+	1) the page is indeed modified when Approve is clicked
+	2) the newly approved edit is removed from Special:Moderation.
 
 3. [ModerationTestReject.php]
 	Answers the question: "Does the Reject(all) link work as expected?"
-	Here we check that rejected edits are removed from the Pending folder
-	and added to the Rejected folder, that the moderator's name is
-	recorded and that rejection flags (batch/auto) are set properly.
+	Here we check that
+	1) rejected edits are removed from the Pending folder
+	2) rejected edits are added to the Rejected folder,
+	3) the moderator's name is recorded,
+	4) rejection flags (batch/auto) are set properly.
 
 == Writing new tests ==
 
