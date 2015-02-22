@@ -108,7 +108,7 @@ class ModerationTestReject extends MediaWikiTestCase
 		$this->assertCount($TEST_EDITS_COUNT, $t->new_entries,
 			"testRejectAll(): One edit was rejected, but number of new entries in Rejected folder isn't $TEST_EDITS_COUNT");
 		$this->assertCount(0, $t->deleted_entries,
-			"testRejectAll(): Something was deleted from Rejected folder during modaction=reject");
+			"testRejectAll(): Something was deleted from Rejected folder during modaction=rejectall");
 
 		foreach($entries as $entry)
 		{
