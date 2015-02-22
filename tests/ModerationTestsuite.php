@@ -253,6 +253,27 @@ class ModerationTestsuite
 		return $ret;
 	}
 
+	public $TEST_EDITS_COUNT = 3; /* See doNTestEditsWith() */
+
+	/**
+		@brief Do 2*N alternated edits - N by $user1 and N by $user2.
+			Number of edits is $TEST_EDITS_COUNT.
+			If $user2 is null, only makes N edits by $user1.
+	*/
+	public function doNTestEditsWith($user1, $user2 = null)
+	{
+		for($i = 0; $i < $this->TEST_EDITS_COUNT; $i ++)
+		{
+			$this->loginAs($user1);
+			$this->doTestEdit('Page' . $i);
+
+			if($user2) {
+				$this->loginAs($user2);
+				$this->doTestEdit('AnotherPage' . $i);
+			}
+		}
+	}
+
 	public function generateRandomTitle()
 	{
 		/* Simple string, no underscores */

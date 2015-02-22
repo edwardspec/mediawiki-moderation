@@ -70,8 +70,6 @@ class ModerationTestReject extends MediaWikiTestCase
 	}
 
 	public function testRejectAll() {
-		$TEST_EDITS_COUNT = 3;
-
 		$t = new ModerationTestsuite();
 		$t->fetchSpecial();
 
@@ -83,14 +81,7 @@ class ModerationTestReject extends MediaWikiTestCase
 		# 1) All edits by A were rejected,
 		# 2) No edits by B were touched during rejectall.
 
-		for($i = 0; $i < $TEST_EDITS_COUNT; $i ++)
-		{
-			$t->loginAs($t->unprivilegedUser);
-			$t->doTestEdit('Page' . $i);
-
-			$t->loginAs($t->unprivilegedUser2);
-			$t->doTestEdit('AnotherPage' . $i);
-		}
+		$t->doNTestEditsWith($t->unprivilegedUser, $t->unprivilegedUser2);
 		$t->fetchSpecialAndDiff();
 
 		# Find edits by user A (they will be rejected)
@@ -108,8 +99,8 @@ class ModerationTestReject extends MediaWikiTestCase
 		$t->fetchSpecialAndDiff();
 		$this->assertCount(0, $t->new_entries,
 			"testRejectAll(): Something was added into Pending folder during modaction=rejectall");
-		$this->assertCount($TEST_EDITS_COUNT, $t->deleted_entries,
-			"testRejectAll(): One edit was rejected, but number of deleted entries in Pending folder isn't $TEST_EDITS_COUNT");
+		$this->assertCount($t->TEST_EDITS_COUNT, $t->deleted_entries,
+			"testRejectAll(): One edit was rejected, but number of deleted entries in Pending folder isn't " . $t->TEST_EDITS_COUNT);
 
 		foreach($entries as $entry)
 		{
@@ -121,8 +112,8 @@ class ModerationTestReject extends MediaWikiTestCase
 		}
 
 		$t->fetchSpecialAndDiff('rejected');
-		$this->assertCount($TEST_EDITS_COUNT, $t->new_entries,
-			"testRejectAll(): One edit was rejected, but number of new entries in Rejected folder isn't $TEST_EDITS_COUNT");
+		$this->assertCount($t->TEST_EDITS_COUNT, $t->new_entries,
+			"testRejectAll(): One edit was rejected, but number of new entries in Rejected folder isn't " . $t->TEST_EDITS_COUNT);
 		$this->assertCount(0, $t->deleted_entries,
 			"testRejectAll(): Something was deleted from Rejected folder during modaction=rejectall");
 
