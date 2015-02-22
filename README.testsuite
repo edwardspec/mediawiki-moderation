@@ -35,20 +35,28 @@ for i in extensions/Moderation/tests/phpunit/*.php; do tests/phpunit/phpunit.php
 	1) edits are stopped with 'edit-hook-aborted' code,
 	2) new entry appears on Special:Moderation.
 
-2. [ModerationTestApprove.php]
-	Answers the question: "Does the Approve link work as expected?"
+2. [ModerationTestAutomoderated.php]
+	Answers the question: "Do automoderated users bypass moderation?"
+	Here we check that
+	1) edits of automoderated user immediately succeed,
+	2) no new entries appear on Special:Moderation.
+
+3. [ModerationTestApprove.php]
+	Answers the question: "Does the Approve(all) link work as expected?"
 	Here we check that
 	1) the page is indeed modified when Approve is clicked,
-	2) the newly approved edit is removed from Special:Moderation.
+	2) the newly approved edit is removed from Special:Moderation,
+	3) all pending edits of the same user are approved by Approveall,
+	4) edits of other users are unaffected by Approveall.
 
-3. [ModerationTestReject.php]
+4. [ModerationTestReject.php]
 	Answers the question: "Does the Reject(all) link work as expected?"
 	Here we check that
 	1) rejected edits are removed from the Pending folder,
 	2) rejected edits are added to the Rejected folder,
 	3) the moderator's name is recorded,
 	4) rejection flags (batch/auto) are set properly,
-	5) edits by other users are unaffected by Rejectall.
+	5) edits of other users are unaffected by Rejectall.
 
 == Writing new tests ==
 
