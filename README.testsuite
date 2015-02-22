@@ -16,8 +16,10 @@ and parts of MediaWiki API not related to Moderation.
 
 == Invocation ==
 
-1) Checkout 'core/tests' from the MediaWiki core repository
-(this directory is not supplied in MediaWiki release tarballs).
+WARNING: THIS TEST DOESN'T PRESERVE EXISTING DATABASE. EVERYTHING IS DELETED.
+
+1) Checkout 'core/tests' from the MediaWiki core repository (this directory is
+not supplied in MediaWiki release tarballs) and move it to MediaWiki directory.
 
 2) Go into the MediaWiki directory.
 
