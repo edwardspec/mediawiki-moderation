@@ -42,15 +42,15 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 		/* TODO: check $req->getContent() */
 
-		$res = $t->query(array(
+		$ret = $t->query(array(
 			'action' => 'query',
 			'prop' => 'revisions',
 			'rvlimit' => 1,
 			'rvprop' => 'user|timestamp|comment|content',
 			'titles' => $entry->title
 		));
-		$res_page = array_shift($res['query']['pages']);
-		$rev = $res_page['revisions'][0];
+		$ret_page = array_shift($ret['query']['pages']);
+		$rev = $ret_page['revisions'][0];
 
 		$this->assertEquals($t->lastEdit['User'], $rev['user']);
 		$this->assertEquals($t->lastEdit['Text'], $rev['*']);

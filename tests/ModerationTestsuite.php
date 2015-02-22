@@ -234,7 +234,7 @@ class ModerationTestsuite
 		# TODO: ensure that page $title doesn't already contain $text
 		# (to avoid extremely rare test failures due to random collisions)
 
-		$res = $this->query(array(
+		$ret = $this->query(array(
 			'action' => 'edit',
 			'title' => $title,
 			'text' => $text,
@@ -250,7 +250,7 @@ class ModerationTestsuite
 		$this->lastEdit['Text'] = $text;
 		$this->lastEdit['Summary'] = $summary;
 
-		return $res;
+		return $ret;
 	}
 
 	public function generateRandomTitle()
