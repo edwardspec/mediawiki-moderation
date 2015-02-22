@@ -1,12 +1,18 @@
 TODO:
 
-Background-prio (may not be needed):
+Medium-prio:
+* (testsuite) Provide ~100% automated test coverage of all functionality.
 
+Low-prio:
+* (refactoring) Shorten "switch($action)" in SpecialModeration/execute().
+* (refactoring) Replace getUserpageByModId() with something more logical.
+* (feature) Intercept renaming of pages.
+
+Background-prio (may not be needed):
 * (interface) Ask "Really approve all edits from <user>?" when
 	clicking "Approve all" (NOT via JavaScript).
-
 * (interface) For each folder, display the number of new entries there
 	in the last day and week.
-
 * (interface) After the actions like Approve return to the moderation page,
 	displaying the message like "Approved N edits" in the page header.
+* (feature) Support uploads via API.
