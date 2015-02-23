@@ -43,8 +43,8 @@ class ModerationTestTokens extends MediaWikiTestCase
 		foreach($links as $url)
 		{
 			$url .= '&uselang=qqx'; # Show message IDs instead of text
-			$bad_url = preg_replace('/token=[^&]*/', '', $url);
 
+			$bad_url = preg_replace('/token=[^&]*/', '', $url);
 			$title = $t->getHtmlTitleByURL($bad_url);
 			$this->assertRegExp('/\(sessionfailure-title\)/', $title);
 
@@ -63,6 +63,16 @@ class ModerationTestTokens extends MediaWikiTestCase
 			$t->fetchSpecialAndDiff();
 			$this->assertCount(0, $t->new_entries);
 			$this->assertCount(0, $t->deleted_entries);
+		}
+
+		$links = array($entry->showLink);
+		foreach($links as $url)
+		{
+			$url .= '&uselang=qqx'; # Show message IDs instead of text
+
+			$bad_url = preg_replace('/token=[^&]*/', '', $url);
+			$title = $t->getHtmlTitleByURL($bad_url);
+			$this->assertNotRegExp('/\(sessionfailure-title\)/', $title);
 		}
 	}
 }
