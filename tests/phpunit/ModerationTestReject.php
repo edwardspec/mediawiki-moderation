@@ -105,7 +105,7 @@ class ModerationTestReject extends MediaWikiTestCase
 		foreach($entries as $entry)
 		{
 			$de = ModerationTestsuiteEntry::findById($t->deleted_entries, $entry->id);
-			$this->assertNotEquals(null, $de);
+			$this->assertNotNull($de);
 
 			$this->assertEquals($entry->user, $de->user);
 			$this->assertEquals($entry->title, $de->title);
@@ -120,7 +120,7 @@ class ModerationTestReject extends MediaWikiTestCase
 		foreach($entries as $entry)
 		{
 			$de = ModerationTestsuiteEntry::findById($t->new_entries, $entry->id);
-			$this->assertNotEquals(null, $de);
+			$this->assertNotNull($de);
 
 			$this->assertEquals($entry->user, $de->user);
 			$this->assertEquals($entry->title, $de->title);
