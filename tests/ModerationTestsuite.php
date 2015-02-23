@@ -487,4 +487,15 @@ class ModerationTestsuiteEntry
 		else
 			$this->blockLink = preg_replace('/modaction=unblock/', 'modaction=block', $bl);
 	}
+
+	/**
+		@brief Returns the URL of modaction=showimg.
+	*/
+	public function getShowImgLink()
+	{
+		if(!$this->showLink)
+			return null;
+
+		return preg_replace('/modaction=show/', 'modaction=showimg', $this->showLink);
+	}
 }

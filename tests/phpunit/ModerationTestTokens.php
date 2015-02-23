@@ -36,6 +36,7 @@ class ModerationTestTokens extends MediaWikiTestCase
 		$entry = $t->new_entries[0];
 		$entry->fakeBlockLink();
 
+		# Non-readonly actions require a correct token
 		$links = array($entry->approveLink,
 			$entry->approveAllLink,
 			$entry->rejectLink,
@@ -68,6 +69,7 @@ class ModerationTestTokens extends MediaWikiTestCase
 			$this->assertCount(0, $t->deleted_entries);
 		}
 
+		# Show link must work without a token.
 		$links = array($entry->showLink);
 		foreach($links as $url)
 		{
@@ -78,5 +80,9 @@ class ModerationTestTokens extends MediaWikiTestCase
 				"testTokens(): Token was found in the read-only Show link");
 			$this->assertNotRegExp('/\(sessionfailure-title\)/', $title);
 		}
+
+		# Note: modaction=showimg should be checked in ShowImg test,
+		# because its output is different. Tokens test is not the
+		# best place for action-specific assumptions.
 	}
 }
