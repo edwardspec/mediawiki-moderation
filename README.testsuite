@@ -66,9 +66,9 @@ for i in extensions/Moderation/tests/phpunit/*.php; do tests/phpunit/phpunit.php
 6. [ModerationTestTokens.php]
 	Answers the question: "Are the tokens required on Special:Moderation?"
 	Here we check that
-	1) approve(all) and reject(all) links don't work without a token,
-	2) approve(all) and reject(all) links don't work with incorrect token.
-
+	1) non-readonly actions don't work without a token,
+	2) non-readonly actions don't work with incorrect token,
+	3) Show link doesn't have a token and works without it.
 
 == Writing new tests ==
 
