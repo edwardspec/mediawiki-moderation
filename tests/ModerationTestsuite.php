@@ -485,7 +485,7 @@ class ModerationTestsuiteEntry
 		if($bl)
 			$this->unblockLink = preg_replace('/modaction=block/', 'modaction=unblock', $bl);
 		else
-			$this->blockLink = preg_replace('/modaction=unblock/', 'modaction=block', $bl);
+			$this->blockLink = preg_replace('/modaction=unblock/', 'modaction=block', $ul);
 	}
 
 	/**
