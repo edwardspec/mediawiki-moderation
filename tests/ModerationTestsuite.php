@@ -469,4 +469,22 @@ class ModerationTestsuiteEntry
 		}
 		return $entries;
 	}
+
+	/**
+		@brief Populates both $e->blockLink and $e->unblockLink,
+			even though only one link exists on Special:Moderation
+	*/
+	public function fakeBlockLink()
+	{
+		$bl = $this->blockLink;
+		$ul = $this->unblockLink;
+
+		if(($bl && $ul) || (!$bl && !$ul))
+			return; /* Nothing to do */
+
+		if($bl)
+			$this->unblockLink = preg_replace('/modaction=block/', 'modaction=unblock', $bl);
+		else
+			$this->blockLink = preg_replace('/modaction=unblock/', 'modaction=block', $bl);
+	}
 }
