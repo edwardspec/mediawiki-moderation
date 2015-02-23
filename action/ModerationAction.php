@@ -45,8 +45,7 @@ abstract class ModerationAction {
 
 		if($this->requiresEditToken() && !$this->moderator->matchEditToken($token, $this->id))
 		{
-			$this->mSpecial->getOutput()->addWikiMsg('sessionfailure');
-			return false;
+			throw new ErrorPageError('sessionfailure-title', 'sessionfailure');
 		}
 
 		return $this->execute();
