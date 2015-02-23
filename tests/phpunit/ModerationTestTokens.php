@@ -72,9 +72,10 @@ class ModerationTestTokens extends MediaWikiTestCase
 		foreach($links as $url)
 		{
 			$url .= '&uselang=qqx'; # Show message IDs instead of text
+			$title = $t->getHtmlTitleByURL($url);
 
-			$bad_url = preg_replace('/token=[^&]*/', '', $url);
-			$title = $t->getHtmlTitleByURL($bad_url);
+			$this->assertNotRegExp('/token=[^&]*/', $url,
+				"testTokens(): Token was found in the read-only Show link");
 			$this->assertNotRegExp('/\(sessionfailure-title\)/', $title);
 		}
 	}
