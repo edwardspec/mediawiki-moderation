@@ -36,6 +36,9 @@ class ModerationTestReject extends MediaWikiTestCase
 		$t->fetchSpecialAndDiff();
 
 		$entry = $t->new_entries[0];
+		$this->assertNotNull($entry->rejectLink,
+			"Reject link not found");
+
 		$t->fetchSpecial('rejected');
 
 		$req = $t->makeHttpRequest($entry->rejectLink, 'GET');
@@ -89,6 +92,9 @@ class ModerationTestReject extends MediaWikiTestCase
 			$t->new_entries,
 			$t->unprivilegedUser
 		);
+		$this->assertNotNull($entries[0]->rejectAllLink,
+			"RejectAll link not found");
+
 		$t->fetchSpecial('rejected');
 
 		$req = $t->makeHttpRequest($entries[0]->rejectAllLink, 'GET');

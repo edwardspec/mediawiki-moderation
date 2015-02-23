@@ -36,6 +36,8 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$t->fetchSpecialAndDiff();
 
 		$entry = $t->new_entries[0];
+		$this->assertNotNull($entry->approveLink,
+			"Approve link not found");
 
 		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
@@ -93,6 +95,8 @@ class ModerationTestApprove extends MediaWikiTestCase
 			$t->new_entries,
 			$t->unprivilegedUser
 		);
+		$this->assertNotNull($entries[0]->approveAllLink,
+			"ApproveAll link not found");
 
 		$req = $t->makeHttpRequest($entries[0]->approveAllLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
