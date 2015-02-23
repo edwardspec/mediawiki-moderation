@@ -110,7 +110,7 @@ class ModerationTestsuite
 	public $new_entries;
 	public $deleted_entries;
 
-	public function fetchSpecial($folder = 'DEFAULT')
+	public function getSpecialURL()
 	{
 		global $wgServer, $wgScriptPath;
 
@@ -119,11 +119,17 @@ class ModerationTestsuite
 		# (see ModerationTestsuiteEntry::fromDOMElement)
 
 		$url = wfExpandUrl($wgServer, PROTO_HTTP) . $wgScriptPath .
-			'/index.php?title=Special:Moderation&limit=150&uselang=qqx';
+			'/index.php?title=Special:Moderation&uselang=qqx';
+		return $url;
+	}
+
+	public function fetchSpecial($folder = 'DEFAULT')
+	{
+		$this->loginAs($this->moderator);
+
+		$url = $this->getSpecialURL() . "&limit=150";
 		if($folder != 'DEFAULT')
 			$url .= '&folder=' . $folder;
-
-		$this->loginAs($this->moderator);
 
 		$req = $this->makeHttpRequest($url, 'GET');
 		$status = $req->execute();
@@ -152,6 +158,17 @@ class ModerationTestsuite
 
 		$this->new_entries = ModerationTestsuiteEntry::entriesInANotInB($after, $before);
 		$this->deleted_entries = ModerationTestsuiteEntry::entriesInANotInB($before, $after);
+	}
+
+	public function getHtmlTitleByURL($url)
+	{
+		$req = $this->makeHttpRequest($url, 'GET');
+		$status = $req->execute();
+		if(!$status->isOK())
+			return null;
+
+		$html = DOMDocument::loadHTML($req->getContent());
+		return $html->getElementsByTagName('title')->item(0)->textContent;
 	}
 
 	#

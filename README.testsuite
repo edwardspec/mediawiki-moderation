@@ -58,6 +58,11 @@ for i in extensions/Moderation/tests/phpunit/*.php; do tests/phpunit/phpunit.php
 	4) rejection flags (batch/auto) are set properly,
 	5) edits of other users are unaffected by Rejectall.
 
+5. [ModerationTestPermissions.php]
+	Answers the question: "Is Special:Moderation for moderators only?"
+	Here we check that
+	1) unprivileged user gets permissions error on Special:Moderation.
+
 == Writing new tests ==
 
 File [tests/ModerationTestsuite.php] is the general framework
