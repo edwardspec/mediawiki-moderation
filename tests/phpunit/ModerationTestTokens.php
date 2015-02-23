@@ -38,10 +38,13 @@ class ModerationTestTokens extends MediaWikiTestCase
 		$links = array($entry->approveLink,
 			$entry->approveAllLink,
 			$entry->rejectLink,
-			$entry->rejectAllLink
+			$entry->rejectAllLink,
+			$entry->blockLink,
+			$entry->unblockLink
 		);
 		foreach($links as $url)
 		{
+			if(!$url) continue;
 			$url .= '&uselang=qqx'; # Show message IDs instead of text
 
 			$bad_url = preg_replace('/token=[^&]*/', '', $url);
