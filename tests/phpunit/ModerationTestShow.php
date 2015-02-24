@@ -51,5 +51,27 @@ class ModerationTestShow extends MediaWikiTestCase
 		$this->assertRegExp('/\(difference-title: ' . preg_quote($page) . '\)/', $title,
 			"testShow(): Difference page has a wrong HTML title");
 
+		$added_lines = array();
+		$deleted_lines = array();
+
+		$html = $t->lastFetchedDocument;
+		$table_cells = $html->getElementsByTagName('td');
+		foreach($table_cells as $td)
+		{
+			$class = $td->getAttribute('class');
+			if($class == 'diff-addedline') {
+				$added_lines[] = $td->textContent;
+			}
+			else if($class == 'diff-deletedline') {
+				$deleted_lines[] = $td->textContent;
+			}
+		}
+
+		$this->assertCount(1, $added_lines,
+			"testShow(): One line was modified, but number of added lines on the difference page is not 1");
+		$this->assertCount(1, $deleted_lines,
+			"testShow(): One line was modified, but number of deleted lines on the difference page is not 1");
+		$this->assertEquals('Another second string', $added_lines[0]);
+		$this->assertEquals('Second string', $deleted_lines[0]);
 	}
 }
