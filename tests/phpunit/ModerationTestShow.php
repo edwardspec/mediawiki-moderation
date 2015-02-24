@@ -44,7 +44,7 @@ class ModerationTestShow extends MediaWikiTestCase
 
 		$url = $t->new_entries[0]->showLink;
 		$this->assertNotNull($url,
-			"Show link not found");
+			"testShow(): Show link not found");
 		$url .= '&uselang=qqx'; # Show message IDs instead of text
 		$title = $t->getHtmlTitleByURL($url);
 

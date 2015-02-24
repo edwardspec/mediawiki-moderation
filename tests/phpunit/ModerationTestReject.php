@@ -37,7 +37,7 @@ class ModerationTestReject extends MediaWikiTestCase
 
 		$entry = $t->new_entries[0];
 		$this->assertNotNull($entry->rejectLink,
-			"Reject link not found");
+			"testReject(): Reject link not found");
 
 		$t->fetchSpecial('rejected');
 
@@ -93,7 +93,7 @@ class ModerationTestReject extends MediaWikiTestCase
 			$t->unprivilegedUser
 		);
 		$this->assertNotNull($entries[0]->rejectAllLink,
-			"RejectAll link not found");
+			"testRejectAll(): RejectAll link not found");
 
 		$t->fetchSpecial('rejected');
 
