@@ -70,6 +70,12 @@ for i in extensions/Moderation/tests/phpunit/*.php; do tests/phpunit/phpunit.php
 	2) non-readonly actions don't work with incorrect token,
 	3) Show link doesn't have a token and works without it.
 
+7. [ModerationTestShow.php]
+	Answers the question: "Does the Show link work as expected?"
+	Here we check that
+	1) Show link opens a difference page with a correct HTML title,
+	2) added, deleted and context lines on the difference page are correct.
+
 == Writing new tests ==
 
 File [tests/ModerationTestsuite.php] is the general framework
