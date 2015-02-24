@@ -35,8 +35,18 @@ class ModerationTestUpload extends MediaWikiTestCase
 	public function testUpload() {
 		$t = new ModerationTestsuite();
 
+		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
 		$error = $t->doTestUpload();
+		$t->fetchSpecialAndDiff();
+
 		$this->assertEquals('(moderation-image-queued)', $error);
+
+		$this->assertCount(1, $t->new_entries,
+			"testUpload(): One upload was queued for moderation, but number of added entries in Pending folder isn't 1");
+		$this->assertCount(0, $t->deleted_entries,
+			"testUpload(): Something was deleted from Pending folder during the queueing");
+		$this->assertEquals($t->lastEdit['User'], $t->new_entries[0]->user);
+		$this->assertEquals($t->lastEdit['Title'], $t->new_entries[0]->title);
 	}
 }

@@ -330,6 +330,9 @@ class ModerationTestsuite
 	*/
 	public function doTestUpload()
 	{
+		$title = $this->generateRandomTitle() . '.png';
+		$text = $this->generateRandomText();
+
 		$SOURCE_FILENAME = __DIR__ . "/resources/sample_image.png";
 		$url = $this->getScriptPath() .
 			'/index.php?title=Special:Upload&uselang=qqx';
@@ -338,10 +341,11 @@ class ModerationTestsuite
 		$req->setHeader('Content-Type', 'multipart/form-data');
 		$req->setData(array(
 			'wpUploadFile' => '@' . $SOURCE_FILENAME,
-			'wpDestFile' => 'Test file 1.png',
+			'wpDestFile' => $title,
 			'wpIgnoreWarning' => '1',
 			'wpEditToken' => $this->editToken,
-			'wpUpload' => 'Upload'
+			'wpUpload' => 'Upload',
+			'wpUploadDescription' => $text
 		));
 
 		$status = $req->execute();
@@ -353,12 +357,17 @@ class ModerationTestsuite
 
 			return '(' . $status->errors[0]['message'] . ')';
 		}
-		$text = $req->getContent();
+
+		$this->lastEdit = array();
+		$this->lastEdit['Text'] = $text;
+		$this->lastEdit['User'] = $this->loggedInAs()->getName();
+		$this->lastEdit['Title'] =
+			Title::newFromText($title, NS_FILE)->getFullText();
 
 		if($req->getResponseHeader('Location'))
 			return null; # No errors
 
-		$html = DOMDocument::loadHTML($text);
+		$html = DOMDocument::loadHTML($req->getContent());
 		$divs = $html->getElementsByTagName('div');
 
 		foreach($divs as $div)
