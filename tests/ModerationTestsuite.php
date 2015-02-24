@@ -330,10 +330,7 @@ class ModerationTestsuite
 	*/
 	public function doTestUpload()
 	{
-		# Use some file that always exists, e.g. from MediaWiki itself
-		global $wgStyleDirectory;
-		$SOURCE_FILENAME = "$wgStyleDirectory/common/images/wiki.png";
-
+		$SOURCE_FILENAME = __DIR__ . "/resources/sample_image.png";
 		$url = $this->getScriptPath() .
 			'/index.php?title=Special:Upload&uselang=qqx';
 		$req = $this->makeHttpRequest($url, 'POST');
