@@ -36,11 +36,14 @@ class ModerationTestsuite
 
 	private $TEST_PASSWORD = '123456';
 
-	private function PrepareAPIForTests()
+	public function getScriptPath()
 	{
 		global $wgServer, $wgScriptPath;
-
-		$this->apiUrl = wfExpandUrl($wgServer, PROTO_HTTP) . "/$wgScriptPath/api.php";
+		return wfExpandUrl($wgServer, PROTO_HTTP) . '/' . $wgScriptPath;
+	}
+	private function PrepareAPIForTests()
+	{
+		$this->apiUrl = $this->getScriptPath() . "/api.php";
 		$this->cookie_jar = new CookieJar;
 		$this->getEditToken();
 	}
@@ -120,7 +123,7 @@ class ModerationTestsuite
 		# their names, so parsing process is translation-independent.
 		# (see ModerationTestsuiteEntry::fromDOMElement)
 
-		$url = wfExpandUrl($wgServer, PROTO_HTTP) . $wgScriptPath .
+		$url = $this->getScriptPath() .
 			'/index.php?title=Special:Moderation&uselang=qqx';
 		return $url;
 	}
@@ -318,6 +321,59 @@ class ModerationTestsuite
 		*/
 
 		return "Edit by the Moderation Testsuite";
+	}
+
+	/**
+		@brief Perform a test upload.
+		@returns MediaWiki error message code (e.g. "(emptyfile)").
+		@retval null Upload succeeded (no errors found).
+	*/
+	public function doTestUpload()
+	{
+		# Use some file that always exists, e.g. from MediaWiki itself
+		global $wgStyleDirectory;
+		$SOURCE_FILENAME = "$wgStyleDirectory/common/images/wiki.png";
+
+		$url = $this->getScriptPath() .
+			'/index.php?title=Special:Upload&uselang=qqx';
+		$req = $this->makeHttpRequest($url, 'POST');
+
+		$req->setHeader('Content-Type', 'multipart/form-data');
+		$req->setData(array(
+			'wpUploadFile' => '@' . $SOURCE_FILENAME,
+			'wpDestFile' => 'Test file 1.png',
+			'wpIgnoreWarning' => '1',
+			'wpEditToken' => $this->editToken,
+			'wpUpload' => 'Upload'
+		));
+
+		$status = $req->execute();
+		if(!$status->isOK())
+		{
+			# HTTP error found.
+			# Braces '(', ')' are needed so that return value would
+			# have the same format as in HTML output below.
+
+			return '(' . $status->errors[0]['message'] . ')';
+		}
+		$text = $req->getContent();
+
+		if($req->getResponseHeader('Location'))
+			return null; # No errors
+
+		$html = DOMDocument::loadHTML($text);
+		$divs = $html->getElementsByTagName('div');
+
+		foreach($divs as $div)
+		{
+			# Note: the message can have parameters,
+			# so we won't remove the braces around it.
+
+			if($div->getAttribute('class') == 'error')
+				return $div->textContent; /* Error found */
+		}
+
+		return null; # No errors
 	}
 }
 
