@@ -132,45 +132,42 @@ class SpecialModeration extends QueryPage {
 
 		# Some action was requested
 
+		$class = null;
 		switch($action)
 		{
 			case 'showimg':
-				$A = new ModerationActionShowImage($this);
-				$A->run();
+				$class = 'ModerationActionShowImage';
 				break;
 
 			case 'show':
-				$A = new ModerationActionShow($this);
-				$A->run();
+				$class = 'ModerationActionShow';
 				break;
 
 			case 'approve':
 			case 'approveall':
-				$A = new ModerationActionApprove($this);
-				$A->run();
+				$class = 'ModerationActionApprove';
 				break;
 
 			case 'reject':
 			case 'rejectall':
-				$A = new ModerationActionReject($this);
-				$A->run();
+				$class = 'ModerationActionReject';
 				break;
 
 			case 'merge':
-				$A = new ModerationActionMerge($this);
-				$A->run();
+				$class = 'ModerationActionMerge';
 				break;
 
 			case 'block':
 			case 'unblock':
-				$A = new ModerationActionBlock($this);
-				$A->run();
-				break;
-
-			default:
-				$out->addWikiMsg('moderation-unknown-modaction');
-				break;
+				$class = 'ModerationActionBlock';
 		}
+
+		if(!$class) {
+			throw new ErrorPageError('moderation', 'moderation-unknown-modaction');
+		}
+
+		$A = new $class($this);
+		$A->run();
 	}
 
 	function getOrderFields() {

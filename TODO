@@ -4,7 +4,6 @@ Medium-prio:
 * (testsuite) Provide ~100% automated test coverage of all functionality.
 
 Low-prio:
-* (refactoring) Shorten "switch($action)" in SpecialModeration/execute().
 * (refactoring) Replace getUserpageByModId() with something more logical.
 * (feature) Intercept renaming of pages.
 
