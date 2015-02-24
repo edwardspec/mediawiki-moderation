@@ -53,19 +53,33 @@ class ModerationTestShow extends MediaWikiTestCase
 
 		$added_lines = array();
 		$deleted_lines = array();
+		$context_lines = array();
 
 		$html = $t->lastFetchedDocument;
 		$table_cells = $html->getElementsByTagName('td');
 		foreach($table_cells as $td)
 		{
 			$class = $td->getAttribute('class');
+			$text = $td->textContent;
+
 			if($class == 'diff-addedline') {
-				$added_lines[] = $td->textContent;
+				$added_lines[] = $text;
 			}
 			else if($class == 'diff-deletedline') {
-				$deleted_lines[] = $td->textContent;
+				$deleted_lines[] = $text;
+			}
+			else if($class == 'diff-context') {
+				$context_lines[] = $text;
 			}
 		}
+
+		# Each context line is shown twice: in Before and After columns
+		$this->assertCount(4, $context_lines,
+			"testShow(): Two lines were unchanged, but number of context lines on the difference page is not 4");
+		$this->assertEquals('First string', $context_lines[0]);
+		$this->assertEquals('First string', $context_lines[1]);
+		$this->assertEquals('Third string', $context_lines[2]);
+		$this->assertEquals('Third string', $context_lines[3]);
 
 		$this->assertCount(1, $added_lines,
 			"testShow(): One line was modified, but number of added lines on the difference page is not 1");
