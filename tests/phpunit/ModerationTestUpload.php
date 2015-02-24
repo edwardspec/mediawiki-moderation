@@ -40,13 +40,39 @@ class ModerationTestUpload extends MediaWikiTestCase
 		$error = $t->doTestUpload();
 		$t->fetchSpecialAndDiff();
 
+		# Was the upload queued for moderation?
 		$this->assertEquals('(moderation-image-queued)', $error);
 
+		# Is the data on Special:Moderation correct?
+		$entry = $t->new_entries[0];
 		$this->assertCount(1, $t->new_entries,
 			"testUpload(): One upload was queued for moderation, but number of added entries in Pending folder isn't 1");
 		$this->assertCount(0, $t->deleted_entries,
 			"testUpload(): Something was deleted from Pending folder during the queueing");
-		$this->assertEquals($t->lastEdit['User'], $t->new_entries[0]->user);
-		$this->assertEquals($t->lastEdit['Title'], $t->new_entries[0]->title);
+		$this->assertEquals($t->lastEdit['User'], $entry->user);
+		$this->assertEquals($t->lastEdit['Title'], $entry->title);
+
+		# Can we approve this upload?
+		$this->assertNotNull($entry->approveLink,
+			"testUpload(): Approve link not found");
+
+		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
+		$this->assertTrue($req->execute()->isOK());
+
+		/* TODO: check $req->getContent() */
+
+		# Has the file been uploaded after the approval?
+		$ret = $t->query(array(
+			'action' => 'query',
+			'prop' => 'imageinfo',
+			'iilimit' => 1,
+			'iiprop' => 'user|timestamp|comment|size|url',
+			'titles' => $entry->title
+		));
+		$ret_page = array_shift($ret['query']['pages']);
+		$ii = $ret_page['imageinfo'][0];
+
+		$this->assertEquals($t->lastEdit['User'], $ii['user']);
+		$this->assertEquals($t->lastEdit['Text'], $ii['comment']);
 	}
 }
