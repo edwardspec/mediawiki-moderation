@@ -110,6 +110,8 @@ class ModerationTestsuite
 	public $new_entries;
 	public $deleted_entries;
 
+	public $lastFetchedDocument = null; # DOMDocument
+
 	public function getSpecialURL()
 	{
 		global $wgServer, $wgScriptPath;
@@ -149,6 +151,7 @@ class ModerationTestsuite
 		}
 
 		$this->lastFetchedSpecial[$folder] = $entries;
+		$this->lastFetchedDocument = $html;
 		return $entries;
 	}
 	public function fetchSpecialAndDiff($folder = 'DEFAULT')
@@ -168,6 +171,7 @@ class ModerationTestsuite
 			return null;
 
 		$html = DOMDocument::loadHTML($req->getContent());
+		$this->lastFetchedDocument = $html;
 		return $html->getElementsByTagName('title')->item(0)->textContent;
 	}
 
@@ -240,12 +244,14 @@ class ModerationTestsuite
 		$this->t_loggedInAs = $user;
 	}
 
-	public function doTestEdit($title = null)
+	public function doTestEdit($title = null, $text = null)
 	{
 		if(!$title)
 			$title = $this->generateRandomTitle();
 
-		$text = $this->generateRandomText();
+		if(!$text)
+			$text = $this->generateRandomText();
+
 		$summary = $this->generateEditSummary();
 
 		# TODO: ensure that page $title doesn't already contain $text
