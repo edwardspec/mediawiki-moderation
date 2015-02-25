@@ -70,21 +70,25 @@ class ModerationActionShowImage extends ModerationAction {
 		}
 		else
 		{
-			$thumb_path = null;
-			$thumb_file = null;
-
+			$file_new = null;
+	
 			$thumb = $file->transform(array('width' => 320), File::RENDER_NOW);
 			if($thumb)
 			{
-				$path = $thumb->getStoragePath();
-				if($path)
-				{
-					$file_new = new UnregisteredLocalFile(
-						false,
-						$stash->repo,
-						$thumb->getStoragePath(),
-						false
-					);
+				if($thumb->fileIsSource()) {
+					$file_new = $file;
+				}
+				else {
+					$path = $thumb->getStoragePath();
+					if($path)
+					{
+						$file_new = new UnregisteredLocalFile(
+							false,
+							$stash->repo,
+							$thumb->getStoragePath(),
+							false
+						);
+					}
 				}
 			}
 
