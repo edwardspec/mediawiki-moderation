@@ -363,6 +363,7 @@ class ModerationTestsuite
 		$this->lastEdit['User'] = $this->loggedInAs()->getName();
 		$this->lastEdit['Title'] =
 			Title::newFromText($title, NS_FILE)->getFullText();
+		$this->lastEdit['SHA1'] = sha1_file($SOURCE_FILENAME);
 
 		if($req->getResponseHeader('Location'))
 			return null; # No errors

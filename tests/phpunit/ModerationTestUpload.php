@@ -66,7 +66,7 @@ class ModerationTestUpload extends MediaWikiTestCase
 			'action' => 'query',
 			'prop' => 'imageinfo',
 			'iilimit' => 1,
-			'iiprop' => 'user|timestamp|comment|size|url',
+			'iiprop' => 'user|timestamp|comment|size|url|sha1',
 			'titles' => $entry->title
 		));
 		$ret_page = array_shift($ret['query']['pages']);
@@ -74,5 +74,6 @@ class ModerationTestUpload extends MediaWikiTestCase
 
 		$this->assertEquals($t->lastEdit['User'], $ii['user']);
 		$this->assertEquals($t->lastEdit['Text'], $ii['comment']);
+		$this->assertEquals($t->lastEdit['SHA1'], $ii['sha1']);
 	}
 }
