@@ -88,4 +88,22 @@ class ModerationTestShow extends MediaWikiTestCase
 		$this->assertEquals('Another second string', $added_lines[0]);
 		$this->assertEquals('Second string', $deleted_lines[0]);
 	}
+
+	public function testShowUpload() {
+		$t = new ModerationTestsuite();
+
+		$t->fetchSpecial();
+		$t->loginAs($t->unprivilegedUser);
+		$error = $t->doTestUpload();
+		$t->fetchSpecialAndDiff();
+
+		$url = $t->new_entries[0]->showLink;
+		$this->assertNotNull($url,
+			"testShow(): Show link not found");
+		$url .= '&uselang=qqx'; # Show message IDs instead of text
+		$title = $t->getHtmlTitleByURL($url);
+
+		$this->assertRegExp('/\(difference-title: ' . $t->lastEdit['Title'] . '\)/', $title,
+			"testShowUpload(): Difference page has a wrong HTML title");
+	}
 }
