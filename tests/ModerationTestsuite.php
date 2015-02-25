@@ -207,6 +207,7 @@ class ModerationTestsuite
 		$dbw->delete('revision', array('1'), __METHOD__);
 		$dbw->delete('logging', array('1'), __METHOD__);
 		$dbw->delete('text', array('1'), __METHOD__);
+		$dbw->delete('image', array('1'), __METHOD__);
 
 		$this->moderator =
 			$this->createTestUser('User 1', array('moderator', 'automoderated'));
