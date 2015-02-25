@@ -562,7 +562,7 @@ class ModerationTestsuiteEntry
 	/**
 		@brief Returns the URL of modaction=showimg.
 	*/
-	public function getShowImgLink()
+	public function expectedShowImgLink()
 	{
 		if(!$this->showLink)
 			return null;

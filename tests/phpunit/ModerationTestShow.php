@@ -97,13 +97,48 @@ class ModerationTestShow extends MediaWikiTestCase
 		$error = $t->doTestUpload();
 		$t->fetchSpecialAndDiff();
 
-		$url = $t->new_entries[0]->showLink;
+		$entry = $t->new_entries[0];
+		$url = $entry->showLink;
 		$this->assertNotNull($url,
-			"testShow(): Show link not found");
+			"testShowUpload(): Show link not found");
 		$url .= '&uselang=qqx'; # Show message IDs instead of text
 		$title = $t->getHtmlTitleByURL($url);
 
 		$this->assertRegExp('/\(difference-title: ' . $t->lastEdit['Title'] . '\)/', $title,
 			"testShowUpload(): Difference page has a wrong HTML title");
+
+		# Is the image thumbnail displayed on the difference page?
+		$html = $t->lastFetchedDocument;
+		$images = $html->getElementsByTagName('img');
+
+		$thumb = null;
+		$src = null;
+		foreach($images as $img)
+		{
+			$src = $img->getAttribute('src');
+			if(strpos($src, 'modaction=showimg') != false)
+			{
+				$thumb = $img;
+				break;
+			}
+		}
+
+		$this->assertNotNull($thumb,
+			"testShowUpload(): Thumbnail image not found");
+		$this->assertRegExp('/thumb=1/', $src,
+			"testShowUpload(): Thumbnail image URL doesn't contain thumb=1");
+
+		# Is the image thumbnail inside the link to the full image?
+		$link = $thumb->parentNode;
+		$this->assertEquals('a', $link->nodeName,
+			"testShowUpload(): Thumbnail image isn't encased in <a> tag");
+
+		$href = $link->getAttribute('href');
+		$this->assertEquals($entry->expectedShowImgLink(), $href,
+			"testShowUpload(): Full image URL doesn't match expected URL");
+
+		$nonthumb_src = str_replace('&thumb=1', '', $src);
+		$this->assertEquals($nonthumb_src, $href,
+			"testShowUpload(): Full image URL doesn't match thumbnail image URL without '&thumb=1'");
 	}
 }
