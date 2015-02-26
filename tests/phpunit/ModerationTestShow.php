@@ -144,14 +144,13 @@ class ModerationTestShow extends MediaWikiTestCase
 		$req = $t->makeHttpRequest($href, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
-		/* TODO: check $req->getContent() */
-
 		$this->assertEquals($t->lastEdit['SHA1'], sha1($req->getContent()),
 			"testShowUpload(): Checksum of image downloaded via modaction=showimg doesn't match the checksum of original image");
 
 		/* TODO: check the thumbnail's width */
 
-		/* TODO: run the test on two images -
-			one smaller than requested thumbnail's width, one larger */
+		/* TODO: run the test on two images - one smaller than
+			requested thumbnail's width, one larger, because they
+			are handled differently in ModerationActionShowImage.php */
 	}
 }
