@@ -137,14 +137,12 @@ class ModerationTestApprove extends MediaWikiTestCase
 		# So let's reject some edits and check...
 		
 		$approveAllLink = $t->new_entries[0]->approveAllLink;
-		for($i = 0; $i < $t->TEST_EDITS_COUNT; $i ++)
+
+		# Odd edits are rejected, even edits are accepted.
+		for($i = 1; $i < $t->TEST_EDITS_COUNT; $i += 2)
 		{
-			# Odd edits are rejected, even edits are accepted
-			if($i % 2 == 1)
-			{
-				$req = $t->makeHttpRequest($t->new_entries[$i]->rejectLink, 'GET');
-				$this->assertTrue($req->execute()->isOK());
-			}
+			$req = $t->makeHttpRequest($t->new_entries[$i]->rejectLink, 'GET');
+			$this->assertTrue($req->execute()->isOK());
 		}
 
 		$t->fetchSpecial('rejected');
