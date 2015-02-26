@@ -123,6 +123,38 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 			$this->assertEquals($t->unprivilegedUser->getName(), $rev['user']);
 		}
+	}
+	
+	public function testApproveAllNotRejected() {
+		$t = new ModerationTestsuite();
+		
+		$t->fetchSpecial();
+		$t->TEST_EDITS_COUNT = 10;
+		$t->doNTestEditsWith($t->unprivilegedUser);
+		$t->fetchSpecialAndDiff();
+		
+		# Already rejected edits must not be affected by ApproveAll.
+		# So let's reject some edits and check...
+		
+		$approveAllLink = $t->new_entries[0]->approveAllLink;
+		for($i = 0; $i < $t->TEST_EDITS_COUNT; $i ++)
+		{
+			# Odd edits are rejected, even edits are accepted
+			if($i % 2 == 1)
+			{
+				$req = $t->makeHttpRequest($t->new_entries[$i]->rejectLink, 'GET');
+				$this->assertTrue($req->execute()->isOK());
+			}
+		}
 
+		$t->fetchSpecial('rejected');
+		$req = $t->makeHttpRequest($approveAllLink, 'GET');
+		$this->assertTrue($req->execute()->isOK());
+		$t->fetchSpecialAndDiff('rejected');
+		
+		$this->assertCount(0, $t->new_entries,
+			"testApproveAllNotRejected(): Something was added into Rejected folder during modaction=approveall");
+		$this->assertCount(0, $t->deleted_entries,
+			"testApproveAllNotRejected(): Something was deleted from Rejected folder during modaction=approveall");
 	}
 }
