@@ -81,7 +81,7 @@ class ModerationTestTokens extends MediaWikiTestCase
 			$this->assertNotRegExp('/\(sessionfailure-title\)/', $title);
 		}
 
-		# Note: modaction=showimg should be checked in ShowImg test,
+		# Note: modaction=showimg is checked in ShowUpload test,
 		# because its output is different. Tokens test is not the
 		# best place for action-specific assumptions.
 	}
