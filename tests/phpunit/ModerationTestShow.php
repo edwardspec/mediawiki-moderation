@@ -43,8 +43,12 @@ class ModerationTestShow extends MediaWikiTestCase
 		$t->fetchSpecialAndDiff();
 
 		$url = $t->new_entries[0]->showLink;
+		
 		$this->assertNotNull($url,
 			"testShow(): Show link not found");
+		$this->assertNotRegExp('/token=/', $url,
+				"testShow(): Token was found in the read-only Show link");
+			
 		$url .= '&uselang=qqx'; # Show message IDs instead of text
 		$title = $t->getHtmlTitleByURL($url);
 

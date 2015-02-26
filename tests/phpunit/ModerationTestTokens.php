@@ -43,6 +43,7 @@ class ModerationTestTokens extends MediaWikiTestCase
 			$entry->rejectAllLink,
 			$entry->blockLink,
 			$entry->unblockLink
+			# TODO: check mergeLink
 		);
 		foreach($links as $url)
 		{
@@ -68,21 +69,5 @@ class ModerationTestTokens extends MediaWikiTestCase
 			$this->assertCount(0, $t->new_entries);
 			$this->assertCount(0, $t->deleted_entries);
 		}
-
-		# Show link must work without a token.
-		$links = array($entry->showLink);
-		foreach($links as $url)
-		{
-			$url .= '&uselang=qqx'; # Show message IDs instead of text
-			$title = $t->getHtmlTitleByURL($url);
-
-			$this->assertNotRegExp('/token=/', $url,
-				"testTokens(): Token was found in the read-only Show link");
-			$this->assertNotRegExp('/\(sessionfailure-title\)/', $title);
-		}
-
-		# Note: modaction=showimg is checked in ShowUpload test,
-		# because its output is different. Tokens test is not the
-		# best place for action-specific assumptions.
 	}
 }
