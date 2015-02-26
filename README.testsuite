@@ -47,7 +47,8 @@ for i in extensions/Moderation/tests/phpunit/*.php; do tests/phpunit/phpunit.php
 	1) the page is indeed modified when Approve is clicked,
 	2) the newly approved edit is removed from Special:Moderation,
 	3) all pending edits of the same user are approved by Approveall,
-	4) edits of other users are unaffected by Approveall.
+	4) edits of other users are unaffected by Approveall,
+	5) rejected edits are unaffected by Approveall.
 
 4. [ModerationTestReject.php]
 	Answers the question: "Does the Reject(all) link work as expected?"
@@ -67,14 +68,19 @@ for i in extensions/Moderation/tests/phpunit/*.php; do tests/phpunit/phpunit.php
 	Answers the question: "Are the tokens required on Special:Moderation?"
 	Here we check that
 	1) non-readonly actions don't work without a token,
-	2) non-readonly actions don't work with incorrect token,
-	3) Show link doesn't have a token and works without it.
+	2) non-readonly actions don't work with incorrect token.
 
 7. [ModerationTestShow.php]
 	Answers the question: "Does the Show link work as expected?"
 	Here we check that
-	1) Show link opens a difference page with a correct HTML title,
-	2) added, deleted and context lines on the difference page are correct.
+	1) Show link doesn't have a token and works without it,
+	2) Show link opens a difference page with a correct HTML title,
+	3) added, deleted and context lines on the difference page are correct,
+	4) correct thumbnail image is shown for uploads,
+	5) ShowImage URL doesn't have a token,
+	6) thumbnail image is wrapped in a link to the full image,
+	7) content-type and checksum of the full image are correct.
+	
 
 == Writing new tests ==
 
