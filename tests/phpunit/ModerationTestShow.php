@@ -141,7 +141,7 @@ class ModerationTestShow extends MediaWikiTestCase
 		$this->assertEquals($nonthumb_src, $href,
 			"testShowUpload(): Full image URL doesn't match thumbnail image URL without '&thumb=1'");
 
-		$this->assertNotRegExp('/token=[^&]*/', $href,
+		$this->assertNotRegExp('/token=/', $href,
 				"testTokens(): Token was found in the read-only ShowImage link");
 
 		$req = $t->makeHttpRequest($href, 'GET');
