@@ -147,6 +147,9 @@ class ModerationTestShow extends MediaWikiTestCase
 		$req = $t->makeHttpRequest($href, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
+		$this->assertEquals('image/png', $req->getResponseHeader('Content-Type'),
+			"testShowUpload: Wrong Content-Type header from modaction=showimg");
+
 		$this->assertEquals($t->lastEdit['SHA1'], sha1($req->getContent()),
 			"testShowUpload(): Checksum of image downloaded via modaction=showimg doesn't match the checksum of original image");
 
