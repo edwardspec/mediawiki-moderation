@@ -22,6 +22,8 @@
 
 class ModerationActionShowImage extends ModerationAction {
 
+	const THUMB_WIDTH = 320;
+
 	public function requiresEditToken() {
 		return false;
 	}
@@ -72,7 +74,7 @@ class ModerationActionShowImage extends ModerationAction {
 		{
 			$file_new = null;
 	
-			$thumb = $file->transform(array('width' => 320), File::RENDER_NOW);
+			$thumb = $file->transform(array('width' => self::THUMB_WIDTH), File::RENDER_NOW);
 			if($thumb)
 			{
 				if($thumb->fileIsSource()) {
