@@ -329,21 +329,24 @@ class ModerationTestsuite
 		@returns MediaWiki error message code (e.g. "(emptyfile)").
 		@retval null Upload succeeded (no errors found).
 	*/
-	public function doTestUpload($title = null)
+	public function doTestUpload($title = null, $source_filename = null)
 	{
 		if(!$title)
 			$title = $this->generateRandomTitle() . '.png';
-
 		$text = $this->generateRandomText();
 
-		$SOURCE_FILENAME = __DIR__ . "/resources/sample_image.png";
+		if(!$source_filename) {
+			$source_filename = __DIR__ . "/resources/image100x100.png";
+		}
+		$source_filename = realpath($source_filename);
+
 		$url = $this->getScriptPath() .
 			'/index.php?title=Special:Upload&uselang=qqx';
 		$req = $this->makeHttpRequest($url, 'POST');
 
 		$req->setHeader('Content-Type', 'multipart/form-data');
 		$req->setData(array(
-			'wpUploadFile' => '@' . $SOURCE_FILENAME,
+			'wpUploadFile' => '@' . $source_filename,
 			'wpDestFile' => $title,
 			'wpIgnoreWarning' => '1',
 			'wpEditToken' => $this->editToken,
@@ -366,7 +369,8 @@ class ModerationTestsuite
 		$this->lastEdit['User'] = $this->loggedInAs()->getName();
 		$this->lastEdit['Title'] =
 			Title::newFromText($title, NS_FILE)->getFullText();
-		$this->lastEdit['SHA1'] = sha1_file($SOURCE_FILENAME);
+		$this->lastEdit['SHA1'] = sha1_file($source_filename);
+		$this->lastEdit['Source'] = $source_filename;
 
 		if($req->getResponseHeader('Location'))
 			return null; # No errors

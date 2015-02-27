@@ -93,12 +93,26 @@ class ModerationTestShow extends MediaWikiTestCase
 		$this->assertEquals('Second string', $deleted_lines[0]);
 	}
 
+	/**
+		@covers ModerationActionShowImage
+		@requires extension curl
+		@note Only cURL version of MWHttpRequest supports uploads.
+	*/
 	public function testShowUpload() {
 		$t = new ModerationTestsuite();
 
+		/*
+			When testing thumbnails, we check two images -
+			one smaller than thumbnail's width, one larger,
+			because they are handled differently.
+
+			First test is on image640x50.png (large image),
+			second on image100x100.png (smaller image).
+		*/
+
 		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
-		$error = $t->doTestUpload();
+		$error = $t->doTestUpload("Test image 1.png", __DIR__ . "/../resources/image640x50.png");
 		$t->fetchSpecialAndDiff();
 
 		$entry = $t->new_entries[0];
@@ -164,19 +178,50 @@ class ModerationTestShow extends MediaWikiTestCase
 
 		# Content-type check will catch HTML errors from StreamFile
 		$this->assertRegExp('/^image\//', $req->getResponseHeader('Content-Type'),
-			"testShowUpload(): Wrong Content-Type header from modaction=showimg&thumb=1");
+			"testShowUpload(640x50): Wrong Content-Type header from modaction=showimg&thumb=1");
 
+		list($original_width, $original_height) = getimagesize($t->lastEdit['Source']);
+		list($width, $height) = getImageSizeFromString($req->getContent());
+
+		$orig_ratio = round($original_width / $original_height, 2);
+		$ratio = round($width / $height, 2);
+
+		# As this image is larger than THUMB_WIDTH,
+		# its thumbnail must be exactly THUMB_WIDTH wide.
+		$this->assertEquals(ModerationActionShowImage::THUMB_WIDTH, $width,
+			"testShowUpload(): Thumbnail's width doesn't match expected");
+
+		$this->assertEquals($orig_ratio, $ratio,
+			"testShowUpload(): Thumbnail's ratio doesn't match original");
+
+		# Check the thumbnail of image smaller than THUMB_WIDTH.
+		# Its thumbnail must be exactly the same size as original image.
+		$t->fetchSpecial();
+		$t->loginAs($t->unprivilegedUser);
+		$t->doTestUpload("Test image 2.png", __DIR__ . "/../resources/image100x100.png");
+		$t->fetchSpecialAndDiff();
+
+		$req = $t->makeHttpRequest($t->new_entries[0]->expectedShowImgLink(), 'GET');
+		$this->assertTrue($req->execute()->isOK());
+
+		list($original_width, $original_height) = getimagesize($t->lastEdit['Source']);
+		list($width, $height) = getImageSizeFromString($req->getContent());
+
+		$this->assertRegExp('/^image\//', $req->getResponseHeader('Content-Type'),
+			"testShowUpload(100x100): Wrong Content-Type header from modaction=showimg&thumb=1");
+
+		$this->assertEquals($original_width, $width,
+			"testShowUpload(): Original image is smaller than THUMB_WIDTH, but thumbnail width doesn't match the original width");
+		$this->assertEquals($original_height, $height,
+			"testShowUpload(): Original image is smaller than THUMB_WIDTH, but thumbnail height doesn't match the original height");
+	}
+
+	private function getImageSizeFromString($content) {
 		$path = tempnam(sys_get_temp_dir(), 'modtest_thumb');
-		file_put_contents($path, $req->getContent());
-		list($width, $height) = getimagesize($path);
+		file_put_contents($path, $content);
+		$size = getimagesize($path);
 		unlink($path);
 
-		/* TODO: run the test on two images - one smaller than
-			requested thumbnail's width, one larger, because they
-			are handled differently in ModerationActionShowImage.php */
-
-		$this->assertLessThanOrEqual(ModerationActionShowImage::THUMB_WIDTH,
-			$width,
-			"testShowUpload(): Thumbnail is larger than expected");
+		return $size;
 	}
 }
