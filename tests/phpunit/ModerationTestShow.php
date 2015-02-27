@@ -146,21 +146,37 @@ class ModerationTestShow extends MediaWikiTestCase
 			"testShowUpload(): Full image URL doesn't match thumbnail image URL without '&thumb=1'");
 
 		$this->assertNotRegExp('/token=/', $href,
-				"testTokens(): Token was found in the read-only ShowImage link");
+				"testShowUpload(): Token was found in the read-only ShowImage link");
 
+		# Check the full image
 		$req = $t->makeHttpRequest($href, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
 		$this->assertEquals('image/png', $req->getResponseHeader('Content-Type'),
-			"testShowUpload: Wrong Content-Type header from modaction=showimg");
+			"testShowUpload(): Wrong Content-Type header from modaction=showimg");
 
 		$this->assertEquals($t->lastEdit['SHA1'], sha1($req->getContent()),
 			"testShowUpload(): Checksum of image downloaded via modaction=showimg doesn't match the checksum of original image");
 
-		/* TODO: check the thumbnail's width */
+		# Check the thumbnail
+		$req = $t->makeHttpRequest($src, 'GET');
+		$this->assertTrue($req->execute()->isOK());
+
+		# Content-type check will catch HTML errors from StreamFile
+		$this->assertRegExp('/^image\//', $req->getResponseHeader('Content-Type'),
+			"testShowUpload(): Wrong Content-Type header from modaction=showimg&thumb=1");
+
+		$path = tempnam(sys_get_temp_dir(), 'modtest_thumb');
+		file_put_contents($path, $req->getContent());
+		list($width, $height) = getimagesize($path);
+		unlink($path);
 
 		/* TODO: run the test on two images - one smaller than
 			requested thumbnail's width, one larger, because they
 			are handled differently in ModerationActionShowImage.php */
+
+		$this->assertLessThanOrEqual(ModerationActionShowImage::THUMB_WIDTH,
+			$req->getResponseHeader('Content-Type'),
+			"testShowUpload(): Thumbnail is larger than expected");
 	}
 }
