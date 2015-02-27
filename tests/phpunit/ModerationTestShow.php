@@ -176,7 +176,7 @@ class ModerationTestShow extends MediaWikiTestCase
 			are handled differently in ModerationActionShowImage.php */
 
 		$this->assertLessThanOrEqual(ModerationActionShowImage::THUMB_WIDTH,
-			$req->getResponseHeader('Content-Type'),
+			$width,
 			"testShowUpload(): Thumbnail is larger than expected");
 	}
 }
