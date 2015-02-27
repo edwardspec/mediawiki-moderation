@@ -34,6 +34,8 @@ class ModerationActionShow extends ModerationAction {
 		$dbr = wfGetDB( DB_SLAVE );
 		$row = $dbr->selectRow( 'moderation',
 			array(
+				'mod_user AS user',
+				'mod_user_text AS user_text',
 				'mod_last_oldid AS last_oldid',
 				'mod_cur_id AS cur_id',
 				'mod_namespace AS namespace',
@@ -77,12 +79,42 @@ class ModerationActionShow extends ModerationAction {
 				'modid' => $this->id
 			);
 			$url_full = $this->mSpecial->getTitle()->getLinkURL($url_params);
-			$url_params['thumb'] = 1;
-			$url_thumb = $this->mSpecial->getTitle()->getLinkURL($url_params);
 
-			$html_img = Xml::element('img', array(
-				'src' => $url_thumb
-			));
+			# Check if this file is not an image (e.g. OGG file)
+			$is_image = 1;
+
+			$user = $row->user ?
+				User::newFromId($row->user) :
+				User::newFromName($row->user_text, false);
+			$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash($user);
+
+			try {
+				$meta = $stash->getMetadata($row->stash_key);
+
+				if($meta['us_media_type'] != 'BITMAP' &&
+					$meta['us_media_type'] != 'DRAWING')
+				{
+					$is_image = 0;
+				}
+
+			} catch(MWException $e) {
+				# If we can't find it, thumbnail won't work either
+				$is_image = 0;
+			}
+
+			if($is_image) {
+				$url_params['thumb'] = 1;
+				$url_thumb = $this->mSpecial->getTitle()->getLinkURL($url_params);
+				$html_img = Xml::element('img', array(
+					'src' => $url_thumb
+				));
+			}
+			else {
+				# Not an image, so no thumbnail is needed.
+				# Just print a filename.
+				$html_img = $title->getFullText();
+			}
+
 			$html_a = Xml::tags('a', array(
 				'href' => $url_full
 			), $html_img);
