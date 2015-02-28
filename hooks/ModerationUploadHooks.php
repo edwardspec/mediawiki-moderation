@@ -21,9 +21,8 @@
 */
 
 class ModerationUploadHooks {
-	/*
-		wfModerationUploadVerifyFile()
-		Intercept image uploads and queue them for moderation.
+	/**
+		@brief Intercept image uploads and queue them for moderation.
 	*/
 	static public function onUploadVerifyFile($upload, $mime, &$status)
 	{
