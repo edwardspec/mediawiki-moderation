@@ -52,7 +52,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$t->fetchSpecialAndDiff();
 
 		$this->assertCount(0, $t->new_entries, "testApprove(): Something was added into Pending folder during modaction=accept");
-		$this->assertCount(1, $t->deleted_entries, "testApprove(): One edit was accepted, but number of deleted entries in Pending folder isn't 1");
+		$this->assertCount(1, $t->deleted_entries, "testApprove(): One edit was approved, but number of deleted entries in Pending folder isn't 1");
 		$this->assertEquals($entry->id, $t->deleted_entries[0]->id);
 		$this->assertEquals($t->lastEdit['User'], $t->deleted_entries[0]->user);
 		$this->assertEquals($t->lastEdit['Title'], $t->deleted_entries[0]->title);
@@ -121,7 +121,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		
 		$approveAllLink = $t->new_entries[0]->approveAllLink;
 
-		# Odd edits are rejected, even edits are accepted.
+		# Odd edits are rejected, even edits are approved.
 		for($i = 1; $i < $t->TEST_EDITS_COUNT; $i += 2)
 		{
 			$req = $t->makeHttpRequest($t->new_entries[$i]->rejectLink, 'GET');
@@ -152,9 +152,18 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$this->assertTrue($req->execute()->isOK());
 		$t->fetchSpecialAndDiff('rejected');
 
-		$this->assertNotNull($t->new_entries[0]->approveLink,
+		$entry = $t->new_entries[0];
+		$this->assertNotNull($entry->approveLink,
 			"testApproveRejected(): Approve link not found");
-		$this->tryToApprove($t, $t->new_entries[0]);
+		$this->tryToApprove($t, $entry);
+
+		$t->fetchSpecialAndDiff('rejected');
+
+		$this->assertCount(0, $t->new_entries, "testApproveRejected(): Something was added into Rejected folder during modaction=accept");
+		$this->assertCount(1, $t->deleted_entries, "testApproveRejected(): One rejected edit was approved, but number of deleted entries in Rejected folder isn't 1");
+		$this->assertEquals($entry->id, $t->deleted_entries[0]->id);
+		$this->assertEquals($t->lastEdit['User'], $t->deleted_entries[0]->user);
+		$this->assertEquals($t->lastEdit['Title'], $t->deleted_entries[0]->title);
 	}
 
 	/* TODO: $wgModerationTimeToOverrideRejection check */
