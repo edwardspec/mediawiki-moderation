@@ -67,15 +67,13 @@ class ModerationActionShowImage extends ModerationAction {
 		}
 
 		$is_thumb = $this->mSpecial->getRequest()->getVal('thumb');
-		$file_is_source = false;
-
 		if($is_thumb)
 		{
 			$thumb = $file->transform(array('width' => self::THUMB_WIDTH), File::RENDER_NOW);
 			if($thumb)
 			{
 				if($thumb->fileIsSource()) {
-					$file_is_source = true;
+					$is_thumb = false;
 				}
 				else {
 					$file = new UnregisteredLocalFile(
@@ -93,7 +91,7 @@ class ModerationActionShowImage extends ModerationAction {
 		}
 
 		$thumb_filename = '';
-		if($thumb && !$file_is_source) {
+		if($is_thumb) {
 			$thumb_filename .= $file->getWidth() .  'px-';
 		}
 		$thumb_filename .= $row->title;
