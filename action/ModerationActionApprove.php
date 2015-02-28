@@ -33,9 +33,9 @@ class ModerationActionApprove extends ModerationAction {
 	{
 		global $wgHooks;
 
-		# Just a precaution: disable moderation hook (wfModerationPageContentSave)
-		# in case moderator is for some reason not automoderated.
-		$hook_key = array_search('wfModerationPageContentSave', $wgHooks['PageContentSave']);
+		# Just a precaution: disable moderation hook in case moderator
+		# is for some reason not automoderated.
+		$hook_key = array_search('ModerationEditHooks::onPageContentSave', $wgHooks['PageContentSave']);
 		unset($wgHooks['PageContentSave'][$hook_key]);
 	}
 
