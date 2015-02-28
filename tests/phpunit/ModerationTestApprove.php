@@ -17,7 +17,7 @@
 
 /**
 	@file
-	@brief Verifies that modaction=approve works as expected.
+	@brief Verifies that modaction=approve(all) works as expected.
 */
 
 require_once(__DIR__ . "/../ModerationTestsuite.php");
@@ -39,24 +39,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$this->assertNotNull($entry->approveLink,
 			"testApprove(): Approve link not found");
 
-		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
-		$this->assertTrue($req->execute()->isOK());
-
-		/* TODO: check $req->getContent() */
-
-		$ret = $t->query(array(
-			'action' => 'query',
-			'prop' => 'revisions',
-			'rvlimit' => 1,
-			'rvprop' => 'user|timestamp|comment|content',
-			'titles' => $entry->title
-		));
-		$ret_page = array_shift($ret['query']['pages']);
-		$rev = $ret_page['revisions'][0];
-
-		$this->assertEquals($t->lastEdit['User'], $rev['user']);
-		$this->assertEquals($t->lastEdit['Text'], $rev['*']);
-		$this->assertEquals($t->lastEdit['Summary'], $rev['comment']);
+		$this->tryToApprove($t, $entry);
 
 		/*
 			NOTE: checking 'timestamp' can't be in this test, because
@@ -154,5 +137,47 @@ class ModerationTestApprove extends MediaWikiTestCase
 			"testApproveAllNotRejected(): Something was added into Rejected folder during modaction=approveall");
 		$this->assertCount(0, $t->deleted_entries,
 			"testApproveAllNotRejected(): Something was deleted from Rejected folder during modaction=approveall");
+	}
+
+	public function testApproveRejected() {
+		$t = new ModerationTestsuite();
+
+		$t->fetchSpecial();
+		$t->loginAs($t->unprivilegedUser);
+		$t->doTestEdit();
+		$t->fetchSpecialAndDiff();
+
+		$t->fetchSpecial('rejected');
+		$req = $t->makeHttpRequest($t->new_entries[0]->rejectLink, 'GET');
+		$this->assertTrue($req->execute()->isOK());
+		$t->fetchSpecialAndDiff('rejected');
+
+		$this->assertNotNull($t->new_entries[0]->approveLink,
+			"testApproveRejected(): Approve link not found");
+		$this->tryToApprove($t, $t->new_entries[0]);
+	}
+
+	/* TODO: $wgModerationTimeToOverrideRejection check */
+
+	private function tryToApprove($t, $entry)
+	{
+		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
+		$this->assertTrue($req->execute()->isOK());
+
+		/* TODO: check $req->getContent() */
+
+		$ret = $t->query(array(
+			'action' => 'query',
+			'prop' => 'revisions',
+			'rvlimit' => 1,
+			'rvprop' => 'user|timestamp|comment|content',
+			'titles' => $entry->title
+		));
+		$ret_page = array_shift($ret['query']['pages']);
+		$rev = $ret_page['revisions'][0];
+
+		$this->assertEquals($t->lastEdit['User'], $rev['user']);
+		$this->assertEquals($t->lastEdit['Text'], $rev['*']);
+		$this->assertEquals($t->lastEdit['Summary'], $rev['comment']);
 	}
 }
