@@ -172,6 +172,55 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 	/* TODO: $wgModerationTimeToOverrideRejection check */
 
+	public function testApproveNotExpiredRejected() {
+		global $wgModerationTimeToOverrideRejection;
+		$t = new ModerationTestsuite();
+
+		# Rejected edits can only be approved if they are no older
+		# than $wgModerationTimeToOverrideRejection.
+
+		$t->fetchSpecial();
+		$t->loginAs($t->unprivilegedUser);
+		$t->doTestEdit();
+		$t->fetchSpecialAndDiff();
+
+		$id = $t->new_entries[0]->id;
+
+		$t->fetchSpecial('rejected');
+		$req = $t->makeHttpRequest($t->new_entries[0]->rejectLink, 'GET');
+		$this->assertTrue($req->execute()->isOK());
+
+		/* Modify mod_timestamp to make this edit 1 hour older than
+			allowed by $wgModerationTimeToOverrideRejection. */
+
+		$ts = new MWTimestamp(time());
+		$ts->timestamp->modify('-' . intval($wgModerationTimeToOverrideRejection) . ' seconds');
+		$ts->timestamp->modify('-1 hour'); /* Should NOT be approvable */
+
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->update( 'moderation',
+			array('mod_timestamp' => $ts->getTimestamp(TS_MW)),
+			array('mod_id' => $id),
+			__METHOD__
+		);
+
+		# We need to fetch Special:Moderation again to ensure
+		# that Approve link no longer exists for this entry.
+		$t->cleanFetchedSpecial('rejected');
+		$t->fetchSpecialAndDiff('rejected');
+
+		$entry = $t->new_entries[0];
+		$this->assertNull($entry->approveLink,
+			"testApproveNotExpiredRejected(): Approve link found for edit that was rejected more than $wgModerationTimeToOverrideRejection seconds ago");
+
+		# Ensure that usual approve URL doesn't work:
+		$title = $t->getHtmlTitleByURL(
+			$entry->expectedActionLink('approve'));
+
+		/* TODO: check $title */
+
+	}
+
 	private function tryToApprove($t, $entry)
 	{
 		$req = $t->makeHttpRequest($entry->approveLink, 'GET');

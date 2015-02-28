@@ -128,6 +128,16 @@ class ModerationTestsuite
 		return $url;
 	}
 
+	/**
+		@brief Delete the results of previous fetchSpecial().
+			If fetchSpecialAndDiff() is then called, all entries
+			in this folder will be considered new entries.
+	*/
+	public function cleanFetchedSpecial($folder = 'DEFAULT')
+	{
+		$this->lastFetchedSpecial[$folder] = array();
+	}
+
 	public function fetchSpecial($folder = 'DEFAULT')
 	{
 		$this->loginAs($this->moderator);
@@ -574,5 +584,24 @@ class ModerationTestsuiteEntry
 			return null;
 
 		return preg_replace('/modaction=show/', 'modaction=showimg', $this->showLink);
+	}
+
+	public function expectedActionLink($action, $need_token = true)
+	{
+		$sample = null;
+
+		if($need_token) {
+			/* Either block or unblock link always exists */
+			$sample = $this->blockLink ? $this->blockLink : $this->unblockLink;
+		}
+		else {
+			$sample = $this->showLink; /* Show link always exists */
+		}
+
+		if(!$sample) {
+			return null;
+		}
+
+		return preg_replace('/modaction=(un)?block/', 'modaction=' . $action, $sample);
 	}
 }
