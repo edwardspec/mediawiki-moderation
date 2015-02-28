@@ -576,16 +576,16 @@ class ModerationTestsuiteEntry
 	}
 
 	/**
-		@brief Returns the URL of modaction=showimg.
+		@brief Returns the URL of modaction=showimg for this entry.
 	*/
 	public function expectedShowImgLink()
 	{
-		if(!$this->showLink)
-			return null;
-
-		return preg_replace('/modaction=show/', 'modaction=showimg', $this->showLink);
+		return $this->expectedActionLink('showimg', false);
 	}
 
+	/**
+		@brief Returns the URL of modaction=$action for this entry.
+	*/
 	public function expectedActionLink($action, $need_token = true)
 	{
 		$sample = null;
@@ -602,6 +602,6 @@ class ModerationTestsuiteEntry
 			return null;
 		}
 
-		return preg_replace('/modaction=(un)?block/', 'modaction=' . $action, $sample);
+		return preg_replace('/modaction=(block|unblock|show)/', 'modaction=' . $action, $sample);
 	}
 }
