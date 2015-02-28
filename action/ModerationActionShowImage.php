@@ -97,7 +97,6 @@ class ModerationActionShowImage extends ModerationAction {
 		$thumb_filename .= $row->title;
 
 		$headers = array();
-		$headers[] = 'Content-Transfer-Encoding: binary';
 		$headers[] = "Content-Disposition: " .
 			FileBackend::makeContentDisposition('inline', $thumb_filename);
 
