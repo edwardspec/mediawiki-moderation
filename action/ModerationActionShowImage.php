@@ -42,6 +42,7 @@ class ModerationActionShowImage extends ModerationAction {
 			array(
 				'mod_user AS user',
 				'mod_user_text AS user_text',
+				'mod_title AS title',
 				'mod_stash_key AS stash_key'
 			),
 			array( 'mod_id' => $this->id ),
@@ -66,44 +67,44 @@ class ModerationActionShowImage extends ModerationAction {
 		}
 
 		$is_thumb = $this->mSpecial->getRequest()->getVal('thumb');
-		if(!$is_thumb)
+		$file_is_source = false;
+
+		if($is_thumb)
 		{
-			$path = $file->getPath();
-		}
-		else
-		{
-			$file_new = null;
-	
 			$thumb = $file->transform(array('width' => self::THUMB_WIDTH), File::RENDER_NOW);
 			if($thumb)
 			{
 				if($thumb->fileIsSource()) {
-					$file_new = $file;
+					$file_is_source = true;
 				}
 				else {
-					$path = $thumb->getStoragePath();
-					if($path)
-					{
-						$file_new = new UnregisteredLocalFile(
-							false,
-							$stash->repo,
-							$thumb->getStoragePath(),
-							false
-						);
-					}
+					$file = new UnregisteredLocalFile(
+						false,
+						$stash->repo,
+						$thumb->getStoragePath(),
+						false
+					);
 				}
 			}
-
-			if(!$file_new)
-				return $this->send404ImageNotFound();
-
-			$path = $file_new->getPath();
 		}
 
+		if(!$file) {
+			return $this->send404ImageNotFound();
+		}
+
+		$thumb_filename = '';
+		if($thumb && !$file_is_source) {
+			$thumb_filename .= $file->getWidth() .  'px-';
+		}
+		$thumb_filename .= $row->title;
+
+		$headers = array();
+		$headers[] = 'Content-Transfer-Encoding: binary';
+		$headers[] = "Content-Disposition: " .
+			FileBackend::makeContentDisposition('inline', $thumb_filename);
+
 		$out->disable(); # No HTML output (image only)
-		$file->getRepo()->streamFile($path,
-			array('Content-Transfer-Encoding: binary')
-		);
+		$file->getRepo()->streamFile($file->getPath(), $headers);
 
 	}
 }
