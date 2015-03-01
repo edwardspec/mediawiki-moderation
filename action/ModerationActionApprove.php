@@ -140,14 +140,22 @@ class ModerationActionApprove extends ModerationAction {
 			array( 'mod_id' => $id ),
 			__METHOD__
 		);
+
+		/* NOTE: can't throw errors here, because this can be invoked from ApproveAll.
+			TODO: try{} block in executeApproveAll().
+		*/
+
 		if(!$row)
 			return Status::newFatal('moderation-show-not-found');
 
 		if($row->merged_revid)
 			return Status::newFatal('moderation-already-merged');
 
+		/* Can throw error: ApproveAll won't call approveEditById() for
+			rejected edits (though possibility for race condition
+			should be addressed...) */
 		if($row->rejected && $row->timestamp < $this->mSpecial->earliestReapprovableTimestamp)
-			return Status::newFatal('moderation-rejected-long-ago');
+			throw new ModerationError('moderation-rejected-long-ago');
 
 		# Prepare everything
 		$title = Title::makeTitle( $row->namespace, $row->title );
