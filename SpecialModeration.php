@@ -163,7 +163,7 @@ class SpecialModeration extends QueryPage {
 		}
 
 		if(!$class) {
-			throw new ErrorPageError('moderation', 'moderation-unknown-modaction');
+			throw new ModerationError('moderation-unknown-modaction');
 		}
 
 		$A = new $class($this);
@@ -336,5 +336,11 @@ class SpecialModeration extends QueryPage {
 			__METHOD__
 		);
 		return $row ? Title::makeTitle( NS_USER, $row->user_text ) : false;
+	}
+}
+
+class ModerationError extends ErrorPageError {
+	public function __construct( $message ) {
+		parent::__construct( 'moderation-error', $message );
 	}
 }
