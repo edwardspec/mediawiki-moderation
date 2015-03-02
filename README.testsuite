@@ -95,7 +95,7 @@ It provides the following:
 	4) correct thumbnail image is shown for uploads,
 	5) ShowImage URL doesn't have a token,
 	6) thumbnail image is wrapped in a link to the full image,
-	7) checksum of the full image are correct,
+	7) checksum of the full image is correct,
 	8) content-type and content-disposition headers are correct,
 	9) thumbnail of small image has the same width/height,
 	10) thumbnail of large image is THUMB_WIDTH wide, ratio is preserved.
