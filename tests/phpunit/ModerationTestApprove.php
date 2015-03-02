@@ -217,6 +217,27 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$error = $t->getModerationErrorByURL($entry->expectedActionLink('approve'));
 		$this->assertEquals('(moderation-rejected-long-ago)', $error,
 			"testApproveNotExpiredRejected(): No expected error from modaction=approve");
+
+		/* Make the edit less ancient
+			than $wgModerationTimeToOverrideRejection ago */
+
+		$ts->timestamp->modify('+2 hour'); /* Should be approvable */
+
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->update( 'moderation',
+			array('mod_timestamp' => $ts->getTimestamp(TS_MW)),
+			array('mod_id' => $id),
+			__METHOD__
+		);
+
+		$t->cleanFetchedSpecial('rejected');
+		$t->fetchSpecialAndDiff('rejected');
+
+		$entry = $t->new_entries[0];
+		$this->assertNotNull($entry->approveLink,
+			"testApproveNotExpiredRejected(): Approve link is missing for edit that was rejected less than $wgModerationTimeToOverrideRejection seconds ago");
+
+		$this->tryToApprove($t, $entry);
 	}
 
 	private function tryToApprove($t, $entry)
