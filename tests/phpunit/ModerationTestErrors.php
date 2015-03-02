@@ -46,34 +46,20 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
-		# 1. These are the actions which can fail if the edit
-		# is rejected. They print "moderation-edit-not-found", which
-		# is translated as "edit is probably approved OR REJECTED".
-		$links = array(
-			$entry->approveAllLink,
-#			$entry->rejectAllLink
-		);
-		foreach($links as $url) {
-			$error = $t->getModerationErrorByURL($url);
-			$this->assertEquals('(moderation-edit-not-found)', $error);
-		}
-
-		# 2. These actions only fail if the edit is approved.
-		# They print "moderation-show-not-found", which is translated
-		# as "edit is probably approved".
-
 		$entry->fakeBlockLink();
 		$links = array(
 #			$entry->showLink,
 			$entry->approveLink,
-#			$entry->rejectLink, # Reject on rejected edit is currently allowed
+			$entry->approveAllLink,
+#			$entry->rejectLink,
+#			$entry->rejectAllLink,
 #			$entry->blockLink,
 #			$entry->unblockLink
 			# TODO: check mergeLink
 		);
 		foreach($links as $url) {
 			$error = $t->getModerationErrorByURL($url);
-			$this->assertEquals('(moderation-show-not-found)', $error);
+			$this->assertEquals('(moderation-edit-not-found)', $error);
 		}
 	}
 }

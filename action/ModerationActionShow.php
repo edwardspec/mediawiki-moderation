@@ -48,7 +48,7 @@ class ModerationActionShow extends ModerationAction {
 		);
 		if(!$row)
 		{
-			$out->addWikiMsg( 'moderation-show-not-found' );
+			$out->addWikiMsg( 'moderation-edit-not-found' );
 			return;
 		}
 

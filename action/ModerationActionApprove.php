@@ -134,7 +134,7 @@ class ModerationActionApprove extends ModerationAction {
 		);
 
 		if(!$row)
-			throw new ModerationError('moderation-show-not-found');
+			throw new ModerationError('moderation-edit-not-found');
 
 		if($row->merged_revid)
 			throw new ModerationError('moderation-already-merged');
