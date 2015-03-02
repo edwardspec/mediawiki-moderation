@@ -94,3 +94,10 @@ It provides the following:
 	5) ShowImage URL doesn't have a token,
 	6) thumbnail image is wrapped in a link to the full image,
 	7) content-type and checksum of the full image are correct.
+
+8. [ModerationTestUpload.php]
+	Answers the question: "Are uploads intercepted? Can they be approved?"
+	Here we check that
+	1) uploads are stopped with 'moderation-image-queued' code,
+	2) new entry appears on Special:Moderation,
+	3) the file is indeed uploaded when Approve is clicked.
