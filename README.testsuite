@@ -113,3 +113,4 @@ It provides the following:
 	Answers the question: "Do all our safety/sanity checks catch errors?"
 	Here we check the following conditions:
 	1) moderation-unknown-modaction
+	2) moderation-edit-not-found / moderation-show-not-found
