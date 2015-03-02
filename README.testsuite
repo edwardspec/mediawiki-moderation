@@ -108,3 +108,8 @@ It provides the following:
 	1) uploads are stopped with 'moderation-image-queued' code,
 	2) new entry appears on Special:Moderation,
 	3) the file is indeed uploaded when Approve is clicked.
+
+9. [ModerationTestErrors.php]
+	Answers the question: "Do all our safety/sanity checks catch errors?"
+	Here we check the following conditions:
+	1) moderation-unknown-modaction
