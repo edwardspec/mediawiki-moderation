@@ -43,11 +43,8 @@ class ModerationActionApprove extends ModerationAction {
 		$out = $this->mSpecial->getOutput();
 		$this->prepareApproveHooks();
 
-		$status = $this->approveEditById($this->id);
-		if(!$status->isGood())
-			$out->addWikiText( $status->getWikiText() );
-		else
-			$out->addWikiMsg( 'moderation-approved-ok', 1 );
+		$this->approveEditById($this->id);
+		$out->addWikiMsg('moderation-approved-ok', 1);
 	}
 
 	public function executeApproveAll() {
@@ -55,10 +52,7 @@ class ModerationActionApprove extends ModerationAction {
 
 		$userpage = $this->mSpecial->getUserpageByModId($this->id);
 		if(!$userpage)
-		{
-			$out->addWikiMsg( 'moderation-edit-not-found' );
-			return;
-		}
+			throw new ModerationError('moderation-edit-not-found');
 
 		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
 		$res = $dbw->select('moderation',
@@ -79,10 +73,7 @@ class ModerationActionApprove extends ModerationAction {
 			)
 		);
 		if(!$res || $res->numRows() == 0)
-		{
-			$out->addWikiMsg( 'moderation-nothing-to-approveall' );
-			return;
-		}
+			throw new ModerationError('moderation-nothing-to-approveall');
 
 		$this->prepareApproveHooks();
 
@@ -90,12 +81,13 @@ class ModerationActionApprove extends ModerationAction {
 		$failed = 0;
 		foreach($res as $row)
 		{
-			$status = $this->approveEditById($row->id);
-
-			if($status->isGood())
+			try {
+				$this->approveEditById($row->id);
 				$approved ++;
-			else
+			}
+			catch(ModerationError $e) {
 				$failed ++;
+			}
 		}
 
 		if($approved)
@@ -141,19 +133,12 @@ class ModerationActionApprove extends ModerationAction {
 			__METHOD__
 		);
 
-		/* NOTE: can't throw errors here, because this can be invoked from ApproveAll.
-			TODO: try{} block in executeApproveAll().
-		*/
-
 		if(!$row)
-			return Status::newFatal('moderation-show-not-found');
+			throw new ModerationError('moderation-show-not-found');
 
 		if($row->merged_revid)
-			return Status::newFatal('moderation-already-merged');
+			throw new ModerationError('moderation-already-merged');
 
-		/* Can throw error: ApproveAll won't call approveEditById() for
-			rejected edits (though possibility for race condition
-			should be addressed...) */
 		if($row->rejected && $row->timestamp < $this->mSpecial->earliestReapprovableTimestamp)
 			throw new ModerationError('moderation-rejected-long-ago');
 
@@ -202,7 +187,7 @@ class ModerationActionApprove extends ModerationAction {
 			try {
 				$file = $stash->getFile($row->stash_key);
 			} catch(MWException $e) {
-				return Status::newFatal('moderation-missing-stashed-image');
+				throw new ModerationError('moderation-missing-stashed-image');
 			}
 
 			$upload = new UploadFromStash($user, $stash);
@@ -268,7 +253,7 @@ class ModerationActionApprove extends ModerationAction {
 					}
 					else
 					{
-						$status = Status::newFatal('moderation-edit-conflict');
+						throw new ModerationError('moderation-edit-conflict');
 
 						$dbw = wfGetDB( DB_MASTER );
 						$dbw->update( 'moderation',
@@ -283,22 +268,21 @@ class ModerationActionApprove extends ModerationAction {
 		$approveHook->deinstall();
 		$cuHook->deinstall();
 
-		if($status->isGood())
-		{
-			$logEntry = new ManualLogEntry( 'moderation', 'approve' );
-			$logEntry->setPerformer( $this->moderator );
-			$logEntry->setTarget( $title );
-			$logEntry->setParameters(array('revid' => $approveHook->lastRevId));
-			$logid = $logEntry->insert();
-			$logEntry->publish($logid);
+		if(!$status->isGood())
+			throw new ModerationError($status->getMessage());
 
-			# Approved edits are removed from "moderation" table,
-			# because they already exist in page history, recentchanges etc.
+		$logEntry = new ManualLogEntry( 'moderation', 'approve' );
+		$logEntry->setPerformer( $this->moderator );
+		$logEntry->setTarget( $title );
+		$logEntry->setParameters(array('revid' => $approveHook->lastRevId));
+		$logid = $logEntry->insert();
+		$logEntry->publish($logid);
 
-			$dbw = wfGetDB( DB_MASTER );
-			$dbw->delete( 'moderation', array( 'mod_id' => $id ), __METHOD__ );
-		}
-		return $status;
+		# Approved edits are removed from "moderation" table,
+		# because they already exist in page history, recentchanges etc.
+
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->delete( 'moderation', array( 'mod_id' => $id ), __METHOD__ );
 	}
 }
 
