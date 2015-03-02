@@ -25,7 +25,7 @@ class ModerationActionMerge extends ModerationAction {
 		global $wgHooks;
 		$out = $this->mSpecial->getOutput();
 
-		if(!ModerationCanSkip::canSkip($this->mSpecial->getUser())) // In order to merge, moderator must also be automoderated
+		if(!ModerationCanSkip::canSkip($this->moderator)) // In order to merge, moderator must also be automoderated
 			throw new ModerationError('moderation-merge-not-automoderated');
 
 		$dbw = wfGetDB( DB_MASTER );
