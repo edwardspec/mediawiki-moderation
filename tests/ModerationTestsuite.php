@@ -176,7 +176,7 @@ class ModerationTestsuite
 		$this->deleted_entries = ModerationTestsuiteEntry::entriesInANotInB($before, $after);
 	}
 
-	public function getHtmlTitleByURL($url)
+	public function getHtmlDocumentByURL($url)
 	{
 		$req = $this->makeHttpRequest($url, 'GET');
 		$status = $req->execute();
@@ -185,7 +185,28 @@ class ModerationTestsuite
 
 		$html = DOMDocument::loadHTML($req->getContent());
 		$this->lastFetchedDocument = $html;
-		return $html->getElementsByTagName('title')->item(0)->textContent;
+
+		return $html;
+	}
+
+	public function getHtmlTitleByURL($url)
+	{
+		if(!$this->getHtmlDocumentByURL($url))
+			return null;
+
+		return $this->lastFetchedDocument->
+			getElementsByTagName('title')->item(0)->textContent;
+	}
+	public function getModerationErrorByURL($url)
+	{
+		if(!$this->getHtmlDocumentByURL($url . '&uselang=qqx'))
+			return null;
+
+		$elem = $this->lastFetchedDocument->getElementById('mw-mod-error');
+		if(!$elem)
+			return null;
+
+		return $elem->textContent;
 	}
 
 	#

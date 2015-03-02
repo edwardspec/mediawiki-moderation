@@ -341,7 +341,7 @@ class SpecialModeration extends QueryPage {
 
 class ModerationError extends ErrorPageError {
 	public function __construct( $message ) {
-		parent::__construct( 'moderation-error', $message );
+		parent::__construct( 'moderation', $message );
 	}
 
 	/* Completely override report() from ErrorPageError

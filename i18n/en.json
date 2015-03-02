@@ -40,7 +40,6 @@
 	"moderation-editing-your-version": "You are editing your version of this article. It is currently awaiting moderation.<br>Once approved, it will be visible to other users.",
 	"moderation-edit-not-found": "Edit not found. Probably already approved or rejected.",
 	"moderation-edit-queued": "Success: your edit has been sent to moderation.<br>You can continue editing <a href='$1'>your version of this page</a>.",
-	"moderation-error": "Moderation",
 	"moderation-folder-merged": "Merged",
 	"moderation-folder-pending": "Pending moderation",
 	"moderation-folder-rejected": "Rejected",

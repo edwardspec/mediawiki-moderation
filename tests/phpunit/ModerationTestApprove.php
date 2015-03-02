@@ -214,11 +214,9 @@ class ModerationTestApprove extends MediaWikiTestCase
 			"testApproveNotExpiredRejected(): Approve link found for edit that was rejected more than $wgModerationTimeToOverrideRejection seconds ago");
 
 		# Ensure that usual approve URL doesn't work:
-		$title = $t->getHtmlTitleByURL($entry->expectedActionLink('approve') . '&uselang=qqx');
-		$this->assertRegExp('/\(moderation-error\)/', $title,
+		$error = $t->getModerationErrorByURL($entry->expectedActionLink('approve'));
+		$this->assertEquals('(moderation-rejected-long-ago)', $error,
 			"testApproveNotExpiredRejected(): No expected error from modaction=approve");
-
-		/* TODO: check the error message */
 	}
 
 	private function tryToApprove($t, $entry)
