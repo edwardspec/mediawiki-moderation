@@ -27,6 +27,20 @@ not supplied in MediaWiki release tarballs) and move it to MediaWiki directory.
 
 for i in extensions/Moderation/tests/phpunit/*.php; do tests/phpunit/phpunit.php $i; done
 
+== Writing new tests ==
+
+File [tests/ModerationTestsuite.php] is the general framework
+for blackbox testing of Extension:Moderation.
+
+It provides the following:
+
+1) methods to access the MediaWiki API (NOT via internal invocation).
+
+2) automated creation of test users and clean test environment.
+
+3) methods to fetch Special:Moderation, parse it into the array of entries
+(ModerationTestsuiteEntry) and compare two snapshots of Special:Moderation.
+
 == List of existing tests ==
 
 1. [ModerationTestInterceptEdit.php]
@@ -80,18 +94,3 @@ for i in extensions/Moderation/tests/phpunit/*.php; do tests/phpunit/phpunit.php
 	5) ShowImage URL doesn't have a token,
 	6) thumbnail image is wrapped in a link to the full image,
 	7) content-type and checksum of the full image are correct.
-	
-
-== Writing new tests ==
-
-File [tests/ModerationTestsuite.php] is the general framework
-for blackbox testing of Extension:Moderation.
-
-It provides the following:
-
-1) methods to access the MediaWiki API (NOT via internal invocation).
-
-2) automated creation of test users and clean test environment.
-
-3) methods to fetch Special:Moderation, parse it into the array of entries
-(ModerationTestsuiteEntry) and compare two snapshots of Special:Moderation.
