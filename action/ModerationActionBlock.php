@@ -35,10 +35,7 @@ class ModerationActionBlock extends ModerationAction {
 			__METHOD__
 		);
 		if(!$row)
-		{
-			$out->addWikiMsg('moderation-edit-not-found');
-			return;
-		}
+			throw new ModerationError('moderation-edit-not-found');
 
 		$dbw = wfGetDB( DB_MASTER );
 		if($this->actionName == 'block')

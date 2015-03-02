@@ -45,15 +45,10 @@ class ModerationActionReject extends ModerationAction {
 			__METHOD__
 		);
 		if(!$row)
-		{
-			$out->addWikiMsg( 'moderation-edit-not-found' );
-			return;
-		}
+			throw new ModerationError('moderation-edit-not-found');
+
 		if($row->merged_revid)
-		{
-			$out->addWikiMsg( 'moderation-already-merged' );
-			return;
-		}
+			throw new ModerationError('moderation-already-merged');
 
 		$dbw->update( 'moderation',
 			array(
@@ -87,10 +82,7 @@ class ModerationActionReject extends ModerationAction {
 
 		$userpage = $this->mSpecial->getUserpageByModId($this->id);
 		if(!$userpage)
-		{
-			$out->addWikiMsg( 'moderation-edit-not-found' );
-			return;
-		}
+			throw new ModerationError('moderation-edit-not-found');
 
 		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
 		$res = $dbw->select('moderation',
@@ -104,10 +96,7 @@ class ModerationActionReject extends ModerationAction {
 			array('USE INDEX' => 'moderation_rejectall')
 		);
 		if(!$res || $res->numRows() == 0)
-		{
-			$out->addWikiMsg( 'moderation-nothing-to-rejectall' );
-			return;
-		}
+			throw new ModerationError('moderation-nothing-to-rejectall');
 
 		$ids = array();
 		foreach($res as $row)

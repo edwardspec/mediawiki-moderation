@@ -26,10 +26,7 @@ class ModerationActionMerge extends ModerationAction {
 		$out = $this->mSpecial->getOutput();
 
 		if(!ModerationCanSkip::canSkip($this->mSpecial->getUser())) // In order to merge, moderator must also be automoderated
-		{
-			$out->addWikiMsg( 'moderation-merge-not-automoderated' );
-			return;
-		}
+			throw new ModerationError('moderation-merge-not-automoderated');
 
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
@@ -44,15 +41,10 @@ class ModerationActionMerge extends ModerationAction {
 			__METHOD__
 		);
 		if(!$row)
-		{
-			$out->addWikiMsg( 'moderation-edit-not-found' );
-			return;
-		}
+			throw new ModerationError('moderation-edit-not-found');
+
 		if(!$row->conflict)
-		{
-			$out->addWikiMsg( 'moderation-merge-not-needed' );
-			return;
-		}
+			throw new ModerationError('moderation-merge-not-needed');
 
 		$title = Title::makeTitle( $row->namespace, $row->title );
 		$article = new Article($title);

@@ -28,7 +28,6 @@ class ModerationActionShow extends ModerationAction {
 
 	public function execute() {
 		$out = $this->mSpecial->getOutput();
-
 		$out->addModuleStyles( 'mediawiki.action.history.diff' );
 
 		$dbr = wfGetDB( DB_SLAVE );
@@ -47,10 +46,7 @@ class ModerationActionShow extends ModerationAction {
 			__METHOD__
 		);
 		if(!$row)
-		{
-			$out->addWikiMsg( 'moderation-edit-not-found' );
-			return;
-		}
+			throw new ModerationError('moderation-edit-not-found');
 
 		$title = Title::makeTitle( $row->namespace, $row->title );
 		$model = $title->getContentModel();

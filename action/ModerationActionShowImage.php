@@ -49,10 +49,7 @@ class ModerationActionShowImage extends ModerationAction {
 			__METHOD__
 		);
 		if(!$row)
-		{
-			$out->addWikiMsg( 'moderation-edit-not-found' );
-			return;
-		}
+			throw new ModerationError('moderation-edit-not-found');
 
 		$user = $row->user ?
 			User::newFromId($row->user) :
