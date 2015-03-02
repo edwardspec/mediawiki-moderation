@@ -240,6 +240,38 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$this->tryToApprove($t, $entry);
 	}
 
+	/**
+		@covers ModerationActionApprove::prepareApproveHooks()
+		@brief This test verifies that moderator can be NOT automoderated.
+
+		There is no real use for such setup other than debugging,
+		and that's why we don't want to test this manually.
+	*/
+	public function testModeratorNotAutomoderated() {
+		$t = new ModerationTestsuite();
+
+		$t->fetchSpecial();
+		$t->loginAs($t->moderatorButNotAutomoderated);
+		$ret = $t->doTestEdit();
+		$t->fetchSpecialAndDiff();
+
+		/* Edit must be intercepted (this user is not automoderated) */
+		$this->assertArrayHasKey('error', $ret);
+		$this->assertEquals('edit-hook-aborted', $ret['error']['code']);
+
+		$entry = $t->new_entries[0];
+		$this->assertCount(1, $t->new_entries,
+			"testModeratorNotAutomoderated(): One edit was queued for moderation, but number of added entries in Pending folder isn't 1");
+		$this->assertCount(0, $t->deleted_entries,
+			"testModeratorNotAutomoderated(): Something was deleted from Pending folder during the queueing");
+		$this->assertEquals($t->lastEdit['User'], $entry->user);
+		$this->assertEquals($t->lastEdit['Title'], $entry->title);
+
+		/* Must be able to approve the edit (this user is moderator) */
+		$t->loginAs($t->moderatorButNotAutomoderated);
+		$this->tryToApprove($t, $entry);
+	}
+
 	private function tryToApprove($t, $entry)
 	{
 		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
