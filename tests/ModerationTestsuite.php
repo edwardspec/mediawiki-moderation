@@ -333,6 +333,19 @@ class ModerationTestsuite
 		}
 	}
 
+	/**
+		@brief Makes one edit and returns its correct entry.
+	*/
+	public function getSampleEntry()
+	{
+		$this->fetchSpecial();
+		$this->loginAs($this->unprivilegedUser);
+		$this->doTestEdit();
+		$this->fetchSpecialAndDiff();
+
+		return $this->new_entries[0];
+	}
+
 	public function generateRandomTitle()
 	{
 		/* Simple string, no underscores */

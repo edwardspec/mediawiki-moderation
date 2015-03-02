@@ -35,4 +35,24 @@ class ModerationTestErrors extends MediaWikiTestCase
 			"&modaction=findgirlfriend");
 		$this->assertEquals('(moderation-unknown-modaction)', $error);
 	}
+
+	public function testEditNotFound() {
+		$t = new ModerationTestsuite();
+
+		/*
+			This test is related to ApproveAll/RejectAll only;
+			single-entry approval/rejection uses another
+			error message (moderation-show-not-found).
+		*/
+		$entry = $t->getSampleEntry();
+
+		# Delete this entry by approving it
+		$t->loginAs($t->moderator);
+		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
+		$this->assertTrue($req->execute()->isOK());
+
+		# Now try to ApproveAll using the old link
+		$error = $t->getModerationErrorByURL($entry->approveAllLink);
+		$this->assertEquals('(moderation-edit-not-found)', $error);
+	}
 }
