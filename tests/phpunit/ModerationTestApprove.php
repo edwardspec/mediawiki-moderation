@@ -270,6 +270,23 @@ class ModerationTestApprove extends MediaWikiTestCase
 		/* Must be able to approve the edit (this user is moderator) */
 		$t->loginAs($t->moderatorButNotAutomoderated);
 		$this->tryToApprove($t, $entry);
+
+		/* ApproveAll must also work */
+		$t->fetchSpecial();
+		$t->doNTestEditsWith($t->moderatorButNotAutomoderated);
+		$t->fetchSpecialAndDiff();
+
+		$t->loginAs($t->moderatorButNotAutomoderated);
+		$req = $t->makeHttpRequest($t->new_entries[0]->approveAllLink, 'GET');
+		$this->assertTrue($req->execute()->isOK());
+
+		/* TODO: check $req->getContent() */
+
+		$t->fetchSpecialAndDiff();
+		$this->assertCount(0, $t->new_entries,
+			"testModeratorNotAutomoderated(): Something was added into Pending folder during modaction=approveall");
+		$this->assertCount($t->TEST_EDITS_COUNT, $t->deleted_entries,
+			"testModeratorNotAutomoderated(): Several edits were approved, but number of deleted entries in Pending folder doesn't match");
 	}
 
 	private function tryToApprove($t, $entry)

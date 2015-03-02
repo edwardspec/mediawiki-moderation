@@ -64,7 +64,9 @@ It provides the following:
 	4) edits of other users are unaffected by Approveall,
 	5) rejected edits are unaffected by Approveall,
 	6) rejected edit can be approved by Approve,
-	7) option $wgModerationTimeToOverrideRejection works correctly.
+	7) option $wgModerationTimeToOverrideRejection works correctly,
+	8) moderator needs to be automoderated to bypass moderation,
+	9) moderator doesn't need to be automoderated to Approve(all).
 
 4. [ModerationTestReject.php]
 	Answers the question: "Does the Reject(all) link work as expected?"
@@ -99,7 +101,6 @@ It provides the following:
 	8) content-type and content-disposition headers are correct,
 	9) thumbnail of small image has the same width/height,
 	10) thumbnail of large image is THUMB_WIDTH wide, ratio is preserved.
-
 
 8. [ModerationTestUpload.php]
 	Answers the question: "Are uploads intercepted? Can they be approved?"
