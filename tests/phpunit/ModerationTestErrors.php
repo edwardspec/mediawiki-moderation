@@ -48,13 +48,13 @@ class ModerationTestErrors extends MediaWikiTestCase
 
 		$entry->fakeBlockLink();
 		$links = array(
-#			$entry->showLink,
+			$entry->showLink,
 			$entry->approveLink,
 			$entry->approveAllLink,
-#			$entry->rejectLink,
-#			$entry->rejectAllLink,
-#			$entry->blockLink,
-#			$entry->unblockLink
+			$entry->rejectLink,
+			$entry->rejectAllLink,
+			$entry->blockLink,
+			$entry->unblockLink
 			# TODO: check mergeLink
 		);
 		foreach($links as $url) {
