@@ -343,4 +343,15 @@ class ModerationError extends ErrorPageError {
 	public function __construct( $message ) {
 		parent::__construct( 'moderation-error', $message );
 	}
+
+	/* Completely override report() from ErrorPageError
+		in order to wrap the message in <div id='mw-mod-error'></div> */
+	public function report() {
+		global $wgOut;
+
+		$wgOut->prepareErrorPage($this->msg($this->title));
+		$wgOut->wrapWikiMsg('<div id="mw-mod-error" class="error">$1</div>',
+			array($this->msg));
+		$wgOut->output();
+	}
 }
