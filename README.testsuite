@@ -62,7 +62,9 @@ It provides the following:
 	2) the newly approved edit is removed from Special:Moderation,
 	3) all pending edits of the same user are approved by Approveall,
 	4) edits of other users are unaffected by Approveall,
-	5) rejected edits are unaffected by Approveall.
+	5) rejected edits are unaffected by Approveall,
+	6) rejected edit can be approved by Approve,
+	7) option $wgModerationTimeToOverrideRejection works correctly.
 
 4. [ModerationTestReject.php]
 	Answers the question: "Does the Reject(all) link work as expected?"
