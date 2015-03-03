@@ -4,10 +4,14 @@ Medium-prio:
 * (testsuite) Provide ~100% automated test coverage of all functionality.
 
 Low-prio:
-* (refactoring) Replace getUserpageByModId() with something more logical.
 * (feature) Intercept renaming of pages.
+* (feature) Provide flexible handling of zero edits, for example suppress if
+	there is no edit comment, mark them with "is zero edit" flag viewable
+	to the moderator, add an option (disabled by default) to suppress
+	zero edits completely, etc.
 
 Background-prio (may not be needed):
+* (refactoring) Replace getUserpageByModId() with something more logical.
 * (interface) Ask "Really approve all edits from <user>?" when
 	clicking "Approve all" (NOT via JavaScript).
 * (interface) For each folder, display the number of new entries there
