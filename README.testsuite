@@ -115,3 +115,5 @@ It provides the following:
 	1) moderation-unknown-modaction
 	2) moderation-edit-not-found
 	3) moderation-already-rejected
+	4) moderation-nothing-to-rejectall
+	

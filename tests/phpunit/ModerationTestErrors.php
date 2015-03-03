@@ -38,7 +38,6 @@ class ModerationTestErrors extends MediaWikiTestCase
 
 	public function testEditNotFound() {
 		$t = new ModerationTestsuite();
-
 		$entry = $t->getSampleEntry();
 
 		# Delete this entry by approving it
@@ -64,7 +63,6 @@ class ModerationTestErrors extends MediaWikiTestCase
 
 	public function testAlreadyRejected() {
 		$t = new ModerationTestsuite();
-
 		$entry = $t->getSampleEntry();
 
 		$req = $t->makeHttpRequest($entry->rejectLink, 'GET');
@@ -72,5 +70,16 @@ class ModerationTestErrors extends MediaWikiTestCase
 
 		$error = $t->getModerationErrorByURL($entry->rejectLink);
 		$this->assertEquals('(moderation-already-rejected)', $error);
+	}
+
+	public function testNothingToRejectAll() {
+		$t = new ModerationTestsuite();
+		$entry = $t->getSampleEntry();
+
+		$req = $t->makeHttpRequest($entry->rejectLink, 'GET');
+		$this->assertTrue($req->execute()->isOK());
+
+		$error = $t->getModerationErrorByURL($entry->rejectAllLink);
+		$this->assertEquals('(moderation-nothing-to-rejectall)', $error);
 	}
 }
