@@ -72,7 +72,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$this->assertEquals('(moderation-already-rejected)', $error);
 	}
 
-	public function testNothingToRejectAll() {
+	public function testNothingToAll() {
 		$t = new ModerationTestsuite();
 		$entry = $t->getSampleEntry();
 
@@ -81,5 +81,8 @@ class ModerationTestErrors extends MediaWikiTestCase
 
 		$error = $t->getModerationErrorByURL($entry->rejectAllLink);
 		$this->assertEquals('(moderation-nothing-to-rejectall)', $error);
+
+		$error = $t->getModerationErrorByURL($entry->approveAllLink);
+		$this->assertEquals('(moderation-nothing-to-approveall)', $error);
 	}
 }
