@@ -85,4 +85,28 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$error = $t->getModerationErrorByURL($entry->approveAllLink);
 		$this->assertEquals('(moderation-nothing-to-approveall)', $error);
 	}
+
+	public function testMissingStashedImage() {
+		$t = new ModerationTestsuite();
+
+		$t->fetchSpecial();
+		$t->loginAs($t->unprivilegedUser);
+		$error = $t->doTestUpload();
+		$t->fetchSpecialAndDiff();
+
+		$entry = $t->new_entries[0];
+
+		$dbw = wfGetDB( DB_MASTER );
+		$row = $dbw->selectRow( 'moderation',
+			array('mod_stash_key AS stash_key'),
+			array('mod_id' => $entry->id),
+			__METHOD__
+		);
+
+		$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash();
+		$stash->removeFileNoAuth($row->stash_key);
+
+		$error = $t->getModerationErrorByURL($entry->approveLink);
+		$this->assertEquals('(moderation-missing-stashed-image)', $error);
+	}
 }
