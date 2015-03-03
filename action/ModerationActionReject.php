@@ -39,11 +39,13 @@ class ModerationActionReject extends ModerationAction {
 				'mod_title AS title',
 				'mod_user AS user',
 				'mod_user_text AS user_text',
+				'mod_rejected AS rejected',
 				'mod_merged_revid AS merged_revid'
 			),
 			array( 'mod_id' => $this->id ),
 			__METHOD__
 		);
+
 		if(!$row)
 			throw new ModerationError('moderation-edit-not-found');
 
