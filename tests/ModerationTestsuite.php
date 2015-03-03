@@ -138,6 +138,12 @@ class ModerationTestsuite
 		$this->lastFetchedSpecial[$folder] = array();
 	}
 
+	/**
+		@brief Download and parse Special:Moderation.
+		@see fetchSpecialAndDiff()
+
+		@remark Logs in as $moderator.
+	*/
 	public function fetchSpecial($folder = 'DEFAULT')
 	{
 		$this->loginAs($this->moderator);
@@ -167,6 +173,15 @@ class ModerationTestsuite
 		$this->lastFetchedDocument = $html;
 		return $entries;
 	}
+
+	/**
+		@brief Diff the current state of Special:Moderation with the
+			previously downloaded/parsed state, and populate
+			the arrays \b $new_entries and \b $old_entries.
+		@see fetchSpecial()
+
+		@remark Logs in as $moderator.
+	*/
 	public function fetchSpecialAndDiff($folder = 'DEFAULT')
 	{
 		$before = $this->lastFetchedSpecial[$folder];
@@ -335,6 +350,7 @@ class ModerationTestsuite
 
 	/**
 		@brief Makes one edit and returns its correct entry.
+		@remark Logs in as $moderator.
 	*/
 	public function getSampleEntry()
 	{

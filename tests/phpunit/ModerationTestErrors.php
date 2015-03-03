@@ -36,13 +36,12 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$this->assertEquals('(moderation-unknown-modaction)', $error);
 	}
 
-	public function testNotFound() {
+	public function testEditNotFound() {
 		$t = new ModerationTestsuite();
 
 		$entry = $t->getSampleEntry();
 
 		# Delete this entry by approving it
-		$t->loginAs($t->moderator);
 		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
