@@ -86,12 +86,16 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$this->assertEquals('(moderation-nothing-to-approveall)', $error);
 	}
 
+	/**
+		@requires extension curl
+		@note Only cURL version of MWHttpRequest supports uploads.
+	*/
 	public function testMissingStashedImage() {
 		$t = new ModerationTestsuite();
 
 		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
-		$error = $t->doTestUpload();
+		$t->doTestUpload();
 		$t->fetchSpecialAndDiff();
 
 		$entry = $t->new_entries[0];

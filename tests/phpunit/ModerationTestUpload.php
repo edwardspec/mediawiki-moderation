@@ -24,14 +24,11 @@ require_once(__DIR__ . "/../ModerationTestsuite.php");
 
 /**
 	@covers ModerationUploadHooks
+	@requires extension curl
+	@note Only cURL version of MWHttpRequest supports uploads.
 */
 class ModerationTestUpload extends MediaWikiTestCase
 {
-	/**
-		@requires extension curl
-		@note Only cURL version of MWHttpRequest supports uploads.
-	*/
-
 	public function testUpload() {
 		$t = new ModerationTestsuite();
 
@@ -75,5 +72,21 @@ class ModerationTestUpload extends MediaWikiTestCase
 		$this->assertEquals($t->lastEdit['User'], $ii['user']);
 		$this->assertEquals($t->lastEdit['Text'], $ii['comment']);
 		$this->assertEquals($t->lastEdit['SHA1'], $ii['sha1']);
+	}
+
+	public function testUploadHookVerifies() {
+		$t = new ModerationTestsuite();
+
+		# Does upload hook call getVerificationErrorCode() to check
+		# the image before queueing the upload?
+
+		$path = tempnam(sys_get_temp_dir(), 'modtest');
+		file_put_contents($path, ''); # Empty
+
+		$t->loginAs($t->unprivilegedUser);
+		$error = $t->doTestUpload("1.png", $path);
+		unlink($path);
+
+		$this->assertEquals('(emptyfile)', $error);
 	}
 }
