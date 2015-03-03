@@ -61,4 +61,16 @@ class ModerationTestErrors extends MediaWikiTestCase
 			$this->assertEquals('(moderation-edit-not-found)', $error);
 		}
 	}
+
+	public function testAlreadyRejected() {
+		$t = new ModerationTestsuite();
+
+		$entry = $t->getSampleEntry();
+
+		$req = $t->makeHttpRequest($entry->rejectLink, 'GET');
+		$this->assertTrue($req->execute()->isOK());
+
+		$error = $t->getModerationErrorByURL($entry->rejectLink);
+		$this->assertEquals('(moderation-already-rejected)', $error);
+	}
 }

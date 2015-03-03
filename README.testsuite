@@ -114,3 +114,4 @@ It provides the following:
 	Here we check the following conditions:
 	1) moderation-unknown-modaction
 	2) moderation-edit-not-found
+	3) moderation-already-rejected
