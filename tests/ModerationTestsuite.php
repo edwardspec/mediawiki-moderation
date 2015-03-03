@@ -268,6 +268,8 @@ class ModerationTestsuite
 			$this->createTestUser('User 5', array());
 		$this->unprivilegedUser2 =
 			$this->createTestUser('User 6', array());
+		$this->moderatorAndCheckuser =
+			$this->createTestUser('User 7', array('moderator', 'checkuser'));
 
 		$dbw->commit();
 	}
@@ -281,6 +283,7 @@ class ModerationTestsuite
 	public $automoderated;
 	public $unprivilegedUser;
 	public $unprivilegedUser2;
+	public $moderatorAndCheckuser;
 
 	private $t_loggedInAs;
 
@@ -470,6 +473,7 @@ class ModerationTestsuiteEntry
 	public $rejectAllLink = null;
 	public $blockLink = null;
 	public $unblockLink = null;
+	public $ip = null;
 
 	public $rejected_by_user = null;
 	public $rejected_batch = false;
@@ -487,6 +491,12 @@ class ModerationTestsuiteEntry
 
 			if(strpos($text, '(moderation-rejected-batch)') != false)
 				$e->rejected_batch = true;
+
+			$matches = null;
+			if(preg_match('/\(moderation-whois-link: ([^)]*)\)/', $text, $matches))
+			{
+				$e->ip = $matches[1];
+			}
 		}
 
 		$links = $span->getElementsByTagName('a');

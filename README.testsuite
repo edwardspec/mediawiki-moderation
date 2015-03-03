@@ -119,3 +119,9 @@ It provides the following:
 	4) moderation-nothing-to-rejectall
 	5) moderation-nothing-to-approveall
 	6) moderation-missing-stashed-image
+
+10. [ModerationTestCheckuser.php]
+	Answers the question: "Does moderation-checkuser right work correctly?"
+	Here we check that
+	1) moderator without 'moderation-checkuser' right can't see IPs,
+	2) moderator with 'moderation-checkuser' right can see IPs.
