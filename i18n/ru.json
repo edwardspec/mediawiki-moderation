@@ -22,6 +22,7 @@
 	"logentry-moderation-unblock": "$1 {{GENDER:$1|исключил|исключил}} участника $3 из списка спамеров",
 	"log-name-moderation": "Журнал модерации",
 	"moderation-already-merged": "Эта правка уже внесена вручную. Нет смысла допускать или отклонять её.",
+	"moderation-already-rejected": "Эта правка уже отклонена.",
 	"moderation-approveall": "Допустить все",
 	"moderation-approve": "Допустить",
 	"moderation-approved-errors": "Не удалось допустить правки ($1 шт.): конфликты редактирования и т.п.",

@@ -47,6 +47,9 @@ class ModerationActionReject extends ModerationAction {
 		if(!$row)
 			throw new ModerationError('moderation-edit-not-found');
 
+		if($row->rejected)
+			throw new ModerationError('moderation-already-rejected');
+
 		if($row->merged_revid)
 			throw new ModerationError('moderation-already-merged');
 
@@ -57,7 +60,13 @@ class ModerationActionReject extends ModerationAction {
 				'mod_rejected_by_user_text' => $this->moderator->getName(),
 				'mod_preloadable' => 0
 			),
-			array( 'mod_id' => $this->id, 'mod_merged_revid' => 0 ),
+			array(
+				'mod_id' => $this->id,
+
+				# These checks prevent race condition
+				'mod_merged_revid' => 0,
+				'mod_rejected' => 0
+			),
 			__METHOD__
 		);
 
