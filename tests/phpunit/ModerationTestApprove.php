@@ -52,7 +52,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$t->fetchSpecialAndDiff();
 
 		$this->assertCount(0, $t->new_entries,
-			"testApprove(): Something was added into Pending folder during modaction=accept");
+			"testApprove(): Something was added into Pending folder during modaction=approve");
 		$this->assertCount(1, $t->deleted_entries,
 			"testApprove(): One edit was approved, but number of deleted entries in Pending folder isn't 1");
 		$this->assertEquals($entry->id, $t->deleted_entries[0]->id);
@@ -162,7 +162,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$t->fetchSpecialAndDiff('rejected');
 
 		$this->assertCount(0, $t->new_entries,
-			"testApproveRejected(): Something was added into Rejected folder during modaction=accept");
+			"testApproveRejected(): Something was added into Rejected folder during modaction=approve");
 		$this->assertCount(1, $t->deleted_entries,
 			"testApproveRejected(): One rejected edit was approved, but number of deleted entries in Rejected folder isn't 1");
 		$this->assertEquals($entry->id, $t->deleted_entries[0]->id);
