@@ -355,11 +355,11 @@ class ModerationTestsuite
 		@brief Makes one edit and returns its correct entry.
 		@remark Logs in as $moderator.
 	*/
-	public function getSampleEntry()
+	public function getSampleEntry($title = null)
 	{
 		$this->fetchSpecial();
 		$this->loginAs($this->unprivilegedUser);
-		$this->doTestEdit();
+		$this->doTestEdit($title);
 		$this->fetchSpecialAndDiff();
 
 		return $this->new_entries[0];

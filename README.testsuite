@@ -125,3 +125,11 @@ It provides the following:
 	Here we check that
 	1) moderator without 'moderation-checkuser' right can't see IPs,
 	2) moderator with 'moderation-checkuser' right can see IPs.
+
+11. [ModerationTestBlock.php]
+	Answers the question: "Do the Block/Unblock links work as expected?"
+	Here we check that
+	1) Unblock (Block) link is only shown for blocked (non-blocked) user,
+	2) new edits from blocked user appear in the Spam folder,
+	3) rejection flags (batch/auto) are set properly,
+	4) after the user is unblocked, new edits go into the Pending folder.
