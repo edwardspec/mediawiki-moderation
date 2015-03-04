@@ -11,6 +11,8 @@ Low-prio:
 	zero edits completely, etc.
 
 Background-prio (may not be needed):
+* (feature) Post factum elimination of duplicate anonymous edits (e.g. when one
+	of those edits is preloaded by the user).
 * (refactoring) Replace getUserpageByModId() with something more logical.
 * (interface) Ask "Really approve all edits from <user>?" when
 	clicking "Approve all" (NOT via JavaScript).
