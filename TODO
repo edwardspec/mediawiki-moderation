@@ -19,3 +19,13 @@ Background-prio (may not be needed):
 * (interface) After the actions like Approve return to the moderation page,
 	displaying the message like "Approved N edits" in the page header.
 * (feature) Support uploads via API.
+
+Tests to implement:
+- sections edit test
+- checkuser: recording the correct user-agent (user's and not moderator's)
+- reupload test
+- check non-error responses from actions like Approve
+- merge test
+- timestamp check in history/recentchanges
+- preload test
+- check that anonymous edits are still preloaded after creating an account
