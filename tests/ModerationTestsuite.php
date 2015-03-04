@@ -553,7 +553,7 @@ class ModerationTestsuiteEntry
 					break;
 
 				case '(moderation-unblock)':
-					$e->blockLink = $href;
+					$e->unblockLink = $href;
 					break;
 
 				default:
