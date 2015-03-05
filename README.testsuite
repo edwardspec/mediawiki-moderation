@@ -133,3 +133,8 @@ It provides the following:
 	2) new edits from blocked user appear in the Spam folder,
 	3) rejection flags (batch/auto) are set properly,
 	4) after the user is unblocked, new edits go into the Pending folder.
+
+12. [ModerationTestEdit.php]
+	Answers the question: "Does the editing work as usual?"
+	Here we check that
+	1) signatures (~~~~) are substituted in edits sent to moderation.
