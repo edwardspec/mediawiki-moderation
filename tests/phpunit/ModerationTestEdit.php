@@ -46,4 +46,55 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$this->assertNotEquals($text, $row->text,
 			"testPreSaveTransform(): Signature (~~~~) hasn't been properly substituted.");
 	}
+
+	public function testEditSection() {
+		$t = new ModerationTestsuite();
+
+		$sections = array(
+			"Text in zero section\n\n",
+			"== First section ==\nText in first section\n\n",
+			"== Second section ==\nText in second section\n\n",
+			"== Third section ==\nText in third section\n\n"
+		);
+		$title = 'Test page 1';
+		$text = join('', $sections);
+
+		$t->loginAs($t->automoderated);
+		$t->doTestEdit($title, $text);
+
+		$t->fetchSpecial();
+		$t->loginAs($t->unprivilegedUser);
+
+		# Do several edits in the different sections of the text.
+		$query = array(
+			'action' => 'edit',
+			'title' => $title,
+			'token' => null
+		);
+
+		$query['section'] = 0;
+		$query['text'] = $sections[0] = "New text in zero section\n\n";
+		$t->query($query);
+
+		$query['section'] = 2;
+		$query['text'] = $sections[2] = "== Second section (#2) ==\nText in second section\n";
+		$t->query($query);
+
+		$query['section'] = 'new';
+		$query['text'] = $sections[] = "== New section ==\nText in the new section\n";
+		$t->query($query);
+
+		$t->fetchSpecialAndDiff();
+
+		$dbw = wfGetDB( DB_MASTER );
+		$row = $dbw->selectRow( 'moderation',
+			array('mod_text AS text'),
+			array('mod_id' => $t->new_entries[0]->id),
+			__METHOD__
+		);
+
+		$expected_text = join('', $sections);
+		$this->assertNotEquals($expected_text, $row->text,
+			"editSection(): Resulting text doesn't match expected");
+	}
 }

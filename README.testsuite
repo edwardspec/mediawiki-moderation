@@ -137,4 +137,5 @@ It provides the following:
 12. [ModerationTestEdit.php]
 	Answers the question: "Does the editing work as usual?"
 	Here we check that
-	1) signatures (~~~~) are substituted in edits sent to moderation.
+	1) signatures (~~~~) are substituted in edits sent to moderation,
+	2) sections can be edited.

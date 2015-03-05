@@ -23,7 +23,6 @@ Background-prio (may not be needed):
 * (feature) Support uploads via API.
 
 Tests to implement:
-- sections edit test
 - checkuser: recording the correct user-agent (user's and not moderator's)
 - reupload test
 - check non-error responses from actions like Approve
