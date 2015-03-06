@@ -23,10 +23,14 @@ Background-prio (may not be needed):
 * (feature) Support uploads via API.
 
 Tests to implement:
-- checkuser: recording the correct user-agent (user's and not moderator's)
 - reupload test
 - check non-error responses from actions like Approve
 - merge test
 - timestamp check in history/recentchanges
 - preload test
 - check that anonymous edits are still preloaded after creating an account
+
+FIXME:
+- when user removes the section header (== here ==) while editing this
+	section, text of this section will be overwritten by the text taken
+	from the next section. Detect cases like that.
