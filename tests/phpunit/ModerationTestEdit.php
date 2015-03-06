@@ -83,11 +83,11 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$t->query($query);
 
 		$query['section'] = 2;
-		$query['text'] = $sections[2] = "== Second section (#2) ==\nText in second section\n";
+		$query['text'] = $sections[2] = "== Second section (#2) ==\nText in second section\n\n";
 		$t->query($query);
 
 		$query['section'] = 'new';
-		$query['text'] = $sections[] = "== New section ==\nText in the new section\n";
+		$query['text'] = $sections[] = "== New section ==\nText in the new section";
 		$t->query($query);
 
 		$t->fetchSpecialAndDiff();
@@ -100,7 +100,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 		);
 
 		$expected_text = join('', $sections);
-		$this->assertNotEquals($expected_text, $row->text,
+		$this->assertEquals($expected_text, $row->text,
 			"testEditSections(): Resulting text doesn't match expected");
 	}
 }
