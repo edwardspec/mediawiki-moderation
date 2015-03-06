@@ -17,7 +17,7 @@
 
 /**
 	@file
-	@brief Ensures that only checkusers can see IPs on Special:Moderation.
+	@brief Ensures that checkuser-related functionality works correctly.
 */
 
 require_once(__DIR__ . "/../ModerationTestsuite.php");
@@ -41,5 +41,46 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 			"testModerationCheckuser(): IP wasn't shown to checkuser on Special:Moderation");
 		$this->assertEquals("127.0.0.1", $entry->ip,
 			"testModerationCheckuser(): incorrect IP on Special:Moderation");
+	}
+
+	/**
+		@covers ModerationCheckUserHook
+	*/
+	public function testPreverveUserAgent() {
+		global $wgSpecialPages;
+		$t = new ModerationTestsuite();
+
+		$dbw = wfGetDB( DB_MASTER );
+		if(!array_key_exists('CheckUser', $wgSpecialPages)
+			|| !$dbw->tableExists('cu_changes'))
+		{
+			$this->markTestIncomplete('Test skipped: CheckUser extension must be installed to run it.');
+		}
+
+		$moderatorUA = 'UserAgent of Moderator/1.0';
+		$userUA = 'UserAgent of UnprivilegedUser/1.0';
+
+		# When the edit is approved, cu_changes.cuc_agent field should
+		# contain UserAgent of user who made the edit,
+		# not UserAgent or the moderator who approved it.
+
+		$t->setUserAgent($userUA);
+		$entry = $t->getSampleEntry();
+
+		$t->setUserAgent($moderatorUA);
+		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
+		$this->assertTrue($req->execute()->isOK());
+
+		$row = $dbw->selectRow('cu_changes',
+			array('cuc_agent AS agent'),
+			array('1'),
+			__METHOD__,
+			array('ORDER BY' => 'cuc_id DESC', 'LIMIT' => 1)
+		);
+
+		$this->assertNotEquals($moderatorUA, $row->agent,
+			"testPreverveUserAgent(): UserAgent in checkuser tables matches moderator's UserAgent");
+		$this->assertEquals($userUA, $row->agent,
+			"testPreverveUserAgent(): UserAgent in checkuser tables doesn't match UserAgent of user who made the edit");
 	}
 }

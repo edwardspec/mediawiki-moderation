@@ -121,10 +121,11 @@ It provides the following:
 	6) moderation-missing-stashed-image
 
 10. [ModerationTestCheckuser.php]
-	Answers the question: "Does moderation-checkuser right work correctly?"
+	Answers the question: "Does checkuser-related stuff work correctly?"
 	Here we check that
 	1) moderator without 'moderation-checkuser' right can't see IPs,
-	2) moderator with 'moderation-checkuser' right can see IPs.
+	2) moderator with 'moderation-checkuser' right can see IPs,
+	3) user-agent of whoever made the edit is saved in cu_changes table.
 
 11. [ModerationTestBlock.php]
 	Answers the question: "Do the Block/Unblock links work as expected?"

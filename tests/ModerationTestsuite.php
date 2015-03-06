@@ -33,8 +33,9 @@ class ModerationTestsuite
 	private $apiUrl;
 	private $editToken = false;
 	private $cookie_jar; # Cookie storage (from login() and anonymous preloading)
-
 	private $TEST_PASSWORD = '123456';
+
+	public $userAgent = 'MediaWiki Moderation Testsuite';
 
 	public function getScriptPath()
 	{
@@ -56,9 +57,15 @@ class ModerationTestsuite
 		$this->editToken = $ret['tokens']['edittoken'];
 	}
 
+	public function setUserAgent($ua)
+	{
+		$this->userAgent = $ua;
+	}
+
 	public function makeHttpRequest($url, $method = 'POST')
 	{
 		$req = MWHttpRequest::factory($url, array('method' => $method));
+		$req->setUserAgent($this->userAgent);
 		$req->setCookieJar($this->cookie_jar);
 
 		return $req;
