@@ -47,9 +47,15 @@ class ModerationTestEdit extends MediaWikiTestCase
 			"testPreSaveTransform(): Signature (~~~~) hasn't been properly substituted.");
 	}
 
-	public function testEditSection() {
+	public function testEditSections() {
 		$t = new ModerationTestsuite();
 
+		# Note: we must do more than one edit here,
+		# because sections-related code in ModerationEditHooks is only
+		# used when user makes more than one edit to the same page.
+		#
+		# On the first edit, mod_text doesn't exist and therefore
+		# doesn't need to be corrected.
 		$sections = array(
 			"Text in zero section\n\n",
 			"== First section ==\nText in first section\n\n",
@@ -95,6 +101,6 @@ class ModerationTestEdit extends MediaWikiTestCase
 
 		$expected_text = join('', $sections);
 		$this->assertNotEquals($expected_text, $row->text,
-			"editSection(): Resulting text doesn't match expected");
+			"testEditSections(): Resulting text doesn't match expected");
 	}
 }
