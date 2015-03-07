@@ -102,5 +102,23 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$expected_text = join('', $sections);
 		$this->assertEquals($expected_text, $row->text,
 			"testEditSections(): Resulting text doesn't match expected");
+
+		# Does PreSaveTransform work when editing sections?
+
+		$t->loginAs($t->unprivilegedUser);
+		$query['section'] = 2;
+		$query['text'] = "== New section 2 ==\n~~~\n\n";
+		$ret = $t->query($query);
+
+		$row = $dbw->selectRow( 'moderation',
+			array('mod_text AS text'),
+			array('mod_id' => $t->new_entries[0]->id),
+			__METHOD__
+		);
+
+		$this->assertNotRegExp('/~~~/', $row->text,
+			"testEditSections(): Signature (~~~~) hasn't been properly substituted.");
+
+
 	}
 }
