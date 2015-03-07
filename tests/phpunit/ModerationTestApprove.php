@@ -40,15 +40,6 @@ class ModerationTestApprove extends MediaWikiTestCase
 			"testApprove(): Approve link not found");
 
 		$this->tryToApprove($t, $entry);
-
-		/*
-			NOTE: checking 'timestamp' can't be in this test, because
-			we'd have to sleep(N) to make edit time and approval timestamp
-			different enough, and that would make this test very slow.
-
-			This should be in a separate test (preferably one of the last
-			to run).
-		*/
 		$t->fetchSpecialAndDiff();
 
 		$this->assertCount(0, $t->new_entries,
@@ -289,6 +280,62 @@ class ModerationTestApprove extends MediaWikiTestCase
 			"testModeratorNotAutomoderated(): Several edits were approved, but number of deleted entries in Pending folder doesn't match");
 	}
 
+	public function testApproveTimestamp() {
+		$t = new ModerationTestsuite();
+		$entry = $t->getSampleEntry();
+
+		$TEST_TIME_CHANGE = '6 hours';
+		$ACCEPTABLE_DIFFERENCE = 300; # in seconds
+
+		$ts = new MWTimestamp(time());
+		$ts->timestamp->modify('-' . $TEST_TIME_CHANGE);
+
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->update( 'moderation',
+			array('mod_timestamp' => $ts->getTimestamp(TS_MW)),
+			array('mod_id' => $entry->id),
+			__METHOD__
+		); sleep(1);
+		$rev = $this->tryToApprove($t, $entry);
+
+		# Page history should mention the time when edit was made,
+		# not when it was approved.
+
+		$expected = $ts->getTimestamp(TS_ISO_8601);
+		$this->assertEquals($expected, $rev['timestamp'],
+			"testApproveTimestamp(): approved edit has incorrect timestamp in the page history");
+
+		# RecentChanges should mention the time when the edit was
+		# approved, so that it won't "appear in the past", confusing
+		# those who read RecentChanges.
+
+		$ret = $t->query(array(
+			'action' => 'query',
+			'list' => 'recentchanges',
+			'rcprop' => 'timestamp',
+			'rclimit' => 1,
+			'rcuser' => $t->lastEdit['User']
+		));
+		$rc_timestamp = $ret['query']['recentchanges'][0]['timestamp'];
+
+		$this->assertNotEquals($expected, $rc_timestamp,
+			"testApproveTimestamp(): approved edit has \"appeared in the past\" in the RecentChanges");
+
+		# Does the time in RecentChanges match the time of approval?
+		#
+		# NOTE: we don't know the time of approval to the second, so
+		# string comparison can't be used - difference of seconds or
+		# (if time is off on the host running MediaWiki) even minutes.
+		$ts->timestamp->modify('+' . $TEST_TIME_CHANGE);
+		$expected = $ts->getTimestamp(TS_UNIX);
+
+		$ts_actual = new MWTimestamp($rc_timestamp);
+		$actual = $ts_actual->getTimestamp(TS_UNIX);
+
+		$this->assertLessThan($ACCEPTABLE_DIFFERENCE, abs($expected - $actual),
+			"testApproveTimestamp(): timestamp of approved edit in RecentChanges is too different from the time of approval");
+	}
+
 	private function tryToApprove($t, $entry)
 	{
 		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
@@ -309,5 +356,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$this->assertEquals($t->lastEdit['User'], $rev['user']);
 		$this->assertEquals($t->lastEdit['Text'], $rev['*']);
 		$this->assertEquals($t->lastEdit['Summary'], $rev['comment']);
+
+		return $rev;
 	}
 }
