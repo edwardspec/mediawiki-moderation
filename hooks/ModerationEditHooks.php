@@ -30,7 +30,7 @@ class ModerationEditHooks {
 	*/
 	static public function onPageContentSave(&$page, &$user, &$content, &$summary, $is_minor, $is_watch, $section, &$flags, &$status)
 	{
-		global $wgOut, $wgRequest, $wgContLang;
+		global $wgOut, $wgContLang;
 
 		if(ModerationCanSkip::canSkip($user))
 			return true;
