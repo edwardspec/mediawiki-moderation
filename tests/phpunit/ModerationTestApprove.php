@@ -324,8 +324,8 @@ class ModerationTestApprove extends MediaWikiTestCase
 		# Does the time in RecentChanges match the time of approval?
 		#
 		# NOTE: we don't know the time of approval to the second, so
-		# string comparison can't be used - difference of seconds or
-		# (if time is off on the host running MediaWiki) even minutes.
+		# string comparison can't be used. Difference can be seconds
+		# or even minutes (if system time is off).
 		$ts->timestamp->modify('+' . $TEST_TIME_CHANGE);
 		$expected = $ts->getTimestamp(TS_UNIX);
 
