@@ -295,7 +295,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 			array('mod_timestamp' => $ts->getTimestamp(TS_MW)),
 			array('mod_id' => $entry->id),
 			__METHOD__
-		); sleep(1);
+		);
 		$rev = $this->tryToApprove($t, $entry);
 
 		# Page history should mention the time when edit was made,
