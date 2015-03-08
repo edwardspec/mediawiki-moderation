@@ -37,14 +37,9 @@ class ModerationTestsuite
 
 	public $userAgent = 'MediaWiki Moderation Testsuite';
 
-	public function getScriptPath()
-	{
-		global $wgServer, $wgScriptPath;
-		return wfExpandUrl($wgServer, PROTO_HTTP) . '/' . $wgScriptPath;
-	}
 	private function PrepareAPIForTests()
 	{
-		$this->apiUrl = $this->getScriptPath() . "/api.php";
+		$this->apiUrl = wfScript('api');
 		$this->cookie_jar = new CookieJar;
 		$this->getEditToken();
 	}
@@ -128,8 +123,10 @@ class ModerationTestsuite
 		# their names, so parsing process is translation-independent.
 		# (see ModerationTestsuiteEntry::fromDOMElement)
 
-		$url = $this->getScriptPath() .
-			'/index.php?title=Special:Moderation&uselang=qqx';
+		$url = wfAppendQuery(wfScript('index'), array(
+			'title' => 'Special:Moderation',
+			'uselang' => 'qqx'
+		));
 		return $url;
 	}
 
@@ -413,8 +410,10 @@ class ModerationTestsuite
 		}
 		$source_filename = realpath($source_filename);
 
-		$url = $this->getScriptPath() .
-			'/index.php?title=Special:Upload&uselang=qqx';
+		$url = wfAppendQuery(wfScript('index'), array(
+			'title' => 'Special:Upload',
+			'uselang' => 'qqx'
+		));
 		$req = $this->makeHttpRequest($url, 'POST');
 
 		$req->setHeader('Content-Type', 'multipart/form-data');
