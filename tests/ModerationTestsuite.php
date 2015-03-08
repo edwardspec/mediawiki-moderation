@@ -81,7 +81,7 @@ class ModerationTestsuite
 		return FormatJson::decode($req->getContent(), true);
 	}
 
-	public function login($username) {
+	private function apiLogin($username) {
 		# Step 1. Get the token.
 		$q = array(
 			'action' => 'login',
@@ -102,9 +102,17 @@ class ModerationTestsuite
 		return false;
 	}
 
-	public function logout() {
+	private function apiLogout() {
 		$this->cookie_jar = new CookieJar; # Just delete all cookies
 		$this->getEditToken();
+	}
+
+	private function apiLoggedInAs() {
+		$ret = $this->query(array(
+			'action' => 'query',
+			'meta' => 'userinfo'
+		));
+		return $ret['query']['userinfo']['name'];
 	}
 
 	#
@@ -237,6 +245,7 @@ class ModerationTestsuite
 			'title' => $title,
 			'action' => 'edit'
 		));
+
 		if(!$this->getHtmlDocumentByURL($url))
 			return null;
 
@@ -312,17 +321,23 @@ class ModerationTestsuite
 	public $unprivilegedUser2;
 	public $moderatorAndCheckuser;
 
-	private $t_loggedInAs;
+	private $t_loggedInAs = null;
 
 	public function loggedInAs()
 	{
 		return $this->t_loggedInAs;
 	}
 
-	public function loginAs($user)
+	public function loginAs(User $user)
 	{
-		$this->login($user->getName());
+		$this->apiLogin($user->getName());
 		$this->t_loggedInAs = $user;
+	}
+
+	public function logout() {
+		$this->apiLogout();
+		$this->t_loggedInAs =
+			User::newFromName($this->apiLoggedInAs(), false);
 	}
 
 	public function doTestEdit($title = null, $text = null)
