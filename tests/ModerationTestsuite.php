@@ -124,8 +124,6 @@ class ModerationTestsuite
 
 	public function getSpecialURL()
 	{
-		global $wgServer, $wgScriptPath;
-
 		# When "uselang=qqx" is specified, messages are replaced with
 		# their names, so parsing process is translation-independent.
 		# (see ModerationTestsuiteEntry::fromDOMElement)
