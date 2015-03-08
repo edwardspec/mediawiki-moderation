@@ -132,9 +132,9 @@ class ModerationTestReject extends MediaWikiTestCase
 			$this->assertEquals($entry->title, $de->title);
 
 			$this->assertEquals($t->moderator->getName(), $de->rejected_by_user);
-			$this->assertTrue($t->new_entries[0]->rejected_batch,
+			$this->assertTrue($de->rejected_batch,
 				"testRejectAll(): Edit rejected via modaction=rejectall has rejected_batch flag OFF");
-			$this->assertFalse($t->new_entries[0]->rejected_auto,
+			$this->assertFalse($de->rejected_auto,
 				"testRejectAll(): Manually rejected edit has rejected_auto flag ON");
 
 		}
