@@ -214,6 +214,7 @@ class ModerationTestsuite
 		return $this->lastFetchedDocument->
 			getElementsByTagName('title')->item(0)->textContent;
 	}
+
 	public function getModerationErrorByURL($url)
 	{
 		if(!$this->getHtmlDocumentByURL($url . '&uselang=qqx'))
@@ -224,6 +225,26 @@ class ModerationTestsuite
 			return null;
 
 		return $elem->textContent;
+	}
+
+	/**
+		@brief Fetch the edit form and return the text in #wpTextbox1.
+		@param title The page to be opened for editing.
+	*/
+	public function getPreloadedText($title)
+	{
+		$url = wfAppendQuery(wfScript('index'), array(
+			'title' => $title,
+			'action' => 'edit'
+		));
+		if(!$this->getHtmlDocumentByURL($url))
+			return null;
+
+		$elem = $this->lastFetchedDocument->getElementById('wpTextbox1');
+		if(!$elem)
+			return null;
+
+		return trim($elem->textContent);
 	}
 
 	#

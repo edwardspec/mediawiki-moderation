@@ -32,16 +32,9 @@ class ModerationTestPreload extends MediaWikiTestCase
 		$t->loginAs($t->unprivilegedUser);
 		$t->doTestEdit();
 
-		$url = wfAppendQuery(wfScript('index'), array(
-			'title' => $t->lastEdit['Title'],
-			'action' => 'edit'
-		));
-		$html = $t->getHtmlDocumentByURL($url);
-
-		$elem = $t->lastFetchedDocument->getElementById('wpTextbox1');
-		$text = trim($elem->textContent);
-
-		$this->assertEquals($t->lastEdit['Text'], $text,
+		$this->assertEquals(
+			$t->lastEdit['Text'],
+			$t->getPreloadedText($t->lastEdit['Title']),
 			"testPreload(): Preloaded text differs from what the user saved before");
 	}
 }
