@@ -70,6 +70,13 @@ class ModerationTestBlock extends MediaWikiTestCase
 		$this->assertNotNull($entry->unblockLink,
 			"testBlock(): Unblock link not found for blocked user");
 
+		$this->assertNull($entry->rejectLink,
+			"testBlock(): Reject link found for already rejected edit");
+		$this->assertNull($entry->rejectAllLink,
+			"testBlock(): RejectAll link found for already rejected edit");
+		$this->assertNull($entry->approveAllLink,
+			"testBlock(): ApproveAll link found for already rejected edit");
+
 		$req = $t->makeHttpRequest($entry->unblockLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 

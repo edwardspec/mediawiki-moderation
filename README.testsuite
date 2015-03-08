@@ -77,7 +77,8 @@ It provides the following:
 	2) rejected edits are added to the Rejected folder,
 	3) the moderator's name is recorded,
 	4) rejection flags (batch/auto) are set properly,
-	5) edits of other users are unaffected by Rejectall.
+	5) rejected edits don't have ApproveAll/Reject/RejectAll links,
+	6) edits of other users are unaffected by Rejectall.
 
 5. [ModerationTestPermissions.php]
 	Answers the question: "Is Special:Moderation for moderators only?"
@@ -135,7 +136,8 @@ It provides the following:
 	1) Unblock (Block) link is only shown for blocked (non-blocked) user,
 	2) new edits from blocked user appear in the Spam folder,
 	3) rejection flags (batch/auto) are set properly,
-	4) after the user is unblocked, new edits go into the Pending folder.
+	4) edits in Spam folder don't have ApproveAll/Reject/RejectAll links,
+	5) after the user is unblocked, new edits go into the Pending folder.
 
 12. [ModerationTestEdit.php]
 	Answers the question: "Does the editing work as usual?"

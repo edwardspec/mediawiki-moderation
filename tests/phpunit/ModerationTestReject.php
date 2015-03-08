@@ -70,6 +70,13 @@ class ModerationTestReject extends MediaWikiTestCase
 			"testReject(): Edit rejected via modaction=reject has rejected_batch flag ON");
 		$this->assertFalse($t->new_entries[0]->rejected_auto,
 			"testReject(): Manually rejected edit has rejected_auto flag ON");
+
+		$this->assertNull($t->new_entries[0]->rejectLink,
+			"testReject(): Reject link found for already rejected edit");
+		$this->assertNull($t->new_entries[0]->rejectAllLink,
+			"testReject(): RejectAll link found for already rejected edit");
+		$this->assertNull($t->new_entries[0]->approveAllLink,
+			"testReject(): ApproveAll link found for already rejected edit");
 	}
 
 	public function testRejectAll() {
@@ -136,6 +143,13 @@ class ModerationTestReject extends MediaWikiTestCase
 				"testRejectAll(): Edit rejected via modaction=rejectall has rejected_batch flag OFF");
 			$this->assertFalse($de->rejected_auto,
 				"testRejectAll(): Manually rejected edit has rejected_auto flag ON");
+
+			$this->assertNull($de->rejectLink,
+				"testRejectAll(): Reject link found for already rejected edit");
+			$this->assertNull($de->rejectAllLink,
+				"testRejectAll(): RejectAll link found for already rejected edit");
+			$this->assertNull($de->approveAllLink,
+				"testRejectAll(): ApproveAll link found for already rejected edit");
 
 		}
 	}
