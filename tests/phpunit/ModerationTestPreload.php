@@ -27,10 +27,23 @@ require_once(__DIR__ . "/../ModerationTestsuite.php");
 */
 class ModerationTestPreload extends MediaWikiTestCase
 {
-	public function testPreload() {
+	public function testLoggedInPreload() {
 		$t = new ModerationTestsuite();
+
 		$t->loginAs($t->unprivilegedUser);
 		$t->doTestEdit();
+
+		$this->assertEquals(
+			$t->lastEdit['Text'],
+			$t->getPreloadedText($t->lastEdit['Title']),
+			"testPreload(): Preloaded text differs from what the user saved before");
+	}
+
+	public function testAnonymousPreload() {
+		$t = new ModerationTestsuite();
+
+		$t->logout();
+		$ret = $t->doTestEdit();
 
 		$this->assertEquals(
 			$t->lastEdit['Text'],
