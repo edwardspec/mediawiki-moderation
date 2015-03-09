@@ -36,7 +36,7 @@ class ModerationTestPreload extends MediaWikiTestCase
 		$this->assertEquals(
 			$t->lastEdit['Text'],
 			$t->getPreloadedText($t->lastEdit['Title']),
-			"testPreload(): Preloaded text differs from what the user saved before");
+			"testLoggedInPreload(): Preloaded text differs from what the user saved before");
 	}
 
 	public function testAnonymousPreload() {
@@ -48,6 +48,6 @@ class ModerationTestPreload extends MediaWikiTestCase
 		$this->assertEquals(
 			$t->lastEdit['Text'],
 			$t->getPreloadedText($t->lastEdit['Title']),
-			"testPreload(): Preloaded text differs from what the user saved before");
+			"testAnonymousPreload(): Preloaded text differs from what the user saved before");
 	}
 }
