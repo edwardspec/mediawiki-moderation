@@ -340,6 +340,22 @@ class ModerationTestsuite
 			User::newFromName($this->apiLoggedInAs(), false);
 	}
 
+	public function apiEdit($title, $text, $summary)
+	{
+		return $this->query(array(
+			'action' => 'edit',
+			'title' => $title,
+			'text' => $text,
+			'summary' => $summary,
+			'token' => null
+		));
+	}
+
+	public function nonApiEdit($title, $text, $summary)
+	{
+		/* TODO */
+	}
+
 	public function doTestEdit($title = null, $text = null)
 	{
 		if(!$title)
@@ -353,13 +369,7 @@ class ModerationTestsuite
 		# TODO: ensure that page $title doesn't already contain $text
 		# (to avoid extremely rare test failures due to random collisions)
 
-		$ret = $this->query(array(
-			'action' => 'edit',
-			'title' => $title,
-			'text' => $text,
-			'summary' => $summary,
-			'token' => null
-		));
+		$ret = $this->apiEdit($title, $text, $summary);
 
 		/* TODO: check if successful */
 
