@@ -362,6 +362,7 @@ class ModerationTestsuite
 
 	/**
 		@brief Make an edit via the usual interface, as real users do.
+		@returns Completed request of type MWHttpRequest.
 	*/
 	public function nonApiEdit($title, $text, $summary)
 	{
@@ -380,10 +381,9 @@ class ModerationTestsuite
 			'wpRecreate' => '',
 			'wpEdittime' => wfTimestampNow()
 		));
+		$req->execute();
 
-		$status = $req->execute();
-
-		# TODO: return something useful here
+		return $req;
 	}
 
 	public function doTestEdit($title = null, $text = null)

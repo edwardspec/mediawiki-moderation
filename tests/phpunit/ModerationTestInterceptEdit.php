@@ -41,8 +41,46 @@ class ModerationTestInterceptEdit extends MediaWikiTestCase
 		$this->assertArrayHasKey('error', $ret);
 		$this->assertEquals('edit-hook-aborted', $ret['error']['code']);
 
-		$this->assertCount(1, $t->new_entries, "testQueued(): One edit was queued for moderation, but number of added entries in Pending folder isn't 1");
-		$this->assertCount(0, $t->deleted_entries, "testQueued(): Something was deleted from Pending folder during the queueing");
+		$this->assertCount(1, $t->new_entries,
+			"testInterceptEdit(): One edit was queued for moderation, but number of added entries in Pending folder isn't 1");
+		$this->assertCount(0, $t->deleted_entries,
+			"testInterceptEdit(): Something was deleted from Pending folder during the queueing");
+		$this->assertEquals($t->lastEdit['User'], $t->new_entries[0]->user);
+		$this->assertEquals($t->lastEdit['Title'], $t->new_entries[0]->title);
+	}
+
+	public function testPostEditRedirect() {
+		$t = new ModerationTestsuite();
+
+		$t->fetchSpecial();
+		$t->loginAs($t->unprivilegedUser);
+		$req = $t->doTestEdit();
+		$t->fetchSpecialAndDiff();
+
+		$this->assertTrue($req->status->isOK());
+		$this->assertTrue($req->isRedirect(),
+			"testPostEditRedirect(): User hasn't been redirected after the edit");
+
+		$url = $req->getResponseHeader("Location");
+		$params = wfCgiToArray(preg_replace('/^.*?\?/', '', $url));
+
+		$this->assertArrayHasKey('title', $params);
+		$this->assertArrayHasKey('modqueued', $params);
+		$this->assertCount(2, $params,
+			"testPostEditRedirect(): redirect URL has parameters other than 'title' and 'modqueued'");
+
+		$this->assertEquals(
+			$t->lastEdit['Title'],
+			preg_replace('/_/', ' ', $params['title']),
+			"testPostEditRedirect(): Title in the redirect URL doesn't match the title of page we edited");
+		$this->assertEquals(1, $params['modqueued'],
+			"testPostEditRedirect(): parameter modqueued=1 not found in the redirect URL");
+
+		# Usual checks on whether the edit not via API was intercepted.
+		$this->assertCount(1, $t->new_entries,
+			"testPostEditRedirect(): One edit was queued for moderation, but number of added entries in Pending folder isn't 1");
+		$this->assertCount(0, $t->deleted_entries,
+			"testPostEditRedirect(): Something was deleted from Pending folder during the queueing");
 		$this->assertEquals($t->lastEdit['User'], $t->new_entries[0]->user);
 		$this->assertEquals($t->lastEdit['Title'], $t->new_entries[0]->title);
 	}

@@ -47,7 +47,8 @@ It provides the following:
 	Answers the question: "Are the new edits indeed intercepted?"
 	Here we check that
 	1) edits are stopped with 'edit-hook-aborted' code,
-	2) new entry appears on Special:Moderation.
+	2) new entry appears on Special:Moderation,
+	3) user is properly redirected after the edit.
 
 2. [ModerationTestAutomoderated.php]
 	Answers the question: "Do automoderated users bypass moderation?"
@@ -144,3 +145,9 @@ It provides the following:
 	Here we check that
 	1) signatures (~~~~) are substituted in edits sent to moderation,
 	2) sections can be edited.
+
+13. [ModerationTestPreload.php]
+	Answers the question: "Can the user continue editing his revision?"
+	Here we check that
+	1) text from the last queued edit is preloaded into the edit form,
+	2) text is preloaded for both logged in and anonymous users.
