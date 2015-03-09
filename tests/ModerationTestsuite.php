@@ -340,6 +340,13 @@ class ModerationTestsuite
 			User::newFromName($this->apiLoggedInAs(), false);
 	}
 
+	/**
+		@brief Make an edit via API.
+		@warning Several side-effects can't be tested this way,
+			for example HTTP redirect after editing or
+			session cookies (used for anonymous preloading)
+		@returns API response
+	*/
 	public function apiEdit($title, $text, $summary)
 	{
 		return $this->query(array(
@@ -351,9 +358,31 @@ class ModerationTestsuite
 		));
 	}
 
+	/**
+		@brief Make an edit via the usual interface, as real users do.
+	*/
 	public function nonApiEdit($title, $text, $summary)
 	{
-		/* TODO */
+		$url = wfScript('index');
+		$req = $this->makeHttpRequest($url, 'POST');
+
+		# $req->setHeader('Content-Type', 'multipart/form-data');
+		$req->setData(array(
+			'uselang' => 'qqx',
+			'action' => 'edit',
+			'title' => $title,
+			'wpTextbox1' => $text,
+			'wpSummary' => $summary,
+			'wpEditToken' => $this->editToken,
+			'wpSave' => 'Save',
+			'wpIgnoreBlankSummary' => '',
+			'wpRecreate' => '',
+			'wpEdittime' => wfTimestampNow()
+		));
+
+		$status = $req->execute();
+
+		# TODO: return something useful here
 	}
 
 	public function doTestEdit($title = null, $text = null)
