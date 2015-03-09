@@ -358,6 +358,8 @@ class ModerationTestsuite
 		));
 	}
 
+	public $editViaAPI = false;
+
 	/**
 		@brief Make an edit via the usual interface, as real users do.
 	*/
@@ -397,7 +399,12 @@ class ModerationTestsuite
 		# TODO: ensure that page $title doesn't already contain $text
 		# (to avoid extremely rare test failures due to random collisions)
 
-		$ret = $this->apiEdit($title, $text, $summary);
+		if($this->editViaAPI) {
+			$ret = $this->apiEdit($title, $text, $summary);
+		}
+		else {
+			$ret = $this->nonApiEdit($title, $text, $summary);
+		}
 
 		/* TODO: check if successful */
 

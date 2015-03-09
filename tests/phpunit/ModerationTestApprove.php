@@ -243,7 +243,10 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 		$t->fetchSpecial();
 		$t->loginAs($t->moderatorButNotAutomoderated);
+
+		$t->editViaAPI = true;
 		$ret = $t->doTestEdit();
+
 		$t->fetchSpecialAndDiff();
 
 		/* Edit must be intercepted (this user is not automoderated) */

@@ -32,7 +32,10 @@ class ModerationTestInterceptEdit extends MediaWikiTestCase
 
 		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
+
+		$t->editViaAPI = true;
 		$ret = $t->doTestEdit();
+
 		$t->fetchSpecialAndDiff();
 
 		$this->assertArrayHasKey('error', $ret);
@@ -42,6 +45,5 @@ class ModerationTestInterceptEdit extends MediaWikiTestCase
 		$this->assertCount(0, $t->deleted_entries, "testQueued(): Something was deleted from Pending folder during the queueing");
 		$this->assertEquals($t->lastEdit['User'], $t->new_entries[0]->user);
 		$this->assertEquals($t->lastEdit['Title'], $t->new_entries[0]->title);
-
 	}
 }
