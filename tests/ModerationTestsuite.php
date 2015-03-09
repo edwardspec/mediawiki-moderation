@@ -363,8 +363,7 @@ class ModerationTestsuite
 	*/
 	public function nonApiEdit($title, $text, $summary)
 	{
-		$url = wfScript('index');
-		$req = $this->makeHttpRequest($url, 'POST');
+		$req = $this->makeHttpRequest(wfScript('index'), 'POST');
 
 		# $req->setHeader('Content-Type', 'multipart/form-data');
 		$req->setData(array(
@@ -485,14 +484,12 @@ class ModerationTestsuite
 		}
 		$source_filename = realpath($source_filename);
 
-		$url = wfAppendQuery(wfScript('index'), array(
-			'title' => 'Special:Upload',
-			'uselang' => 'qqx'
-		));
-		$req = $this->makeHttpRequest($url, 'POST');
+		$req = $this->makeHttpRequest(wfScript('index'), 'POST');
 
 		$req->setHeader('Content-Type', 'multipart/form-data');
 		$req->setData(array(
+			'uselang' => 'qqx',
+			'title' => 'Special:Upload',
 			'wpUploadFile' => '@' . $source_filename,
 			'wpDestFile' => $title,
 			'wpIgnoreWarning' => '1',
