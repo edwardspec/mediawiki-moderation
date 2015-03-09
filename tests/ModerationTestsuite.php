@@ -386,7 +386,7 @@ class ModerationTestsuite
 		return $req;
 	}
 
-	public function doTestEdit($title = null, $text = null)
+	public function doTestEdit($title = null, $text = null, $summary = null)
 	{
 		if(!$title)
 			$title = $this->generateRandomTitle();
@@ -394,7 +394,8 @@ class ModerationTestsuite
 		if(!$text)
 			$text = $this->generateRandomText();
 
-		$summary = $this->generateEditSummary();
+		if(!$summary)
+			$summary = $this->generateEditSummary();
 
 		# TODO: ensure that page $title doesn't already contain $text
 		# (to avoid extremely rare test failures due to random collisions)

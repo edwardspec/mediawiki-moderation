@@ -37,6 +37,8 @@ class ModerationTestPreload extends MediaWikiTestCase
 			$t->lastEdit['Text'],
 			$t->getPreloadedText($t->lastEdit['Title']),
 			"testLoggedInPreload(): Preloaded text differs from what the user saved before");
+
+		# Summary is not preloaded for new pages, see KNOWN_LIMITATIONS
 	}
 
 	public function testAnonymousPreload() {
@@ -49,5 +51,34 @@ class ModerationTestPreload extends MediaWikiTestCase
 			$t->lastEdit['Text'],
 			$t->getPreloadedText($t->lastEdit['Title']),
 			"testAnonymousPreload(): Preloaded text differs from what the user saved before");
+	}
+
+	public function testPreloadSummary() {
+		$t = new ModerationTestsuite();
+
+		# Summaries are only preloaded for existing pages, so we need
+		# to create the page first. (see KNOWN_LIMITATIONS for details)
+
+		$page = "Test page 1";
+		$summary = "The quick brown fox jumps over the lazy dog";
+
+		$t->loginAs($t->automoderated);
+		$t->doTestEdit($page, "Text 1");
+
+		$t->loginAs($t->unprivilegedUser);
+		$t->doTestEdit($page, "Another text", $summary);
+
+		$this->assertEquals(
+			$t->lastEdit['Text'],
+			$t->getPreloadedText($t->lastEdit['Title']),
+			"testPreloadSummary(): Preloaded text differs from what the user saved before");
+
+		$elem = $t->lastFetchedDocument->getElementById('wpSummary');
+		$this->assertTrue($elem->hasAttribute('value'),
+			"testPreloadSummary(): #wpSummary doesn't have a 'value' attribute"
+		);
+		$this->assertEquals($summary, $elem->getAttribute('value'),
+			"testPreloadSummary(): Preloaded summary doesn't match"
+		);
 	}
 }
