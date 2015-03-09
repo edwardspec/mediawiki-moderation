@@ -349,7 +349,7 @@ class ModerationError extends ErrorPageError {
 	public function report() {
 		global $wgOut;
 
-		$wgOut->prepareErrorPage($this->msg($this->title));
+		$wgOut->prepareErrorPage($wgOut->msg($this->title));
 		$wgOut->wrapWikiMsg('<div id="mw-mod-error" class="error">$1</div>',
 			array($this->msg));
 		$wgOut->output();
