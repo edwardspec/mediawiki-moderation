@@ -369,7 +369,7 @@ class ModerationTestsuite
 		# $req->setHeader('Content-Type', 'multipart/form-data');
 		$req->setData(array(
 			'uselang' => 'qqx',
-			'action' => 'edit',
+			'action' => 'submit',
 			'title' => $title,
 			'wpTextbox1' => $text,
 			'wpSummary' => $summary,
