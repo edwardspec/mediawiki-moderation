@@ -256,6 +256,33 @@ class ModerationTestsuite
 		return trim($elem->textContent);
 	}
 
+	/**
+		@brief Return the list of ResourceLoader modules
+			which are used in the last fetched HTML.
+	*/
+	public function getLoaderModulesList()
+	{
+		/* FIXME: different syntax in HTML fetch&analyse functions */
+
+		$scripts = $this->lastFetchedDocument->getElementsByTagName('script');
+
+		$list = array();
+		foreach($scripts as $script)
+		{
+			$matches = null;
+			if(preg_match('/mw\.loader\.load\(\[([^]]+)\]/', $script->textContent, $matches))
+			{
+				$items = explode(',', $matches[1]);
+
+				foreach($items as $item)
+				{
+					$list[] = preg_replace('/^"(.*)"$/', '$1', $item);
+				}
+			}
+		}
+		return array_unique($list);
+	}
+
 	#
 	# Part 3. Database-related functions.
 	#

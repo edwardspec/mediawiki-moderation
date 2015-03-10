@@ -39,6 +39,9 @@ class ModerationTestPreload extends MediaWikiTestCase
 			"testLoggedInPreload(): Preloaded text differs from what the user saved before");
 
 		# Summary is not preloaded for new pages, see KNOWN_LIMITATIONS
+
+		$this->assertContains('ext.moderation.edit', $t->getLoaderModulesList(),
+			"testLoggedInPreload(): Module ext.moderation.edit wasn't loaded");
 	}
 
 	public function testAnonymousPreload() {
@@ -80,5 +83,8 @@ class ModerationTestPreload extends MediaWikiTestCase
 		$this->assertEquals($summary, $elem->getAttribute('value'),
 			"testPreloadSummary(): Preloaded summary doesn't match"
 		);
+
+		$this->assertContains('ext.moderation.edit', $t->getLoaderModulesList(),
+			"testPreloadSummary(): Module ext.moderation.edit wasn't loaded");
 	}
 }
