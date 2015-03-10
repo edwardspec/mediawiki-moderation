@@ -148,7 +148,7 @@ class ModerationPreload {
 		if(!$row) return;
 
 		$wgOut->addModules('ext.moderation.edit');
-		$wgOut->wrapWikiMsg('<div class="editing-your-version">$1</div>', array('moderation-editing-your-version'));
+		$wgOut->wrapWikiMsg('<div id="mw-editing-your-version">$1</div>', array('moderation-editing-your-version'));
 
 		$text = $row->text;
 
