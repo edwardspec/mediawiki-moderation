@@ -116,7 +116,7 @@ class ModerationTestsuite
 	}
 
 	#
-	# Part 2. Functions for parsing Special:Moderation.
+	# Part 2a. Functions for parsing Special:Moderation.
 	#
 	private $lastFetchedSpecial = array();
 
@@ -201,6 +201,9 @@ class ModerationTestsuite
 		$this->deleted_entries = ModerationTestsuiteEntry::entriesInANotInB($before, $after);
 	}
 
+	#
+	# Part 2b. Functions for parsing arbitrary HTML pages.
+	#
 	public function getHtmlDocumentByURL($url)
 	{
 		$req = $this->makeHttpRequest($url, 'GET');
@@ -214,19 +217,23 @@ class ModerationTestsuite
 		return $html;
 	}
 
-	public function getHtmlTitleByURL($url)
+	public function getHtmlTitle($url = null)
 	{
-		if(!$this->getHtmlDocumentByURL($url))
-			return null;
+		if($url) {
+			if(!$this->getHtmlDocumentByURL($url))
+				return null;
+		}
 
 		return $this->lastFetchedDocument->
 			getElementsByTagName('title')->item(0)->textContent;
 	}
 
-	public function getModerationErrorByURL($url)
+	public function getModerationError($url = null)
 	{
-		if(!$this->getHtmlDocumentByURL($url . '&uselang=qqx'))
-			return null;
+		if($url) {
+			if(!$this->getHtmlDocumentByURL($url . '&uselang=qqx'))
+				return null;
+		}
 
 		$elem = $this->lastFetchedDocument->getElementById('mw-mod-error');
 		if(!$elem)
@@ -260,10 +267,12 @@ class ModerationTestsuite
 		@brief Return the list of ResourceLoader modules
 			which are used in the last fetched HTML.
 	*/
-	public function getLoaderModulesList()
+	public function getLoaderModulesList($url = null)
 	{
-		/* FIXME: different syntax in HTML fetch&analyse functions */
-
+		if($url) {
+			if(!$this->getHtmlDocumentByURL($url))
+				return null;
+		}
 		$scripts = $this->lastFetchedDocument->getElementsByTagName('script');
 
 		$list = array();

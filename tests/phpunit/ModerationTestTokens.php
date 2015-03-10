@@ -50,7 +50,7 @@ class ModerationTestTokens extends MediaWikiTestCase
 			$url .= '&uselang=qqx'; # Show message IDs instead of text
 
 			$bad_url = preg_replace('/token=[^&]*/', '', $url);
-			$title = $t->getHtmlTitleByURL($bad_url);
+			$title = $t->getHtmlTitle($bad_url);
 			$this->assertRegExp('/\(sessionfailure-title\)/', $title);
 
 			/* Double-check that nothing happened */
@@ -61,7 +61,7 @@ class ModerationTestTokens extends MediaWikiTestCase
 			# Would the wrong token work?
 
 			$bad_url = preg_replace('/(token=)([^&]*)/', '\1WRONG\2', $url);
-			$title = $t->getHtmlTitleByURL($bad_url);
+			$title = $t->getHtmlTitle($bad_url);
 			$this->assertRegExp('/\(sessionfailure-title\)/', $title);
 
 			/* Double-check that nothing happened */

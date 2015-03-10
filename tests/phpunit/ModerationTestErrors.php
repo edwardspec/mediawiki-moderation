@@ -31,7 +31,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$t = new ModerationTestsuite();
 		$t->loginAs($t->moderator);
 
-		$error = $t->getModerationErrorByURL($t->getSpecialURL() .
+		$error = $t->getModerationError($t->getSpecialURL() .
 			"&modaction=findgirlfriend");
 		$this->assertEquals('(moderation-unknown-modaction)', $error);
 	}
@@ -56,7 +56,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 			# TODO: check mergeLink
 		);
 		foreach($links as $url) {
-			$error = $t->getModerationErrorByURL($url);
+			$error = $t->getModerationError($url);
 			$this->assertEquals('(moderation-edit-not-found)', $error);
 		}
 	}
@@ -68,7 +68,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$req = $t->makeHttpRequest($entry->rejectLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
-		$error = $t->getModerationErrorByURL($entry->rejectLink);
+		$error = $t->getModerationError($entry->rejectLink);
 		$this->assertEquals('(moderation-already-rejected)', $error);
 	}
 
@@ -79,10 +79,10 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$req = $t->makeHttpRequest($entry->rejectLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
-		$error = $t->getModerationErrorByURL($entry->rejectAllLink);
+		$error = $t->getModerationError($entry->rejectAllLink);
 		$this->assertEquals('(moderation-nothing-to-rejectall)', $error);
 
-		$error = $t->getModerationErrorByURL($entry->approveAllLink);
+		$error = $t->getModerationError($entry->approveAllLink);
 		$this->assertEquals('(moderation-nothing-to-approveall)', $error);
 	}
 
@@ -110,7 +110,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash();
 		$stash->removeFileNoAuth($row->stash_key);
 
-		$error = $t->getModerationErrorByURL($entry->approveLink);
+		$error = $t->getModerationError($entry->approveLink);
 		$this->assertEquals('(moderation-missing-stashed-image)', $error);
 	}
 }

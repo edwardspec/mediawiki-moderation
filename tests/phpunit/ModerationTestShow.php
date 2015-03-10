@@ -50,7 +50,7 @@ class ModerationTestShow extends MediaWikiTestCase
 				"testShow(): Token was found in the read-only Show link");
 			
 		$url .= '&uselang=qqx'; # Show message IDs instead of text
-		$title = $t->getHtmlTitleByURL($url);
+		$title = $t->getHtmlTitle($url);
 
 		$this->assertRegExp('/\(difference-title: ' . preg_quote($page) . '\)/', $title,
 			"testShow(): Difference page has a wrong HTML title");
@@ -120,7 +120,7 @@ class ModerationTestShow extends MediaWikiTestCase
 		$this->assertNotNull($url,
 			"testShowUpload(): Show link not found");
 		$url .= '&uselang=qqx'; # Show message IDs instead of text
-		$title = $t->getHtmlTitleByURL($url);
+		$title = $t->getHtmlTitle($url);
 
 		$this->assertRegExp('/\(difference-title: ' . $t->lastEdit['Title'] . '\)/', $title,
 			"testShowUpload(): Difference page has a wrong HTML title");
