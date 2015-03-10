@@ -208,8 +208,9 @@ class ModerationTestsuite
 	{
 		$req = $this->makeHttpRequest($url, 'GET');
 		$status = $req->execute();
-		if(!$status->isOK())
-			return null;
+
+		# We don't check $status->isOK() here,
+		# because the test may want to analyze the page with 404 error.
 
 		$html = DOMDocument::loadHTML($req->getContent());
 		$this->lastFetchedDocument = $html;
@@ -273,6 +274,7 @@ class ModerationTestsuite
 			if(!$this->getHtmlDocumentByURL($url))
 				return null;
 		}
+
 		$scripts = $this->lastFetchedDocument->getElementsByTagName('script');
 
 		$list = array();
