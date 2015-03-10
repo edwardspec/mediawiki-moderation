@@ -86,5 +86,11 @@ class ModerationTestPreload extends MediaWikiTestCase
 
 		$this->assertContains('ext.moderation.edit', $t->getLoaderModulesList(),
 			"testPreloadSummary(): Module ext.moderation.edit wasn't loaded");
+
+		$elem = $t->lastFetchedDocument->getElementById('mw-editing-your-version');
+		$this->assertNotNull($elem,
+			"testPreloadSummary(): #mw-editing-your-version not found");
+		$this->assertEquals('(moderation-editing-your-version)', $elem->textContent,
+			"testPreloadSummary(): #mw-editing-your-version doesn't contain (moderation-editing-your-version) message");
 	}
 }

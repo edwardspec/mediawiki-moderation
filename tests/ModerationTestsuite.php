@@ -251,7 +251,8 @@ class ModerationTestsuite
 	{
 		$url = wfAppendQuery(wfScript('index'), array(
 			'title' => $title,
-			'action' => 'edit'
+			'action' => 'edit',
+			'uselang' => 'qqx'
 		));
 
 		if(!$this->getHtmlDocumentByURL($url))
