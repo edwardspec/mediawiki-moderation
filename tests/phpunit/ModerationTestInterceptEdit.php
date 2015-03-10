@@ -61,6 +61,7 @@ class ModerationTestInterceptEdit extends MediaWikiTestCase
 		$this->assertTrue($req->isRedirect(),
 			"testPostEditRedirect(): User hasn't been redirected after the edit");
 
+		# Check the redirect URL
 		$url = $req->getResponseHeader("Location");
 		$params = wfCgiToArray(preg_replace('/^.*?\?/', '', $url));
 
@@ -75,6 +76,11 @@ class ModerationTestInterceptEdit extends MediaWikiTestCase
 			"testPostEditRedirect(): Title in the redirect URL doesn't match the title of page we edited");
 		$this->assertEquals(1, $params['modqueued'],
 			"testPostEditRedirect(): parameter modqueued=1 not found in the redirect URL");
+
+		# Check the page where the user is being redirected to
+		$list = $t->getLoaderModulesList($url);
+		$this->assertContains('ext.moderation.notify', $list,
+			"testPostEditRedirect(): Module ext.moderation.notify wasn't loaded");
 
 		# Usual checks on whether the edit not via API was intercepted.
 		$this->assertCount(1, $t->new_entries,
