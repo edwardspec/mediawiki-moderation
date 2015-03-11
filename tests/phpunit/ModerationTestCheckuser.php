@@ -33,7 +33,7 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 
 		$t->moderator = $t->moderatorAndCheckuser;
 
-		$t->cleanFetchedSpecial();
+		$t->assumeFolderIsEmpty();
 		$t->fetchSpecial();
 
 		$entry = $t->new_entries[0];

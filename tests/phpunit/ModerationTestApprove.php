@@ -211,7 +211,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 			__METHOD__
 		);
 
-		$t->cleanFetchedSpecial('rejected');
+		$t->assumeFolderIsEmpty('rejected');
 		$t->fetchSpecial('rejected');
 
 		$entry = $t->new_entries[0];

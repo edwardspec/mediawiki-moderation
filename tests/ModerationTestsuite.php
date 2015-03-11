@@ -143,7 +143,7 @@ class ModerationTestsuite
 			If fetchSpecial() is then called, all entries
 			in this folder will be considered new entries.
 	*/
-	public function cleanFetchedSpecial($folder = 'DEFAULT')
+	public function assumeFolderIsEmpty($folder = 'DEFAULT')
 	{
 		$this->lastFetchedSpecial[$folder] = array();
 	}
