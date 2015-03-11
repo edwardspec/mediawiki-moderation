@@ -112,4 +112,23 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$error = $t->getModerationError($entry->approveLink);
 		$this->assertEquals('(moderation-missing-stashed-image)', $error);
 	}
+
+	public function testEditNoChange() {
+		$t = new ModerationTestsuite();
+
+		$page = 'Test page 1';
+		$text = 'This is some ext';
+
+		$t->loginAs($t->automoderated);
+		$t->doTestEdit($page, $text);
+
+		$t->loginAs($t->unprivilegedUser);
+		$t->doTestEdit($page, $text); # Make zero edit
+		$t->fetchSpecial();
+
+		$entry = $t->new_entries[0];
+
+		$error = $t->getModerationError($entry->approveLink);
+		$this->assertEquals('(edit-no-change)', $error);
+	}
 }

@@ -124,6 +124,7 @@ It provides the following:
 	4) moderation-nothing-to-rejectall
 	5) moderation-nothing-to-approveall
 	6) moderation-missing-stashed-image
+	7) edit-no-change
 
 10. [ModerationTestCheckuser.php]
 	Answers the question: "Does checkuser-related stuff work correctly?"
