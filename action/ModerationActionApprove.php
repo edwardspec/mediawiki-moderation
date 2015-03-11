@@ -268,8 +268,13 @@ class ModerationActionApprove extends ModerationAction {
 		$approveHook->deinstall();
 		$cuHook->deinstall();
 
-		if(!$status->isGood())
-			throw new ModerationError($status->getMessage());
+		if(!$status->isGood()) {
+			# TODO: support Message objects in ModerationError,
+			# so that the following would work:
+			# throw new ModerationError($status->getMessage());
+
+			throw new ModerationError($status->errors[0]['message']);
+		}
 
 		$logEntry = new ManualLogEntry( 'moderation', 'approve' );
 		$logEntry->setPerformer( $this->moderator );
