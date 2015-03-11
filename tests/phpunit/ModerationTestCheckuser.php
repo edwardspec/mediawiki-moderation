@@ -34,7 +34,7 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		$t->moderator = $t->moderatorAndCheckuser;
 
 		$t->cleanFetchedSpecial();
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		$entry = $t->new_entries[0];
 		$this->assertNotNull($entry->ip,

@@ -30,17 +30,16 @@ class ModerationTestApprove extends MediaWikiTestCase
 	public function testApprove() {
 		$t = new ModerationTestsuite();
 
-		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
 		$t->doTestEdit();
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		$entry = $t->new_entries[0];
 		$this->assertNotNull($entry->approveLink,
 			"testApprove(): Approve link not found");
 
 		$this->tryToApprove($t, $entry);
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		$this->assertCount(0, $t->new_entries,
 			"testApprove(): Something was added into Pending folder during modaction=approve");
@@ -53,7 +52,6 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 	public function testApproveAll() {
 		$t = new ModerationTestsuite();
-		$t->fetchSpecial();
 
 		# We edit with two users:
 		#	$t->unprivilegedUser (A)
@@ -64,7 +62,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		# 2) No edits by B were touched during approveall.
 
 		$t->doNTestEditsWith($t->unprivilegedUser, $t->unprivilegedUser2);
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		# Find edits by user A (they will be approved)
 		$entries = ModerationTestsuiteEntry::findByUser(
@@ -79,7 +77,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 		/* TODO: check $req->getContent() */
 
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 		$this->assertCount(0, $t->new_entries,
 			"testApproveAll(): Something was added into Pending folder during modaction=approveall");
 		$this->assertCount($t->TEST_EDITS_COUNT, $t->deleted_entries,
@@ -103,11 +101,10 @@ class ModerationTestApprove extends MediaWikiTestCase
 	
 	public function testApproveAllNotRejected() {
 		$t = new ModerationTestsuite();
-		
-		$t->fetchSpecial();
+
 		$t->TEST_EDITS_COUNT = 10;
 		$t->doNTestEditsWith($t->unprivilegedUser);
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 		
 		# Already rejected edits must not be affected by ApproveAll.
 		# So let's reject some edits and check...
@@ -124,7 +121,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$t->fetchSpecial('rejected');
 		$req = $t->makeHttpRequest($approveAllLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
-		$t->fetchSpecialAndDiff('rejected');
+		$t->fetchSpecial('rejected');
 		
 		$this->assertCount(0, $t->new_entries,
 			"testApproveAllNotRejected(): Something was added into Rejected folder during modaction=approveall");
@@ -135,22 +132,20 @@ class ModerationTestApprove extends MediaWikiTestCase
 	public function testApproveRejected() {
 		$t = new ModerationTestsuite();
 
-		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
 		$t->doTestEdit();
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
-		$t->fetchSpecial('rejected');
 		$req = $t->makeHttpRequest($t->new_entries[0]->rejectLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
-		$t->fetchSpecialAndDiff('rejected');
+		$t->fetchSpecial('rejected');
 
 		$entry = $t->new_entries[0];
 		$this->assertNotNull($entry->approveLink,
 			"testApproveRejected(): Approve link not found");
 		$this->tryToApprove($t, $entry);
 
-		$t->fetchSpecialAndDiff('rejected');
+		$t->fetchSpecial('rejected');
 
 		$this->assertCount(0, $t->new_entries,
 			"testApproveRejected(): Something was added into Rejected folder during modaction=approve");
@@ -170,14 +165,12 @@ class ModerationTestApprove extends MediaWikiTestCase
 		# Rejected edits can only be approved if they are no older
 		# than $wgModerationTimeToOverrideRejection.
 
-		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
 		$t->doTestEdit();
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		$id = $t->new_entries[0]->id;
 
-		$t->fetchSpecial('rejected');
 		$req = $t->makeHttpRequest($t->new_entries[0]->rejectLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
@@ -195,10 +188,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 			__METHOD__
 		);
 
-		# We need to fetch Special:Moderation again to ensure
-		# that Approve link no longer exists for this entry.
-		$t->cleanFetchedSpecial('rejected');
-		$t->fetchSpecialAndDiff('rejected');
+		$t->fetchSpecial('rejected');
 
 		$entry = $t->new_entries[0];
 		$this->assertNull($entry->approveLink,
@@ -222,7 +212,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		);
 
 		$t->cleanFetchedSpecial('rejected');
-		$t->fetchSpecialAndDiff('rejected');
+		$t->fetchSpecial('rejected');
 
 		$entry = $t->new_entries[0];
 		$this->assertNotNull($entry->approveLink,
@@ -241,13 +231,12 @@ class ModerationTestApprove extends MediaWikiTestCase
 	public function testModeratorNotAutomoderated() {
 		$t = new ModerationTestsuite();
 
-		$t->fetchSpecial();
 		$t->loginAs($t->moderatorButNotAutomoderated);
 
 		$t->editViaAPI = true;
 		$ret = $t->doTestEdit();
 
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		/* Edit must be intercepted (this user is not automoderated) */
 		$this->assertArrayHasKey('error', $ret);
@@ -266,9 +255,8 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$this->tryToApprove($t, $entry);
 
 		/* ApproveAll must also work */
-		$t->fetchSpecial();
 		$t->doNTestEditsWith($t->moderatorButNotAutomoderated);
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		$t->loginAs($t->moderatorButNotAutomoderated);
 		$req = $t->makeHttpRequest($t->new_entries[0]->approveAllLink, 'GET');
@@ -276,7 +264,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 		/* TODO: check $req->getContent() */
 
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 		$this->assertCount(0, $t->new_entries,
 			"testModeratorNotAutomoderated(): Something was added into Pending folder during modaction=approveall");
 		$this->assertCount($t->TEST_EDITS_COUNT, $t->deleted_entries,

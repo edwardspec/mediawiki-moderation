@@ -40,17 +40,16 @@ class ModerationTestBlock extends MediaWikiTestCase
 		$this->assertTrue($req->execute()->isOK());
 
 		# Now that the user is blocked, try to edit
-		$t->fetchSpecial('spam');
 		$t->loginAs($t->unprivilegedUser);
 		$t->doTestEdit('Test page 2');
 
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 		$this->assertCount(0, $t->new_entries,
 			"testBlock(): Something was added into Pending folder when queueing an edit from spammer");
 		$this->assertCount(0, $t->deleted_entries,
 			"testBlock(): Something was deleted from Pending folder when queueing an edit from spammer");
 
-		$t->fetchSpecialAndDiff('spam');
+		$t->fetchSpecial('spam');
 		$this->assertCount(1, $t->new_entries,
 			"testBlock(): One edit from spammer was queued for moderation, but number of added entries in Spam folder isn't 1");
 		$this->assertCount(0, $t->deleted_entries,
@@ -84,13 +83,13 @@ class ModerationTestBlock extends MediaWikiTestCase
 		$t->loginAs($t->unprivilegedUser);
 		$t->doTestEdit('Test page 3');
 
-		$t->fetchSpecialAndDiff('spam');
+		$t->fetchSpecial('spam');
 		$this->assertCount(0, $t->new_entries,
 			"testBlock(): Something was added into Spam folder when queueing an edit from non-spammer");
 		$this->assertCount(0, $t->deleted_entries,
 			"testBlock(): Something was deleted from Spam folder when queueing an edit from non-spammer");
 
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		$this->assertCount(1, $t->new_entries,
 			"testBlock(): One edit from non-spammer was queued for moderation, but number of added entries in Pending folder isn't 1");

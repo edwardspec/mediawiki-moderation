@@ -93,10 +93,9 @@ class ModerationTestErrors extends MediaWikiTestCase
 	public function testMissingStashedImage() {
 		$t = new ModerationTestsuite();
 
-		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
 		$t->doTestUpload();
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		$entry = $t->new_entries[0];
 

@@ -32,10 +32,9 @@ class ModerationTestUpload extends MediaWikiTestCase
 	public function testUpload() {
 		$t = new ModerationTestsuite();
 
-		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
 		$error = $t->doTestUpload();
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		# Was the upload queued for moderation?
 		$this->assertEquals('(moderation-image-queued)', $error);

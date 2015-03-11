@@ -28,10 +28,9 @@ class ModerationTestTokens extends MediaWikiTestCase
 	public function testTokens() {
 		$t = new ModerationTestsuite();
 
-		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
 		$t->doTestEdit();
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		$entry = $t->new_entries[0];
 		$entry->fakeBlockLink();
@@ -54,7 +53,7 @@ class ModerationTestTokens extends MediaWikiTestCase
 			$this->assertRegExp('/\(sessionfailure-title\)/', $title);
 
 			/* Double-check that nothing happened */
-			$t->fetchSpecialAndDiff();
+			$t->fetchSpecial();
 			$this->assertCount(0, $t->new_entries);
 			$this->assertCount(0, $t->deleted_entries);
 
@@ -65,7 +64,7 @@ class ModerationTestTokens extends MediaWikiTestCase
 			$this->assertRegExp('/\(sessionfailure-title\)/', $title);
 
 			/* Double-check that nothing happened */
-			$t->fetchSpecialAndDiff();
+			$t->fetchSpecial();
 			$this->assertCount(0, $t->new_entries);
 			$this->assertCount(0, $t->deleted_entries);
 		}

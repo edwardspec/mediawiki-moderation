@@ -30,13 +30,12 @@ class ModerationTestAutomoderated extends MediaWikiTestCase
 	public function testAutomoderated() {
 		$t = new ModerationTestsuite();
 
-		$t->fetchSpecial();
 		$t->loginAs($t->automoderated);
 
 		$t->editViaAPI = true;
 		$ret = $t->doTestEdit();
 
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		$this->assertArrayHasKey('edit', $ret);
 		$this->assertEquals('Success', $ret['edit']['result']);

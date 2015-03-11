@@ -30,23 +30,20 @@ class ModerationTestReject extends MediaWikiTestCase
 	public function testReject() {
 		$t = new ModerationTestsuite();
 
-		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
 		$t->doTestEdit();
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		$entry = $t->new_entries[0];
 		$this->assertNotNull($entry->rejectLink,
 			"testReject(): Reject link not found");
-
-		$t->fetchSpecial('rejected');
 
 		$req = $t->makeHttpRequest($entry->rejectLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
 		/* TODO: check $req->getContent() */
 
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 		$this->assertCount(0, $t->new_entries,
 			"testReject(): Something was added into Pending folder during modaction=reject");
 		$this->assertCount(1, $t->deleted_entries,
@@ -55,7 +52,7 @@ class ModerationTestReject extends MediaWikiTestCase
 		$this->assertEquals($t->lastEdit['User'], $t->deleted_entries[0]->user);
 		$this->assertEquals($t->lastEdit['Title'], $t->deleted_entries[0]->title);
 
-		$t->fetchSpecialAndDiff('rejected');
+		$t->fetchSpecial('rejected');
 		$this->assertCount(1, $t->new_entries,
 			"testReject(): One edit was rejected, but number of new entries in Rejected folder isn't 1");
 		$this->assertCount(0, $t->deleted_entries,
@@ -81,7 +78,6 @@ class ModerationTestReject extends MediaWikiTestCase
 
 	public function testRejectAll() {
 		$t = new ModerationTestsuite();
-		$t->fetchSpecial();
 
 		# We edit with two users:
 		#	$t->unprivilegedUser (A)
@@ -92,7 +88,7 @@ class ModerationTestReject extends MediaWikiTestCase
 		# 2) No edits by B were touched during rejectall.
 
 		$t->doNTestEditsWith($t->unprivilegedUser, $t->unprivilegedUser2);
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		# Find edits by user A (they will be rejected)
 		$entries = ModerationTestsuiteEntry::findByUser(
@@ -102,14 +98,12 @@ class ModerationTestReject extends MediaWikiTestCase
 		$this->assertNotNull($entries[0]->rejectAllLink,
 			"testRejectAll(): RejectAll link not found");
 
-		$t->fetchSpecial('rejected');
-
 		$req = $t->makeHttpRequest($entries[0]->rejectAllLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
 		/* TODO: check $req->getContent() */
 
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 		$this->assertCount(0, $t->new_entries,
 			"testRejectAll(): Something was added into Pending folder during modaction=rejectall");
 		$this->assertCount($t->TEST_EDITS_COUNT, $t->deleted_entries,
@@ -124,7 +118,7 @@ class ModerationTestReject extends MediaWikiTestCase
 			$this->assertEquals($entry->title, $de->title);
 		}
 
-		$t->fetchSpecialAndDiff('rejected');
+		$t->fetchSpecial('rejected');
 		$this->assertCount($t->TEST_EDITS_COUNT, $t->new_entries,
 			"testRejectAll(): Several edits were rejected, but number of new entries in Rejected folder doesn't match");
 		$this->assertCount(0, $t->deleted_entries,

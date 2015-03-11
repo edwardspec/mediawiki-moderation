@@ -37,10 +37,9 @@ class ModerationTestShow extends MediaWikiTestCase
 		$t->loginAs($t->automoderated);
 		$t->doTestEdit($page, $text1);
 
-		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
 		$t->doTestEdit($page, $text2);
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		$url = $t->new_entries[0]->showLink;
 		
@@ -110,10 +109,9 @@ class ModerationTestShow extends MediaWikiTestCase
 			second on image100x100.png (smaller image).
 		*/
 
-		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
 		$error = $t->doTestUpload("Test image 1.png", __DIR__ . "/../resources/image640x50.png");
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		$entry = $t->new_entries[0];
 		$url = $entry->showLink;
@@ -202,10 +200,9 @@ class ModerationTestShow extends MediaWikiTestCase
 
 		# Check the thumbnail of image smaller than THUMB_WIDTH.
 		# Its thumbnail must be exactly the same size as original image.
-		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
 		$t->doTestUpload("Test image 2.png", __DIR__ . "/../resources/image100x100.png");
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		$req = $t->makeHttpRequest($t->new_entries[0]->expectedShowImgLink(), 'GET');
 		$this->assertTrue($req->execute()->isOK());

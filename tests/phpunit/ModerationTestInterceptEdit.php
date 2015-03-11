@@ -30,13 +30,12 @@ class ModerationTestInterceptEdit extends MediaWikiTestCase
 	public function testInterceptEdit() {
 		$t = new ModerationTestsuite();
 
-		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
 
 		$t->editViaAPI = true;
 		$ret = $t->doTestEdit();
 
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		$this->assertArrayHasKey('error', $ret);
 		$this->assertEquals('edit-hook-aborted', $ret['error']['code']);
@@ -52,10 +51,9 @@ class ModerationTestInterceptEdit extends MediaWikiTestCase
 	public function testPostEditRedirect() {
 		$t = new ModerationTestsuite();
 
-		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
 		$req = $t->doTestEdit();
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		$this->assertTrue($req->status->isOK());
 		$this->assertTrue($req->isRedirect(),

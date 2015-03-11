@@ -140,7 +140,7 @@ class ModerationTestsuite
 
 	/**
 		@brief Delete the results of previous fetchSpecial().
-			If fetchSpecialAndDiff() is then called, all entries
+			If fetchSpecial() is then called, all entries
 			in this folder will be considered new entries.
 	*/
 	public function cleanFetchedSpecial($folder = 'DEFAULT')
@@ -149,8 +149,9 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Download and parse Special:Moderation.
-		@see fetchSpecialAndDiff()
+		@brief Download and parse Special:Moderation. Diff its current
+			state with the previously downloaded/parsed state, and
+			populate the arrays \b $new_entries, \b $old_entries.
 
 		@remark Logs in as $moderator.
 	*/
@@ -179,26 +180,19 @@ class ModerationTestsuite
 				$entries[] = ModerationTestsuiteEntry::fromDOMElement($span);
 		}
 
-		$this->lastFetchedSpecial[$folder] = $entries;
-		$this->lastFetchedDocument = $html;
-		return $entries;
-	}
-
-	/**
-		@brief Diff the current state of Special:Moderation with the
-			previously downloaded/parsed state, and populate
-			the arrays \b $new_entries and \b $old_entries.
-		@see fetchSpecial()
-
-		@remark Logs in as $moderator.
-	*/
-	public function fetchSpecialAndDiff($folder = 'DEFAULT')
-	{
-		$before = $this->lastFetchedSpecial[$folder];
-		$after = $this->fetchSpecial($folder);
+		if(array_key_exists($folder, $this->lastFetchedSpecial)) {
+			$before = $this->lastFetchedSpecial[$folder];
+		}
+		else {
+			$before = array();
+		}
+		$after = $entries;
 
 		$this->new_entries = ModerationTestsuiteEntry::entriesInANotInB($after, $before);
 		$this->deleted_entries = ModerationTestsuiteEntry::entriesInANotInB($before, $after);
+
+		$this->lastFetchedSpecial[$folder] = $entries;
+		$this->lastFetchedDocument = $html;
 	}
 
 	#
@@ -484,10 +478,9 @@ class ModerationTestsuite
 	*/
 	public function getSampleEntry($title = null)
 	{
-		$this->fetchSpecial();
 		$this->loginAs($this->unprivilegedUser);
 		$this->doTestEdit($title);
-		$this->fetchSpecialAndDiff();
+		$this->fetchSpecial();
 
 		return $this->new_entries[0];
 	}

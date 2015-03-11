@@ -31,10 +31,9 @@ class ModerationTestEdit extends MediaWikiTestCase
 		# the edit is queued for moderation, not when it is approved.
 		$text = '~~~~';
 
-		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
 		$t->doTestEdit(null, $text);
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
@@ -68,7 +67,6 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$t->loginAs($t->automoderated);
 		$t->doTestEdit($title, $text);
 
-		$t->fetchSpecial();
 		$t->loginAs($t->unprivilegedUser);
 
 		# Do several edits in the different sections of the text.
@@ -90,7 +88,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$query['text'] = $sections[] = "== New section ==\nText in the new section";
 		$t->query($query);
 
-		$t->fetchSpecialAndDiff();
+		$t->fetchSpecial();
 
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
