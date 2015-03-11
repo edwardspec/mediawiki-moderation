@@ -478,6 +478,7 @@ class ModerationTestsuite
 	*/
 	public function getSampleEntry($title = null)
 	{
+		$this->fetchSpecial();
 		$this->loginAs($this->unprivilegedUser);
 		$this->doTestEdit($title);
 		$this->fetchSpecial();
