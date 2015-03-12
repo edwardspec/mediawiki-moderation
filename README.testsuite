@@ -70,7 +70,8 @@ It provides the following:
 	8) moderator needs to be automoderated to bypass moderation,
 	9) moderator doesn't need to be automoderated to Approve(all),
 	10) approved edit has correct timestamp in page history,
-	11) approved edit doesn't "appear in the past" in RecentChanges.
+	11) approved edit doesn't "appear in the past" in RecentChanges,
+	12) proper log entry is created about the fact of approval.
 
 4. [ModerationTestReject.php]
 	Answers the question: "Does the Reject(all) link work as expected?"

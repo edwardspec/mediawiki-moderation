@@ -574,6 +574,27 @@ class ModerationTestsuite
 
 		return null; # No errors
 	}
+
+	/**
+		@brief Get the last moderation log entry via API.
+		@returns Array of attributes, along with extra 'FullTitle' key.
+	*/
+	public function apiLastLogEntry()
+	{
+		$events = $this->query(array(
+			'action' => 'query',
+			'list' => 'logevents',
+			'letype' => 'moderation',
+			'lelimit' => 1
+		));
+		$le = $events['query']['logevents'][0];
+
+		# Calculate FullTitle here, so that tests won't need to do this
+		$le['FullTitle'] = Title::newFromText(
+			$le['title'], $le['ns'])->getFullText();
+
+		return $le;
+	}
 }
 
 /**

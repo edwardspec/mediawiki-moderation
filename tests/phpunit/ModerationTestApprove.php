@@ -38,7 +38,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$this->assertNotNull($entry->approveLink,
 			"testApprove(): Approve link not found");
 
-		$this->tryToApprove($t, $entry);
+		$rev = $this->tryToApprove($t, $entry);
 		$t->fetchSpecial();
 
 		$this->assertCount(0, $t->new_entries,
@@ -48,6 +48,13 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$this->assertEquals($entry->id, $t->deleted_entries[0]->id);
 		$this->assertEquals($t->lastEdit['User'], $t->deleted_entries[0]->user);
 		$this->assertEquals($t->lastEdit['Title'], $t->deleted_entries[0]->title);
+
+		# Check the log entry
+		$le = $t->apiLastLogEntry();
+		$this->assertEquals('approve', $le['action']);
+		$this->assertEquals($t->lastEdit['Title'], $le['FullTitle']);
+		$this->assertEquals($t->moderator->getName(), $le['user']);
+		$this->assertEquals($rev['revid'], $le['revid']);
 	}
 
 	public function testApproveAll() {
@@ -338,7 +345,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 			'action' => 'query',
 			'prop' => 'revisions',
 			'rvlimit' => 1,
-			'rvprop' => 'user|timestamp|comment|content',
+			'rvprop' => 'user|timestamp|comment|content|ids',
 			'titles' => $entry->title
 		));
 		$ret_page = array_shift($ret['query']['pages']);
