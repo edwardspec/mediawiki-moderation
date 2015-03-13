@@ -581,19 +581,40 @@ class ModerationTestsuite
 	*/
 	public function apiLastLogEntry()
 	{
-		$events = $this->query(array(
+		$ret = $this->query(array(
 			'action' => 'query',
 			'list' => 'logevents',
 			'letype' => 'moderation',
 			'lelimit' => 1
 		));
-		$le = $events['query']['logevents'][0];
+		$le = $ret['query']['logevents'][0];
 
 		# Calculate FullTitle here, so that tests won't need to do this
 		$le['FullTitle'] = Title::newFromText(
 			$le['title'], $le['ns'])->getFullText();
 
 		return $le;
+	}
+
+	/**
+		@brief Get up to 100 moderation log entries via API
+			(most recent first).
+		@returns Array of entries, each has additional 'FullTitle' key.
+	*/
+	public function apiLogEntries()
+	{
+		$ret = $this->query(array(
+			'action' => 'query',
+			'list' => 'logevents',
+			'letype' => 'moderation',
+			'lelimit' => 100
+		));
+
+		return array_map(function($le) {
+			$le['FullTitle'] = Title::newFromText(
+				$le['title'], $le['ns'])->getFullText();
+			return $le;
+		}, $ret['query']['logevents']);
 	}
 }
 

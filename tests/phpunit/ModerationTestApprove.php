@@ -104,6 +104,13 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 			$this->assertEquals($t->unprivilegedUser->getName(), $rev['user']);
 		}
+
+		# Check the log entries: there should be
+		# - one 'approveall' log entry
+		# - TEST_EDITS_COUNT 'approve' log entries.
+
+		$events = $t->apiLogEntries();
+		$this->assertEquals('approveall', $events[0]['action']);
 	}
 	
 	public function testApproveAllNotRejected() {
