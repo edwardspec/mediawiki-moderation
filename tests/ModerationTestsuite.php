@@ -577,7 +577,6 @@ class ModerationTestsuite
 
 	/**
 		@brief Get the last moderation log entry via API.
-		@returns Array of attributes, along with extra 'FullTitle' key.
 	*/
 	public function apiLastLogEntry()
 	{
@@ -587,19 +586,12 @@ class ModerationTestsuite
 			'letype' => 'moderation',
 			'lelimit' => 1
 		));
-		$le = $ret['query']['logevents'][0];
-
-		# Calculate FullTitle here, so that tests won't need to do this
-		$le['FullTitle'] = Title::newFromText(
-			$le['title'], $le['ns'])->getFullText();
-
-		return $le;
+		return $ret['query']['logevents'][0];
 	}
 
 	/**
 		@brief Get up to 100 moderation log entries via API
 			(most recent first).
-		@returns Array of entries, each has additional 'FullTitle' key.
 	*/
 	public function apiLogEntries()
 	{
@@ -610,11 +602,7 @@ class ModerationTestsuite
 			'lelimit' => 100
 		));
 
-		return array_map(function($le) {
-			$le['FullTitle'] = Title::newFromText(
-				$le['title'], $le['ns'])->getFullText();
-			return $le;
-		}, $ret['query']['logevents']);
+		return $ret['query']['logevents'];
 	}
 }
 

@@ -52,7 +52,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		# Check the log entry
 		$le = $t->apiLastLogEntry();
 		$this->assertEquals('approve', $le['action']);
-		$this->assertEquals($t->lastEdit['Title'], $le['FullTitle']);
+		$this->assertEquals($t->lastEdit['Title'], $le['title']);
 		$this->assertEquals($t->moderator->getName(), $le['user']);
 		$this->assertEquals($rev['revid'], $le['revid']);
 	}
