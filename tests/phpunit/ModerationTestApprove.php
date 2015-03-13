@@ -51,7 +51,11 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 		# Check the log entry
 		$le = $t->apiLastLogEntry();
-		$this->assertEquals('approve', $le['action']);
+
+		$this->assertNotNull($le,
+			"testApprove(): Nothing in logs after modaction=approve.");
+		$this->assertEquals('approve', $le['action'],
+			"testApprove(): Most recent log entry is not 'approve'");
 		$this->assertEquals($t->lastEdit['Title'], $le['title']);
 		$this->assertEquals($t->moderator->getName(), $le['user']);
 		$this->assertEquals($rev['revid'], $le['revid']);
@@ -110,7 +114,21 @@ class ModerationTestApprove extends MediaWikiTestCase
 		# - TEST_EDITS_COUNT 'approve' log entries.
 
 		$events = $t->apiLogEntries();
-		$this->assertEquals('approveall', $events[0]['action']);
+		$this->assertCount(1 + $t->TEST_EDITS_COUNT, $events,
+			"testApproveAll(): Number of log entries doesn't match the number of approved edits PLUS ONE (log entry for ApproveAll itself).");
+
+		# Per design, 'approveall' entry MUST be the most recent.
+		$le = array_shift($events);
+		$this->assertEquals('approveall', $le['action'],
+			"testApproveAll(): Most recent log entry is not 'approveall'");
+		$this->assertEquals($t->moderator->getName(), $le['user']);
+		$this->assertEquals($t->unprivilegedUser->getUserPage(), $le['title']);
+
+		foreach($events as $le)
+		{
+			$this->assertEquals('approve', $le['action']);
+			$this->assertEquals($t->moderator->getName(), $le['user']);
+		}
 	}
 	
 	public function testApproveAllNotRejected() {
