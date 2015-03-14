@@ -115,7 +115,9 @@ It provides the following:
 	1) uploads are stopped with 'moderation-image-queued' code,
 	2) new entry appears on Special:Moderation,
 	3) the file is indeed uploaded when Approve is clicked,
-	4) usual checks like "is this an empty file?" are NOT skipped.
+	4) usual checks like "is this an empty file?" are NOT skipped,
+	5) image reuploads are queued for moderation and can be approved,
+	6) image reuploads are attributed to the user who made them.
 
 9. [ModerationTestErrors.php]
 	Answers the question: "Do all our safety/sanity checks catch errors?"
