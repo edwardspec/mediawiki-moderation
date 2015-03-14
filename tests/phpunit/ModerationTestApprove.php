@@ -50,10 +50,11 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$this->assertEquals($t->lastEdit['Title'], $t->deleted_entries[0]->title);
 
 		# Check the log entry
-		$le = $t->apiLastLogEntry();
+		$events = $t->apiLogEntries();
+		$this->assertCount(1, $events,
+			"testApprove(): Number of log entries isn't 1.");
+		$le = $events[0];
 
-		$this->assertNotNull($le,
-			"testApprove(): Nothing in logs after modaction=approve.");
 		$this->assertEquals('approve', $le['action'],
 			"testApprove(): Most recent log entry is not 'approve'");
 		$this->assertEquals($t->lastEdit['Title'], $le['title']);

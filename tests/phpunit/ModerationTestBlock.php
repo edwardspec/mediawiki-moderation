@@ -77,9 +77,11 @@ class ModerationTestBlock extends MediaWikiTestCase
 			"testBlock(): ApproveAll link found for already rejected edit");
 
 		# Check 'block' log entry
-		$le = $t->apiLastLogEntry();
-		$this->assertNotNull($le,
-			"testBlock(): Nothing in logs after modaction=block.");
+		$events = $t->apiLogEntries();
+		$this->assertCount(1, $events,
+			"testBlock(): Wrong number of log entries after modaction=block.");
+
+		$le = $events[0];
 		$this->assertEquals('block', $le['action'],
 			"testBlock(): Most recent log entry is not 'block'");
 		$this->assertEquals($t->moderator->getName(), $le['user']);
@@ -116,7 +118,11 @@ class ModerationTestBlock extends MediaWikiTestCase
 			"testBlock(): Unblock link found for no-longer-blocked user");
 
 		# Check 'unblock' log entry
-		$le = $t->apiLastLogEntry();
+		$events = $t->apiLogEntries();
+		$this->assertCount(2, $events,
+			"testBlock(): Wrong number of log entries after modaction=unblock.");
+		$le = $events[0];
+
 		$this->assertEquals('unblock', $le['action'],
 			"testBlock(): Most recent log entry is not 'unblock'");
 		$this->assertEquals($t->moderator->getName(), $le['user']);

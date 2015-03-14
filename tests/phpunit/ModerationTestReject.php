@@ -76,10 +76,11 @@ class ModerationTestReject extends MediaWikiTestCase
 			"testReject(): ApproveAll link found for already rejected edit");
 
 		# Check the log entry
-		$le = $t->apiLastLogEntry();
+		$events = $t->apiLogEntries();
+		$this->assertCount(1, $events,
+			"testReject(): Number of log entries isn't 1.");
+		$le = $events[0];
 
-		$this->assertNotNull($le,
-			"testReject(): Nothing in logs after modaction=reject.");
 		$this->assertEquals('reject', $le['action'],
 			"testReject(): Most recent log entry is not 'reject'");
 		$this->assertEquals($t->lastEdit['Title'], $le['title']);
@@ -162,8 +163,8 @@ class ModerationTestReject extends MediaWikiTestCase
 		$events = $t->apiLogEntries();
 		$this->assertCount(1, $events,
 			"testRejectAll(): Number of log entries isn't 1.");
-
 		$le = $events[0];
+
 		$this->assertEquals('rejectall', $le['action'],
 			"testRejectAll(): Most recent log entry is not 'rejectall'");
 		$this->assertEquals($t->moderator->getName(), $le['user']);

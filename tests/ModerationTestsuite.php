@@ -589,14 +589,6 @@ class ModerationTestsuite
 		));
 		return $ret['query']['logevents'];
 	}
-
-	/**
-		@brief Get the last moderation log entry via API.
-	*/
-	public function apiLastLogEntry()
-	{
-		return $this->apiLogEntries(1)[0];
-	}
 }
 
 /**
