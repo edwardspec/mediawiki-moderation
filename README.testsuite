@@ -142,7 +142,8 @@ It provides the following:
 	2) new edits from blocked user appear in the Spam folder,
 	3) rejection flags (batch/auto) are set properly,
 	4) edits in Spam folder don't have ApproveAll/Reject/RejectAll links,
-	5) after the user is unblocked, new edits go into the Pending folder.
+	5) after the user is unblocked, new edits go into the Pending folder,
+	6) proper log entry is created about the fact of block/unblock.
 
 12. [ModerationTestEdit.php]
 	Answers the question: "Does the editing work as usual?"
