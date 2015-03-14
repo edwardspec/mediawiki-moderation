@@ -74,6 +74,18 @@ class ModerationTestReject extends MediaWikiTestCase
 			"testReject(): RejectAll link found for already rejected edit");
 		$this->assertNull($t->new_entries[0]->approveAllLink,
 			"testReject(): ApproveAll link found for already rejected edit");
+
+		# Check the log entry
+		$le = $t->apiLastLogEntry();
+
+		$this->assertNotNull($le,
+			"testReject(): Nothing in logs after modaction=reject.");
+		$this->assertEquals('reject', $le['action'],
+			"testReject(): Most recent log entry is not 'reject'");
+		$this->assertEquals($t->lastEdit['Title'], $le['title']);
+		$this->assertEquals($t->moderator->getName(), $le['user']);
+		$this->assertEquals($t->unprivilegedUser->getName(), $le['user_text']);
+		$this->assertEquals($entry->id, $le['modid']);
 	}
 
 	public function testRejectAll() {
