@@ -81,7 +81,8 @@ It provides the following:
 	3) the moderator's name is recorded,
 	4) rejection flags (batch/auto) are set properly,
 	5) rejected edits don't have ApproveAll/Reject/RejectAll links,
-	6) edits of other users are unaffected by Rejectall.
+	6) edits of other users are unaffected by Rejectall,
+	7) proper log entry is created about the fact of rejection.
 
 5. [ModerationTestPermissions.php]
 	Answers the question: "Is Special:Moderation for moderators only?"
