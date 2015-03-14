@@ -576,33 +576,26 @@ class ModerationTestsuite
 	}
 
 	/**
+		@brief Get up to $count moderation log entries via API
+			(most recent first).
+	*/
+	public function apiLogEntries($count = 100)
+	{
+		$ret = $this->query(array(
+			'action' => 'query',
+			'list' => 'logevents',
+			'letype' => 'moderation',
+			'lelimit' => $count
+		));
+		return $ret['query']['logevents'];
+	}
+
+	/**
 		@brief Get the last moderation log entry via API.
 	*/
 	public function apiLastLogEntry()
 	{
-		$ret = $this->query(array(
-			'action' => 'query',
-			'list' => 'logevents',
-			'letype' => 'moderation',
-			'lelimit' => 1
-		));
-		return $ret['query']['logevents'][0];
-	}
-
-	/**
-		@brief Get up to 100 moderation log entries via API
-			(most recent first).
-	*/
-	public function apiLogEntries()
-	{
-		$ret = $this->query(array(
-			'action' => 'query',
-			'list' => 'logevents',
-			'letype' => 'moderation',
-			'lelimit' => 100
-		));
-
-		return $ret['query']['logevents'];
+		return $this->apiLogEntries(1)[0];
 	}
 }
 
