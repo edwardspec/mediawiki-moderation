@@ -108,7 +108,7 @@ It provides the following:
 	8) content-type and content-disposition headers are correct,
 	9) thumbnail of small image has the same width/height,
 	10) thumbnail of large image is THUMB_WIDTH wide, ratio is preserved,
-	11) correct message is shown for uploads without description.
+	11) correct message is displayed for uploads without description.
 
 8. [ModerationTestUpload.php]
 	Answers the question: "Are uploads intercepted? Can they be approved?"
@@ -118,7 +118,8 @@ It provides the following:
 	3) the file is indeed uploaded when Approve is clicked,
 	4) usual checks like "is this an empty file?" are NOT skipped,
 	5) image reuploads are queued for moderation and can be approved,
-	6) image reuploads are attributed to the user who made them.
+	6) image reuploads are attributed to the user who made them,
+	7) correct message for reuploads is displayed by modaction=show.
 
 9. [ModerationTestErrors.php]
 	Answers the question: "Do all our safety/sanity checks catch errors?"

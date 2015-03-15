@@ -95,11 +95,11 @@ class ModerationTestUpload extends MediaWikiTestCase
 
 		# Upload the image first
 		$t->loginAs($t->automoderated);
-		$t->doTestUpload($title, __DIR__ . "/../resources/image640x50.png");
+		$t->doTestUpload($title, __DIR__ . "/../resources/image640x50.png", "Text 1");
 
 		# Now queue reupload for moderation
 		$t->loginAs($t->unprivilegedUser);
-		$error = $t->doTestUpload($title, __DIR__ . "/../resources/image100x100.png");
+		$error = $t->doTestUpload($title, __DIR__ . "/../resources/image100x100.png", "Text 2");
 		$t->fetchSpecial();
 
 		# Was the reupload queued for moderation?
@@ -113,6 +113,12 @@ class ModerationTestUpload extends MediaWikiTestCase
 			"testReupload(): Something was deleted from Pending folder during the queueing");
 		$this->assertEquals($t->lastEdit['User'], $entry->user);
 		$this->assertEquals($t->lastEdit['Title'], $entry->title);
+
+		# Does modaction=show display (moderation-diff-reupload) message?
+		$html = $t->getHtmlDocumentByURL($entry->showLink . '&uselang=qqx');
+		$this->assertRegExp('/\(moderation-diff-reupload\)/',
+			$html->getElementById('mw-content-text')->textContent,
+			"testReupload(): (moderation-diff-reupload) not found in the output of modaction=show");
 
 		# Can we approve this reupload?
 		$this->assertNotNull($entry->approveLink,
