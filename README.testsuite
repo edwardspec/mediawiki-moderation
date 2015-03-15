@@ -107,7 +107,8 @@ It provides the following:
 	7) checksum of the full image is correct,
 	8) content-type and content-disposition headers are correct,
 	9) thumbnail of small image has the same width/height,
-	10) thumbnail of large image is THUMB_WIDTH wide, ratio is preserved.
+	10) thumbnail of large image is THUMB_WIDTH wide, ratio is preserved,
+	11) correct message is shown for uploads without description.
 
 8. [ModerationTestUpload.php]
 	Answers the question: "Are uploads intercepted? Can they be approved?"

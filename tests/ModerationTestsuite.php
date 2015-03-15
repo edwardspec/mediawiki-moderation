@@ -514,11 +514,13 @@ class ModerationTestsuite
 		@returns MediaWiki error message code (e.g. "(emptyfile)").
 		@retval null Upload succeeded (no errors found).
 	*/
-	public function doTestUpload($title = null, $source_filename = null)
+	public function doTestUpload($title = null, $source_filename = null, $text = null)
 	{
 		if(!$title)
 			$title = $this->generateRandomTitle() . '.png';
-		$text = $this->generateRandomText();
+
+		if(is_null($text)) # Empty string (no description) is allowed
+			$text = $this->generateRandomText();
 
 		if(!$source_filename) {
 			$source_filename = __DIR__ . "/resources/image100x100.png";

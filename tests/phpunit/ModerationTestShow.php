@@ -110,7 +110,9 @@ class ModerationTestShow extends MediaWikiTestCase
 		*/
 
 		$t->loginAs($t->unprivilegedUser);
-		$error = $t->doTestUpload("Test image 1.png", __DIR__ . "/../resources/image640x50.png");
+		$error = $t->doTestUpload("Test image 1.png", __DIR__ . "/../resources/image640x50.png",
+			"" # Empty description: check for (moderation-diff-upload-notext)
+		);
 		$t->fetchSpecial();
 
 		$entry = $t->new_entries[0];
@@ -123,8 +125,13 @@ class ModerationTestShow extends MediaWikiTestCase
 		$this->assertRegExp('/\(difference-title: ' . $t->lastEdit['Title'] . '\)/', $title,
 			"testShowUpload(): Difference page has a wrong HTML title");
 
-		# Is the image thumbnail displayed on the difference page?
 		$html = $t->lastFetchedDocument;
+		$this->assertRegExp('/\(moderation-diff-upload-notext\)/',
+			$html->getElementById('mw-content-text')->textContent,
+			"testShowUpload(): File was uploaded without description, but (moderation-diff-upload-notext) is not shown");
+
+		# Is the image thumbnail displayed on the difference page?
+
 		$images = $html->getElementsByTagName('img');
 
 		$thumb = null;
@@ -201,7 +208,8 @@ class ModerationTestShow extends MediaWikiTestCase
 		# Check the thumbnail of image smaller than THUMB_WIDTH.
 		# Its thumbnail must be exactly the same size as original image.
 		$t->loginAs($t->unprivilegedUser);
-		$t->doTestUpload("Test image 2.png", __DIR__ . "/../resources/image100x100.png");
+		$t->doTestUpload("Test image 2.png", __DIR__ . "/../resources/image100x100.png",
+			"Non-empty image description");
 		$t->fetchSpecial();
 
 		$req = $t->makeHttpRequest($t->new_entries[0]->expectedShowImgLink(), 'GET');
@@ -222,6 +230,12 @@ class ModerationTestShow extends MediaWikiTestCase
 			"testShowUpload(): Original image is smaller than THUMB_WIDTH, but thumbnail width doesn't match the original width");
 		$this->assertEquals($original_height, $height,
 			"testShowUpload(): Original image is smaller than THUMB_WIDTH, but thumbnail height doesn't match the original height");
+
+		# Ensure absence of (moderation-diff-upload-notext)
+		$html = $t->getHtmlDocumentByURL($t->new_entries[0]->showLink . '&uselang=qqx');
+		$this->assertNotRegExp('/\(moderation-diff-upload-notext\)/',
+			$html->getElementById('mw-content-text')->textContent,
+			"testShowUpload(): File was uploaded with description, but (moderation-diff-upload-notext) is shown");
 	}
 
 	private function getImageSizeFromString($content) {
