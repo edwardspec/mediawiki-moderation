@@ -60,6 +60,16 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$this->assertEquals($t->lastEdit['Title'], $le['title']);
 		$this->assertEquals($t->moderator->getName(), $le['user']);
 		$this->assertEquals($rev['revid'], $le['revid']);
+
+		$events = $t->nonApiLogEntries(1);
+		$this->assertEquals('approve', $events[0]['type']);
+
+		$this->assertEquals($t->moderator->getName(),
+			$events[0]['params'][1]);
+		$this->assertEquals($t->lastEdit['Title'],
+			$events[0]['params'][2]);
+		$this->assertEquals("(moderation-log-diff: " . $rev['revid'] . ")",
+			$events[0]['params'][3]);
 	}
 
 	public function testApproveAll() {
