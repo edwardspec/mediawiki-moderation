@@ -87,6 +87,18 @@ class ModerationTestReject extends MediaWikiTestCase
 		$this->assertEquals($t->moderator->getName(), $le['user']);
 		$this->assertEquals($t->unprivilegedUser->getName(), $le['user_text']);
 		$this->assertEquals($entry->id, $le['modid']);
+
+		$events = $t->nonApiLogEntries(1);
+		$this->assertEquals('reject', $events[0]['type']);
+
+		$this->assertEquals($t->moderator->getName(),
+			$events[0]['params'][1]);
+		$this->assertEquals($t->lastEdit['Title'],
+			$events[0]['params'][2]);
+		$this->assertEquals('(moderation-log-change: ' . $entry->id . ')',
+			$events[0]['params'][3]);
+		$this->assertEquals($t->unprivilegedUser->getUserPage()->getText(),
+			$events[0]['params'][4]);
 	}
 
 	public function testRejectAll() {
