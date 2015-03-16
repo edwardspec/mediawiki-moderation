@@ -25,7 +25,6 @@ Background-prio (may not be needed):
 Tests to implement:
 - check non-error responses from actions like Approve
 - merge test
-- check that anonymous edits are still preloaded after creating an account
 
 FIXME:
 - when user removes the section header (== here ==) while editing this

@@ -77,11 +77,18 @@ class ModerationTestsuite
 		return $req;
 	}
 
+	/**
+		@brief Perform API request and return the resulting structure.
+		@note If $query contains 'token' => 'null', then 'token'
+			will be set to the current value of $editToken.
+	*/
 	public function query($query = array()) {
 		$query['format'] = 'json';
 
-		if(array_key_exists('token', $query))
-			$query['token'] = $this->editToken;
+		if(array_key_exists('token', $query)
+			&& is_null($query['token'])) {
+				$query['token'] = $this->editToken;
+		}
 
 		$req = $this->makeHttpRequest($this->apiUrl);
 		$req->setData($query);
@@ -124,6 +131,53 @@ class ModerationTestsuite
 			'meta' => 'userinfo'
 		));
 		return $ret['query']['userinfo']['name'];
+	}
+
+	/**
+		@brief Create account via API. Note: will not login.
+	*/
+	private function apiCreateAccount($username) {
+		# Step 1. Get the token.
+		$q = array(
+			'action' => 'createaccount',
+			'name' => $username,
+			'password' => $this->TEST_PASSWORD
+		);
+		$ret = $this->query($q);
+
+		# Step 2. Actually create an account.
+		$q['token'] = $ret['createaccount']['token'];
+		$ret = $this->query($q);
+
+		if($ret['createaccount']['result'] == 'NeedCaptcha') {
+			# Simple captcha is installed with MediaWiki by default,
+			# so we need to support it.
+			# Others are not our concern.
+
+			$captcha = $ret['createaccount']['captcha'];
+			if($captcha['type'] != 'simple') {
+				# No need to support that
+				return false;
+			}
+
+			# Sanitize the output to make it safe for eval()
+			$formula = $captcha['question'];
+			$formula = preg_replace('/−/', '-', $formula);
+			$formula = preg_replace('/[^0-9\+\-]/', '', $formula);
+			$formula = 'return ' . $formula . ';';
+
+			$q['captchaword'] = eval($formula . ';');
+			$q['captchaid'] = $captcha['id'];
+
+			$ret = $this->query($q);
+
+		}
+
+		if($ret['createaccount']['result'] == 'Success') {
+			return true;
+		}
+
+		return false;
 	}
 
 	#
@@ -382,6 +436,17 @@ class ModerationTestsuite
 		$this->apiLogout();
 		$this->t_loggedInAs =
 			User::newFromName($this->apiLoggedInAs(), false);
+	}
+
+	/**
+		@brief Create an account and return User object.
+		@note Will not login automatically (loginAs must be called).
+	*/
+	public function createAccount($username) {
+		if(!$this->apiCreateAccount($username)) {
+			return false;
+		}
+		return User::newFromName($username, false);
 	}
 
 	/**

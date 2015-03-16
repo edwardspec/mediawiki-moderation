@@ -165,4 +165,5 @@ It provides the following:
 	2) text is preloaded for both logged in and anonymous users,
 	3) edit summary is restored when preloading existing pages,
 	4) "ext.moderation.edit" module is loaded if something was preloaded,
-	5) check that (moderation-editing-your-version) message is shown.
+	5) check that (moderation-editing-your-version) message is shown,
+	6) check that anonymous edits are preloaded after creating an account.

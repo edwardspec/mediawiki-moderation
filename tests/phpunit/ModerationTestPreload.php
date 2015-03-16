@@ -54,6 +54,21 @@ class ModerationTestPreload extends MediaWikiTestCase
 			$t->lastEdit['Text'],
 			$t->getPreloadedText($t->lastEdit['Title']),
 			"testAnonymousPreload(): Preloaded text differs from what the user saved before");
+
+		/* Now create an account
+			and check that text can still be preloaded */
+
+		$username = 'FinallyLoggedIn';
+		$user = $t->createAccount($username);
+		if(!$user) {
+			$this->markTestIncomplete('testAnonymousPreload(): Failed to create account, most likely captcha is enabled.');
+		};
+
+		$t->loginAs($user);
+		$this->assertEquals(
+			$t->lastEdit['Text'],
+			$t->getPreloadedText($t->lastEdit['Title']),
+			"testAnonymousPreload(): Text was not preloaded after creating an account");
 	}
 
 	public function testPreloadSummary() {
