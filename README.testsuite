@@ -71,7 +71,8 @@ It provides the following:
 	9) moderator doesn't need to be automoderated to Approve(all),
 	10) approved edit has correct timestamp in page history,
 	11) approved edit doesn't "appear in the past" in RecentChanges,
-	12) proper log entry is created about the fact of approval.
+	12) proper log entry is created about the fact of approval,
+	13) approval log entries are properly formatted on Special:Log.
 
 4. [ModerationTestReject.php]
 	Answers the question: "Does the Reject(all) link work as expected?"
@@ -82,7 +83,8 @@ It provides the following:
 	4) rejection flags (batch/auto) are set properly,
 	5) rejected edits don't have ApproveAll/Reject/RejectAll links,
 	6) edits of other users are unaffected by Rejectall,
-	7) proper log entry is created about the fact of rejection.
+	7) proper log entry is created about the fact of rejection,
+	8) rejection log entries are properly formatted on Special:Log.
 
 5. [ModerationTestPermissions.php]
 	Answers the question: "Is Special:Moderation for moderators only?"
@@ -147,7 +149,8 @@ It provides the following:
 	3) rejection flags (batch/auto) are set properly,
 	4) edits in Spam folder don't have ApproveAll/Reject/RejectAll links,
 	5) after the user is unblocked, new edits go into the Pending folder,
-	6) proper log entry is created about the fact of block/unblock.
+	6) proper log entry is created about the fact of block/unblock,
+	7) block/unblock log entries are properly formatted on Special:Log.
 
 12. [ModerationTestEdit.php]
 	Answers the question: "Does the editing work as usual?"
