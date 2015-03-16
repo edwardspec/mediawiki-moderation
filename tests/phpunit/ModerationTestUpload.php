@@ -89,6 +89,9 @@ class ModerationTestUpload extends MediaWikiTestCase
 		$this->assertEquals('(emptyfile)', $error);
 	}
 
+	/**
+		@covers ModerationApproveHook
+	*/
 	public function testReupload() {
 		$t = new ModerationTestsuite();
 		$title = "Test image 1.png";
@@ -146,7 +149,7 @@ class ModerationTestUpload extends MediaWikiTestCase
 
 		# Check image page history: performUpload(... $user) mistakenly
 		# tags image reuploads as made by moderator (and not $user).
-		# Was that fixed?
+		# Was that fixed? (via ModerationApproveHook class)
 
 		$ret = $t->query(array(
 			'action' => 'query',
