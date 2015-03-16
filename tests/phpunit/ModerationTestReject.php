@@ -182,5 +182,14 @@ class ModerationTestReject extends MediaWikiTestCase
 		$this->assertEquals($t->moderator->getName(), $le['user']);
 		$this->assertEquals($t->unprivilegedUser->getUserPage(), $le['title']);
 		$this->assertEquals($t->TEST_EDITS_COUNT, $le['count']);
+
+		$events = $t->nonApiLogEntries(1);
+		$this->assertEquals('rejectall', $events[0]['type']);
+
+		$this->assertEquals($t->moderator->getName(),
+			$events[0]['params'][1]);
+		$this->assertEquals($t->unprivilegedUser->getUserPage()->getText(),
+			$events[0]['params'][2]);
+		$this->assertEquals($t->TEST_EDITS_COUNT, $events[0]['params'][3]);
 	}
 }
