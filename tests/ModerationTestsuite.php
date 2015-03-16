@@ -624,10 +624,10 @@ class ModerationTestsuiteEntry
 		foreach($span->childNodes as $child)
 		{
 			$text = $child->textContent;
-			if(strpos($text, '(moderation-rejected-auto)') != false)
+			if(strpos($text, '(moderation-rejected-auto)') !== false)
 				$e->rejected_auto = true;
 
-			if(strpos($text, '(moderation-rejected-batch)') != false)
+			if(strpos($text, '(moderation-rejected-batch)') !== false)
 				$e->rejected_batch = true;
 
 			$matches = null;
@@ -640,7 +640,7 @@ class ModerationTestsuiteEntry
 		$links = $span->getElementsByTagName('a');
 		foreach($links as $link)
 		{
-			if(strpos($link->getAttribute('class'), 'mw-userlink') != false)
+			if(strpos($link->getAttribute('class'), 'mw-userlink') !== false)
 			{
 				$text = $link->textContent;
 
@@ -651,7 +651,7 @@ class ModerationTestsuiteEntry
 				# the presence of 'moderation-rejected-by'.
 
 				if(strpos($link->previousSibling->textContent,
-					"moderation-rejected-by") != false)
+					"moderation-rejected-by") !== false)
 				{
 					$e->rejected_by_user = $text;
 				}

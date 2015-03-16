@@ -139,7 +139,7 @@ class ModerationTestShow extends MediaWikiTestCase
 		foreach($images as $img)
 		{
 			$src = $img->getAttribute('src');
-			if(strpos($src, 'modaction=showimg') != false)
+			if(strpos($src, 'modaction=showimg') !== false)
 			{
 				$thumb = $img;
 				break;
