@@ -622,12 +622,20 @@ class ModerationTestsuite
 		foreach($list_items as $li)
 		{
 			$class = $li->getAttribute('class');
-			if(strpos($class, 'mw-logline-moderation') !== false) {
-				$events[] = $li->textContent;
+			if(strpos($class, 'mw-logline-moderation') !== false)
+			{
+				$matches = null;
+				if(preg_match('/\(logentry-moderation-([^:]+): (.*)\)\s*$/',
+					$li->textContent, $matches))
+				{
+					$events[] = array(
+						'type' => $matches[1],
+						'params' => explode(', ', $matches[2])
+					);
+				}
 			}
 		}
-
-		# TODO
+		return $events;
 	}
 }
 

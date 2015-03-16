@@ -87,6 +87,13 @@ class ModerationTestBlock extends MediaWikiTestCase
 		$this->assertEquals($t->moderator->getName(), $le['user']);
 		$this->assertEquals($t->unprivilegedUser->getUserPage(), $le['title']);
 
+		$events = $t->nonApiLogEntries(1);
+		$this->assertEquals('block', $events[0]['type']);
+		$this->assertEquals($t->moderator->getName(),
+			$events[0]['params'][1]);
+		$this->assertEquals($t->unprivilegedUser->getUserPage()->getText(),
+			$events[0]['params'][2]);
+
 		# Unblock the user
 		$req = $t->makeHttpRequest($entry->unblockLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
@@ -127,5 +134,12 @@ class ModerationTestBlock extends MediaWikiTestCase
 			"testBlock(): Most recent log entry is not 'unblock'");
 		$this->assertEquals($t->moderator->getName(), $le['user']);
 		$this->assertEquals($t->unprivilegedUser->getUserPage(), $le['title']);
+
+		$events = $t->nonApiLogEntries(1);
+		$this->assertEquals('unblock', $events[0]['type']);
+		$this->assertEquals($t->moderator->getName(),
+			$events[0]['params'][1]);
+		$this->assertEquals($t->unprivilegedUser->getUserPage()->getText(),
+			$events[0]['params'][2]);
 	}
 }
