@@ -36,6 +36,7 @@ class ModerationTestsuite
 	private $TEST_PASSWORD = '123456';
 
 	public $userAgent = 'MediaWiki Moderation Testsuite';
+	private $followRedirects = false;
 
 	private function PrepareAPIForTests()
 	{
@@ -57,9 +58,19 @@ class ModerationTestsuite
 		$this->userAgent = $ua;
 	}
 
+	public function followRedirectsInOneNextRequest()
+	{
+		$this->followRedirects = true;
+	}
 	public function makeHttpRequest($url, $method = 'POST')
 	{
-		$req = MWHttpRequest::factory($url, array('method' => $method));
+		$options = array('method' => $method);
+		if($this->followRedirects) {
+			$options['followRedirects'] = true;
+			$this->followRedirects = false; # Reset the flag
+		}
+
+		$req = MWHttpRequest::factory($url, $options);
 		$req->setUserAgent($this->userAgent);
 		$req->setCookieJar($this->cookie_jar);
 
@@ -590,6 +601,33 @@ class ModerationTestsuite
 			'lelimit' => $count
 		));
 		return $ret['query']['logevents'];
+	}
+
+	/**
+		@brief Get up to $count moderation log entries NOT via API
+			(most recent first).
+	*/
+	public function nonApiLogEntries($count = 100)
+	{
+		$this->followRedirectsInOneNextRequest();
+		$url = wfAppendQuery(wfScript('index'), array(
+			'uselang' => 'qqx',
+			'title' => 'Special:Log/moderation',
+			'limit' => $count
+		));
+		$html = $this->getHtmlDocumentByURL($url);
+
+		$events = array();
+		$list_items = $html->getElementsByTagName('li');
+		foreach($list_items as $li)
+		{
+			$class = $li->getAttribute('class');
+			if(strpos($class, 'mw-logline-moderation') !== false) {
+				$events[] = $li->textContent;
+			}
+		}
+
+		# TODO
 	}
 }
 
