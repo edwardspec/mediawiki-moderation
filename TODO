@@ -9,6 +9,9 @@ Low-prio:
 	there is no edit comment, mark them with "is zero edit" flag viewable
 	to the moderator, add an option (disabled by default) to suppress
 	zero edits completely, etc.
+* (interface) For non-automoderated users: show a message on their
+	Special:Contributions ensuring them that their edits will
+	appear there when they are approved.
 
 Background-prio (may not be needed):
 * (feature) Post factum elimination of duplicate anonymous edits (e.g. when one
