@@ -190,9 +190,10 @@ class ModerationTestsuite
 
 	public $lastFetchedDocument = null; # DOMDocument
 
-	public function getSpecialURL()
+	public function getSpecialURL($query = array())
 	{
-		return Title::newFromText('Moderation', NS_SPECIAL)->getLocalURL();
+		$title = Title::newFromText('Moderation', NS_SPECIAL);
+		return wfAppendQuery($title->getLocalURL(), $query);
 	}
 
 	/**
@@ -220,7 +221,7 @@ class ModerationTestsuite
 		if($folder != 'DEFAULT') {
 			$query['folder'] = $folder;
 		}
-		$url = wfAppendQuery($this->getSpecialURL(), $query);
+		$url = $this->getSpecialURL($query);
 
 		$req = $this->makeHttpRequest($url, 'GET');
 		$status = $req->execute();

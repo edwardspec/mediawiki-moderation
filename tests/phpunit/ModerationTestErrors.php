@@ -31,7 +31,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$t = new ModerationTestsuite();
 		$t->loginAs($t->moderator);
 
-		$url = wfAppendQuery($t->getSpecialURL(), array(
+		$url = $t->getSpecialURL(array(
 			'modaction' => 'findgirlfriend'
 		));
 
