@@ -192,7 +192,7 @@ class ModerationTestsuite
 
 	public function getSpecialURL($query = array())
 	{
-		$title = Title::newFromText('Moderation', NS_SPECIAL);
+		$title = Title::newFromText('Moderation', NS_SPECIAL)->fixSpecialName();
 		return wfAppendQuery($title->getLocalURL(), $query);
 	}
 
@@ -671,9 +671,8 @@ class ModerationTestsuite
 	*/
 	public function nonApiLogEntries($count = 100)
 	{
-		$this->followRedirectsInOneNextRequest();
-		$url = wfAppendQuery(wfScript('index'), array(
-			'title' => 'Special:Log/moderation',
+		$title = Title::newFromText('Log/moderation', NS_SPECIAL)->fixSpecialName();
+		$url = wfAppendQuery($title->getLocalURL(), array(
 			'limit' => $count
 		));
 		$html = $this->getHtmlDocumentByURL($url);
