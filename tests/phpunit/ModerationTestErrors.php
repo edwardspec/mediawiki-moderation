@@ -31,8 +31,11 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$t = new ModerationTestsuite();
 		$t->loginAs($t->moderator);
 
-		$error = $t->getModerationError($t->getSpecialURL() .
-			"&modaction=findgirlfriend");
+		$url = wfAppendQuery($t->getSpecialURL(), array(
+			'modaction' => 'findgirlfriend'
+		));
+
+		$error = $t->getModerationError($url);
 		$this->assertEquals('(moderation-unknown-modaction)', $error);
 	}
 
