@@ -192,10 +192,7 @@ class ModerationTestsuite
 
 	public function getSpecialURL()
 	{
-		$url = wfAppendQuery(wfScript('index'), array(
-			'title' => 'Special:Moderation'
-		));
-		return $url;
+		return Title::newFromText('Moderation', NS_SPECIAL)->getLocalURL();
 	}
 
 	/**
@@ -219,9 +216,11 @@ class ModerationTestsuite
 	{
 		$this->loginAs($this->moderator);
 
-		$url = $this->getSpecialURL() . "&limit=150";
-		if($folder != 'DEFAULT')
-			$url .= '&folder=' . $folder;
+		$query = array('limit' => 150);
+		if($folder != 'DEFAULT') {
+			$query['folder'] = $folder;
+		}
+		$url = wfAppendQuery($this->getSpecialURL(), $query);
 
 		$req = $this->makeHttpRequest($url, 'GET');
 		$status = $req->execute();
