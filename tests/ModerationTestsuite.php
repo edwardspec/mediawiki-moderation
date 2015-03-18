@@ -192,13 +192,8 @@ class ModerationTestsuite
 
 	public function getSpecialURL()
 	{
-		# When "uselang=qqx" is specified, messages are replaced with
-		# their names, so parsing process is translation-independent.
-		# (see ModerationTestsuiteEntry::fromDOMElement)
-
 		$url = wfAppendQuery(wfScript('index'), array(
-			'title' => 'Special:Moderation',
-			'uselang' => 'qqx'
+			'title' => 'Special:Moderation'
 		));
 		return $url;
 	}
@@ -291,7 +286,7 @@ class ModerationTestsuite
 	public function getModerationError($url = null)
 	{
 		if($url) {
-			if(!$this->getHtmlDocumentByURL($url . '&uselang=qqx'))
+			if(!$this->getHtmlDocumentByURL($url))
 				return null;
 		}
 
@@ -310,8 +305,7 @@ class ModerationTestsuite
 	{
 		$url = wfAppendQuery(wfScript('index'), array(
 			'title' => $title,
-			'action' => 'edit',
-			'uselang' => 'qqx'
+			'action' => 'edit'
 		));
 
 		if(!$this->getHtmlDocumentByURL($url))
@@ -361,6 +355,11 @@ class ModerationTestsuite
 	{
 		$user = User::createNew($name);
 		$user->setPassword($this->TEST_PASSWORD);
+
+		# With "qqx" language selected, messages are replaced with
+		# their names, so parsing process is translation-independent.
+		$user->setOption('language', 'qqx');
+
 		$user->saveSettings();
 
 		foreach($groups as $g)
@@ -479,7 +478,6 @@ class ModerationTestsuite
 
 		# $req->setHeader('Content-Type', 'multipart/form-data');
 		$req->setData(array(
-			'uselang' => 'qqx',
 			'action' => 'submit',
 			'title' => $title,
 			'wpTextbox1' => $text,
@@ -607,7 +605,6 @@ class ModerationTestsuite
 
 		$req->setHeader('Content-Type', 'multipart/form-data');
 		$req->setData(array(
-			'uselang' => 'qqx',
 			'title' => 'Special:Upload',
 			'wpUploadFile' => '@' . $source_filename,
 			'wpDestFile' => $title,
@@ -676,7 +673,6 @@ class ModerationTestsuite
 	{
 		$this->followRedirectsInOneNextRequest();
 		$url = wfAppendQuery(wfScript('index'), array(
-			'uselang' => 'qqx',
 			'title' => 'Special:Log/moderation',
 			'limit' => $count
 		));

@@ -47,8 +47,7 @@ class ModerationTestShow extends MediaWikiTestCase
 			"testShow(): Show link not found");
 		$this->assertNotRegExp('/token=/', $url,
 				"testShow(): Token was found in the read-only Show link");
-			
-		$url .= '&uselang=qqx'; # Show message IDs instead of text
+
 		$title = $t->getHtmlTitle($url);
 
 		$this->assertRegExp('/\(difference-title: ' . preg_quote($page) . '\)/', $title,
@@ -119,7 +118,6 @@ class ModerationTestShow extends MediaWikiTestCase
 		$url = $entry->showLink;
 		$this->assertNotNull($url,
 			"testShowUpload(): Show link not found");
-		$url .= '&uselang=qqx'; # Show message IDs instead of text
 		$title = $t->getHtmlTitle($url);
 
 		$this->assertRegExp('/\(difference-title: ' . $t->lastEdit['Title'] . '\)/', $title,
@@ -232,7 +230,7 @@ class ModerationTestShow extends MediaWikiTestCase
 			"testShowUpload(): Original image is smaller than THUMB_WIDTH, but thumbnail height doesn't match the original height");
 
 		# Ensure absence of (moderation-diff-upload-notext)
-		$html = $t->getHtmlDocumentByURL($t->new_entries[0]->showLink . '&uselang=qqx');
+		$html = $t->getHtmlDocumentByURL($t->new_entries[0]->showLink);
 		$this->assertNotRegExp('/\(moderation-diff-upload-notext\)/',
 			$html->getElementById('mw-content-text')->textContent,
 			"testShowUpload(): File was uploaded with description, but (moderation-diff-upload-notext) is shown");

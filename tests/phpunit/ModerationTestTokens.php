@@ -46,8 +46,6 @@ class ModerationTestTokens extends MediaWikiTestCase
 		);
 		foreach($links as $url)
 		{
-			$url .= '&uselang=qqx'; # Show message IDs instead of text
-
 			$bad_url = preg_replace('/token=[^&]*/', '', $url);
 			$title = $t->getHtmlTitle($bad_url);
 			$this->assertRegExp('/\(sessionfailure-title\)/', $title);

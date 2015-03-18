@@ -35,13 +35,10 @@ class ModerationTestReject extends MediaWikiTestCase
 		$t->fetchSpecial();
 
 		$entry = $t->new_entries[0];
-
 		$this->assertNotNull($entry->rejectLink,
 			"testReject(): Reject link not found");
 
-		$url = wfAppendQuery($entry->rejectLink,
-			array('uselang' => 'qqx'));
-		$req = $t->makeHttpRequest($url, 'GET');
+		$req = $t->makeHttpRequest($entry->rejectLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
 		$html = DOMDocument::loadHTML($req->getContent());
