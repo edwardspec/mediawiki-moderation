@@ -41,9 +41,9 @@ class ModerationTestReject extends MediaWikiTestCase
 		$req = $t->makeHttpRequest($entry->rejectLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
-		$html = DOMDocument::loadHTML($req->getContent());
+		$t->getHtmlDocumentFromString($req->getContent());
 		$this->assertRegExp('/\(moderation-rejected-ok: 1\)/',
-			$html->getElementById('mw-content-text')->textContent,
+			$t->getContentText(),
 			"testReject(): Result page doesn't contain (moderation-rejected-ok: 1)");
 
 		$t->fetchSpecial();

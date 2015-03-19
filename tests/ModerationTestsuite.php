@@ -266,7 +266,12 @@ class ModerationTestsuite
 		# We don't check $status->isOK() here,
 		# because the test may want to analyze the page with 404 error.
 
-		$html = DOMDocument::loadHTML($req->getContent());
+		return $this->getHtmlDocumentFromString($req->getContent());
+	}
+
+	public function getHtmlDocumentFromString($string)
+	{
+		$html = DOMDocument::loadHTML($string);
 		$this->lastFetchedDocument = $html;
 
 		return $html;
