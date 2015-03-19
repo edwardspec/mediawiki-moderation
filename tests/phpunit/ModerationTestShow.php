@@ -123,14 +123,13 @@ class ModerationTestShow extends MediaWikiTestCase
 		$this->assertRegExp('/\(difference-title: ' . $t->lastEdit['Title'] . '\)/', $title,
 			"testShowUpload(): Difference page has a wrong HTML title");
 
-		$html = $t->lastFetchedDocument;
 		$this->assertRegExp('/\(moderation-diff-upload-notext\)/',
-			$html->getElementById('mw-content-text')->textContent,
+			$t->getContentText(),
 			"testShowUpload(): File was uploaded without description, but (moderation-diff-upload-notext) is not shown");
 
 		# Is the image thumbnail displayed on the difference page?
 
-		$images = $html->getElementsByTagName('img');
+		$images = $t->lastFetchedDocument->getElementsByTagName('img');
 
 		$thumb = null;
 		$src = null;
@@ -230,9 +229,8 @@ class ModerationTestShow extends MediaWikiTestCase
 			"testShowUpload(): Original image is smaller than THUMB_WIDTH, but thumbnail height doesn't match the original height");
 
 		# Ensure absence of (moderation-diff-upload-notext)
-		$html = $t->getHtmlDocumentByURL($t->new_entries[0]->showLink);
 		$this->assertNotRegExp('/\(moderation-diff-upload-notext\)/',
-			$html->getElementById('mw-content-text')->textContent,
+			$t->getContentText($t->new_entries[0]->showLink),
 			"testShowUpload(): File was uploaded with description, but (moderation-diff-upload-notext) is shown");
 	}
 

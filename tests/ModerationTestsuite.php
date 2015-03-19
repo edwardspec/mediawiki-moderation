@@ -297,6 +297,17 @@ class ModerationTestsuite
 		return $elem->textContent;
 	}
 
+	public function getContentText($url = null)
+	{
+		if($url) {
+			if(!$this->getHtmlDocumentByURL($url))
+				return null;
+		}
+
+		return $this->lastFetchedDocument->
+			getElementById('mw-content-text')->textContent;
+	}
+
 	/**
 		@brief Fetch the edit form and return the text in #wpTextbox1.
 		@param title The page to be opened for editing.
