@@ -309,8 +309,8 @@ class ModerationTestsuite
 				return null;
 		}
 
-		return $this->lastFetchedDocument->
-			getElementById('mw-content-text')->textContent;
+		return trim($this->lastFetchedDocument->
+			getElementById('mw-content-text')->textContent);
 	}
 
 	/**
