@@ -35,7 +35,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 			'modaction' => 'findgirlfriend'
 		));
 
-		$error = $t->getModerationError($url);
+		$error = $t->html->getModerationError($url);
 		$this->assertEquals('(moderation-unknown-modaction)', $error);
 	}
 
@@ -59,7 +59,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 			# TODO: check mergeLink
 		);
 		foreach($links as $url) {
-			$error = $t->getModerationError($url);
+			$error = $t->html->getModerationError($url);
 			$this->assertEquals('(moderation-edit-not-found)', $error);
 		}
 	}
@@ -71,7 +71,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$req = $t->makeHttpRequest($entry->rejectLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
-		$error = $t->getModerationError($entry->rejectLink);
+		$error = $t->html->getModerationError($entry->rejectLink);
 		$this->assertEquals('(moderation-already-rejected)', $error);
 	}
 
@@ -82,10 +82,10 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$req = $t->makeHttpRequest($entry->rejectLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
-		$error = $t->getModerationError($entry->rejectAllLink);
+		$error = $t->html->getModerationError($entry->rejectAllLink);
 		$this->assertEquals('(moderation-nothing-to-rejectall)', $error);
 
-		$error = $t->getModerationError($entry->approveAllLink);
+		$error = $t->html->getModerationError($entry->approveAllLink);
 		$this->assertEquals('(moderation-nothing-to-approveall)', $error);
 	}
 
@@ -112,7 +112,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash();
 		$stash->removeFileNoAuth($row->stash_key);
 
-		$error = $t->getModerationError($entry->approveLink);
+		$error = $t->html->getModerationError($entry->approveLink);
 		$this->assertEquals('(moderation-missing-stashed-image)', $error);
 	}
 
@@ -131,7 +131,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 
 		$entry = $t->new_entries[0];
 
-		$error = $t->getModerationError($entry->approveLink);
+		$error = $t->html->getModerationError($entry->approveLink);
 		$this->assertEquals('(edit-no-change)', $error);
 	}
 }

@@ -35,12 +35,12 @@ class ModerationTestPreload extends MediaWikiTestCase
 
 		$this->assertEquals(
 			$t->lastEdit['Text'],
-			$t->getPreloadedText($t->lastEdit['Title']),
+			$t->html->getPreloadedText($t->lastEdit['Title']),
 			"testLoggedInPreload(): Preloaded text differs from what the user saved before");
 
 		# Summary is not preloaded for new pages, see KNOWN_LIMITATIONS
 
-		$this->assertContains('ext.moderation.edit', $t->getLoaderModulesList(),
+		$this->assertContains('ext.moderation.edit', $t->html->getLoaderModulesList(),
 			"testLoggedInPreload(): Module ext.moderation.edit wasn't loaded");
 	}
 
@@ -52,7 +52,7 @@ class ModerationTestPreload extends MediaWikiTestCase
 
 		$this->assertEquals(
 			$t->lastEdit['Text'],
-			$t->getPreloadedText($t->lastEdit['Title']),
+			$t->html->getPreloadedText($t->lastEdit['Title']),
 			"testAnonymousPreload(): Preloaded text differs from what the user saved before");
 
 		/* Now create an account
@@ -67,7 +67,7 @@ class ModerationTestPreload extends MediaWikiTestCase
 		$t->loginAs($user);
 		$this->assertEquals(
 			$t->lastEdit['Text'],
-			$t->getPreloadedText($t->lastEdit['Title']),
+			$t->html->getPreloadedText($t->lastEdit['Title']),
 			"testAnonymousPreload(): Text was not preloaded after creating an account");
 	}
 
@@ -88,10 +88,10 @@ class ModerationTestPreload extends MediaWikiTestCase
 
 		$this->assertEquals(
 			$t->lastEdit['Text'],
-			$t->getPreloadedText($t->lastEdit['Title']),
+			$t->html->getPreloadedText($t->lastEdit['Title']),
 			"testPreloadSummary(): Preloaded text differs from what the user saved before");
 
-		$elem = $t->lastFetchedDocument->getElementById('wpSummary');
+		$elem = $t->html->document->getElementById('wpSummary');
 		$this->assertTrue($elem->hasAttribute('value'),
 			"testPreloadSummary(): #wpSummary doesn't have a 'value' attribute"
 		);
@@ -99,10 +99,10 @@ class ModerationTestPreload extends MediaWikiTestCase
 			"testPreloadSummary(): Preloaded summary doesn't match"
 		);
 
-		$this->assertContains('ext.moderation.edit', $t->getLoaderModulesList(),
+		$this->assertContains('ext.moderation.edit', $t->html->getLoaderModulesList(),
 			"testPreloadSummary(): Module ext.moderation.edit wasn't loaded");
 
-		$elem = $t->lastFetchedDocument->getElementById('mw-editing-your-version');
+		$elem = $t->html->document->getElementById('mw-editing-your-version');
 		$this->assertNotNull($elem,
 			"testPreloadSummary(): #mw-editing-your-version not found");
 		$this->assertEquals('(moderation-editing-your-version)', $elem->textContent,

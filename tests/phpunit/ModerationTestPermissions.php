@@ -28,7 +28,7 @@ class ModerationTestPermissions extends MediaWikiTestCase
 		$t = new ModerationTestsuite();
 
 		$t->loginAs($t->unprivilegedUser);
-		$title = $t->getHtmlTitle($t->getSpecialURL());
+		$title = $t->html->getTitle($t->getSpecialURL());
 
 		$this->assertRegExp('/\(permissionserrors\)/', $title);
 	}

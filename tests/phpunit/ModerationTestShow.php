@@ -48,7 +48,7 @@ class ModerationTestShow extends MediaWikiTestCase
 		$this->assertNotRegExp('/token=/', $url,
 				"testShow(): Token was found in the read-only Show link");
 
-		$title = $t->getHtmlTitle($url);
+		$title = $t->html->getTitle($url);
 
 		$this->assertRegExp('/\(difference-title: ' . preg_quote($page) . '\)/', $title,
 			"testShow(): Difference page has a wrong HTML title");
@@ -57,7 +57,7 @@ class ModerationTestShow extends MediaWikiTestCase
 		$deleted_lines = array();
 		$context_lines = array();
 
-		$html = $t->lastFetchedDocument;
+		$html = $t->html->document;
 		$table_cells = $html->getElementsByTagName('td');
 		foreach($table_cells as $td)
 		{
@@ -118,18 +118,18 @@ class ModerationTestShow extends MediaWikiTestCase
 		$url = $entry->showLink;
 		$this->assertNotNull($url,
 			"testShowUpload(): Show link not found");
-		$title = $t->getHtmlTitle($url);
+		$title = $t->html->getTitle($url);
 
 		$this->assertRegExp('/\(difference-title: ' . $t->lastEdit['Title'] . '\)/', $title,
 			"testShowUpload(): Difference page has a wrong HTML title");
 
 		$this->assertRegExp('/\(moderation-diff-upload-notext\)/',
-			$t->getContentText(),
+			$t->html->getContentText(),
 			"testShowUpload(): File was uploaded without description, but (moderation-diff-upload-notext) is not shown");
 
 		# Is the image thumbnail displayed on the difference page?
 
-		$images = $t->lastFetchedDocument->getElementsByTagName('img');
+		$images = $t->html->document->getElementsByTagName('img');
 
 		$thumb = null;
 		$src = null;
@@ -230,7 +230,7 @@ class ModerationTestShow extends MediaWikiTestCase
 
 		# Ensure absence of (moderation-diff-upload-notext)
 		$this->assertNotRegExp('/\(moderation-diff-upload-notext\)/',
-			$t->getContentText($t->new_entries[0]->showLink),
+			$t->html->getContentText($t->new_entries[0]->showLink),
 			"testShowUpload(): File was uploaded with description, but (moderation-diff-upload-notext) is shown");
 	}
 

@@ -22,9 +22,13 @@
 
 class ModerationTestsuite
 {
+	public $html;
+
 	function __construct() {
 		$this->PrepareAPIForTests();
 		$this->PrepareDbForTests();
+
+		$this->html = new ModerationTestsuiteHTML($this);
 	}
 
 	#
@@ -181,14 +185,12 @@ class ModerationTestsuite
 	}
 
 	#
-	# Part 2a. Functions for parsing Special:Moderation.
+	# Part 2. Functions for parsing Special:Moderation.
 	#
 	private $lastFetchedSpecial = array();
 
 	public $new_entries;
 	public $deleted_entries;
-
-	public $lastFetchedDocument = null; # DOMDocument
 
 	public function getSpecialURL($query = array())
 	{
@@ -252,116 +254,7 @@ class ModerationTestsuite
 		$this->deleted_entries = ModerationTestsuiteEntry::entriesInANotInB($before, $after);
 
 		$this->lastFetchedSpecial[$folder] = $entries;
-		$this->lastFetchedDocument = $html;
-	}
-
-	#
-	# Part 2b. Functions for parsing arbitrary HTML pages.
-	#
-	public function getHtmlDocumentByURL($url)
-	{
-		$req = $this->makeHttpRequest($url, 'GET');
-		$status = $req->execute();
-
-		# We don't check $status->isOK() here,
-		# because the test may want to analyze the page with 404 error.
-
-		return $this->getHtmlDocumentFromString($req->getContent());
-	}
-
-	public function getHtmlDocumentFromString($string)
-	{
-		$html = DOMDocument::loadHTML($string);
-		$this->lastFetchedDocument = $html;
-
-		return $html;
-	}
-
-	public function getHtmlTitle($url = null)
-	{
-		if($url) {
-			if(!$this->getHtmlDocumentByURL($url))
-				return null;
-		}
-
-		return $this->lastFetchedDocument->
-			getElementsByTagName('title')->item(0)->textContent;
-	}
-
-	public function getModerationError($url = null)
-	{
-		if($url) {
-			if(!$this->getHtmlDocumentByURL($url))
-				return null;
-		}
-
-		$elem = $this->lastFetchedDocument->getElementById('mw-mod-error');
-		if(!$elem)
-			return null;
-
-		return $elem->textContent;
-	}
-
-	public function getContentText($url = null)
-	{
-		if($url) {
-			if(!$this->getHtmlDocumentByURL($url))
-				return null;
-		}
-
-		return trim($this->lastFetchedDocument->
-			getElementById('mw-content-text')->textContent);
-	}
-
-	/**
-		@brief Fetch the edit form and return the text in #wpTextbox1.
-		@param title The page to be opened for editing.
-	*/
-	public function getPreloadedText($title)
-	{
-		$url = wfAppendQuery(wfScript('index'), array(
-			'title' => $title,
-			'action' => 'edit'
-		));
-
-		if(!$this->getHtmlDocumentByURL($url))
-			return null;
-
-		$elem = $this->lastFetchedDocument->getElementById('wpTextbox1');
-		if(!$elem)
-			return null;
-
-		return trim($elem->textContent);
-	}
-
-	/**
-		@brief Return the list of ResourceLoader modules
-			which are used in the last fetched HTML.
-	*/
-	public function getLoaderModulesList($url = null)
-	{
-		if($url) {
-			if(!$this->getHtmlDocumentByURL($url))
-				return null;
-		}
-
-		$scripts = $this->lastFetchedDocument->getElementsByTagName('script');
-
-		$list = array();
-		foreach($scripts as $script)
-		{
-			$matches = null;
-			if(preg_match('/mw\.loader\.load\(\[([^]]+)\]/', $script->textContent, $matches))
-			{
-				$items = explode(',', $matches[1]);
-
-				foreach($items as $item)
-				{
-					$list[] = preg_replace('/^"(.*)"$/', '$1', $item);
-				}
-			}
-		}
-		return array_unique($list);
+		$this->html->document = $html;
 	}
 
 	#
@@ -691,7 +584,7 @@ class ModerationTestsuite
 		$url = wfAppendQuery($title->getLocalURL(), array(
 			'limit' => $count
 		));
-		$html = $this->getHtmlDocumentByURL($url);
+		$html = $this->html->loadFromURL($url);
 
 		$events = array();
 		$list_items = $html->getElementsByTagName('li');
@@ -923,5 +816,106 @@ class ModerationTestsuiteEntry
 		}
 
 		return preg_replace('/modaction=(block|unblock|show)/', 'modaction=' . $action, $sample);
+	}
+}
+
+class ModerationTestsuiteHTML {
+	private $t; # ModerationTestsuite
+	function __construct(ModerationTestsuite $t) {
+		$this->t = $t;
+	}
+
+	public $document = null; # DOMDocument
+
+	public function loadFromURL($url) {
+		if(!$url) return;
+
+		$req = $this->t->makeHttpRequest($url, 'GET');
+		$status = $req->execute();
+
+		# We don't check $status->isOK() here,
+		# because the test may want to analyze the page with 404 error.
+
+		return $this->loadFromString($req->getContent());
+	}
+
+	public function loadFromString($string)
+	{
+		$html = DOMDocument::loadHTML($string);
+		$this->document = $html;
+
+		return $html;
+	}
+
+	public function getTitle($url = null)
+	{
+		$this->loadFromURL($url);
+
+		return $this->document->
+			getElementsByTagName('title')->item(0)->textContent;
+	}
+
+	public function getModerationError($url = null)
+	{
+		$this->loadFromURL($url);
+
+		$elem = $this->document->getElementById('mw-mod-error');
+		if(!$elem)
+			return null;
+
+		return $elem->textContent;
+	}
+
+	public function getContentText($url = null)
+	{
+		$this->loadFromURL($url);
+
+		return trim($this->document->
+			getElementById('mw-content-text')->textContent);
+	}
+
+	/**
+		@brief Fetch the edit form and return the text in #wpTextbox1.
+		@param title The page to be opened for editing.
+	*/
+	public function getPreloadedText($title)
+	{
+		$url = wfAppendQuery(wfScript('index'), array(
+			'title' => $title,
+			'action' => 'edit'
+		));
+		$this->loadFromURL($url);
+
+		$elem = $this->document->getElementById('wpTextbox1');
+		if(!$elem)
+			return null;
+
+		return trim($elem->textContent);
+	}
+
+	/**
+		@brief Return the list of ResourceLoader modules
+			which are used in the last fetched HTML.
+	*/
+	public function getLoaderModulesList($url = null)
+	{
+		$this->loadFromURL($url);
+		$scripts = $this->document->getElementsByTagName('script');
+
+		$list = array();
+		foreach($scripts as $script)
+		{
+			$matches = null;
+			if(preg_match('/mw\.loader\.load\(\[([^]]+)\]/', $script->textContent, $matches))
+			{
+				$items = explode(',', $matches[1]);
+
+				foreach($items as $item)
+				{
+					$list[] = preg_replace('/^"(.*)"$/', '$1', $item);
+				}
+			}
+		}
+		return array_unique($list);
 	}
 }
