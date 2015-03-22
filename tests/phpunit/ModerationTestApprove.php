@@ -213,8 +213,6 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$this->assertEquals($t->lastEdit['Title'], $t->deleted_entries[0]->title);
 	}
 
-	/* TODO: $wgModerationTimeToOverrideRejection check */
-
 	public function testApproveNotExpiredRejected() {
 		global $wgModerationTimeToOverrideRejection;
 		$t = new ModerationTestsuite();
