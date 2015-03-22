@@ -45,8 +45,14 @@ class ModerationTestsuiteEntry
 	public $rejected_batch = false;
 	public $rejected_auto = false;
 
+	public $conflict = false;
+
 	function __construct(DomElement $span)
 	{
+		if(strpos($span->getAttribute('class'), 'modconflict') !== false) {
+			$this->conflict = true;
+		}
+
 		foreach($span->childNodes as $child)
 		{
 			$text = $child->textContent;

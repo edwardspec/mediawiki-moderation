@@ -51,12 +51,14 @@ class ModerationTestMerge extends MediaWikiTestCase
 
 		$t->loginAs($t->unprivilegedUser);
 		$t->doTestEdit($page, $text1, "Improve one of the boring lines");
-		$t->fetchSpecial();
 
 		$t->loginAs($t->automoderated);
 		$t->doTestEdit($page, $text2, "Delete all boring lines");
 
-		$t->loginAs($t->moderator);
+		$t->fetchSpecial();
+		$this->assertFalse($t->new_entries[0]->conflict,
+			"testMerge(): Edit with not-yet-detected conflict is marked with class='modconflict'");
+
 		$error = $t->html->getModerationError($t->new_entries[0]->approveLink);
 		$this->assertEquals('(moderation-edit-conflict)', $error,
 			"testMerge(): Edit conflict not detected by modaction=approve");
@@ -72,6 +74,8 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$t->fetchSpecial();
 
 		$entry = $t->new_entries[0];
+		$this->assertTrue($entry->conflict,
+			"testMerge(): Edit with detected conflict is not marked with class='modconflict'");
 		$this->assertNotNull($entry->mergeLink,
 			"testMerge(): Merge link not found for edit with detected conflict");
 
