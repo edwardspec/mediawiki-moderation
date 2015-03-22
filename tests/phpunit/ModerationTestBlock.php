@@ -39,6 +39,11 @@ class ModerationTestBlock extends MediaWikiTestCase
 		$req = $t->makeHttpRequest($entry->blockLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
+		$t->html->loadFromReq($req);
+		$this->assertRegExp('/\(moderation-block-ok: ' . preg_quote($entry->user) . '\)/',
+			$t->html->getMainText(),
+			"testBlock(): Result page doesn't contain (moderation-block-ok)");
+
 		# Now that the user is blocked, try to edit
 		$t->loginAs($t->unprivilegedUser);
 		$t->doTestEdit('Test page 2');
@@ -98,7 +103,12 @@ class ModerationTestBlock extends MediaWikiTestCase
 		$req = $t->makeHttpRequest($entry->unblockLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
-		# Checking that the user is no longer considered a spammer...
+		$t->html->loadFromReq($req);
+		$this->assertRegExp('/\(moderation-unblock-ok: ' . preg_quote($entry->user) . '\)/',
+			$t->html->getMainText(),
+			"testBlock(): Result page doesn't contain (moderation-unblock-ok)");
+
+		# Check that the user is no longer considered a spammer...
 		$t->loginAs($t->unprivilegedUser);
 		$t->doTestEdit('Test page 3');
 

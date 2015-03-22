@@ -152,7 +152,8 @@ It provides the following:
 	4) edits in Spam folder don't have ApproveAll/Reject/RejectAll links,
 	5) after the user is unblocked, new edits go into the Pending folder,
 	6) proper log entry is created about the fact of block/unblock,
-	7) block/unblock log entries are properly formatted on Special:Log.
+	7) block/unblock log entries are properly formatted on Special:Log,
+	8) (moderation-(un)block-ok) is printed after successful block/unblock.
 
 12. [ModerationTestEdit.php]
 	Answers the question: "Does the editing work as usual?"
