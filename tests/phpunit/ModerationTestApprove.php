@@ -97,7 +97,10 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$req = $t->makeHttpRequest($entries[0]->approveAllLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
-		/* TODO: check $req->getContent() */
+		$t->html->loadFromString($req->getContent());
+		$this->assertRegExp('/\(moderation-approved-ok: ' . $t->TEST_EDITS_COUNT . '\)/',
+			$t->html->getMainText(),
+			"testApproveAll(): Result page doesn't contain (moderation-approved-ok: N)");
 
 		$t->fetchSpecial();
 		$this->assertCount(0, $t->new_entries,
@@ -316,8 +319,6 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$req = $t->makeHttpRequest($t->new_entries[0]->approveAllLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
-		/* TODO: check $req->getContent() */
-
 		$t->fetchSpecial();
 		$this->assertCount(0, $t->new_entries,
 			"testModeratorNotAutomoderated(): Something was added into Pending folder during modaction=approveall");
@@ -386,7 +387,10 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
-		/* TODO: check $req->getContent() */
+		$t->html->loadFromString($req->getContent());
+		$this->assertRegExp('/\(moderation-approved-ok: 1\)/',
+			$t->html->getMainText(),
+			"testApproveAll(): Result page doesn't contain (moderation-approved-ok: 1)");
 
 		$ret = $t->query(array(
 			'action' => 'query',
