@@ -23,45 +23,27 @@
 class ModerationTestsuite
 {
 	public $html;
+	private $api;
 
 	function __construct() {
-		$this->PrepareAPIForTests();
 		$this->PrepareDbForTests();
 
+		$this->cookie_jar = new CookieJar;
+
+		$this->api = new ModerationTestsuiteAPI($this);
 		$this->html = new ModerationTestsuiteHTML($this);
 	}
 
-	#
-	# Part 1. Api-related methods.
-	#
-	private $apiUrl;
-	private $editToken = false;
 	private $cookie_jar; # Cookie storage (from login() and anonymous preloading)
-	private $TEST_PASSWORD = '123456';
+	public $TEST_PASSWORD = '123456';
 
 	public $userAgent = 'MediaWiki Moderation Testsuite';
 	private $followRedirects = false;
-
-	private function PrepareAPIForTests()
-	{
-		$this->apiUrl = wfScript('api');
-		$this->cookie_jar = new CookieJar;
-		$this->getEditToken();
-	}
-	private function getEditToken() {
-		$ret = $this->query(array(
-			'action' => 'tokens',
-			'type' => 'edit'
-		));
-
-		$this->editToken = $ret['tokens']['edittoken'];
-	}
 
 	public function setUserAgent($ua)
 	{
 		$this->userAgent = $ua;
 	}
-
 	public function followRedirectsInOneNextRequest()
 	{
 		$this->followRedirects = true;
@@ -81,111 +63,12 @@ class ModerationTestsuite
 		return $req;
 	}
 
-	/**
-		@brief Perform API request and return the resulting structure.
-		@note If $query contains 'token' => 'null', then 'token'
-			will be set to the current value of $editToken.
-	*/
 	public function query($query = array()) {
-		$query['format'] = 'json';
-
-		if(array_key_exists('token', $query)
-			&& is_null($query['token'])) {
-				$query['token'] = $this->editToken;
-		}
-
-		$req = $this->makeHttpRequest($this->apiUrl);
-		$req->setData($query);
-		$status = $req->execute();
-		if(!$status->isOK())
-			return false;
-
-		return FormatJson::decode($req->getContent(), true);
-	}
-
-	private function apiLogin($username) {
-		# Step 1. Get the token.
-		$q = array(
-			'action' => 'login',
-			'lgname' => $username,
-			'lgpassword' => $this->TEST_PASSWORD
-		);
-		$ret = $this->query($q);
-
-		# Step 2. Actual login.
-		$q['lgtoken'] = $ret['login']['token'];
-		$ret = $this->query($q);
-
-		if($ret['login']['result'] == 'Success') {
-			$this->getEditToken(); # It's different for a logged-in user
-			return true;
-		}
-
-		return false;
-	}
-
-	private function apiLogout() {
-		$this->cookie_jar = new CookieJar; # Just delete all cookies
-		$this->getEditToken();
-	}
-
-	private function apiLoggedInAs() {
-		$ret = $this->query(array(
-			'action' => 'query',
-			'meta' => 'userinfo'
-		));
-		return $ret['query']['userinfo']['name'];
-	}
-
-	/**
-		@brief Create account via API. Note: will not login.
-	*/
-	private function apiCreateAccount($username) {
-		# Step 1. Get the token.
-		$q = array(
-			'action' => 'createaccount',
-			'name' => $username,
-			'password' => $this->TEST_PASSWORD
-		);
-		$ret = $this->query($q);
-
-		# Step 2. Actually create an account.
-		$q['token'] = $ret['createaccount']['token'];
-		$ret = $this->query($q);
-
-		if($ret['createaccount']['result'] == 'NeedCaptcha') {
-			# Simple captcha is installed with MediaWiki by default,
-			# so we need to support it.
-			# Others are not our concern.
-
-			$captcha = $ret['createaccount']['captcha'];
-			if($captcha['type'] != 'simple') {
-				# No need to support that
-				return false;
-			}
-
-			# Sanitize the output to make it safe for eval()
-			$formula = $captcha['question'];
-			$formula = preg_replace('/−/', '-', $formula);
-			$formula = preg_replace('/[^0-9\+\-]/', '', $formula);
-			$formula = 'return ' . $formula . ';';
-
-			$q['captchaword'] = eval($formula . ';');
-			$q['captchaid'] = $captcha['id'];
-
-			$ret = $this->query($q);
-
-		}
-
-		if($ret['createaccount']['result'] == 'Success') {
-			return true;
-		}
-
-		return false;
+		return $this->api->query($query);
 	}
 
 	#
-	# Part 2. Functions for parsing Special:Moderation.
+	# Functions for parsing Special:Moderation.
 	#
 	private $lastFetchedSpecial = array();
 
@@ -258,7 +141,7 @@ class ModerationTestsuite
 	}
 
 	#
-	# Part 3. Database-related functions.
+	# Database-related functions.
 	#
 	private function createTestUser($name, $groups = array())
 	{
@@ -317,7 +200,7 @@ class ModerationTestsuite
 	}
 
 	#
-	# Part 4. High-level test functions.
+	# High-level test functions.
 	#
 	public $moderator;
 	public $moderatorButNotAutomoderated;
@@ -336,14 +219,14 @@ class ModerationTestsuite
 
 	public function loginAs(User $user)
 	{
-		$this->apiLogin($user->getName());
+		$this->api->apiLogin($user->getName());
 		$this->t_loggedInAs = $user;
 	}
 
 	public function logout() {
-		$this->apiLogout();
+		$this->api->apiLogout();
 		$this->t_loggedInAs =
-			User::newFromName($this->apiLoggedInAs(), false);
+			User::newFromName($this->api->apiLoggedInAs(), false);
 	}
 
 	/**
@@ -351,7 +234,7 @@ class ModerationTestsuite
 		@note Will not login automatically (loginAs must be called).
 	*/
 	public function createAccount($username) {
-		if(!$this->apiCreateAccount($username)) {
+		if(!$this->api->apiCreateAccount($username)) {
 			return false;
 		}
 		return User::newFromName($username, false);
@@ -391,7 +274,7 @@ class ModerationTestsuite
 			'title' => $title,
 			'wpTextbox1' => $text,
 			'wpSummary' => $summary,
-			'wpEditToken' => $this->editToken,
+			'wpEditToken' => $this->api->editToken,
 			'wpSave' => 'Save',
 			'wpIgnoreBlankSummary' => '',
 			'wpRecreate' => '',
@@ -518,7 +401,7 @@ class ModerationTestsuite
 			'wpUploadFile' => '@' . $source_filename,
 			'wpDestFile' => $title,
 			'wpIgnoreWarning' => '1',
-			'wpEditToken' => $this->editToken,
+			'wpEditToken' => $this->api->editToken,
 			'wpUpload' => 'Upload',
 			'wpUploadDescription' => $text
 		));
@@ -917,5 +800,130 @@ class ModerationTestsuiteHTML {
 			}
 		}
 		return array_unique($list);
+	}
+}
+
+class ModerationTestsuiteAPI {
+	private $t; # ModerationTestsuite
+	function __construct(ModerationTestsuite $t) {
+		$this->t = $t;
+
+		$this->apiUrl = wfScript('api');
+		$this->getEditToken();
+	}
+
+	private $apiUrl;
+	public $editToken = false;
+
+	private function getEditToken() {
+		$ret = $this->query(array(
+			'action' => 'tokens',
+			'type' => 'edit'
+		));
+
+		$this->editToken = $ret['tokens']['edittoken'];
+	}
+
+	/**
+		@brief Perform API request and return the resulting structure.
+		@note If $query contains 'token' => 'null', then 'token'
+			will be set to the current value of $editToken.
+	*/
+	public function query($query) {
+		$query['format'] = 'json';
+
+		if(array_key_exists('token', $query)
+			&& is_null($query['token'])) {
+				$query['token'] = $this->editToken;
+		}
+
+		$req = $this->t->makeHttpRequest($this->apiUrl);
+		$req->setData($query);
+		$status = $req->execute();
+		if(!$status->isOK())
+			return false;
+
+		return FormatJson::decode($req->getContent(), true);
+	}
+
+	public function apiLogin($username) {
+		# Step 1. Get the token.
+		$q = array(
+			'action' => 'login',
+			'lgname' => $username,
+			'lgpassword' => $this->t->TEST_PASSWORD
+		);
+		$ret = $this->query($q);
+
+		# Step 2. Actual login.
+		$q['lgtoken'] = $ret['login']['token'];
+		$ret = $this->query($q);
+
+		if($ret['login']['result'] == 'Success') {
+			$this->getEditToken(); # It's different for a logged-in user
+			return true;
+		}
+
+		return false;
+	}
+
+	public function apiLogout() {
+		$this->cookie_jar = new CookieJar; # Just delete all cookies
+		$this->getEditToken();
+	}
+
+	public function apiLoggedInAs() {
+		$ret = $this->query(array(
+			'action' => 'query',
+			'meta' => 'userinfo'
+		));
+		return $ret['query']['userinfo']['name'];
+	}
+
+	/**
+		@brief Create account via API. Note: will not login.
+	*/
+	public function apiCreateAccount($username) {
+		# Step 1. Get the token.
+		$q = array(
+			'action' => 'createaccount',
+			'name' => $username,
+			'password' => $this->t->TEST_PASSWORD
+		);
+		$ret = $this->query($q);
+
+		# Step 2. Actually create an account.
+		$q['token'] = $ret['createaccount']['token'];
+		$ret = $this->query($q);
+
+		if($ret['createaccount']['result'] == 'NeedCaptcha') {
+			# Simple captcha is installed with MediaWiki by default,
+			# so we need to support it.
+			# Others are not our concern.
+
+			$captcha = $ret['createaccount']['captcha'];
+			if($captcha['type'] != 'simple') {
+				# No need to support that
+				return false;
+			}
+
+			# Sanitize the output to make it safe for eval()
+			$formula = $captcha['question'];
+			$formula = preg_replace('/−/', '-', $formula);
+			$formula = preg_replace('/[^0-9\+\-]/', '', $formula);
+			$formula = 'return ' . $formula . ';';
+
+			$q['captchaword'] = eval($formula . ';');
+			$q['captchaid'] = $captcha['id'];
+
+			$ret = $this->query($q);
+
+		}
+
+		if($ret['createaccount']['result'] == 'Success') {
+			return true;
+		}
+
+		return false;
 	}
 }
