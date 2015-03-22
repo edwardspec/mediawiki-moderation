@@ -38,6 +38,7 @@ class ModerationTestsuiteEntry
 	public $rejectAllLink = null;
 	public $blockLink = null;
 	public $unblockLink = null;
+	public $mergeLink = null;
 	public $ip = null;
 
 	public $rejected_by_user = null;
@@ -109,6 +110,10 @@ class ModerationTestsuiteEntry
 
 				case '(moderation-rejectall)':
 					$this->rejectAllLink = $href;
+					break;
+
+				case '(moderation-merge)':
+					$this->mergeLink = $href;
 					break;
 
 				case '(moderation-block)':

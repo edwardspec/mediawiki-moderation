@@ -72,11 +72,8 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$t->fetchSpecial();
 
 		$entry = $t->new_entries[0];
-
-		$this->assertNull($t->new_entries[0]->approveLink,
-			"testMerge(): Approve link found for edit with detected conflict");
-		$this->assertNull($t->new_entries[0]->approveAllLink,
-			"testMerge(): ApproveAll link found for edit with detected conflict");
+		$this->assertNotNull($t->new_entries[0]->mergeLink,
+			"testMerge(): Merge link not found for edit with detected conflict");
 
 		$this->assertNotNull($t->new_entries[0]->rejectLink,
 			"testMerge(): Reject link not found for edit with detected conflict");
@@ -86,6 +83,11 @@ class ModerationTestMerge extends MediaWikiTestCase
 			"testMerge(): Show link not found for edit with detected conflict");
 		$this->assertNotNull($t->new_entries[0]->blockLink,
 			"testMerge(): Block link not found for edit with detected conflict");
+
+		$this->assertNull($t->new_entries[0]->approveLink,
+			"testMerge(): Approve link found for edit with detected conflict");
+		$this->assertNull($t->new_entries[0]->approveAllLink,
+			"testMerge(): ApproveAll link found for edit with detected conflict");
 
 		$this->assertNull($entry->rejected_by_user,
 			"testMerge(): Not yet rejected edit with detected conflict is marked rejected");
