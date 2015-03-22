@@ -30,9 +30,8 @@ class ModerationTestsuite
 	private $api;
 
 	function __construct() {
-		$this->PrepareDbForTests();
-
-		$this->cookie_jar = new CookieJar;
+		$this->prepareDbForTests();
+		$this->resetCookieJar();
 
 		$this->api = new ModerationTestsuiteAPI($this);
 		$this->html = new ModerationTestsuiteHTML($this);
@@ -69,6 +68,10 @@ class ModerationTestsuite
 
 	public function query($query = array()) {
 		return $this->api->query($query);
+	}
+
+	public function resetCookieJar() {
+		$this->cookie_jar = new CookieJar;
 	}
 
 	#
@@ -163,7 +166,7 @@ class ModerationTestsuite
 
 		return $user;
 	}
-	private function PrepareDbForTests()
+	private function prepareDbForTests()
 	{
 		/* Controlled environment
 			as in "Destroy everything on testsuite's path" */

@@ -85,7 +85,7 @@ class ModerationTestsuiteAPI {
 	}
 
 	public function apiLogout() {
-		$this->cookie_jar = new CookieJar; # Just delete all cookies
+		$this->t->resetCookieJar(); # Just delete all cookies
 		$this->getEditToken();
 	}
 
