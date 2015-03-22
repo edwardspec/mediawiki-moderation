@@ -129,31 +129,6 @@ class ModerationTestsuiteEntry
 		$this->id = $matches[1];
 	}
 
-	static public function entriesInANotInB($array_A, $array_B)
-	{
-		# NOTE: the code below doesn't handle the situation when there
-		# are 150 entries, 1 new entry is added and one existing entry
-		# is moved to another page.
-
-		$diff = array();
-		foreach($array_A as $e)
-		{
-			$found = 0;
-			foreach($array_B as $b)
-			{
-				if($e->id == $b->id)
-				{
-					$found = 1;
-					break;
-				}
-			}
-
-			if(!$found)
-				$diff[] = $e;
-		}
-		return $diff;
-	}
-
 	static public function findById($array, $id)
 	{
 		foreach($array as $e)

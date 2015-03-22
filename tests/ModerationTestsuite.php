@@ -128,8 +128,10 @@ class ModerationTestsuite
 
 		foreach($spans as $span)
 		{
-			if($span->getAttribute('class') == 'modline')
-				$entries[] = new ModerationTestsuiteEntry($span);
+			if($span->getAttribute('class') == 'modline') {
+				$e = new ModerationTestsuiteEntry($span);
+				$entries[$e->id] = $e;
+			}
 		}
 
 		if(array_key_exists($folder, $this->lastFetchedSpecial)) {
@@ -140,8 +142,8 @@ class ModerationTestsuite
 		}
 		$after = $entries;
 
-		$this->new_entries = ModerationTestsuiteEntry::entriesInANotInB($after, $before);
-		$this->deleted_entries = ModerationTestsuiteEntry::entriesInANotInB($before, $after);
+		$this->new_entries = array_values(array_diff_key($after, $before));
+		$this->deleted_entries = array_values(array_diff_key($before, $after));
 
 		$this->lastFetchedSpecial[$folder] = $entries;
 		$this->html->document = $html;
