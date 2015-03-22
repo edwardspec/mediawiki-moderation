@@ -124,7 +124,7 @@ class ModerationTestShow extends MediaWikiTestCase
 			"testShowUpload(): Difference page has a wrong HTML title");
 
 		$this->assertRegExp('/\(moderation-diff-upload-notext\)/',
-			$t->html->getContentText(),
+			$t->html->getMainText(),
 			"testShowUpload(): File was uploaded without description, but (moderation-diff-upload-notext) is not shown");
 
 		# Is the image thumbnail displayed on the difference page?
@@ -230,7 +230,7 @@ class ModerationTestShow extends MediaWikiTestCase
 
 		# Ensure absence of (moderation-diff-upload-notext)
 		$this->assertNotRegExp('/\(moderation-diff-upload-notext\)/',
-			$t->html->getContentText($t->new_entries[0]->showLink),
+			$t->html->getMainText($t->new_entries[0]->showLink),
 			"testShowUpload(): File was uploaded with description, but (moderation-diff-upload-notext) is shown");
 	}
 

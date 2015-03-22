@@ -43,7 +43,7 @@ class ModerationTestReject extends MediaWikiTestCase
 
 		$t->html->loadFromString($req->getContent());
 		$this->assertRegExp('/\(moderation-rejected-ok: 1\)/',
-			$t->html->getContentText(),
+			$t->html->getMainText(),
 			"testReject(): Result page doesn't contain (moderation-rejected-ok: 1)");
 
 		$t->fetchSpecial();

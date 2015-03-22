@@ -67,7 +67,7 @@ class ModerationTestsuiteHTML {
 		return $elem->textContent;
 	}
 
-	public function getContentText($url = null)
+	public function getMainText($url = null)
 	{
 		$this->loadFromURL($url);
 

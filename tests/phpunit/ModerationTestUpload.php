@@ -119,7 +119,7 @@ class ModerationTestUpload extends MediaWikiTestCase
 
 		# Does modaction=show display (moderation-diff-reupload) message?
 		$this->assertRegExp('/\(moderation-diff-reupload\)/',
-			$t->html->getContentText($entry->showLink),
+			$t->html->getMainText($entry->showLink),
 			"testReupload(): (moderation-diff-reupload) not found in the output of modaction=show");
 
 		# Can we approve this reupload?
