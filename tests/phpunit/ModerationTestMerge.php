@@ -60,5 +60,38 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$error = $t->html->getModerationError($t->new_entries[0]->approveLink);
 		$this->assertEquals('(moderation-edit-conflict)', $error,
 			"testMerge(): Edit conflict not detected by modaction=approve");
+
+		$t->fetchSpecial();
+
+		$this->assertCount(0, $t->new_entries,
+			"testMerge(): Something was added into Pending folder when modaction=approve detected edit conflict");
+		$this->assertCount(0, $t->deleted_entries,
+			"testMerge(): Something was deleted from Rejected folder when modaction=approve detected edit conflict");
+
+		$t->assumeFolderIsEmpty();
+		$t->fetchSpecial();
+
+		$entry = $t->new_entries[0];
+
+		$this->assertNull($t->new_entries[0]->approveLink,
+			"testMerge(): Approve link found for edit with detected conflict");
+		$this->assertNull($t->new_entries[0]->approveAllLink,
+			"testMerge(): ApproveAll link found for edit with detected conflict");
+
+		$this->assertNotNull($t->new_entries[0]->rejectLink,
+			"testMerge(): Reject link not found for edit with detected conflict");
+		$this->assertNotNull($t->new_entries[0]->rejectAllLink,
+			"testMerge(): RejectAll link not found for edit with detected conflict");
+		$this->assertNotNull($t->new_entries[0]->showLink,
+			"testMerge(): Show link not found for edit with detected conflict");
+		$this->assertNotNull($t->new_entries[0]->blockLink,
+			"testMerge(): Block link not found for edit with detected conflict");
+
+		$this->assertNull($entry->rejected_by_user,
+			"testMerge(): Not yet rejected edit with detected conflict is marked rejected");
+		$this->assertFalse($entry->rejected_batch,
+			"testMerge(): Not yet rejected edit with detected conflict has rejected_batch flag ON");
+		$this->assertFalse($entry->rejected_auto,
+			"testMerge(): Not yet rejected edit with detected conflict has rejected_auto flag ON");
 	}
 }

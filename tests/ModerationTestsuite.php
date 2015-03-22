@@ -128,7 +128,7 @@ class ModerationTestsuite
 
 		foreach($spans as $span)
 		{
-			if($span->getAttribute('class') == 'modline') {
+			if(strpos($span->getAttribute('class'), 'modline') !== false) {
 				$e = new ModerationTestsuiteEntry($span);
 				$entries[$e->id] = $e;
 			}
