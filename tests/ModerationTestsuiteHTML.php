@@ -37,6 +37,10 @@ class ModerationTestsuiteHTML {
 		# We don't check $status->isOK() here,
 		# because the test may want to analyze the page with 404 error.
 
+		return $this->loadFromReq($req);
+	}
+
+	public function loadFromReq(MWHttpRequest $req) {
 		return $this->loadFromString($req->getContent());
 	}
 

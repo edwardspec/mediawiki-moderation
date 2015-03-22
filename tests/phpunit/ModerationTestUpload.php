@@ -55,7 +55,7 @@ class ModerationTestUpload extends MediaWikiTestCase
 		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
-		$t->html->loadFromString($req->getContent());
+		$t->html->loadFromReq($req);
 		$this->assertRegExp('/\(moderation-approved-ok: 1\)/',
 			$t->html->getMainText(),
 			"testUpload(): Result page doesn't contain (moderation-approved-ok: 1)");
@@ -132,7 +132,7 @@ class ModerationTestUpload extends MediaWikiTestCase
 		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 
-		$t->html->loadFromString($req->getContent());
+		$t->html->loadFromReq($req);
 		$this->assertRegExp('/\(moderation-approved-ok: 1\)/',
 			$t->html->getMainText(),
 			"testReupload(): Result page doesn't contain (moderation-approved-ok: 1)");
