@@ -72,7 +72,8 @@ It provides the following:
 	10) approved edit has correct timestamp in page history,
 	11) approved edit doesn't "appear in the past" in RecentChanges,
 	12) proper log entry is created about the fact of approval,
-	13) approval log entries are properly formatted on Special:Log.
+	13) approval log entries are properly formatted on Special:Log,
+	14) (moderation-approved-ok) is printed after successful approval.
 
 4. [ModerationTestReject.php]
 	Answers the question: "Does the Reject(all) link work as expected?"
@@ -84,7 +85,8 @@ It provides the following:
 	5) rejected edits don't have ApproveAll/Reject/RejectAll links,
 	6) edits of other users are unaffected by Rejectall,
 	7) proper log entry is created about the fact of rejection,
-	8) rejection log entries are properly formatted on Special:Log.
+	8) rejection log entries are properly formatted on Special:Log,
+	9) (moderation-rejected-ok) is printed after successful rejection.
 
 5. [ModerationTestPermissions.php]
 	Answers the question: "Is Special:Moderation for moderators only?"

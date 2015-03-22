@@ -26,7 +26,6 @@ Background-prio (may not be needed):
 * (feature) Support uploads via API.
 
 Tests to implement:
-- check non-error responses from actions like Approve
 - merge test
 
 FIXME:
