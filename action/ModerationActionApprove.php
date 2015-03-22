@@ -253,14 +253,15 @@ class ModerationActionApprove extends ModerationAction {
 					}
 					else
 					{
-						throw new ModerationError('moderation-edit-conflict');
-
 						$dbw = wfGetDB( DB_MASTER );
 						$dbw->update( 'moderation',
 							array( 'mod_conflict' => 1 ),
 							array( 'mod_id' => $id ),
 							__METHOD__
 						);
+						$dbw->commit(__METHOD__);
+
+						throw new ModerationError('moderation-edit-conflict');
 					}
 				}
 			}
