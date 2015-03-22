@@ -129,7 +129,7 @@ class ModerationTestsuite
 		foreach($spans as $span)
 		{
 			if($span->getAttribute('class') == 'modline')
-				$entries[] = ModerationTestsuiteEntry::fromDOMElement($span);
+				$entries[] = new ModerationTestsuiteEntry($span);
 		}
 
 		if(array_key_exists($folder, $this->lastFetchedSpecial)) {

@@ -44,23 +44,21 @@ class ModerationTestsuiteEntry
 	public $rejected_batch = false;
 	public $rejected_auto = false;
 
-	static public function fromDOMElement($span)
+	function __construct(DomElement $span)
 	{
-		$e = new ModerationTestsuiteEntry;
-
 		foreach($span->childNodes as $child)
 		{
 			$text = $child->textContent;
 			if(strpos($text, '(moderation-rejected-auto)') !== false)
-				$e->rejected_auto = true;
+				$this->rejected_auto = true;
 
 			if(strpos($text, '(moderation-rejected-batch)') !== false)
-				$e->rejected_batch = true;
+				$this->rejected_batch = true;
 
 			$matches = null;
 			if(preg_match('/\(moderation-whois-link: ([^)]*)\)/', $text, $matches))
 			{
-				$e->ip = $matches[1];
+				$this->ip = $matches[1];
 			}
 		}
 
@@ -80,11 +78,11 @@ class ModerationTestsuiteEntry
 				if(strpos($link->previousSibling->textContent,
 					"moderation-rejected-by") !== false)
 				{
-					$e->rejected_by_user = $text;
+					$this->rejected_by_user = $text;
 				}
 				else
 				{
-					$e->user = $text;
+					$this->user = $text;
 				}
 
 				continue;
@@ -94,43 +92,41 @@ class ModerationTestsuiteEntry
 			switch($link->nodeValue)
 			{
 				case '(moderation-show)':
-					$e->showLink = $href;
+					$this->showLink = $href;
 					break;
 
 				case '(moderation-approve)':
-					$e->approveLink = $href;
+					$this->approveLink = $href;
 					break;
 
 				case '(moderation-approveall)':
-					$e->approveAllLink = $href;
+					$this->approveAllLink = $href;
 					break;
 
 				case '(moderation-reject)':
-					$e->rejectLink = $href;
+					$this->rejectLink = $href;
 					break;
 
 				case '(moderation-rejectall)':
-					$e->rejectAllLink = $href;
+					$this->rejectAllLink = $href;
 					break;
 
 				case '(moderation-block)':
-					$e->blockLink = $href;
+					$this->blockLink = $href;
 					break;
 
 				case '(moderation-unblock)':
-					$e->unblockLink = $href;
+					$this->unblockLink = $href;
 					break;
 
 				default:
-					$e->title = $link->textContent;
+					$this->title = $link->textContent;
 			}
 		}
 
 		$matches = null;
-		preg_match('/modid=([0-9]+)/', $e->showLink, $matches);
-		$e->id = $matches[1];
-
-		return $e;
+		preg_match('/modid=([0-9]+)/', $this->showLink, $matches);
+		$this->id = $matches[1];
 	}
 
 	static public function entriesInANotInB($array_A, $array_B)
