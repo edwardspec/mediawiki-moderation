@@ -44,7 +44,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 	public function loadFromString($string)
 	{
-		$html = $this->loadHTML($string);
+		$this->loadHTML($string);
 		return $this;
 	}
 
