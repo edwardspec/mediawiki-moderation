@@ -123,4 +123,28 @@ class ModerationTestsuiteHTML {
 		}
 		return array_unique($list);
 	}
+
+	/**
+		@brief Return the array of <input> elements in the form
+			(name => value).
+	*/
+	public function getFormElements($formElement = null, $url = null)
+	{
+		$this->loadFromURL($url);
+
+		if(!$formElement) {
+			$formElement = $this->document;
+		}
+
+		$inputs = $formElement->getElementsByTagName('input');
+		$result = array();
+		foreach($inputs as $input)
+		{
+			$name = $input->getAttribute('name');
+			$value = $input->getAttribute('value');
+
+			$result[$name] = $value;
+		}
+		return $result;
+	}
 }

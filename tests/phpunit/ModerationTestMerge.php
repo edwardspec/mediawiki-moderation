@@ -48,12 +48,13 @@ class ModerationTestMerge extends MediaWikiTestCase
 
 		$t->loginAs($t->automoderated);
 		$t->doTestEdit($page, $text0, "Create an article. Some lines here are boring.");
-
 		$t->loginAs($t->unprivilegedUser);
 		$t->doTestEdit($page, $text1, "Improve one of the boring lines");
-
 		$t->loginAs($t->automoderated);
 		$t->doTestEdit($page, $text2, "Delete all boring lines");
+
+		# Done: attempt to approve the edit by $t->unprivilegedUser
+		# will cause an edit conflict.
 
 		$t->fetchSpecial();
 		$this->assertFalse($t->new_entries[0]->conflict,
@@ -99,5 +100,30 @@ class ModerationTestMerge extends MediaWikiTestCase
 			"testMerge(): Not yet rejected edit with detected conflict has rejected_batch flag ON");
 		$this->assertFalse($entry->rejected_auto,
 			"testMerge(): Not yet rejected edit with detected conflict has rejected_auto flag ON");
+
+		$title = $t->html->getTitle($entry->mergeLink);
+		$this->assertRegExp('/\(editconflict: ' . $t->lastEdit['Title'] . '\)/', $title,
+			"testMerge(): Wrong HTML title from modaction=merge");
+
+		$this->assertEquals($text2, $t->html->document->getElementById('wpTextbox1')->textContent,
+			"testMerge(): The upper textarea doesn't contain the current page text");
+		$this->assertEquals($text1, $t->html->document->getElementById('wpTextbox2')->textContent,
+			"testMerge(): The lower textarea doesn't contain the text we attempted to approve");
+
+		$form = $t->html->document->getElementById('editform');
+		$this->assertNotNull($form,
+			"testMerge(): Edit form isn't shown by the Merge link\n");
+
+		$inputs = $t->html->getFormElements($form);
+
+		$this->assertArrayHasKey('wpIgnoreBlankSummary', $inputs,
+			"testMerge(): Edit form doesn't contain wpIgnoreBlankSummary field");
+		$this->assertEquals(1, $inputs['wpIgnoreBlankSummary'],
+			"testMerge(): Value of wpIgnoreBlankSummary field isn't 1");
+
+		$this->assertArrayHasKey('wpMergeID', $inputs,
+			"testMerge(): Edit form doesn't contain wpMergeID field");
+		$this->assertEquals($entry->id, $inputs['wpMergeID'],
+			"testMerge(): Value of wpMergeID field doesn't match the entry id");
 	}
 }

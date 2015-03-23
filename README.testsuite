@@ -170,3 +170,13 @@ It provides the following:
 	4) "ext.moderation.edit" module is loaded if something was preloaded,
 	5) check that (moderation-editing-your-version) message is shown,
 	6) check that anonymous edits are preloaded after creating an account.
+
+14. [ModerationTestMerge.php]
+	Answers the question: "Does the Merge link work as expected?"
+	Here we check that
+	1) edit conflict is detected when Approve is clicked,
+	2) edit with detected conflict has Merge link,
+	3) edit with detected conflict doesn't have Approve/ApproveAll links,
+	4) edit with detected conflict is marked with CSS class 'modconflict',
+	5) Merge link opens an edit conflict page and shows conflicting texts,
+	6) fields 'wpIgnoreBlankSummary' and 'wpMergeID' have correct values.
