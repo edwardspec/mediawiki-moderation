@@ -42,7 +42,6 @@ class ModerationTestTokens extends MediaWikiTestCase
 			$entry->rejectAllLink,
 			$entry->blockLink,
 			$entry->unblockLink
-			# TODO: check mergeLink
 		);
 		foreach($links as $url)
 		{
