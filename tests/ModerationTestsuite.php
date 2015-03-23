@@ -115,17 +115,10 @@ class ModerationTestsuite
 		}
 		$url = $this->getSpecialURL($query);
 
-		$req = $this->makeHttpRequest($url, 'GET');
-		$status = $req->execute();
-		if(!$status->isOK())
-			return false;
-
-		$text = $req->getContent();
-		$entries = array();
-
-		$html = DOMDocument::loadHTML($text);
+		$html = $this->html->loadFromURL($url);
 		$spans = $html->getElementsByTagName('span');
 
+		$entries = array();
 		foreach($spans as $span)
 		{
 			if(strpos($span->getAttribute('class'), 'modline') !== false) {
@@ -145,8 +138,7 @@ class ModerationTestsuite
 		$this->new_entries = array_values(array_diff_key($after, $before));
 		$this->deleted_entries = array_values(array_diff_key($before, $after));
 
-		$this->lastFetchedSpecial[$folder] = $entries;
-		$this->html->document = $html;
+ 		$this->lastFetchedSpecial[$folder] = $entries;
 	}
 
 	#

@@ -57,8 +57,7 @@ class ModerationTestShow extends MediaWikiTestCase
 		$deleted_lines = array();
 		$context_lines = array();
 
-		$html = $t->html->document;
-		$table_cells = $html->getElementsByTagName('td');
+		$table_cells = $t->html->getElementsByTagName('td');
 		foreach($table_cells as $td)
 		{
 			$class = $td->getAttribute('class');
@@ -129,7 +128,7 @@ class ModerationTestShow extends MediaWikiTestCase
 
 		# Is the image thumbnail displayed on the difference page?
 
-		$images = $t->html->document->getElementsByTagName('img');
+		$images = $t->html->getElementsByTagName('img');
 
 		$thumb = null;
 		$src = null;

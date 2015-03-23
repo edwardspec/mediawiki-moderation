@@ -91,7 +91,7 @@ class ModerationTestPreload extends MediaWikiTestCase
 			$t->html->getPreloadedText($t->lastEdit['Title']),
 			"testPreloadSummary(): Preloaded text differs from what the user saved before");
 
-		$elem = $t->html->document->getElementById('wpSummary');
+		$elem = $t->html->getElementById('wpSummary');
 		$this->assertTrue($elem->hasAttribute('value'),
 			"testPreloadSummary(): #wpSummary doesn't have a 'value' attribute"
 		);
@@ -102,7 +102,7 @@ class ModerationTestPreload extends MediaWikiTestCase
 		$this->assertContains('ext.moderation.edit', $t->html->getLoaderModulesList(),
 			"testPreloadSummary(): Module ext.moderation.edit wasn't loaded");
 
-		$elem = $t->html->document->getElementById('mw-editing-your-version');
+		$elem = $t->html->getElementById('mw-editing-your-version');
 		$this->assertNotNull($elem,
 			"testPreloadSummary(): #mw-editing-your-version not found");
 		$this->assertEquals('(moderation-editing-your-version)', $elem->textContent,

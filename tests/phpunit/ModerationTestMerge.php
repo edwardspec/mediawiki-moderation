@@ -105,12 +105,12 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$this->assertRegExp('/\(editconflict: ' . $t->lastEdit['Title'] . '\)/', $title,
 			"testMerge(): Wrong HTML title from modaction=merge");
 
-		$this->assertEquals($text2, $t->html->document->getElementById('wpTextbox1')->textContent,
+		$this->assertEquals($text2, $t->html->getElementById('wpTextbox1')->textContent,
 			"testMerge(): The upper textarea doesn't contain the current page text");
-		$this->assertEquals($text1, $t->html->document->getElementById('wpTextbox2')->textContent,
+		$this->assertEquals($text1, $t->html->getElementById('wpTextbox2')->textContent,
 			"testMerge(): The lower textarea doesn't contain the text we attempted to approve");
 
-		$form = $t->html->document->getElementById('editform');
+		$form = $t->html->getElementById('editform');
 		$this->assertNotNull($form,
 			"testMerge(): Edit form isn't shown by the Merge link\n");
 

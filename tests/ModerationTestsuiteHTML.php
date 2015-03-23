@@ -20,13 +20,11 @@
 	@brief Implements HTML parsing methods for the automated testsuite.
 */
 
-class ModerationTestsuiteHTML {
+class ModerationTestsuiteHTML extends DOMDocument {
 	private $t; # ModerationTestsuite
 	function __construct(ModerationTestsuite $t) {
 		$this->t = $t;
 	}
-
-	public $document = null; # DOMDocument
 
 	public function loadFromURL($url) {
 		if(!$url) return;
@@ -46,17 +44,15 @@ class ModerationTestsuiteHTML {
 
 	public function loadFromString($string)
 	{
-		$html = DOMDocument::loadHTML($string);
-		$this->document = $html;
-
-		return $html;
+		$html = $this->loadHTML($string);
+		return $this;
 	}
 
 	public function getTitle($url = null)
 	{
 		$this->loadFromURL($url);
 
-		return $this->document->
+		return $this->
 			getElementsByTagName('title')->item(0)->textContent;
 	}
 
@@ -64,7 +60,7 @@ class ModerationTestsuiteHTML {
 	{
 		$this->loadFromURL($url);
 
-		$elem = $this->document->getElementById('mw-mod-error');
+		$elem = $this->getElementById('mw-mod-error');
 		if(!$elem)
 			return null;
 
@@ -75,7 +71,7 @@ class ModerationTestsuiteHTML {
 	{
 		$this->loadFromURL($url);
 
-		return trim($this->document->
+		return trim($this->
 			getElementById('mw-content-text')->textContent);
 	}
 
@@ -91,7 +87,7 @@ class ModerationTestsuiteHTML {
 		));
 		$this->loadFromURL($url);
 
-		$elem = $this->document->getElementById('wpTextbox1');
+		$elem = $this->getElementById('wpTextbox1');
 		if(!$elem)
 			return null;
 
@@ -105,7 +101,7 @@ class ModerationTestsuiteHTML {
 	public function getLoaderModulesList($url = null)
 	{
 		$this->loadFromURL($url);
-		$scripts = $this->document->getElementsByTagName('script');
+		$scripts = $this->getElementsByTagName('script');
 
 		$list = array();
 		foreach($scripts as $script)
@@ -133,7 +129,7 @@ class ModerationTestsuiteHTML {
 		$this->loadFromURL($url);
 
 		if(!$formElement) {
-			$formElement = $this->document;
+			$formElement = $this;
 		}
 
 		$inputs = $formElement->getElementsByTagName('input');
