@@ -180,4 +180,9 @@ It provides the following:
 	4) edit with detected conflict is marked with CSS class 'modconflict',
 	5) Merge link opens an edit conflict page and shows conflicting texts,
 	6) fields 'wpIgnoreBlankSummary' and 'wpMergeID' have correct values,
-	7) wpMergeID/wpIgnore... are preserved when user clicks Preview.
+	7) wpMergeID/wpIgnore... are preserved when user clicks Preview,
+	8) editing still succeeds when submitted form contains 'wpMergeID',
+	9) merged edits are removed from the Pending folder,
+	10) merged edits are added to the Merged folder,
+	11) merged edits don't have any action links other than Show and Block.
+

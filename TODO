@@ -26,7 +26,11 @@ Background-prio (may not be needed):
 * (feature) Support uploads via API.
 
 Tests to implement:
-- merge test
+- merge test:
+	- check the merged diff link
+	- sanity checks (are tokens needed? check (moderation-edit-not-found))
+	- rejecting edits with the conflict
+	- conflict detection during ApproveAll
 
 FIXME:
 - when user removes the section header (== here ==) while editing this

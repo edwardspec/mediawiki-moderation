@@ -238,7 +238,7 @@ class ModerationTestsuite
 		@brief Make an edit via the usual interface, as real users do.
 		@returns Completed request of type MWHttpRequest.
 	*/
-	public function nonApiEdit($title, $text, $summary)
+	public function nonApiEdit($title, $text, $summary, $extra_params = array())
 	{
 		$req = $this->http->makeRequest(wfScript('index'), 'POST');
 
@@ -253,7 +253,7 @@ class ModerationTestsuite
 			'wpIgnoreBlankSummary' => '',
 			'wpRecreate' => '',
 			'wpEdittime' => wfTimestampNow()
-		));
+		) + $extra_params);
 		$req->execute();
 
 		return $req;

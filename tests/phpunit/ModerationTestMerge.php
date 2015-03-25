@@ -45,6 +45,8 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$text1 = "Normal line 1\nJust made line 2 more interesting\n" .
 			"Not very interesting line 3\nNormal line 4\n";
 		$text2 = "Normal line 1\nNormal line 4\n";
+		$text3 = "Normal line 1\nJust made line 2 more interesting\n" .
+			"Normal line 4\n";
 
 		$t->loginAs($t->automoderated);
 		$t->doTestEdit($page, $text0, "Create an article. Some lines here are boring.");
@@ -75,6 +77,8 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$t->fetchSpecial();
 
 		$entry = $t->new_entries[0];
+		$id = $entry->id;
+
 		$this->assertTrue($entry->conflict,
 			"testMerge(): Edit with detected conflict is not marked with class='modconflict'");
 		$this->assertNotNull($entry->mergeLink,
@@ -123,8 +127,50 @@ class ModerationTestMerge extends MediaWikiTestCase
 
 		$this->assertArrayHasKey('wpMergeID', $inputs,
 			"testMerge(): Edit form doesn't contain wpMergeID field");
-		$this->assertEquals($entry->id, $inputs['wpMergeID'],
+		$this->assertEquals($id, $inputs['wpMergeID'],
 			"testMerge(): Value of wpMergeID field doesn't match the entry id");
+
+		# Try to edit now
+		$req = $t->nonApiEdit($page, $text3, "Wow, I merged an edit",
+			array('wpMergeID' => $id)
+		);
+		$this->assertNotNull($req->getResponseHeader('location'),
+			"testMerge(): non-API edit with wpMergeID failed");
+
+		# Was the edit moved into the 'merged' folder?
+
+		$t->fetchSpecial();
+		$this->assertCount(0, $t->new_entries,
+			"testMerge(): Something was added into Pending folder when the edit was merged");
+		$this->assertCount(1, $t->deleted_entries,
+			"testMerge(): One edit was merged, but number of deleted entries in Pending folder isn't 1");
+		$this->assertEquals($id, $t->deleted_entries[0]->id);
+
+		$t->fetchSpecial('merged');
+		$this->assertCount(1, $t->new_entries,
+			"testMerge(): One edit was merged, but number of new entries in Merged folder isn't 1");
+		$this->assertCount(0, $t->deleted_entries,
+			"testMerge(): Something was deleted from Merged folder when the edit was merged");
+
+		$entry = $t->new_entries[0];
+		$this->assertEquals($id, $entry->id);
+
+		$this->assertNull($entry->rejectLink,
+			"testMerge(): Reject link found for already merged edit");
+		$this->assertNull($entry->rejectAllLink,
+			"testMerge(): RejectAll link found for already merged edit");
+		$this->assertNull($entry->approveLink,
+			"testMerge(): Approve link found for already merged edit");
+		$this->assertNull($entry->approveAllLink,
+			"testMerge(): ApproveAll link found for already merged edit");
+		$this->assertNull($entry->mergeLink,
+			"testMerge(): Merge link found for already merged edit");
+
+		$this->assertNotNull($entry->showLink,
+			"testMerge(): Show link not found for already merged edit");
+		$this->assertNotNull($entry->blockLink,
+			"testMerge(): Block link not found for already merged edit");
+
 	}
 
 	/**
