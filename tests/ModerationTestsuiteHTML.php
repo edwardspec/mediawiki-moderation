@@ -29,7 +29,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	public function loadFromURL($url) {
 		if(!$url) return;
 
-		$req = $this->t->makeHttpRequest($url, 'GET');
+		$req = $this->t->http->makeRequest($url, 'GET');
 		$status = $req->execute();
 
 		# We don't check $status->isOK() here,

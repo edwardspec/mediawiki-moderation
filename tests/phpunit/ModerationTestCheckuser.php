@@ -64,10 +64,10 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		# contain UserAgent of user who made the edit,
 		# not UserAgent or the moderator who approved it.
 
-		$t->setUserAgent($userUA);
+		$t->http->setUserAgent($userUA);
 		$entry = $t->getSampleEntry();
 
-		$t->setUserAgent($moderatorUA);
+		$t->http->setUserAgent($moderatorUA);
 		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
 		$this->assertTrue($req->execute()->isOK());
 

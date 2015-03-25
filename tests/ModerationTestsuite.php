@@ -21,57 +21,30 @@
 */
 
 require_once(__DIR__ . '/ModerationTestsuiteAPI.php');
-require_once(__DIR__ . '/ModerationTestsuiteHTML.php');
 require_once(__DIR__ . '/ModerationTestsuiteEntry.php');
+require_once(__DIR__ . '/ModerationTestsuiteHTML.php');
+require_once(__DIR__ . '/ModerationTestsuiteHTTP.php');
 
 class ModerationTestsuite
 {
-	public $html;
+	public $http;
 	private $api;
+	public $html;
 
 	function __construct() {
 		$this->prepareDbForTests();
-		$this->resetCookieJar();
 
+		$this->http = new ModerationTestsuiteHTTP($this);
 		$this->api = new ModerationTestsuiteAPI($this);
 		$this->html = new ModerationTestsuiteHTML($this);
 	}
-
-	private $cookie_jar; # Cookie storage (from login() and anonymous preloading)
 	public $TEST_PASSWORD = '123456';
-
-	public $userAgent = 'MediaWiki Moderation Testsuite';
-	private $followRedirects = false;
-
-	public function setUserAgent($ua)
-	{
-		$this->userAgent = $ua;
-	}
-	public function followRedirectsInOneNextRequest()
-	{
-		$this->followRedirects = true;
-	}
-	public function makeHttpRequest($url, $method = 'POST')
-	{
-		$options = array('method' => $method);
-		if($this->followRedirects) {
-			$options['followRedirects'] = true;
-			$this->followRedirects = false; # Reset the flag
-		}
-
-		$req = MWHttpRequest::factory($url, $options);
-		$req->setUserAgent($this->userAgent);
-		$req->setCookieJar($this->cookie_jar);
-
-		return $req;
-	}
-
 	public function query($query = array()) {
 		return $this->api->query($query);
 	}
 
-	public function resetCookieJar() {
-		$this->cookie_jar = new CookieJar;
+	public function makeHttpRequest($url, $method = 'POST') {
+		return $this->http->makeRequest($url, $method);
 	}
 
 	#
@@ -267,7 +240,7 @@ class ModerationTestsuite
 	*/
 	public function nonApiEdit($title, $text, $summary)
 	{
-		$req = $this->makeHttpRequest(wfScript('index'), 'POST');
+		$req = $this->http->makeRequest(wfScript('index'), 'POST');
 
 		# $req->setHeader('Content-Type', 'multipart/form-data');
 		$req->setData(array(
@@ -394,7 +367,7 @@ class ModerationTestsuite
 		}
 		$source_filename = realpath($source_filename);
 
-		$req = $this->makeHttpRequest(wfScript('index'), 'POST');
+		$req = $this->http->makeRequest(wfScript('index'), 'POST');
 
 		$req->setHeader('Content-Type', 'multipart/form-data');
 		$req->setData(array(

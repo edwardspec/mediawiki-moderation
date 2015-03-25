@@ -54,7 +54,7 @@ class ModerationTestsuiteAPI {
 				$query['token'] = $this->editToken;
 		}
 
-		$req = $this->t->makeHttpRequest($this->apiUrl);
+		$req = $this->t->http->makeRequest($this->apiUrl);
 		$req->setData($query);
 		$status = $req->execute();
 		if(!$status->isOK())
@@ -85,7 +85,7 @@ class ModerationTestsuiteAPI {
 	}
 
 	public function apiLogout() {
-		$this->t->resetCookieJar(); # Just delete all cookies
+		$this->t->http->resetCookieJar(); # Just delete all cookies
 		$this->getEditToken();
 	}
 
