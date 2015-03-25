@@ -126,4 +126,47 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$this->assertEquals($entry->id, $inputs['wpMergeID'],
 			"testMerge(): Value of wpMergeID field doesn't match the entry id");
 	}
+
+	/**
+		@covers ModerationEditHooks::PrepareEditForm
+		@brief Ensure that wpMergeID is preserved when user clicks Preview.
+	*/
+	public function testPreserveMergeID() {
+		$t = new ModerationTestsuite();
+		$t->loginAs($t->moderator);
+
+		$someID = 12345;
+
+		$req = $t->makeHttpRequest(wfScript('index'), 'POST');
+		$req->setData(array(
+			'action' => 'submit',
+			'title' => 'Test page 1',
+			'wpTextbox1' => 'Test text 1',
+			'wpEdittime' => wfTimestampNow(),
+
+			# Preview mode, provide wpMergeID
+			'wpPreview' => '1',
+			'wpMergeID' => $someID
+		));
+		$req->execute();
+		$t->html->loadFromReq($req);
+
+		$form = $t->html->getElementById('editform');
+		$this->assertNotNull($form,
+			"testPreserveMergeID(): Edit form not found\n");
+
+		$inputs = $t->html->getFormElements($form);
+
+		$this->assertArrayHasKey('wpIgnoreBlankSummary', $inputs,
+			"testPreserveMergeID(): Edit form doesn't contain wpIgnoreBlankSummary field");
+		$this->assertEquals(1, $inputs['wpIgnoreBlankSummary'],
+			"testPreserveMergeID(): Value of wpIgnoreBlankSummary field isn't 1");
+
+		$this->assertArrayHasKey('wpMergeID', $inputs,
+			"testPreserveMergeID(): Edit form doesn't contain wpMergeID field");
+		$this->assertEquals($someID, $inputs['wpMergeID'],
+			"testPreserveMergeID(): Value of wpMergeID field doesn't match expected id");
+	}
 }
+
+

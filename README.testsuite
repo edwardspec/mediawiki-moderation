@@ -179,4 +179,5 @@ It provides the following:
 	3) edit with detected conflict doesn't have Approve/ApproveAll links,
 	4) edit with detected conflict is marked with CSS class 'modconflict',
 	5) Merge link opens an edit conflict page and shows conflicting texts,
-	6) fields 'wpIgnoreBlankSummary' and 'wpMergeID' have correct values.
+	6) fields 'wpIgnoreBlankSummary' and 'wpMergeID' have correct values,
+	7) wpMergeID/wpIgnore... are preserved when user clicks Preview.
