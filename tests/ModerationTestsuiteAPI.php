@@ -130,7 +130,7 @@ class ModerationTestsuiteAPI {
 			$formula = preg_replace('/[^0-9\+\-]/', '', $formula);
 			$formula = 'return ' . $formula . ';';
 
-			$q['captchaword'] = eval($formula . ';');
+			$q['captchaword'] = eval($formula);
 			$q['captchaid'] = $captcha['id'];
 
 			$ret = $this->query($q);
