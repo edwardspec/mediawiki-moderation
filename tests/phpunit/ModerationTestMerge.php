@@ -139,6 +139,18 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$this->assertNotNull($req->getResponseHeader('location'),
 			"testMerge(): non-API edit with wpMergeID failed");
 
+		$ret = $t->query(array(
+			'action' => 'query',
+			'prop' => 'revisions',
+			'rvlimit' => 1,
+			'rvprop' => 'user|timestamp|comment|content|ids',
+			'titles' => $page
+		));
+		$ret_page = array_shift($ret['query']['pages']);
+		$rev = $ret_page['revisions'][0];
+
+		$this->assertEquals($t->moderator->getName(), $rev['user']);
+
 		# Was the edit moved into the 'merged' folder?
 
 		$t->fetchSpecial();
@@ -175,6 +187,11 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$this->assertNotNull($entry->mergedDiffLink,
 			"testMerge(): MergedDiff link not found for already merged edit");
 
+		$params = wfCgiToArray(preg_replace('/^.*?\?/', '', $entry->mergedDiffLink));
+
+		$this->assertArrayHasKey('diff', $params);
+		$this->assertEquals($rev['revid'], $params['diff'],
+			"testMerge(): diff parameter doesn't match revid of the last revision on the page we edited");
 	}
 
 	/**

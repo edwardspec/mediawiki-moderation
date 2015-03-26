@@ -184,5 +184,5 @@ It provides the following:
 	8) editing still succeeds when submitted form contains 'wpMergeID',
 	9) merged edits are removed from the Pending folder,
 	10) merged edits are added to the Merged folder,
-	11) merged edits don't have any action links other than Show and Block.
-
+	11) merged edits have Show/Block/MergedDiff links and no others,
+	12) 'diff' parameter in the MergedDiff link is correct.

@@ -27,7 +27,6 @@ Background-prio (may not be needed):
 
 Tests to implement:
 - merge test:
-	- check the merged diff link
 	- sanity checks (are tokens needed? check (moderation-edit-not-found))
 	- rejecting edits with the conflict
 	- conflict detection during ApproveAll
