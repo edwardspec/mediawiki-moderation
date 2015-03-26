@@ -463,4 +463,20 @@ class ModerationTestsuite
 		}
 		return $events;
 	}
+
+	/**
+		@brief Get the last revision of page $title via API.
+	*/
+	public function getLastRevision($title)
+	{
+		$ret = $this->query(array(
+			'action' => 'query',
+			'prop' => 'revisions',
+			'rvlimit' => 1,
+			'rvprop' => 'user|timestamp|comment|content|ids',
+			'titles' => $title
+		));
+		$ret_page = array_shift($ret['query']['pages']);
+		return $ret_page['revisions'][0];
+	}
 }

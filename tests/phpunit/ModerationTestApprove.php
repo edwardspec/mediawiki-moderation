@@ -110,16 +110,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 		foreach($entries as $entry)
 		{
-			$ret = $t->query(array(
-				'action' => 'query',
-				'prop' => 'revisions',
-				'rvlimit' => 1,
-				'rvprop' => 'user|timestamp|comment|content',
-				'titles' => $entry->title
-			));
-			$ret_page = array_shift($ret['query']['pages']);
-			$rev = $ret_page['revisions'][0];
-
+			$rev = $t->getLastRevision($entry->title);
 			$this->assertEquals($t->unprivilegedUser->getName(), $rev['user']);
 		}
 
@@ -390,15 +381,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 			$t->html->getMainText(),
 			"testApproveAll(): Result page doesn't contain (moderation-approved-ok: 1)");
 
-		$ret = $t->query(array(
-			'action' => 'query',
-			'prop' => 'revisions',
-			'rvlimit' => 1,
-			'rvprop' => 'user|timestamp|comment|content|ids',
-			'titles' => $entry->title
-		));
-		$ret_page = array_shift($ret['query']['pages']);
-		$rev = $ret_page['revisions'][0];
+		$rev = $t->getLastRevision($entry->title);
 
 		$this->assertEquals($t->lastEdit['User'], $rev['user']);
 		$this->assertEquals($t->lastEdit['Text'], $rev['*']);

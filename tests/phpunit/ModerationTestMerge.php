@@ -139,16 +139,7 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$this->assertNotNull($req->getResponseHeader('location'),
 			"testMerge(): non-API edit with wpMergeID failed");
 
-		$ret = $t->query(array(
-			'action' => 'query',
-			'prop' => 'revisions',
-			'rvlimit' => 1,
-			'rvprop' => 'user|timestamp|comment|content|ids',
-			'titles' => $page
-		));
-		$ret_page = array_shift($ret['query']['pages']);
-		$rev = $ret_page['revisions'][0];
-
+		$rev = $t->getLastRevision($page);
 		$this->assertEquals($t->moderator->getName(), $rev['user']);
 
 		# Was the edit moved into the 'merged' folder?
