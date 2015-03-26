@@ -97,6 +97,8 @@ class ModerationTestMerge extends MediaWikiTestCase
 			"testMerge(): Approve link found for edit with detected conflict");
 		$this->assertNull($entry->approveAllLink,
 			"testMerge(): ApproveAll link found for edit with detected conflict");
+		$this->assertNull($entry->mergedDiffLink,
+			"testMerge(): MergedDiff link found for not yet merged edit");
 
 		$this->assertNull($entry->rejected_by_user,
 			"testMerge(): Not yet rejected edit with detected conflict is marked rejected");
@@ -170,6 +172,8 @@ class ModerationTestMerge extends MediaWikiTestCase
 			"testMerge(): Show link not found for already merged edit");
 		$this->assertNotNull($entry->blockLink,
 			"testMerge(): Block link not found for already merged edit");
+		$this->assertNotNull($entry->mergedDiffLink,
+			"testMerge(): MergedDiff link not found for already merged edit");
 
 	}
 
