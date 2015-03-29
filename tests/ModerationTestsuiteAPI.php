@@ -54,12 +54,7 @@ class ModerationTestsuiteAPI {
 				$query['token'] = $this->editToken;
 		}
 
-		$req = $this->t->http->makeRequest($this->apiUrl);
-		$req->setData($query);
-		$status = $req->execute();
-		if(!$status->isOK())
-			return false;
-
+		$req = $this->t->httpPost($this->apiUrl, $query);
 		return FormatJson::decode($req->getContent(), true);
 	}
 

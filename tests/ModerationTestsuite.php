@@ -50,6 +50,8 @@ class ModerationTestsuite
 		return $this->executeHttpRequest($url, 'POST', $post_data);
 	}
 
+	public $ignoreHttpError = array();
+
 	private function executeHttpRequest($url, $method, $post_data) {
 		$req = $this->http->makeRequest($url, $method);
 		$req->setData($post_data);
@@ -59,7 +61,9 @@ class ModerationTestsuite
 		# TODO: provide a method to set allowed HTTP codes (e.g. 404)
 		# so that they won't throw an exception.
 
-		if(!$status->isOK()) {
+		if(!$status->isOK() &&
+			!in_array($req->getStatus(), $this->ignoreHttpError)
+		){
 			throw new ModerationTestsuiteHttpError;
 		}
 

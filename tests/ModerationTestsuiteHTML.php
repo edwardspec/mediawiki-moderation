@@ -29,11 +29,9 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	public function loadFromURL($url) {
 		if(!$url) return;
 
-		$req = $this->t->http->makeRequest($url, 'GET');
-		$status = $req->execute();
-
-		# We don't check $status->isOK() here,
-		# because the test may want to analyze the page with 404 error.
+		$this->t->ignoreHttpError[404] = true;
+		$req = $this->t->httpGet($url);
+		$this->t->ignoreHttpError[404] = false;
 
 		return $this->loadFromReq($req);
 	}
