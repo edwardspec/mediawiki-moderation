@@ -263,10 +263,7 @@ class ModerationTestsuite
 	*/
 	public function nonApiEdit($title, $text, $summary, $extra_params = array())
 	{
-		$req = $this->http->makeRequest(wfScript('index'), 'POST');
-
-		# $req->setHeader('Content-Type', 'multipart/form-data');
-		$req->setData(array(
+		return $this->httpPost(wfScript('index'), array(
 			'action' => 'submit',
 			'title' => $title,
 			'wpTextbox1' => $text,
@@ -277,9 +274,6 @@ class ModerationTestsuite
 			'wpRecreate' => '',
 			'wpEdittime' => wfTimestampNow()
 		) + $extra_params);
-		$req->execute();
-
-		return $req;
 	}
 
 	public function doTestEdit($title = null, $text = null, $summary = null)
