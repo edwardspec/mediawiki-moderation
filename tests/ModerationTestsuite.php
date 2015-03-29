@@ -27,7 +27,7 @@ require_once(__DIR__ . '/ModerationTestsuiteHTTP.php');
 
 class ModerationTestsuite
 {
-	public $http;
+	private $http;
 	private $api;
 	public $html;
 
@@ -48,6 +48,12 @@ class ModerationTestsuite
 	}
 	public function httpPost($url, $post_data = array()) {
 		return $this->executeHttpRequest($url, 'POST', $post_data);
+	}
+	public function setUserAgent($ua) {
+		$this->http->userAgent = $ua;
+	}
+	public function deleteAllCookies() {
+		$this->http->resetCookieJar();
 	}
 
 	public $ignoreHttpError = array();

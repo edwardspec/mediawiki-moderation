@@ -33,10 +33,6 @@ class ModerationTestsuiteHTTP {
 	public $userAgent = 'MediaWiki Moderation Testsuite';
 	private $followRedirects = false;
 
-	public function setUserAgent($ua)
-	{
-		$this->userAgent = $ua;
-	}
 	public function followRedirectsInOneNextRequest()
 	{
 		$this->followRedirects = true;
