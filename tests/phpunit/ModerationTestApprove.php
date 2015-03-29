@@ -94,8 +94,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$this->assertNotNull($entries[0]->approveAllLink,
 			"testApproveAll(): ApproveAll link not found");
 
-		$req = $t->makeHttpRequest($entries[0]->approveAllLink, 'GET');
-		$this->assertTrue($req->execute()->isOK());
+		$req = $t->httpGet($entries[0]->approveAllLink);
 
 		$t->html->loadFromReq($req);
 		$this->assertRegExp('/\(moderation-approved-ok: ' . $t->TEST_EDITS_COUNT . '\)/',
@@ -162,13 +161,11 @@ class ModerationTestApprove extends MediaWikiTestCase
 		# Odd edits are rejected, even edits are approved.
 		for($i = 1; $i < $t->TEST_EDITS_COUNT; $i += 2)
 		{
-			$req = $t->makeHttpRequest($t->new_entries[$i]->rejectLink, 'GET');
-			$this->assertTrue($req->execute()->isOK());
+			$t->httpGet($t->new_entries[$i]->rejectLink);
 		}
 
 		$t->fetchSpecial('rejected');
-		$req = $t->makeHttpRequest($approveAllLink, 'GET');
-		$this->assertTrue($req->execute()->isOK());
+		$t->httpGet($approveAllLink, 'GET');
 		$t->fetchSpecial('rejected');
 		
 		$this->assertCount(0, $t->new_entries,
@@ -184,8 +181,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$t->doTestEdit();
 		$t->fetchSpecial();
 
-		$req = $t->makeHttpRequest($t->new_entries[0]->rejectLink, 'GET');
-		$this->assertTrue($req->execute()->isOK());
+		$t->httpGet($t->new_entries[0]->rejectLink);
 		$t->fetchSpecial('rejected');
 
 		$entry = $t->new_entries[0];
@@ -217,8 +213,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 		$id = $t->new_entries[0]->id;
 
-		$req = $t->makeHttpRequest($t->new_entries[0]->rejectLink, 'GET');
-		$this->assertTrue($req->execute()->isOK());
+		$t->httpGet($t->new_entries[0]->rejectLink);
 
 		/* Modify mod_timestamp to make this edit 1 hour older than
 			allowed by $wgModerationTimeToOverrideRejection. */
@@ -305,8 +300,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$t->fetchSpecial();
 
 		$t->loginAs($t->moderatorButNotAutomoderated);
-		$req = $t->makeHttpRequest($t->new_entries[0]->approveAllLink, 'GET');
-		$this->assertTrue($req->execute()->isOK());
+		$t->httpGet($t->new_entries[0]->approveAllLink);
 
 		$t->fetchSpecial();
 		$this->assertCount(0, $t->new_entries,
@@ -373,8 +367,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 	private function tryToApprove($t, $entry)
 	{
-		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
-		$this->assertTrue($req->execute()->isOK());
+		$req = $t->httpGet($entry->approveLink);
 
 		$t->html->loadFromReq($req);
 		$this->assertRegExp('/\(moderation-approved-ok: 1\)/',

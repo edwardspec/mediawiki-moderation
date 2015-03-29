@@ -164,8 +164,7 @@ class ModerationTestShow extends MediaWikiTestCase
 				"testShowUpload(): Token was found in the read-only ShowImage link");
 
 		# Check the full image
-		$req = $t->makeHttpRequest($href, 'GET');
-		$this->assertTrue($req->execute()->isOK());
+		$req = $t->httpGet($href);
 
 		$this->assertEquals('image/png', $req->getResponseHeader('Content-Type'),
 			"testShowUpload(): Wrong Content-Type header from modaction=showimg");
@@ -176,8 +175,7 @@ class ModerationTestShow extends MediaWikiTestCase
 			"testShowUpload(640x50): Wrong Content-Disposition header from modaction=showimg");
 
 		# Check the thumbnail
-		$req = $t->makeHttpRequest($src, 'GET');
-		$this->assertTrue($req->execute()->isOK());
+		$req = $t->httpGet($src);
 
 		# Content-type check will catch HTML errors from StreamFile
 		$this->assertRegExp('/^image\//', $req->getResponseHeader('Content-Type'),
@@ -208,8 +206,7 @@ class ModerationTestShow extends MediaWikiTestCase
 			"Non-empty image description");
 		$t->fetchSpecial();
 
-		$req = $t->makeHttpRequest($t->new_entries[0]->expectedShowImgLink(), 'GET');
-		$this->assertTrue($req->execute()->isOK());
+		$req = $t->httpGet($t->new_entries[0]->expectedShowImgLink());
 
 		list($original_width, $original_height) = getimagesize($t->lastEdit['Source']);
 		list($width, $height) = getImageSizeFromString($req->getContent());

@@ -68,8 +68,7 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		$entry = $t->getSampleEntry();
 
 		$t->http->setUserAgent($moderatorUA);
-		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
-		$this->assertTrue($req->execute()->isOK());
+		$t->httpGet($entry->approveLink);
 
 		$row = $dbw->selectRow('cu_changes',
 			array('cuc_agent AS agent'),

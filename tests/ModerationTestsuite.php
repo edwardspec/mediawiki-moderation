@@ -43,8 +43,27 @@ class ModerationTestsuite
 		return $this->api->query($query);
 	}
 
-	public function makeHttpRequest($url, $method = 'POST') {
-		return $this->http->makeRequest($url, $method);
+	public function httpGet($url) {
+		return $this->executeHttpRequest($url, 'GET', array());
+	}
+	public function httpPost($url, $post_data = array()) {
+		return $this->executeHttpRequest($url, 'POST', $post_data);
+	}
+
+	private function executeHttpRequest($url, $method, $post_data) {
+		$req = $this->http->makeRequest($url, $method);
+		$req->setData($post_data);
+
+		$status = $req->execute();
+
+		# TODO: provide a method to set allowed HTTP codes (e.g. 404)
+		# so that they won't throw an exception.
+
+		if(!$status->isOK()) {
+			throw new ModerationTestsuiteHttpError;
+		}
+
+		return $req;
 	}
 
 	#
@@ -480,3 +499,7 @@ class ModerationTestsuite
 		return $ret_page['revisions'][0];
 	}
 }
+
+
+class ModerationTestsuiteException extends Exception {};
+class ModerationTestsuiteHttpError extends ModerationTestsuiteException {};

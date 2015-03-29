@@ -52,8 +52,7 @@ class ModerationTestUpload extends MediaWikiTestCase
 		$this->assertNotNull($entry->approveLink,
 			"testUpload(): Approve link not found");
 
-		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
-		$this->assertTrue($req->execute()->isOK());
+		$req = $t->httpGet($entry->approveLink);
 
 		$t->html->loadFromReq($req);
 		$this->assertRegExp('/\(moderation-approved-ok: 1\)/',
@@ -129,8 +128,7 @@ class ModerationTestUpload extends MediaWikiTestCase
 		$this->assertNotNull($entry->approveLink,
 			"testReupload(): Approve link not found");
 
-		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
-		$this->assertTrue($req->execute()->isOK());
+		$req = $t->httpGet($entry->approveLink);
 
 		$t->html->loadFromReq($req);
 		$this->assertRegExp('/\(moderation-approved-ok: 1\)/',

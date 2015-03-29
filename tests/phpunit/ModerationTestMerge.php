@@ -195,8 +195,7 @@ class ModerationTestMerge extends MediaWikiTestCase
 
 		$someID = 12345;
 
-		$req = $t->makeHttpRequest(wfScript('index'), 'POST');
-		$req->setData(array(
+		$req = $t->httpPost(wfScript('index'), array(
 			'action' => 'submit',
 			'title' => 'Test page 1',
 			'wpTextbox1' => 'Test text 1',
@@ -206,7 +205,6 @@ class ModerationTestMerge extends MediaWikiTestCase
 			'wpPreview' => '1',
 			'wpMergeID' => $someID
 		));
-		$req->execute();
 		$t->html->loadFromReq($req);
 
 		$form = $t->html->getElementById('editform');

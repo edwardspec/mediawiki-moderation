@@ -44,8 +44,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$entry = $t->getSampleEntry();
 
 		# Delete this entry by approving it
-		$req = $t->makeHttpRequest($entry->approveLink, 'GET');
-		$this->assertTrue($req->execute()->isOK());
+		$req = $t->httpGet($entry->approveLink);
 
 		$entry->fakeBlockLink();
 		$links = array(
@@ -67,8 +66,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$t = new ModerationTestsuite();
 		$entry = $t->getSampleEntry();
 
-		$req = $t->makeHttpRequest($entry->rejectLink, 'GET');
-		$this->assertTrue($req->execute()->isOK());
+		$t->httpGet($entry->rejectLink, 'GET');
 
 		$error = $t->html->getModerationError($entry->rejectLink);
 		$this->assertEquals('(moderation-already-rejected)', $error);
@@ -78,8 +76,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$t = new ModerationTestsuite();
 		$entry = $t->getSampleEntry();
 
-		$req = $t->makeHttpRequest($entry->rejectLink, 'GET');
-		$this->assertTrue($req->execute()->isOK());
+		$t->httpGet($entry->rejectLink);
 
 		$error = $t->html->getModerationError($entry->rejectAllLink);
 		$this->assertEquals('(moderation-nothing-to-rejectall)', $error);
