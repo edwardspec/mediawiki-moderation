@@ -64,9 +64,6 @@ class ModerationTestsuite
 
 		$status = $req->execute();
 
-		# TODO: provide a method to set allowed HTTP codes (e.g. 404)
-		# so that they won't throw an exception.
-
 		if(!$status->isOK() &&
 			!in_array($req->getStatus(), $this->ignoreHttpError)
 		){
