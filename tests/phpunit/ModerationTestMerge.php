@@ -225,6 +225,23 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$this->assertEquals($someID, $inputs['wpMergeID'],
 			"testPreserveMergeID(): Value of wpMergeID field doesn't match expected id");
 	}
+
+	/**
+		@brief Ensure that token is required for Merge action.
+	*/
+	public function testMergeToken() {
+		$t = new ModerationTestsuite();
+		$this->makeEditConflict($t);
+
+		$t->fetchSpecial();
+		$t->httpGet($t->new_entries[0]->approveLink);
+
+		$t->assumeFolderIsEmpty();
+		$t->fetchSpecial();
+		$url = $t->new_entries[0]->mergeLink;
+		$this->assertRegExp('/\(sessionfailure-title\)/', $t->noTokenTitle($url));
+		$this->assertRegExp('/\(sessionfailure-title\)/', $t->badTokenTitle($url));
+	}
 }
 
 
