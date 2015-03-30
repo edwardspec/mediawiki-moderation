@@ -54,7 +54,8 @@ class ModerationTestErrors extends MediaWikiTestCase
 			$entry->rejectLink,
 			$entry->rejectAllLink,
 			$entry->blockLink,
-			$entry->unblockLink
+			$entry->unblockLink,
+			$entry->expectedActionLink('merge', true)
 		);
 		foreach($links as $url) {
 			$error = $t->html->getModerationError($url);
