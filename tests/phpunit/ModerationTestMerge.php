@@ -27,33 +27,35 @@ require_once(__DIR__ . "/../ModerationTestsuite.php");
 */
 class ModerationTestMerge extends MediaWikiTestCase
 {
+	/*
+		This is how we create edit conflict:
+		1) The page has 4 lines of text,
+		2) User A deletes 2 lines,
+		3) User B modifies one of those deleted lines.
+		Both users edit the original revision of the page.
+	*/
+
+	private $page = 'Test page 1';
+	private $text0 = "Normal line 1\nNot very interesting line 2\nNot very interesting line 3\nNormal line 4\n";
+	private $text1 = "Normal line 1\nJust made line 2 more interesting\nNot very interesting line 3\nNormal line 4\n";
+	private $text2 = "Normal line 1\nNormal line 4\n";
+	private $text3 = "Normal line 1\nJust made line 2 more interesting\nNormal line 4\n";
+
+	private function makeEditConflict(ModerationTestsuite $t) {
+		$t->loginAs($t->automoderated);
+		$t->doTestEdit($this->page, $this->text0,
+			"Create an article. Some lines here are boring.");
+		$t->loginAs($t->unprivilegedUser);
+		$t->doTestEdit($this->page, $this->text1,
+			"Improve one of the boring lines");
+		$t->loginAs($t->automoderated);
+		$t->doTestEdit($this->page, $this->text2,
+			"Delete all boring lines");
+	}
+
 	public function testMerge() {
 		$t = new ModerationTestsuite();
-
-		/*
-			This is how we create edit conflict:
-			1) The page has 4 lines of text,
-			2) User A deletes 2 lines,
-			3) User B modifies one of those deleted lines.
-
-			Both users edit the original revision of the page.
-		*/
-
-		$page = 'Test page 1';
-		$text0 = "Normal line 1\nNot very interesting line 2\n" .
-			"Not very interesting line 3\nNormal line 4\n";
-		$text1 = "Normal line 1\nJust made line 2 more interesting\n" .
-			"Not very interesting line 3\nNormal line 4\n";
-		$text2 = "Normal line 1\nNormal line 4\n";
-		$text3 = "Normal line 1\nJust made line 2 more interesting\n" .
-			"Normal line 4\n";
-
-		$t->loginAs($t->automoderated);
-		$t->doTestEdit($page, $text0, "Create an article. Some lines here are boring.");
-		$t->loginAs($t->unprivilegedUser);
-		$t->doTestEdit($page, $text1, "Improve one of the boring lines");
-		$t->loginAs($t->automoderated);
-		$t->doTestEdit($page, $text2, "Delete all boring lines");
+		$this->makeEditConflict($t);
 
 		# Done: attempt to approve the edit by $t->unprivilegedUser
 		# will cause an edit conflict.
@@ -111,9 +113,9 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$this->assertRegExp('/\(editconflict: ' . $t->lastEdit['Title'] . '\)/', $title,
 			"testMerge(): Wrong HTML title from modaction=merge");
 
-		$this->assertEquals($text2, $t->html->getElementById('wpTextbox1')->textContent,
+		$this->assertEquals($this->text2, $t->html->getElementById('wpTextbox1')->textContent,
 			"testMerge(): The upper textarea doesn't contain the current page text");
-		$this->assertEquals($text1, $t->html->getElementById('wpTextbox2')->textContent,
+		$this->assertEquals($this->text1, $t->html->getElementById('wpTextbox2')->textContent,
 			"testMerge(): The lower textarea doesn't contain the text we attempted to approve");
 
 		$form = $t->html->getElementById('editform');
@@ -133,13 +135,13 @@ class ModerationTestMerge extends MediaWikiTestCase
 			"testMerge(): Value of wpMergeID field doesn't match the entry id");
 
 		# Try to edit now
-		$req = $t->nonApiEdit($page, $text3, "Wow, I merged an edit",
+		$req = $t->nonApiEdit($this->page, $this->text3, "Wow, I merged an edit",
 			array('wpMergeID' => $id)
 		);
 		$this->assertNotNull($req->getResponseHeader('location'),
 			"testMerge(): non-API edit with wpMergeID failed");
 
-		$rev = $t->getLastRevision($page);
+		$rev = $t->getLastRevision($this->page);
 		$this->assertEquals($t->moderator->getName(), $rev['user']);
 
 		# Was the edit moved into the 'merged' folder?
