@@ -45,9 +45,7 @@ class ModerationTestTokens extends MediaWikiTestCase
 		);
 		foreach($links as $url)
 		{
-			$bad_url = preg_replace('/token=[^&]*/', '', $url);
-			$title = $t->html->getTitle($bad_url);
-			$this->assertRegExp('/\(sessionfailure-title\)/', $title);
+			$this->assertRegExp('/\(sessionfailure-title\)/', $t->noTokenTitle($url));
 
 			/* Double-check that nothing happened */
 			$t->fetchSpecial();
@@ -55,6 +53,8 @@ class ModerationTestTokens extends MediaWikiTestCase
 			$this->assertCount(0, $t->deleted_entries);
 
 			# Would the wrong token work?
+
+			$this->assertRegExp('/\(sessionfailure-title\)/', $t->badTokenTitle($url));
 
 			$bad_url = preg_replace('/(token=)([^&]*)/', '\1WRONG\2', $url);
 			$title = $t->html->getTitle($bad_url);

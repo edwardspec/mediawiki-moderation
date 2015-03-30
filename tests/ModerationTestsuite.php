@@ -499,6 +499,24 @@ class ModerationTestsuite
 		$ret_page = array_shift($ret['query']['pages']);
 		return $ret_page['revisions'][0];
 	}
+
+	/**
+		@brief Remove "token=" from URL and return its new HTML title.
+	*/
+	public function noTokenTitle($url)
+	{
+		$bad_url = preg_replace('/token=[^&]*/', '', $url);
+		return $this->html->getTitle($bad_url);
+	}
+
+	/**
+		@brief Corrupt "token=" in URL and return its new HTML title.
+	*/
+	public function badTokenTitle($url)
+	{
+		$bad_url = preg_replace('/(token=)([^&]*)/', '\1WRONG\2', $url);
+		return $this->html->getTitle($bad_url);
+	}
 }
 
 
