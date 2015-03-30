@@ -243,5 +243,3 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$this->assertRegExp('/\(sessionfailure-title\)/', $t->badTokenTitle($url));
 	}
 }
-
-

@@ -56,10 +56,6 @@ class ModerationTestTokens extends MediaWikiTestCase
 
 			$this->assertRegExp('/\(sessionfailure-title\)/', $t->badTokenTitle($url));
 
-			$bad_url = preg_replace('/(token=)([^&]*)/', '\1WRONG\2', $url);
-			$title = $t->html->getTitle($bad_url);
-			$this->assertRegExp('/\(sessionfailure-title\)/', $title);
-
 			/* Double-check that nothing happened */
 			$t->fetchSpecial();
 			$this->assertCount(0, $t->new_entries);
