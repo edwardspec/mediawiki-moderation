@@ -264,5 +264,13 @@ class ModerationTestMerge extends MediaWikiTestCase
 
 		$this->assertRegExp('/\(moderation-approved-errors: 1\)/', $text,
 			"testApproveAllConflicts(): Result page doesn't contain (moderation-approved-errors: 1)");
+
+		$t->assumeFolderIsEmpty();
+		$t->fetchSpecial();
+
+		$this->assertCount(1, $t->new_entries,
+			"testApproveAllConflicts(): Nothing left in Pending folder after modaction=approveall, even though there was an edit conflict");
+		$this->assertTrue($t->new_entries[0]->conflict,
+			"testApproveAllConflicts(): Edit with detected conflict is not marked with class='modconflict'");
 	}
 }

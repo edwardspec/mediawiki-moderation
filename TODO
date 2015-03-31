@@ -28,7 +28,6 @@ Background-prio (may not be needed):
 Tests to implement:
 - merge test:
 	- rejecting edits with the conflict
-	- conflict detection during ApproveAll
 
 FIXME:
 - when user removes the section header (== here ==) while editing this
