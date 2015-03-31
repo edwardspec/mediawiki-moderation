@@ -94,9 +94,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$this->assertNotNull($entries[0]->approveAllLink,
 			"testApproveAll(): ApproveAll link not found");
 
-		$req = $t->httpGet($entries[0]->approveAllLink);
-
-		$t->html->loadFromReq($req);
+		$t->html->loadFromURL($entries[0]->approveAllLink);
 		$this->assertRegExp('/\(moderation-approved-ok: ' . $t->TEST_EDITS_COUNT . '\)/',
 			$t->html->getMainText(),
 			"testApproveAll(): Result page doesn't contain (moderation-approved-ok: N)");
@@ -367,9 +365,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 	private function tryToApprove($t, $entry)
 	{
-		$req = $t->httpGet($entry->approveLink);
-
-		$t->html->loadFromReq($req);
+		$t->html->loadFromURL($entry->approveLink);
 		$this->assertRegExp('/\(moderation-approved-ok: 1\)/',
 			$t->html->getMainText(),
 			"testApproveAll(): Result page doesn't contain (moderation-approved-ok: 1)");
