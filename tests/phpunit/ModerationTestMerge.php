@@ -242,4 +242,27 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$this->assertRegExp('/\(sessionfailure-title\)/', $t->noTokenTitle($url));
 		$this->assertRegExp('/\(sessionfailure-title\)/', $t->badTokenTitle($url));
 	}
+
+	public function testApproveAllConflicts() {
+		$t = new ModerationTestsuite();
+
+		$t->doNTestEditsWith($t->unprivilegedUser, null, 'Page A');
+		$this->makeEditConflict($t);
+		$t->doNTestEditsWith($t->unprivilegedUser, null, 'Page B');
+
+		# Will attempt to ApproveAll the edit by $t->unprivilegedUser
+		# cause an edit conflict?
+
+		$t->fetchSpecial();
+		$t->html->loadFromURL($t->new_entries[0]->approveAllLink);
+
+		$text = $t->html->getMainText();
+		$this->assertRegExp('/\(moderation-approved-ok: ' .
+				($t->TEST_EDITS_COUNT * 2) . '\)/',
+			$text,
+			"testApproveAllConflicts(): Result page doesn't contain (moderation-approved-ok: N)");
+
+		$this->assertRegExp('/\(moderation-approved-errors: 1\)/', $text,
+			"testApproveAllConflicts(): Result page doesn't contain (moderation-approved-errors: 1)");
+	}
 }

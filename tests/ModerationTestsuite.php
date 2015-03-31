@@ -318,16 +318,17 @@ class ModerationTestsuite
 			Number of edits is $TEST_EDITS_COUNT.
 			If $user2 is null, only makes N edits by $user1.
 	*/
-	public function doNTestEditsWith($user1, $user2 = null)
-	{
+	public function doNTestEditsWith($user1, $user2 = null,
+		$prefix1 = 'Page', $prefix2 = 'AnotherPage'
+	){
 		for($i = 0; $i < $this->TEST_EDITS_COUNT; $i ++)
 		{
 			$this->loginAs($user1);
-			$this->doTestEdit('Page' . $i);
+			$this->doTestEdit($prefix1 . $i);
 
 			if($user2) {
 				$this->loginAs($user2);
-				$this->doTestEdit('AnotherPage' . $i);
+				$this->doTestEdit($prefix2 . $i);
 			}
 		}
 	}
