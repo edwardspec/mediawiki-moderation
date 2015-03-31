@@ -186,4 +186,6 @@ It provides the following:
 	10) merged edits are added to the Merged folder,
 	11) merged edits have Show/Block/MergedDiff links and no others,
 	12) 'diff' parameter in the MergedDiff link is correct,
-	13) Merge action doesn't work without a token or with incorrect token.
+	13) Merge action doesn't work without a token or with incorrect token,
+	14) edit conflicts are detected when ApproveAll is clicked,
+	15) edits with detected conflict can be rejected.
