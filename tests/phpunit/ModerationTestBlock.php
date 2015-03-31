@@ -36,9 +36,7 @@ class ModerationTestBlock extends MediaWikiTestCase
 		$this->assertNull($entry->unblockLink,
 			"testBlock(): Unblock link found for non-blocked user");
 
-		$req = $t->httpGet($entry->blockLink);
-
-		$t->html->loadFromReq($req);
+		$t->html->loadFromURL($entry->blockLink);
 		$this->assertRegExp('/\(moderation-block-ok: ' . preg_quote($entry->user) . '\)/',
 			$t->html->getMainText(),
 			"testBlock(): Result page doesn't contain (moderation-block-ok)");
@@ -99,9 +97,7 @@ class ModerationTestBlock extends MediaWikiTestCase
 			$events[0]['params'][2]);
 
 		# Unblock the user
-		$req = $t->httpGet($entry->unblockLink);
-
-		$t->html->loadFromReq($req);
+		$t->html->loadFromURL($entry->unblockLink);
 		$this->assertRegExp('/\(moderation-unblock-ok: ' . preg_quote($entry->user) . '\)/',
 			$t->html->getMainText(),
 			"testBlock(): Result page doesn't contain (moderation-unblock-ok)");

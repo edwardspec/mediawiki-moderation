@@ -38,9 +38,7 @@ class ModerationTestReject extends MediaWikiTestCase
 		$this->assertNotNull($entry->rejectLink,
 			"testReject(): Reject link not found");
 
-		$req = $t->httpGet($entry->rejectLink);
-
-		$t->html->loadFromReq($req);
+		$t->html->loadFromURL($entry->rejectLink);
 		$this->assertRegExp('/\(moderation-rejected-ok: 1\)/',
 			$t->html->getMainText(),
 			"testReject(): Result page doesn't contain (moderation-rejected-ok: 1)");
@@ -125,9 +123,7 @@ class ModerationTestReject extends MediaWikiTestCase
 		$this->assertNotNull($entries[0]->rejectAllLink,
 			"testRejectAll(): RejectAll link not found");
 
-		$req = $t->httpGet($entries[0]->rejectAllLink);
-
-		$t->html->loadFromReq($req);
+		$t->html->loadFromURL($entries[0]->rejectAllLink);
 		$this->assertRegExp('/\(moderation-rejected-ok: ' . $t->TEST_EDITS_COUNT .'\)/',
 			$t->html->getMainText(),
 			"testRejectAll(): Result page doesn't contain (moderation-rejected-ok: N)");
