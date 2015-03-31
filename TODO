@@ -25,10 +25,6 @@ Background-prio (may not be needed):
 	displaying the message like "Approved N edits" in the page header.
 * (feature) Support uploads via API.
 
-Tests to implement:
-- merge test:
-	- rejecting edits with the conflict
-
 FIXME:
 - when user removes the section header (== here ==) while editing this
 	section, text of this section will be overwritten by the text taken
