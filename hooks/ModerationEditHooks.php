@@ -194,7 +194,6 @@ class ModerationEditHooks {
 
 	static public function onAuthPluginAutoCreate($user)
 	{
-		//self::onAddNewAccount($user, false);
 		ModerationPreload::onAddNewAccount($user, false);
 	}
 
