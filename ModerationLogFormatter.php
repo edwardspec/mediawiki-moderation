@@ -24,10 +24,10 @@ class ModerationLogFormatter extends LogFormatter {
 	public function getMessageParameters() {
 		$params = parent::getMessageParameters();
 
-		$type = $this->entry->getFullType();
+		$type = $this->entry->getSubtype();
 		$entry_params = $this->entry->getParameters();
 
-		if($type === 'moderation/approve')
+		if($type === 'approve')
 		{
 			$revid = $entry_params['revid'];
 			$link = Linker::linkKnown(
@@ -38,7 +38,7 @@ class ModerationLogFormatter extends LogFormatter {
 			);
 			$params[4] = Message::rawParam($link);
 		}
-		elseif($type === 'moderation/reject')
+		elseif($type === 'reject')
 		{
 			$modid = $entry_params['modid'];
 
@@ -53,7 +53,7 @@ class ModerationLogFormatter extends LogFormatter {
 			$userlink = Linker::userLink($entry_params['user'], $entry_params['user_text']);
 			$params[5] = Message::rawParam($userlink);
 		}
-		elseif($type === 'moderation/merge')
+		elseif($type === 'merge')
 		{
 			$revid = $entry_params['revid'];
 			$modid = $entry_params['modid'];
@@ -74,7 +74,7 @@ class ModerationLogFormatter extends LogFormatter {
 			);
 			$params[5] = Message::rawParam($link);
 		}
-		elseif($type === 'moderation/approveall' || $type === 'moderation/rejectall' || $type === 'moderation/block' || $type === 'moderation/unblock')
+		elseif($type === 'approveall' || $type === 'rejectall' || $type === 'block' || $type === 'unblock')
 		{
 			$title = $this->entry->getTarget();
 
