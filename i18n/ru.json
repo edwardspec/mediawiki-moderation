@@ -65,6 +65,8 @@
 	"moderation-rejected-by": "Отклонено {{GENDER:$1|участником|участницей}} $1",
 	"moderation-rejected-ok": "{{plural:$1|Отклонена одна правка|Отклонены правки ($1 шт.)}}.",
 	"moderation-reject": "Отклонить",
+	"moderation-preview": "просм.",
+	"moderation-preview-title": "$1 — версия, ожидающая модерации",
 	"moderation-show": "разн.",
 	"moderation-suggest-signup": "Чтобы пропускать модерацию в будущем, [[Special:CreateAccount|зарегистрируйтесь]], пожалуйста.",
 	"moderation-text": "На этой странице перечислены все правки, которые ожидают модерации (допуска или отклонения).",

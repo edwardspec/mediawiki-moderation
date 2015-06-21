@@ -58,6 +58,7 @@ $wgAutoloadClasses['ModerationActionBlock'] = __DIR__ . '/action/ModerationActio
 $wgAutoloadClasses['ModerationActionApprove'] = __DIR__ . '/action/ModerationActionApprove.php';
 $wgAutoloadClasses['ModerationActionReject'] = __DIR__ . '/action/ModerationActionReject.php';
 $wgAutoloadClasses['ModerationActionMerge'] = __DIR__ . '/action/ModerationActionMerge.php';
+$wgAutoloadClasses['ModerationActionPreview'] = __DIR__ . '/action/ModerationActionPreview.php';
 
 $wgHooks['AddNewAccount'][] = 'ModerationPreload::onAddNewAccount';
 $wgHooks['ApiCheckCanExecute'][] = 'ModerationUploadHooks::onApiCheckCanExecute';
@@ -104,3 +105,16 @@ $wgModerationEnable = true; # If "false", new edits are applied as usual (not se
 
 # Time (in seconds) after which rejected edit could no longer be approved
 $wgModerationTimeToOverrideRejection = 2 * 7 * 24 * 3600; # 2 weeks
+
+# $wgModerationPreviewLink: if true, "preview" link is shown for pending edits.
+#
+# NOTE: default value is false. If you need this option, this likely means
+# you are NOT following the recommended moderation process (!), because edits
+# shouldn't be rejected based on how they are formatted (this offends users),
+# only based on their content (which you should see in Diff, not Preview).
+# Instead bad-formatted edits should be accepted and then reverted as usual.
+# This option was only implemented for paper publications (where formatting
+# is more important). This is NEITHER NEEDED NOR RECOMMENDED in most wikis.
+# Keep this option at 'false' unless you know you need this.
+
+$wgModerationPreviewLink = false;

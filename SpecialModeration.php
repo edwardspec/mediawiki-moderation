@@ -46,8 +46,9 @@ class SpecialModeration extends QueryPage {
 
 	function makeModerationLink($action, $id) {
 		$params = array('modaction' => $action, 'modid' => $id);
-		if($action != 'show')
+		if($action != 'show' && $action != 'preview') {
 			$params['token'] = $this->getUser()->getEditToken($id);
+		}
 
 		return Linker::link(
 			$this->getTitle(),
@@ -143,6 +144,10 @@ class SpecialModeration extends QueryPage {
 				$class = 'ModerationActionShow';
 				break;
 
+			case 'preview':
+				$class = 'ModerationActionPreview';
+				break;
+
 			case 'approve':
 			case 'approveall':
 				$class = 'ModerationActionApprove';
@@ -212,6 +217,7 @@ class SpecialModeration extends QueryPage {
 	}
 
 	function formatResult( $skin, $result ) {
+		global $wgModerationPreviewLink;
 		wfProfileIn( __METHOD__ );
 
 		$len_change = $result->new_len - $result->old_len;
@@ -222,8 +228,13 @@ class SpecialModeration extends QueryPage {
 		$title = Title::makeTitle( $result->namespace, $result->title );
 
 		$line = '';
-		$line .= '(' . $this->makeModerationLink('show', $result->id) . ')';
-		$line .= ' . . ';
+		$line .= '(' . $this->makeModerationLink('show', $result->id);
+
+		if($wgModerationPreviewLink) {
+			$line .= ' | ' . $this->makeModerationLink('preview', $result->id);
+		}
+
+		$line .= ') . . ';
 		if($result->minor)
 			$line .= wfMessage('minoreditletter');
 		if($result->bot)

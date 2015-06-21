@@ -65,6 +65,8 @@
 	"moderation-rejected-by": "Rejected by $1",
 	"moderation-rejected-ok": "Rejected $1 {{plural:$1|edit|edits}}.",
 	"moderation-reject": "Reject",
+	"moderation-preview": "preview",
+	"moderation-preview-title": "Revision of \"$1\" awaiting moderation",
 	"moderation-show": "diff",
 	"moderation-suggest-signup": "To skip moderation in the future, please [[Special:CreateAccount|sign up]].",
 	"moderation-text": "This special page lists all edits which await moderation (approval or rejection).",
