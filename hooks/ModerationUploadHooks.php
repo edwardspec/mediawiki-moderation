@@ -102,4 +102,21 @@ class ModerationUploadHooks {
 
 		return true;
 	}
+
+	static public function ongetUserPermissionsErrors($title, $user, $action, &$result)
+	{
+		/*
+			action=revert bypasses doUpload(), so it is not intercepted
+			and is applied without moderation.
+			Therefore we don't allow it.
+		*/
+		$context = RequestContext::getMain();
+		$exactAction = Action::getActionName($context);
+		if($exactAction == 'revert' && !ModerationCanSkip::canSkip($user)) {
+			$result = 'moderation-revert-not-allowed';
+			return false;
+		}
+
+		return true;
+	}
 }

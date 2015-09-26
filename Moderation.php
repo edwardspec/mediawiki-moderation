@@ -71,6 +71,7 @@ $wgHooks['PageContentSaveComplete'][] = 'ModerationEditHooks::onPageContentSaveC
 $wgHooks['PageContentSave'][] = 'ModerationEditHooks::onPageContentSave';
 $wgHooks['EditPage::showEditForm:fields'][] = 'ModerationEditHooks::PrepareEditForm';
 $wgHooks['UploadVerifyFile'][] = 'ModerationUploadHooks::onUploadVerifyFile';
+$wgHooks['getUserPermissionsErrors'][] = 'ModerationUploadHooks::ongetUserPermissionsErrors';
 
 $wgSpecialPages['Moderation'] = 'SpecialModeration';
 

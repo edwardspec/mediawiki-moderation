@@ -15,11 +15,13 @@ Limitation:
 	2) Upload via API is disabled.
 	3) All other uploading extensions (like Extension:MultipleUpload) won't
 	work, unless they are providing the very same fields as Special:Upload.
+	4) Reverting image to previous version won't be allowed.
 Why:
 	"before-upload" hooks of MediaWiki (like VerifyFile) don't provide
 	things like comment, text etc., so we have to get them from $wgRequest
 	using the methods of Special:Upload.
 	If $wgRequest doesn't have those fields, we abort.
+	Reverting images is off, as it bypasses doUpload() and related hooks.
 ===============================================================================
 
 ===============================================================================
