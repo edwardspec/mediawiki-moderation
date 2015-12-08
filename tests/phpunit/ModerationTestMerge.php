@@ -73,7 +73,7 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$this->assertCount(0, $t->new_entries,
 			"testMerge(): Something was added into Pending folder when modaction=approve detected edit conflict");
 		$this->assertCount(0, $t->deleted_entries,
-			"testMerge(): Something was deleted from Rejected folder when modaction=approve detected edit conflict");
+			"testMerge(): Something was deleted from Pending folder when modaction=approve detected edit conflict");
 
 		$t->assumeFolderIsEmpty();
 		$t->fetchSpecial();
