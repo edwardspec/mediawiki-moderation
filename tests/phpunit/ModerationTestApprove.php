@@ -59,7 +59,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 			"testApprove(): Most recent log entry is not 'approve'");
 		$this->assertEquals($t->lastEdit['Title'], $le['title']);
 		$this->assertEquals($t->moderator->getName(), $le['user']);
-		$this->assertEquals($rev['revid'], $le['revid']);
+		$this->assertEquals($rev['revid'], $le['params']['revid']);
 
 		$events = $t->nonApiLogEntries(1);
 		$this->assertEquals('approve', $events[0]['type']);
@@ -143,17 +143,17 @@ class ModerationTestApprove extends MediaWikiTestCase
 			$events[0]['params'][2]);
 		$this->assertEquals($t->TEST_EDITS_COUNT, $events[0]['params'][3]);
 	}
-	
+
 	public function testApproveAllNotRejected() {
 		$t = new ModerationTestsuite();
 
 		$t->TEST_EDITS_COUNT = 10;
 		$t->doNTestEditsWith($t->unprivilegedUser);
 		$t->fetchSpecial();
-		
+
 		# Already rejected edits must not be affected by ApproveAll.
 		# So let's reject some edits and check...
-		
+
 		$approveAllLink = $t->new_entries[0]->approveAllLink;
 
 		# Odd edits are rejected, even edits are approved.
@@ -165,7 +165,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$t->fetchSpecial('rejected');
 		$t->httpGet($approveAllLink, 'GET');
 		$t->fetchSpecial('rejected');
-		
+
 		$this->assertCount(0, $t->new_entries,
 			"testApproveAllNotRejected(): Something was added into Rejected folder during modaction=approveall");
 		$this->assertCount(0, $t->deleted_entries,

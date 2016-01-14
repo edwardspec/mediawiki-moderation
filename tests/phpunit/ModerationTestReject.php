@@ -85,8 +85,8 @@ class ModerationTestReject extends MediaWikiTestCase
 			"testReject(): Most recent log entry is not 'reject'");
 		$this->assertEquals($t->lastEdit['Title'], $le['title']);
 		$this->assertEquals($t->moderator->getName(), $le['user']);
-		$this->assertEquals($t->unprivilegedUser->getName(), $le['user_text']);
-		$this->assertEquals($entry->id, $le['modid']);
+		$this->assertEquals($t->unprivilegedUser->getName(), $le['params']['user_text']);
+		$this->assertEquals($entry->id, $le['params']['modid']);
 
 		$events = $t->nonApiLogEntries(1);
 		$this->assertEquals('reject', $events[0]['type']);
@@ -181,7 +181,7 @@ class ModerationTestReject extends MediaWikiTestCase
 			"testRejectAll(): Most recent log entry is not 'rejectall'");
 		$this->assertEquals($t->moderator->getName(), $le['user']);
 		$this->assertEquals($t->unprivilegedUser->getUserPage(), $le['title']);
-		$this->assertEquals($t->TEST_EDITS_COUNT, $le['count']);
+		$this->assertEquals($t->TEST_EDITS_COUNT, $le['params']['count']);
 
 		$events = $t->nonApiLogEntries(1);
 		$this->assertEquals('rejectall', $events[0]['type']);
