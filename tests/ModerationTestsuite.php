@@ -393,7 +393,7 @@ class ModerationTestsuite
 		$req->setHeader('Content-Type', 'multipart/form-data');
 		$req->setData(array(
 			'title' => 'Special:Upload',
-			'wpUploadFile' => '@' . $source_filename,
+			'wpUploadFile' => curl_file_create($source_filename),
 			'wpDestFile' => $title,
 			'wpIgnoreWarning' => '1',
 			'wpEditToken' => $this->api->editToken,
