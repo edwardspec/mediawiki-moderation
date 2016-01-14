@@ -18,12 +18,19 @@ and parts of MediaWiki API not related to Moderation.
 
 WARNING: THIS TEST DOESN'T PRESERVE EXISTING DATABASE. EVERYTHING IS DELETED.
 
-1) Checkout 'core/tests' from the MediaWiki core repository (this directory is
-not supplied in MediaWiki release tarballs) and move it to MediaWiki directory.
+1) Install PHPunit.
 
-2) Go into the MediaWiki directory.
+2) Append the following lines to LocalSettings.php:
 
-3) Run the following command:
+$wgMainCacheType = CACHE_NONE;
+$wgSessionsInMemcached = false;
+
+This is needed because tests modify the 'user' SQL table directly,
+and cached old state of users may affect the result of tests.
+
+3) Go into the MediaWiki directory.
+
+4) Run the following command:
 
 for i in extensions/Moderation/tests/phpunit/*.php; do tests/phpunit/phpunit.php $i; done
 
