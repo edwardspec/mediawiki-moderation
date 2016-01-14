@@ -1,0 +1,133 @@
+{
+	"name": "Moderation",
+	"version": "0.0.1",
+	"author": "Edward Chernenko",
+	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
+	"descriptionmsg": "moderation-desc",
+	"type": "antispam",
+	"GroupPermissions": {
+		"automoderated": {
+			"skip-moderation": true
+		},
+		"moderator": {
+			"moderation": true
+		},
+		"checkuser": {
+			"moderation-checkuser": true
+		}
+	},
+	"AvailableRights": [
+		"skip-moderation",
+		"moderation"
+	],
+	"SpecialPages": {
+		"Moderation": "SpecialModeration"
+	},
+	"LogTypes": [
+		"moderation"
+	],
+	"LogRestrictions": {
+		"moderation": "moderation"
+	},
+	"LogActionsHandlers": {
+		"moderation/*": "ModerationLogFormatter"
+	},
+	"MessagesDirs": {
+		"Moderation": [
+			"i18n"
+		]
+	},
+	"ExtensionMessagesFiles": {
+		"ModerationAlias": "Moderation.alias.php"
+	},
+	"AutoloadClasses": {
+		"SpecialModeration": "SpecialModeration.php",
+		"ModerationLogFormatter": "ModerationLogFormatter.php",
+		"ModerationSpecialUpload": "ModerationSpecialUpload.php",
+		"ModerationBlockCheck": "util/ModerationBlockCheck.php",
+		"ModerationCanSkip": "util/ModerationCanSkip.php",
+		"ModerationCheckUserHook": "hooks/ModerationCheckUserHook.php",
+		"ModerationPreload": "hooks/ModerationPreload.php",
+		"ModerationEditHooks": "hooks/ModerationEditHooks.php",
+		"ModerationUploadHooks": "hooks/ModerationUploadHooks.php",
+		"ModerationUpdater": "hooks/ModerationUpdater.php",
+		"ModerationAction": "action/ModerationAction.php",
+		"ModerationActionShow": "action/ModerationActionShow.php",
+		"ModerationActionShowImage": "action/ModerationActionShowImage.php",
+		"ModerationActionBlock": "action/ModerationActionBlock.php",
+		"ModerationActionApprove": "action/ModerationActionApprove.php",
+		"ModerationActionReject": "action/ModerationActionReject.php",
+		"ModerationActionMerge": "action/ModerationActionMerge.php",
+		"ModerationActionPreview": "action/ModerationActionPreview.php"
+	},
+	"ResourceModules": {
+		"ext.moderation": {
+			"position": "bottom",
+			"styles": "ext.moderation.css"
+		},
+		"ext.moderation.edit": {
+			"position": "bottom",
+			"styles": "ext.moderation.edit.css"
+		},
+		"ext.moderation.notify": {
+			"position": "bottom",
+			"scripts": "ext.moderation.notify.js",
+			"dependencies": [
+				"mediawiki.jqueryMsg",
+				"mediawiki.action.view.postEdit"
+			],
+			"messages": [
+				"moderation-edit-queued",
+				"moderation-suggest-signup"
+			]
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "modules",
+		"remoteExtPath": "Moderation/modules"
+	},
+	"Hooks": {
+		"AddNewAccount": [
+			"ModerationPreload::onAddNewAccount"
+		],
+		"ApiCheckCanExecute": [
+			"ModerationUploadHooks::onApiCheckCanExecute"
+		],
+		"AuthPluginAutoCreate": [
+			"ModerationEditHooks::onAuthPluginAutoCreate"
+		],
+		"BeforePageDisplay": [
+			"ModerationEditHooks::onBeforePageDisplay"
+		],
+		"EditFormInitialText": [
+			"ModerationPreload::onEditFormInitialText"
+		],
+		"EditFormPreloadText": [
+			"ModerationPreload::onEditFormPreloadText"
+		],
+		"LoadExtensionSchemaUpdates": [
+			"ModerationUpdater::onLoadExtensionSchemaUpdates"
+		],
+		"PageContentSaveComplete": [
+			"ModerationEditHooks::onPageContentSaveComplete"
+		],
+		"PageContentSave": [
+			"ModerationEditHooks::onPageContentSave"
+		],
+		"EditPage::showEditForm:fields": [
+			"ModerationEditHooks::PrepareEditForm"
+		],
+		"UploadVerifyFile": [
+			"ModerationUploadHooks::onUploadVerifyFile"
+		],
+		"getUserPermissionsErrors": [
+			"ModerationUploadHooks::ongetUserPermissionsErrors"
+		]
+	},
+	"config": {
+		"ModerationEnable": true,
+		"ModerationTimeToOverrideRejection": 1209600,
+		"ModerationPreviewLink": false
+	},
+	"manifest_version": 1
+}
