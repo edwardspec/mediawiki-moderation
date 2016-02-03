@@ -35,6 +35,23 @@ class ModerationEditHooks {
 		if(ModerationCanSkip::canSkip($user))
 			return true;
 
+		/* Some extensions (e.g. Extension:Flow) use customized ContentHandlers.
+			They need special handling for Moderation to intercept them properly.
+
+			For example, Flow first creates a comments page and then a comment,
+			but if edit in the comments page was send to moderation, Flow will
+			report error because this comments page was not found.
+
+			Unless we add support for the non-standard ContentHandler,
+			edits to pages with it can't be queued for moderation.
+
+			NOTE: edits to Flow discussions will bypass moderation.
+		*/
+		$handler = $page->getContentHandler();
+		if(!is_a($handler, 'TextContentHandler')) {
+			return true;
+		}
+
 		$old_content = $page->getContent( Revision::RAW ); // current revision's content
 		$request = $user->getRequest();
 		$title = $page->getTitle();
