@@ -2,11 +2,6 @@ TODO:
 
 Medium-prio:
 * (testsuite) Provide ~100% automated test coverage of all functionality.
-* (refactoring) Refactor everything,
-	e.g. use subclasses of Action class instead of modaction=,
-	don't use globals or wfMessage() where context is available,
-	use subpage for folders on Special:Moderation,
-	etc.
 
 Low-prio:
 * (feature) Intercept renaming of pages.
@@ -17,7 +12,6 @@ Low-prio:
 * (interface) For non-automoderated users: show a message on their
 	Special:Contributions ensuring them that their edits will
 	appear there when they are approved.
-* (1.25) Provide extension.json for wfLoadExtension() to work.
 
 Background-prio (may not be needed):
 * (feature) Post factum elimination of duplicate anonymous edits (e.g. when one
