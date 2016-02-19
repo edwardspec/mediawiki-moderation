@@ -127,7 +127,9 @@
 	"config": {
 		"ModerationEnable": true,
 		"ModerationTimeToOverrideRejection": 1209600,
-		"ModerationPreviewLink": false
+		"ModerationPreviewLink": false,
+		"ModerationNotificationEnable": false,
+		"ModerationEmail": ""
 	},
 	"manifest_version": 1
 }
