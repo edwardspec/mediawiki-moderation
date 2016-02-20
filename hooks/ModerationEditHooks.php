@@ -24,17 +24,24 @@ class ModerationEditHooks {
 	public static $LastInsertId = null;
 	public static $NewMergeID = null;
 
+	public static $inApprove = false; /**< Set to true by ModerationActionApprove::prepareApproveHooks() */
+
 	/*
 		onPageContentSave()
 		Intercept normal edits and queue them for moderation.
 	*/
 	static public function onPageContentSave(&$page, &$user, &$content, &$summary, $is_minor, $is_watch, $section, &$flags, &$status)
 	{
-		global $wgOut, $wgContLang, $wgModerationNotificationEnable, $wgModerationNotificationNewOnly, 
+		global $wgOut, $wgContLang, $wgModerationNotificationEnable, $wgModerationNotificationNewOnly,
 			   $wgModerationEmail, $wgPasswordSender;
 
-		if(ModerationCanSkip::canSkip($user))
+		if(self::$inApprove) {
 			return true;
+		}
+
+		if(ModerationCanSkip::canSkip($user)) {
+			return true;
+		}
 
 		/*
 		 * Allow to intercept moderation process
@@ -156,7 +163,7 @@ class ModerationEditHooks {
 		Hooks::run("ModerationPending", array(
 			$fields, ModerationEditHooks::$LastInsertId
 		) );
-		
+
 		// Notify administrator about pending changes
 		if( $wgModerationNotificationEnable )
 		{

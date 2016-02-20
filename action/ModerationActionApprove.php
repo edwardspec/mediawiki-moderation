@@ -31,12 +31,9 @@ class ModerationActionApprove extends ModerationAction {
 
 	function prepareApproveHooks()
 	{
-		global $wgHooks;
-
-		# Just a precaution: disable moderation hook in case moderator
-		# is for some reason not automoderated.
-		$hook_key = array_search('ModerationEditHooks::onPageContentSave', $wgHooks['PageContentSave']);
-		unset($wgHooks['PageContentSave'][$hook_key]);
+		# Disable moderation hook (ModerationEditHooks::onPageContentSave),
+		# so that it won't queue this edit again.
+		ModerationEditHooks::$inApprove = true;
 	}
 
 	public function executeApproveOne() {
