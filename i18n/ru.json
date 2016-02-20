@@ -93,5 +93,7 @@
 	"tooltip-moderation-reject": "Отклонить эту правку",
 	"tooltip-moderation-rejected-change": "Просмотреть отклонённую правку",
 	"tooltip-moderation-show": "Посмотреть предлагаемые изменения",
-	"tooltip-moderation-unblock": "Более не отправлять правки этого участника в папку Спам"
+	"tooltip-moderation-unblock": "Более не отправлять правки этого участника в папку Спам",
+	"moderation-notification-subject": "[Модерация] Новое изменение ожидает проверки",
+	"moderation-notification-content": "Изменение страницы '$1' пользователем '$2' ожидает проверки, подробнее: $3"
 }

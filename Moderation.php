@@ -119,3 +119,12 @@ $wgModerationTimeToOverrideRejection = 2 * 7 * 24 * 3600; # 2 weeks
 # Keep this option at 'false' unless you know you need this.
 
 $wgModerationPreviewLink = false;
+
+# Administrator notification settings
+# $wgModerationNotificationEnable - enable or disable notifications
+# $wgModerationNotificationNewOnly - notify administrator only about new pages requests
+# $wgModerationEmail - email to send notifications
+
+$wgModerationNotificationEnable = false;
+$wgModerationNotificationNewOnly = false;
+$wgModerationEmail = $wgEmergencyContact;

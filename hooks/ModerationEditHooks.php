@@ -30,10 +30,20 @@ class ModerationEditHooks {
 	*/
 	static public function onPageContentSave(&$page, &$user, &$content, &$summary, $is_minor, $is_watch, $section, &$flags, &$status)
 	{
-		global $wgOut, $wgContLang;
+		global $wgOut, $wgContLang, $wgModerationNotificationEnable, $wgModerationNotificationNewOnly, 
+			   $wgModerationEmail, $wgPasswordSender;
 
 		if(ModerationCanSkip::canSkip($user))
 			return true;
+
+		/*
+		 * Allow to intercept moderation process
+		 */
+		if( !Hooks::run("Moderation", array(
+			$page, $user, $content, $summary, $is_minor, $is_watch, $section, $flags, $status
+		))) {
+			return true;
+		}
 
 		/* Some extensions (e.g. Extension:Flow) use customized ContentHandlers.
 			They need special handling for Moderation to intercept them properly.
@@ -142,6 +152,32 @@ class ModerationEditHooks {
 		// In case the caller treats "edit-hook-aborted" as an error.
 		$dbw->commit();
 
+		// Run hook to allow other extensions be notified about pending changes
+		Hooks::run("ModerationPending", array(
+			$fields, ModerationEditHooks::$LastInsertId
+		) );
+		
+		// Notify administrator about pending changes
+		if( $wgModerationNotificationEnable )
+		{
+			// Sent notifications only about new pages or about all edits
+			if( ( $wgModerationNotificationNewOnly && !$page->exists() ) || !$wgModerationNotificationNewOnly )
+			{
+				$mailer = new UserMailer();
+				$to = new MailAddress( $wgModerationEmail );
+				$from = new MailAddress( $wgPasswordSender );
+				$subject = wfMessage('moderation-notification-subject')->text();
+				$content = wfMessage('moderation-notification-content',
+					$page->getTitle()->getBaseText(),
+					$user->getName(),
+					SpecialPage::getTitleFor('Moderation')->getFullURL(
+						'modaction=show&modid=' . ModerationEditHooks::$LastInsertId
+					)
+				)->text();
+				$mailer->send( $to, $from, $subject, $content );
+			}
+		}
+
 		/*
 			We have queued this edit for moderation.
 			No need to save anything at this point.
@@ -152,6 +188,7 @@ class ModerationEditHooks {
 			Notification "Your edit was successfully sent for moderation"
 			will be shown by JavaScript.
 		*/
+
 		$wgOut->redirect( $title->getFullURL(array('modqueued' => 1)) );
 		return false;
 	}

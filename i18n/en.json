@@ -93,5 +93,7 @@
 	"tooltip-moderation-reject": "Reject this single edit",
 	"tooltip-moderation-rejected-change": "View the rejected edit",
 	"tooltip-moderation-show": "View proposed changes",
-	"tooltip-moderation-unblock": "No longer send edits of this user to Spam folder"
+	"tooltip-moderation-unblock": "No longer send edits of this user to Spam folder",
+	"moderation-notification-subject": "[Moderation] Incoming change pending",
+	"moderation-notification-content": "New change pending for page '$1' from user '$2' , click to see: $3"
 }
