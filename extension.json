@@ -129,6 +129,7 @@
 		"ModerationTimeToOverrideRejection": 1209600,
 		"ModerationPreviewLink": false,
 		"ModerationNotificationEnable": false,
+		"ModerationNotificationNewOnly": false,
 		"ModerationEmail": ""
 	},
 	"manifest_version": 1

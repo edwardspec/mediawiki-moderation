@@ -167,8 +167,12 @@ class ModerationEditHooks {
 		// Notify administrator about pending changes
 		if( $wgModerationNotificationEnable )
 		{
-			// Sent notifications only about new pages or about all edits
-			if( ( $wgModerationNotificationNewOnly && !$page->exists() ) || !$wgModerationNotificationNewOnly )
+			/*
+				$wgModerationNotificationNewOnly:
+				if true, notify about all edits,
+				if false, notify about new pages.
+			*/
+			if( !$wgModerationNotificationNewOnly || !$page->exists() )
 			{
 				$mailer = new UserMailer();
 				$to = new MailAddress( $wgModerationEmail );

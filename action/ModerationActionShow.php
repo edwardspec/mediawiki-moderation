@@ -137,29 +137,8 @@ class ModerationActionShow extends ModerationAction {
 			$header_after = wfMessage('moderation-diff-header-after')->text();
 			$out->addHTML($de->addHeader($diff, $header_before, $header_after));
 
-			$approveLink = Linker::link(
-				$this->getSpecial()->getPageTitle(),
-				wfMessage('moderation-approve')->escaped(),
-				array( 'title' => wfMessage('tooltip-moderation-approve')->escaped() ),
-				array(
-					'modaction' => 'approve',
-					'modid' => $this->id,
-					'token' => $this->getSpecial()->getUser()->getEditToken($this->id)
-				),
-				array('known', 'noclasses')
-			);
-
-			$rejectLink = Linker::link(
-				$this->getSpecial()->getPageTitle(),
-				wfMessage('moderation-reject')->escaped(),
-				array( 'title' => wfMessage('tooltip-moderation-reject')->escaped() ),
-				array(
-					'modaction' => 'reject',
-					'modid' => $this->id,
-					'token' => $this->getSpecial()->getUser()->getEditToken($this->id)
-				),
-				array('known', 'noclasses')
-			);
+			$approveLink = $this->getSpecial()->makeModerationLink('approve', $this->id);
+			$rejectLink =  $this->getSpecial()->makeModerationLink('reject', $this->id);
 
 			$out->addHTML( $approveLink );
 			$out->addHTML(' / ');
