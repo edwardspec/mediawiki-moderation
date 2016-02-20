@@ -181,9 +181,10 @@ class ModerationEditHooks {
 				$content = wfMessage('moderation-notification-content',
 					$page->getTitle()->getBaseText(),
 					$user->getName(),
-					SpecialPage::getTitleFor('Moderation')->getFullURL(
-						'modaction=show&modid=' . ModerationEditHooks::$LastInsertId
-					)
+					SpecialPage::getTitleFor('Moderation')->getFullURL(array(
+						'modaction' => 'show',
+						'modid' => ModerationEditHooks::$LastInsertId
+					))
 				)->text();
 				$mailer->send( $to, $from, $subject, $content );
 			}
