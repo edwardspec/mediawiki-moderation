@@ -139,7 +139,8 @@ class ModerationPreload {
 
 	static public function showUnmoderatedEdit(&$text, &$title, &$editPage)
 	{
-		global $wgRequest, $wgOut;
+		global $wgRequest;
+
 		$section = $wgRequest->getVal('section');
 
 		if($section && $section == 'new') return; # Nothing to preload if new section is being created
@@ -147,8 +148,16 @@ class ModerationPreload {
 		$row = ModerationPreload::loadUnmoderatedEdit($title);
 		if(!$row) return;
 
-		$wgOut->addModules('ext.moderation.edit');
-		$wgOut->wrapWikiMsg('<div id="mw-editing-your-version">$1</div>', array('moderation-editing-your-version'));
+		/* EditPage can call this more than once,
+			resulting in two "mw-editing-your-version" messages instead of one. */
+		static $calledFirstTime = true;
+		if($calledFirstTime) {
+			global $wgOut;
+			$wgOut->addModules('ext.moderation.edit');
+			$wgOut->wrapWikiMsg('<div id="mw-editing-your-version">$1</div>', array('moderation-editing-your-version'));
+
+			$calledFirstTime = false;
+		}
 
 		$text = $row->text;
 
