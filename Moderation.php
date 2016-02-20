@@ -35,7 +35,7 @@ $wgExtensionCredits['antispam'][] = array(
 	'author' => 'Edward Chernenko',
 	'url' => 'https://www.mediawiki.org/wiki/Extension:Moderation',
 	'descriptionmsg' => 'moderation-desc',
-	'version' => '0.0.1'
+	'version' => '20feb2016-1'
 );
 
 $wgMessagesDirs['Moderation'] = __DIR__ . "/i18n";
