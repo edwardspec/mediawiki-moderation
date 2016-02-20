@@ -46,7 +46,7 @@ class ModerationEditHooks {
 		/*
 		 * Allow to intercept moderation process
 		 */
-		if( !Hooks::run("Moderation", array(
+		if( !Hooks::run("ModerationIntercept", array(
 			$page, $user, $content, $summary, $is_minor, $is_watch, $section, $flags, $status
 		))) {
 			return true;
