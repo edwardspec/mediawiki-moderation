@@ -5,7 +5,7 @@ Limitation:
 	Summary of the previous edit (still pending moderation) is only
 	preloaded for existing pages.
 Why:
-	"EditFormInitialText" hook doesn't provide EditPage object.
+	"EditFormPreloadText" hook doesn't provide EditPage object.
 ===============================================================================
 
 ===============================================================================
