@@ -169,8 +169,8 @@ class ModerationEditHooks {
 		{
 			/*
 				$wgModerationNotificationNewOnly:
-				if true, notify about all edits,
-				if false, notify about new pages.
+				if false, notify about all edits,
+				if true, notify about new pages.
 			*/
 			if( !$wgModerationNotificationNewOnly || !$page->exists() )
 			{
