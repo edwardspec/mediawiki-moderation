@@ -34,13 +34,14 @@ class ModerationActionBlock extends ModerationAction {
 			array( 'mod_id' => $this->id ),
 			__METHOD__
 		);
-		if ( !$row )
+		if ( !$row ) {
 			throw new ModerationError( 'moderation-edit-not-found' );
+		}
 
 		$dbw = wfGetDB( DB_MASTER );
-		if ( $this->actionName == 'block' )
-		{
-			$dbw->replace( 'moderation_block', array( 'mb_address' ),
+		if ( $this->actionName == 'block' ) {
+			$dbw->replace( 'moderation_block',
+				array( 'mb_address' ),
 				array(
 					'mb_address' => $row->user_text,
 					'mb_user' => $row->user,
@@ -51,16 +52,13 @@ class ModerationActionBlock extends ModerationAction {
 				__METHOD__
 			);
 			$logEntry = new ManualLogEntry( 'moderation', 'block' );
-		}
-		else
-		{
+		} else {
 			$dbw->delete( 'moderation_block', array( 'mb_address' => $row->user_text ), __METHOD__ );
 			$logEntry = new ManualLogEntry( 'moderation', 'unblock' );
 		}
 
 		$nrows = $dbw->affectedRows();
-		if ( $nrows > 0 )
-		{
+		if ( $nrows > 0 ) {
 			$logEntry->setPerformer( $this->moderator );
 			$logEntry->setTarget( Title::makeTitle( NS_USER, $row->user_text ) );
 			$logid = $logEntry->insert();

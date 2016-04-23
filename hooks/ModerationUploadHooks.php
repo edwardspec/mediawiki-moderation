@@ -24,16 +24,15 @@ class ModerationUploadHooks {
 	/**
 		@brief Intercept image uploads and queue them for moderation.
 	*/
-	static public function onUploadVerifyFile( $upload, $mime, &$status )
-	{
+	public static function onUploadVerifyFile( $upload, $mime, &$status ) {
 		global $wgRequest, $wgUser, $wgOut;
 
-		if ( ModerationCanSkip::canSkip( $wgUser ) )
+		if ( ModerationCanSkip::canSkip( $wgUser ) ) {
 			return;
+		}
 
 		$result = $upload->validateName();
-		if ( $result !== true )
-		{
+		if ( $result !== true ) {
 			$status = array( $upload->getVerificationErrorCode( $result['status'] ) );
 			return;
 		}
@@ -47,15 +46,14 @@ class ModerationUploadHooks {
 		try {
 			$file = $upload->stashFile( $wgUser );
 		} catch ( MWException $e ) {
-			$status = array( "api-error-stashfailed" );
+			$status = array( 'api-error-stashfailed' );
 			return;
 		}
 
 		$key = $file->getFileKey();
 
 		$pageText = '';
-		if ( !$special->mForReUpload )
-		{
+		if ( !$special->mForReUpload ) {
 			$pageText = $special->getInitialPageText(
 				$special->mComment,
 				$special->mLicense,
@@ -89,13 +87,11 @@ class ModerationUploadHooks {
 			__METHOD__
 		);
 
-		$status = array( "moderation-image-queued" );
+		$status = array( 'moderation-image-queued' );
 	}
 
-	static public function onApiCheckCanExecute( $module, $user, &$message )
-	{
-		if ( $module == 'upload' && !ModerationCanSkip::canSkip( $user ) )
-		{
+	public static function onApiCheckCanExecute( $module, $user, &$message ) {
+		if ( $module == 'upload' && !ModerationCanSkip::canSkip( $user ) ) {
 			$message = 'nouploadmodule';
 			return false;
 		}
@@ -103,8 +99,7 @@ class ModerationUploadHooks {
 		return true;
 	}
 
-	static public function ongetUserPermissionsErrors( $title, $user, $action, &$result )
-	{
+	public static function ongetUserPermissionsErrors( $title, $user, $action, &$result ) {
 		/*
 			action=revert bypasses doUpload(), so it is not intercepted
 			and is applied without moderation.

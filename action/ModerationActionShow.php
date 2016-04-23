@@ -45,39 +45,38 @@ class ModerationActionShow extends ModerationAction {
 			array( 'mod_id' => $this->id ),
 			__METHOD__
 		);
-		if ( !$row )
+		if ( !$row ) {
 			throw new ModerationError( 'moderation-edit-not-found' );
+		}
 
 		$title = Title::makeTitle( $row->namespace, $row->title );
 		$model = $title->getContentModel();
 
 		$out->setPageTitle( wfMessage( 'difference-title', $title->getPrefixedText() ) );
 
-		$old_content = false;
-		if ( $row->cur_id != 0 )
-		{
+		$oldContent = false;
+		if ( $row->cur_id != 0 ) {
 			# Existing page
 			$rev = Revision::newFromId( $row->last_oldid );
-			if ( $rev )
-			{
-				$old_content = $rev->getContent( Revision::RAW );
-				$model = $old_content->getModel();
+			if ( $rev ) {
+				$oldContent = $rev->getContent( Revision::RAW );
+				$model = $oldContent->getModel();
 			}
 		}
 
-		if ( !$old_content ) # New or previously deleted page
-			$old_content = ContentHandler::makeContent( "", null, $model );
+		if ( !$oldContent ) { # New or previously deleted page
+			$oldContent = ContentHandler::makeContent( '', null, $model );
+		}
 
-		if ( $row->stash_key )
-		{
-			$url_params = array(
+		if ( $row->stash_key ) {
+			$urlParams = array(
 				'modaction' => 'showimg',
 				'modid' => $this->id
 			);
-			$url_full = $this->mSpecial->getTitle()->getLinkURL( $url_params );
+			$urlFull = $this->mSpecial->getTitle()->getLinkURL( $urlParams );
 
 			# Check if this file is not an image (e.g. OGG file)
-			$is_image = 1;
+			$isImage = 1;
 
 			$user = $row->user ?
 				User::newFromId( $row->user ) :
@@ -87,33 +86,34 @@ class ModerationActionShow extends ModerationAction {
 			try {
 				$meta = $stash->getMetadata( $row->stash_key );
 
-				if ( $meta['us_media_type'] != 'BITMAP' &&
-					$meta['us_media_type'] != 'DRAWING' )
+				if (
+					$meta['us_media_type'] != 'BITMAP' &&
+					$meta['us_media_type'] != 'DRAWING'
+				)
 				{
-					$is_image = 0;
+					$isImage = 0;
 				}
 
 			} catch ( MWException $e ) {
 				# If we can't find it, thumbnail won't work either
-				$is_image = 0;
+				$isImage = 0;
 			}
 
-			if ( $is_image ) {
-				$url_params['thumb'] = 1;
-				$url_thumb = $this->mSpecial->getTitle()->getLinkURL( $url_params );
-				$html_img = Xml::element( 'img', array(
+			if ( $isImage ) {
+				$urlParams['thumb'] = 1;
+				$url_thumb = $this->mSpecial->getTitle()->getLinkURL( $urlParams );
+				$htmlImg = Xml::element( 'img', array(
 					'src' => $url_thumb
 				) );
-			}
-			else {
+			} else {
 				# Not an image, so no thumbnail is needed.
 				# Just print a filename.
-				$html_img = $title->getFullText();
+				$htmlImg = $title->getFullText();
 			}
 
 			$html_a = Xml::tags( 'a', array(
-				'href' => $url_full
-			), $html_img );
+				'href' => $urlFull
+			), $htmlImg );
 
 			$out->addHTML( $html_a );
 		}
@@ -123,19 +123,17 @@ class ModerationActionShow extends ModerationAction {
 			$row->last_oldid, 0, 0, 0, 0
 		);
 		$diff = '';
-		if ( !$row->stash_key || !$title->exists() ) # Not a reupload ($row->text is always blank for reuploads, and they don't change the page text)
-		{
-			$new_content = ContentHandler::makeContent( $row->text, null, $model );
-			$diff = $de->generateContentDiffBody( $old_content, $new_content );
+		if ( !$row->stash_key || !$title->exists() ) { # Not a reupload ($row->text is always blank for reuploads, and they don't change the page text)
+			$newContent = ContentHandler::makeContent( $row->text, null, $model );
+			$diff = $de->generateContentDiffBody( $oldContent, $newContent );
 		}
 
-		if ( $diff )
-		{
+		if ( $diff ) {
 			// TODO: add more information into headers (username, timestamp etc.), as in usual diffs
 
-			$header_before = wfMessage( 'moderation-diff-header-before' )->text();
-			$header_after = wfMessage( 'moderation-diff-header-after' )->text();
-			$out->addHTML( $de->addHeader( $diff, $header_before, $header_after ) );
+			$headerBefore = wfMessage( 'moderation-diff-header-before' )->text();
+			$headerAfter = wfMessage( 'moderation-diff-header-after' )->text();
+			$out->addHTML( $de->addHeader( $diff, $headerBefore, $headerAfter ) );
 
 			$approveLink = $this->getSpecial()->makeModerationLink( 'approve', $this->id );
 			$rejectLink =  $this->getSpecial()->makeModerationLink( 'reject', $this->id );
@@ -143,10 +141,7 @@ class ModerationActionShow extends ModerationAction {
 			$out->addHTML( $approveLink );
 			$out->addHTML( ' / ' );
 			$out->addHTML( $rejectLink );
-
-		}
-		else
-		{
+		} else {
 			$out->addWikiMsg( $row->stash_key ?
 				( $title->exists() ? 'moderation-diff-reupload' : 'moderation-diff-upload-notext' )
 				: 'moderation-diff-no-changes' );

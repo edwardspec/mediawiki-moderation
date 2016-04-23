@@ -23,14 +23,14 @@
 class ModerationActionApprove extends ModerationAction {
 
 	public function execute() {
-		if ( $this->actionName == 'approve' )
+		if ( $this->actionName == 'approve' ) {
 			$this->executeApproveOne();
-		else if ( $this->actionName == 'approveall' )
+		} elseif ( $this->actionName == 'approveall' ) {
 			$this->executeApproveAll();
+		}
 	}
 
-	function prepareApproveHooks()
-	{
+	function prepareApproveHooks() {
 		# Disable moderation hook (ModerationEditHooks::onPageContentSave),
 		# so that it won't queue this edit again.
 		ModerationEditHooks::$inApprove = true;
@@ -48,8 +48,9 @@ class ModerationActionApprove extends ModerationAction {
 		$out = $this->mSpecial->getOutput();
 
 		$userpage = $this->mSpecial->getUserpageByModId( $this->id );
-		if ( !$userpage )
+		if ( !$userpage ) {
 			throw new ModerationError( 'moderation-edit-not-found' );
+		}
 
 		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
 		$res = $dbw->select( 'moderation',
@@ -69,26 +70,24 @@ class ModerationActionApprove extends ModerationAction {
 				'USE INDEX' => 'moderation_approveall'
 			)
 		);
-		if ( !$res || $res->numRows() == 0 )
+		if ( !$res || $res->numRows() == 0 ) {
 			throw new ModerationError( 'moderation-nothing-to-approveall' );
+		}
 
 		$this->prepareApproveHooks();
 
 		$approved = 0;
 		$failed = 0;
-		foreach ( $res as $row )
-		{
+		foreach ( $res as $row ) {
 			try {
 				$this->approveEditById( $row->id );
 				$approved ++;
-			}
-			catch ( ModerationError $e ) {
+			} catch ( ModerationError $e ) {
 				$failed ++;
 			}
 		}
 
-		if ( $approved )
-		{
+		if ( $approved ) {
 			$logEntry = new ManualLogEntry( 'moderation', 'approveall' );
 			$logEntry->setPerformer( $this->moderator );
 			$logEntry->setTarget( $userpage );
@@ -98,12 +97,12 @@ class ModerationActionApprove extends ModerationAction {
 		}
 
 		$out->addWikiMsg( 'moderation-approved-ok', $approved );
-		if ( $failed )
+		if ( $failed ) {
 			$out->addWikiMsg( 'moderation-approved-errors', $failed );
+		}
 	}
 
-	function approveEditById( $id )
-	{
+	function approveEditById( $id ) {
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
 			array(
@@ -130,14 +129,17 @@ class ModerationActionApprove extends ModerationAction {
 			__METHOD__
 		);
 
-		if ( !$row )
+		if ( !$row ) {
 			throw new ModerationError( 'moderation-edit-not-found' );
+		}
 
-		if ( $row->merged_revid )
+		if ( $row->merged_revid ) {
 			throw new ModerationError( 'moderation-already-merged' );
+		}
 
-		if ( $row->rejected && $row->timestamp < $this->mSpecial->earliestReapprovableTimestamp )
+		if ( $row->rejected && $row->timestamp < $this->mSpecial->earliestReapprovableTimestamp ) {
 			throw new ModerationError( 'moderation-rejected-long-ago' );
+		}
 
 		# Prepare everything
 		$title = Title::makeTitle( $row->namespace, $row->title );
@@ -148,10 +150,12 @@ class ModerationActionApprove extends ModerationAction {
 			User::newFromName( $row->user_text, false );
 
 		$flags = EDIT_DEFER_UPDATES | EDIT_AUTOSUMMARY;
-		if ( $row->bot && $user->isAllowed( 'bot' ) )
+		if ( $row->bot && $user->isAllowed( 'bot' ) ) {
 			$flags |= EDIT_FORCE_BOT;
-		if ( $row->minor ) # doEditContent() checks the right
+		}
+		if ( $row->minor ) { # doEditContent() checks the right
 			$flags |= EDIT_MINOR;
+		}
 
 		# For CheckUser extension to work properly, IP, XFF and UA
 		# should be set to the correct values for the original user
@@ -176,8 +180,7 @@ class ModerationActionApprove extends ModerationAction {
 		) );
 
 		$status = Status::newGood();
-		if ( $row->stash_key )
-		{
+		if ( $row->stash_key ) {
 			# This is the upload from stash.
 
 			$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash( $user );
@@ -190,15 +193,12 @@ class ModerationActionApprove extends ModerationAction {
 			$upload = new UploadFromStash( $user, $stash );
 			$upload->initialize( $row->stash_key, $title->getText() );
 			$status = $upload->performUpload( $row->comment, $row->text, 0, $user );
-		}
-		else
-		{
+		} else {
 			# This is normal edit (not an upload).
 			$new_content = ContentHandler::makeContent( $row->text, null, $model );
 
 			$page = new WikiPage( $title );
-			if ( !$page->exists() )
-			{
+			if ( !$page->exists() ) {
 				# New page
 				$status = $page->doEditContent(
 					$new_content,
@@ -207,14 +207,11 @@ class ModerationActionApprove extends ModerationAction {
 					false,
 					$user
 				);
-			}
-			else
-			{
+			} else {
 				# Existing page
 				$latest = $page->getLatest();
 
-				if ( $latest == $row->last_oldid )
-				{
+				if ( $latest == $row->last_oldid ) {
 					# Page hasn't changed since this edit was queued for moderation.
 					$status = $page->doEditContent(
 						$new_content,
@@ -223,9 +220,7 @@ class ModerationActionApprove extends ModerationAction {
 						$row->last_oldid,
 						$user
 					);
-				}
-				else
-				{
+				} else {
 					# Page has changed!
 					# Let's attempt merging, as MediaWiki does in private EditPage::mergeChangesIntoContent().
 
@@ -238,8 +233,7 @@ class ModerationActionApprove extends ModerationAction {
 					$handler = ContentHandler::getForModelID( $base_content->getModel() );
 					$merged_content = $handler->merge3( $base_content, $new_content, $latest_content );
 
-					if ( $merged_content )
-					{
+					if ( $merged_content ) {
 						$status = $page->doEditContent(
 							$merged_content,
 							$row->comment,
@@ -247,9 +241,7 @@ class ModerationActionApprove extends ModerationAction {
 							$latest, # Because $merged_content goes after $latest
 							$user
 						);
-					}
-					else
-					{
+					} else {
 						$dbw = wfGetDB( DB_MASTER );
 						$dbw->update( 'moderation',
 							array( 'mod_conflict' => 1 ),
@@ -295,8 +287,7 @@ class ModerationApproveHook {
 
 	public $lastRevId = null;
 
-	public function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user )
-	{
+	public function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
 		$this->lastRevId = $rev->getId();
 
 		$dbw = wfGetDB( DB_MASTER );
@@ -307,8 +298,7 @@ class ModerationApproveHook {
 		);
 	}
 
-	public function install( $update )
-	{
+	public function install( $update ) {
 		global $wgHooks;
 
 		$this->update = $update;
@@ -318,8 +308,7 @@ class ModerationApproveHook {
 		$this->rev_hook_id = key( $wgHooks['NewRevisionFromEditComplete'] );
 	}
 
-	public function deinstall()
-	{
+	public function deinstall() {
 		global $wgHooks;
 		unset( $wgHooks['NewRevisionFromEditComplete'][$this->rev_hook_id] );
 	}

@@ -28,8 +28,7 @@ class ModerationActionShowImage extends ModerationAction {
 		return false;
 	}
 
-	public function send404ImageNotFound()
-	{
+	public function send404ImageNotFound() {
 		$this->mSpecial->getOutput()->disable(); # No HTML output
 		StreamFile::prepareForStream( null, null, null, true ); # send 404 Not Found
 	}
@@ -48,8 +47,9 @@ class ModerationActionShowImage extends ModerationAction {
 			array( 'mod_id' => $this->id ),
 			__METHOD__
 		);
-		if ( !$row )
+		if ( !$row ) {
 			throw new ModerationError( 'moderation-edit-not-found' );
+		}
 
 		$user = $row->user ?
 			User::newFromId( $row->user ) :
@@ -63,16 +63,13 @@ class ModerationActionShowImage extends ModerationAction {
 			return $this->send404ImageNotFound();
 		}
 
-		$is_thumb = $this->mSpecial->getRequest()->getVal( 'thumb' );
-		if ( $is_thumb )
-		{
+		$isThumb = $this->mSpecial->getRequest()->getVal( 'thumb' );
+		if ( $isThumb ) {
 			$thumb = $file->transform( array( 'width' => self::THUMB_WIDTH ), File::RENDER_NOW );
-			if ( $thumb )
-			{
+			if ( $thumb ) {
 				if ( $thumb->fileIsSource() ) {
-					$is_thumb = false;
-				}
-				else {
+					$isThumb = false;
+				} else {
 					$file = new UnregisteredLocalFile(
 						false,
 						$stash->repo,
@@ -87,18 +84,17 @@ class ModerationActionShowImage extends ModerationAction {
 			return $this->send404ImageNotFound();
 		}
 
-		$thumb_filename = '';
-		if ( $is_thumb ) {
-			$thumb_filename .= $file->getWidth() .  'px-';
+		$thumbFilename = '';
+		if ( $isThumb ) {
+			$thumbFilename .= $file->getWidth() .  'px-';
 		}
-		$thumb_filename .= $row->title;
+		$thumbFilename .= $row->title;
 
 		$headers = array();
-		$headers[] = "Content-Disposition: " .
-			FileBackend::makeContentDisposition( 'inline', $thumb_filename );
+		$headers[] = 'Content-Disposition: ' .
+			FileBackend::makeContentDisposition( 'inline', $thumbFilename );
 
 		$out->disable(); # No HTML output (image only)
 		$file->getRepo()->streamFile( $file->getPath(), $headers );
-
 	}
 }

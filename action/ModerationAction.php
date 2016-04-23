@@ -43,7 +43,10 @@ abstract class ModerationAction {
 		$token = $request->getVal( 'token' );
 		$this->id = $request->getVal( 'modid' );
 
-		if ( $this->requiresEditToken() && !$this->moderator->matchEditToken( $token, $this->id ) )
+		if (
+			$this->requiresEditToken() &&
+			!$this->moderator->matchEditToken( $token, $this->id )
+		)
 		{
 			throw new ErrorPageError( 'sessionfailure-title', 'sessionfailure' );
 		}

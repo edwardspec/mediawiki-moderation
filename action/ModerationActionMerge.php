@@ -23,10 +23,12 @@
 class ModerationActionMerge extends ModerationAction {
 	public function execute() {
 		global $wgHooks;
+
 		$out = $this->mSpecial->getOutput();
 
-		if ( !ModerationCanSkip::canSkip( $this->moderator ) ) // In order to merge, moderator must also be automoderated
+		if ( !ModerationCanSkip::canSkip( $this->moderator ) ) { // In order to merge, moderator must also be automoderated
 			throw new ModerationError( 'moderation-merge-not-automoderated' );
+		}
 
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
@@ -40,11 +42,13 @@ class ModerationActionMerge extends ModerationAction {
 			array( 'mod_id' => $this->id ),
 			__METHOD__
 		);
-		if ( !$row )
+		if ( !$row ) {
 			throw new ModerationError( 'moderation-edit-not-found' );
+		}
 
-		if ( !$row->conflict )
+		if ( !$row->conflict ) {
 			throw new ModerationError( 'moderation-merge-not-needed' );
+		}
 
 		$title = Title::makeTitle( $row->namespace, $row->title );
 		$article = new Article( $title );
@@ -56,7 +60,7 @@ class ModerationActionMerge extends ModerationAction {
 		$editPage->isConflict = true;
 		$editPage->setContextTitle( $title );
 		$editPage->textbox1 = $row->text;
-		$editPage->summary = wfMessage( "moderation-merge-comment", $row->user_text )->inContentLanguage()->plain();
+		$editPage->summary = wfMessage( 'moderation-merge-comment', $row->user_text )->inContentLanguage()->plain();
 
 		$editPage->showEditForm();
 	}

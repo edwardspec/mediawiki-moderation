@@ -39,8 +39,9 @@ class ModerationActionPreview extends ModerationAction {
 			array( 'mod_id' => $this->id ),
 			__METHOD__
 		);
-		if ( !$row )
+		if ( !$row ) {
 			throw new ModerationError( 'moderation-edit-not-found' );
+		}
 
 		$title = Title::makeTitle( $row->namespace, $row->title );
 
