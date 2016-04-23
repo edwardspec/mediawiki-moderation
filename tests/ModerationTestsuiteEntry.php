@@ -48,32 +48,32 @@ class ModerationTestsuiteEntry
 
 	public $conflict = false;
 
-	function __construct(DomElement $span)
+	function __construct( DomElement $span )
 	{
-		if(strpos($span->getAttribute('class'), 'modconflict') !== false) {
+		if ( strpos( $span->getAttribute( 'class' ), 'modconflict' ) !== false ) {
 			$this->conflict = true;
 		}
 
-		foreach($span->childNodes as $child)
+		foreach ( $span->childNodes as $child )
 		{
 			$text = $child->textContent;
-			if(strpos($text, '(moderation-rejected-auto)') !== false)
+			if ( strpos( $text, '(moderation-rejected-auto)' ) !== false )
 				$this->rejected_auto = true;
 
-			if(strpos($text, '(moderation-rejected-batch)') !== false)
+			if ( strpos( $text, '(moderation-rejected-batch)' ) !== false )
 				$this->rejected_batch = true;
 
 			$matches = null;
-			if(preg_match('/\(moderation-whois-link: ([^)]*)\)/', $text, $matches))
+			if ( preg_match( '/\(moderation-whois-link: ([^)]*)\)/', $text, $matches ) )
 			{
 				$this->ip = $matches[1];
 			}
 		}
 
-		$links = $span->getElementsByTagName('a');
-		foreach($links as $link)
+		$links = $span->getElementsByTagName( 'a' );
+		foreach ( $links as $link )
 		{
-			if(strpos($link->getAttribute('class'), 'mw-userlink') !== false)
+			if ( strpos( $link->getAttribute( 'class' ), 'mw-userlink' ) !== false )
 			{
 				$text = $link->textContent;
 
@@ -83,8 +83,8 @@ class ModerationTestsuiteEntry
 				# Let's check the text BEFORE this link for
 				# the presence of 'moderation-rejected-by'.
 
-				if(strpos($link->previousSibling->textContent,
-					"moderation-rejected-by") !== false)
+				if ( strpos( $link->previousSibling->textContent,
+					"moderation-rejected-by" ) !== false )
 				{
 					$this->rejected_by_user = $text;
 				}
@@ -96,8 +96,8 @@ class ModerationTestsuiteEntry
 				continue;
 			}
 
-			$href = $link->getAttribute('href');
-			switch($link->nodeValue)
+			$href = $link->getAttribute( 'href' );
+			switch( $link->nodeValue )
 			{
 				case '(moderation-show)':
 					$this->showLink = $href;
@@ -122,7 +122,7 @@ class ModerationTestsuiteEntry
 				case '(moderation-merge)':
 					$this->mergeLink = $href;
 					break;
-					
+
 				case '(moderation-merged-link)':
 					$this->mergedDiffLink = $href;
 
@@ -140,29 +140,29 @@ class ModerationTestsuiteEntry
 		}
 
 		$matches = null;
-		preg_match('/modid=([0-9]+)/', $this->showLink, $matches);
+		preg_match( '/modid=([0-9]+)/', $this->showLink, $matches );
 		$this->id = $matches[1];
 	}
 
-	static public function findById($array, $id)
+	static public function findById( $array, $id )
 	{
-		foreach($array as $e)
+		foreach ( $array as $e )
 		{
-			if($e->id == $id)
+			if ( $e->id == $id )
 				return $e;
 		}
 		return null;
 	}
 
-	static public function findByUser($array, $user)
+	static public function findByUser( $array, $user )
 	{
-		if(get_class($user) == 'User')
+		if ( get_class( $user ) == 'User' )
 			$user = $user->getName();
 
 		$entries = [];
-		foreach($array as $entry)
+		foreach ( $array as $entry )
 		{
-			if($entry->user == $user)
+			if ( $entry->user == $user )
 				$entries[] = $entry;
 		}
 		return $entries;
@@ -177,13 +177,13 @@ class ModerationTestsuiteEntry
 		$bl = $this->blockLink;
 		$ul = $this->unblockLink;
 
-		if(($bl && $ul) || (!$bl && !$ul))
+		if ( ( $bl && $ul ) || ( !$bl && !$ul ) )
 			return; /* Nothing to do */
 
-		if($bl)
-			$this->unblockLink = preg_replace('/modaction=block/', 'modaction=unblock', $bl);
+		if ( $bl )
+			$this->unblockLink = preg_replace( '/modaction=block/', 'modaction=unblock', $bl );
 		else
-			$this->blockLink = preg_replace('/modaction=unblock/', 'modaction=block', $ul);
+			$this->blockLink = preg_replace( '/modaction=unblock/', 'modaction=block', $ul );
 	}
 
 	/**
@@ -191,17 +191,17 @@ class ModerationTestsuiteEntry
 	*/
 	public function expectedShowImgLink()
 	{
-		return $this->expectedActionLink('showimg', false);
+		return $this->expectedActionLink( 'showimg', false );
 	}
 
 	/**
 		@brief Returns the URL of modaction=$action for this entry.
 	*/
-	public function expectedActionLink($action, $need_token = true)
+	public function expectedActionLink( $action, $need_token = true )
 	{
 		$sample = null;
 
-		if($need_token) {
+		if ( $need_token ) {
 			/* Either block or unblock link always exists */
 			$sample = $this->blockLink ? $this->blockLink : $this->unblockLink;
 		}
@@ -209,11 +209,11 @@ class ModerationTestsuiteEntry
 			$sample = $this->showLink; /* Show link always exists */
 		}
 
-		if(!$sample) {
+		if ( !$sample ) {
 			return null;
 		}
 
-		return preg_replace('/modaction=(block|unblock|show)/', 'modaction=' . $action, $sample);
+		return preg_replace( '/modaction=(block|unblock|show)/', 'modaction=' . $action, $sample );
 	}
 }
 

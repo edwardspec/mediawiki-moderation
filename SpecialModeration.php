@@ -44,27 +44,27 @@ class SpecialModeration extends QueryPage {
 	var $mblockCheck;
 	var $earliestReapprovableTimestamp;
 
-	function makeModerationLink($action, $id) {
-		$params = array('modaction' => $action, 'modid' => $id);
-		if($action != 'show' && $action != 'preview') {
-			$params['token'] = $this->getUser()->getEditToken($id);
+	function makeModerationLink( $action, $id ) {
+		$params = array( 'modaction' => $action, 'modid' => $id );
+		if ( $action != 'show' && $action != 'preview' ) {
+			$params['token'] = $this->getUser()->getEditToken( $id );
 		}
 
 		return Linker::link(
 			$this->getTitle(),
-			wfMessage('moderation-' . $action)->escaped(),
-			array( 'title' => wfMessage('tooltip-moderation-' . $action) ),
+			wfMessage( 'moderation-' . $action )->escaped(),
+			array( 'title' => wfMessage( 'tooltip-moderation-' . $action ) ),
 			$params,
-			array('known', 'noclasses')
+			array( 'known', 'noclasses' )
 		);
 	}
 
 	function __construct() {
 		global $wgModerationTimeToOverrideRejection;
 
-		$mw_ts = new MWTimestamp(time());
-		$mw_ts->timestamp->modify('-' . intval($wgModerationTimeToOverrideRejection) . ' seconds');
-		$this->earliestReapprovableTimestamp = $mw_ts->getTimestamp(TS_MW);
+		$mw_ts = new MWTimestamp( time() );
+		$mw_ts->timestamp->modify( '-' . intval( $wgModerationTimeToOverrideRejection ) . ' seconds' );
+		$this->earliestReapprovableTimestamp = $mw_ts->getTimestamp( TS_MW );
 
 		$this->mblockCheck = new ModerationBlockCheck();
 		parent::__construct( 'Moderation', 'moderation' );
@@ -77,38 +77,38 @@ class SpecialModeration extends QueryPage {
 	}
 
 	function linkParameters() {
-		return array('folder' => $this->folder);
+		return array( 'folder' => $this->folder );
 	}
 	function getPageHeader() {
 		$folder_links = array();
-		foreach(array_keys($this->folders_list) as $f_name)
+		foreach ( array_keys( $this->folders_list ) as $f_name )
 		{
-			$msg = wfMessage('moderation-folder-' . $f_name);
+			$msg = wfMessage( 'moderation-folder-' . $f_name );
 
-			if($f_name == $this->folder)
+			if ( $f_name == $this->folder )
 			{
-				$folder_links[] = Xml::element('strong', array('class' => 'selflink'), $msg);
+				$folder_links[] = Xml::element( 'strong', array( 'class' => 'selflink' ), $msg );
 			}
 			else
 			{
 				$folder_links[] = Linker::link(
 					$this->getTitle(),
 					$msg->escaped(),
-					array( 'title' => wfMessage('tooltip-moderation-folder-' . $f_name) ),
-					array('folder' => $f_name),
-					array('known', 'noclasses')
+					array( 'title' => wfMessage( 'tooltip-moderation-folder-' . $f_name ) ),
+					array( 'folder' => $f_name ),
+					array( 'known', 'noclasses' )
 				);
 			}
 		}
 
-		return Xml::tags('div',
-			array('class' => 'mw-moderation-folders'),
-			join(" | ", $folder_links)
+		return Xml::tags( 'div',
+			array( 'class' => 'mw-moderation-folders' ),
+			join( " | ", $folder_links )
 		);
 	}
 
-	function execute($unused) {
-		if(!$this->getUser()->isAllowed('moderation'))
+	function execute( $unused ) {
+		if ( !$this->getUser()->isAllowed( 'moderation' ) )
 		{
 			$this->displayRestrictionError();
 			return;
@@ -119,22 +119,22 @@ class SpecialModeration extends QueryPage {
 		$out = $this->getOutput();
 		$out->preventClickjacking();
 
-		$action = $this->getRequest()->getVal('modaction');
-		$id = $this->getRequest()->getVal('modid');
-		$token = $this->getRequest()->getVal('token');
+		$action = $this->getRequest()->getVal( 'modaction' );
+		$id = $this->getRequest()->getVal( 'modid' );
+		$token = $this->getRequest()->getVal( 'token' );
 
-		if(!$action)
+		if ( !$action )
 		{
-			$out->addModules('ext.moderation');
-			$out->addWikiMsg('moderation-text');
+			$out->addModules( 'ext.moderation' );
+			$out->addWikiMsg( 'moderation-text' );
 
-			return parent::execute(''); # '' suppresses warning in QueryPage.php
+			return parent::execute( '' ); # '' suppresses warning in QueryPage.php
 		}
 
 		# Some action was requested
 
 		$class = null;
-		switch($action)
+		switch( $action )
 		{
 			case 'showimg':
 				$class = 'ModerationActionShowImage';
@@ -167,11 +167,11 @@ class SpecialModeration extends QueryPage {
 				$class = 'ModerationActionBlock';
 		}
 
-		if(!$class) {
-			throw new ModerationError('moderation-unknown-modaction');
+		if ( !$class ) {
+			throw new ModerationError( 'moderation-unknown-modaction' );
 		}
 
-		$A = new $class($this);
+		$A = new $class( $this );
 		$A->run();
 	}
 
@@ -180,8 +180,8 @@ class SpecialModeration extends QueryPage {
 	}
 
 	function getQueryInfo() {
-		$this->folder = $this->getRequest()->getVal('folder', $this->default_folder);
-		if(!array_key_exists($this->folder, $this->folders_list))
+		$this->folder = $this->getRequest()->getVal( 'folder', $this->default_folder );
+		if ( !array_key_exists( $this->folder, $this->folders_list ) )
 			$this->folder = $this->default_folder;
 
 		$conds = $this->folders_list[$this->folder];
@@ -212,7 +212,7 @@ class SpecialModeration extends QueryPage {
 				'mod_merged_revid AS merged_revid'
 			),
 			'conds' => $conds,
-			'options' => array('USE INDEX' => $index)
+			'options' => array( 'USE INDEX' => $index )
 		);
 	}
 
@@ -221,122 +221,122 @@ class SpecialModeration extends QueryPage {
 		wfProfileIn( __METHOD__ );
 
 		$len_change = $result->new_len - $result->old_len;
-		if($len_change > 0)
+		if ( $len_change > 0 )
 			$len_change = '+' . $len_change;
 
 		$class = 'modline';
 		$title = Title::makeTitle( $result->namespace, $result->title );
 
 		$line = '';
-		$line .= '(' . $this->makeModerationLink('show', $result->id);
+		$line .= '(' . $this->makeModerationLink( 'show', $result->id );
 
-		if($wgModerationPreviewLink) {
-			$line .= ' | ' . $this->makeModerationLink('preview', $result->id);
+		if ( $wgModerationPreviewLink ) {
+			$line .= ' | ' . $this->makeModerationLink( 'preview', $result->id );
 		}
 
 		$line .= ') . . ';
-		if($result->minor)
-			$line .= wfMessage('minoreditletter');
-		if($result->bot)
-			$line .= wfMessage('boteditletter');
-		if($result->new)
-			$line .= wfMessage('newpageletter');
+		if ( $result->minor )
+			$line .= wfMessage( 'minoreditletter' );
+		if ( $result->bot )
+			$line .= wfMessage( 'boteditletter' );
+		if ( $result->new )
+			$line .= wfMessage( 'newpageletter' );
 		$line .= ' ';
 		$line .= Linker::link( $title );
 		$line .= ' ';
 
-		$time = $this->getLanguage()->userTime($result->timestamp, $this->getUser());
-		$date = $this->getLanguage()->userDate($result->timestamp, $this->getUser());
-		$line .= Xml::tags('span', array('title' => $date), $time);
+		$time = $this->getLanguage()->userTime( $result->timestamp, $this->getUser() );
+		$date = $this->getLanguage()->userDate( $result->timestamp, $this->getUser() );
+		$line .= Xml::tags( 'span', array( 'title' => $date ), $time );
 
 		$line .= ' . . ';
 		$line .= ' (' . $len_change . ')';
 		$line .= ' . . ';
-		$line .= Linker::userLink($result->user, $result->user_text);
+		$line .= Linker::userLink( $result->user, $result->user_text );
 
-		if($this->getUser()->isAllowed('moderation-checkuser'))
+		if ( $this->getUser()->isAllowed( 'moderation-checkuser' ) )
 		{
-			$line .= wfMessage('moderation-whois-link', $result->ip)->parse(); # NOTE: no space before is on purpose, this link can be in <sup></sup> tags
+			$line .= wfMessage( 'moderation-whois-link', $result->ip )->parse(); # NOTE: no space before is on purpose, this link can be in <sup></sup> tags
 		}
 
 		$line .= ' (' . $result->comment . ')';
 
-		if(!$result->merged_revid)
+		if ( !$result->merged_revid )
 		{
 			$line .= ' [';
-			if($result->conflict)
+			if ( $result->conflict )
 			{
 				$class .= ' modconflict';
 
-				if(ModerationCanSkip::canSkip($this->getUser())) // In order to merge, moderator must also be automoderated
-					$line .= $this->makeModerationLink('merge', $result->id);
+				if ( ModerationCanSkip::canSkip( $this->getUser() ) ) // In order to merge, moderator must also be automoderated
+					$line .= $this->makeModerationLink( 'merge', $result->id );
 				else
-					$line .= wfMessage('moderation-no-merge-link-not-automoderated');
+					$line .= wfMessage( 'moderation-no-merge-link-not-automoderated' );
 			}
 			else
 			{
-				if(!$result->rejected || $result->timestamp > $this->earliestReapprovableTimestamp)
-					$line .= $this->makeModerationLink('approve', $result->id);
+				if ( !$result->rejected || $result->timestamp > $this->earliestReapprovableTimestamp )
+					$line .= $this->makeModerationLink( 'approve', $result->id );
 
 				# Note: you can use "Approve all" on rejected edit,
 				# but it will only affect not-yet-rejected edits.
 				# To avoid confusion, link "Approve all" is not shown for rejected edits.
-				if(!$result->rejected)
+				if ( !$result->rejected )
 				{
 					$line .= ' ';
-					$line .= $this->makeModerationLink('approveall', $result->id);
+					$line .= $this->makeModerationLink( 'approveall', $result->id );
 				}
 			}
 
-			if(!$result->rejected)
+			if ( !$result->rejected )
 			{
 				$line .= ' . . ';
-				$line .= $this->makeModerationLink('reject', $result->id);
+				$line .= $this->makeModerationLink( 'reject', $result->id );
 				$line .= ' ';
-				$line .= $this->makeModerationLink('rejectall', $result->id);
+				$line .= $this->makeModerationLink( 'rejectall', $result->id );
 			}
 			$line .= ']';
 		}
  		else
 		{
-			$rev = Revision::newFromId($result->merged_revid);
+			$rev = Revision::newFromId( $result->merged_revid );
 
 			$line .= ' [' . Linker::link(
 				$rev ? $rev->getTitle() : $title,
-				wfMessage('moderation-merged-link')->escaped(),
-				array('title' => wfMessage('tooltip-moderation-merged-link') ),
-				array('diff' => $result->merged_revid),
-				array('known', 'noclasses')
+				wfMessage( 'moderation-merged-link' )->escaped(),
+				array( 'title' => wfMessage( 'tooltip-moderation-merged-link' ) ),
+				array( 'diff' => $result->merged_revid ),
+				array( 'known', 'noclasses' )
 			) . ']';
 		}
 
 		$line .= ' . . [';
 		$line .= $this->makeModerationLink(
-			$this->mblockCheck->isModerationBlocked($result->user_text) ? 'unblock' : 'block',
+			$this->mblockCheck->isModerationBlocked( $result->user_text ) ? 'unblock' : 'block',
 			$result->id
 		);
 		$line .= ']';
 
-		if($result->rejected)
+		if ( $result->rejected )
 		{
 			$line .= ' . . ';
 
-			if($result->rejected_by_user)
-				$line .= wfMessage('moderation-rejected-by', Linker::userLink($result->rejected_by_user, $result->rejected_by_user_text))->text();
-			else if($result->rejected_auto)
-				$line .= wfMessage('moderation-rejected-auto');
+			if ( $result->rejected_by_user )
+				$line .= wfMessage( 'moderation-rejected-by', Linker::userLink( $result->rejected_by_user, $result->rejected_by_user_text ) )->text();
+			else if ( $result->rejected_auto )
+				$line .= wfMessage( 'moderation-rejected-auto' );
 
-			if($result->rejected_batch)
-				$line .= ' . . ' . wfMessage('moderation-rejected-batch');
+			if ( $result->rejected_batch )
+				$line .= ' . . ' . wfMessage( 'moderation-rejected-batch' );
 		}
 
-		$html = Xml::tags('span', array('class' => $class), $line);
+		$html = Xml::tags( 'span', array( 'class' => $class ), $line );
 
 		wfProfileOut( __METHOD__ );
 		return $html;
 	}
 
-	function getUserpageByModId($id)
+	function getUserpageByModId( $id )
 	{
 		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
 		$row = $dbw->selectRow( 'moderation',
@@ -360,12 +360,12 @@ class ModerationError extends ErrorPageError {
 	public function report() {
 		global $wgOut;
 
-		$msg = ($this->msg instanceof Message) ?
-			$this->msg : $wgOut->msg($this->msg);
+		$msg = ( $this->msg instanceof Message ) ?
+			$this->msg : $wgOut->msg( $this->msg );
 
-		$wgOut->prepareErrorPage($wgOut->msg($this->title));
-		$wgOut->addWikiText('<div id="mw-mod-error" class="error">' .
-			$msg->plain() . '</div>');
+		$wgOut->prepareErrorPage( $wgOut->msg( $this->title ) );
+		$wgOut->addWikiText( '<div id="mw-mod-error" class="error">' .
+			$msg->plain() . '</div>' );
 		$wgOut->output();
 	}
 }

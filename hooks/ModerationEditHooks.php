@@ -30,25 +30,25 @@ class ModerationEditHooks {
 		onPageContentSave()
 		Intercept normal edits and queue them for moderation.
 	*/
-	static public function onPageContentSave(&$page, &$user, &$content, &$summary, $is_minor, $is_watch, $section, &$flags, &$status)
+	static public function onPageContentSave( &$page, &$user, &$content, &$summary, $is_minor, $is_watch, $section, &$flags, &$status )
 	{
 		global $wgOut, $wgContLang, $wgModerationNotificationEnable, $wgModerationNotificationNewOnly,
 			   $wgModerationEmail, $wgPasswordSender;
 
-		if(self::$inApprove) {
+		if ( self::$inApprove ) {
 			return true;
 		}
 
-		if(ModerationCanSkip::canSkip($user)) {
+		if ( ModerationCanSkip::canSkip( $user ) ) {
 			return true;
 		}
 
 		/*
 		 * Allow to intercept moderation process
 		 */
-		if( !Hooks::run("ModerationIntercept", array(
+		if ( !Hooks::run( "ModerationIntercept", array(
 			$page, $user, $content, $summary, $is_minor, $is_watch, $section, $flags, $status
-		))) {
+		) ) ) {
 			return true;
 		}
 
@@ -65,7 +65,7 @@ class ModerationEditHooks {
 			NOTE: edits to Flow discussions will bypass moderation.
 		*/
 		$handler = $page->getContentHandler();
-		if(!is_a($handler, 'TextContentHandler')) {
+		if ( !is_a( $handler, 'TextContentHandler' ) ) {
 			return true;
 		}
 
@@ -92,35 +92,35 @@ class ModerationEditHooks {
 			'mod_ip' => $request->getIP(),
 			'mod_old_len' => $old_content ? $old_content->getSize() : 0,
 			'mod_new_len' => $content->getSize(),
-			'mod_header_xff' => $request->getHeader('X-Forwarded-For'),
+			'mod_header_xff' => $request->getHeader( 'X-Forwarded-For' ),
 			'mod_header_ua' => $request->getHeader( 'User-Agent' ),
-			'mod_text' => $content->preSaveTransform($title, $user, $popts)->getNativeData(),
+			'mod_text' => $content->preSaveTransform( $title, $user, $popts )->getNativeData(),
 			'mod_preload_id' => ModerationPreload::generatePreloadId(),
 			'mod_preloadable' => 1
 		);
 
 		$mblockCheck = new ModerationBlockCheck();
-		if($mblockCheck->isModerationBlocked($user->getName()))
+		if ( $mblockCheck->isModerationBlocked( $user->getName() ) )
 		{
 			$fields['mod_rejected'] = 1;
 			$fields['mod_rejected_by_user'] = 0;
-			$fields['mod_rejected_by_user_text'] = wfMessage('Moderation block')->inContentLanguage()->text();
+			$fields['mod_rejected_by_user_text'] = wfMessage( 'Moderation block' )->inContentLanguage()->text();
 			$fields['mod_rejected_auto'] = 1;
 			$fields['mod_preloadable'] = 1; # User can still edit this change, so that spammers won't notice that they are blocked
 		}
 
 		// Check if we need to update existing row (if this edit is by the same user to the same page)
-		$row = ModerationPreload::loadUnmoderatedEdit($title);
-		if(!$row) # No unmoderated edits
+		$row = ModerationPreload::loadUnmoderatedEdit( $title );
+		if ( !$row ) # No unmoderated edits
 		{
-			$dbw->insert('moderation', $fields, __METHOD__);
+			$dbw->insert( 'moderation', $fields, __METHOD__ );
 			ModerationEditHooks::$LastInsertId = $dbw->insertId();
 		}
 		else
 		{
-			$section = $request->getVal('wpSection', $request->getVal('section'));
+			$section = $request->getVal( 'wpSection', $request->getVal( 'section' ) );
 
-			if($section)
+			if ( $section )
 			{
 				#
 				# We must recalculate $fields['mod_text'] here.
@@ -133,26 +133,26 @@ class ModerationEditHooks {
 				# $section: section number in $saved_content. $section can be "new". Used when calling replaceSection().
 				#
 				$index = $section;
-				if($section == 'new')
+				if ( $section == 'new' )
 				{
 					#
 					# Parser doesn't allow to get the LAST section directly.
 					# We have to get the entire TOC - just for a single index.
 					#
-					$sections = $content->getParserOutput($title, null, null, false)->getSections();
-					$new_section_content = end($sections);
+					$sections = $content->getParserOutput( $title, null, null, false )->getSections();
+					$new_section_content = end( $sections );
 					$index = $new_section_content['index'];
 				}
 
 				# $new_section_content is exactly what the user just wrote in the edit form (one section only).
-				$new_section_content = $content->getSection($index);
-				$saved_content = ContentHandler::makeContent($row->text, null, $content->getModel());
-				$new_content = $saved_content->replaceSection($section, $new_section_content, '');
+				$new_section_content = $content->getSection( $index );
+				$saved_content = ContentHandler::makeContent( $row->text, null, $content->getModel() );
+				$new_content = $saved_content->replaceSection( $section, $new_section_content, '' );
 
-				$fields['mod_text'] = $new_content->preSaveTransform($title, $user, $popts)->getNativeData();
+				$fields['mod_text'] = $new_content->preSaveTransform( $title, $user, $popts )->getNativeData();
 			}
 
-			$dbw->update('moderation', $fields, array('mod_id' => $row->id), __METHOD__);
+			$dbw->update( 'moderation', $fields, array( 'mod_id' => $row->id ), __METHOD__ );
 			ModerationEditHooks::$LastInsertId = $row->id;
 		}
 
@@ -160,31 +160,31 @@ class ModerationEditHooks {
 		$dbw->commit();
 
 		// Run hook to allow other extensions be notified about pending changes
-		Hooks::run("ModerationPending", array(
+		Hooks::run( "ModerationPending", array(
 			$fields, ModerationEditHooks::$LastInsertId
 		) );
 
 		// Notify administrator about pending changes
-		if( $wgModerationNotificationEnable )
+		if ( $wgModerationNotificationEnable )
 		{
 			/*
 				$wgModerationNotificationNewOnly:
 				if false, notify about all edits,
 				if true, notify about new pages.
 			*/
-			if( !$wgModerationNotificationNewOnly || !$page->exists() )
+			if ( !$wgModerationNotificationNewOnly || !$page->exists() )
 			{
 				$mailer = new UserMailer();
 				$to = new MailAddress( $wgModerationEmail );
 				$from = new MailAddress( $wgPasswordSender );
-				$subject = wfMessage('moderation-notification-subject')->text();
-				$content = wfMessage('moderation-notification-content',
+				$subject = wfMessage( 'moderation-notification-subject' )->text();
+				$content = wfMessage( 'moderation-notification-content',
 					$page->getTitle()->getBaseText(),
 					$user->getName(),
-					SpecialPage::getTitleFor('Moderation')->getFullURL(array(
+					SpecialPage::getTitleFor( 'Moderation' )->getFullURL( array(
 						'modaction' => 'show',
 						'modid' => ModerationEditHooks::$LastInsertId
-					))
+					) )
 				)->text();
 				$mailer->send( $to, $from, $subject, $content );
 			}
@@ -201,14 +201,14 @@ class ModerationEditHooks {
 			will be shown by JavaScript.
 		*/
 
-		$wgOut->redirect( $title->getFullURL(array('modqueued' => 1)) );
+		$wgOut->redirect( $title->getFullURL( array( 'modqueued' => 1 ) ) );
 		return false;
 	}
 
-	static public function onBeforePageDisplay(&$out, &$skin)
+	static public function onBeforePageDisplay( &$out, &$skin )
 	{
-		if($out->getContext()->getRequest()->getVal('modqueued'))
-			$out->addModules('ext.moderation.notify');
+		if ( $out->getContext()->getRequest()->getVal( 'modqueued' ) )
+			$out->addModules( 'ext.moderation.notify' );
 	}
 
 	/*
@@ -217,19 +217,19 @@ class ModerationEditHooks {
 		If this is a merged edit, then 'wpMergeID' is the ID of moderation entry.
 		Here we mark this entry as merged.
 	*/
-	static public function onPageContentSaveComplete($page, $user, $content, $summary, $is_minor, $is_watch, $section, $flags, $revision, $status, $baseRevId)
+	static public function onPageContentSaveComplete( $page, $user, $content, $summary, $is_minor, $is_watch, $section, $flags, $revision, $status, $baseRevId )
 	{
 		global $wgRequest;
 
-		if(!$revision) # Double edit - nothing to do on the second time
+		if ( !$revision ) # Double edit - nothing to do on the second time
 			return true;
 
 		/* Only moderators can merge. If someone else adds wpMergeID to the edit form, ignore it */
-		if(!$user->isAllowed('moderation'))
+		if ( !$user->isAllowed( 'moderation' ) )
 			return true;
 
-		$mergeID = $wgRequest->getVal('wpMergeID');
-		if(!$mergeID)
+		$mergeID = $wgRequest->getVal( 'wpMergeID' );
+		if ( !$mergeID )
 			return true;
 
 		$dbw = wfGetDB( DB_MASTER );
@@ -245,31 +245,31 @@ class ModerationEditHooks {
 			__METHOD__
 		);
 
-		if($dbw->affectedRows())
+		if ( $dbw->affectedRows() )
 		{
 			$logEntry = new ManualLogEntry( 'moderation', 'merge' );
 			$logEntry->setPerformer( $user );
 			$logEntry->setTarget( $page->getTitle() );
-			$logEntry->setParameters(array('modid' => $mergeID, 'revid' => $revision->getId()));
+			$logEntry->setParameters( array( 'modid' => $mergeID, 'revid' => $revision->getId() ) );
 			$logid = $logEntry->insert();
-			$logEntry->publish($logid);
+			$logEntry->publish( $logid );
 		}
 
 		return true;
 	}
 
-	static public function onAuthPluginAutoCreate($user)
+	static public function onAuthPluginAutoCreate( $user )
 	{
-		ModerationPreload::onAddNewAccount($user, false);
+		ModerationPreload::onAddNewAccount( $user, false );
 	}
 
-	static public function PrepareEditForm($editpage, $out)
+	static public function PrepareEditForm( $editpage, $out )
 	{
 		$mergeID = ModerationEditHooks::$NewMergeID;
-		if(!$mergeID)
-			$mergeID = $out->getRequest()->getVal('wpMergeID');
+		if ( !$mergeID )
+			$mergeID = $out->getRequest()->getVal( 'wpMergeID' );
 
-		if(!$mergeID)
+		if ( !$mergeID )
 			return;
 
 		$out->addHTML( Html::hidden( 'wpMergeID', $mergeID ) );

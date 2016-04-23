@@ -20,16 +20,16 @@
 	@brief Ensures that only moderators can use Special:Moderation.
 */
 
-require_once(__DIR__ . "/../ModerationTestsuite.php");
+require_once( __DIR__ . "/../ModerationTestsuite.php" );
 
 class ModerationTestPermissions extends MediaWikiTestCase
 {
 	public function testPermissions() {
 		$t = new ModerationTestsuite();
 
-		$t->loginAs($t->unprivilegedUser);
-		$title = $t->html->getTitle($t->getSpecialURL());
+		$t->loginAs( $t->unprivilegedUser );
+		$title = $t->html->getTitle( $t->getSpecialURL() );
 
-		$this->assertRegExp('/\(permissionserrors\)/', $title);
+		$this->assertRegExp( '/\(permissionserrors\)/', $title );
 	}
 }

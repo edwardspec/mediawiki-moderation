@@ -21,7 +21,7 @@
 	@link https://mediawiki.org/wiki/Extension:Moderation
 */
 
-if (!defined('MEDIAWIKI')) {
+if ( !defined( 'MEDIAWIKI' ) ) {
         echo <<<EOT
 To install this extension, put the following line in LocalSettings.php:
 require_once( "\$IP/extensions/Moderation/Moderation.php" );
@@ -80,12 +80,12 @@ $moduleTemplate = array(
 	'remoteExtPath' => 'Moderation/modules',
 	'position' => 'bottom'
 );
-$wgResourceModules['ext.moderation'] = $moduleTemplate + array('styles' => 'ext.moderation.css');
-$wgResourceModules['ext.moderation.edit'] = $moduleTemplate + array('styles' => 'ext.moderation.edit.css');
+$wgResourceModules['ext.moderation'] = $moduleTemplate + array( 'styles' => 'ext.moderation.css' );
+$wgResourceModules['ext.moderation.edit'] = $moduleTemplate + array( 'styles' => 'ext.moderation.edit.css' );
 $wgResourceModules['ext.moderation.notify'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.notify.js',
-	'dependencies' => array('mediawiki.jqueryMsg', 'mediawiki.action.view.postEdit'),
-        'messages' => array('moderation-edit-queued', 'moderation-suggest-signup')
+	'dependencies' => array( 'mediawiki.jqueryMsg', 'mediawiki.action.view.postEdit' ),
+        'messages' => array( 'moderation-edit-queued', 'moderation-suggest-signup' )
 );
 
 $wgLogTypes[] = 'moderation';

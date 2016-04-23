@@ -45,65 +45,65 @@ class ModerationActionShow extends ModerationAction {
 			array( 'mod_id' => $this->id ),
 			__METHOD__
 		);
-		if(!$row)
-			throw new ModerationError('moderation-edit-not-found');
+		if ( !$row )
+			throw new ModerationError( 'moderation-edit-not-found' );
 
 		$title = Title::makeTitle( $row->namespace, $row->title );
 		$model = $title->getContentModel();
 
-		$out->setPageTitle(wfMessage('difference-title', $title->getPrefixedText()));
+		$out->setPageTitle( wfMessage( 'difference-title', $title->getPrefixedText() ) );
 
 		$old_content = false;
-		if($row->cur_id != 0)
+		if ( $row->cur_id != 0 )
 		{
 			# Existing page
-			$rev = Revision::newFromId($row->last_oldid);
-			if($rev)
+			$rev = Revision::newFromId( $row->last_oldid );
+			if ( $rev )
 			{
-				$old_content = $rev->getContent(Revision::RAW);
+				$old_content = $rev->getContent( Revision::RAW );
 				$model = $old_content->getModel();
 			}
 		}
 
-		if(!$old_content) # New or previously deleted page
+		if ( !$old_content ) # New or previously deleted page
 			$old_content = ContentHandler::makeContent( "", null, $model );
 
-		if($row->stash_key)
+		if ( $row->stash_key )
 		{
 			$url_params = array(
 				'modaction' => 'showimg',
 				'modid' => $this->id
 			);
-			$url_full = $this->mSpecial->getTitle()->getLinkURL($url_params);
+			$url_full = $this->mSpecial->getTitle()->getLinkURL( $url_params );
 
 			# Check if this file is not an image (e.g. OGG file)
 			$is_image = 1;
 
 			$user = $row->user ?
-				User::newFromId($row->user) :
-				User::newFromName($row->user_text, false);
-			$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash($user);
+				User::newFromId( $row->user ) :
+				User::newFromName( $row->user_text, false );
+			$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash( $user );
 
 			try {
-				$meta = $stash->getMetadata($row->stash_key);
+				$meta = $stash->getMetadata( $row->stash_key );
 
-				if($meta['us_media_type'] != 'BITMAP' &&
-					$meta['us_media_type'] != 'DRAWING')
+				if ( $meta['us_media_type'] != 'BITMAP' &&
+					$meta['us_media_type'] != 'DRAWING' )
 				{
 					$is_image = 0;
 				}
 
-			} catch(MWException $e) {
+			} catch ( MWException $e ) {
 				# If we can't find it, thumbnail won't work either
 				$is_image = 0;
 			}
 
-			if($is_image) {
+			if ( $is_image ) {
 				$url_params['thumb'] = 1;
-				$url_thumb = $this->mSpecial->getTitle()->getLinkURL($url_params);
-				$html_img = Xml::element('img', array(
+				$url_thumb = $this->mSpecial->getTitle()->getLinkURL( $url_params );
+				$html_img = Xml::element( 'img', array(
 					'src' => $url_thumb
-				));
+				) );
 			}
 			else {
 				# Not an image, so no thumbnail is needed.
@@ -111,45 +111,45 @@ class ModerationActionShow extends ModerationAction {
 				$html_img = $title->getFullText();
 			}
 
-			$html_a = Xml::tags('a', array(
+			$html_a = Xml::tags( 'a', array(
 				'href' => $url_full
-			), $html_img);
+			), $html_img );
 
-			$out->addHTML($html_a);
+			$out->addHTML( $html_a );
 		}
 
-		$de = ContentHandler::getForModelID($model)->createDifferenceEngine(
+		$de = ContentHandler::getForModelID( $model )->createDifferenceEngine(
 			$this->mSpecial->getContext(),
 			$row->last_oldid, 0, 0, 0, 0
 		);
 		$diff = '';
-		if(!$row->stash_key || !$title->exists()) # Not a reupload ($row->text is always blank for reuploads, and they don't change the page text)
+		if ( !$row->stash_key || !$title->exists() ) # Not a reupload ($row->text is always blank for reuploads, and they don't change the page text)
 		{
 			$new_content = ContentHandler::makeContent( $row->text, null, $model );
-			$diff = $de->generateContentDiffBody($old_content, $new_content);
+			$diff = $de->generateContentDiffBody( $old_content, $new_content );
 		}
 
-		if($diff)
+		if ( $diff )
 		{
 			// TODO: add more information into headers (username, timestamp etc.), as in usual diffs
 
-			$header_before = wfMessage('moderation-diff-header-before')->text();
-			$header_after = wfMessage('moderation-diff-header-after')->text();
-			$out->addHTML($de->addHeader($diff, $header_before, $header_after));
+			$header_before = wfMessage( 'moderation-diff-header-before' )->text();
+			$header_after = wfMessage( 'moderation-diff-header-after' )->text();
+			$out->addHTML( $de->addHeader( $diff, $header_before, $header_after ) );
 
-			$approveLink = $this->getSpecial()->makeModerationLink('approve', $this->id);
-			$rejectLink =  $this->getSpecial()->makeModerationLink('reject', $this->id);
+			$approveLink = $this->getSpecial()->makeModerationLink( 'approve', $this->id );
+			$rejectLink =  $this->getSpecial()->makeModerationLink( 'reject', $this->id );
 
 			$out->addHTML( $approveLink );
-			$out->addHTML(' / ');
+			$out->addHTML( ' / ' );
 			$out->addHTML( $rejectLink );
 
 		}
 		else
 		{
-			$out->addWikiMsg($row->stash_key ?
-				($title->exists() ? 'moderation-diff-reupload' : 'moderation-diff-upload-notext')
-				: 'moderation-diff-no-changes');
+			$out->addWikiMsg( $row->stash_key ?
+				( $title->exists() ? 'moderation-diff-reupload' : 'moderation-diff-upload-notext' )
+				: 'moderation-diff-no-changes' );
 		}
 	}
 }

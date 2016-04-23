@@ -24,37 +24,37 @@ class ModerationUploadHooks {
 	/**
 		@brief Intercept image uploads and queue them for moderation.
 	*/
-	static public function onUploadVerifyFile($upload, $mime, &$status)
+	static public function onUploadVerifyFile( $upload, $mime, &$status )
 	{
 		global $wgRequest, $wgUser, $wgOut;
 
-		if(ModerationCanSkip::canSkip($wgUser))
+		if ( ModerationCanSkip::canSkip( $wgUser ) )
 			return;
 
 		$result = $upload->validateName();
-		if($result !== true)
+		if ( $result !== true )
 		{
-			$status = array($upload->getVerificationErrorCode($result['status']));
+			$status = array( $upload->getVerificationErrorCode( $result['status'] ) );
 			return;
 		}
 
-		$special = new ModerationSpecialUpload($wgRequest);
+		$special = new ModerationSpecialUpload( $wgRequest );
 		$special->publicLoadRequest();
 
 		$title = $upload->getTitle();
 		$model = $title->getContentModel();
 
 		try {
-			$file = $upload->stashFile($wgUser);
-		} catch(MWException $e) {
-			$status = array("api-error-stashfailed");
+			$file = $upload->stashFile( $wgUser );
+		} catch ( MWException $e ) {
+			$status = array( "api-error-stashfailed" );
 			return;
 		}
 
 		$key = $file->getFileKey();
 
 		$pageText = '';
-		if(!$special->mForReUpload)
+		if ( !$special->mForReUpload )
 		{
 			$pageText = $special->getInitialPageText(
 				$special->mComment,
@@ -67,7 +67,7 @@ class ModerationUploadHooks {
 		$content = ContentHandler::makeContent( $pageText, null, $model );
 
 		/* Step 1. Create a page in File namespace (it will be queued for moderation) */
-		$page = new WikiPage($title);
+		$page = new WikiPage( $title );
 		$status = $page->doEditContent(
 			$content,
 			$special->mComment,
@@ -75,7 +75,7 @@ class ModerationUploadHooks {
 			$title->getLatestRevID(),
 			$wgUser
 		);
-		$wgOut->redirect(''); # Disable redirection after doEditContent()
+		$wgOut->redirect( '' ); # Disable redirection after doEditContent()
 
 		/*
 			Step 2. Populate mod_stash_key field in newly inserted row
@@ -83,18 +83,18 @@ class ModerationUploadHooks {
 			not just editing the text on image page)
 		*/
 		$dbw = wfGetDB( DB_MASTER );
-		$dbw->update('moderation',
-			array('mod_stash_key' => $key),
-			array('mod_id' => ModerationEditHooks::$LastInsertId),
+		$dbw->update( 'moderation',
+			array( 'mod_stash_key' => $key ),
+			array( 'mod_id' => ModerationEditHooks::$LastInsertId ),
 			__METHOD__
 		);
 
-		$status = array("moderation-image-queued");
+		$status = array( "moderation-image-queued" );
 	}
 
-	static public function onApiCheckCanExecute($module, $user, &$message)
+	static public function onApiCheckCanExecute( $module, $user, &$message )
 	{
-		if($module == 'upload' && !ModerationCanSkip::canSkip($user))
+		if ( $module == 'upload' && !ModerationCanSkip::canSkip( $user ) )
 		{
 			$message = 'nouploadmodule';
 			return false;
@@ -103,7 +103,7 @@ class ModerationUploadHooks {
 		return true;
 	}
 
-	static public function ongetUserPermissionsErrors($title, $user, $action, &$result)
+	static public function ongetUserPermissionsErrors( $title, $user, $action, &$result )
 	{
 		/*
 			action=revert bypasses doUpload(), so it is not intercepted
@@ -111,8 +111,8 @@ class ModerationUploadHooks {
 			Therefore we don't allow it.
 		*/
 		$context = RequestContext::getMain();
-		$exactAction = Action::getActionName($context);
-		if($exactAction == 'revert' && !ModerationCanSkip::canSkip($user)) {
+		$exactAction = Action::getActionName( $context );
+		if ( $exactAction == 'revert' && !ModerationCanSkip::canSkip( $user ) ) {
 			$result = 'moderation-revert-not-allowed';
 			return false;
 		}

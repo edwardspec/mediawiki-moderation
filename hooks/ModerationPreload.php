@@ -30,11 +30,11 @@
 
 
 class ModerationPreload {
-	static protected function AnonId_to_PreloadId($anon_id)
+	static protected function AnonId_to_PreloadId( $anon_id )
 	{
 		return ']' . $anon_id;
 	}
-	static protected function User_to_PreloadId($user)
+	static protected function User_to_PreloadId( $user )
 	{
 		return '[' . $user->getName();
 	}
@@ -44,31 +44,31 @@ class ModerationPreload {
 		1) with $create=true: new preload ID is generated and returned,
 		2) with $create=false: false is returned.
 	*/
-	static protected function getPreloadId($create_if_not_exists)
+	static protected function getPreloadId( $create_if_not_exists )
 	{
 		global $wgUser, $wgRequest;
 
-		if(!$wgUser->isAnon())
-			return ModerationPreload::User_to_PreloadId($wgUser);
+		if ( !$wgUser->isAnon() )
+			return ModerationPreload::User_to_PreloadId( $wgUser );
 
-		$anon_id = $wgRequest->getSessionData('anon_id');
-		if(!$anon_id)
+		$anon_id = $wgRequest->getSessionData( 'anon_id' );
+		if ( !$anon_id )
 		{
-			if(!$create_if_not_exists)
+			if ( !$create_if_not_exists )
 				return false;
 
 			$anon_id = MWCryptRand::generateHex( 32 );
-			$wgRequest->setSessionData('anon_id', $anon_id);
+			$wgRequest->setSessionData( 'anon_id', $anon_id );
 		}
-		return ModerationPreload::AnonId_to_PreloadId($anon_id);
+		return ModerationPreload::AnonId_to_PreloadId( $anon_id );
 	}
 	static public function generatePreloadId()
 	{
-		return ModerationPreload::getPreloadId(true);
+		return ModerationPreload::getPreloadId( true );
 	}
 	static public function findPreloadIdOrFail()
 	{
-		return ModerationPreload::getPreloadId(false);
+		return ModerationPreload::getPreloadId( false );
 	}
 
 	/*
@@ -78,19 +78,19 @@ class ModerationPreload {
 		this hook makes them non-anonymous, so that they could
 		be preloaded.
 	*/
-	static public function onAddNewAccount($user, $byEmail)
+	static public function onAddNewAccount( $user, $byEmail )
 	{
 		$request = $user->getRequest();
-		$anon_id = $request->getSessionData('anon_id');
+		$anon_id = $request->getSessionData( 'anon_id' );
 
-		if(!$anon_id) # This visitor never saved any edits
+		if ( !$anon_id ) # This visitor never saved any edits
 			return;
 
-		$old_preload_id = ModerationPreload::AnonId_to_PreloadId($anon_id);
-		$new_preload_id = ModerationPreload::User_to_PreloadId($user);
+		$old_preload_id = ModerationPreload::AnonId_to_PreloadId( $anon_id );
+		$new_preload_id = ModerationPreload::User_to_PreloadId( $user );
 
 		$dbw = wfGetDB( DB_MASTER );
-		$dbw->update('moderation',
+		$dbw->update( 'moderation',
 			array(
 				'mod_user' => $user->getId(),
 				'mod_user_text' => $user->getName(),
@@ -101,17 +101,17 @@ class ModerationPreload {
 				'mod_preloadable' => 1
 			),
 			__METHOD__,
-			array('USE INDEX' => 'moderation_signup')
+			array( 'USE INDEX' => 'moderation_signup' )
 		);
-		$request->setSessionData('anon_id', '');
+		$request->setSessionData( 'anon_id', '' );
 	}
 
 	# loadUnmoderatedEdit() - check if there is a pending-moderation edit of this user to this page,
 	# and if such edit exists, then load its text and edit comment
-	static public function loadUnmoderatedEdit(&$title)
+	static public function loadUnmoderatedEdit( &$title )
 	{
 		$preload_id = ModerationPreload::findPreloadIdOrFail();
-		if(!$preload_id) # This visitor never saved any edits
+		if ( !$preload_id ) # This visitor never saved any edits
 			return;
 
 		$where = array(
@@ -132,49 +132,49 @@ class ModerationPreload {
 			),
 			$where,
 			__METHOD__,
-			array('USE INDEX' => 'moderation_load')
+			array( 'USE INDEX' => 'moderation_load' )
 		);
 		return $row;
 	}
 
-	static public function showUnmoderatedEdit(&$text, &$title, &$editPage)
+	static public function showUnmoderatedEdit( &$text, &$title, &$editPage )
 	{
 		global $wgRequest, $wgOut;
-		$section = $wgRequest->getVal('section');
+		$section = $wgRequest->getVal( 'section' );
 
-		if($section && $section == 'new') return; # Nothing to preload if new section is being created
+		if ( $section && $section == 'new' ) return; # Nothing to preload if new section is being created
 
-		$row = ModerationPreload::loadUnmoderatedEdit($title);
-		if(!$row) return;
+		$row = ModerationPreload::loadUnmoderatedEdit( $title );
+		if ( !$row ) return;
 
-		$wgOut->addModules('ext.moderation.edit');
-		$wgOut->wrapWikiMsg('<div id="mw-editing-your-version">$1</div>', array('moderation-editing-your-version'));
+		$wgOut->addModules( 'ext.moderation.edit' );
+		$wgOut->wrapWikiMsg( '<div id="mw-editing-your-version">$1</div>', array( 'moderation-editing-your-version' ) );
 
 		$text = $row->text;
 
-		if($editPage)
+		if ( $editPage )
 		{
 			$editPage->summary = $row->comment;
 
-			if($section != false)
+			if ( $section != false )
 			{
-				$fullContent = ContentHandler::makeContent($text, $title);
-				$sectionContent = $fullContent->getSection($section);
+				$fullContent = ContentHandler::makeContent( $text, $title );
+				$sectionContent = $fullContent->getSection( $section );
 
-				if($sectionContent)
+				if ( $sectionContent )
 					$text = $sectionContent->getNativeData();
 			}
 		}
 	}
 
-	static public function onEditFormPreloadText(&$text, &$title)
+	static public function onEditFormPreloadText( &$text, &$title )
 	{
 		$__unused = false;
-		ModerationPreload::showUnmoderatedEdit($text, $title, $__unused);
+		ModerationPreload::showUnmoderatedEdit( $text, $title, $__unused );
 	}
 
-	static public function onEditFormInitialText($editPage)
+	static public function onEditFormInitialText( $editPage )
 	{
-		ModerationPreload::showUnmoderatedEdit($editPage->textbox1, $editPage->mTitle, $editPage);
+		ModerationPreload::showUnmoderatedEdit( $editPage->textbox1, $editPage->mTitle, $editPage );
 	}
 }

@@ -22,7 +22,7 @@
 
 class ModerationTestsuiteHTTP {
 	private $t; # ModerationTestsuite
-	function __construct(ModerationTestsuite $t) {
+	function __construct( ModerationTestsuite $t ) {
 		$this->t = $t;
 
 		$this->resetCookieJar();
@@ -38,17 +38,17 @@ class ModerationTestsuiteHTTP {
 		$this->followRedirects = true;
 	}
 
-	public function makeRequest($url, $method = 'POST')
+	public function makeRequest( $url, $method = 'POST' )
 	{
-		$options = array('method' => $method);
-		if($this->followRedirects) {
+		$options = array( 'method' => $method );
+		if ( $this->followRedirects ) {
 			$options['followRedirects'] = true;
 			$this->followRedirects = false; # Reset the flag
 		}
 
-		$req = MWHttpRequest::factory($url, $options);
-		$req->setUserAgent($this->userAgent);
-		$req->setCookieJar($this->cookie_jar);
+		$req = MWHttpRequest::factory( $url, $options );
+		$req->setUserAgent( $this->userAgent );
+		$req->setCookieJar( $this->cookie_jar );
 
 		return $req;
 	}

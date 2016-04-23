@@ -20,7 +20,7 @@
 	@brief Ensure that known error conditions cause exceptions.
 */
 
-require_once(__DIR__ . "/../ModerationTestsuite.php");
+require_once( __DIR__ . "/../ModerationTestsuite.php" );
 
 /**
 	@covers ModerationError
@@ -29,14 +29,14 @@ class ModerationTestErrors extends MediaWikiTestCase
 {
 	public function testUnknownAction() {
 		$t = new ModerationTestsuite();
-		$t->loginAs($t->moderator);
+		$t->loginAs( $t->moderator );
 
-		$url = $t->getSpecialURL(array(
+		$url = $t->getSpecialURL( array(
 			'modaction' => 'findgirlfriend'
-		));
+		) );
 
-		$error = $t->html->getModerationError($url);
-		$this->assertEquals('(moderation-unknown-modaction)', $error);
+		$error = $t->html->getModerationError( $url );
+		$this->assertEquals( '(moderation-unknown-modaction)', $error );
 	}
 
 	public function testEditNotFound() {
@@ -44,7 +44,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$entry = $t->getSampleEntry();
 
 		# Delete this entry by approving it
-		$req = $t->httpGet($entry->approveLink);
+		$req = $t->httpGet( $entry->approveLink );
 
 		$entry->fakeBlockLink();
 		$links = array(
@@ -55,11 +55,11 @@ class ModerationTestErrors extends MediaWikiTestCase
 			$entry->rejectAllLink,
 			$entry->blockLink,
 			$entry->unblockLink,
-			$entry->expectedActionLink('merge', true)
+			$entry->expectedActionLink( 'merge', true )
 		);
-		foreach($links as $url) {
-			$error = $t->html->getModerationError($url);
-			$this->assertEquals('(moderation-edit-not-found)', $error);
+		foreach ( $links as $url ) {
+			$error = $t->html->getModerationError( $url );
+			$this->assertEquals( '(moderation-edit-not-found)', $error );
 		}
 	}
 
@@ -67,23 +67,23 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$t = new ModerationTestsuite();
 		$entry = $t->getSampleEntry();
 
-		$t->httpGet($entry->rejectLink, 'GET');
+		$t->httpGet( $entry->rejectLink, 'GET' );
 
-		$error = $t->html->getModerationError($entry->rejectLink);
-		$this->assertEquals('(moderation-already-rejected)', $error);
+		$error = $t->html->getModerationError( $entry->rejectLink );
+		$this->assertEquals( '(moderation-already-rejected)', $error );
 	}
 
 	public function testNothingToAll() {
 		$t = new ModerationTestsuite();
 		$entry = $t->getSampleEntry();
 
-		$t->httpGet($entry->rejectLink);
+		$t->httpGet( $entry->rejectLink );
 
-		$error = $t->html->getModerationError($entry->rejectAllLink);
-		$this->assertEquals('(moderation-nothing-to-rejectall)', $error);
+		$error = $t->html->getModerationError( $entry->rejectAllLink );
+		$this->assertEquals( '(moderation-nothing-to-rejectall)', $error );
 
-		$error = $t->html->getModerationError($entry->approveAllLink);
-		$this->assertEquals('(moderation-nothing-to-approveall)', $error);
+		$error = $t->html->getModerationError( $entry->approveAllLink );
+		$this->assertEquals( '(moderation-nothing-to-approveall)', $error );
 	}
 
 	/**
@@ -93,7 +93,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 	public function testMissingStashedImage() {
 		$t = new ModerationTestsuite();
 
-		$t->loginAs($t->unprivilegedUser);
+		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestUpload();
 		$t->fetchSpecial();
 
@@ -101,16 +101,16 @@ class ModerationTestErrors extends MediaWikiTestCase
 
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
-			array('mod_stash_key AS stash_key'),
-			array('mod_id' => $entry->id),
+			array( 'mod_stash_key AS stash_key' ),
+			array( 'mod_id' => $entry->id ),
 			__METHOD__
 		);
 
 		$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash();
-		$stash->removeFileNoAuth($row->stash_key);
+		$stash->removeFileNoAuth( $row->stash_key );
 
-		$error = $t->html->getModerationError($entry->approveLink);
-		$this->assertEquals('(moderation-missing-stashed-image)', $error);
+		$error = $t->html->getModerationError( $entry->approveLink );
+		$this->assertEquals( '(moderation-missing-stashed-image)', $error );
 	}
 
 	public function testEditNoChange() {
@@ -119,16 +119,16 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$page = 'Test page 1';
 		$text = 'This is some ext';
 
-		$t->loginAs($t->automoderated);
-		$t->doTestEdit($page, $text);
+		$t->loginAs( $t->automoderated );
+		$t->doTestEdit( $page, $text );
 
-		$t->loginAs($t->unprivilegedUser);
-		$t->doTestEdit($page, $text); # Make zero edit
+		$t->loginAs( $t->unprivilegedUser );
+		$t->doTestEdit( $page, $text ); # Make zero edit
 		$t->fetchSpecial();
 
 		$entry = $t->new_entries[0];
 
-		$error = $t->html->getModerationError($entry->approveLink);
-		$this->assertEquals('(edit-no-change)', $error);
+		$error = $t->html->getModerationError( $entry->approveLink );
+		$this->assertEquals( '(edit-no-change)', $error );
 	}
 }
