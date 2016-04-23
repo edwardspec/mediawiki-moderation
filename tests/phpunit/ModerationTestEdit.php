@@ -20,7 +20,7 @@
 	@brief Verifies that editing works as usual.
 */
 
-require_once(__DIR__ . "/../ModerationTestsuite.php");
+require_once( __DIR__ . "/../ModerationTestsuite.php" );
 
 class ModerationTestEdit extends MediaWikiTestCase
 {
@@ -31,19 +31,19 @@ class ModerationTestEdit extends MediaWikiTestCase
 		# the edit is queued for moderation, not when it is approved.
 		$text = '~~~~';
 
-		$t->loginAs($t->unprivilegedUser);
-		$t->doTestEdit(null, $text);
+		$t->loginAs( $t->unprivilegedUser );
+		$t->doTestEdit( null, $text );
 		$t->fetchSpecial();
 
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
-			array('mod_text AS text'),
-			array('mod_id' => $t->new_entries[0]->id),
+			array( 'mod_text AS text' ),
+			array( 'mod_id' => $t->new_entries[0]->id ),
 			__METHOD__
 		);
 
-		$this->assertNotEquals($text, $row->text,
-			"testPreSaveTransform(): Signature (~~~~) hasn't been properly substituted.");
+		$this->assertNotEquals( $text, $row->text,
+			"testPreSaveTransform(): Signature (~~~~) hasn't been properly substituted." );
 	}
 
 	public function testEditSections() {
@@ -62,12 +62,12 @@ class ModerationTestEdit extends MediaWikiTestCase
 			"== Third section ==\nText in third section\n\n"
 		);
 		$title = 'Test page 1';
-		$text = join('', $sections);
+		$text = join( '', $sections );
 
-		$t->loginAs($t->automoderated);
-		$t->doTestEdit($title, $text);
+		$t->loginAs( $t->automoderated );
+		$t->doTestEdit( $title, $text );
 
-		$t->loginAs($t->unprivilegedUser);
+		$t->loginAs( $t->unprivilegedUser );
 
 		# Do several edits in the different sections of the text.
 		$query = array(
@@ -78,44 +78,44 @@ class ModerationTestEdit extends MediaWikiTestCase
 
 		$query['section'] = 0;
 		$query['text'] = $sections[0] = "New text in zero section\n\n";
-		$t->query($query);
+		$t->query( $query );
 
 		$query['section'] = 2;
 		$query['text'] = $sections[2] = "== Second section (#2) ==\nText in second section\n\n";
-		$t->query($query);
+		$t->query( $query );
 
 		$query['section'] = 'new';
 		$query['text'] = $sections[] = "== New section ==\nText in the new section";
-		$t->query($query);
+		$t->query( $query );
 
 		$t->fetchSpecial();
 
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
-			array('mod_text AS text'),
-			array('mod_id' => $t->new_entries[0]->id),
+			array( 'mod_text AS text' ),
+			array( 'mod_id' => $t->new_entries[0]->id ),
 			__METHOD__
 		);
 
-		$expected_text = join('', $sections);
-		$this->assertEquals($expected_text, $row->text,
-			"testEditSections(): Resulting text doesn't match expected");
+		$expected_text = join( '', $sections );
+		$this->assertEquals( $expected_text, $row->text,
+			"testEditSections(): Resulting text doesn't match expected" );
 
 		# Does PreSaveTransform work when editing sections?
 
-		$t->loginAs($t->unprivilegedUser);
+		$t->loginAs( $t->unprivilegedUser );
 		$query['section'] = 2;
 		$query['text'] = "== New section 2 ==\n~~~\n\n";
-		$ret = $t->query($query);
+		$ret = $t->query( $query );
 
 		$row = $dbw->selectRow( 'moderation',
-			array('mod_text AS text'),
-			array('mod_id' => $t->new_entries[0]->id),
+			array( 'mod_text AS text' ),
+			array( 'mod_id' => $t->new_entries[0]->id ),
 			__METHOD__
 		);
 
-		$this->assertNotRegExp('/~~~/', $row->text,
-			"testEditSections(): Signature (~~~~) hasn't been properly substituted.");
+		$this->assertNotRegExp( '/~~~/', $row->text,
+			"testEditSections(): Signature (~~~~) hasn't been properly substituted." );
 
 
 	}

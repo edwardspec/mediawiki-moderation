@@ -23,16 +23,16 @@
 class ModerationBlockCheck {
 	private $modblocked_cache = array();
 
-	public function isModerationBlocked($username)
-	{
+	public function isModerationBlocked( $username ) {
 		# Caching works for the duration of this request only,
 		# just to avoid duplicate SQL queries.
-
-		if(array_key_exists($username, $this->modblocked_cache))
+		if ( array_key_exists( $username, $this->modblocked_cache ) ) {
 			return $this->modblocked_cache[$username];
+		}
 
 		$dbw = wfGetDB( DB_MASTER ); # Need actual data
-		$row = $dbw->selectRow( 'moderation_block', array('mb_id'),
+		$row = $dbw->selectRow( 'moderation_block',
+			array( 'mb_id' ),
 			array( 'mb_address' => $username ),
 			__METHOD__
 		);

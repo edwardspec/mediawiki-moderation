@@ -28,10 +28,9 @@ class ModerationActionShowImage extends ModerationAction {
 		return false;
 	}
 
-	public function send404ImageNotFound()
-	{
+	public function send404ImageNotFound() {
 		$this->mSpecial->getOutput()->disable(); # No HTML output
-		StreamFile::prepareForStream(null, null, null, true); # send 404 Not Found
+		StreamFile::prepareForStream( null, null, null, true ); # send 404 Not Found
 	}
 
 	public function execute() {
@@ -48,31 +47,29 @@ class ModerationActionShowImage extends ModerationAction {
 			array( 'mod_id' => $this->id ),
 			__METHOD__
 		);
-		if(!$row)
-			throw new ModerationError('moderation-edit-not-found');
+		if ( !$row ) {
+			throw new ModerationError( 'moderation-edit-not-found' );
+		}
 
 		$user = $row->user ?
-			User::newFromId($row->user) :
-			User::newFromName($row->user_text, false);
+			User::newFromId( $row->user ) :
+			User::newFromName( $row->user_text, false );
 
-		$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash($user);
+		$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash( $user );
 
 		try {
-			$file = $stash->getFile($row->stash_key);
-		} catch(MWException $e) {
+			$file = $stash->getFile( $row->stash_key );
+		} catch ( MWException $e ) {
 			return $this->send404ImageNotFound();
 		}
 
-		$is_thumb = $this->mSpecial->getRequest()->getVal('thumb');
-		if($is_thumb)
-		{
-			$thumb = $file->transform(array('width' => self::THUMB_WIDTH), File::RENDER_NOW);
-			if($thumb)
-			{
-				if($thumb->fileIsSource()) {
-					$is_thumb = false;
-				}
-				else {
+		$isThumb = $this->mSpecial->getRequest()->getVal( 'thumb' );
+		if ( $isThumb ) {
+			$thumb = $file->transform( array( 'width' => self::THUMB_WIDTH ), File::RENDER_NOW );
+			if ( $thumb ) {
+				if ( $thumb->fileIsSource() ) {
+					$isThumb = false;
+				} else {
 					$file = new UnregisteredLocalFile(
 						false,
 						$stash->repo,
@@ -83,22 +80,21 @@ class ModerationActionShowImage extends ModerationAction {
 			}
 		}
 
-		if(!$file) {
+		if ( !$file ) {
 			return $this->send404ImageNotFound();
 		}
 
-		$thumb_filename = '';
-		if($is_thumb) {
-			$thumb_filename .= $file->getWidth() .  'px-';
+		$thumbFilename = '';
+		if ( $isThumb ) {
+			$thumbFilename .= $file->getWidth() .  'px-';
 		}
-		$thumb_filename .= $row->title;
+		$thumbFilename .= $row->title;
 
 		$headers = array();
-		$headers[] = "Content-Disposition: " .
-			FileBackend::makeContentDisposition('inline', $thumb_filename);
+		$headers[] = 'Content-Disposition: ' .
+			FileBackend::makeContentDisposition( 'inline', $thumbFilename );
 
 		$out->disable(); # No HTML output (image only)
-		$file->getRepo()->streamFile($file->getPath(), $headers);
-
+		$file->getRepo()->streamFile( $file->getPath(), $headers );
 	}
 }

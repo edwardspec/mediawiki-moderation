@@ -39,18 +39,19 @@ class ModerationActionPreview extends ModerationAction {
 			array( 'mod_id' => $this->id ),
 			__METHOD__
 		);
-		if(!$row)
-			throw new ModerationError('moderation-edit-not-found');
+		if ( !$row ) {
+			throw new ModerationError( 'moderation-edit-not-found' );
+		}
 
 		$title = Title::makeTitle( $row->namespace, $row->title );
 
 		$popts = $out->parserOptions();
-		$popts->setEditSection(false);
+		$popts->setEditSection( false );
 
-		$content = ContentHandler::makeContent($row->text, null, $title->getContentModel());
-		$pout = $content->getParserOutput($title, 0, $popts, true);
+		$content = ContentHandler::makeContent( $row->text, null, $title->getContentModel() );
+		$pout = $content->getParserOutput( $title, 0, $popts, true );
 
-		$out->setPageTitle(wfMessage('moderation-preview-title', $title->getPrefixedText()));
-		$out->addParserOutput($pout);
+		$out->setPageTitle( wfMessage( 'moderation-preview-title', $title->getPrefixedText() ) );
+		$out->addParserOutput( $pout );
 	}
 }

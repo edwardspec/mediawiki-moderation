@@ -20,7 +20,7 @@
 	@brief Ensures that automoderated users can bypass moderation.
 */
 
-require_once(__DIR__ . "/../ModerationTestsuite.php");
+require_once( __DIR__ . "/../ModerationTestsuite.php" );
 
 /**
 	@covers ModerationCanSkip
@@ -30,18 +30,18 @@ class ModerationTestAutomoderated extends MediaWikiTestCase
 	public function testAutomoderated() {
 		$t = new ModerationTestsuite();
 
-		$t->loginAs($t->automoderated);
+		$t->loginAs( $t->automoderated );
 
 		$t->editViaAPI = true;
 		$ret = $t->doTestEdit();
 
 		$t->fetchSpecial();
 
-		$this->assertArrayHasKey('edit', $ret);
-		$this->assertEquals('Success', $ret['edit']['result']);
+		$this->assertArrayHasKey( 'edit', $ret );
+		$this->assertEquals( 'Success', $ret['edit']['result'] );
 
-		$this->assertCount(0, $t->new_entries,
-			"testAutomoderated(): Something was added into Pending folder");
+		$this->assertCount( 0, $t->new_entries,
+			"testAutomoderated(): Something was added into Pending folder" );
 
 	}
 }

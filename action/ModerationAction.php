@@ -27,10 +27,10 @@ abstract class ModerationAction {
 	public $actionName;
 	public $moderator;
 
-	public function __construct(SpecialModeration $m) {
+	public function __construct( SpecialModeration $m ) {
 		$this->mSpecial = $m;
 		$this->moderator = $m->getUser();
-		$this->actionName = $m->getRequest()->getVal('modaction');
+		$this->actionName = $m->getRequest()->getVal( 'modaction' );
 	}
 
 	public function getSpecial() {
@@ -40,12 +40,15 @@ abstract class ModerationAction {
 	public function run() {
 		$request = $this->mSpecial->getRequest();
 
-		$token = $request->getVal('token');
-		$this->id = $request->getVal('modid');
+		$token = $request->getVal( 'token' );
+		$this->id = $request->getVal( 'modid' );
 
-		if($this->requiresEditToken() && !$this->moderator->matchEditToken($token, $this->id))
+		if (
+			$this->requiresEditToken() &&
+			!$this->moderator->matchEditToken( $token, $this->id )
+		)
 		{
-			throw new ErrorPageError('sessionfailure-title', 'sessionfailure');
+			throw new ErrorPageError( 'sessionfailure-title', 'sessionfailure' );
 		}
 
 		return $this->execute();

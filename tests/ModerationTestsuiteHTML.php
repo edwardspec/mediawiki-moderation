@@ -22,120 +22,120 @@
 
 class ModerationTestsuiteHTML extends DOMDocument {
 	private $t; # ModerationTestsuite
-	function __construct(ModerationTestsuite $t) {
+	function __construct( ModerationTestsuite $t ) {
 		$this->t = $t;
 	}
 
-	public function loadFromURL($url) {
-		if(!$url) return;
+	public function loadFromURL( $url ) {
+		if ( !$url ) return;
 
 		$this->t->ignoreHttpError[404] = true;
-		$req = $this->t->httpGet($url);
+		$req = $this->t->httpGet( $url );
 		$this->t->ignoreHttpError[404] = false;
 
-		return $this->loadFromReq($req);
+		return $this->loadFromReq( $req );
 	}
 
-	public function loadFromReq(MWHttpRequest $req) {
-		return $this->loadFromString($req->getContent());
+	public function loadFromReq( MWHttpRequest $req ) {
+		return $this->loadFromString( $req->getContent() );
 	}
 
-	public function loadFromString($string)
+	public function loadFromString( $string )
 	{
-		$this->loadHTML($string);
+		$this->loadHTML( $string );
 		return $this;
 	}
 
-	public function getTitle($url = null)
+	public function getTitle( $url = null )
 	{
-		$this->loadFromURL($url);
+		$this->loadFromURL( $url );
 
 		return $this->
-			getElementsByTagName('title')->item(0)->textContent;
+			getElementsByTagName( 'title' )->item( 0 )->textContent;
 	}
 
-	public function getModerationError($url = null)
+	public function getModerationError( $url = null )
 	{
-		$this->loadFromURL($url);
+		$this->loadFromURL( $url );
 
-		$elem = $this->getElementById('mw-mod-error');
-		if(!$elem)
+		$elem = $this->getElementById( 'mw-mod-error' );
+		if ( !$elem )
 			return null;
 
 		return $elem->textContent;
 	}
 
-	public function getMainText($url = null)
+	public function getMainText( $url = null )
 	{
-		$this->loadFromURL($url);
+		$this->loadFromURL( $url );
 
-		return trim($this->
-			getElementById('mw-content-text')->textContent);
+		return trim( $this->
+			getElementById( 'mw-content-text' )->textContent );
 	}
 
 	/**
 		@brief Fetch the edit form and return the text in #wpTextbox1.
 		@param title The page to be opened for editing.
 	*/
-	public function getPreloadedText($title)
+	public function getPreloadedText( $title )
 	{
-		$url = wfAppendQuery(wfScript('index'), array(
+		$url = wfAppendQuery( wfScript( 'index' ), array(
 			'title' => $title,
 			'action' => 'edit'
-		));
-		$this->loadFromURL($url);
+		) );
+		$this->loadFromURL( $url );
 
-		$elem = $this->getElementById('wpTextbox1');
-		if(!$elem)
+		$elem = $this->getElementById( 'wpTextbox1' );
+		if ( !$elem )
 			return null;
 
-		return trim($elem->textContent);
+		return trim( $elem->textContent );
 	}
 
 	/**
 		@brief Return the list of ResourceLoader modules
 			which are used in the last fetched HTML.
 	*/
-	public function getLoaderModulesList($url = null)
+	public function getLoaderModulesList( $url = null )
 	{
-		$this->loadFromURL($url);
-		$scripts = $this->getElementsByTagName('script');
+		$this->loadFromURL( $url );
+		$scripts = $this->getElementsByTagName( 'script' );
 
 		$list = array();
-		foreach($scripts as $script)
+		foreach ( $scripts as $script )
 		{
 			$matches = null;
-			if(preg_match('/mw\.loader\.load\(\[([^]]+)\]/', $script->textContent, $matches))
+			if ( preg_match( '/mw\.loader\.load\(\[([^]]+)\]/', $script->textContent, $matches ) )
 			{
-				$items = explode(',', $matches[1]);
+				$items = explode( ',', $matches[1] );
 
-				foreach($items as $item)
+				foreach ( $items as $item )
 				{
-					$list[] = preg_replace('/^"(.*)"$/', '$1', $item);
+					$list[] = preg_replace( '/^"(.*)"$/', '$1', $item );
 				}
 			}
 		}
-		return array_unique($list);
+		return array_unique( $list );
 	}
 
 	/**
 		@brief Return the array of <input> elements in the form
 			(name => value).
 	*/
-	public function getFormElements($formElement = null, $url = null)
+	public function getFormElements( $formElement = null, $url = null )
 	{
-		$this->loadFromURL($url);
+		$this->loadFromURL( $url );
 
-		if(!$formElement) {
+		if ( !$formElement ) {
 			$formElement = $this;
 		}
 
-		$inputs = $formElement->getElementsByTagName('input');
+		$inputs = $formElement->getElementsByTagName( 'input' );
 		$result = array();
-		foreach($inputs as $input)
+		foreach ( $inputs as $input )
 		{
-			$name = $input->getAttribute('name');
-			$value = $input->getAttribute('value');
+			$name = $input->getAttribute( 'name' );
+			$value = $input->getAttribute( 'value' );
 
 			$result[$name] = $value;
 		}

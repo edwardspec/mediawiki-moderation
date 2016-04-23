@@ -23,10 +23,11 @@
 class ModerationActionReject extends ModerationAction {
 
 	public function execute() {
-		if($this->actionName == 'reject')
+		if ( $this->actionName == 'reject' ) {
 			$this->executeRejectOne();
-		else if($this->actionName == 'rejectall')
+		} elseif ( $this->actionName == 'rejectall' ) {
 			$this->executeRejectAll();
+		}
 	}
 
 	public function executeRejectOne() {
@@ -46,14 +47,17 @@ class ModerationActionReject extends ModerationAction {
 			__METHOD__
 		);
 
-		if(!$row)
-			throw new ModerationError('moderation-edit-not-found');
+		if ( !$row ) {
+			throw new ModerationError( 'moderation-edit-not-found' );
+		}
 
-		if($row->rejected)
-			throw new ModerationError('moderation-already-rejected');
+		if ( $row->rejected ) {
+			throw new ModerationError( 'moderation-already-rejected' );
+		}
 
-		if($row->merged_revid)
-			throw new ModerationError('moderation-already-merged');
+		if ( $row->merged_revid ) {
+			throw new ModerationError( 'moderation-already-merged' );
+		}
 
 		$dbw->update( 'moderation',
 			array(
@@ -73,47 +77,53 @@ class ModerationActionReject extends ModerationAction {
 		);
 
 		$nrows = $dbw->affectedRows();
-		$out->addWikiMsg( $nrows ? 'moderation-rejected-ok' : 'moderation-edit-not-found', $nrows);
+		$out->addWikiMsg( $nrows ? 'moderation-rejected-ok' : 'moderation-edit-not-found', $nrows );
 
-		if($nrows)
-		{
+		if ( $nrows ) {
 			$title = Title::makeTitle( $row->namespace, $row->title );
 
 			$logEntry = new ManualLogEntry( 'moderation', 'reject' );
 			$logEntry->setPerformer( $this->moderator );
 			$logEntry->setTarget( $title );
-			$logEntry->setParameters(array('modid' => $this->id, 'user' => $row->user, 'user_text' => $row->user_text));
+			$logEntry->setParameters( array(
+				'modid' => $this->id,
+				'user' => $row->user,
+				'user_text' => $row->user_text
+			) );
 			$logid = $logEntry->insert();
-			$logEntry->publish($logid);
+			$logEntry->publish( $logid );
 		}
 	}
 
 	public function executeRejectAll() {
 		$out = $this->mSpecial->getOutput();
 
-		$userpage = $this->mSpecial->getUserpageByModId($this->id);
-		if(!$userpage)
-			throw new ModerationError('moderation-edit-not-found');
+		$userpage = $this->mSpecial->getUserpageByModId( $this->id );
+		if ( !$userpage ) {
+			throw new ModerationError( 'moderation-edit-not-found' );
+		}
 
 		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
-		$res = $dbw->select('moderation',
-			array('mod_id AS id'),
+		$res = $dbw->select( 'moderation',
+			array( 'mod_id AS id' ),
 			array(
 				'mod_user_text' => $userpage->getText(),
 				'mod_rejected' => 0,
 				'mod_merged_revid' => 0
 			),
 			__METHOD__,
-			array('USE INDEX' => 'moderation_rejectall')
+			array( 'USE INDEX' => 'moderation_rejectall' )
 		);
-		if(!$res || $res->numRows() == 0)
-			throw new ModerationError('moderation-nothing-to-rejectall');
+		if ( !$res || $res->numRows() == 0 ) {
+			throw new ModerationError( 'moderation-nothing-to-rejectall' );
+		}
 
 		$ids = array();
-		foreach($res as $row)
+		foreach ( $res as $row ) {
 			$ids[] = $row->id;
+		}
 
-		$dbw->update('moderation',
+		$dbw->update( 'moderation',
 			array(
 				'mod_rejected' => 1,
 				'mod_rejected_by_user' => $this->moderator->getId(),
@@ -128,16 +138,15 @@ class ModerationActionReject extends ModerationAction {
 		);
 
 		$nrows = $dbw->affectedRows();
-		if($nrows)
-		{
+		if ( $nrows ) {
 			$logEntry = new ManualLogEntry( 'moderation', 'rejectall' );
 			$logEntry->setPerformer( $this->moderator );
 			$logEntry->setTarget( $userpage );
-			$logEntry->setParameters(array('4::count' => $nrows));
+			$logEntry->setParameters( array( '4::count' => $nrows ) );
 			$logid = $logEntry->insert();
-			$logEntry->publish($logid);
+			$logEntry->publish( $logid );
 		}
 
-		$out->addWikiMsg('moderation-rejected-ok', $nrows);
+		$out->addWikiMsg( 'moderation-rejected-ok', $nrows );
 	}
 }

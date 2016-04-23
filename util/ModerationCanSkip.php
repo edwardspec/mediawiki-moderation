@@ -21,8 +21,7 @@
 */
 
 class ModerationCanSkip {
-	static public function canSkip($user)
-	{
+	public static function canSkip( $user ) {
 		global $wgModerationEnable;
 
 		/*
@@ -31,8 +30,14 @@ class ModerationCanSkip {
 			implementation for this case.
 			It is much better to allow all rollbacks to skip moderation.
 		*/
-		if(!$wgModerationEnable || $user->isAllowed('skip-moderation') || $user->isAllowed('rollback'))
+		if (
+			!$wgModerationEnable ||
+			$user->isAllowed( 'skip-moderation' ) ||
+			$user->isAllowed( 'rollback' )
+		)
+		{
 			return true;
+		}
 
 		return false;
 	}

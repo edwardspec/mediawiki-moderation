@@ -25,63 +25,56 @@ class ModerationLogFormatter extends LogFormatter {
 		$params = parent::getMessageParameters();
 
 		$type = $this->entry->getSubtype();
-		$entry_params = $this->entry->getParameters();
+		$entryParams = $this->entry->getParameters();
 
-		if($type === 'approve')
-		{
-			$revid = $entry_params['revid'];
+		if ( $type === 'approve' ) {
+			$revId = $entryParams['revid'];
 			$link = Linker::linkKnown(
 				$this->entry->getTarget(),
-				wfMessage('moderation-log-diff', $revid)->text(),
-				array('title' => wfMessage('tooltip-moderation-approved-diff')),
-				array('diff' => $revid)
+				wfMessage( 'moderation-log-diff', $revId )->text(),
+				array( 'title' => wfMessage( 'tooltip-moderation-approved-diff' ) ),
+				array( 'diff' => $revId )
 			);
-			$params[4] = Message::rawParam($link);
-		}
-		elseif($type === 'reject')
-		{
-			$modid = $entry_params['modid'];
+			$params[4] = Message::rawParam( $link );
+		} elseif ( $type === 'reject' ) {
+			$modId = $entryParams['modid'];
 
 			$link = Linker::linkKnown(
-				Title::makeTitle( NS_SPECIAL, "Moderation" ),
-				wfMessage('moderation-log-change', $modid)->text(),
-				array('title' => wfMessage('tooltip-moderation-rejected-change')),
-				array('modaction' => 'show', 'modid' => $modid)
+				SpecialPage::getTitleFor( 'Moderation' ),
+				wfMessage( 'moderation-log-change', $modId )->text(),
+				array( 'title' => wfMessage( 'tooltip-moderation-rejected-change' ) ),
+				array( 'modaction' => 'show', 'modid' => $modId )
 			);
-			$params[4] = Message::rawParam($link);
+			$params[4] = Message::rawParam( $link );
 
-			$userlink = Linker::userLink($entry_params['user'], $entry_params['user_text']);
-			$params[5] = Message::rawParam($userlink);
-		}
-		elseif($type === 'merge')
-		{
-			$revid = $entry_params['revid'];
-			$modid = $entry_params['modid'];
+			$userLink = Linker::userLink( $entryParams['user'], $entryParams['user_text'] );
+			$params[5] = Message::rawParam( $userLink );
+		} elseif ( $type === 'merge' ) {
+			$revId = $entryParams['revid'];
+			$modId = $entryParams['modid'];
 
 			$link = Linker::linkKnown(
-				Title::makeTitle( NS_SPECIAL, "Moderation" ),
-				wfMessage('moderation-log-change', $modid)->text(),
-				array('title' => wfMessage('tooltip-moderation-rejected-change')),
-				array('modaction' => 'show', 'modid' => $modid)
+				SpecialPage::getTitleFor( 'Moderation' ),
+				wfMessage( 'moderation-log-change', $modId )->text(),
+				array( 'title' => wfMessage( 'tooltip-moderation-rejected-change' ) ),
+				array( 'modaction' => 'show', 'modid' => $modId )
 			);
-			$params[4] = Message::rawParam($link);
+			$params[4] = Message::rawParam( $link );
 
 			$link = Linker::linkKnown(
 				$this->entry->getTarget(),
-				wfMessage('moderation-log-diff', $revid)->text(),
-				array('title' => wfMessage('tooltip-moderation-approved-diff')),
-				array('diff' => $revid)
+				wfMessage( 'moderation-log-diff', $revId )->text(),
+				array( 'title' => wfMessage( 'tooltip-moderation-approved-diff' ) ),
+				array( 'diff' => $revId )
 			);
-			$params[5] = Message::rawParam($link);
-		}
-		elseif($type === 'approveall' || $type === 'rejectall' || $type === 'block' || $type === 'unblock')
-		{
+			$params[5] = Message::rawParam( $link );
+		} elseif ( $type === 'approveall' || $type === 'rejectall' || $type === 'block' || $type === 'unblock' ) {
 			$title = $this->entry->getTarget();
 
-			$user_id = User::idFromName($title->getText());
-			$link = Linker::userLink($user_id, $title->getText());
+			$userId = User::idFromName( $title->getText() );
+			$link = Linker::userLink( $userId, $title->getText() );
 
-			$params[2] = Message::rawParam($link);
+			$params[2] = Message::rawParam( $link );
 		}
 
 		return $params;

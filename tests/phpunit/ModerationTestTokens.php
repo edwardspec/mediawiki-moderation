@@ -20,7 +20,7 @@
 	@brief Verifies that moderation tokens are required.
 */
 
-require_once(__DIR__ . "/../ModerationTestsuite.php");
+require_once( __DIR__ . "/../ModerationTestsuite.php" );
 
 
 class ModerationTestTokens extends MediaWikiTestCase
@@ -28,7 +28,7 @@ class ModerationTestTokens extends MediaWikiTestCase
 	public function testTokens() {
 		$t = new ModerationTestsuite();
 
-		$t->loginAs($t->unprivilegedUser);
+		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit();
 		$t->fetchSpecial();
 
@@ -36,30 +36,30 @@ class ModerationTestTokens extends MediaWikiTestCase
 		$entry->fakeBlockLink();
 
 		# Non-readonly actions require a correct token
-		$links = array($entry->approveLink,
+		$links = array( $entry->approveLink,
 			$entry->approveAllLink,
 			$entry->rejectLink,
 			$entry->rejectAllLink,
 			$entry->blockLink,
 			$entry->unblockLink
 		);
-		foreach($links as $url)
+		foreach ( $links as $url )
 		{
-			$this->assertRegExp('/\(sessionfailure-title\)/', $t->noTokenTitle($url));
+			$this->assertRegExp( '/\(sessionfailure-title\)/', $t->noTokenTitle( $url ) );
 
 			/* Double-check that nothing happened */
 			$t->fetchSpecial();
-			$this->assertCount(0, $t->new_entries);
-			$this->assertCount(0, $t->deleted_entries);
+			$this->assertCount( 0, $t->new_entries );
+			$this->assertCount( 0, $t->deleted_entries );
 
 			# Would the wrong token work?
 
-			$this->assertRegExp('/\(sessionfailure-title\)/', $t->badTokenTitle($url));
+			$this->assertRegExp( '/\(sessionfailure-title\)/', $t->badTokenTitle( $url ) );
 
 			/* Double-check that nothing happened */
 			$t->fetchSpecial();
-			$this->assertCount(0, $t->new_entries);
-			$this->assertCount(0, $t->deleted_entries);
+			$this->assertCount( 0, $t->new_entries );
+			$this->assertCount( 0, $t->deleted_entries );
 		}
 	}
 }

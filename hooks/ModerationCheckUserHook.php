@@ -32,21 +32,17 @@ class ModerationCheckUserHook {
 		It modifies the IP, user-agent and XFF in the checkuser database,
 		so that they match the user who made the edit, not the moderator.
 	*/
-	public function onCheckUserInsertForRecentChange($rc, &$fields)
-	{
-		$fields['cuc_ip'] = IP::sanitizeIP($this->ip);
+	public function onCheckUserInsertForRecentChange( $rc, &$fields ) {
+		$fields['cuc_ip'] = IP::sanitizeIP( $this->ip );
 		$fields['cuc_ip_hex'] = $this->ip ? IP::toHex( $this->ip ) : null;
 		$fields['cuc_agent'] = $this->ua;
 
-		if(method_exists('CheckUserHooks', 'getClientIPfromXFF'))
-		{
+		if ( method_exists( 'CheckUserHooks', 'getClientIPfromXFF' ) ) {
 			list( $xff_ip, $isSquidOnly ) = CheckUserHooks::getClientIPfromXFF( $this->xff );
 
 			$fields['cuc_xff'] = !$isSquidOnly ? $this->xff : '';
 			$fields['cuc_xff_hex'] = ( $xff_ip && !$isSquidOnly ) ? IP::toHex( $xff_ip ) : null;
-		}
-		else
-		{
+		} else {
 			$fields['cuc_xff'] = '';
 			$fields['cuc_xff_hex'] = null;
 		}
@@ -59,42 +55,41 @@ class ModerationCheckUserHook {
 		It modifies the IP in the recentchanges table,
 		so that it matches the user who made the edit, not the moderator.
 	*/
-	public function onRecentChange_save(&$rc)
-	{
+	public function onRecentChange_save( &$rc ) {
 		global $wgPutIPinRC;
-		if(!$wgPutIPinRC) return;
+		if ( !$wgPutIPinRC ) {
+			return;
+		}
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'recentchanges',
 			array(
-				'rc_ip' => IP::sanitizeIP($this->ip)
+				'rc_ip' => IP::sanitizeIP( $this->ip )
 			),
-			array('rc_id' => $rc->mAttribs['rc_id']),
+			array( 'rc_id' => $rc->mAttribs['rc_id'] ),
 			__METHOD__
 		);
 	}
 
-	public function install($ip, $xff, $ua)
-	{
+	public function install( $ip, $xff, $ua ) {
 		global $wgHooks;
 
 		$this->ip = $ip;
 		$this->xff = $xff;
 		$this->ua = $ua;
 
-		$wgHooks['CheckUserInsertForRecentChange'][] = array($this, 'onCheckUserInsertForRecentChange');
-		end($wgHooks['CheckUserInsertForRecentChange']);
-		$this->cu_hook_id = key($wgHooks['CheckUserInsertForRecentChange']);
+		$wgHooks['CheckUserInsertForRecentChange'][] = array( $this, 'onCheckUserInsertForRecentChange' );
+		end( $wgHooks['CheckUserInsertForRecentChange'] );
+		$this->cu_hook_id = key( $wgHooks['CheckUserInsertForRecentChange'] );
 
-		$wgHooks['RecentChange_save'][] = array($this, 'onRecentChange_save');
-		end($wgHooks['RecentChange_save']);
-		$this->rc_hook_id = key($wgHooks['RecentChange_save']);
+		$wgHooks['RecentChange_save'][] = array( $this, 'onRecentChange_save' );
+		end( $wgHooks['RecentChange_save'] );
+		$this->rc_hook_id = key( $wgHooks['RecentChange_save'] );
 	}
 
-	public function deinstall()
-	{
+	public function deinstall() {
 		global $wgHooks;
-		unset($wgHooks['CheckUserInsertForRecentChange'][$this->cu_hook_id]);
-		unset($wgHooks['RecentChange_save'][$this->rc_hook_id]);
+		unset( $wgHooks['CheckUserInsertForRecentChange'][$this->cu_hook_id] );
+		unset( $wgHooks['RecentChange_save'][$this->rc_hook_id] );
 	}
 }

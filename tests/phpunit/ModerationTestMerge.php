@@ -20,7 +20,7 @@
 	@brief Verifies that modaction=merge works as expected.
 */
 
-require_once(__DIR__ . "/../ModerationTestsuite.php");
+require_once( __DIR__ . "/../ModerationTestsuite.php" );
 
 /**
 	@covers ModerationActionMerge
@@ -41,39 +41,39 @@ class ModerationTestMerge extends MediaWikiTestCase
 	private $text2 = "Normal line 1\nNormal line 4\n";
 	private $text3 = "Normal line 1\nJust made line 2 more interesting\nNormal line 4\n";
 
-	private function makeEditConflict(ModerationTestsuite $t) {
-		$t->loginAs($t->automoderated);
-		$t->doTestEdit($this->page, $this->text0,
-			"Create an article. Some lines here are boring.");
-		$t->loginAs($t->unprivilegedUser);
-		$t->doTestEdit($this->page, $this->text1,
-			"Improve one of the boring lines");
-		$t->loginAs($t->automoderated);
-		$t->doTestEdit($this->page, $this->text2,
-			"Delete all boring lines");
+	private function makeEditConflict( ModerationTestsuite $t ) {
+		$t->loginAs( $t->automoderated );
+		$t->doTestEdit( $this->page, $this->text0,
+			"Create an article. Some lines here are boring." );
+		$t->loginAs( $t->unprivilegedUser );
+		$t->doTestEdit( $this->page, $this->text1,
+			"Improve one of the boring lines" );
+		$t->loginAs( $t->automoderated );
+		$t->doTestEdit( $this->page, $this->text2,
+			"Delete all boring lines" );
 	}
 
 	public function testMerge() {
 		$t = new ModerationTestsuite();
-		$this->makeEditConflict($t);
+		$this->makeEditConflict( $t );
 
 		# Done: attempt to approve the edit by $t->unprivilegedUser
 		# will cause an edit conflict.
 
 		$t->fetchSpecial();
-		$this->assertFalse($t->new_entries[0]->conflict,
-			"testMerge(): Edit with not-yet-detected conflict is marked with class='modconflict'");
+		$this->assertFalse( $t->new_entries[0]->conflict,
+			"testMerge(): Edit with not-yet-detected conflict is marked with class='modconflict'" );
 
-		$error = $t->html->getModerationError($t->new_entries[0]->approveLink);
-		$this->assertEquals('(moderation-edit-conflict)', $error,
-			"testMerge(): Edit conflict not detected by modaction=approve");
+		$error = $t->html->getModerationError( $t->new_entries[0]->approveLink );
+		$this->assertEquals( '(moderation-edit-conflict)', $error,
+			"testMerge(): Edit conflict not detected by modaction=approve" );
 
 		$t->fetchSpecial();
 
-		$this->assertCount(0, $t->new_entries,
-			"testMerge(): Something was added into Pending folder when modaction=approve detected edit conflict");
-		$this->assertCount(0, $t->deleted_entries,
-			"testMerge(): Something was deleted from Pending folder when modaction=approve detected edit conflict");
+		$this->assertCount( 0, $t->new_entries,
+			"testMerge(): Something was added into Pending folder when modaction=approve detected edit conflict" );
+		$this->assertCount( 0, $t->deleted_entries,
+			"testMerge(): Something was deleted from Pending folder when modaction=approve detected edit conflict" );
 
 		$t->assumeFolderIsEmpty();
 		$t->fetchSpecial();
@@ -81,110 +81,110 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$entry = $t->new_entries[0];
 		$id = $entry->id;
 
-		$this->assertTrue($entry->conflict,
-			"testMerge(): Edit with detected conflict is not marked with class='modconflict'");
-		$this->assertNotNull($entry->mergeLink,
-			"testMerge(): Merge link not found for edit with detected conflict");
+		$this->assertTrue( $entry->conflict,
+			"testMerge(): Edit with detected conflict is not marked with class='modconflict'" );
+		$this->assertNotNull( $entry->mergeLink,
+			"testMerge(): Merge link not found for edit with detected conflict" );
 
-		$this->assertNotNull($entry->rejectLink,
-			"testMerge(): Reject link not found for edit with detected conflict");
-		$this->assertNotNull($entry->rejectAllLink,
-			"testMerge(): RejectAll link not found for edit with detected conflict");
-		$this->assertNotNull($entry->showLink,
-			"testMerge(): Show link not found for edit with detected conflict");
-		$this->assertNotNull($entry->blockLink,
-			"testMerge(): Block link not found for edit with detected conflict");
+		$this->assertNotNull( $entry->rejectLink,
+			"testMerge(): Reject link not found for edit with detected conflict" );
+		$this->assertNotNull( $entry->rejectAllLink,
+			"testMerge(): RejectAll link not found for edit with detected conflict" );
+		$this->assertNotNull( $entry->showLink,
+			"testMerge(): Show link not found for edit with detected conflict" );
+		$this->assertNotNull( $entry->blockLink,
+			"testMerge(): Block link not found for edit with detected conflict" );
 
-		$this->assertNull($entry->approveLink,
-			"testMerge(): Approve link found for edit with detected conflict");
-		$this->assertNull($entry->approveAllLink,
-			"testMerge(): ApproveAll link found for edit with detected conflict");
-		$this->assertNull($entry->mergedDiffLink,
-			"testMerge(): MergedDiff link found for not yet merged edit");
+		$this->assertNull( $entry->approveLink,
+			"testMerge(): Approve link found for edit with detected conflict" );
+		$this->assertNull( $entry->approveAllLink,
+			"testMerge(): ApproveAll link found for edit with detected conflict" );
+		$this->assertNull( $entry->mergedDiffLink,
+			"testMerge(): MergedDiff link found for not yet merged edit" );
 
-		$this->assertNull($entry->rejected_by_user,
-			"testMerge(): Not yet rejected edit with detected conflict is marked rejected");
-		$this->assertFalse($entry->rejected_batch,
-			"testMerge(): Not yet rejected edit with detected conflict has rejected_batch flag ON");
-		$this->assertFalse($entry->rejected_auto,
-			"testMerge(): Not yet rejected edit with detected conflict has rejected_auto flag ON");
+		$this->assertNull( $entry->rejected_by_user,
+			"testMerge(): Not yet rejected edit with detected conflict is marked rejected" );
+		$this->assertFalse( $entry->rejected_batch,
+			"testMerge(): Not yet rejected edit with detected conflict has rejected_batch flag ON" );
+		$this->assertFalse( $entry->rejected_auto,
+			"testMerge(): Not yet rejected edit with detected conflict has rejected_auto flag ON" );
 
-		$title = $t->html->getTitle($entry->mergeLink);
-		$this->assertRegExp('/\(editconflict: ' . $t->lastEdit['Title'] . '\)/', $title,
-			"testMerge(): Wrong HTML title from modaction=merge");
+		$title = $t->html->getTitle( $entry->mergeLink );
+		$this->assertRegExp( '/\(editconflict: ' . $t->lastEdit['Title'] . '\)/', $title,
+			"testMerge(): Wrong HTML title from modaction=merge" );
 
-		$this->assertEquals($this->text2, $t->html->getElementById('wpTextbox1')->textContent,
-			"testMerge(): The upper textarea doesn't contain the current page text");
-		$this->assertEquals($this->text1, $t->html->getElementById('wpTextbox2')->textContent,
-			"testMerge(): The lower textarea doesn't contain the text we attempted to approve");
+		$this->assertEquals( $this->text2, $t->html->getElementById( 'wpTextbox1' )->textContent,
+			"testMerge(): The upper textarea doesn't contain the current page text" );
+		$this->assertEquals( $this->text1, $t->html->getElementById( 'wpTextbox2' )->textContent,
+			"testMerge(): The lower textarea doesn't contain the text we attempted to approve" );
 
-		$form = $t->html->getElementById('editform');
-		$this->assertNotNull($form,
-			"testMerge(): Edit form isn't shown by the Merge link\n");
+		$form = $t->html->getElementById( 'editform' );
+		$this->assertNotNull( $form,
+			"testMerge(): Edit form isn't shown by the Merge link\n" );
 
-		$inputs = $t->html->getFormElements($form);
+		$inputs = $t->html->getFormElements( $form );
 
-		$this->assertArrayHasKey('wpIgnoreBlankSummary', $inputs,
-			"testMerge(): Edit form doesn't contain wpIgnoreBlankSummary field");
-		$this->assertEquals(1, $inputs['wpIgnoreBlankSummary'],
-			"testMerge(): Value of wpIgnoreBlankSummary field isn't 1");
+		$this->assertArrayHasKey( 'wpIgnoreBlankSummary', $inputs,
+			"testMerge(): Edit form doesn't contain wpIgnoreBlankSummary field" );
+		$this->assertEquals( 1, $inputs['wpIgnoreBlankSummary'],
+			"testMerge(): Value of wpIgnoreBlankSummary field isn't 1" );
 
-		$this->assertArrayHasKey('wpMergeID', $inputs,
-			"testMerge(): Edit form doesn't contain wpMergeID field");
-		$this->assertEquals($id, $inputs['wpMergeID'],
-			"testMerge(): Value of wpMergeID field doesn't match the entry id");
+		$this->assertArrayHasKey( 'wpMergeID', $inputs,
+			"testMerge(): Edit form doesn't contain wpMergeID field" );
+		$this->assertEquals( $id, $inputs['wpMergeID'],
+			"testMerge(): Value of wpMergeID field doesn't match the entry id" );
 
 		# Try to edit now
-		$req = $t->nonApiEdit($this->page, $this->text3, "Wow, I merged an edit",
-			array('wpMergeID' => $id)
+		$req = $t->nonApiEdit( $this->page, $this->text3, "Wow, I merged an edit",
+			array( 'wpMergeID' => $id )
 		);
-		$this->assertNotNull($req->getResponseHeader('location'),
-			"testMerge(): non-API edit with wpMergeID failed");
+		$this->assertNotNull( $req->getResponseHeader( 'location' ),
+			"testMerge(): non-API edit with wpMergeID failed" );
 
-		$rev = $t->getLastRevision($this->page);
-		$this->assertEquals($t->moderator->getName(), $rev['user']);
+		$rev = $t->getLastRevision( $this->page );
+		$this->assertEquals( $t->moderator->getName(), $rev['user'] );
 
 		# Was the edit moved into the 'merged' folder?
 
 		$t->fetchSpecial();
-		$this->assertCount(0, $t->new_entries,
-			"testMerge(): Something was added into Pending folder when the edit was merged");
-		$this->assertCount(1, $t->deleted_entries,
-			"testMerge(): One edit was merged, but number of deleted entries in Pending folder isn't 1");
-		$this->assertEquals($id, $t->deleted_entries[0]->id);
+		$this->assertCount( 0, $t->new_entries,
+			"testMerge(): Something was added into Pending folder when the edit was merged" );
+		$this->assertCount( 1, $t->deleted_entries,
+			"testMerge(): One edit was merged, but number of deleted entries in Pending folder isn't 1" );
+		$this->assertEquals( $id, $t->deleted_entries[0]->id );
 
-		$t->fetchSpecial('merged');
-		$this->assertCount(1, $t->new_entries,
-			"testMerge(): One edit was merged, but number of new entries in Merged folder isn't 1");
-		$this->assertCount(0, $t->deleted_entries,
-			"testMerge(): Something was deleted from Merged folder when the edit was merged");
+		$t->fetchSpecial( 'merged' );
+		$this->assertCount( 1, $t->new_entries,
+			"testMerge(): One edit was merged, but number of new entries in Merged folder isn't 1" );
+		$this->assertCount( 0, $t->deleted_entries,
+			"testMerge(): Something was deleted from Merged folder when the edit was merged" );
 
 		$entry = $t->new_entries[0];
-		$this->assertEquals($id, $entry->id);
+		$this->assertEquals( $id, $entry->id );
 
-		$this->assertNull($entry->rejectLink,
-			"testMerge(): Reject link found for already merged edit");
-		$this->assertNull($entry->rejectAllLink,
-			"testMerge(): RejectAll link found for already merged edit");
-		$this->assertNull($entry->approveLink,
-			"testMerge(): Approve link found for already merged edit");
-		$this->assertNull($entry->approveAllLink,
-			"testMerge(): ApproveAll link found for already merged edit");
-		$this->assertNull($entry->mergeLink,
-			"testMerge(): Merge link found for already merged edit");
+		$this->assertNull( $entry->rejectLink,
+			"testMerge(): Reject link found for already merged edit" );
+		$this->assertNull( $entry->rejectAllLink,
+			"testMerge(): RejectAll link found for already merged edit" );
+		$this->assertNull( $entry->approveLink,
+			"testMerge(): Approve link found for already merged edit" );
+		$this->assertNull( $entry->approveAllLink,
+			"testMerge(): ApproveAll link found for already merged edit" );
+		$this->assertNull( $entry->mergeLink,
+			"testMerge(): Merge link found for already merged edit" );
 
-		$this->assertNotNull($entry->showLink,
-			"testMerge(): Show link not found for already merged edit");
-		$this->assertNotNull($entry->blockLink,
-			"testMerge(): Block link not found for already merged edit");
-		$this->assertNotNull($entry->mergedDiffLink,
-			"testMerge(): MergedDiff link not found for already merged edit");
+		$this->assertNotNull( $entry->showLink,
+			"testMerge(): Show link not found for already merged edit" );
+		$this->assertNotNull( $entry->blockLink,
+			"testMerge(): Block link not found for already merged edit" );
+		$this->assertNotNull( $entry->mergedDiffLink,
+			"testMerge(): MergedDiff link not found for already merged edit" );
 
-		$params = wfCgiToArray(preg_replace('/^.*?\?/', '', $entry->mergedDiffLink));
+		$params = wfCgiToArray( preg_replace( '/^.*?\?/', '', $entry->mergedDiffLink ) );
 
-		$this->assertArrayHasKey('diff', $params);
-		$this->assertEquals($rev['revid'], $params['diff'],
-			"testMerge(): diff parameter doesn't match revid of the last revision on the page we edited");
+		$this->assertArrayHasKey( 'diff', $params );
+		$this->assertEquals( $rev['revid'], $params['diff'],
+			"testMerge(): diff parameter doesn't match revid of the last revision on the page we edited" );
 	}
 
 	/**
@@ -193,11 +193,11 @@ class ModerationTestMerge extends MediaWikiTestCase
 	*/
 	public function testPreserveMergeID() {
 		$t = new ModerationTestsuite();
-		$t->loginAs($t->moderator);
+		$t->loginAs( $t->moderator );
 
 		$someID = 12345;
 
-		$req = $t->httpPost(wfScript('index'), array(
+		$req = $t->httpPost( wfScript( 'index' ), array(
 			'action' => 'submit',
 			'title' => 'Test page 1',
 			'wpTextbox1' => 'Test text 1',
@@ -206,24 +206,24 @@ class ModerationTestMerge extends MediaWikiTestCase
 			# Preview mode, provide wpMergeID
 			'wpPreview' => '1',
 			'wpMergeID' => $someID
-		));
-		$t->html->loadFromReq($req);
+		) );
+		$t->html->loadFromReq( $req );
 
-		$form = $t->html->getElementById('editform');
-		$this->assertNotNull($form,
-			"testPreserveMergeID(): Edit form not found\n");
+		$form = $t->html->getElementById( 'editform' );
+		$this->assertNotNull( $form,
+			"testPreserveMergeID(): Edit form not found\n" );
 
-		$inputs = $t->html->getFormElements($form);
+		$inputs = $t->html->getFormElements( $form );
 
-		$this->assertArrayHasKey('wpIgnoreBlankSummary', $inputs,
-			"testPreserveMergeID(): Edit form doesn't contain wpIgnoreBlankSummary field");
-		$this->assertEquals(1, $inputs['wpIgnoreBlankSummary'],
-			"testPreserveMergeID(): Value of wpIgnoreBlankSummary field isn't 1");
+		$this->assertArrayHasKey( 'wpIgnoreBlankSummary', $inputs,
+			"testPreserveMergeID(): Edit form doesn't contain wpIgnoreBlankSummary field" );
+		$this->assertEquals( 1, $inputs['wpIgnoreBlankSummary'],
+			"testPreserveMergeID(): Value of wpIgnoreBlankSummary field isn't 1" );
 
-		$this->assertArrayHasKey('wpMergeID', $inputs,
-			"testPreserveMergeID(): Edit form doesn't contain wpMergeID field");
-		$this->assertEquals($someID, $inputs['wpMergeID'],
-			"testPreserveMergeID(): Value of wpMergeID field doesn't match expected id");
+		$this->assertArrayHasKey( 'wpMergeID', $inputs,
+			"testPreserveMergeID(): Edit form doesn't contain wpMergeID field" );
+		$this->assertEquals( $someID, $inputs['wpMergeID'],
+			"testPreserveMergeID(): Value of wpMergeID field doesn't match expected id" );
 	}
 
 	/**
@@ -231,79 +231,79 @@ class ModerationTestMerge extends MediaWikiTestCase
 	*/
 	public function testMergeToken() {
 		$t = new ModerationTestsuite();
-		$this->makeEditConflict($t);
+		$this->makeEditConflict( $t );
 
 		$t->fetchSpecial();
-		$t->httpGet($t->new_entries[0]->approveLink);
+		$t->httpGet( $t->new_entries[0]->approveLink );
 
 		$t->assumeFolderIsEmpty();
 		$t->fetchSpecial();
 		$url = $t->new_entries[0]->mergeLink;
-		$this->assertRegExp('/\(sessionfailure-title\)/', $t->noTokenTitle($url));
-		$this->assertRegExp('/\(sessionfailure-title\)/', $t->badTokenTitle($url));
+		$this->assertRegExp( '/\(sessionfailure-title\)/', $t->noTokenTitle( $url ) );
+		$this->assertRegExp( '/\(sessionfailure-title\)/', $t->badTokenTitle( $url ) );
 	}
 
 	public function testApproveAllConflicts() {
 		$t = new ModerationTestsuite();
 
-		$t->doNTestEditsWith($t->unprivilegedUser, null, 'Page A');
-		$this->makeEditConflict($t);
-		$t->doNTestEditsWith($t->unprivilegedUser, null, 'Page B');
+		$t->doNTestEditsWith( $t->unprivilegedUser, null, 'Page A' );
+		$this->makeEditConflict( $t );
+		$t->doNTestEditsWith( $t->unprivilegedUser, null, 'Page B' );
 
 		# Will attempt to ApproveAll the edit by $t->unprivilegedUser
 		# cause an edit conflict?
 
 		$t->fetchSpecial();
-		$t->html->loadFromURL($t->new_entries[0]->approveAllLink);
+		$t->html->loadFromURL( $t->new_entries[0]->approveAllLink );
 
 		$text = $t->html->getMainText();
-		$this->assertRegExp('/\(moderation-approved-ok: ' .
-				($t->TEST_EDITS_COUNT * 2) . '\)/',
+		$this->assertRegExp( '/\(moderation-approved-ok: ' .
+				( $t->TEST_EDITS_COUNT * 2 ) . '\)/',
 			$text,
-			"testApproveAllConflicts(): Result page doesn't contain (moderation-approved-ok: N)");
+			"testApproveAllConflicts(): Result page doesn't contain (moderation-approved-ok: N)" );
 
-		$this->assertRegExp('/\(moderation-approved-errors: 1\)/', $text,
-			"testApproveAllConflicts(): Result page doesn't contain (moderation-approved-errors: 1)");
+		$this->assertRegExp( '/\(moderation-approved-errors: 1\)/', $text,
+			"testApproveAllConflicts(): Result page doesn't contain (moderation-approved-errors: 1)" );
 
 		$t->assumeFolderIsEmpty();
 		$t->fetchSpecial();
 
-		$this->assertCount(1, $t->new_entries,
-			"testApproveAllConflicts(): Nothing left in Pending folder after modaction=approveall, even though there was an edit conflict");
-		$this->assertTrue($t->new_entries[0]->conflict,
-			"testApproveAllConflicts(): Edit with detected conflict is not marked with class='modconflict'");
+		$this->assertCount( 1, $t->new_entries,
+			"testApproveAllConflicts(): Nothing left in Pending folder after modaction=approveall, even though there was an edit conflict" );
+		$this->assertTrue( $t->new_entries[0]->conflict,
+			"testApproveAllConflicts(): Edit with detected conflict is not marked with class='modconflict'" );
 	}
 
 	public function testRejectConflict() {
 		$t = new ModerationTestsuite();
-		$this->makeEditConflict($t);
+		$this->makeEditConflict( $t );
 
 		# Can we reject edit with a conflict?
 
 		$t->fetchSpecial();
-		$t->httpGet($t->new_entries[0]->approveLink);
+		$t->httpGet( $t->new_entries[0]->approveLink );
 
-		$t->html->loadFromURL($t->new_entries[0]->rejectLink);
-		$this->assertRegExp('/\(moderation-rejected-ok: 1\)/',
+		$t->html->loadFromURL( $t->new_entries[0]->rejectLink );
+		$this->assertRegExp( '/\(moderation-rejected-ok: 1\)/',
 			$t->html->getMainText(),
-			"testRejectConflict(): Result page doesn't contain (moderation-rejected-ok: 1)");
+			"testRejectConflict(): Result page doesn't contain (moderation-rejected-ok: 1)" );
 
 		$t->fetchSpecial();
-		$this->assertCount(0, $t->new_entries,
-			"testRejectConflict(): Something was added into Pending folder during modaction=reject");
-		$this->assertCount(1, $t->deleted_entries,
-			"testRejectConflict(): One edit was rejected, but number of deleted entries in Pending folder isn't 1");
+		$this->assertCount( 0, $t->new_entries,
+			"testRejectConflict(): Something was added into Pending folder during modaction=reject" );
+		$this->assertCount( 1, $t->deleted_entries,
+			"testRejectConflict(): One edit was rejected, but number of deleted entries in Pending folder isn't 1" );
 
-		$t->fetchSpecial('rejected');
-		$this->assertCount(1, $t->new_entries,
-			"testRejectConflict(): One edit was rejected, but number of new entries in Rejected folder isn't 1");
-		$this->assertCount(0, $t->deleted_entries,
-			"testRejectConflict(): Something was deleted from Rejected folder during modaction=reject");
+		$t->fetchSpecial( 'rejected' );
+		$this->assertCount( 1, $t->new_entries,
+			"testRejectConflict(): One edit was rejected, but number of new entries in Rejected folder isn't 1" );
+		$this->assertCount( 0, $t->deleted_entries,
+			"testRejectConflict(): Something was deleted from Rejected folder during modaction=reject" );
 
 		$entry = $t->new_entries[0];
-		$this->assertTrue($entry->conflict,
-			"testRejectConflict(): Rejected edit with detected conflict is not marked with class='modconflict'");
-		$this->assertNotNull($entry->mergeLink,
-			"testRejectConflict(): Merge link not found for rejected edit with detected conflict");
+		$this->assertTrue( $entry->conflict,
+			"testRejectConflict(): Rejected edit with detected conflict is not marked with class='modconflict'" );
+		$this->assertNotNull( $entry->mergeLink,
+			"testRejectConflict(): Merge link not found for rejected edit with detected conflict" );
 	}
 }

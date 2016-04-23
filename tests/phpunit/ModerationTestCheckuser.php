@@ -20,7 +20,7 @@
 	@brief Ensures that checkuser-related functionality works correctly.
 */
 
-require_once(__DIR__ . "/../ModerationTestsuite.php");
+require_once( __DIR__ . "/../ModerationTestsuite.php" );
 
 class ModerationTestCheckuser extends MediaWikiTestCase
 {
@@ -28,8 +28,8 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		$t = new ModerationTestsuite();
 		$entry = $t->getSampleEntry();
 
-		$this->assertNull($entry->ip,
-			"testModerationCheckuser(): IP was shown to non-checkuser on Special:Moderation");
+		$this->assertNull( $entry->ip,
+			"testModerationCheckuser(): IP was shown to non-checkuser on Special:Moderation" );
 
 		$t->moderator = $t->moderatorAndCheckuser;
 
@@ -37,10 +37,10 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		$t->fetchSpecial();
 
 		$entry = $t->new_entries[0];
-		$this->assertNotNull($entry->ip,
-			"testModerationCheckuser(): IP wasn't shown to checkuser on Special:Moderation");
-		$this->assertEquals("127.0.0.1", $entry->ip,
-			"testModerationCheckuser(): incorrect IP on Special:Moderation");
+		$this->assertNotNull( $entry->ip,
+			"testModerationCheckuser(): IP wasn't shown to checkuser on Special:Moderation" );
+		$this->assertEquals( "127.0.0.1", $entry->ip,
+			"testModerationCheckuser(): incorrect IP on Special:Moderation" );
 	}
 
 	/**
@@ -51,10 +51,10 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		$t = new ModerationTestsuite();
 
 		$dbw = wfGetDB( DB_MASTER );
-		if(!array_key_exists('CheckUser', $wgSpecialPages)
-			|| !$dbw->tableExists('cu_changes'))
+		if ( !array_key_exists( 'CheckUser', $wgSpecialPages )
+			|| !$dbw->tableExists( 'cu_changes' ) )
 		{
-			$this->markTestIncomplete('Test skipped: CheckUser extension must be installed to run it.');
+			$this->markTestIncomplete( 'Test skipped: CheckUser extension must be installed to run it.' );
 		}
 
 		$moderatorUA = 'UserAgent of Moderator/1.0';
@@ -64,22 +64,22 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		# contain UserAgent of user who made the edit,
 		# not UserAgent or the moderator who approved it.
 
-		$t->setUserAgent($userUA);
+		$t->setUserAgent( $userUA );
 		$entry = $t->getSampleEntry();
 
-		$t->setUserAgent($moderatorUA);
-		$t->httpGet($entry->approveLink);
+		$t->setUserAgent( $moderatorUA );
+		$t->httpGet( $entry->approveLink );
 
-		$row = $dbw->selectRow('cu_changes',
-			array('cuc_agent AS agent'),
-			array('1'),
+		$row = $dbw->selectRow( 'cu_changes',
+			array( 'cuc_agent AS agent' ),
+			array( '1' ),
 			__METHOD__,
-			array('ORDER BY' => 'cuc_id DESC', 'LIMIT' => 1)
+			array( 'ORDER BY' => 'cuc_id DESC', 'LIMIT' => 1 )
 		);
 
-		$this->assertNotEquals($moderatorUA, $row->agent,
-			"testPreverveUserAgent(): UserAgent in checkuser tables matches moderator's UserAgent");
-		$this->assertEquals($userUA, $row->agent,
-			"testPreverveUserAgent(): UserAgent in checkuser tables doesn't match UserAgent of user who made the edit");
+		$this->assertNotEquals( $moderatorUA, $row->agent,
+			"testPreverveUserAgent(): UserAgent in checkuser tables matches moderator's UserAgent" );
+		$this->assertEquals( $userUA, $row->agent,
+			"testPreverveUserAgent(): UserAgent in checkuser tables doesn't match UserAgent of user who made the edit" );
 	}
 }
