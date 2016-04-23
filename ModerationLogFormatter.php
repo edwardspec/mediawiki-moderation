@@ -40,7 +40,7 @@ class ModerationLogFormatter extends LogFormatter {
 			$modId = $entryParams['modid'];
 
 			$link = Linker::linkKnown(
-				Title::makeTitle( NS_SPECIAL, 'Moderation' ),
+				SpecialPage::getTitleFor( 'Moderation' ),
 				wfMessage( 'moderation-log-change', $modId )->text(),
 				array( 'title' => wfMessage( 'tooltip-moderation-rejected-change' ) ),
 				array( 'modaction' => 'show', 'modid' => $modId )
@@ -54,7 +54,7 @@ class ModerationLogFormatter extends LogFormatter {
 			$modId = $entryParams['modid'];
 
 			$link = Linker::linkKnown(
-				Title::makeTitle( NS_SPECIAL, 'Moderation' ),
+				SpecialPage::getTitleFor( 'Moderation' ),
 				wfMessage( 'moderation-log-change', $modId )->text(),
 				array( 'title' => wfMessage( 'tooltip-moderation-rejected-change' ) ),
 				array( 'modaction' => 'show', 'modid' => $modId )

@@ -21,8 +21,8 @@
 */
 
 class SpecialModeration extends QueryPage {
-	var $folder; // Currently selected folder (when viewing the moderation table)
-	var $folders_list = array(
+	public $folder; // Currently selected folder (when viewing the moderation table)
+	public $folders_list = array(
 		'pending' => array( # Not yet moderated
 			'mod_rejected' => 0,
 			'mod_merged_revid' => 0
@@ -39,10 +39,10 @@ class SpecialModeration extends QueryPage {
 			'mod_rejected_auto' => 1
 		)
 	);
-	var $default_folder = 'pending';
+	public $default_folder = 'pending';
 
-	var $mblockCheck;
-	var $earliestReapprovableTimestamp;
+	public $mblockCheck;
+	public $earliestReapprovableTimestamp;
 
 	function makeModerationLink( $action, $id ) {
 		$params = array( 'modaction' => $action, 'modid' => $id );
@@ -215,7 +215,6 @@ class SpecialModeration extends QueryPage {
 
 	function formatResult( $skin, $result ) {
 		global $wgModerationPreviewLink;
-		wfProfileIn( __METHOD__ );
 
 		$len_change = $result->new_len - $result->old_len;
 		if ( $len_change > 0 ) {
@@ -326,7 +325,6 @@ class SpecialModeration extends QueryPage {
 
 		$html = Xml::tags( 'span', array( 'class' => $class ), $line );
 
-		wfProfileOut( __METHOD__ );
 		return $html;
 	}
 
