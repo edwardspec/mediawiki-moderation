@@ -27,6 +27,7 @@ Background-prio (may not be needed):
 
 Tests to implement:
 - preview test (modaction=preview)
+- check presence of "Return to Special:Moderation" link on both success and error (checking one action is sufficient).
 
 FIXME (hard to fix properly):
 - when user removes the section header (== here ==) while editing this

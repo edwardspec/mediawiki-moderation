@@ -357,6 +357,7 @@ class ModerationError extends ErrorPageError {
 		$wgOut->prepareErrorPage( $wgOut->msg( $this->title ) );
 		$wgOut->addWikiText( '<div id="mw-mod-error" class="error">' .
 			$msg->plain() . '</div>' );
+		$wgOut->addReturnTo($wgOut->getTitle());
 		$wgOut->output();
 	}
 }

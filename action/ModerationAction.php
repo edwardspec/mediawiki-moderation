@@ -38,7 +38,8 @@ abstract class ModerationAction {
 	}
 
 	public function run() {
-		$request = $this->mSpecial->getRequest();
+		$special = $this->getSpecial();
+		$request = $special->getRequest();
 
 		$token = $request->getVal( 'token' );
 		$this->id = $request->getVal( 'modid' );
@@ -51,7 +52,8 @@ abstract class ModerationAction {
 			throw new ErrorPageError( 'sessionfailure-title', 'sessionfailure' );
 		}
 
-		return $this->execute();
+		$this->execute();
+		$special->getOutput()->addReturnTo($special->getTitle());
 	}
 
 	/* The following methods can be overriden in the subclass */
