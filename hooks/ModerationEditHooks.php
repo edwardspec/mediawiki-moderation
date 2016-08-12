@@ -56,7 +56,7 @@ class ModerationEditHooks {
 			They need special handling for Moderation to intercept them properly.
 
 			For example, Flow first creates a comments page and then a comment,
-			but if edit in the comments page was send to moderation, Flow will
+			but if edit in the comments page was sent to moderation, Flow will
 			report error because this comments page was not found.
 
 			Unless we add support for the non-standard ContentHandler,
@@ -103,7 +103,7 @@ class ModerationEditHooks {
 		if ( $mblockCheck->isModerationBlocked( $user->getName() ) ) {
 			$fields['mod_rejected'] = 1;
 			$fields['mod_rejected_by_user'] = 0;
-			$fields['mod_rejected_by_user_text'] = wfMessage( 'Moderation block' )->inContentLanguage()->text();
+			$fields['mod_rejected_by_user_text'] = wfMessage( 'moderation-blocker' )->inContentLanguage()->text();
 			$fields['mod_rejected_auto'] = 1;
 			$fields['mod_preloadable'] = 1; # User can still edit this change, so that spammers won't notice that they are blocked
 		}
