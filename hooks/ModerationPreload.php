@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2015 Edward Chernenko.
+	Copyright (C) 2014-2016 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -71,13 +71,13 @@ class ModerationPreload {
 	}
 
 	/*
-		onAddNewAccount() - called when user creates an account.
+		onLocalUserCreated() - called when user creates an account.
 
 		If the user did some anonymous edits before registering,
 		this hook makes them non-anonymous, so that they could
 		be preloaded.
 	*/
-	public static function onAddNewAccount( $user, $byEmail ) {
+	public static function onLocalUserCreated( $user, $autocreated ) {
 		$request = $user->getRequest();
 		$anon_id = $request->getSessionData( 'anon_id' );
 
@@ -103,6 +103,15 @@ class ModerationPreload {
 			array( 'USE INDEX' => 'moderation_signup' )
 		);
 		$request->setSessionData( 'anon_id', '' );
+	}
+
+	/**
+		@brief Legacy version of onLocalUserCreated(). Used for MediaWiki 1.25 and lower.
+	*/
+	public static function onAddNewAccount( $user, $byEmail ) {
+		if(!class_exists('MediaWiki\\Auth\\AuthManager')) {
+			self::onLocalUserCreated( $user, false );
+		}
 	}
 
 	# loadUnmoderatedEdit() - check if there is a pending-moderation edit of this user to this page,

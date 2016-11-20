@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "12aug2016-1",
+	"version": "20nov2016-1",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -89,6 +89,9 @@
 	"Hooks": {
 		"AddNewAccount": [
 			"ModerationPreload::onAddNewAccount"
+		],
+		"LocalUserCreated": [
+			"ModerationPreload::onLocalUserCreated"
 		],
 		"ApiCheckCanExecute": [
 			"ModerationUploadHooks::onApiCheckCanExecute"
