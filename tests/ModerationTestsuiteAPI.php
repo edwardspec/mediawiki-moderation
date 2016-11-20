@@ -96,6 +96,38 @@ class ModerationTestsuiteAPI {
 		@brief Create account via API. Note: will not login.
 	*/
 	public function apiCreateAccount( $username ) {
+
+		global $wgVersion;
+		if(version_compare($wgVersion, '1.27', '<')) {
+			return self::apiCreateAccountOld($username);
+		}
+
+		# Step 1. Get the token.
+		$q = array(
+			'action' => 'query',
+			'meta' => 'tokens',
+			'type' => 'createaccount'
+		);
+		$ret = $this->query( $q );
+		$token = $ret['query']['tokens']['createaccounttoken'];
+
+		# Step 2. Actually create an account.
+		$q = array(
+			'action' => 'createaccount',
+			'username' => $username,
+			'password' => $this->t->TEST_PASSWORD,
+			'retype' => $this->t->TEST_PASSWORD,
+			'createtoken' => $token,
+			'createreturnurl' => 'http://localhost/' /* Not really used */
+		);
+		$ret = $this->query( $q );
+		return ( $ret['createaccount']['status'] == 'PASS' );
+	}
+
+	/**
+		@brief Legacy method. Same as apiCreateAccount(), but for MediaWiki 1.26 and lower.
+	*/
+	protected function apiCreateAccountOld( $username ) {
 		# Step 1. Get the token.
 		$q = array(
 			'action' => 'createaccount',
