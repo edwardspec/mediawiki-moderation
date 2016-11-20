@@ -223,13 +223,14 @@ class ModerationTestsuite
 			return false;
 		}
 
-		return ($this->t_loggedInAs->equals($this->moderator) ||
-			$this->t_loggedInAs->equals($this->moderatorButNotAutomoderated));
+		$user_id = $this->t_loggedInAs->getId();
+		return ($user_id == $this->moderator->getId()) ||
+			($user_id == $this->moderatorButNotAutomoderated->getId());
 	}
 
 	public function loginAs( User $user )
 	{
-		if($this->t_loggedInAs && $user->equals($this->t_loggedInAs)) {
+		if($this->t_loggedInAs && $user->getId() == $this->t_loggedInAs->getId()) {
 			return; /* Nothing to do, already logged in */
 		}
 

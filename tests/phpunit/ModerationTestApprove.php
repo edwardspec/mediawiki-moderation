@@ -59,7 +59,10 @@ class ModerationTestApprove extends MediaWikiTestCase
 			"testApprove(): Most recent log entry is not 'approve'" );
 		$this->assertEquals( $t->lastEdit['Title'], $le['title'] );
 		$this->assertEquals( $t->moderator->getName(), $le['user'] );
-		$this->assertEquals( $rev['revid'], $le['params']['revid'] );
+
+		if(isset($le['params'])) { /* Not supported in MediaWiki 1.23 */
+			$this->assertEquals( $rev['revid'], $le['params']['revid'] );
+		}
 
 		$events = $t->nonApiLogEntries( 1 );
 		$this->assertEquals( 'approve', $events[0]['type'] );
