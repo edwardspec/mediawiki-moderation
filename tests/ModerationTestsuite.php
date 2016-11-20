@@ -106,7 +106,9 @@ class ModerationTestsuite
 	*/
 	public function fetchSpecial( $folder = 'DEFAULT' )
 	{
-		$this->loginAs( $this->moderator );
+		if(!$this->isModerator()) { /* Don't relogin in testModeratorNotAutomoderated() */
+			$this->loginAs( $this->moderator );
+		}
 
 		$query = array( 'limit' => 150 );
 		if ( $folder != 'DEFAULT' ) {
@@ -212,13 +214,25 @@ class ModerationTestsuite
 
 	private $t_loggedInAs = null;
 
-	public function loggedInAs()
-	{
+	public function loggedInAs() {
 		return $this->t_loggedInAs;
+	}
+
+	public function isModerator() {
+		if(!$this->t_loggedInAs) {
+			return false;
+		}
+
+		return ($this->t_loggedInAs->equals($this->moderator) ||
+			$this->t_loggedInAs->equals($this->moderatorButNotAutomoderated));
 	}
 
 	public function loginAs( User $user )
 	{
+		if($this->t_loggedInAs && $user->equals($this->t_loggedInAs)) {
+			return; /* Nothing to do, already logged in */
+		}
+
 		$this->api->apiLogin( $user->getName() );
 		$this->t_loggedInAs = $user;
 	}
