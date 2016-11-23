@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2015 Edward Chernenko.
+	Copyright (C) 2014-2016 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,26 +20,21 @@
 	@brief Parent class for all moderation actions.
 */
 
-abstract class ModerationAction {
-	protected $mSpecial;
+abstract class ModerationAction extends ContextSource {
 	protected $id;
 
 	public $actionName;
 	public $moderator;
 
-	public function __construct( SpecialModeration $m ) {
-		$this->mSpecial = $m;
-		$this->moderator = $m->getUser();
-		$this->actionName = $m->getRequest()->getVal( 'modaction' );
+	public function __construct( IContextSource $context ) {
+		$this->setContext( $context );
+
+		$this->moderator = $this->getUser();
+		$this->actionName = $this->getRequest()->getVal( 'modaction' );
 	}
 
-	public function getSpecial() {
-		return $this->mSpecial;
-	}
-
-	public function run() {
-		$special = $this->getSpecial();
-		$request = $special->getRequest();
+	final public function run() {
+		$request = $this->getRequest();
 
 		$token = $request->getVal( 'token' );
 		$this->id = $request->getVal( 'modid' );
@@ -53,7 +48,7 @@ abstract class ModerationAction {
 		}
 
 		$this->execute();
-		$special->getOutput()->addReturnTo($special->getTitle());
+		$this->getOutput()->addReturnTo( SpecialPage::getTitleFor( 'Moderation' ) );
 	}
 
 	/* The following methods can be overriden in the subclass */
@@ -64,4 +59,19 @@ abstract class ModerationAction {
 
 	abstract public function execute();
 
+	/**
+		@brief Utility function. Get userpage of user who made this edit.
+		@returns Title object or false.
+	*/
+	protected function getUserpageOfPerformer() {
+		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
+		$row = $dbw->selectRow( 'moderation',
+			array(
+				'mod_user_text AS user_text'
+			),
+			array( 'mod_id' => $this->id ),
+			__METHOD__
+		);
+		return $row ? Title::makeTitle( NS_USER, $row->user_text ) : false;
+	}
 }

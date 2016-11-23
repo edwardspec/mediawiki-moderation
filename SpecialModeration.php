@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2015 Edward Chernenko.
+	Copyright (C) 2014-2016 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -42,29 +42,42 @@ class SpecialModeration extends QueryPage {
 	public $default_folder = 'pending';
 
 	public $mblockCheck;
-	public $earliestReapprovableTimestamp;
 
-	function makeModerationLink( $action, $id ) {
+	public static function makeModerationLink( $action, $id ) {
+		global $wgUser;
+
 		$params = array( 'modaction' => $action, 'modid' => $id );
 		if ( $action != 'show' && $action != 'preview' ) {
-			$params['token'] = $this->getUser()->getEditToken( $id );
+			$params['token'] = $wgUser->getEditToken( $id );
 		}
 
 		return Linker::link(
-			$this->getTitle(),
+			SpecialPage::getTitleFor( 'Moderation' ),
 			wfMessage( 'moderation-' . $action )->escaped(),
-			array( 'title' => wfMessage( 'tooltip-moderation-' . $action ) ),
+			array( 'title' => wfMessage( 'tooltip-moderation-' . $action )->plain() ),
 			$params,
 			array( 'known', 'noclasses' )
 		);
 	}
+	protected static $earliestTs = false; /**< Cache used by getEarliestReapprovableTimestamp() */
+
+	/**
+		@brief Get the oldest timestamp for the rejected edit which would still allow it to be approved.
+		@returns String (timestamp in MediaWiki format).
+	*/
+	public static function getEarliestReapprovableTimestamp() {
+		if ( self::$earliestTs === false ) {
+			global $wgModerationTimeToOverrideRejection;
+
+			$mw_ts = new MWTimestamp( time() );
+			$mw_ts->timestamp->modify( '-' . intval( $wgModerationTimeToOverrideRejection ) . ' seconds' );
+			self::$earliestTs = $mw_ts->getTimestamp( TS_MW );
+		}
+
+		return self::$earliestTs;
+	}
 
 	function __construct() {
-		global $wgModerationTimeToOverrideRejection;
-
-		$mw_ts = new MWTimestamp( time() );
-		$mw_ts->timestamp->modify( '-' . intval( $wgModerationTimeToOverrideRejection ) . ' seconds' );
-		$this->earliestReapprovableTimestamp = $mw_ts->getTimestamp( TS_MW );
 
 		$this->mblockCheck = new ModerationBlockCheck();
 		parent::__construct( 'Moderation', 'moderation' );
@@ -167,7 +180,7 @@ class SpecialModeration extends QueryPage {
 			throw new ModerationError( 'moderation-unknown-modaction' );
 		}
 
-		$A = new $class( $this );
+		$A = new $class( $this->getContext() );
 		$A->run();
 	}
 
@@ -271,8 +284,9 @@ class SpecialModeration extends QueryPage {
 					$line .= wfMessage( 'moderation-no-merge-link-not-automoderated' );
 				}
 			} else {
-				if ( !$result->rejected || $result->timestamp > $this->earliestReapprovableTimestamp )
+				if ( !$result->rejected || $result->timestamp > self::getEarliestReapprovableTimestamp() ) {
 					$line .= $this->makeModerationLink( 'approve', $result->id );
+				}
 
 				# Note: you can use "Approve all" on rejected edit,
 				# but it will only affect not-yet-rejected edits.
@@ -326,18 +340,6 @@ class SpecialModeration extends QueryPage {
 		$html = Xml::tags( 'span', array( 'class' => $class ), $line );
 
 		return $html;
-	}
-
-	function getUserpageByModId( $id ) {
-		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
-		$row = $dbw->selectRow( 'moderation',
-			array(
-				'mod_user_text AS user_text'
-			),
-			array( 'mod_id' => $id ),
-			__METHOD__
-		);
-		return $row ? Title::makeTitle( NS_USER, $row->user_text ) : false;
 	}
 }
 

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2015 Edward Chernenko.
+	Copyright (C) 2014-2016 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ class ModerationActionReject extends ModerationAction {
 	}
 
 	public function executeRejectOne() {
-		$out = $this->mSpecial->getOutput();
+		$out = $this->getOutput();
 
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
@@ -96,9 +96,9 @@ class ModerationActionReject extends ModerationAction {
 	}
 
 	public function executeRejectAll() {
-		$out = $this->mSpecial->getOutput();
+		$out = $this->getOutput();
 
-		$userpage = $this->mSpecial->getUserpageByModId( $this->id );
+		$userpage = $this->getUserpageOfPerformer();
 		if ( !$userpage ) {
 			throw new ModerationError( 'moderation-edit-not-found' );
 		}

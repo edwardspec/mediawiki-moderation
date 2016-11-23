@@ -37,7 +37,7 @@ class ModerationActionApprove extends ModerationAction {
 	}
 
 	public function executeApproveOne() {
-		$out = $this->mSpecial->getOutput();
+		$out = $this->getOutput();
 		$this->prepareApproveHooks();
 
 		$this->approveEditById( $this->id );
@@ -45,9 +45,9 @@ class ModerationActionApprove extends ModerationAction {
 	}
 
 	public function executeApproveAll() {
-		$out = $this->mSpecial->getOutput();
+		$out = $this->getOutput();
 
-		$userpage = $this->mSpecial->getUserpageByModId( $this->id );
+		$userpage = $this->getUserpageOfPerformer();
 		if ( !$userpage ) {
 			throw new ModerationError( 'moderation-edit-not-found' );
 		}
@@ -137,7 +137,7 @@ class ModerationActionApprove extends ModerationAction {
 			throw new ModerationError( 'moderation-already-merged' );
 		}
 
-		if ( $row->rejected && $row->timestamp < $this->mSpecial->earliestReapprovableTimestamp ) {
+		if ( $row->rejected && $row->timestamp < SpecialModeration::getEarliestReapprovableTimestamp() ) {
 			throw new ModerationError( 'moderation-rejected-long-ago' );
 		}
 

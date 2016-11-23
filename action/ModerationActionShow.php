@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2015 Edward Chernenko.
+	Copyright (C) 2014-2016 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ class ModerationActionShow extends ModerationAction {
 	}
 
 	public function execute() {
-		$out = $this->mSpecial->getOutput();
+		$out = $this->getOutput();
 		$out->addModuleStyles( 'mediawiki.action.history.diff' );
 
 		$dbr = wfGetDB( DB_SLAVE );
@@ -73,7 +73,8 @@ class ModerationActionShow extends ModerationAction {
 				'modaction' => 'showimg',
 				'modid' => $this->id
 			);
-			$urlFull = $this->mSpecial->getTitle()->getLinkURL( $urlParams );
+			$specialTitle = SpecialPage::getTitleFor( 'Moderation' );
+			$urlFull = $specialTitle->getLinkURL( $urlParams );
 
 			# Check if this file is not an image (e.g. OGG file)
 			$isImage = 1;
@@ -101,7 +102,7 @@ class ModerationActionShow extends ModerationAction {
 
 			if ( $isImage ) {
 				$urlParams['thumb'] = 1;
-				$url_thumb = $this->mSpecial->getTitle()->getLinkURL( $urlParams );
+				$url_thumb = $specialTitle->getLinkURL( $urlParams );
 				$htmlImg = Xml::element( 'img', array(
 					'src' => $url_thumb
 				) );
@@ -119,7 +120,7 @@ class ModerationActionShow extends ModerationAction {
 		}
 
 		$de = ContentHandler::getForModelID( $model )->createDifferenceEngine(
-			$this->mSpecial->getContext(),
+			$this,
 			$row->last_oldid, 0, 0, 0, 0
 		);
 		$diff = '';
@@ -135,8 +136,8 @@ class ModerationActionShow extends ModerationAction {
 			$headerAfter = wfMessage( 'moderation-diff-header-after' )->text();
 			$out->addHTML( $de->addHeader( $diff, $headerBefore, $headerAfter ) );
 
-			$approveLink = $this->getSpecial()->makeModerationLink( 'approve', $this->id );
-			$rejectLink =  $this->getSpecial()->makeModerationLink( 'reject', $this->id );
+			$approveLink = SpecialModeration::makeModerationLink( 'approve', $this->id );
+			$rejectLink = SpecialModeration::makeModerationLink( 'reject', $this->id );
 
 			$out->addHTML( $approveLink );
 			$out->addHTML( ' / ' );

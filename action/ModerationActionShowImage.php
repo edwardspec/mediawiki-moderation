@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2015 Edward Chernenko.
+	Copyright (C) 2014-2016 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -29,12 +29,12 @@ class ModerationActionShowImage extends ModerationAction {
 	}
 
 	public function send404ImageNotFound() {
-		$this->mSpecial->getOutput()->disable(); # No HTML output
+		$this->getOutput()->disable(); # No HTML output
 		StreamFile::prepareForStream( null, null, null, true ); # send 404 Not Found
 	}
 
 	public function execute() {
-		$out = $this->mSpecial->getOutput();
+		$out = $this->getOutput();
 
 		$dbr = wfGetDB( DB_SLAVE );
 		$row = $dbr->selectRow( 'moderation',
@@ -63,7 +63,7 @@ class ModerationActionShowImage extends ModerationAction {
 			return $this->send404ImageNotFound();
 		}
 
-		$isThumb = $this->mSpecial->getRequest()->getVal( 'thumb' );
+		$isThumb = $this->getRequest()->getVal( 'thumb' );
 		if ( $isThumb ) {
 			$thumb = $file->transform( array( 'width' => self::THUMB_WIDTH ), File::RENDER_NOW );
 			if ( $thumb ) {
