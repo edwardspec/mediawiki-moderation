@@ -26,6 +26,10 @@ class ModerationActionPreview extends ModerationAction {
 		return false;
 	}
 
+	public function requiresWrite() {
+		return false;
+	}
+
 	public function execute() {
 		$out = $this->getOutput();
 

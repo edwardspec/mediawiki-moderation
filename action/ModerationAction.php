@@ -34,6 +34,10 @@ abstract class ModerationAction extends ContextSource {
 	}
 
 	final public function run() {
+		if ( $this->requiresWrite() && wfReadOnly() ) {
+			throw new ReadOnlyError;
+		}
+
 		$request = $this->getRequest();
 
 		$token = $request->getVal( 'token' );
@@ -53,7 +57,13 @@ abstract class ModerationAction extends ContextSource {
 
 	/* The following methods can be overriden in the subclass */
 
+	/** @brief Whether the URL of this action must contain CSRF token */
 	public function requiresEditToken() {
+		return true;
+	}
+
+	/** @brief Whether this action requires the wiki not to be locked */
+	public function requiresWrite() {
 		return true;
 	}
 

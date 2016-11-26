@@ -26,6 +26,10 @@ class ModerationActionShow extends ModerationAction {
 		return false;
 	}
 
+	public function requiresWrite() {
+		return false;
+	}
+
 	public function execute() {
 		$out = $this->getOutput();
 		$out->addModuleStyles( 'mediawiki.action.history.diff' );

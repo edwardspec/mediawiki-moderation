@@ -28,6 +28,10 @@ class ModerationActionShowImage extends ModerationAction {
 		return false;
 	}
 
+	public function requiresWrite() {
+		return false;
+	}
+
 	public function send404ImageNotFound() {
 		$this->getOutput()->disable(); # No HTML output
 		StreamFile::prepareForStream( null, null, null, true ); # send 404 Not Found
