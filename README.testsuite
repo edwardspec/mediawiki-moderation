@@ -23,10 +23,14 @@ WARNING: THIS TEST DOESN'T PRESERVE EXISTING DATABASE. EVERYTHING IS DELETED.
 2) Append the following lines to LocalSettings.php:
 
 $wgMainCacheType = CACHE_NONE;
-$wgSessionsInMemcached = false;
+$wgSessionCacheType = CACHE_DB;
 
 This is needed because tests modify the 'user' SQL table directly,
 and cached old state of users may affect the result of tests.
+
+NOTE: Extension:Moderation works perfectly with object cache on,
+and if you want to check it, use $wgMainCacheType = CACHE_DB;
+This was not recommended above because it makes the tests very slow.
 
 3) Go into the MediaWiki directory.
 
@@ -196,3 +200,10 @@ It provides the following:
 	13) Merge action doesn't work without a token or with incorrect token,
 	14) edit conflicts are detected when ApproveAll is clicked,
 	15) edits with detected conflict can be rejected.
+
+15. [ModerationTestPreview.php]
+	Answers the question: "Does the Preview link work as expected?"
+	Here we check that
+	1) Preview link is (by default) not shown on Special:Moderation,
+	2) Preview link opens a preview page with a correct HTML title,
+	3) edits containing '''bold'''/''italic'' have <b>/<i> tags in preview.
