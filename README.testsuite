@@ -20,21 +20,9 @@ WARNING: THIS TEST DOESN'T PRESERVE EXISTING DATABASE. EVERYTHING IS DELETED.
 
 1) Install PHPunit.
 
-2) Append the following lines to LocalSettings.php:
+2) Go into the MediaWiki directory.
 
-$wgMainCacheType = CACHE_NONE;
-$wgSessionCacheType = CACHE_DB;
-
-This is needed because tests modify the 'user' SQL table directly,
-and cached old state of users may affect the result of tests.
-
-NOTE: Extension:Moderation works perfectly with object cache on,
-and if you want to check it, use $wgMainCacheType = CACHE_DB;
-This was not recommended above because it makes the tests very slow.
-
-3) Go into the MediaWiki directory.
-
-4) Run the following command:
+3) Run the following command:
 
 for i in extensions/Moderation/tests/phpunit/*.php; do tests/phpunit/phpunit.php $i; done
 
