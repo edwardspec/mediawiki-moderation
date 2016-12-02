@@ -41,7 +41,7 @@ class ModerationTestPreview extends MediaWikiTestCase
 		$t->fetchSpecial();
 
 		$entry = $t->new_entries[0];
-		$this->assertNull($entry->previewLink,
+		$this->assertNull( $entry->previewLink,
 			"testPreview(): Preview link was mistakenly shown (this link must be hidden in default configuration)" );
 
 		$url = $entry->expectedActionLink( 'preview', false );
@@ -51,12 +51,12 @@ class ModerationTestPreview extends MediaWikiTestCase
 			"testPreview(): Preview page has a wrong HTML title" );
 
 		$main = $t->html->getMainContent();
-		$bold = $main->getElementsByTagName('b')->item(0);
-		$italic = $main->getElementsByTagName('i')->item(0);
+		$bold = $main->getElementsByTagName( 'b' )->item( 0 );
+		$italic = $main->getElementsByTagName( 'i' )->item( 0 );
 
-		$this->assertNotNull($bold,
+		$this->assertNotNull( $bold,
 			"testPreview(): <b> tag not found on the preview page" );
-		$this->assertNotNull($italic,
+		$this->assertNotNull( $italic,
 			"testPreview(): <i> tag not found on the preview page" );
 
 		$this->assertEquals( 'very bold', $bold->textContent,
