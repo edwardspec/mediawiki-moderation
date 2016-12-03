@@ -23,11 +23,11 @@
 class ModerationBlockCheck {
 	public static function isModerationBlocked( $user ) {
 		$dbw = wfGetDB( DB_MASTER ); # Need actual data
-		$row = $dbw->selectField( 'moderation_block',
+		$blocked = $dbw->selectField( 'moderation_block',
 			'mb_id',
 			array( 'mb_address' => $user->getName() ),
 			__METHOD__
 		);
-		return $row ? true : false;
+		return $blocked ? true : false;
 	}
 }
