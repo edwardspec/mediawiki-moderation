@@ -26,7 +26,7 @@ abstract class ModerationAction extends ContextSource {
 	public $actionName;
 	public $moderator;
 
-	public function __construct( IContextSource $context ) {
+	protected function __construct( IContextSource $context ) {
 		$this->setContext( $context );
 
 		$this->moderator = $this->getUser();
@@ -83,5 +83,42 @@ abstract class ModerationAction extends ContextSource {
 			__METHOD__
 		);
 		return $row ? Title::makeTitle( NS_USER, $row->user_text ) : false;
+	}
+
+	/** @brief Construct new ModerationAction */
+	public static function factory( IContextSource $context )
+	{
+		$action = $context->getRequest()->getVal( 'modaction' );
+		if(!$action) {
+			return false;
+		}
+
+		switch ( $action ) {
+			case 'showimg':
+				return new ModerationActionShowImage( $context );
+
+			case 'show':
+				return new ModerationActionShow( $context );
+
+			case 'preview':
+				return new ModerationActionPreview( $context );
+
+			case 'approve':
+			case 'approveall':
+				return new ModerationActionApprove( $context );
+
+			case 'reject':
+			case 'rejectall':
+				return new ModerationActionReject( $context );
+
+			case 'merge':
+				return new ModerationActionMerge( $context );
+
+			case 'block':
+			case 'unblock':
+				return new ModerationActionBlock( $context );
+		}
+
+		throw new ModerationError( 'moderation-unknown-modaction' );
 	}
 }

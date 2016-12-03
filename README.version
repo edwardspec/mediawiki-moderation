@@ -1,4 +1,4 @@
-1) Version has the following format: 26nov2016-1
+1) Version has the following format: 26nov2016-1, 5jul2016-1.
 2) Version is updated after any change in the PHP code, SQL, CSS/JS or i18n.
 3) Version is not updated after changes in testsuite and documentation.
 4) Both extension.json (for MW1.26+) and legacy Moderation.php must be updated.

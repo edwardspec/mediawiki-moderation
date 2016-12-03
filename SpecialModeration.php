@@ -130,58 +130,17 @@ class SpecialModeration extends QueryPage {
 		$out = $this->getOutput();
 		$out->preventClickjacking();
 
-		$action = $this->getRequest()->getVal( 'modaction' );
-		$id = $this->getRequest()->getVal( 'modid' );
-		$token = $this->getRequest()->getVal( 'token' );
-
-		if ( !$action ) {
+		$A = ModerationAction::factory( $this->getContext() );
+		if($A) {
+			// Some action was requested
+			$A->run();
+		}
+		else {
 			$out->addModules( 'ext.moderation' );
 			$out->addWikiMsg( 'moderation-text' );
 
 			return parent::execute( '' ); # '' suppresses warning in QueryPage.php
 		}
-
-		# Some action was requested
-
-		$class = null;
-		switch ( $action ) {
-			case 'showimg':
-				$class = 'ModerationActionShowImage';
-				break;
-
-			case 'show':
-				$class = 'ModerationActionShow';
-				break;
-
-			case 'preview':
-				$class = 'ModerationActionPreview';
-				break;
-
-			case 'approve':
-			case 'approveall':
-				$class = 'ModerationActionApprove';
-				break;
-
-			case 'reject':
-			case 'rejectall':
-				$class = 'ModerationActionReject';
-				break;
-
-			case 'merge':
-				$class = 'ModerationActionMerge';
-				break;
-
-			case 'block':
-			case 'unblock':
-				$class = 'ModerationActionBlock';
-		}
-
-		if ( !$class ) {
-			throw new ModerationError( 'moderation-unknown-modaction' );
-		}
-
-		$A = new $class( $this->getContext() );
-		$A->run();
 	}
 
 	function getOrderFields() {
