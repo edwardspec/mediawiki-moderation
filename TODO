@@ -1,5 +1,12 @@
 TODO:
 
+Concepts to think about:
+* Need a solution for API-based JavaScript editors (like VisualEditor) to work.
+	This will most likely require some edits in MediaWiki core,
+	as the problem is that VisualEditor considers "moderation-edit-queued"
+	to be a failure and panics that it couldn't save the edit.
+	Also need to provide an analogue of ModerationPreload to them via API.
+
 Medium-prio:
 * (testsuite) Provide ~100% automated test coverage of all functionality.
 
@@ -25,7 +32,7 @@ Background-prio (may not be needed):
 * (feature) Support uploads via API.
 
 Tests to implement:
-- check presence of "Return to Special:Moderation" link on both success and error (checking one action is sufficient).
+- ...
 
 FIXME (hard to fix properly):
 - when user removes the section header (== here ==) while editing this
