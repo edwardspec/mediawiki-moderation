@@ -47,7 +47,7 @@ class ModerationPreload {
 		global $wgUser, $wgRequest;
 
 		if ( !$wgUser->isAnon() ) {
-			return ModerationPreload::User_to_PreloadId( $wgUser );
+			return self::User_to_PreloadId( $wgUser );
 		}
 
 		$anon_id = $wgRequest->getSessionData( 'anon_id' );
@@ -59,15 +59,15 @@ class ModerationPreload {
 			$anon_id = MWCryptRand::generateHex( 32 );
 			$wgRequest->setSessionData( 'anon_id', $anon_id );
 		}
-		return ModerationPreload::AnonId_to_PreloadId( $anon_id );
+		return self::AnonId_to_PreloadId( $anon_id );
 	}
 
 	public static function generatePreloadId() {
-		return ModerationPreload::getPreloadId( true );
+		return self::getPreloadId( true );
 	}
 
 	public static function findPreloadIdOrFail() {
-		return ModerationPreload::getPreloadId( false );
+		return self::getPreloadId( false );
 	}
 
 	/*
@@ -85,8 +85,8 @@ class ModerationPreload {
 			return;
 		}
 
-		$old_preload_id = ModerationPreload::AnonId_to_PreloadId( $anon_id );
-		$new_preload_id = ModerationPreload::User_to_PreloadId( $user );
+		$old_preload_id = self::AnonId_to_PreloadId( $anon_id );
+		$new_preload_id = self::User_to_PreloadId( $user );
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'moderation',
@@ -117,7 +117,7 @@ class ModerationPreload {
 	# loadUnmoderatedEdit() - check if there is a pending-moderation edit of this user to this page,
 	# and if such edit exists, then load its text and edit comment
 	public static function loadUnmoderatedEdit( &$title ) {
-		$preload_id = ModerationPreload::findPreloadIdOrFail();
+		$preload_id = self::findPreloadIdOrFail();
 		if ( !$preload_id ) { # This visitor never saved any edits
 			return;
 		}
@@ -145,7 +145,7 @@ class ModerationPreload {
 		return $row;
 	}
 
-	public static function showUnmoderatedEdit( &$text, &$title, &$editPage ) {
+	public static function showUnmoderatedEdit( &$text, &$title, &$editPage = null ) {
 		global $wgRequest, $wgOut;
 
 		$section = $wgRequest->getVal( 'section' );
@@ -155,7 +155,7 @@ class ModerationPreload {
 			return;
 		}
 
-		$row = ModerationPreload::loadUnmoderatedEdit( $title );
+		$row = self::loadUnmoderatedEdit( $title );
 		if ( !$row ) {
 			return;
 		}
@@ -164,9 +164,11 @@ class ModerationPreload {
 		$wgOut->wrapWikiMsg( '<div id="mw-editing-your-version">$1</div>', array( 'moderation-editing-your-version' ) );
 
 		$text = $row->text;
+		$summary = $row->comment;
 
 		if ( $editPage ) {
-			$editPage->summary = $row->comment;
+			/* Editing existing page */
+			$editPage->summary = $summary;
 
 			if ( $section != false ) {
 				$fullContent = ContentHandler::makeContent( $text, $title );
@@ -177,14 +179,24 @@ class ModerationPreload {
 				}
 			}
 		}
+		else {
+			/* Editing a new page.
+				Because we don't have an EditPage object here,
+				we can't set summary directly, so we pass it
+				to [ext.moderation.edit.js] script,
+				which would then populate the "Summary" field.
+			*/
+			$wgOut->addJsConfigVars( array(
+				'wgPreloadedSummary' => $summary
+			) );
+		}
 	}
 
 	public static function onEditFormPreloadText( &$text, &$title ) {
-		$__unused = false;
-		ModerationPreload::showUnmoderatedEdit( $text, $title, $__unused );
+		self::showUnmoderatedEdit( $text, $title );
 	}
 
 	public static function onEditFormInitialText( $editPage ) {
-		ModerationPreload::showUnmoderatedEdit( $editPage->textbox1, $editPage->mTitle, $editPage );
+		self::showUnmoderatedEdit( $editPage->textbox1, $editPage->mTitle, $editPage );
 	}
 }

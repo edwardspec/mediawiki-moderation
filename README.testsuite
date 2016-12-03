@@ -166,9 +166,10 @@ It provides the following:
 	1) text from the last queued edit is preloaded into the edit form,
 	2) text is preloaded for both logged in and anonymous users,
 	3) edit summary is restored when preloading existing pages,
-	4) "ext.moderation.edit" module is loaded if something was preloaded,
-	5) check that (moderation-editing-your-version) message is shown,
-	6) check that anonymous edits are preloaded after creating an account.
+	4) edit summary is passed to JavaScript when preloading new pages,
+	5) "ext.moderation.edit" module is loaded if something was preloaded,
+	6) message (moderation-editing-your-version) is shown,
+	7) anonymous edits can still be preloaded after creating an account.
 
 14. [ModerationTestMerge.php]
 	Answers the question: "Does the Merge link work as expected?"

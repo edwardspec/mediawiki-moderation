@@ -35,7 +35,7 @@ $wgExtensionCredits['antispam'][] = array(
 	'author' => 'Edward Chernenko',
 	'url' => 'https://www.mediawiki.org/wiki/Extension:Moderation',
 	'descriptionmsg' => 'moderation-desc',
-	'version' => '3dec2016-3'
+	'version' => '3dec2016-4'
 );
 
 $wgMessagesDirs['Moderation'] = __DIR__ . "/i18n";
@@ -81,7 +81,10 @@ $moduleTemplate = array(
 	'position' => 'bottom'
 );
 $wgResourceModules['ext.moderation'] = $moduleTemplate + array( 'styles' => 'ext.moderation.css' );
-$wgResourceModules['ext.moderation.edit'] = $moduleTemplate + array( 'styles' => 'ext.moderation.edit.css' );
+$wgResourceModules['ext.moderation.edit'] = $moduleTemplate + array(
+	'scripts' => 'ext.moderation.edit.js',
+	'styles' => 'ext.moderation.edit.css'
+);
 $wgResourceModules['ext.moderation.notify'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.notify.js',
 	'dependencies' => array( 'mediawiki.jqueryMsg', 'mediawiki.action.view.postEdit' ),

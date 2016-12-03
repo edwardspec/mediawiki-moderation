@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015 Edward Chernenko.
+	Copyright (C) 2015-2016 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -38,8 +38,25 @@ class ModerationTestPreload extends MediaWikiTestCase
 			$t->html->getPreloadedText( $t->lastEdit['Title'] ),
 			"testLoggedInPreload(): Preloaded text differs from what the user saved before" );
 
-		# Summary is not preloaded for new pages, see KNOWN_LIMITATIONS
+		/* For new pages, summary is filled in by [ext.moderation.edit.js] script,
+			which uses mw.config.get('wgPreloadedSummary').
+			Here we check that this JavaScript variable was indeed populated.
+		*/
+		$summary = false;
+		$scripts = $t->html->getElementsByTagName('script');
+		foreach($scripts as $script) {
+			if(preg_match('/([\'"])wgPreloadedSummary\1\s*:\s*([\'"])(.+?)\2/', $script->textContent, $matches)) {
+				$summary = $matches[3];
+				break;
+			}
+		}
 
+		$this->assertNotNull( $summary,
+			"testLoggedInPreload(): JavaScript variable wgPreloadedSummary wasn't populated." );
+		$this->assertEquals( $t->lastEdit['Summary'], $summary,
+			"testLoggedInPreload(): JavaScript variable wgPreloadedSummary doesn't match the summary of last edit." );
+
+		/* Were the script/style loaded? */
 		$this->assertContains( 'ext.moderation.edit', $t->html->getLoaderModulesList(),
 			"testLoggedInPreload(): Module ext.moderation.edit wasn't loaded" );
 	}
@@ -74,8 +91,11 @@ class ModerationTestPreload extends MediaWikiTestCase
 	public function testPreloadSummary() {
 		$t = new ModerationTestsuite();
 
-		# Summaries are only preloaded for existing pages, so we need
-		# to create the page first. (see KNOWN_LIMITATIONS for details)
+		/* For existing pages, summary is preloaded directly (into EditPage object),
+			not via [ext.moderation.edit.js] script.
+
+			To test this, we need to create the page first.
+		*/
 
 		$page = "Test page 1";
 		$summary = "The quick brown fox jumps over the lazy dog";

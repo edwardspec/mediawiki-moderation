@@ -2,14 +2,6 @@ List of known limitations:
 
 ===============================================================================
 Limitation:
-	Summary of the previous edit (still pending moderation) is only
-	preloaded for existing pages.
-Why:
-	"EditFormPreloadText" hook doesn't provide EditPage object.
-===============================================================================
-
-===============================================================================
-Limitation:
 	Unless the user has 'skip-moderation' right:
 	1) only uploads via conventional Special:Upload are supported.
 	2) Upload via API is disabled.
