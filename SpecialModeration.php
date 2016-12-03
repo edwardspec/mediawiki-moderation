@@ -41,8 +41,6 @@ class SpecialModeration extends QueryPage {
 	);
 	public $default_folder = 'pending';
 
-	public $mblockCheck;
-
 	public static function makeModerationLink( $action, $id ) {
 		global $wgUser;
 
@@ -78,8 +76,6 @@ class SpecialModeration extends QueryPage {
 	}
 
 	function __construct() {
-
-		$this->mblockCheck = new ModerationBlockCheck();
 		parent::__construct( 'Moderation', 'moderation' );
 	}
 
@@ -157,7 +153,7 @@ class SpecialModeration extends QueryPage {
 		$index = 'moderation_folder_' . $this->folder;
 
 		return array(
-			'tables' => array( 'moderation' ),
+			'tables' => array( 'moderation', 'moderation_block' ),
 			'fields' => array(
 				'mod_id AS id',
 				'mod_timestamp AS timestamp',
@@ -178,10 +174,20 @@ class SpecialModeration extends QueryPage {
 				'mod_rejected_batch AS rejected_batch',
 				'mod_rejected_auto AS rejected_auto',
 				'mod_conflict AS conflict',
-				'mod_merged_revid AS merged_revid'
+				'mod_merged_revid AS merged_revid',
+				'mb_id AS moderation_blocked'
 			),
 			'conds' => $conds,
-			'options' => array( 'USE INDEX' => $index )
+			'options' => array( 'USE INDEX' => array(
+				'moderation' => $index,
+				'moderation_block' => 'moderation_block_address'
+			)),
+			'join_conds' => array(
+				'moderation_block' => array(
+					'LEFT JOIN',
+					array('mb_address=mod_user_text')
+				)
+			)
 		);
 	}
 
@@ -277,7 +283,7 @@ class SpecialModeration extends QueryPage {
 
 		$line .= ' . . [';
 		$line .= $this->makeModerationLink(
-			$this->mblockCheck->isModerationBlocked( $result->user_text ) ? 'unblock' : 'block',
+			$result->moderation_blocked ? 'unblock' : 'block',
 			$result->id
 		);
 		$line .= ']';

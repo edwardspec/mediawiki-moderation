@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2015 Edward Chernenko.
+	Copyright (C) 2014-2016 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,24 +21,13 @@
 */
 
 class ModerationBlockCheck {
-	private $modblocked_cache = array();
-
-	public function isModerationBlocked( $username ) {
-		# Caching works for the duration of this request only,
-		# just to avoid duplicate SQL queries.
-		if ( array_key_exists( $username, $this->modblocked_cache ) ) {
-			return $this->modblocked_cache[$username];
-		}
-
+	public static function isModerationBlocked( $user ) {
 		$dbw = wfGetDB( DB_MASTER ); # Need actual data
-		$row = $dbw->selectRow( 'moderation_block',
-			array( 'mb_id' ),
-			array( 'mb_address' => $username ),
+		$row = $dbw->selectField( 'moderation_block',
+			'mb_id',
+			array( 'mb_address' => $user->getName() ),
 			__METHOD__
 		);
-		$result = $row ? true : false;
-
-		$this->modblocked_cache[$username] = $result;
-		return $result;
+		return $row ? true : false;
 	}
 }

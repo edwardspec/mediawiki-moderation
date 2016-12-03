@@ -99,8 +99,7 @@ class ModerationEditHooks {
 			'mod_preloadable' => 1
 		);
 
-		$mblockCheck = new ModerationBlockCheck();
-		if ( $mblockCheck->isModerationBlocked( $user->getName() ) ) {
+		if ( ModerationBlockCheck::isModerationBlocked( $user ) ) {
 			$fields['mod_rejected'] = 1;
 			$fields['mod_rejected_by_user'] = 0;
 			$fields['mod_rejected_by_user_text'] = wfMessage( 'moderation-blocker' )->inContentLanguage()->text();
