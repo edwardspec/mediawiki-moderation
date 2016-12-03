@@ -195,3 +195,9 @@ It provides the following:
 	1) Preview link is (by default) not shown on Special:Moderation,
 	2) Preview link opens a preview page with a correct HTML title,
 	3) edits containing '''bold'''/''italic'' have <b>/<i> tags in preview.
+
+16. [ModerationTestReturnto.php]
+	Answers the question: "Do moderation actions show Returnto link?"
+	Here we check that
+	1) successful action shows "Return to Special:Moderation" link,
+	2) failed action shows "Return to Special:Moderation" link.
