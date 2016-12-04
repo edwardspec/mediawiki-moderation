@@ -54,7 +54,7 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		if ( !array_key_exists( 'CheckUser', $wgSpecialPages )
 			|| !$dbw->tableExists( 'cu_changes' ) )
 		{
-			$this->markTestIncomplete( 'Test skipped: CheckUser extension must be installed to run it.' );
+			$this->markTestSkipped( 'Test skipped: CheckUser extension must be installed to run it.' );
 		}
 
 		$moderatorUA = 'UserAgent of Moderator/1.0';
