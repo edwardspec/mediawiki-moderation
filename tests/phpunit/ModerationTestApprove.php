@@ -38,7 +38,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$this->assertNotNull( $entry->approveLink,
 			"testApprove(): Approve link not found" );
 
-		$rev = $this->tryToApprove( $t, $entry );
+		$rev = $this->tryToApprove( $t, $entry, __FUNCTION__ );
 		$t->fetchSpecial();
 
 		$this->assertCount( 0, $t->new_entries,
@@ -188,7 +188,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$entry = $t->new_entries[0];
 		$this->assertNotNull( $entry->approveLink,
 			"testApproveRejected(): Approve link not found" );
-		$this->tryToApprove( $t, $entry );
+		$this->tryToApprove( $t, $entry, __FUNCTION__ );
 
 		$t->fetchSpecial( 'rejected' );
 
@@ -260,7 +260,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$this->assertNotNull( $entry->approveLink,
 			"testApproveNotExpiredRejected(): Approve link is missing for edit that was rejected less than $wgModerationTimeToOverrideRejection seconds ago" );
 
-		$this->tryToApprove( $t, $entry );
+		$this->tryToApprove( $t, $entry, __FUNCTION__ );
 	}
 
 	/**
@@ -294,7 +294,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 		/* Must be able to approve the edit (this user is moderator) */
 		$t->loginAs( $t->moderatorButNotAutomoderated );
-		$this->tryToApprove( $t, $entry );
+		$this->tryToApprove( $t, $entry, __FUNCTION__ );
 
 		/* ApproveAll must also work */
 		$t->doNTestEditsWith( $t->moderatorButNotAutomoderated );
@@ -326,7 +326,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 			array( 'mod_id' => $entry->id ),
 			__METHOD__
 		);
-		$rev = $this->tryToApprove( $t, $entry );
+		$rev = $this->tryToApprove( $t, $entry, __FUNCTION__ );
 
 		# Page history should mention the time when edit was made,
 		# not when it was approved.
@@ -366,12 +366,12 @@ class ModerationTestApprove extends MediaWikiTestCase
 			"testApproveTimestamp(): timestamp of approved edit in RecentChanges is too different from the time of approval" );
 	}
 
-	private function tryToApprove( $t, $entry )
+	private function tryToApprove( $t, $entry, $caller )
 	{
 		$t->html->loadFromURL( $entry->approveLink );
 		$this->assertRegExp( '/\(moderation-approved-ok: 1\)/',
 			$t->html->getMainText(),
-			"testApproveAll(): Result page doesn't contain (moderation-approved-ok: 1)" );
+			"$caller(): Result page doesn't contain (moderation-approved-ok: 1)" );
 
 		$rev = $t->getLastRevision( $entry->title );
 
