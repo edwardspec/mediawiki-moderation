@@ -35,7 +35,7 @@ $wgExtensionCredits['antispam'][] = array(
 	'author' => 'Edward Chernenko',
 	'url' => 'https://www.mediawiki.org/wiki/Extension:Moderation',
 	'descriptionmsg' => 'moderation-desc',
-	'version' => '3dec2016-4'
+	'version' => '7dec2016-1'
 );
 
 $wgMessagesDirs['Moderation'] = __DIR__ . "/i18n";
@@ -64,6 +64,7 @@ $wgHooks['AddNewAccount'][] = 'ModerationPreload::onAddNewAccount';
 $wgHooks['ApiCheckCanExecute'][] = 'ModerationUploadHooks::onApiCheckCanExecute';
 $wgHooks['AuthPluginAutoCreate'][] = 'ModerationEditHooks::onAuthPluginAutoCreate';
 $wgHooks['BeforePageDisplay'][] = 'ModerationEditHooks::onBeforePageDisplay';
+$wgHooks['EditFilter'][] = 'ModerationEditHooks::onEditFilter';
 $wgHooks['EditFormInitialText'][] = 'ModerationPreload::onEditFormInitialText';
 $wgHooks['EditFormPreloadText'][] = 'ModerationPreload::onEditFormPreloadText';
 $wgHooks['LoadExtensionSchemaUpdates'][] = 'ModerationUpdater::onLoadExtensionSchemaUpdates';

@@ -33,8 +33,3 @@ Background-prio (may not be needed):
 
 Tests to implement:
 - ...
-
-FIXME (hard to fix properly):
-- when user removes the section header (== here ==) while editing this
-	section, text of this section will be overwritten by the text taken
-	from the next section. Detect cases like that.

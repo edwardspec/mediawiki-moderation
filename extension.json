@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "3dec2016-4",
+	"version": "7dec2016-1",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -102,6 +102,9 @@
 		],
 		"BeforePageDisplay": [
 			"ModerationEditHooks::onBeforePageDisplay"
+		],
+		"EditFilter": [
+			"ModerationEditHooks::onEditFilter"
 		],
 		"EditFormInitialText": [
 			"ModerationPreload::onEditFormInitialText"

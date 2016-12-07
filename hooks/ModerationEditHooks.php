@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2015 Edward Chernenko.
+	Copyright (C) 2014-2016 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,10 +21,27 @@
 */
 
 class ModerationEditHooks {
-	public static $LastInsertId = null;
-	public static $NewMergeID = null;
+	public static $LastInsertId = null; /**< mod_id of the last inserted row */
+	public static $NewMergeID = null; /** During modaction=merge, this is mod_id of the pending edit which is currently being merged */
 
 	public static $inApprove = false; /**< Set to true by ModerationActionApprove::prepareApproveHooks() */
+
+	protected static $section = ''; /**< Number of edited section, if any (populated in onEditFilter) */
+	protected static $sectionText = null; /**< Text of edited section, if any (populated in onEditFilter) */
+
+	/*
+		onEditFilter()
+		Save sections-related information, which will then be used in onPageContentSave.
+	*/
+	public static function onEditFilter( $editor, $text, $section, &$error, $summary )
+	{
+		if($section != '') {
+			self::$section = $section;
+			self::$sectionText = $text;
+		}
+
+		return true;
+	}
 
 	/*
 		onPageContentSave()
@@ -113,34 +130,22 @@ class ModerationEditHooks {
 			$dbw->insert( 'moderation', $fields, __METHOD__ );
 			ModerationEditHooks::$LastInsertId = $dbw->insertId();
 		} else {
-			$section = $request->getVal( 'wpSection', $request->getVal( 'section' ) );
-
-			if ( $section ) {
+			if( self::$section != '' ) {
 				#
 				# We must recalculate $fields['mod_text'] here.
 				# Otherwise if the user adds or modifies two (or more) different sections (in consequent edits),
 				# then only modification to the last one will be saved,
 				# because $content is [old content] PLUS [modified section from the edit].
 				#
-				# Difference between $index and $section:
-				# $index: section number in $content. $index can't be "new". If $section was "new", then we need to recalculate $index.
-				# $section: section number in $saved_content. $section can be "new". Used when calling replaceSection().
-				#
-				$index = $section;
-				if ( $section == 'new' ) {
-					#
-					# Parser doesn't allow to get the LAST section directly.
-					# We have to get the entire TOC - just for a single index.
-					#
-					$sections = $content->getParserOutput( $title, null, null, false )->getSections();
-					$new_section_content = end( $sections );
-					$index = $new_section_content['index'];
-				}
 
 				# $new_section_content is exactly what the user just wrote in the edit form (one section only).
-				$new_section_content = $content->getSection( $index );
+				$new_section_content = ContentHandler::makeContent( self::$sectionText, null, $content->getModel() );
+
+				# $saved_content is mod_text which is current written in the "moderation" table of DB
 				$saved_content = ContentHandler::makeContent( $row->text, null, $content->getModel() );
-				$new_content = $saved_content->replaceSection( $section, $new_section_content, '' );
+
+				# New content is $saved_content with replaced section.
+				$new_content = $saved_content->replaceSection( self::$section, $new_section_content, '' );
 
 				$fields['mod_text'] = $new_content->preSaveTransform( $title, $user, $popts )->getNativeData();
 			}

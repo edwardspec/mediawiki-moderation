@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015 Edward Chernenko.
+	Copyright (C) 2015-2016 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -98,6 +98,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 		);
 
 		$expected_text = join( '', $sections );
+
 		$this->assertEquals( $expected_text, $row->text,
 			"testEditSections(): Resulting text doesn't match expected" );
 
@@ -117,6 +118,19 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$this->assertNotRegExp( '/~~~/', $row->text,
 			"testEditSections(): Signature (~~~~) hasn't been properly substituted." );
 
+		# Will editing the section work if section header was deleted?
 
+		$query['section'] = 2;
+		$query['text'] = $sections[2] = "When editing this section, the user removed <nowiki>== This ==</nowiki>\n\n";
+		$ret = $t->query( $query );
+
+		$row = $dbw->selectRow( 'moderation',
+			array( 'mod_text AS text' ),
+			array( 'mod_id' => $t->new_entries[0]->id ),
+			__METHOD__
+		);
+		$expected_text = join( '', $sections );
+		$this->assertEquals( $expected_text, $row->text,
+			"testEditSections(): When section header is deleted, resulting text doesn't match expected " );
 	}
 }
