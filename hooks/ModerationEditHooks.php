@@ -205,6 +205,8 @@ class ModerationEditHooks {
 		if ( $out->getContext()->getRequest()->getVal( 'modqueued' ) ) {
 			$out->addModules( 'ext.moderation.notify' );
 		}
+
+		return true;
 	}
 
 	/*
@@ -261,6 +263,8 @@ class ModerationEditHooks {
 
 	public static function onAuthPluginAutoCreate( $user ) {
 		ModerationPreload::onAddNewAccount( $user, false );
+
+		return true;
 	}
 
 	public static function PrepareEditForm( $editpage, $out ) {
@@ -275,5 +279,7 @@ class ModerationEditHooks {
 
 		$out->addHTML( Html::hidden( 'wpMergeID', $mergeID ) );
 		$out->addHTML( Html::hidden( 'wpIgnoreBlankSummary', '1' ) );
+
+		return true;
 	}
 }

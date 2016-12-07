@@ -105,6 +105,8 @@ class ModerationPreload {
 			array( 'USE INDEX' => 'moderation_signup' )
 		);
 		$request->setSessionData( 'anon_id', '' );
+
+		return true;
 	}
 
 	/**
@@ -114,6 +116,8 @@ class ModerationPreload {
 		if(!class_exists('MediaWiki\\Auth\\AuthManager')) {
 			self::onLocalUserCreated( $user, false );
 		}
+
+		return true;
 	}
 
 	# loadUnmoderatedEdit() - check if there is a pending-moderation edit of this user to this page,

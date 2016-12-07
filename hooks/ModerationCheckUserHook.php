@@ -46,6 +46,8 @@ class ModerationCheckUserHook {
 			$fields['cuc_xff'] = '';
 			$fields['cuc_xff_hex'] = null;
 		}
+
+		return true;
 	}
 
 	/*
@@ -69,6 +71,8 @@ class ModerationCheckUserHook {
 			array( 'rc_id' => $rc->mAttribs['rc_id'] ),
 			__METHOD__
 		);
+
+		return true;
 	}
 
 	public function install( $ip, $xff, $ua ) {
