@@ -27,40 +27,31 @@ require_once( __DIR__ . "/../ModerationTestsuite.php" );
 */
 class ModerationTestPreload extends MediaWikiTestCase
 {
-	public function testLoggedInPreload() {
+	/** @covers ModerationPreload::onEditFormPreloadText */
+	public function testPreloadNewPage() {
 		$t = new ModerationTestsuite();
 
 		$t->loginAs( $t->unprivilegedUser );
-		$t->doTestEdit();
+		$t->doTestEdit(null, null, "The quick brown fox jumps over the lazy dog");
 
-		$this->assertEquals(
-			$t->lastEdit['Text'],
-			$t->html->getPreloadedText( $t->lastEdit['Title'] ),
-			"testLoggedInPreload(): Preloaded text differs from what the user saved before" );
-
-		/* For new pages, summary is filled in by [ext.moderation.edit.js] script,
-			which uses mw.config.get('wgPreloadedSummary').
-			Here we check that this JavaScript variable was indeed populated.
-		*/
-		$summary = false;
-		$scripts = $t->html->getElementsByTagName('script');
-		foreach($scripts as $script) {
-			if(preg_match('/([\'"])wgPreloadedSummary\1\s*:\s*([\'"])(.+?)\2/', $script->textContent, $matches)) {
-				$summary = $matches[3];
-				break;
-			}
-		}
-
-		$this->assertNotNull( $summary,
-			"testLoggedInPreload(): JavaScript variable wgPreloadedSummary wasn't populated." );
-		$this->assertEquals( $t->lastEdit['Summary'], $summary,
-			"testLoggedInPreload(): JavaScript variable wgPreloadedSummary doesn't match the summary of last edit." );
-
-		/* Were the script/style loaded? */
-		$this->assertContains( 'ext.moderation.edit', $t->html->getLoaderModulesList(),
-			"testLoggedInPreload(): Module ext.moderation.edit wasn't loaded" );
+		$this->tryToPreload($t, __FUNCTION__);
 	}
 
+	/** @covers ModerationPreload::onEditFormInitialText */
+	public function testPreloadExistingPage() {
+		$t = new ModerationTestsuite();
+		$page = "Test page 1";
+
+		$t->loginAs( $t->automoderated ); /* Create the page first */
+		$t->doTestEdit( $page, "Text 1" );
+
+		$t->loginAs( $t->unprivilegedUser );
+		$t->doTestEdit( $page, "Another text", "The quick brown fox jumps over the lazy dog" );
+
+		$this->tryToPreload($t, __FUNCTION__);
+	}
+
+	/** @covers ModerationPreload::onLocalUserCreated */
 	public function testAnonymousPreload() {
 		$t = new ModerationTestsuite();
 
@@ -88,44 +79,27 @@ class ModerationTestPreload extends MediaWikiTestCase
 			"testAnonymousPreload(): Text was not preloaded after creating an account" );
 	}
 
-	public function testPreloadSummary() {
-		$t = new ModerationTestsuite();
-
-		/* For existing pages, summary is preloaded directly (into EditPage object),
-			not via [ext.moderation.edit.js] script.
-
-			To test this, we need to create the page first.
-		*/
-
-		$page = "Test page 1";
-		$summary = "The quick brown fox jumps over the lazy dog";
-
-		$t->loginAs( $t->automoderated );
-		$t->doTestEdit( $page, "Text 1" );
-
-		$t->loginAs( $t->unprivilegedUser );
-		$t->doTestEdit( $page, "Another text", $summary );
-
+	private function tryToPreload( ModerationTestsuite $t, $caller )
+	{
 		$this->assertEquals(
 			$t->lastEdit['Text'],
 			$t->html->getPreloadedText( $t->lastEdit['Title'] ),
-			"testPreloadSummary(): Preloaded text differs from what the user saved before" );
+			"$caller(): Preloaded text differs from what the user saved before" );
 
 		$elem = $t->html->getElementById( 'wpSummary' );
-		$this->assertTrue( $elem->hasAttribute( 'value' ),
-			"testPreloadSummary(): #wpSummary doesn't have a 'value' attribute"
-		);
-		$this->assertEquals( $summary, $elem->getAttribute( 'value' ),
-			"testPreloadSummary(): Preloaded summary doesn't match"
+		$this->assertEquals( $t->lastEdit['Summary'], $elem->getAttribute( 'value' ),
+			"$caller(): Preloaded summary doesn't match"
 		);
 
 		$this->assertContains( 'ext.moderation.edit', $t->html->getLoaderModulesList(),
-			"testPreloadSummary(): Module ext.moderation.edit wasn't loaded" );
+			"$caller(): Module ext.moderation.edit wasn't loaded" );
 
 		$elem = $t->html->getElementById( 'mw-editing-your-version' );
 		$this->assertNotNull( $elem,
-			"testPreloadSummary(): #mw-editing-your-version not found" );
+			"$caller(): #mw-editing-your-version not found" );
 		$this->assertEquals( '(moderation-editing-your-version)', $elem->textContent,
-			"testPreloadSummary(): #mw-editing-your-version doesn't contain (moderation-editing-your-version) message" );
+			"$caller(): #mw-editing-your-version doesn't contain (moderation-editing-your-version) message" );
+
+
 	}
 }

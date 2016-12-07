@@ -30,6 +30,8 @@
 
 
 class ModerationPreload {
+	protected static $editPage = null; /**< EditPage object, passed by onAlternateEdit() to onEditFormPreloadText() */
+
 	protected static function AnonId_to_PreloadId( $anon_id ) {
 		return ']' . $anon_id;
 	}
@@ -145,12 +147,16 @@ class ModerationPreload {
 		return $row;
 	}
 
-	public static function showUnmoderatedEdit( &$text, &$title, &$editPage = null ) {
+	/*
+		If there is an edit (currently pending moderation) made by the
+		current user, inform EditPage object of its Text and Summary,
+		so that the user can continue editing its own revision.
+	*/
+	public static function showUnmoderatedEdit( &$text, &$title, &$editPage ) {
 		global $wgRequest, $wgOut;
 
-		$section = $wgRequest->getVal( 'section' );
-
-		if ( $section && $section == 'new' ) {
+		$section = $wgRequest->getVal( 'section', '' );
+		if ( $section == 'new' ) {
 			# Nothing to preload if new section is being created
 			return;
 		}
@@ -164,39 +170,46 @@ class ModerationPreload {
 		$wgOut->wrapWikiMsg( '<div id="mw-editing-your-version">$1</div>', array( 'moderation-editing-your-version' ) );
 
 		$text = $row->text;
-		$summary = $row->comment;
+		$editPage->summary = $row->comment;
 
-		if ( $editPage ) {
-			/* Editing existing page */
-			$editPage->summary = $summary;
+		if ( $section != false ) {
+			$fullContent = ContentHandler::makeContent( $text, $title );
+			$sectionContent = $fullContent->getSection( $section );
 
-			if ( $section != false ) {
-				$fullContent = ContentHandler::makeContent( $text, $title );
-				$sectionContent = $fullContent->getSection( $section );
-
-				if ( $sectionContent ) {
-					$text = $sectionContent->getNativeData();
-				}
+			if ( $sectionContent ) {
+				$text = $sectionContent->getNativeData();
 			}
 		}
-		else {
-			/* Editing a new page.
-				Because we don't have an EditPage object here,
-				we can't set summary directly, so we pass it
-				to [ext.moderation.edit.js] script,
-				which would then populate the "Summary" field.
-			*/
-			$wgOut->addJsConfigVars( array(
-				'wgPreloadedSummary' => $summary
-			) );
-		}
 	}
 
+	/*
+		onAlternateEdit()
+		Remember EditPage object, which will then be used in onEditFormPreloadText.
+	*/
+	public static function onAlternateEdit( $editPage )
+	{
+		self::$editPage = $editPage;
+
+		return true;
+	}
+
+	/*
+		onEditFormPreloadText()
+		Preloads text/summary when the article doesn't exist yet.
+	*/
 	public static function onEditFormPreloadText( &$text, &$title ) {
-		self::showUnmoderatedEdit( $text, $title );
+		self::showUnmoderatedEdit( $text, $title, self::$editPage );
+
+		return true;
 	}
 
+	/*
+		onEditFormPreloadText()
+		Preloads text/summary when the article already exists.
+	*/
 	public static function onEditFormInitialText( $editPage ) {
 		self::showUnmoderatedEdit( $editPage->textbox1, $editPage->mTitle, $editPage );
+
+		return true;
 	}
 }

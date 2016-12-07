@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "7dec2016-2",
+	"version": "7dec2016-3",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -67,7 +67,6 @@
 		},
 		"ext.moderation.edit": {
 			"position": "bottom",
-			"scripts": "ext.moderation.edit.js",
 			"styles": "ext.moderation.edit.css"
 		},
 		"ext.moderation.notify": {
@@ -93,6 +92,9 @@
 		],
 		"LocalUserCreated": [
 			"ModerationPreload::onLocalUserCreated"
+		],
+		"AlternateEdit": [
+			"ModerationPreload::onAlternateEdit"
 		],
 		"ApiCheckCanExecute": [
 			"ModerationUploadHooks::onApiCheckCanExecute"

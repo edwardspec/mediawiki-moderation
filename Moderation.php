@@ -35,7 +35,7 @@ $wgExtensionCredits['antispam'][] = array(
 	'author' => 'Edward Chernenko',
 	'url' => 'https://www.mediawiki.org/wiki/Extension:Moderation',
 	'descriptionmsg' => 'moderation-desc',
-	'version' => '7dec2016-2'
+	'version' => '7dec2016-3'
 );
 
 $wgMessagesDirs['Moderation'] = __DIR__ . "/i18n";
@@ -61,6 +61,7 @@ $wgAutoloadClasses['ModerationActionMerge'] = __DIR__ . '/action/ModerationActio
 $wgAutoloadClasses['ModerationActionPreview'] = __DIR__ . '/action/ModerationActionPreview.php';
 
 $wgHooks['AddNewAccount'][] = 'ModerationPreload::onAddNewAccount';
+$wgHooks['AlternateEdit'][] = 'ModerationPreload::onAlternateEdit';
 $wgHooks['ApiCheckCanExecute'][] = 'ModerationUploadHooks::onApiCheckCanExecute';
 $wgHooks['AuthPluginAutoCreate'][] = 'ModerationEditHooks::onAuthPluginAutoCreate';
 $wgHooks['BeforePageDisplay'][] = 'ModerationEditHooks::onBeforePageDisplay';
@@ -83,7 +84,6 @@ $moduleTemplate = array(
 );
 $wgResourceModules['ext.moderation'] = $moduleTemplate + array( 'styles' => 'ext.moderation.css' );
 $wgResourceModules['ext.moderation.edit'] = $moduleTemplate + array(
-	'scripts' => 'ext.moderation.edit.js',
 	'styles' => 'ext.moderation.edit.css'
 );
 $wgResourceModules['ext.moderation.notify'] = $moduleTemplate + array(
