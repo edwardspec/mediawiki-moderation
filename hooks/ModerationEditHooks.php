@@ -141,10 +141,10 @@ class ModerationEditHooks {
 				# $new_section_content is exactly what the user just wrote in the edit form (one section only).
 				$new_section_content = ContentHandler::makeContent( self::$sectionText, null, $content->getModel() );
 
-				# $saved_content is mod_text which is current written in the "moderation" table of DB
+				# $saved_content is mod_text which is currently written in the "moderation" table of DB.
 				$saved_content = ContentHandler::makeContent( $row->text, null, $content->getModel() );
 
-				# New content is $saved_content with replaced section.
+				# $new_content is $saved_content with replaced section.
 				$new_content = $saved_content->replaceSection( self::$section, $new_section_content, '' );
 
 				$fields['mod_text'] = $new_content->preSaveTransform( $title, $user, $popts )->getNativeData();
