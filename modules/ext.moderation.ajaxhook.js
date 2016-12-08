@@ -45,10 +45,20 @@
 		}
 
 		/* Get original request as array, e.g. { action: "edit", "title": "Testpage1", ... } */
-		var query = {};
-		if(this.sendBody instanceof FormData) {
+		var query = {}, pair;
+		if(this.sendBody instanceof FormData)  {
+			/* FormData: from "mw.api" with enforced multipart/form-data, used by VisualEditor */
 			for(var pair of this.sendBody.entries()) {
-				query[ pair[0] ] = pair[1];
+				query[pair[0]] = pair[1];
+			}
+		}
+		else if($.type( this.sendBody ) == 'string') {
+			/* Querystring: from "mw.api" with default behavior, used by MobileFrontend, etc. */
+			for(var pair of String.split(this.sendBody, '&')) {
+				var kv = pair.split('='),
+					key = decodeURIComponent(kv[0]),
+					val = decodeURIComponent(kv[1]);
+				query[key] = val;
 			}
 		}
 		else {

@@ -87,7 +87,8 @@ $wgResourceModules['ext.moderation.edit'] = $moduleTemplate + array(
 	'styles' => 'ext.moderation.edit.css'
 );
 $wgResourceModules['ext.moderation.ajaxhook'] = $moduleTemplate + array(
-	'scripts' => 'ext.moderation.ajaxhook.js'
+	'scripts' => 'ext.moderation.ajaxhook.js',
+	'targets' => [ 'desktop', 'mobile' ]
 );
 $wgResourceModules['ext.moderation.notify'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.notify.js',
