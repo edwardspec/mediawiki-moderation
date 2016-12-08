@@ -69,6 +69,10 @@
 			"position": "bottom",
 			"styles": "ext.moderation.edit.css"
 		},
+		"ext.moderation.ajaxhook": {
+			"position": "bottom",
+			"scripts": "ext.moderation.ajaxhook.js"
+		},
 		"ext.moderation.notify": {
 			"position": "bottom",
 			"scripts": "ext.moderation.notify.js",

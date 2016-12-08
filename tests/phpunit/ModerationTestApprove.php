@@ -282,7 +282,8 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 		/* Edit must be intercepted (this user is not automoderated) */
 		$this->assertArrayHasKey( 'error', $ret );
-		$this->assertEquals( 'edit-hook-aborted', $ret['error']['code'] );
+		$this->assertEquals( 'unknownerror', $ret['error']['code'] );
+		$this->assertRegExp( '/moderation-edit-queued/', $ret['error']['info'] );
 
 		$entry = $t->new_entries[0];
 		$this->assertCount( 1, $t->new_entries,

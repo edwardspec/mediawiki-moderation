@@ -38,7 +38,8 @@ class ModerationTestInterceptEdit extends MediaWikiTestCase
 		$t->fetchSpecial();
 
 		$this->assertArrayHasKey( 'error', $ret );
-		$this->assertEquals( 'edit-hook-aborted', $ret['error']['code'] );
+		$this->assertEquals( 'unknownerror', $ret['error']['code'] );
+		$this->assertRegExp( '/moderation-edit-queued/', $ret['error']['info'] );
 
 		$this->assertCount( 1, $t->new_entries,
 			"testInterceptEdit(): One edit was queued for moderation, but number of added entries in Pending folder isn't 1" );

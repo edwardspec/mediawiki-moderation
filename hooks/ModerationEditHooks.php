@@ -154,7 +154,7 @@ class ModerationEditHooks {
 			ModerationEditHooks::$LastInsertId = $row->id;
 		}
 
-		// In case the caller treats "edit-hook-aborted" as an error.
+		// In case the caller treats "moderation-edit-queued" as an error.
 		$dbw->commit();
 
 		// Run hook to allow other extensions be notified about pending changes
@@ -198,13 +198,19 @@ class ModerationEditHooks {
 		*/
 
 		$wgOut->redirect( $title->getFullURL( array( 'modqueued' => 1 ) ) );
+
+		$status->fatal( 'moderation-edit-queued' );
 		return false;
 	}
 
 	public static function onBeforePageDisplay( &$out, &$skin ) {
-		if ( $out->getContext()->getRequest()->getVal( 'modqueued' ) ) {
+
+		$request = $out->getContext()->getRequest();
+		if ($request->getVal( 'modqueued' ) ) {
 			$out->addModules( 'ext.moderation.notify' );
 		}
+
+		$out->addModules( 'ext.moderation.ajaxhook' );
 
 		return true;
 	}
