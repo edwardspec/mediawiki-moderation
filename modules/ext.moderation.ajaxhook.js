@@ -39,8 +39,11 @@
 		}
 
 		/* Get JSON response from API */
-		var ret = JSON.parse(this.responseText);
-		if(!ret) {
+		var ret;
+		try {
+			ret = JSON.parse(this.responseText);
+		}
+		catch(e) {
 			return; /* Not a JSON, nothing to overwrite */
 		}
 
