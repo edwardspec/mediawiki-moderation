@@ -1,42 +1,41 @@
 /*
-	The following is based on "mediawiki.action.view.postEdit.js"
-	from the MediaWiki core.
+	Fire "postEdit" hook to show "moderation-edit-queued" to the user.
 */
 
 ( function ( mw, $ ) {
 	'use strict';
 
-	var config = mw.config.get(['wgAction', 'wgScript']),
-		$div;
+	if ( mw.config.get('wgAction') == 'view' && window.location.search.match( /modqueued=1/ ) ) {
 
-	if ( config.wgAction == 'view' && window.location.search.match( /modqueued=1/ ) ) {
-		$div = $(
-			'<div class="postedit-container">' +
-				'<div class="postedit">' +
-					'<div class="postedit-icon postedit-icon-checkmark postedit-content"></div>' +
-					'<a href="#" class="postedit-close">&times;</a>' +
-				'</div>' +
-			'</div>'
-		);
+		var $div = $('<div/>');
+		$div.append($('<p/>').append(
+			mw.message(
+				'moderation-edit-queued',
+				window.location + '&action=edit'
+			).plain()
+		));
 
-		var text = mw.message( 'moderation-edit-queued', window.location + '&action=edit' ).plain();
 		if ( mw.user.getId() == 0 ) {
-			text += '<br>' + mw.message( 'moderation-suggest-signup', 'lol' ).parse();
+			$div.append($('<p/>').append(
+				mw.message( 'moderation-suggest-signup' ).parse()
+			));
 		}
 
-		$div.find( '.postedit-content' ).html( text );
-		$div.find( '.postedit-close' ).click( fadeOutConfirmation );
-		$div.prependTo( 'body' );
+		mw.hook( 'postEdit' ).fire( {
+			message: $div
+		} );
+
+		/* Prevent the message from fading after 3 seconds
+			(fading is done by mediawiki.action.view.postEdit.js),
+			because both 'moderation-edit-queued' and 'moderation-suggest-signup'
+			contain links (edit/signup) which the user might want to follow.
+		*/
+		var $cont = $('.postedit-container');
+		var $newcont = $cont.clone();
+		$cont.replaceWith( $newcont ); /* postEdit.js will remove $cont, but won't touch $newcont */
+
+		/* Remove on click */
+		$newcont.click(function() { this.remove(); });
 	}
 
-	function fadeOutConfirmation() {
-		$div.find( '.postedit' ).addClass( 'postedit-faded' );
-		setTimeout( removeConfirmation, 500 );
-
-		return false;
-	}
-
-	function removeConfirmation() {
-		$div.remove();
-	}
 }( mediaWiki, jQuery ) );
