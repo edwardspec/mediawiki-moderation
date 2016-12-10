@@ -116,21 +116,51 @@
 					/* Showing wgPageName instead of {{DISPLAYTITLE}} is acceptable (to simplify everything) */
 					"displayTitleHtml": mw.config.get('wgPageName').replace(/_/g, ' '),
 
+					/* Fields which are ok to leave empty */
+					"contentSub": "",
+					"modules": "",
+					"jsconfigvars": "",
+
 					/* The following fields are obtainable by api.php?action=parse.
 						Unfortunately, we are in a synchronyous function
 						and must get the result before we return!
 
-						mw.api() calls are all asynchronymous,
-						so we can't use them here.
+						See below.
 					*/
 					"content": "TODO: content",
 					"categorieshtml": "TODO: categorieshtml",
-					"contentSub": "TODO: contentSub", /* ok to leave empty */
-					"modules": "", /* TODO */
-					"jsconfigvars": "" /* TODO */
 				};
-			}
 
+				var api = new mw.Api();
+
+				/*  Using a synchronyous request is a bad idea.
+					It will inevitably break when synchronyous requests are removed by browsers
+					(they are long deprecated and are only kept for compatibility reasons)
+
+					See https://xhr.spec.whatwg.org/#sync-warning for details.
+
+					We MUST come up with another solution.
+				*/
+				api.defaults.ajax.async = false;
+
+				/* TODO: where do we even get text?
+					The only thing we have is query.cachekey,
+					do we need to query action=apivisualeditor?
+				*/
+				var text = "";
+				// text = 'Some test text with [[link]]s, etc. [[Category:Test category]]';
+
+				api.get({
+					action: 'parse',
+					prop: 'text|categorieshtml|displaytitle',
+					text: text,
+					title: mw.config.get('wgPageName')
+				}).done(function(parseresult) {
+					ret.visualeditoredit.displayTitleHtml = parseresult.parse.displaytitle;
+					ret.visualeditoredit.content = parseresult.parse.text['*'];
+					ret.visualeditoredit.categorieshtml = parseresult.parse.categorieshtml;
+				});
+			}
 
 			/* Overwrite readonly fields in this XMLHttpRequest */
 			Object.defineProperty(this, 'responseText', { writable: true });
