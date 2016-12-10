@@ -100,19 +100,35 @@
 
 				ret.visualeditoredit = {
 					"result": "success", /* Lowercase */
-					"content": "TODO",
-					"categorieshtml": "TODO",
-					"newrevid": 0, /* FIXME: check if this causes problem in VisualEditor */
+
+					/* rewrevid is "undefined" on purpose:
+						in this case, ve.init.mw.DesktopArticleTarget.js doesn't do much,
+						most importantly - doesn't fire 'postEdit' hook
+						(which is good, because we need to show another text there).
+						We invoke postEdit ourselves in [ext.moderation.notify.js].
+					*/
+					"newrevid": undefined,
+
+					/* Provide things we already know */
 					"isRedirect": mw.config.get('wgIsRedirect'),
-					"displayTitleHtml": mw.config.get('wgTitle'), /* TODO */
 					"lastModified": "2016-12-08T12:33:23Z", /* TODO: recalculate */
-					"contentSub": "", /* TODO */
+
+					/* Showing wgPageName instead of {{DISPLAYTITLE}} is acceptable (to simplify everything) */
+					"displayTitleHtml": mw.config.get('wgPageName').replace(/_/g, ' '),
+
+					/* The following fields are obtainable by api.php?action=parse.
+						Unfortunately, we are in a synchronyous function
+						and must get the result before we return!
+
+						mw.api() calls are all asynchronymous,
+						so we can't use them here.
+					*/
+					"content": "TODO: content",
+					"categorieshtml": "TODO: categorieshtml",
+					"contentSub": "TODO: contentSub", /* ok to leave empty */
 					"modules": "", /* TODO */
 					"jsconfigvars": "" /* TODO */
 				};
-
-				/* TODO: call api.php?action=parse right here,
-					as in ApiVisualEditorEdit::saveWikitext() */
 			}
 
 
