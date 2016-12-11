@@ -122,7 +122,7 @@ class ModerationPreload {
 
 	# loadUnmoderatedEdit() - check if there is a pending-moderation edit of this user to this page,
 	# and if such edit exists, then load its text and edit comment
-	public static function loadUnmoderatedEdit( &$title ) {
+	public static function loadUnmoderatedEdit( $title ) {
 		$preload_id = self::findPreloadIdOrFail();
 		if ( !$preload_id ) { # This visitor never saved any edits
 			return;

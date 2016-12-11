@@ -23,6 +23,9 @@
 	"SpecialPages": {
 		"Moderation": "SpecialModeration"
 	},
+	"APIPropModules": {
+		"moderationpreload": "ApiQueryModerationPreload"
+	},
 	"LogTypes": [
 		"moderation"
 	],
@@ -34,7 +37,8 @@
 	},
 	"MessagesDirs": {
 		"Moderation": [
-			"i18n"
+			"i18n",
+			"api/i18n"
 		]
 	},
 	"ExtensionMessagesFiles": {
@@ -42,6 +46,7 @@
 	},
 	"AutoloadClasses": {
 		"SpecialModeration": "SpecialModeration.php",
+		"ApiQueryModerationPreload": "api/ApiQueryModerationPreload.php",
 		"ModerationLogFormatter": "ModerationLogFormatter.php",
 		"ModerationSpecialUpload": "ModerationSpecialUpload.php",
 		"ModerationBlockCheck": "util/ModerationBlockCheck.php",

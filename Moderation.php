@@ -38,10 +38,14 @@ $wgExtensionCredits['antispam'][] = array(
 	'version' => '7dec2016-4'
 );
 
-$wgMessagesDirs['Moderation'] = __DIR__ . "/i18n";
+$wgMessagesDirs['Moderation'] = array(
+	__DIR__ . "/i18n",
+	__DIR__ . "/api/i18n"
+);
 $wgExtensionMessagesFiles['ModerationAlias'] = __DIR__ . '/Moderation.alias.php';
 
 $wgAutoloadClasses['SpecialModeration'] = __DIR__ . '/SpecialModeration.php';
+$wgAutoloadClasses['ApiQueryModerationPreload'] = __DIR__ . '/api/ApiQueryModerationPreload.php';
 $wgAutoloadClasses['ModerationLogFormatter'] = __DIR__ . '/ModerationLogFormatter.php';
 $wgAutoloadClasses['ModerationSpecialUpload'] = __DIR__ . '/ModerationSpecialUpload.php';
 $wgAutoloadClasses['ModerationBlockCheck'] = __DIR__ . '/util/ModerationBlockCheck.php';
@@ -76,6 +80,7 @@ $wgHooks['UploadVerifyFile'][] = 'ModerationUploadHooks::onUploadVerifyFile';
 $wgHooks['getUserPermissionsErrors'][] = 'ModerationUploadHooks::ongetUserPermissionsErrors';
 
 $wgSpecialPages['Moderation'] = 'SpecialModeration';
+$wgAPIPropModules['moderationpreload'] = 'ApiQueryModerationPreload';
 
 $moduleTemplate = array(
 	'localBasePath' => __DIR__ . '/modules',
