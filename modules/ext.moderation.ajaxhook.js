@@ -100,10 +100,12 @@
 		*/
 		mw.hook( 'wikipage.content' ).add( function( $content ) {
 			if ( $content.find( '#moderation-ajaxhook' ).length != 0 ) {
-				mw.moderationNotifyQueued( {
-					/* Force re-rendering of #mw-content-text */
-					showParsed: true
-				} );
+				mw.loader.using('ext.moderation.notify', function() {
+					mw.moderationNotifyQueued( {
+						/* Force re-rendering of #mw-content-text */
+						showParsed: true
+					} );
+				});
 			}
 		} );
 

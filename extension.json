@@ -82,7 +82,6 @@
 				"mobile"
 			],
 			"dependencies": [
-				"ext.moderation.notify",
 				"mediawiki.api"
 			]
 		},
