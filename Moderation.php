@@ -93,7 +93,8 @@ $wgResourceModules['ext.moderation.edit'] = $moduleTemplate + array(
 );
 $wgResourceModules['ext.moderation.ajaxhook'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.ajaxhook.js',
-	'targets' => [ 'desktop', 'mobile' ]
+	'targets' => [ 'desktop', 'mobile' ],
+	"dependencies" => [ 'ext.moderation.notify', 'mediawiki.api' ]
 );
 $wgResourceModules['ext.moderation.notify'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.notify.js',

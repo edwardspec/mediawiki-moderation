@@ -80,6 +80,10 @@
 			"targets": [
 				"desktop",
 				"mobile"
+			],
+			"dependencies": [
+				"ext.moderation.notify",
+				"mediawiki.api"
 			]
 		},
 		"ext.moderation.notify": {

@@ -70,10 +70,10 @@
 			/* Provide things we already know */
 			"isRedirect": mw.config.get('wgIsRedirect'),
 
-			/* Showing wgPageName instead of {{DISPLAYTITLE}} is acceptable (to simplify everything) */
-			"displayTitleHtml": mw.config.get('wgPageName').replace(/_/g, ' '),
-
-			/* Fields which are ok to leave empty */
+			/* Fields which are ok to leave empty
+				(because VisualEditor doesn't use them if they are empty)
+			*/
+			"displayTitleHtml": "",
 			"lastModified": "",
 			"contentSub": "",
 			"modules": "",
@@ -89,7 +89,7 @@
 				See ApiQueryModerationPreload.
 			*/
 			"content": "<div id='moderation-ajaxhook'></div>",
-			"categorieshtml": "",
+			"categorieshtml": "<div id='catlinks'></div>",
 		};
 
 		/*
@@ -103,10 +103,23 @@
 			if ( $content.find( '#moderation-ajaxhook' ).length != 0 ) {
 				mw.moderationNotifyQueued();
 
-				/* TODO: because VisualEditor has just erased the contents of the page,
-					we must use api.php?action=moderationpreload&mode=html
+				/* Because VisualEditor has just erased the contents of the page,
+					we must use API (prop=moderationpreload&mode=parsed)
 					to re-display it.
 				*/
+				var api = new mw.Api();
+				api.get( {
+					action: 'query',
+					prop: 'moderationpreload',
+					mptitle: mw.config.get('wgPageName'),
+					mpmode: 'parsed'
+				} ).done( function( ret ) {
+					var parsed = ret.query.moderationpreload.parsed;
+					if ( parsed ) {
+						$content.html( parsed.text );
+						$('#catlinks').html( parsed.categorieshtml );
+					}
+				} );
 			}
 		} );
 
