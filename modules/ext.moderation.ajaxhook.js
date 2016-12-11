@@ -129,7 +129,8 @@
 		It runs in "capture mode" (will be called before any other
 		readystatechange callbacks, unless they are also in capture mode).
 	*/
-	function on_readystatechange_global() {
+	function on_readystatechange_global( query ) {
+
 		if ( this.readyState != 4 ) {
 			return; /* Not ready yet */
 		}
@@ -141,28 +142,6 @@
 		}
 		catch(e) {
 			return; /* Not a JSON, nothing to overwrite */
-		}
-
-		/* Get original request as array, e.g. { action: "edit", "title": "Testpage1", ... } */
-		var query = {}, pair;
-		if ( this.sendBody instanceof FormData )  {
-			/* FormData: from "mw.api" with enforced multipart/form-data, used by VisualEditor */
-			for ( var pair of this.sendBody.entries() ) {
-				query[pair[0]] = pair[1];
-			}
-		}
-		else if( $.type( this.sendBody ) == 'string' ) {
-			/* Querystring: from "mw.api" with default behavior, used by MobileFrontend, etc. */
-			for ( var pair of String.split( this.sendBody, '&' ) ) {
-				var kv = pair.split('='),
-					key = decodeURIComponent( kv[0] ),
-					val = decodeURIComponent( kv[1] );
-				query[key] = val;
-			}
-		}
-		else {
-			/* We only support FormData for now, as "mw.api" module uses FormData */
-			return; /* Couldn't obtain the original query */
 		}
 
 		/* Check whether we need to overwrite this AJAX response or not */
@@ -198,20 +177,53 @@
 	};
 
 	/*
+		Helper function used in XMLHttpRequest.prototype.send() below.
+		Extracts all key/value pairs from the parameter of send(),
+		e.g. { action: "edit", "title": "Testpage1", ... }.
+	*/
+	function parseXHRSendBody( sendBody ) {
+		/* Get original request as array, e.g. { action: "edit", "title": "Testpage1", ... } */
+		var query = {}, pair;
+		if ( sendBody instanceof FormData )  {
+			/* FormData: from "mw.api" with enforced multipart/form-data, used by VisualEditor */
+			for ( pair of sendBody.entries() ) {
+				query[pair[0]] = pair[1];
+			}
+		}
+		else if( $.type( sendBody ) == 'string' ) {
+			/* Querystring: from "mw.api" with default behavior, used by MobileFrontend, etc. */
+			for ( pair of String.split( sendBody, '&' ) ) {
+				var kv = pair.split('='),
+					key = decodeURIComponent( kv[0] ),
+					val = decodeURIComponent( kv[1] );
+				query[key] = val;
+			}
+		}
+		else {
+			/* "mw.api" module uses only FormData or querystring,
+				so we don't need to support other formats.
+			*/
+			return false; /* Couldn't obtain the original query */
+		}
+
+		return query;
+	}
+
+	/*
 		Install on_readystatechange_global() callback which will be
 		called for every XMLHttpRequest, regardless of who sent it.
-
-		Also stores parameter of send() as xfr.sendBody,
-		so that the callback could determine which API request this is.
 	*/
 	var oldSend = XMLHttpRequest.prototype.send;
 
 	XMLHttpRequest.prototype.send = function( sendBody ) {
-		this.sendBody = sendBody; /* Make sendBody accessible in on_readystatechange_global() */
-		this.addEventListener( "readystatechange",
-			on_readystatechange_global, /* See above */
-			true /* capture mode */
-		);
+		/* Make parsed sendBody accessible in on_readystatechange_global() */
+		var query = parseXHRSendBody( sendBody );
+		if ( query ) {
+			this.addEventListener( "readystatechange",
+				on_readystatechange_global.bind( this, query ),
+				true // capture mode
+			);
+		}
 
 		oldSend.apply( this, arguments );
 	};
