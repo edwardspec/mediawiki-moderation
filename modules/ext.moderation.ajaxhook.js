@@ -29,7 +29,6 @@
 ( function ( mw, $ ) {
 	'use strict';
 
-
 	/* Make an API response for action=edit */
 	function successEdit() {
 		var ret = {},
@@ -37,10 +36,10 @@
 
 		ret.edit = {
 			"result": "Success", /* Uppercase */
-			"pageid": mw.config.get('wgArticleId'),
-			"title": mw.config.get('wgTitle'),
-			"contentmodel": mw.config.get('wgPageContentModel'),
-			"oldrevid": mw.config.get('wgRevisionId'),
+			"pageid": mw.config.get( 'wgArticleId' ),
+			"title": mw.config.get( 'wgTitle' ),
+			"contentmodel": mw.config.get( 'wgPageContentModel' ),
+			"oldrevid": mw.config.get( 'wgRevisionId' ),
 			"newrevid": 0, /* NOTE: change if this causes problems in any API-based editors */
 			"newtimestamp": timestamp
 		};
@@ -68,7 +67,7 @@
 			"newrevid": undefined,
 
 			/* Provide things we already know */
-			"isRedirect": mw.config.get('wgIsRedirect'),
+			"isRedirect": mw.config.get( 'wgIsRedirect' ),
 
 			/* Fields which are ok to leave empty
 				(because VisualEditor doesn't use them if they are empty)
@@ -111,13 +110,13 @@
 				api.get( {
 					action: 'query',
 					prop: 'moderationpreload',
-					mptitle: mw.config.get('wgPageName'),
+					mptitle: mw.config.get( 'wgPageName' ),
 					mpmode: 'parsed'
 				} ).done( function( ret ) {
 					var parsed = ret.query.moderationpreload.parsed;
 					if ( parsed ) {
 						$content.html( parsed.text );
-						$('#catlinks').html( parsed.categorieshtml );
+						$( '#catlinks' ).html( parsed.categorieshtml );
 					}
 				} );
 			}
@@ -131,14 +130,14 @@
 		readystatechange callbacks, unless they are also in capture mode).
 	*/
 	function on_readystatechange_global() {
-		if(this.readyState != 4) {
+		if ( this.readyState != 4 ) {
 			return; /* Not ready yet */
 		}
 
 		/* Get JSON response from API */
 		var ret;
 		try {
-			ret = JSON.parse(this.responseText);
+			ret = JSON.parse( this.responseText );
 		}
 		catch(e) {
 			return; /* Not a JSON, nothing to overwrite */
@@ -146,18 +145,18 @@
 
 		/* Get original request as array, e.g. { action: "edit", "title": "Testpage1", ... } */
 		var query = {}, pair;
-		if(this.sendBody instanceof FormData)  {
+		if ( this.sendBody instanceof FormData )  {
 			/* FormData: from "mw.api" with enforced multipart/form-data, used by VisualEditor */
-			for(var pair of this.sendBody.entries()) {
+			for ( var pair of this.sendBody.entries() ) {
 				query[pair[0]] = pair[1];
 			}
 		}
-		else if($.type( this.sendBody ) == 'string') {
+		else if( $.type( this.sendBody ) == 'string' ) {
 			/* Querystring: from "mw.api" with default behavior, used by MobileFrontend, etc. */
-			for(var pair of String.split(this.sendBody, '&')) {
+			for ( var pair of String.split( this.sendBody, '&' ) ) {
 				var kv = pair.split('='),
-					key = decodeURIComponent(kv[0]),
-					val = decodeURIComponent(kv[1]);
+					key = decodeURIComponent( kv[0] ),
+					val = decodeURIComponent( kv[1] );
 				query[key] = val;
 			}
 		}
@@ -167,7 +166,7 @@
 		}
 
 		/* Check whether we need to overwrite this AJAX response or not */
-		if(ret.error && ret.error.info.indexOf('moderation-edit-queued') != -1) {
+		if ( ret.error && ret.error.info.indexOf( 'moderation-edit-queued' ) != -1 ) {
 
 			/*
 				Error from api.php?action=edit: edit was queued for moderation.
@@ -175,10 +174,10 @@
 			*/
 
 			/* Fake a successful API response */
-			if(query.action == 'edit') {
+			if ( query.action == 'edit' ) {
 				ret = successEdit();
 			}
-			else if(query.action == 'visualeditoredit') {
+			else if ( query.action == 'visualeditoredit' ) {
 				ret = successVEEdit();
 			}
 			else {
@@ -188,12 +187,12 @@
 			/* Set cookie for [ext.moderation.notify.js].
 				It means "edit was just queued for moderation".
 			*/
-			$.cookie('modqueued', '1', { path: '/' });
+			$.cookie( 'modqueued', '1', { path: '/' } );
 
 			/* Overwrite readonly fields in this XMLHttpRequest */
-			Object.defineProperty(this, 'responseText', { writable: true });
-			Object.defineProperty(this, 'status', { writable: true });
-			this.responseText = JSON.stringify(ret);
+			Object.defineProperty( this, 'responseText', { writable: true } );
+			Object.defineProperty( this, 'status', { writable: true } );
+			this.responseText = JSON.stringify( ret );
 			this.status = 200;
 		}
 	};
@@ -207,15 +206,15 @@
 	*/
 	var oldSend = XMLHttpRequest.prototype.send;
 
-	XMLHttpRequest.prototype.send = function(sendBody) {
+	XMLHttpRequest.prototype.send = function( sendBody ) {
 		this.sendBody = sendBody; /* Make sendBody accessible in on_readystatechange_global() */
 		this.addEventListener( "readystatechange",
 			on_readystatechange_global, /* See above */
 			true /* capture mode */
 		);
 
-		oldSend.apply(this, arguments);
-	}
+		oldSend.apply( this, arguments );
+	};
 
 }( mediaWiki, jQuery ) );
 

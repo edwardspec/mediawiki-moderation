@@ -13,8 +13,8 @@
 		May be called from [ext.moderation.ajaxhook.js].
 	*/
 	mw.moderationNotifyQueued = function() {
-		var $div = $('<div/>');
-		$div.append($('<p/>').append(
+		var $div = $( '<div/>' );
+		$div.append( $( '<p/>' ).append(
 			mw.message(
 				'moderation-edit-queued',
 				window.location + '&action=edit'
@@ -22,7 +22,7 @@
 		));
 
 		if ( mw.user.getId() == 0 ) {
-			$div.append($('<p/>').append(
+			$div.append( $( '<p/>' ).append(
 				mw.message( 'moderation-suggest-signup' ).parse()
 			));
 		}
@@ -36,22 +36,22 @@
 			because both 'moderation-edit-queued' and 'moderation-suggest-signup'
 			contain links (edit/signup) which the user might want to follow.
 		*/
-		var $cont = $('.postedit-container');
+		var $cont = $( '.postedit-container' );
 		var $newcont = $cont.clone();
 		$cont.replaceWith( $newcont ); /* postEdit.js will remove $cont, but won't touch $newcont */
 
 		/* Remove on click */
-		$newcont.click(function() { this.remove(); });
+		$newcont.click( function() { this.remove(); } );
 
 		/* Remove the cookie from [ext.moderation.ajaxhook.js] */
-		$.cookie('modqueued', null, { path: '/' });
+		$.cookie( 'modqueued', null, { path: '/' } );
 	}
 
 	var justQueued = (
 		/* 1. From the normal edit form: redirect contains ?modqueued=1 */
 		window.location.search.match( /modqueued=1/ )
 		/* 2. From [ext.moderation.ajaxhook.js]: page was edited via API */
-		|| $.cookie('modqueued') == 1
+		|| $.cookie( 'modqueued' ) == 1
 	);
 
 	if ( justQueued ) {
