@@ -9,10 +9,19 @@
 		return; /* Nothing to do */
 	}
 
+	var containerClass = '.postedit-container';
+
 	/* Show "your edit was queued for moderation" to user.
 		May be called from [ext.moderation.ajaxhook.js].
 	*/
 	mw.moderationNotifyQueued = function( options = [] ) {
+		if ( $( containerClass ).length ) {
+			/* User quickly clicked Submit several times in VisualEditor, etc.
+				Don't show the dialog twice.
+			*/
+			return;
+		}
+
 		var $div = $( '<div/>' );
 		$div.append( $( '<p/>' ).append(
 			mw.message(
@@ -36,12 +45,14 @@
 			because both 'moderation-edit-queued' and 'moderation-suggest-signup'
 			contain links (edit/signup) which the user might want to follow.
 		*/
-		var $cont = $( '.postedit-container' );
+		var $cont = $( containerClass );
 		var $newcont = $cont.clone();
 		$cont.replaceWith( $newcont ); /* postEdit.js will remove $cont, but won't touch $newcont */
 
 		/* Remove on click */
-		$newcont.click( function() { this.remove(); } );
+		$newcont.click( function() {
+			$( containerClass ).remove();
+		} );
 
 		/* Remove the cookie from [ext.moderation.ajaxhook.js] */
 		$.cookie( 'modqueued', null, { path: '/' } );
