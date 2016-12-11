@@ -100,24 +100,9 @@
 		*/
 		mw.hook( 'wikipage.content' ).add( function( $content ) {
 			if ( $content.find( '#moderation-ajaxhook' ).length != 0 ) {
-				mw.moderationNotifyQueued();
-
-				/* Because VisualEditor has just erased the contents of the page,
-					we must use API (prop=moderationpreload&mode=parsed)
-					to re-display it.
-				*/
-				var api = new mw.Api();
-				api.get( {
-					action: 'query',
-					prop: 'moderationpreload',
-					mptitle: mw.config.get( 'wgPageName' ),
-					mpmode: 'parsed'
-				} ).done( function( ret ) {
-					var parsed = ret.query.moderationpreload.parsed;
-					if ( parsed ) {
-						$content.html( parsed.text );
-						$( '#catlinks' ).html( parsed.categorieshtml );
-					}
+				mw.moderationNotifyQueued( {
+					/* Force re-rendering of #mw-content-text */
+					showParsed: true
 				} );
 			}
 		} );

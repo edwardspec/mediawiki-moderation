@@ -12,7 +12,7 @@
 	/* Show "your edit was queued for moderation" to user.
 		May be called from [ext.moderation.ajaxhook.js].
 	*/
-	mw.moderationNotifyQueued = function() {
+	mw.moderationNotifyQueued = function( options = [] ) {
 		var $div = $( '<div/>' );
 		$div.append( $( '<p/>' ).append(
 			mw.message(
@@ -45,6 +45,27 @@
 
 		/* Remove the cookie from [ext.moderation.ajaxhook.js] */
 		$.cookie( 'modqueued', null, { path: '/' } );
+
+		/* If requested, display HTML of this queued edit */
+		if ( options.showParsed ) {
+			var api = new mw.Api();
+			api.get( {
+				action: 'query',
+				prop: 'moderationpreload',
+				mptitle: mw.config.get( 'wgPageName' ),
+				mpmode: 'parsed'
+			} ).done( function( ret ) {
+				var parsed = ret.query.moderationpreload.parsed;
+				if ( parsed ) {
+					var $div = $( '<div/>').html( parsed.text );
+					mw.hook( 'wikipage.content' ).fire(
+						$( '#mw-content-text' ).empty().append( $div )
+					);
+
+					$( '#catlinks' ).html( parsed.categorieshtml );
+				}
+			} );
+		}
 	}
 
 	var justQueued = (
