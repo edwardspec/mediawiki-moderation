@@ -12,7 +12,7 @@
 
 	B. Why such an unusual implementation?
 
-	It turns out, neither API (in MediaWiki core) not VisualEditor provide
+	It turns out, neither API (in MediaWiki core) nor VisualEditor provide
 	any means of altering the API response via a PHP hook.
 	Until this solution was found, it looked impossible to make Moderation
 	work with VisualEditor by any changes on the Moderation side.
@@ -28,6 +28,81 @@
 
 ( function ( mw, $ ) {
 	'use strict';
+
+
+	/* Make an API response for action=edit */
+	function successEdit() {
+		var ret = {},
+			timestamp = "2016-12-08T12:33:23Z"; /* TODO: recalculate */
+
+		ret.edit = {
+			"result": "Success", /* Uppercase */
+			"pageid": mw.config.get('wgArticleId'),
+			"title": mw.config.get('wgTitle'),
+			"contentmodel": mw.config.get('wgPageContentModel'),
+			"oldrevid": mw.config.get('wgRevisionId'),
+			"newrevid": 0, /* NOTE: change if this causes problems in any API-based editors */
+			"newtimestamp": timestamp
+		};
+
+		if(ret.edit.pageid) {
+			ret.edit.new = "";
+		}
+
+		return ret;
+	}
+
+	/* Make an API response for action=visualeditoredit */
+	function successVEEdit() {
+		var ret = {},
+			lastModified = "TODO"; /* TODO: recalculate */
+
+		ret.visualeditoredit = {
+			"result": "success", /* Lowercase */
+
+			/* rewrevid is "undefined" on purpose:
+				in this case, ve.init.mw.DesktopArticleTarget.js doesn't do much,
+				most importantly - doesn't fire 'postEdit' hook
+				(which is good, because we need to show another text there).
+				We invoke postEdit ourselves in [ext.moderation.notify.js].
+			*/
+			"newrevid": undefined,
+
+			/* Provide things we already know */
+			"isRedirect": mw.config.get('wgIsRedirect'),
+			"lastModified": lastModified,
+
+			/* Showing wgPageName instead of {{DISPLAYTITLE}} is acceptable (to simplify everything) */
+			"displayTitleHtml": mw.config.get('wgPageName').replace(/_/g, ' '),
+
+			/* Fields which are ok to leave empty */
+			"contentSub": "",
+			"modules": "",
+			"jsconfigvars": "",
+
+			/* We don't really care about VisualEditor receiving this HTML.
+				It simply displays it on the page without reloading it.
+
+				Certainly not worth doing a synchronous XHR request
+				(which is long deprecated and may be ignored by modern browsers)
+
+				We can do this later in postEdit hook.
+				See ApiQueryModerationPreload.
+			*/
+			"content": "<div id='moderation-ajaxhook'></div>",
+			"categorieshtml": "",
+		};
+
+		/* TODO:
+			VisualEditor may choose not to reload the page,
+			but instead to display content/categorieshtml without reload.
+
+			We must detect the appearance of div#moderation-ajaxhook
+			using MutationObserver, and then call mw.moderationNotifyQueued().
+		*/
+
+		return ret;
+	}
 
 	/* This hook is called on "readystatechange" event of every (!) XMLHttpRequest.
 		It runs in "capture mode" (will be called before any other
@@ -78,64 +153,20 @@
 			*/
 
 			/* Fake a successful API response */
-			ret = {};
-
-			var timestamp = "2016-12-08T12:33:23Z"; /* TODO: recalculate */
-
 			if(query.action == 'edit') {
-				/* Success response of api.php?action=edit */
-				ret.edit = {
-					"result": "Success", /* Uppercase */
-					"pageid": mw.config.get('wgArticleId'),
-					"title": mw.config.get('wgTitle'),
-					"contentmodel": mw.config.get('wgPageContentModel'),
-					"oldrevid": mw.config.get('wgRevisionId'),
-					"newrevid": 0, /* NOTE: change if this causes problems in any API-based editors */
-					"newtimestamp": timestamp
-				};
-				if(ret.edit.pageid) {
-					ret.edit.new = "";
-				}
+				ret = successEdit();
 			}
 			else if(query.action == 'visualeditoredit') {
-				/* Success response of api.php?action=visualeditoredit */
-
-				ret.visualeditoredit = {
-					"result": "success", /* Lowercase */
-
-					/* rewrevid is "undefined" on purpose:
-						in this case, ve.init.mw.DesktopArticleTarget.js doesn't do much,
-						most importantly - doesn't fire 'postEdit' hook
-						(which is good, because we need to show another text there).
-						We invoke postEdit ourselves in [ext.moderation.notify.js].
-					*/
-					"newrevid": undefined,
-
-					/* Provide things we already know */
-					"isRedirect": mw.config.get('wgIsRedirect'),
-					"lastModified": timestamp,
-
-					/* Showing wgPageName instead of {{DISPLAYTITLE}} is acceptable (to simplify everything) */
-					"displayTitleHtml": mw.config.get('wgPageName').replace(/_/g, ' '),
-
-					/* Fields which are ok to leave empty */
-					"contentSub": "",
-					"modules": "",
-					"jsconfigvars": "",
-
-					/* We don't really care about VisualEditor receiving this HTML.
-						It simply displays it on the page without reloading it.
-
-						Certainly not worth doing a synchronous XHR request
-						(which is long deprecated and may be ignored by modern browsers)
-
-						We can do this later in postEdit hook.
-						See ApiQueryModerationPreload.
-					*/
-					"content": "<!--moderation.ajaxhook-->",
-					"categorieshtml": "",
-				};
+				ret = successVEEdit();
 			}
+			else {
+				return; /* Nothing to overwrite */
+			}
+
+			/* Set cookie for [ext.moderation.notify.js].
+				It means "edit was just queued for moderation".
+			*/
+			$.cookie('modqueued', '1', { path: '/' });
 
 			/* Overwrite readonly fields in this XMLHttpRequest */
 			Object.defineProperty(this, 'responseText', { writable: true });

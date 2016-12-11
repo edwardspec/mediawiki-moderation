@@ -205,11 +205,7 @@ class ModerationEditHooks {
 
 	public static function onBeforePageDisplay( &$out, &$skin ) {
 
-		$request = $out->getContext()->getRequest();
-		if ($request->getVal( 'modqueued' ) ) {
-			$out->addModules( 'ext.moderation.notify' );
-		}
-
+		$out->addModules( 'ext.moderation.notify' );
 		$out->addModules( 'ext.moderation.ajaxhook' );
 
 		return true;
