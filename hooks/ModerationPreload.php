@@ -52,6 +52,10 @@ class ModerationPreload {
 			return self::User_to_PreloadId( $wgUser );
 		}
 
+		if ( session_id() == '' ) {
+			wfSetupSession();
+		}
+
 		$anon_id = $wgRequest->getSessionData( 'anon_id' );
 		if ( !$anon_id ) {
 			if ( !$create_if_not_exists ) {
