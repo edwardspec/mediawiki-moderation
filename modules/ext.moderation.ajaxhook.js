@@ -54,8 +54,7 @@
 
 	/* Make an API response for action=visualeditoredit */
 	function successVEEdit() {
-		var ret = {},
-			lastModified = "TODO"; /* TODO: recalculate */
+		var ret = {};
 
 		ret.visualeditoredit = {
 			"result": "success", /* Lowercase */
@@ -70,12 +69,12 @@
 
 			/* Provide things we already know */
 			"isRedirect": mw.config.get('wgIsRedirect'),
-			"lastModified": lastModified,
 
 			/* Showing wgPageName instead of {{DISPLAYTITLE}} is acceptable (to simplify everything) */
 			"displayTitleHtml": mw.config.get('wgPageName').replace(/_/g, ' '),
 
 			/* Fields which are ok to leave empty */
+			"lastModified": "",
 			"contentSub": "",
 			"modules": "",
 			"jsconfigvars": "",
@@ -93,13 +92,23 @@
 			"categorieshtml": "",
 		};
 
-		/* TODO:
+		/*
 			VisualEditor may choose not to reload the page,
 			but instead to display content/categorieshtml without reload.
 
-			We must detect the appearance of div#moderation-ajaxhook
-			using MutationObserver, and then call mw.moderationNotifyQueued().
+			We must detect the appearance of #moderation-ajaxhook,
+			and then call mw.moderationNotifyQueued().
 		*/
+		mw.hook( 'wikipage.content' ).add( function( $content ) {
+			if ( $content.find( '#moderation-ajaxhook' ).length != 0 ) {
+				mw.moderationNotifyQueued();
+
+				/* TODO: because VisualEditor has just erased the contents of the page,
+					we must use api.php?action=moderationpreload&mode=html
+					to re-display it.
+				*/
+			}
+		} );
 
 		return ret;
 	}
