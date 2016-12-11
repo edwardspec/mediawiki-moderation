@@ -80,6 +80,8 @@
 			/* Fake a successful API response */
 			ret = {};
 
+			var timestamp = "2016-12-08T12:33:23Z"; /* TODO: recalculate */
+
 			if(query.action == 'edit') {
 				/* Success response of api.php?action=edit */
 				ret.edit = {
@@ -89,7 +91,7 @@
 					"contentmodel": mw.config.get('wgPageContentModel'),
 					"oldrevid": mw.config.get('wgRevisionId'),
 					"newrevid": 0, /* NOTE: change if this causes problems in any API-based editors */
-					"newtimestamp": "2016-12-08T12:33:23Z" /* TODO: recalculate */
+					"newtimestamp": timestamp
 				};
 				if(ret.edit.pageid) {
 					ret.edit.new = "";
@@ -111,7 +113,7 @@
 
 					/* Provide things we already know */
 					"isRedirect": mw.config.get('wgIsRedirect'),
-					"lastModified": "2016-12-08T12:33:23Z", /* TODO: recalculate */
+					"lastModified": timestamp,
 
 					/* Showing wgPageName instead of {{DISPLAYTITLE}} is acceptable (to simplify everything) */
 					"displayTitleHtml": mw.config.get('wgPageName').replace(/_/g, ' '),
@@ -121,45 +123,18 @@
 					"modules": "",
 					"jsconfigvars": "",
 
-					/* The following fields are obtainable by api.php?action=parse.
-						Unfortunately, we are in a synchronyous function
-						and must get the result before we return!
+					/* We don't really care about VisualEditor receiving this HTML.
+						It simply displays it on the page without reloading it.
 
-						See below.
+						Certainly not worth doing a synchronous XHR request
+						(which is long deprecated and may be ignored by modern browsers)
+
+						We can do this later in postEdit hook.
+						See ApiQueryModerationPreload.
 					*/
-					"content": "TODO: content",
-					"categorieshtml": "TODO: categorieshtml",
+					"content": "<!--moderation.ajaxhook-->",
+					"categorieshtml": "",
 				};
-
-				var api = new mw.Api();
-
-				/*  Using a synchronyous request is a bad idea.
-					It will inevitably break when synchronyous requests are removed by browsers
-					(they are long deprecated and are only kept for compatibility reasons)
-
-					See https://xhr.spec.whatwg.org/#sync-warning for details.
-
-					We MUST come up with another solution.
-				*/
-				api.defaults.ajax.async = false;
-
-				/* TODO: where do we even get text?
-					The only thing we have is query.cachekey,
-					do we need to query action=apivisualeditor?
-				*/
-				var text = "";
-				// text = 'Some test text with [[link]]s, etc. [[Category:Test category]]';
-
-				api.get({
-					action: 'parse',
-					prop: 'text|categorieshtml|displaytitle',
-					text: text,
-					title: mw.config.get('wgPageName')
-				}).done(function(parseresult) {
-					ret.visualeditoredit.displayTitleHtml = parseresult.parse.displaytitle;
-					ret.visualeditoredit.content = parseresult.parse.text['*'];
-					ret.visualeditoredit.categorieshtml = parseresult.parse.categorieshtml;
-				});
 			}
 
 			/* Overwrite readonly fields in this XMLHttpRequest */
