@@ -77,6 +77,9 @@
 				return useDefault( "no pending change found", $result );
 			}
 
+			/* Preload summary */
+			$( '.summary' ).val( data.query.moderationpreload.comment );
+
 			self.content = wikitext;
 			self.timestamp = ""; /* Ok to leave empty */
 			self.originalContent = self.content;
