@@ -55,8 +55,7 @@
 		}
 
 		/* Get the wikitext of pending change, if it exists */
-		var $result = $.Deferred(),
-			self = this;
+		var $result = $.Deferred();
 		var qPreload = {
 			action: 'query',
 			prop: 'moderationpreload',
@@ -67,6 +66,10 @@
 			meta: 'userinfo',
 			uiprop: 'blockinfo'
 		};
+
+		if ( $.isNumeric( this.sectionId ) ) {
+			qPreload.mpsection = this.sectionId;
+		}
 
 		var api = ( legacyMode ? this : this.api );
 		api.get( qPreload ).then( function( data ) {

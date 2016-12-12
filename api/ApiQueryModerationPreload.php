@@ -47,14 +47,27 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 			$r['missing'] = ''; /* There is no pending edit */
 		}
 		else {
-			$r['comment'] = $row->comment;
+			$wikitext = $row->text;
 
-			if($params['mode'] == 'wikitext') {
-				$r['wikitext'] = $row->text;
+			if ( isset( $params['section'] ) ) {
+				/* Only one section should be preloaded */
+				$fullContent = ContentHandler::makeContent( $wikitext, $title );
+				$sectionContent = $fullContent->getSection( $params['section'] );
+
+				if ( $sectionContent ) {
+					$wikitext = $sectionContent->getNativeData();
+				}
 			}
-			elseif($params['mode'] == 'parsed') {
-				$r['parsed'] = $this->parse( $title, $row->text );
+
+			if ( $params['mode'] == 'wikitext' ) {
+				$r['wikitext'] = $wikitext;
 			}
+			elseif ( $params['mode'] == 'parsed' ) {
+				$r['parsed'] = $this->parse( $title, $wikitext );
+			}
+
+
+			$r['comment'] = $row->comment;
 		}
 
 		$this->getResult()->addValue( 'query', $this->getModuleName(), $r );
@@ -91,9 +104,9 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 		$parsed['categorieshtml'] = $ret['parse']['categorieshtml'];
 		$parsed['displaytitle'] = $ret['parse']['displaytitle'];
 
-		foreach(array('text', 'categorieshtml') as $compatKey) {
+		foreach ( array('text', 'categorieshtml') as $compatKey ) {
 			/* In MediaWiki 1.23, there is a subkey '*' under these keys */
-			if(isset($parsed[$compatKey]['*'])) {
+			if ( isset( $parsed[$compatKey]['*'] ) ) {
 				$parsed[$compatKey] = $parsed[$compatKey]['*'];
 			}
 		}
@@ -110,7 +123,8 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 			'title' => null,
 			'pageid' => [
 				ApiBase::PARAM_TYPE => 'integer'
-			]
+			],
+			'section' => null
 		);
 	}
 
@@ -119,7 +133,9 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 			'action=query&prop=moderationpreload&mptitle=Cat'
 				=> 'apihelp-query+moderationpreload-wikitext-example',
 			'action=query&prop=moderationpreload&mptitle=Dog&mpmode=html'
-				=> 'apihelp-query+moderationpreload-parsed-example'
+				=> 'apihelp-query+moderationpreload-parsed-example',
+			'action=query&prop=moderationpreload&mptitle=Cat&mpsection=2'
+				=> 'apihelp-query+moderationpreload-section-example',
 		);
 	}
 }
