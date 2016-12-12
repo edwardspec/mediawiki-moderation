@@ -5,16 +5,14 @@
 ( function ( mw, $ ) {
 	'use strict';
 
-	if ( mw.config.get('wgAction') != 'view' ) {
-		return; /* Nothing to do */
-	}
-
 	var containerClass = '.postedit-container';
+
+	mw.moderation = mw.moderation || {};
 
 	/* Show "your edit was queued for moderation" to user.
 		May be called from [ext.moderation.ajaxhook.js].
 	*/
-	mw.moderationNotifyQueued = function( options = [] ) {
+	mw.moderation.notifyQueued = function( options = [] ) {
 		if ( $( containerClass ).length ) {
 			/* User quickly clicked Submit several times in VisualEditor, etc.
 				Don't show the dialog twice.
@@ -86,8 +84,8 @@
 		|| $.cookie( 'modqueued' ) == 1
 	);
 
-	if ( justQueued ) {
-		mw.moderationNotifyQueued();
+	if ( justQueued && ( mw.config.get('wgAction') == 'view' ) ) {
+		mw.moderation.notifyQueued();
 	}
 
 }( mediaWiki, jQuery ) );

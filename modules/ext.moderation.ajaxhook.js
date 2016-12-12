@@ -98,12 +98,12 @@
 			but instead to display content/categorieshtml without reload.
 
 			We must detect the appearance of #moderation-ajaxhook,
-			and then call mw.moderationNotifyQueued().
+			and then call mw.moderation.notifyQueued().
 		*/
 		mw.hook( 'wikipage.content' ).add( function( $content ) {
 			if ( $content.find( '#moderation-ajaxhook' ).length != 0 ) {
 				mw.loader.using('ext.moderation.notify', function() {
-					mw.moderationNotifyQueued( {
+					mw.moderation.notifyQueued( {
 						/* Force re-rendering of #mw-content-text */
 						showParsed: true
 					} );

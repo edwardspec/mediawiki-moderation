@@ -30,7 +30,7 @@
 			useDefault() - call the original (unmodified) method from EditorGateway.
 			Example: return useDefault( "no change is awaiting moderation, so nothing to preload!" );
 		*/
-		var useDefault = function( reason, $deferred ) {
+		function useDefault( reason, $deferred ) {
 			console.log( "Moderation: not preloading: " + reason );
 
 			if ( $deferred === undefined ) {

@@ -23,13 +23,13 @@
 				useDefault() - call the original (unmodified) method from mw.libs.ve.
 				Example: return useDefault( "no change is awaiting moderation, so nothing to preload!" );
 			*/
-			var useDefault = function( reason ) {
+			function useDefault( reason ) {
 				console.log( "Moderation: not preloading: " + reason );
 
 				return oldRequestPageData.apply( this, [
 					pageName, oldid, targetName, modified
 				] );
-			};
+			}
 
 			/* If user is editing some older revision,
 				then preloading is not needed here */
