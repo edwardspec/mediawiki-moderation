@@ -76,7 +76,10 @@
 		},
 		"ext.moderation.ajaxhook": {
 			"position": "bottom",
-			"scripts": "ext.moderation.ajaxhook.js",
+			"scripts": [
+				"ext.moderation.ajaxhook.js",
+				"ext.moderation.preload.visualeditor.js"
+			],
 			"targets": [
 				"desktop",
 				"mobile"

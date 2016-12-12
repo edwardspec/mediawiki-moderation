@@ -24,6 +24,8 @@
 
 	In (1), we replace error with "edit saved successfully!"
 	In (2), we inject preloaded text from showUnmoderatedEdit().
+
+	See also: [ext.moderation.preload.visualeditor.js].
 */
 
 ( function ( mw, $ ) {
