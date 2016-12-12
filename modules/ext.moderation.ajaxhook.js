@@ -167,7 +167,7 @@
 		else if( $.type( sendBody ) == 'string' ) {
 			/* Querystring: from "mw.api" with default behavior, used by MobileFrontend, etc. */
 			for ( pair of String.split( sendBody, '&' ) ) {
-				var kv = pair.split('='),
+				var kv = pair.split( '=' ),
 					key = decodeURIComponent( kv[0] ),
 					val = decodeURIComponent( kv[1] );
 				query[key] = val;
@@ -231,4 +231,3 @@
 	};
 
 }( mediaWiki, jQuery ) );
-

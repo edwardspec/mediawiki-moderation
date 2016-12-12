@@ -77,11 +77,28 @@
 		"ext.moderation.ajaxhook": {
 			"position": "bottom",
 			"scripts": [
-				"ext.moderation.ajaxhook.js",
-				"ext.moderation.preload.visualeditor.js"
+				"ext.moderation.ajaxhook.js"
 			],
 			"targets": [
 				"desktop",
+				"mobile"
+			]
+		},
+		"ext.moderation.preload.visualeditor": {
+			"position": "bottom",
+			"scripts": "ext.moderation.preload.visualeditor.js",
+			"targets": [
+				"desktop"
+			],
+			"dependencies": [
+				"mediawiki.api",
+				"ext.visualEditor.targetLoader"
+			]
+		},
+		"ext.moderation.preload.mobilefrontend": {
+			"position": "bottom",
+			"scripts": "ext.moderation.preload.mobilefrontend.js",
+			"targets": [
 				"mobile"
 			],
 			"dependencies": [
