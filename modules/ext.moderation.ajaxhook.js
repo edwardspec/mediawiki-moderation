@@ -46,7 +46,7 @@
 			"newtimestamp": timestamp
 		};
 
-		if(ret.edit.pageid) {
+		if ( ret.edit.pageid ) {
 			ret.edit.new = "";
 		}
 
@@ -114,24 +114,14 @@
 		return ret;
 	}
 
-	/* This hook is called on "readystatechange" event of every (!) XMLHttpRequest.
-		It runs in "capture mode" (will be called before any other
-		readystatechange callbacks, unless they are also in capture mode).
+
+	/**
+		@brief Main logic of AJAX response rewriting.
+		@param query API request, e.g. { action: "edit", "title": "Testpage1", ... }.
+		@param ret API response, e.g. { edit: { result: "success", ... } }.
+		@returns New API response (if overwrite is needed) or false (if no need to overwrite).
 	*/
-	function on_readystatechange_global( query ) {
-
-		if ( this.readyState != 4 ) {
-			return; /* Not ready yet */
-		}
-
-		/* Get JSON response from API */
-		var ret;
-		try {
-			ret = JSON.parse( this.responseText );
-		}
-		catch(e) {
-			return; /* Not a JSON, nothing to overwrite */
-		}
+	function rewriteAjaxResponse( query, ret ) {
 
 		/* Check whether we need to overwrite this AJAX response or not */
 		if ( ret.error && ret.error.info.indexOf( 'moderation-edit-queued' ) != -1 ) {
@@ -140,29 +130,24 @@
 				Error from api.php?action=edit: edit was queued for moderation.
 				We must replace this response with "Edit saved successfully!".
 			*/
-
-			/* Fake a successful API response */
 			if ( query.action == 'edit' ) {
-				ret = successEdit();
+				ret = successEdit(); /* Fake a successful API response */
 			}
 			else if ( query.action == 'visualeditoredit' ) {
 				ret = successVEEdit();
 			}
 			else {
-				return; /* Nothing to overwrite */
+				return false; /* Nothing to overwrite */
 			}
 
 			/* Set cookie for [ext.moderation.notify.js].
 				It means "edit was just queued for moderation".
 			*/
 			$.cookie( 'modqueued', '1', { path: '/' } );
-
-			/* Overwrite readonly fields in this XMLHttpRequest */
-			Object.defineProperty( this, 'responseText', { writable: true } );
-			Object.defineProperty( this, 'status', { writable: true } );
-			this.responseText = JSON.stringify( ret );
-			this.status = 200;
+			return ret;
 		}
+
+		return false; /* Nothing to overwrite */
 	};
 
 	/*
@@ -199,11 +184,39 @@
 	}
 
 	/*
+		This hook is called on "readystatechange" event of every (!) XMLHttpRequest.
+		It runs in "capture mode" (will be called before any other
+		readystatechange callbacks, unless they are also in capture mode).
+	*/
+	function on_readystatechange_global( query ) {
+		if ( this.readyState != 4 ) {
+			return; /* Not ready yet */
+		}
+
+		/* Get JSON response from API */
+		var ret;
+		try {
+			ret = JSON.parse( this.responseText );
+		}
+		catch(e) {
+			return; /* Not a JSON, nothing to overwrite */
+		}
+
+		ret = rewriteAjaxResponse( query, ret );
+		if(ret) {
+			/* Overwrite readonly fields in this XMLHttpRequest */
+			Object.defineProperty( this, 'responseText', { writable: true } );
+			Object.defineProperty( this, 'status', { writable: true } );
+			this.responseText = JSON.stringify( ret );
+			this.status = 200;
+		}
+	}
+
+	/*
 		Install on_readystatechange_global() callback which will be
 		called for every XMLHttpRequest, regardless of who sent it.
 	*/
 	var oldSend = XMLHttpRequest.prototype.send;
-
 	XMLHttpRequest.prototype.send = function( sendBody ) {
 		/* Make parsed sendBody accessible in on_readystatechange_global() */
 		var query = parseXHRSendBody( sendBody );
