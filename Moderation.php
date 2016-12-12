@@ -92,12 +92,18 @@ $wgResourceModules['ext.moderation.edit'] = $moduleTemplate + array(
 	'styles' => 'ext.moderation.edit.css'
 );
 $wgResourceModules['ext.moderation.ajaxhook'] = $moduleTemplate + array(
-	'scripts' => [
-		'ext.moderation.ajaxhook.js',
-		'ext.moderation.preload.visualeditor.js'
-	],
-	'targets' => [ 'desktop', 'mobile' ],
-	'dependencies' => [ 'mediawiki.api' ]
+	'scripts' => 'ext.moderation.ajaxhook.js',
+	'targets' => [ 'desktop', 'mobile' ]
+);
+$wgResourceModules['ext.moderation.preload.visualeditor'] = $moduleTemplate + array(
+	'scripts' => 'ext.moderation.preload.visualeditor.js',
+	'targets' => [ 'desktop' ],
+	'dependencies' => [ 'mediawiki.api', 'ext.visualEditor.targetLoader' ]
+);
+$wgResourceModules['ext.moderation.preload.mobilefrontend'] = $moduleTemplate + array(
+	'scripts' => 'ext.moderation.preload.mobilefrontend.js',
+	'targets' => [ 'mobile' ],
+	'dependencies' => [ 'mediawiki.api', 'mobile.editor.api' ]
 );
 $wgResourceModules['ext.moderation.notify'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.notify.js',
