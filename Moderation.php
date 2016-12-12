@@ -107,7 +107,12 @@ $wgResourceModules['ext.moderation.preload.mobilefrontend'] = $moduleTemplate + 
 );
 $wgResourceModules['ext.moderation.notify'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.notify.js',
-	'dependencies' => array( 'mediawiki.jqueryMsg', 'mediawiki.action.view.postEdit' ),
+	'dependencies' => array(
+		'mediawiki.jqueryMsg',
+		'mediawiki.action.view.postEdit',
+		'mediawiki.user',
+		'mediawiki.util'
+	),
         'messages' => array( 'moderation-edit-queued', 'moderation-suggest-signup' )
 );
 

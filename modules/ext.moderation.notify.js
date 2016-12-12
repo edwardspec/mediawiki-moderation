@@ -24,7 +24,7 @@
 		$div.append( $( '<p/>' ).append(
 			mw.message(
 				'moderation-edit-queued',
-				window.location + '&action=edit'
+				mw.util.getUrl( null, { action: 'edit' } )
 			).plain()
 		));
 
@@ -79,7 +79,7 @@
 
 	var justQueued = (
 		/* 1. From the normal edit form: redirect contains ?modqueued=1 */
-		window.location.search.match( /modqueued=1/ )
+		mw.util.getParamValue('modqueued') == 1
 		/* 2. From [ext.moderation.ajaxhook.js]: page was edited via API */
 		|| $.cookie( 'modqueued' ) == 1
 	);

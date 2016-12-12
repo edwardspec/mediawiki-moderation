@@ -109,7 +109,9 @@
 			"scripts": "ext.moderation.notify.js",
 			"dependencies": [
 				"mediawiki.jqueryMsg",
-				"mediawiki.action.view.postEdit"
+				"mediawiki.action.view.postEdit",
+				"mediawiki.user",
+				"mediawiki.util"
 			],
 			"messages": [
 				"moderation-edit-queued",
