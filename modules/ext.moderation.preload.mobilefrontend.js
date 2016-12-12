@@ -10,9 +10,18 @@
 ( function ( M, $ ) {
 	'use strict';
 
-	var EditorGateway = M.require( 'mobile.editor.api/EditorGateway' ),
-		oldGetContent = EditorGateway.prototype.getContent;
+	var EditorGateway,
+		legacyMode = false;
 
+	try {
+		EditorGateway = M.require( 'mobile.editor.api/EditorGateway' );
+	} catch(e) {
+		// Legacy mode, e.g. in MediaWiki 1.23
+		EditorGateway = M.require( 'modules/editor/EditorApi' );
+		legacyMode = true;
+	}
+
+	var oldGetContent = EditorGateway.prototype.getContent;
 	EditorGateway.prototype.getContent = function() {
 
 		var self = this;
@@ -58,7 +67,9 @@
 			meta: 'userinfo',
 			uiprop: 'blockinfo'
 		};
-		this.api.get( qPreload ).then( function( data ) {
+
+		var api = ( legacyMode ? this : this.api );
+		api.get( qPreload ).then( function( data ) {
 			var wikitext = data.query.moderationpreload.wikitext;
 			if ( !wikitext ) {
 				/* Nothing to preload.
