@@ -15,13 +15,23 @@
 
 	EditorGateway.prototype.getContent = function() {
 
+		var self = this;
+
 		/*
 			useDefault() - call the original (unmodified) method from EditorGateway.
 			Example: return useDefault( "no change is awaiting moderation, so nothing to preload!" );
 		*/
-		var useDefault = function( reason ) {
+		var useDefault = function( reason, $deferred ) {
 			console.log( "Moderation: not preloading: " + reason );
-			return oldGetContent.apply( this, arguments );
+
+			if ( $deferred === undefined ) {
+				$deferred = $.Deferred();
+			}
+
+			oldGetContent.call( self ).then( function( content, userinfo ) {
+				$deferred.resolve( content, userinfo );
+			});
+			return $deferred;
 		};
 
 		/* Only load once */
@@ -36,7 +46,7 @@
 		}
 
 		/* Get the wikitext of pending change, if it exists */
-		var result = $.Deferred(),
+		var $result = $.Deferred(),
 			self = this;
 		var qPreload = {
 			action: 'query',
@@ -53,18 +63,17 @@
 			if ( !wikitext ) {
 				/* Nothing to preload.
 					Call the original getContent() from EditorGateway. */
-				result.resolve( useDefault( "no pending change found" ) );
-				return;
+				return useDefault( "no pending change found", $result );
 			}
 
 			self.content = wikitext;
 			self.timestamp = ""; /* Ok to leave empty */
 			self.originalContent = self.content;
 
-			result.resolve( self.content, data.query.userinfo );
+			$result.resolve( self.content, data.query.userinfo );
 		} );
 
-		return result;
+		return $result;
 	};
 
 }( mw.mobileFrontend, jQuery ) );
