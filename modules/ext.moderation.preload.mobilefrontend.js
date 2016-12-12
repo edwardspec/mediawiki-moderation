@@ -53,7 +53,7 @@
 			if ( !wikitext ) {
 				/* Nothing to preload.
 					Call the original getContent() from EditorGateway. */
-				$result.resolve( useDefault( "no pending change found" ) );
+				result.resolve( useDefault( "no pending change found" ) );
 				return;
 			}
 
