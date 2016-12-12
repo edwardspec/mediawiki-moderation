@@ -48,6 +48,7 @@ $wgAutoloadClasses['SpecialModeration'] = __DIR__ . '/SpecialModeration.php';
 $wgAutoloadClasses['ApiQueryModerationPreload'] = __DIR__ . '/api/ApiQueryModerationPreload.php';
 $wgAutoloadClasses['ModerationLogFormatter'] = __DIR__ . '/ModerationLogFormatter.php';
 $wgAutoloadClasses['ModerationSpecialUpload'] = __DIR__ . '/ModerationSpecialUpload.php';
+$wgAutoloadClasses['ModerationAjaxHook'] = __DIR__ . '/util/ModerationAjaxHook.php';
 $wgAutoloadClasses['ModerationBlockCheck'] = __DIR__ . '/util/ModerationBlockCheck.php';
 $wgAutoloadClasses['ModerationCanSkip'] = __DIR__ . '/util/ModerationCanSkip.php';
 $wgAutoloadClasses['ModerationCheckUserHook'] = __DIR__ . '/hooks/ModerationCheckUserHook.php';
@@ -156,3 +157,7 @@ $wgModerationPreviewLink = false;
 $wgModerationNotificationEnable = false;
 $wgModerationNotificationNewOnly = false;
 $wgModerationEmail = $wgEmergencyContact;
+
+$wgModerationSupportVisualEditor = "guess"; /* Auto-detect */
+$wgModerationSupportMobileFrontend = "guess"; /* Auto-detect */
+$wgModerationForceAjaxHook = false; /* Set to true if some unknown-to-us extension has an API-based JavaScript editor */

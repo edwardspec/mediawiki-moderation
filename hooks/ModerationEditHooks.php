@@ -206,13 +206,7 @@ class ModerationEditHooks {
 	public static function onBeforePageDisplay( &$out, &$skin ) {
 
 		$out->addModules( 'ext.moderation.notify' );
-
-		/* TODO: determine if ajaxhook is needed */
-		$out->addModules( array(
-			'ext.moderation.ajaxhook',
-			'ext.moderation.preload.visualeditor',
-			'ext.moderation.preload.mobilefrontend'
-		) );
+		ModerationAjaxHook::add( $out );
 
 		return true;
 	}

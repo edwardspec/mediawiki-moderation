@@ -49,6 +49,7 @@
 		"ApiQueryModerationPreload": "api/ApiQueryModerationPreload.php",
 		"ModerationLogFormatter": "ModerationLogFormatter.php",
 		"ModerationSpecialUpload": "ModerationSpecialUpload.php",
+		"ModerationAjaxHook": "util/ModerationAjaxHook.php",
 		"ModerationBlockCheck": "util/ModerationBlockCheck.php",
 		"ModerationCanSkip": "util/ModerationCanSkip.php",
 		"ModerationCheckUserHook": "hooks/ModerationCheckUserHook.php",
@@ -176,7 +177,10 @@
 		"ModerationPreviewLink": false,
 		"ModerationNotificationEnable": false,
 		"ModerationNotificationNewOnly": false,
-		"ModerationEmail": ""
+		"ModerationEmail": "",
+		"ModerationSupportVisualEditor": "guess",
+		"ModerationSupportMobileFrontend": "guess",
+		"ModerationForceAjaxHook": false
 	},
 	"manifest_version": 1
 }
