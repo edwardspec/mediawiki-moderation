@@ -56,7 +56,7 @@
 				mptitle: pageName,
 				mpmode: 'wikitext'
 			};
-			return api.get( qPreload ).then(function( data ) {
+			return api.get( qPreload ).then( function( data ) {
 
 				var wikitext = data.query.moderationpreload.wikitext;
 				if ( !wikitext ) {
@@ -64,6 +64,17 @@
 						Call the original requestPageData() from VisualEditor. */
 					return useDefault( "no pending change found" );
 				}
+
+				/* Preload summary.
+					If #wpSummary field exists, it will be used as "initialEditSummary"
+					in ve.init.mw.DesktopArticleTarget() constructor. */
+				if ( $( '#wpSummary' ).length == 0 ) { /* */
+					$( '<input/>' )
+						.attr( 'id', 'wpSummary' )
+						.attr( 'style', 'display: none;' )
+						.appendTo( $( 'body' ) );
+				}
+				$( '#wpSummary' ).val( data.query.moderationpreload.comment );
 
 				/* (2) Get metadata */
 				var qMetadata = {
