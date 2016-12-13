@@ -50,14 +50,27 @@
 			ret.edit.new = "";
 		}
 
-		/*
-			MobileFrontend does post-edit redirect by changing location.href,
-			and if, say, it changed from "/Cat#/editor/2" to "/Cat#Section_2",
-			the page will not be reloaded by the browser.
+		/* TODO: move this code away into a separate module
+			which will only be loaded if MobileFrontend exists and is enabled
 		*/
-		$( window ).bind( 'hashchange', function() {
-			mw.moderation.notifyQueued();
-		} );
+		var M = mw.mobileFrontend;
+		if ( M ) {
+			try {
+				/* Modern MobileFrontend */
+				var router = M.require( 'mobile.startup/router' );
+				router.once( 'hashchange', function() {
+					mw.moderation.notifyQueued();
+				} );
+			}
+			catch ( e ) {
+				/* Legacy MobileFrontend for MediaWiki 1.23 */
+				M.one(  'page-loaded', function() {
+					/* Workaround the bug which affected mw.notify() */
+					mw.util.$content = $( '#content' );
+					mw.moderation.notifyQueued();
+				} );
+			}
+		}
 
 		return ret;
 	}
@@ -65,6 +78,10 @@
 	/* Make an API response for action=visualeditoredit */
 	function successVEEdit() {
 		var ret = {};
+
+		/* TODO: move this code away into a separate module
+			which will only be loaded if VisualEditor exists and is enabled
+		*/
 
 		ret.visualeditoredit = {
 			"result": "success", /* Lowercase */
@@ -206,7 +223,7 @@
 		try {
 			ret = JSON.parse( this.responseText );
 		}
-		catch(e) {
+		catch ( e ) {
 			return; /* Not a JSON, nothing to overwrite */
 		}
 

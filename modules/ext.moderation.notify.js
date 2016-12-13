@@ -35,11 +35,13 @@
 			));
 		}
 
-
+		/* TODO: maybe move mobile/non-mobile versions into separate modules,
+			load them only if needed.
+		*/
 		if ( M ) {
 			/* Suppress postedit message from MobileFrontend */
 			mw.util.addCSS(
-				'.mw-notification-tag-toast { display: none ! important; }'
+				'.toast, .mw-notification-tag-toast { display: none ! important; }'
 			);
 
 			/* Mobile version */
@@ -53,10 +55,14 @@
 				remove "mobile-frontend-editor-success" from the toast queue,
 				so that it won't be shown after reload.
 			*/
-			mw.loader.using( 'mobile.toast', function() {
+			try {
 				var toast = M.require( 'mobile.toast/toast' );
 				toast._showPending();
-			} );
+			} catch ( e ) {
+				 /* Nothing to do - old MobileFrontend (e.g. for MediaWiki 1.23)
+					didn't have "show after reload" anyway.
+				*/
+			}
 		}
 		else {
 			/* Desktop version */
