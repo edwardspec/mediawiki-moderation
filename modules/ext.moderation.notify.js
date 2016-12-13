@@ -5,7 +5,8 @@
 ( function ( mw, $ ) {
 	'use strict';
 
-	var containerClass = '.postedit-container';
+	var containerClass = '.postedit-container',
+		M = mw.mobileFrontend;
 
 	mw.moderation = mw.moderation || {};
 
@@ -34,23 +35,49 @@
 			));
 		}
 
-		mw.hook( 'postEdit' ).fire( {
-			message: $div
-		} );
 
-		/* Prevent the message from fading after 3 seconds
-			(fading is done by mediawiki.action.view.postEdit.js),
-			because both 'moderation-edit-queued' and 'moderation-suggest-signup'
-			contain links (edit/signup) which the user might want to follow.
-		*/
-		var $cont = $( containerClass );
-		var $newcont = $cont.clone();
-		$cont.replaceWith( $newcont ); /* postEdit.js will remove $cont, but won't touch $newcont */
+		if ( M ) {
+			/* Suppress postedit message from MobileFrontend */
+			mw.util.addCSS(
+				'.mw-notification-tag-toast { display: none ! important; }'
+			);
 
-		/* Remove on click */
-		$newcont.click( function() {
-			$( containerClass ).remove();
-		} );
+			/* Mobile version */
+			mw.notify( $div, {
+				tag: 'modqueued',
+				autoHide: false,
+				type: 'info'
+			} );
+
+			/* If MobileFrontend hasn't reloaded the page after edit,
+				remove "mobile-frontend-editor-success" from the toast queue,
+				so that it won't be shown after reload.
+			*/
+			mw.loader.using( 'mobile.toast', function() {
+				var toast = M.require( 'mobile.toast/toast' );
+				toast._showPending();
+			} );
+		}
+		else {
+			/* Desktop version */
+			mw.hook( 'postEdit' ).fire( {
+				message: $div
+			} );
+
+			/* Prevent the message from fading after 3 seconds
+				(fading is done by mediawiki.action.view.postEdit.js),
+				because both 'moderation-edit-queued' and 'moderation-suggest-signup'
+				contain links (edit/signup) which the user might want to follow.
+			*/
+			var $cont = $( containerClass );
+			var $newcont = $cont.clone();
+			$cont.replaceWith( $newcont ); /* postEdit.js will remove $cont, but won't touch $newcont */
+
+			/* Remove on click */
+			$newcont.click( function() {
+				$( containerClass ).remove();
+			} );
+		}
 
 		/* Remove the cookie from [ext.moderation.ajaxhook.js] */
 		$.cookie( 'modqueued', null, { path: '/' } );
@@ -83,6 +110,7 @@
 		/* 2. From [ext.moderation.ajaxhook.js]: page was edited via API */
 		|| $.cookie( 'modqueued' ) == 1
 	);
+
 
 	if ( justQueued && ( mw.config.get('wgAction') == 'view' ) ) {
 		mw.moderation.notifyQueued();

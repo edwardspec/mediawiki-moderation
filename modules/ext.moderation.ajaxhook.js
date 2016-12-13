@@ -50,6 +50,15 @@
 			ret.edit.new = "";
 		}
 
+		/*
+			MobileFrontend does post-edit redirect by changing location.href,
+			and if, say, it changed from "/Cat#/editor/2" to "/Cat#Section_2",
+			the page will not be reloaded by the browser.
+		*/
+		$( window ).bind( 'hashchange', function() {
+			mw.moderation.notifyQueued();
+		} );
+
 		return ret;
 	}
 
@@ -102,12 +111,10 @@
 		*/
 		mw.hook( 'wikipage.content' ).add( function( $content ) {
 			if ( $content.find( '#moderation-ajaxhook' ).length != 0 ) {
-				mw.loader.using('ext.moderation.notify', function() {
-					mw.moderation.notifyQueued( {
-						/* Force re-rendering of #mw-content-text */
-						showParsed: true
-					} );
-				});
+				mw.moderation.notifyQueued( {
+					/* Force re-rendering of #mw-content-text */
+					showParsed: true
+				} );
 			}
 		} );
 
@@ -126,6 +133,11 @@
 		/* Check whether we need to overwrite this AJAX response or not */
 		if ( ret.error && ret.error.info.indexOf( 'moderation-edit-queued' ) != -1 ) {
 
+			/* Set cookie for [ext.moderation.notify.js].
+				It means "edit was just queued for moderation".
+			*/
+			$.cookie( 'modqueued', '1', { path: '/' } );
+
 			/*
 				Error from api.php?action=edit: edit was queued for moderation.
 				We must replace this response with "Edit saved successfully!".
@@ -140,10 +152,6 @@
 				return false; /* Nothing to overwrite */
 			}
 
-			/* Set cookie for [ext.moderation.notify.js].
-				It means "edit was just queued for moderation".
-			*/
-			$.cookie( 'modqueued', '1', { path: '/' } );
 			return ret;
 		}
 

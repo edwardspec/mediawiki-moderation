@@ -94,7 +94,8 @@ $wgResourceModules['ext.moderation.edit'] = $moduleTemplate + array(
 );
 $wgResourceModules['ext.moderation.ajaxhook'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.ajaxhook.js',
-	'targets' => [ 'desktop', 'mobile' ]
+	'targets' => [ 'desktop', 'mobile' ],
+	'dependencies' => [ 'ext.moderation.notify' ]
 );
 $wgResourceModules['ext.moderation.preload.visualeditor'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.preload.visualeditor.js',
@@ -110,11 +111,11 @@ $wgResourceModules['ext.moderation.notify'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.notify.js',
 	'dependencies' => array(
 		'mediawiki.jqueryMsg',
-		'mediawiki.action.view.postEdit',
 		'mediawiki.user',
 		'mediawiki.util'
 	),
-        'messages' => array( 'moderation-edit-queued', 'moderation-suggest-signup' )
+        'messages' => array( 'moderation-edit-queued', 'moderation-suggest-signup' ),
+        'targets' => array( 'desktop', 'mobile' )
 );
 
 $wgLogTypes[] = 'moderation';
