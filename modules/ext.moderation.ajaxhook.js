@@ -65,6 +65,8 @@
 			catch ( e ) {
 				/* Legacy MobileFrontend for MediaWiki 1.23 */
 				M.one(  'page-loaded', function() {
+					/* Workaround the bug which affected mw.notify() */
+					mw.util.$content = $( '#content' );
 					mw.moderation.notifyQueued();
 				} );
 			}

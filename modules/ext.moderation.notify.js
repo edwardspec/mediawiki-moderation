@@ -14,7 +14,6 @@
 		May be called from [ext.moderation.ajaxhook.js].
 	*/
 	mw.moderation.notifyQueued = function( options = [] ) {
-
 		if ( $( containerClass ).length ) {
 			/* User quickly clicked Submit several times in VisualEditor, etc.
 				Don't show the dialog twice.
@@ -40,22 +39,30 @@
 			load them only if needed.
 		*/
 		if ( M ) {
+			/* Suppress postedit message from MobileFrontend */
+			mw.util.addCSS(
+				'.toast, .mw-notification-tag-toast { display: none ! important; }'
+			);
+
 			/* Mobile version */
-			var popup;
+			mw.notify( $div, {
+				tag: 'modqueued',
+				autoHide: false,
+				type: 'info'
+			} );
 
+			/* If MobileFrontend hasn't reloaded the page after edit,
+				remove "mobile-frontend-editor-success" from the toast queue,
+				so that it won't be shown after reload.
+			*/
 			try {
-				popup = M.require( 'mobile.toast/toast' );
-
-				/* If MobileFrontend hasn't reloaded the page after edit,
-					remove "mobile-frontend-editor-success"
-					from the toast queue, so that it won't be shown
-					after reload. */
-				// toast._showPending();
+				var toast = M.require( 'mobile.toast/toast' );
+				toast._showPending();
 			} catch ( e ) {
-				popup = M.require( 'toast' ); /* old MobileFrontend (e.g. for MediaWiki 1.23) */
+				 /* Nothing to do - old MobileFrontend (e.g. for MediaWiki 1.23)
+					didn't have "show after reload" anyway.
+				*/
 			}
-
-			popup.show( $div );
 		}
 		else {
 			/* Desktop version */
