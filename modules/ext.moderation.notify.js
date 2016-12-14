@@ -13,7 +13,7 @@
 	/* Display mobile/desktop version */
 	function show( $div ) {
 		var $d = $.Deferred(),
-			module = ( M ? 'ext.moderation.notify.mobile' : 'ext.moderation.notify.desktop' );
+			module = ( M ? 'ext.moderation.mf' : 'ext.moderation.notify.desktop' );
 
 		mw.loader.using( module, function() {
 			mw.moderation.notifyCb( $div );

@@ -50,7 +50,11 @@
 			ret.edit.new = "";
 		}
 
-		mw.loader.using( 'ext.moderation.notify.mobile', function() {
+		/* TODO: and what if some desktop editor uses api.php?action=edit?
+			We need to make this optional,
+			otherwise using() will throw an exception.
+		*/
+		mw.loader.using( 'ext.moderation.mf', function() {
 			mw.moderation.notifyMF();
 		} );
 
@@ -61,8 +65,9 @@
 	function successVEEdit() {
 		var ret = {};
 
-		/* TODO: move this code away into a separate module
-			which will only be loaded if VisualEditor exists and is enabled
+		/* TODO: can we move this code away into [ext.moderation.ve] module?
+			Possible problem is, successVEEdit() is strictly synchronous
+			and must return its value immediately, without $.Deferred.
 		*/
 
 		ret.visualeditoredit = {
@@ -101,7 +106,7 @@
 			"categorieshtml": "<div id='catlinks'></div>",
 		};
 
-		mw.loader.using( 'ext.moderation.notify.desktop', function() {
+		mw.loader.using( 'ext.moderation.ve', function() {
 			mw.moderation.notifyVE();
 		} );
 

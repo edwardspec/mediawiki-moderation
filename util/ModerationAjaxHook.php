@@ -21,7 +21,7 @@
 
 	Default behavior: automatically check for presence of extension.
 	For example, if Extension:VisualEditor is detected,
-	then module 'ext.moderation.preload.visualeditor' will be attached.
+	then module 'ext.moderation.ve' will be attached.
 
 	This can be overriden in LocalSettings.php:
 	$wgModerationSupportVisualEditor = true; - attach even if not detected.
@@ -65,13 +65,11 @@ class ModerationAjaxHook {
 		$modules = array();
 
 		if ( self::need( 'ModerationSupportVisualEditor', self::guessVE() ) ) {
-			$modules[] = 'ext.moderation.preload.visualeditor';
+			$modules[] = 'ext.moderation.ve';
 		}
 
 		if ( self::need( 'ModerationSupportMobileFrontend', self::isMobile() ) ) {
-			 /* TODO: merge these two one RL module? */
-			$modules[] = 'ext.moderation.preload.mobilefrontend';
-			$modules[] = 'ext.moderation.notify.mobile';
+			$modules[] = 'ext.moderation.mf';
 		}
 
 		if ( $modules || $out->getConfig()->get( 'ModerationForceAjaxHook' ) ) {
