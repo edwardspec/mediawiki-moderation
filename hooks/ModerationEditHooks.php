@@ -204,8 +204,10 @@ class ModerationEditHooks {
 	}
 
 	public static function onBeforePageDisplay( &$out, &$skin ) {
-
-		$out->addModules( 'ext.moderation.notify' );
+		$out->addModules( array(
+			'ext.moderation.notify',
+			'ext.moderation.notify.desktop'
+		) );
 		ModerationAjaxHook::add( $out );
 
 		return true;

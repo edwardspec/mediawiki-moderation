@@ -35,26 +35,13 @@
 class ModerationAjaxHook {
 
 	/**
-		@brief List of known modules and situations when they are needed.
+		@brief Depending on $configName being true/false/"guess", return true/false/$default.
+		@return boolean
 	*/
-	static protected function getKnownModules() {
-		return array(
-			array(
-				'ext.moderation.preload.visualeditor', /* ResourceLoader module */
-				'ModerationSupportVisualEditor', /* Configuration variable: true, false or "guess" */
-				function() { /* How to guess whether this module is needed */
-					return class_exists( 'ApiVisualEditorEdit' )
-						&& !self::isMobile(); /* Desktop only */
-				}
-			),
-			array(
-				'ext.moderation.preload.mobilefrontend',
-				'ModerationSupportMobileFrontend',
-				function() {
-					return self::isMobile();
-				}
-			)
-		);
+	static protected function need( $configName, $default ) {
+		$config = RequestContext::getMain()->getConfig();
+		$val = $config->get( $configName );
+		return ( is_bool( $val ) ? $val : $default );
 	}
 
 	/** @brief Convenience method: returns true if in Mobile skin, false otherwise */
@@ -64,26 +51,32 @@ class ModerationAjaxHook {
 	}
 
 	/**
+		@brief Guess whether VisualEditor needs to be supported
+		@returns boolean
+	*/
+	static protected function guessVE() {
+		return ( class_exists( 'ApiVisualEditorEdit' ) && !self::isMobile() );
+	}
+
+	/**
 		@brief Add needed modules to $out.
 	*/
 	public static function add( OutputPage &$out ) {
-		$needed_modules = array();
-		foreach ( self::getKnownModules() as $m ) {
-			list( $module_name, $config_key, $guess_fn ) = $m;
+		$modules = array();
 
-			$is_needed = $out->getConfig()->get( $config_key );
-			if ( !is_bool( $is_needed ) ) {
-				$is_needed = $guess_fn();
-			}
-
-			if ( $is_needed ) {
-				$needed_modules[] = $module_name;
-			}
+		if ( self::need( 'ModerationSupportVisualEditor', self::guessVE() ) ) {
+			$modules[] = 'ext.moderation.preload.visualeditor';
 		}
 
-		if ( $needed_modules || $out->getConfig()->get( 'ModerationForceAjaxHook' ) ) {
-			$needed_modules[] = 'ext.moderation.ajaxhook';
-			$out->addModules( $needed_modules );
+		if ( self::need( 'ModerationSupportMobileFrontend', self::isMobile() ) ) {
+			 /* TODO: merge these two one RL module? */
+			$modules[] = 'ext.moderation.preload.mobilefrontend';
+			$modules[] = 'ext.moderation.notify.mobile';
+		}
+
+		if ( $modules || $out->getConfig()->get( 'ModerationForceAjaxHook' ) ) {
+			$modules[] = 'ext.moderation.ajaxhook';
+			$out->addModules( $modules );
 		}
 	}
 }

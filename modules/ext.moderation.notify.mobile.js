@@ -16,7 +16,7 @@
 		2) removes postedit notification from the MobileFrontend editor
 		(e.g. "mobile-frontend-editor-success").
 	*/
-	mw.moderation.notifyMobileCb = function( $div ) {
+	mw.moderation.notifyCb = function( $div ) {
 		/* Suppress postedit message from MobileFrontend */
 		mw.util.addCSS(
 			'.toast, .mw-notification-tag-toast { display: none ! important; }'

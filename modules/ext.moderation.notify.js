@@ -13,11 +13,10 @@
 	/* Display mobile/desktop version */
 	function show( $div ) {
 		var $d = $.Deferred(),
-			module = ( M ? 'ext.moderation.notify.mobile' : 'ext.moderation.notify.desktop' ),
-			fn = ( M ? 'notifyMobileCb' : 'notifyDesktopCb' );
+			module = ( M ? 'ext.moderation.notify.mobile' : 'ext.moderation.notify.desktop' );
 
 		mw.loader.using( module, function() {
-			mw.moderation[fn]( $div );
+			mw.moderation.notifyCb( $div );
 			$d.resolve();
 		} );
 
@@ -49,9 +48,6 @@
 			));
 		}
 
-		/* TODO: maybe move mobile/non-mobile versions into separate modules,
-			load them only if needed.
-		*/
 		show( $div ).done( function() {
 			/* Remove the cookie from [ext.moderation.ajaxhook.js] */
 			$.cookie( 'modqueued', null, { path: '/' } );

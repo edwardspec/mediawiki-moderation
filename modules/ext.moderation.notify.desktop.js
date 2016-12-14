@@ -14,7 +14,7 @@
 		This callback is used by notifyQueued().
 		Displays $div as postEdit notification.
 	*/
-	mw.moderation.notifyDesktopCb = function( $div ) {
+	mw.moderation.notifyCb = function( $div ) {
 
 		/* Desktop version */
 		mw.hook( 'postEdit' ).fire( {
@@ -35,6 +35,8 @@
 			$( containerClass ).remove();
 		} );
 	};
+
+	/* TODO: move notifyVE() into VisualEditor-specific file */
 
 	/* Call notifyQueued() after editing in VisualEditor */
 	mw.moderation.notifyVE = function() {
