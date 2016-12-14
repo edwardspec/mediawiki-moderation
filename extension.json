@@ -89,7 +89,7 @@
 		"ext.moderation.ve": {
 			"position": "bottom",
 			"scripts": [
-				"visualeditor/notify.ve.js",
+				"visualeditor/ajaxhook.ve.js",
 				"visualeditor/preload.ve.js"
 			],
 			"targets": [

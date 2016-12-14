@@ -31,8 +31,13 @@
 ( function ( mw, $ ) {
 	'use strict';
 
-	/* Make an API response for action=edit */
-	function successEdit() {
+	mw.moderation = mw.moderation || {};
+	mw.moderation.ajaxhook = mw.moderation.ajaxhook || {};
+
+	/* Make an API response for action=edit.
+		This affects most API-based JavaScript editors, including MobileFrontend.
+	*/
+	mw.moderation.ajaxhook['edit'] = function() {
 		var ret = {},
 			timestamp = "2016-12-08T12:33:23Z"; /* TODO: recalculate */
 
@@ -54,59 +59,6 @@
 		return ret;
 	}
 
-	/* Make an API response for action=visualeditoredit */
-	function successVEEdit() {
-		var ret = {};
-
-		/* TODO: can we move this code away into [ext.moderation.ve] module?
-			Possible problem is, successVEEdit() is strictly synchronous
-			and must return its value immediately, without $.Deferred.
-		*/
-
-		ret.visualeditoredit = {
-			"result": "success", /* Lowercase */
-
-			/* rewrevid is "undefined" on purpose:
-				in this case, ve.init.mw.DesktopArticleTarget.js doesn't do much,
-				most importantly - doesn't fire 'postEdit' hook
-				(which is good, because we need to show another text there).
-				We invoke postEdit ourselves in [ext.moderation.notify.js].
-			*/
-			"newrevid": undefined,
-
-			/* Provide things we already know */
-			"isRedirect": mw.config.get( 'wgIsRedirect' ),
-
-			/* Fields which are ok to leave empty
-				(because VisualEditor doesn't use them if they are empty)
-			*/
-			"displayTitleHtml": "",
-			"lastModified": "",
-			"contentSub": "",
-			"modules": "",
-			"jsconfigvars": "",
-
-			/* We don't really care about VisualEditor receiving this HTML.
-				It simply displays it on the page without reloading it.
-
-				Certainly not worth doing a synchronous XHR request
-				(which is long deprecated and may be ignored by modern browsers)
-
-				We can do this later in postEdit hook.
-				See ApiQueryModerationPreload.
-			*/
-			"content": "<div id='moderation-ajaxhook'></div>",
-			"categorieshtml": "<div id='catlinks'></div>",
-		};
-
-		mw.loader.using( 'ext.moderation.ve', function() {
-			mw.moderation.notifyVE();
-		} );
-
-		return ret;
-	}
-
-
 	/**
 		@brief Main logic of AJAX response rewriting.
 		@param query API request, e.g. { action: "edit", "title": "Testpage1", ... }.
@@ -127,17 +79,12 @@
 				Error from api.php?action=edit: edit was queued for moderation.
 				We must replace this response with "Edit saved successfully!".
 			*/
-			if ( query.action == 'edit' ) {
-				ret = successEdit(); /* Fake a successful API response */
-			}
-			else if ( query.action == 'visualeditoredit' ) {
-				ret = successVEEdit();
-			}
-			else {
-				return false; /* Nothing to overwrite */
+			var func = mw.moderation.ajaxhook[query.action];
+			if ( !func ) {
+				/* Nothing to overwrite */
 			}
 
-			return ret;
+			return func(); /* Fake a successful API response */
 		}
 
 		return false; /* Nothing to overwrite */
