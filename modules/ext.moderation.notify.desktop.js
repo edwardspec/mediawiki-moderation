@@ -1,6 +1,6 @@
 /*
-	Implements notifyQueued() for MobileFrontend.
-	See [ext.moderation.notify.js] for non-mobile-specific code.
+	Implements notifyQueued() for VisualEditor.
+	See [ext.moderation.notify.js] for non-desktop-specific code.
 */
 
 ( function ( mw, $ ) {
@@ -37,7 +37,7 @@
 	};
 
 	/* Call notifyQueued() after editing in VisualEditor */
-	mw.moderation.notifyDesktop = function() {
+	mw.moderation.notifyVE = function() {
 		/*
 			VisualEditor may choose not to reload the page,
 			but instead to display content/categorieshtml without reload.

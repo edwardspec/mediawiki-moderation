@@ -51,7 +51,7 @@
 		}
 
 		mw.loader.using( 'ext.moderation.notify.mobile', function() {
-			mw.moderation.notifyMobile();
+			mw.moderation.notifyMF();
 		} );
 
 		return ret;
@@ -102,7 +102,7 @@
 		};
 
 		mw.loader.using( 'ext.moderation.notify.desktop', function() {
-			mw.moderation.notifyDesktop();
+			mw.moderation.notifyVE();
 		} );
 
 		return ret;

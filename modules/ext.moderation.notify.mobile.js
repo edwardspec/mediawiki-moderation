@@ -52,7 +52,7 @@
 	}
 
 	/* Call notifyQueued() after editing in MobileFrontend editor */
-	mw.moderation.notifyMobile = function() {
+	mw.moderation.notifyMF = function() {
 		try {
 			/* Modern MobileFrontend */
 			var router = M.require( 'mobile.startup/router' );
