@@ -38,8 +38,7 @@
 				Certainly not worth doing a synchronous XHR request
 				(which is long deprecated and may be ignored by modern browsers)
 
-				We can do this later in postEdit hook.
-				See ApiQueryModerationPreload.
+				We can do this later in notifyQueued().
 			*/
 			"content": "<div id='moderation-ajaxhook'></div>",
 			"categorieshtml": "<div id='catlinks'></div>",
