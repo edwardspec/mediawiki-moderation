@@ -204,11 +204,14 @@ class ModerationEditHooks {
 	}
 
 	public static function onBeforePageDisplay( &$out, &$skin ) {
-		$out->addModules( array(
-			'ext.moderation.notify',
-			'ext.moderation.notify.desktop'
-		) );
-		ModerationAjaxHook::add( $out );
+
+		if ( ModerationCanSkip::canSkip( $out->getUser() ) ) {
+			$out->addModules( array(
+				'ext.moderation.notify',
+				'ext.moderation.notify.desktop'
+			) );
+			ModerationAjaxHook::add( $out );
+		}
 
 		return true;
 	}
