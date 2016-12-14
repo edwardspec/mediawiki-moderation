@@ -124,6 +124,24 @@
 				"desktop",
 				"mobile"
 			]
+		},
+		"ext.moderation.notify.desktop": {
+			"position": "bottom",
+			"scripts": "ext.moderation.notify.desktop.js",
+			"targets": [
+				"desktop"
+			]
+		},
+		"ext.moderation.notify.mobile": {
+			"position": "bottom",
+			"scripts": "ext.moderation.notify.mobile.js",
+			"dependencies": [
+				"mediawiki.notification",
+				"mediawiki.util"
+			],
+			"targets": [
+				"mobile"
+			]
 		}
 	},
 	"ResourceFileModulePaths": {

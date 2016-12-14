@@ -50,25 +50,9 @@
 			ret.edit.new = "";
 		}
 
-		/* TODO: move this code away into a separate module
-			which will only be loaded if MobileFrontend exists and is enabled
-		*/
-		var M = mw.mobileFrontend;
-		if ( M ) {
-			try {
-				/* Modern MobileFrontend */
-				var router = M.require( 'mobile.startup/router' );
-				router.once( 'hashchange', function() {
-					mw.moderation.notifyQueued();
-				} );
-			}
-			catch ( e ) {
-				/* Legacy MobileFrontend for MediaWiki 1.23 */
-				M.one(  'page-loaded', function() {
-					mw.moderation.notifyQueued();
-				} );
-			}
-		}
+		mw.loader.using( 'ext.moderation.notify.mobile', function() {
+			mw.moderation.notifyMobile();
+		} );
 
 		return ret;
 	}
@@ -117,20 +101,8 @@
 			"categorieshtml": "<div id='catlinks'></div>",
 		};
 
-		/*
-			VisualEditor may choose not to reload the page,
-			but instead to display content/categorieshtml without reload.
-
-			We must detect the appearance of #moderation-ajaxhook,
-			and then call mw.moderation.notifyQueued().
-		*/
-		mw.hook( 'wikipage.content' ).add( function( $content ) {
-			if ( $content.find( '#moderation-ajaxhook' ).length != 0 ) {
-				mw.moderation.notifyQueued( {
-					/* Force re-rendering of #mw-content-text */
-					showParsed: true
-				} );
-			}
+		mw.loader.using( 'ext.moderation.notify.desktop', function() {
+			mw.moderation.notifyDesktop();
 		} );
 
 		return ret;

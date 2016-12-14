@@ -117,6 +117,15 @@ $wgResourceModules['ext.moderation.notify'] = $moduleTemplate + array(
         'messages' => array( 'moderation-edit-queued', 'moderation-suggest-signup' ),
         'targets' => array( 'desktop', 'mobile' )
 );
+$wgResourceModules['ext.moderation.notify.desktop'] = $moduleTemplate + array(
+	'scripts' => 'ext.moderation.notify.desktop.js',
+	'targets' => [ 'desktop' ]
+);
+$wgResourceModules['ext.moderation.notify.mobile'] = $moduleTemplate + array(
+	'scripts' => 'ext.moderation.notify.mobile.js',
+	'targets' => [ 'mobile' ],
+	'dependencies' => [ 'mediawiki.notification', 'mediawiki.util' ],
+);
 
 $wgLogTypes[] = 'moderation';
 $wgLogActionsHandlers['moderation/*'] = 'ModerationLogFormatter';
