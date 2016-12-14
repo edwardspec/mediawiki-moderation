@@ -81,9 +81,6 @@
 			"targets": [
 				"desktop",
 				"mobile"
-			],
-			"dependencies": [
-				"ext.moderation.notify"
 			]
 		},
 		"ext.moderation.ve": {
@@ -97,7 +94,8 @@
 			],
 			"dependencies": [
 				"mediawiki.api",
-				"ext.visualEditor.targetLoader"
+				"ext.visualEditor.targetLoader",
+				"ext.moderation.ajaxhook"
 			]
 		},
 		"ext.moderation.mf": {

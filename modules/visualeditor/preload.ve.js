@@ -33,7 +33,7 @@
 
 			/* If user is editing some older revision,
 				then preloading is not needed here */
-			if ( oldid !== undefined ) {
+			if ( oldid !== undefined && oldid != mw.config.get('wgCurRevisionId' ) ) {
 				return useDefault( "user is editing an older revision" );
 			}
 
