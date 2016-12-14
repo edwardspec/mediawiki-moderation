@@ -52,7 +52,7 @@
 	}
 
 	/* Call notifyQueued() after editing in MobileFrontend editor */
-	mw.moderation.notifyMF = function() {
+	mw.hook( 'moderation.ajaxhook.edit' ).add( function() {
 		try {
 			/* Modern MobileFrontend */
 			var router = M.require( 'mobile.startup/router' );
@@ -66,6 +66,6 @@
 				mw.moderation.notifyQueued();
 			} );
 		}
-	};
+	} );
 
 }( mediaWiki, jQuery ) );

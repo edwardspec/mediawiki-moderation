@@ -50,14 +50,7 @@
 			ret.edit.new = "";
 		}
 
-		/* TODO: and what if some desktop editor uses api.php?action=edit?
-			We need to make this optional,
-			otherwise using() will throw an exception.
-		*/
-		mw.loader.using( 'ext.moderation.mf', function() {
-			mw.moderation.notifyMF();
-		} );
-
+		mw.hook( 'moderation.ajaxhook.edit' ).fire();
 		return ret;
 	}
 
