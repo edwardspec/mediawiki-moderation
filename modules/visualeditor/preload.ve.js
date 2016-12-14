@@ -10,6 +10,8 @@
 ( function ( mw, $ ) {
 	'use strict';
 
+	var preloadedSummary = '';
+
 	/* Supply VisualEditor with preloaded pending edit, if there is one */
 	mw.loader.using( 'ext.visualEditor.targetLoader', function() {
 
@@ -66,15 +68,8 @@
 				}
 
 				/* Preload summary.
-					If #wpSummary field exists, it will be used as "initialEditSummary"
-					in ve.init.mw.DesktopArticleTarget() constructor. */
-				if ( $( '#wpSummary' ).length == 0 ) { /* */
-					$( '<input/>' )
-						.attr( 'id', 'wpSummary' )
-						.attr( 'style', 'display: none;' )
-						.appendTo( $( 'body' ) );
-				}
-				$( '#wpSummary' ).val( data.query.moderationpreload.comment );
+					Used in 've.saveDialog.stateChanged' hook, see below */
+				preloadedSummary = data.query.moderationpreload.comment;
 
 				/* (2) Get metadata */
 				var qMetadata = {
@@ -113,6 +108,24 @@
 			}).promise();
 		};
 	});
+
+	/* Supply VisualEditor with preloaded summary.
+		NOTE: we can't simply create #wpSummary (which causes VE to use
+		its contents as initialEditSummary), because initialEditSummary
+		is lost when editing a section (in restoreEditSection()).
+	*/
+	mw.hook( 've.saveDialog.stateChanged' ).add( function() {
+		var $input = $( '.ve-ui-mwSaveDialog-summary' ).find( 'textarea' ),
+			oldSummary = $input.val();
+
+		if ( oldSummary.replace( /\s*\/\*.*\*\/\s*/, '' ) == '' ) {
+			// Either this summary is empty, or this is an
+			// automatic edit summary like this: /* SectionName */
+			// We can safely replace it with preloaded summary.
+
+			$input.val( preloadedSummary );
+		}
+	} );
 
 }( mediaWiki, jQuery ) );
 
