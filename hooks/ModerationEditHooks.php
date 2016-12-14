@@ -205,7 +205,7 @@ class ModerationEditHooks {
 
 	public static function onBeforePageDisplay( &$out, &$skin ) {
 
-		if ( ModerationCanSkip::canSkip( $out->getUser() ) ) {
+		if ( !ModerationCanSkip::canSkip( $out->getUser() ) ) {
 			$out->addModules( array(
 				'ext.moderation.notify',
 				'ext.moderation.notify.desktop'
