@@ -80,8 +80,15 @@
 				return useDefault( "no pending change found", $result );
 			}
 
-			/* Preload summary */
-			$( '.summary' ).val( data.query.moderationpreload.comment );
+			// Preload summary.
+			// NOTE: MobileFrontend always adds /* SectionName */ when
+			// saving an edit. This can result in ugly summaries,
+			// e.g. "/* Section 1 */ /* Section 3 */ /* Section 6 */ fix typo".
+			// To avoid that, we simply remove /* SectionName */
+			// from the preloaded edit comment.
+			var summary = data.query.moderationpreload.comment;
+			summary = summary.replace( /\s*\/\*.*\*\/\s*/g, '' );
+			$( '.summary' ).val( summary );
 
 			self.content = wikitext;
 			self.timestamp = ""; /* Ok to leave empty */
