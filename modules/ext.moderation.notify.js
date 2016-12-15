@@ -26,7 +26,7 @@
 	/* Get edit URL of the current page */
 	function getEditUrl() {
 		var q = {};
-		if ( $.cookie( 'VEE' ) === 'visualeditor' ) {
+		if ( !M && $.cookie( 'VEE' ) === 'visualeditor' ) {
 			q.veaction = 'edit';
 		}
 		else {
