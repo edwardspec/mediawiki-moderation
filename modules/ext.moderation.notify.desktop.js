@@ -21,23 +21,26 @@
 			e.stopPropagation();
 		} );
 
-		/* Desktop version */
-		mw.hook( 'postEdit' ).fire( {
-			message: $div
-		} );
+		mw.loader.using( 'mediawiki.action.view.postEdit', function() {
 
-		/* Prevent the message from fading after 3 seconds
-			(fading is done by mediawiki.action.view.postEdit.js),
-			because both 'moderation-edit-queued' and 'moderation-suggest-signup'
-			contain links (edit/signup) which the user might want to follow.
-		*/
-		var $cont = $( containerClass );
-		var $newcont = $cont.clone();
-		$cont.replaceWith( $newcont ); /* postEdit.js will remove $cont, but won't touch $newcont */
+			/* Desktop version */
+			mw.hook( 'postEdit' ).fire( {
+				message: $div
+			} );
 
-		/* Remove on click */
-		$newcont.click( function() {
-			$( containerClass ).remove();
+			/* Prevent the message from fading after 3 seconds
+				(fading is done by mediawiki.action.view.postEdit.js),
+				because both 'moderation-edit-queued' and 'moderation-suggest-signup'
+				contain links (edit/signup) which the user might want to follow.
+			*/
+			var $cont = $( containerClass );
+			var $newcont = $cont.clone();
+			$cont.replaceWith( $newcont ); /* postEdit.js will remove $cont, but won't touch $newcont */
+
+			/* Remove on click */
+			$newcont.click( function() {
+				$( containerClass ).remove();
+			} );
 		} );
 	};
 
