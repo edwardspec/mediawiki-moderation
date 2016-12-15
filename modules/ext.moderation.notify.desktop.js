@@ -16,6 +16,11 @@
 	*/
 	mw.moderation.notifyCb = function( $div ) {
 
+		/* Don't remove $div when clicking on links */
+		$div.find( 'a' ).click( function( e ) {
+			e.stopPropagation();
+		} );
+
 		/* Desktop version */
 		mw.hook( 'postEdit' ).fire( {
 			message: $div
