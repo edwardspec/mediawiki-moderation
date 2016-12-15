@@ -94,18 +94,32 @@ $wgResourceModules['ext.moderation.edit'] = $moduleTemplate + array(
 );
 $wgResourceModules['ext.moderation.ajaxhook'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.ajaxhook.js',
-	'targets' => [ 'desktop', 'mobile' ],
-	'dependencies' => [ 'ext.moderation.notify' ]
+	'targets' => [ 'desktop', 'mobile' ]
 );
-$wgResourceModules['ext.moderation.preload.visualeditor'] = $moduleTemplate + array(
-	'scripts' => 'ext.moderation.preload.visualeditor.js',
+$wgResourceModules['ext.moderation.ve'] = $moduleTemplate + array(
+	'scripts' => [
+		'visualeditor/ajaxhook.ve.js',
+		'visualeditor/preload.ve.js'
+	],
 	'targets' => [ 'desktop' ],
-	'dependencies' => [ 'mediawiki.api', 'ext.visualEditor.targetLoader' ]
+	'dependencies' => [
+		'mediawiki.api',
+		'ext.visualEditor.targetLoader',
+		'ext.moderation.ajaxhook'
+	]
 );
-$wgResourceModules['ext.moderation.preload.mobilefrontend'] = $moduleTemplate + array(
-	'scripts' => 'ext.moderation.preload.mobilefrontend.js',
+$wgResourceModules['ext.moderation.mf'] = $moduleTemplate + array(
+	'scripts' => [
+		'mobilefrontend/notify.mf.js',
+		'mobilefrontend/preload.mf.js'
+	],
 	'targets' => [ 'mobile' ],
-	'dependencies' => [ 'mediawiki.api', 'mobile.editor.api' ]
+	'dependencies' => [
+		'mediawiki.api',
+		'mediawiki.notification',
+		'mediawiki.util',
+		'mobile.editor.api'
+	]
 );
 $wgResourceModules['ext.moderation.notify'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.notify.js',
@@ -120,11 +134,6 @@ $wgResourceModules['ext.moderation.notify'] = $moduleTemplate + array(
 $wgResourceModules['ext.moderation.notify.desktop'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.notify.desktop.js',
 	'targets' => [ 'desktop' ]
-);
-$wgResourceModules['ext.moderation.notify.mobile'] = $moduleTemplate + array(
-	'scripts' => 'ext.moderation.notify.mobile.js',
-	'targets' => [ 'mobile' ],
-	'dependencies' => [ 'mediawiki.notification', 'mediawiki.util' ],
 );
 
 $wgLogTypes[] = 'moderation';
