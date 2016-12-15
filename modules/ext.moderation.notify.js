@@ -23,6 +23,18 @@
 		return $d;
 	}
 
+	/* Get edit URL of the current page */
+	function getEditUrl() {
+		var q = {};
+		if ( $.cookie( 'VEE' ) === 'visualeditor' ) {
+			q.veaction = 'edit';
+		}
+		else {
+			q.action = 'edit';
+		}
+		return mw.util.getUrl( null, q );
+	}
+
 	/* Show "your edit was queued for moderation" to user.
 		May be called from [ext.moderation.ajaxhook.js].
 	*/
@@ -38,14 +50,14 @@
 		$div.append( $( '<p/>' ).append(
 			mw.message(
 				'moderation-edit-queued',
-				mw.util.getUrl( null, { action: 'edit' } )
+				getEditUrl()
 			).plain()
-		));
+		) );
 
 		if ( mw.user.getId() == 0 ) {
 			$div.append( $( '<p/>' ).append(
 				mw.message( 'moderation-suggest-signup' ).parse()
-			));
+			) );
 		}
 
 		show( $div ).done( function() {
