@@ -10,6 +10,10 @@
 
 	mw.moderation = mw.moderation || {};
 
+	function removeNotif() {
+		$( '.mw-notification-tag-modqueued' ).remove();
+	}
+
 	/*
 		This callback is used by notifyQueued().
 		1) displays $div as mw.notification.
@@ -22,9 +26,7 @@
 			'.toast, .mw-notification-tag-toast { display: none ! important; }'
 		);
 
-		/* Workaround the bug which affected mw.notify() in MediaWiki 1.23 */
-		var $oldContent = mw.util.$content;
-		mw.util.$content = $( 'body' );
+		$( window ).off( 'hashchange', removeNotif ); /* Only needed for MW 1.23 workaround, see below */
 
 		/* Mobile version */
 		mw.notify( $div, {
@@ -32,7 +34,22 @@
 			autoHide: false,
 			type: 'info'
 		} ).done( function() {
-			mw.util.$content = $oldContent; /* Restore mw.util.$content */
+			/* Workaround the bug which affected mw.notify() in MediaWiki 1.23,
+				when #content was replaced by MobileFrontend
+				and #mw-notification-area became detached from DOM */
+			var $notif = $div.parents( '#mw-notification-area' ),
+				$body = $( 'body' );
+			if ( !$.contains( $body[0], $notif[0] ) ) {
+				$notif.appendTo( $body );
+			}
+
+			/* Remove on click */
+			$notif.click( function() {
+				this.remove();
+			} );
+
+			/* Remove when moving to another page */
+			$( window ).one( 'hashchange', removeNotif );
 		} );
 
 		/* If MobileFrontend hasn't reloaded the page after edit,
