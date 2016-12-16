@@ -35,7 +35,7 @@ $wgExtensionCredits['antispam'][] = array(
 	'author' => 'Edward Chernenko',
 	'url' => 'https://www.mediawiki.org/wiki/Extension:Moderation',
 	'descriptionmsg' => 'moderation-desc',
-	'version' => '16dec2016-1'
+	'version' => '16dec2016-2'
 );
 
 $wgMessagesDirs['Moderation'] = array(
@@ -94,32 +94,32 @@ $wgResourceModules['ext.moderation.edit'] = $moduleTemplate + array(
 );
 $wgResourceModules['ext.moderation.ajaxhook'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.ajaxhook.js',
-	'targets' => [ 'desktop', 'mobile' ]
+	'targets' => array( 'desktop', 'mobile' )
 );
 $wgResourceModules['ext.moderation.ve'] = $moduleTemplate + array(
-	'scripts' => [
+	'scripts' => array(
 		'visualeditor/ajaxhook.ve.js',
 		'visualeditor/preload.ve.js'
-	],
-	'targets' => [ 'desktop' ],
-	'dependencies' => [
+	),
+	'targets' => array( 'desktop' ),
+	'dependencies' => array(
 		'mediawiki.api',
 		'ext.visualEditor.targetLoader',
 		'ext.moderation.ajaxhook'
-	]
+	)
 );
 $wgResourceModules['ext.moderation.mf'] = $moduleTemplate + array(
-	'scripts' => [
+	'scripts' => array(
 		'mobilefrontend/notify.mf.js',
 		'mobilefrontend/preload.mf.js'
-	],
-	'targets' => [ 'mobile' ],
-	'dependencies' => [
+	),
+	'targets' => array( 'mobile' ),
+	'dependencies' => array(
 		'mediawiki.api',
 		'mediawiki.notification',
 		'mediawiki.util',
 		'mobile.editor.api'
-	]
+	)
 );
 $wgResourceModules['ext.moderation.notify'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.notify.js',
@@ -133,7 +133,7 @@ $wgResourceModules['ext.moderation.notify'] = $moduleTemplate + array(
 );
 $wgResourceModules['ext.moderation.notify.desktop'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.notify.desktop.js',
-	'targets' => [ 'desktop' ]
+	'targets' => array( 'desktop' )
 );
 
 $wgLogTypes[] = 'moderation';
