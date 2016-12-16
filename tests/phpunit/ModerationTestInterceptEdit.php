@@ -77,9 +77,18 @@ class ModerationTestInterceptEdit extends MediaWikiTestCase
 			"testPostEditRedirect(): parameter modqueued=1 not found in the redirect URL" );
 
 		# Check the page where the user is being redirected to
+		$t->loginAs( $t->unprivilegedUser );
 		$list = $t->html->getLoaderModulesList( $url );
+
 		$this->assertContains( 'ext.moderation.notify', $list,
 			"testPostEditRedirect(): Module ext.moderation.notify wasn't loaded" );
+
+		# [ext.moderation.notify] shouldn't be loaded for automoderated users.
+		$t->loginAs( $t->automoderated );
+		$list = $t->html->getLoaderModulesList( $url );
+
+		$this->assertNotContains( 'ext.moderation.notify', $list,
+			"testPostEditRedirect(): Module ext.moderation.notify was shown to automoderated users" );
 
 		# Usual checks on whether the edit not via API was intercepted.
 		$this->assertCount( 1, $t->new_entries,
