@@ -161,10 +161,25 @@ class ModerationTestsuite
 
 		return $user;
 	}
+
+	/**
+		@brief Create controlled environment before each test.
+		(as in "Destroy everything on testsuite's path")
+	*/
 	private function prepareDbForTests()
 	{
-		/* Controlled environment
-			as in "Destroy everything on testsuite's path" */
+		/* NOTE: since MediaWiki 1.28, MediaWikiTestCase class
+			started to agressively isolate us from the real database.
+
+			However this entire testsuite does the blackbox testing
+			on the site, making HTTP queries as the users would do,
+			so we need to check/modify the real database.
+
+			Therefore we escape the "test DB" jail installed by MediaWikiTestCase.
+		*/
+		if ( method_exists( 'MediaWikiTestCase', 'teardownTestDB' ) ) {
+			MediaWikiTestCase::teardownTestDB();
+		}
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->begin();
