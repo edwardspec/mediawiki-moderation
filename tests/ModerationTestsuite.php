@@ -161,10 +161,30 @@ class ModerationTestsuite
 
 		return $user;
 	}
+
+	/**
+		@brief Create controlled environment before each test.
+		(as in "Destroy everything on testsuite's path")
+	*/
 	private function prepareDbForTests()
 	{
-		/* Controlled environment
-			as in "Destroy everything on testsuite's path" */
+		global $wgVersion;
+		if ( version_compare( $wgVersion, '1.28', '>=' ) ) {
+			/*
+				This is a workaround for the following problem:
+				https://gerrit.wikimedia.org/r/328718
+
+				Since MediaWiki 1.28, MediaWikiTestCase class
+				started to aggressively isolate us from the real database.
+
+				However this entire testsuite does the blackbox testing
+				on the site, making HTTP queries as the users would do,
+				so we need to check/modify the real database.
+
+				Therefore we escape the "test DB" jail installed by MediaWikiTestCase.
+			*/
+			MediaWikiTestCase::teardownTestDB();
+		}
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->begin();
@@ -172,6 +192,7 @@ class ModerationTestsuite
 		$dbw->delete( 'moderation_block', array( '1' ), __METHOD__ );
 		$dbw->delete( 'user', array( '1' ), __METHOD__ );
 		$dbw->delete( 'user_groups', array( '1' ), __METHOD__ );
+		$dbw->delete( 'user_properties', array( '1' ), __METHOD__ );
 		$dbw->delete( 'page', array( '1' ), __METHOD__ );
 		$dbw->delete( 'revision', array( '1' ), __METHOD__ );
 		$dbw->delete( 'logging', array( '1' ), __METHOD__ );

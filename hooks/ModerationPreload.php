@@ -40,6 +40,20 @@ class ModerationPreload {
 		return '[' . $user->getName();
 	}
 
+	/** @brief Make sure that results of $request->setSessionData() won't be lost */
+	protected function makeSureSessionExists() {
+		if ( method_exists( 'MediaWiki\Session\SessionManager', 'getGlobalSession' ) ) {
+			$session = MediaWiki\Session\SessionManager::getGlobalSession();
+			$session->persist();
+		}
+		else {
+			/* MediaWiki 1.26 and older */
+			if ( session_id() == '' ) {
+				wfSetupSession();
+			}
+		}
+	}
+
 	/*
 		If preload ID was never generated for this anonymous user:
 		1) with $create=true: new preload ID is generated and returned,
@@ -52,9 +66,7 @@ class ModerationPreload {
 			return self::User_to_PreloadId( $wgUser );
 		}
 
-		if ( session_id() == '' ) {
-			wfSetupSession();
-		}
+		self::makeSureSessionExists();
 
 		$anon_id = $wgRequest->getSessionData( 'anon_id' );
 		if ( !$anon_id ) {
