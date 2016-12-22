@@ -187,6 +187,7 @@ class ModerationTestsuite
 		$dbw->delete( 'moderation_block', array( '1' ), __METHOD__ );
 		$dbw->delete( 'user', array( '1' ), __METHOD__ );
 		$dbw->delete( 'user_groups', array( '1' ), __METHOD__ );
+		$dbw->delete( 'user_properties', array( '1' ), __METHOD__ );
 		$dbw->delete( 'page', array( '1' ), __METHOD__ );
 		$dbw->delete( 'revision', array( '1' ), __METHOD__ );
 		$dbw->delete( 'logging', array( '1' ), __METHOD__ );
