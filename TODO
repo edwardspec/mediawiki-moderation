@@ -1,16 +1,5 @@
 TODO:
 
-Concepts to think about:
-* Need a solution for API-based JavaScript editors (like VisualEditor) to work.
-	This will most likely require some edits in MediaWiki core,
-	as the problem is that VisualEditor considers "moderation-edit-queued"
-	to be a failure and panics that it couldn't save the edit.
-	Also need to provide an analogue of ModerationPreload to them via API.
-
-High-prio:
-* (testsuite) Testsuite is broken in MediaWiki 1.28, investigate and fix it
-until it performs exactly as in MediaWiki 1.27.
-
 Medium-prio:
 * (testsuite) Provide ~100% automated test coverage of all functionality.
 
