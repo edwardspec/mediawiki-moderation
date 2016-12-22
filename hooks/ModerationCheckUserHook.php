@@ -92,6 +92,12 @@ class ModerationCheckUserHook {
 	}
 
 	public function deinstall() {
+		/* FIXME: this is UGLY.
+			Instead we should have a static array of needed changes,
+			install() only once and remove uninstall().
+		*/
+
+		wfGetLBFactory()->commitMasterChanges();
 		DeferredUpdates::doUpdates('run'); /* Call $rc->save() immediately */
 
 		global $wgHooks;
