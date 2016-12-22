@@ -2,3 +2,7 @@
 2) Version is updated after any change in the PHP code, SQL, CSS/JS or i18n.
 3) Version is not updated after changes in testsuite and documentation.
 4) Both extension.json (for MW1.26+) and legacy Moderation.php must be updated.
+
+Note: if some feature is being developed in a different Git branch
+(e.g. "some-feature1"), then you need to update version number only once -
+just before this branch is merged into master.
