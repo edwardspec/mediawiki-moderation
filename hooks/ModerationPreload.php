@@ -41,7 +41,7 @@ class ModerationPreload {
 	}
 
 	/** @brief Make sure that results of $request->setSessionData() won't be lost */
-	protected function makeSureSessionExists() {
+	protected static function makeSureSessionExists() {
 		if ( method_exists( 'MediaWiki\Session\SessionManager', 'getGlobalSession' ) ) {
 			$session = MediaWiki\Session\SessionManager::getGlobalSession();
 			$session->persist();
