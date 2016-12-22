@@ -168,16 +168,21 @@ class ModerationTestsuite
 	*/
 	private function prepareDbForTests()
 	{
-		/* NOTE: since MediaWiki 1.28, MediaWikiTestCase class
-			started to agressively isolate us from the real database.
+		global $wgVersion;
+		if ( version_compare( $wgVersion, '1.28', '>=' ) ) {
+			/*
+				This is a workaround for the following problem:
+				https://gerrit.wikimedia.org/r/328718
 
-			However this entire testsuite does the blackbox testing
-			on the site, making HTTP queries as the users would do,
-			so we need to check/modify the real database.
+				Since MediaWiki 1.28, MediaWikiTestCase class
+				started to aggressively isolate us from the real database.
 
-			Therefore we escape the "test DB" jail installed by MediaWikiTestCase.
-		*/
-		if ( method_exists( 'MediaWikiTestCase', 'teardownTestDB' ) ) {
+				However this entire testsuite does the blackbox testing
+				on the site, making HTTP queries as the users would do,
+				so we need to check/modify the real database.
+
+				Therefore we escape the "test DB" jail installed by MediaWikiTestCase.
+			*/
 			MediaWikiTestCase::teardownTestDB();
 		}
 
