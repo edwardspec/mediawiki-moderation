@@ -34,8 +34,21 @@ abstract class ModerationAction extends ContextSource {
 	}
 
 	final public function run() {
-		if ( $this->requiresWrite() && wfReadOnly() ) {
-			throw new ReadOnlyError;
+		if ( $this->requiresWrite() ) {
+			if( wfReadOnly() ) {
+				throw new ReadOnlyError;
+			}
+
+			/* Suppress default assertion from $wgTrxProfilerLimits
+				("no non-readonly SQL queries during GET request") */
+			$profiler = Profiler::instance();
+			if ( method_exists( $profiler, 'getTransactionProfiler' ) ) {
+				$trxProfiler = $profiler->getTransactionProfiler();
+				$trxLimits = $this->getConfig()->get( 'TrxProfilerLimits' );
+
+				$trxProfiler->resetExpectations();
+				$trxProfiler->setExpectations( $trxLimits['POST'], __METHOD__ );
+			}
 		}
 
 		$request = $this->getRequest();
