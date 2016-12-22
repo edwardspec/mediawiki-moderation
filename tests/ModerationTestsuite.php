@@ -437,7 +437,7 @@ class ModerationTestsuite
 		if ( $req->getResponseHeader( 'Location' ) )
 			return null; # No errors
 
-		$html = DOMDocument::loadHTML( $req->getContent() );
+		$html = $this->html->loadFromString( $req->getContent() );
 		$divs = $html->getElementsByTagName( 'div' );
 
 		foreach ( $divs as $div )

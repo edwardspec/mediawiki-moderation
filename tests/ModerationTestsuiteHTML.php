@@ -21,6 +21,10 @@
 */
 
 class ModerationTestsuiteHTML extends DOMDocument {
+
+	/** @brief Libxml error code for "unknown tag", see http://www.xmlsoft.org/html/libxml-xmlerror.html */
+	const XML_HTML_UNKNOWN_TAG = 801;
+
 	private $t; # ModerationTestsuite
 	function __construct( ModerationTestsuite $t ) {
 		$this->t = $t;
@@ -40,9 +44,32 @@ class ModerationTestsuiteHTML extends DOMDocument {
 		return $this->loadFromString( $req->getContent() );
 	}
 
+	/**
+		@brief Utility function to warn about Libxml errors.
+		Ignores the fact that some HTML5 tags are unknown to libxml2.
+	*/
+	public static function checkLibxmlErrors() {
+		$errors = libxml_get_errors();
+		foreach ( $errors as $error ) {
+			if ( $error->code == self::XML_HTML_UNKNOWN_TAG ) {
+				/* Ignore: libxml considers modern tags like <bdi> to be errors */
+				continue;
+			}
+
+			print "LibXML error: " . $error->message . "\n";
+		}
+
+		libxml_clear_errors();
+	}
+
 	public function loadFromString( $string )
 	{
+		/* Ignore "unknown tag" error, see checkLibxmlErrors() for details */
+		libxml_use_internal_errors( true );
+
 		$this->loadHTML( $string );
+		self::checkLibxmlErrors();
+
 		return $this;
 	}
 
