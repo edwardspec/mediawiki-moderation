@@ -12,7 +12,7 @@
 		ret.visualeditoredit = {
 			"result": "success", /* Lowercase */
 
-			/* rewrevid is "undefined" on purpose:
+			/* newrevid is "undefined" on purpose:
 				in this case, ve.init.mw.DesktopArticleTarget.js doesn't do much,
 				most importantly - doesn't fire 'postEdit' hook
 				(which is good, because we need to show another text there).
