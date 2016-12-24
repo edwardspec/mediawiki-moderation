@@ -20,7 +20,7 @@
 	@brief Corrects rc_ip and checkuser logs when edit is approved.
 */
 
-class ModerationCheckUserHook {
+class ModerationApproveHook {
 
 	/* TODO: merge this with ModerationApproveHook */
 

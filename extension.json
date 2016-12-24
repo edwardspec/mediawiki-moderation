@@ -52,7 +52,7 @@
 		"ModerationAjaxHook": "util/ModerationAjaxHook.php",
 		"ModerationBlockCheck": "util/ModerationBlockCheck.php",
 		"ModerationCanSkip": "util/ModerationCanSkip.php",
-		"ModerationCheckUserHook": "hooks/ModerationCheckUserHook.php",
+		"ModerationApproveHook": "hooks/ModerationApproveHook.php",
 		"ModerationPreload": "hooks/ModerationPreload.php",
 		"ModerationEditHooks": "hooks/ModerationEditHooks.php",
 		"ModerationUploadHooks": "hooks/ModerationUploadHooks.php",

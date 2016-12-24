@@ -160,13 +160,13 @@ class ModerationActionApprove extends ModerationAction {
 		# For CheckUser extension to work properly, IP, XFF and UA
 		# should be set to the correct values for the original user
 		# (not from the moderator)
-		ModerationCheckUserHook::install(
+		ModerationApproveHook::install(
 			$row->ip,
 			$row->header_xff,
 			$row->header_ua
 		);
 
-		$approveHook = new ModerationApproveHook();
+		$approveHook = new ModerationRevisionApproveHook();
 		$approveHook->install( array(
 			# Here we set the timestamp of this edit to $row->timestamp
 			# (this is needed because doEditContent() always uses current timestamp).
@@ -285,7 +285,7 @@ class ModerationActionApprove extends ModerationAction {
 
 	TODO: merge this with ModerationCheckUserHook.
 */
-class ModerationApproveHook {
+class ModerationRevisionApproveHook {
 	private $rev_hook_id; // For deinstall()
 	private $update;
 
