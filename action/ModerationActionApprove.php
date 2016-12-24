@@ -160,8 +160,11 @@ class ModerationActionApprove extends ModerationAction {
 		# For CheckUser extension to work properly, IP, XFF and UA
 		# should be set to the correct values for the original user
 		# (not from the moderator)
-		$cuHook = new ModerationCheckUserHook();
-		$cuHook->install( $row->ip, $row->header_xff, $row->header_ua );
+		ModerationCheckUserHook::install(
+			$row->ip,
+			$row->header_xff,
+			$row->header_ua
+		);
 
 		$approveHook = new ModerationApproveHook();
 		$approveHook->install( array(
@@ -256,7 +259,6 @@ class ModerationActionApprove extends ModerationAction {
 			}
 		}
 		$approveHook->deinstall();
-		$cuHook->deinstall();
 
 		if ( !$status->isGood() ) {
 			throw new ModerationError( $status->getMessage() );
@@ -280,6 +282,8 @@ class ModerationActionApprove extends ModerationAction {
 /**
 	@file
 	@brief Apply post-approval changes to the revision (e.g. fix rev_timestamp).
+
+	TODO: merge this with ModerationCheckUserHook.
 */
 class ModerationApproveHook {
 	private $rev_hook_id; // For deinstall()

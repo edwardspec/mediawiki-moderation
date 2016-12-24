@@ -21,9 +21,38 @@
 */
 
 class ModerationCheckUserHook {
-	private $cu_hook_id; // For deinstall()
-	private $rc_hook_id;
-	private $ip, $xff, $ua;
+
+	/* TODO: merge this with ModerationApproveHook */
+
+	const REVID_UNKNOWN = 'LAST'; /**< Key for $tasks which means "revid doesn't exist yet", e.g. before doEditContent() */
+
+	/**
+		@brief Array of tasks which must be performed by postapprove hooks.
+		Format: array( rev_id1 => array( 'ip' => ..., 'xff' => ..., 'ua' => ... ), rev_id2 => ... )
+	*/
+	protected static $tasks = array();
+
+	/**
+		@brief Find the entry in $tasks about change $rc.
+		@returns array( 'ip' => ..., 'xff' => ..., 'ua' => ... )
+		@retval false Not found.
+	*/
+	public function getTask( RecentChange $rc ) {
+		$try_keys = array(
+			$rc->mAttribs['rc_this_oldid'],
+
+			/* In case the hook was triggered by doEditContent() immediately, without DeferredUpdate */
+			self::REVID_UNKNOWN
+		);
+
+		foreach ( $try_keys as $key ) {
+			if ( isset( self::$tasks[$key] ) ) {
+				return self::$tasks[$key];
+			}
+		}
+
+		return false;
+	}
 
 	/*
 		onCheckUserInsertForRecentChange()
@@ -33,14 +62,19 @@ class ModerationCheckUserHook {
 		so that they match the user who made the edit, not the moderator.
 	*/
 	public function onCheckUserInsertForRecentChange( $rc, &$fields ) {
-		$fields['cuc_ip'] = IP::sanitizeIP( $this->ip );
-		$fields['cuc_ip_hex'] = $this->ip ? IP::toHex( $this->ip ) : null;
-		$fields['cuc_agent'] = $this->ua;
+		$task = $this->getTask( $rc );
+		if ( !$task ) {
+			return true; /* Nothing to do */
+		}
+
+		$fields['cuc_ip'] = IP::sanitizeIP( $task['ip'] );
+		$fields['cuc_ip_hex'] = $task['ip'] ? IP::toHex( $task['ip'] ) : null;
+		$fields['cuc_agent'] = $task['ua'];
 
 		if ( method_exists( 'CheckUserHooks', 'getClientIPfromXFF' ) ) {
-			list( $xff_ip, $isSquidOnly ) = CheckUserHooks::getClientIPfromXFF( $this->xff );
+			list( $xff_ip, $isSquidOnly ) = CheckUserHooks::getClientIPfromXFF( $task['xff'] );
 
-			$fields['cuc_xff'] = !$isSquidOnly ? $this->xff : '';
+			$fields['cuc_xff'] = !$isSquidOnly ? $task['xff'] : '';
 			$fields['cuc_xff_hex'] = ( $xff_ip && !$isSquidOnly ) ? IP::toHex( $xff_ip ) : null;
 		} else {
 			$fields['cuc_xff'] = '';
@@ -63,10 +97,15 @@ class ModerationCheckUserHook {
 			return;
 		}
 
+		$task = $this->getTask( $rc );
+		if ( !$task ) {
+			return true; /* Nothing to do */
+		}
+
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'recentchanges',
 			array(
-				'rc_ip' => IP::sanitizeIP( $this->ip )
+				'rc_ip' => IP::sanitizeIP( $task['ip'] )
 			),
 			array( 'rc_id' => $rc->mAttribs['rc_id'] ),
 			__METHOD__
@@ -75,33 +114,43 @@ class ModerationCheckUserHook {
 		return true;
 	}
 
-	public function install( $ip, $xff, $ua ) {
-		global $wgHooks;
+	/*
+		onNewRevisionFromEditComplete()
 
-		$this->ip = $ip;
-		$this->xff = $xff;
-		$this->ua = $ua;
+		Here we replace REVID_UNKNOWN in $tasks.
+	*/
+	public function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
+		if ( isset( self::$tasks[self::REVID_UNKNOWN] )) {
+			$revid = $rev->getId();
 
-		$wgHooks['CheckUserInsertForRecentChange'][] = array( $this, 'onCheckUserInsertForRecentChange' );
-		end( $wgHooks['CheckUserInsertForRecentChange'] );
-		$this->cu_hook_id = key( $wgHooks['CheckUserInsertForRecentChange'] );
-
-		$wgHooks['RecentChange_save'][] = array( $this, 'onRecentChange_save' );
-		end( $wgHooks['RecentChange_save'] );
-		$this->rc_hook_id = key( $wgHooks['RecentChange_save'] );
+			self::$tasks[$revid] = self::$tasks[self::REVID_UNKNOWN];
+			unset( self::$tasks[self::REVID_UNKNOWN] );
+		}
 	}
 
-	public function deinstall() {
-		/* FIXME: this is UGLY.
-			Instead we should have a static array of needed changes,
-			install() only once and remove uninstall().
-		*/
+	/**
+		@brief Prepare the checkuser hook. Called before doEditContent().
+	*/
+	public static function install( $ip, $xff, $ua ) {
+		/* At this point we don't yet know the revid, so we use REVID_UNKNOWN */
+		self::$tasks[self::REVID_UNKNOWN] = array(
+			'ip' => $ip,
+			'xff' => $xff,
+			'ua' => $ua
+		);
 
-		wfGetLBFactory()->commitMasterChanges();
-		DeferredUpdates::doUpdates('run'); /* Call $rc->save() immediately */
+		static $installed = false;
+		if ( !$installed ) {
+			global $wgHooks;
 
-		global $wgHooks;
-		unset( $wgHooks['CheckUserInsertForRecentChange'][$this->cu_hook_id] );
-		unset( $wgHooks['RecentChange_save'][$this->rc_hook_id] );
+			$hook = new self;
+			$wgHooks['CheckUserInsertForRecentChange'][] = $hook;
+			$wgHooks['RecentChange_save'][] = $hook;
+
+			/* This hook will replace REVID_UNKNOWN with revision ID */
+			$wgHooks['NewRevisionFromEditComplete'][] = $hook;
+
+			$installed = true;
+		}
 	}
 }
