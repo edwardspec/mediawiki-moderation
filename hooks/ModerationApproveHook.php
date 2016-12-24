@@ -17,12 +17,12 @@
 
 /**
 	@file
-	@brief Corrects rc_ip and checkuser logs when edit is approved.
+	@brief Affects doEditContent() during modaction=approve(all).
+
+	Corrects rev_timestamp, rc_ip and checkuser logs when edit is approved.
 */
 
 class ModerationApproveHook {
-
-	/* TODO: merge this with ModerationApproveHook */
 
 	const REVID_UNKNOWN = 'LAST'; /**< Key for $tasks which means "revid doesn't exist yet", e.g. before doEditContent() */
 
@@ -32,14 +32,21 @@ class ModerationApproveHook {
 	*/
 	protected static $tasks = array();
 
+	protected static $lastRevId = null; /**< Revid of the last edit, populated in onNewRevisionFromEditComplete */
+
+	/** @brief Convenience function, returns revid of the last edit */
+	public static function getLastRevId() {
+		return self::$lastRevId;
+	}
+
 	/**
-		@brief Find the entry in $tasks about change $rc.
-		@returns array( 'ip' => ..., 'xff' => ..., 'ua' => ... )
+		@brief Find the entry in $tasks about change $revid.
+		@returns array( 'ip' => ..., 'xff' => ..., 'ua' => ..., ... )
 		@retval false Not found.
 	*/
-	public function getTask( RecentChange $rc ) {
+	public function getTask( $revid ) {
 		$try_keys = array(
-			$rc->mAttribs['rc_this_oldid'],
+			$revid,
 
 			/* In case the hook was triggered by doEditContent() immediately, without DeferredUpdate */
 			self::REVID_UNKNOWN
@@ -62,7 +69,7 @@ class ModerationApproveHook {
 		so that they match the user who made the edit, not the moderator.
 	*/
 	public function onCheckUserInsertForRecentChange( $rc, &$fields ) {
-		$task = $this->getTask( $rc );
+		$task = $this->getTask( $rc->mAttribs['rc_this_oldid'] );
 		if ( !$task ) {
 			return true; /* Nothing to do */
 		}
@@ -94,10 +101,10 @@ class ModerationApproveHook {
 	public function onRecentChange_save( &$rc ) {
 		global $wgPutIPinRC;
 		if ( !$wgPutIPinRC ) {
-			return;
+			return true;
 		}
 
-		$task = $this->getTask( $rc );
+		$task = $this->getTask( $rc->mAttribs['rc_this_oldid'] );
 		if ( !$task ) {
 			return true; /* Nothing to do */
 		}
@@ -117,27 +124,38 @@ class ModerationApproveHook {
 	/*
 		onNewRevisionFromEditComplete()
 
-		Here we replace REVID_UNKNOWN in $tasks.
+		Here we replace REVID_UNKNOWN in $tasks and fix rev_timestamp.
 	*/
 	public function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
-		if ( isset( self::$tasks[self::REVID_UNKNOWN] )) {
-			$revid = $rev->getId();
+		/* Remember ID of this revision for getLastRevId() */
+		self::$lastRevId = $rev->getId();
 
-			self::$tasks[$revid] = self::$tasks[self::REVID_UNKNOWN];
+		/* Replace REVID_UNKNOWN in $tasks */
+		if ( isset( self::$tasks[self::REVID_UNKNOWN] )) {
+			self::$tasks[self::$lastRevId] = self::$tasks[self::REVID_UNKNOWN];
 			unset( self::$tasks[self::REVID_UNKNOWN] );
 		}
+
+		/* Modify rev_timestamp in the newly created revision */
+		$task = $this->getTask( self::$lastRevId );
+		if ( $task ) {
+			$dbw = wfGetDB( DB_MASTER );
+			$dbw->update( 'revision',
+				$task['revisionUpdate'],
+				array( 'rev_id' => self::$lastRevId ),
+				__METHOD__
+			);
+		}
+
+		return true;
 	}
 
 	/**
-		@brief Prepare the checkuser hook. Called before doEditContent().
+		@brief Prepare the approve hook. Called before doEditContent().
 	*/
-	public static function install( $ip, $xff, $ua ) {
+	public static function install( array $task ) {
 		/* At this point we don't yet know the revid, so we use REVID_UNKNOWN */
-		self::$tasks[self::REVID_UNKNOWN] = array(
-			'ip' => $ip,
-			'xff' => $xff,
-			'ua' => $ua
-		);
+		self::$tasks[self::REVID_UNKNOWN] = $task;
 
 		static $installed = false;
 		if ( !$installed ) {

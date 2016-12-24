@@ -30,7 +30,7 @@ class ModerationActionApprove extends ModerationAction {
 		}
 	}
 
-	function prepareApproveHooks() {
+	public function bypassModeration() {
 		# Disable moderation hook (ModerationEditHooks::onPageContentSave),
 		# so that it won't queue this edit again.
 		ModerationEditHooks::$inApprove = true;
@@ -38,7 +38,7 @@ class ModerationActionApprove extends ModerationAction {
 
 	public function executeApproveOne() {
 		$out = $this->getOutput();
-		$this->prepareApproveHooks();
+		$this->bypassModeration();
 
 		$this->approveEditById( $this->id );
 		$out->addWikiMsg( 'moderation-approved-ok', 1 );
@@ -74,7 +74,7 @@ class ModerationActionApprove extends ModerationAction {
 			throw new ModerationError( 'moderation-nothing-to-approveall' );
 		}
 
-		$this->prepareApproveHooks();
+		$this->bypassModeration();
 
 		$approved = 0;
 		$failed = 0;
@@ -157,29 +157,29 @@ class ModerationActionApprove extends ModerationAction {
 			$flags |= EDIT_MINOR;
 		}
 
-		# For CheckUser extension to work properly, IP, XFF and UA
-		# should be set to the correct values for the original user
-		# (not from the moderator)
-		ModerationApproveHook::install(
-			$row->ip,
-			$row->header_xff,
-			$row->header_ua
-		);
+		# Install hooks which affect postedit behavior of doEditContent().
+		ModerationApproveHook::install( array(
+			# For CheckUser extension to work properly, IP, XFF and UA
+			# should be set to the correct values for the original user
+			# (not from the moderator)
+			'ip' => $row->ip,
+			'xff' => $row->header_xff,
+			'ua' => $row->header_ua,
 
-		$approveHook = new ModerationRevisionApproveHook();
-		$approveHook->install( array(
-			# Here we set the timestamp of this edit to $row->timestamp
-			# (this is needed because doEditContent() always uses current timestamp).
-			#
-			# NOTE: timestamp in recentchanges table is not updated on purpose:
-			# users would want to see new edits as they appear,
-			# without the edits surprisingly appearing somewhere in the past.
-			'rev_timestamp' => $dbw->timestamp( $row->timestamp ),
+			'revisionUpdate' => array(
+				# Here we set the timestamp of this edit to $row->timestamp
+				# (this is needed because doEditContent() always uses current timestamp).
+				#
+				# NOTE: timestamp in recentchanges table is not updated on purpose:
+				# users would want to see new edits as they appear,
+				# without the edits surprisingly appearing somewhere in the past.
+				'rev_timestamp' => $dbw->timestamp( $row->timestamp ),
 
-			# performUpload() mistakenly tags image reuploads as made by moderator (rather than $user).
-			# Let's fix this here.
-			'rev_user' => $user->getId(),
-			'rev_user_text' => $user->getName()
+				# performUpload() mistakenly tags image reuploads as made by moderator (rather than $user).
+				# Let's fix this here.
+				'rev_user' => $user->getId(),
+				'rev_user_text' => $user->getName()
+			)
 		) );
 
 		$status = Status::newGood();
@@ -258,7 +258,6 @@ class ModerationActionApprove extends ModerationAction {
 				}
 			}
 		}
-		$approveHook->deinstall();
 
 		if ( !$status->isGood() ) {
 			throw new ModerationError( $status->getMessage() );
@@ -267,7 +266,7 @@ class ModerationActionApprove extends ModerationAction {
 		$logEntry = new ManualLogEntry( 'moderation', 'approve' );
 		$logEntry->setPerformer( $this->moderator );
 		$logEntry->setTarget( $title );
-		$logEntry->setParameters( array( 'revid' => $approveHook->lastRevId ) );
+		$logEntry->setParameters( array( 'revid' => ModerationApproveHook::getLastRevId() ) );
 		$logid = $logEntry->insert();
 		$logEntry->publish( $logid );
 
@@ -276,46 +275,5 @@ class ModerationActionApprove extends ModerationAction {
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->delete( 'moderation', array( 'mod_id' => $id ), __METHOD__ );
-	}
-}
-
-/**
-	@file
-	@brief Apply post-approval changes to the revision (e.g. fix rev_timestamp).
-
-	TODO: merge this with ModerationCheckUserHook.
-*/
-class ModerationRevisionApproveHook {
-	private $rev_hook_id; // For deinstall()
-	private $update;
-
-	public $lastRevId = null;
-
-	public function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
-		$this->lastRevId = $rev->getId();
-
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->update( 'revision',
-			$this->update,
-			array( 'rev_id' => $this->lastRevId ),
-			__METHOD__
-		);
-
-		return true;
-	}
-
-	public function install( $update ) {
-		global $wgHooks;
-
-		$this->update = $update;
-
-		$wgHooks['NewRevisionFromEditComplete'][] = array( $this, 'onNewRevisionFromEditComplete' );
-		end( $wgHooks['NewRevisionFromEditComplete'] );
-		$this->rev_hook_id = key( $wgHooks['NewRevisionFromEditComplete'] );
-	}
-
-	public function deinstall() {
-		global $wgHooks;
-		unset( $wgHooks['NewRevisionFromEditComplete'][$this->rev_hook_id] );
 	}
 }

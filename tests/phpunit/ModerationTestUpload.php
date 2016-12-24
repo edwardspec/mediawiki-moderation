@@ -90,7 +90,7 @@ class ModerationTestUpload extends MediaWikiTestCase
 	}
 
 	/**
-		@covers ModerationApproveHook
+		@covers ModerationApproveHook::onNewRevisionFromEditComplete
 	*/
 	public function testReupload() {
 		$t = new ModerationTestsuite();
