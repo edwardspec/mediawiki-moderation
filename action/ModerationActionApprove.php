@@ -30,23 +30,12 @@ class ModerationActionApprove extends ModerationAction {
 		}
 	}
 
-	public function bypassModeration() {
-		# Disable moderation hook (ModerationEditHooks::onPageContentSave),
-		# so that it won't queue this edit again.
-		ModerationEditHooks::$inApprove = true;
-	}
-
 	public function executeApproveOne() {
-		$out = $this->getOutput();
-		$this->bypassModeration();
-
 		$this->approveEditById( $this->id );
-		$out->addWikiMsg( 'moderation-approved-ok', 1 );
+		$this->getOutput()->addWikiMsg( 'moderation-approved-ok', 1 );
 	}
 
 	public function executeApproveAll() {
-		$out = $this->getOutput();
-
 		$userpage = $this->getUserpageOfPerformer();
 		if ( !$userpage ) {
 			throw new ModerationError( 'moderation-edit-not-found' );
@@ -74,8 +63,6 @@ class ModerationActionApprove extends ModerationAction {
 			throw new ModerationError( 'moderation-nothing-to-approveall' );
 		}
 
-		$this->bypassModeration();
-
 		$approved = 0;
 		$failed = 0;
 		foreach ( $res as $row ) {
@@ -96,6 +83,7 @@ class ModerationActionApprove extends ModerationAction {
 			$logEntry->publish( $logid );
 		}
 
+		$out = $this->getOutput();
 		$out->addWikiMsg( 'moderation-approved-ok', $approved );
 		if ( $failed ) {
 			$out->addWikiMsg( 'moderation-approved-errors', $failed );
@@ -140,6 +128,10 @@ class ModerationActionApprove extends ModerationAction {
 		if ( $row->rejected && $row->timestamp < SpecialModeration::getEarliestReapprovableTimestamp() ) {
 			throw new ModerationError( 'moderation-rejected-long-ago' );
 		}
+
+		# Disable moderation hook (ModerationEditHooks::onPageContentSave),
+		# so that it won't queue this edit again.
+		ModerationEditHooks::$inApprove = true;
 
 		# Prepare everything
 		$title = Title::makeTitle( $row->namespace, $row->title );
