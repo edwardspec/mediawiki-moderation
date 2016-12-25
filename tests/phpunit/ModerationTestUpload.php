@@ -126,6 +126,10 @@ class ModerationTestUpload extends MediaWikiTestCase
 		$this->assertNotNull( $entry->approveLink,
 			"testReupload(): Approve link not found" );
 
+		/* Wait 1 second, because archived image names are based on time (up to the second),
+			so if two uploads happen within the same second, only the first will succeed */
+		sleep( 1 );
+
 		$t->html->loadFromURL( $entry->approveLink );
 		$this->assertRegExp( '/\(moderation-approved-ok: 1\)/',
 			$t->html->getMainText(),
