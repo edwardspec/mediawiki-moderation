@@ -26,6 +26,10 @@ WARNING: THIS TEST DOESN'T PRESERVE EXISTING DATABASE. EVERYTHING IS DELETED.
 
 for i in extensions/Moderation/tests/phpunit/*.php; do tests/phpunit/phpunit.php $i; done
 
+For MediaWiki 1.28+ you can use a shorter command:
+
+tests/phpunit/phpunit.php extensions/Moderation
+
 == Writing new tests ==
 
 File [tests/ModerationTestsuite.php] is the general framework
@@ -42,7 +46,7 @@ It provides the following:
 
 == List of existing tests ==
 
-1. [ModerationTestInterceptEdit.php]
+1. [ModerationInterceptEditTest.php]
 	Answers the question: "Are the new edits indeed intercepted?"
 	Here we check that
 	1) edits are stopped with 'edit-hook-aborted' code,
@@ -50,13 +54,13 @@ It provides the following:
 	3) user is properly redirected after the edit,
 	4) "ext.moderation.notify" module is loaded after the redirect.
 
-2. [ModerationTestAutomoderated.php]
+2. [ModerationAutomoderatedTest.php]
 	Answers the question: "Do automoderated users bypass moderation?"
 	Here we check that
 	1) edits of automoderated user immediately succeed,
 	2) no new entries appear on Special:Moderation.
 
-3. [ModerationTestApprove.php]
+3. [ModerationApproveTest.php]
 	Answers the question: "Does the Approve(all) link work as expected?"
 	Here we check that
 	1) the page is indeed modified when Approve is clicked,
@@ -74,7 +78,7 @@ It provides the following:
 	13) approval log entries are properly formatted on Special:Log,
 	14) (moderation-approved-ok) is printed after successful approval.
 
-4. [ModerationTestReject.php]
+4. [ModerationRejectTest.php]
 	Answers the question: "Does the Reject(all) link work as expected?"
 	Here we check that
 	1) rejected edits are removed from the Pending folder,
@@ -87,18 +91,18 @@ It provides the following:
 	8) rejection log entries are properly formatted on Special:Log,
 	9) (moderation-rejected-ok) is printed after successful rejection.
 
-5. [ModerationTestPermissions.php]
+5. [ModerationPermissionsTest.php]
 	Answers the question: "Is Special:Moderation for moderators only?"
 	Here we check that
 	1) unprivileged user gets permissions error on Special:Moderation.
 
-6. [ModerationTestTokens.php]
+6. [ModerationTokensTest.php]
 	Answers the question: "Are the tokens required on Special:Moderation?"
 	Here we check that
 	1) non-readonly actions don't work without a token,
 	2) non-readonly actions don't work with incorrect token.
 
-7. [ModerationTestShow.php]
+7. [ModerationShowTest.php]
 	Answers the question: "Does the Show link work as expected?"
 	Here we check that
 	1) Show link doesn't have a token and works without it,
@@ -113,7 +117,7 @@ It provides the following:
 	10) thumbnail of large image is THUMB_WIDTH wide, ratio is preserved,
 	11) correct message is displayed for uploads without description.
 
-8. [ModerationTestUpload.php]
+8. [ModerationUploadTest.php]
 	Answers the question: "Are uploads intercepted? Can they be approved?"
 	Here we check that
 	1) uploads are stopped with 'moderation-image-queued' code,
@@ -124,7 +128,7 @@ It provides the following:
 	6) image reuploads are attributed to the user who made them,
 	7) correct message for reuploads is displayed by modaction=show.
 
-9. [ModerationTestErrors.php]
+9. [ModerationErrorsTest.php]
 	Answers the question: "Do all our safety/sanity checks catch errors?"
 	Here we check the following conditions:
 	1) moderation-unknown-modaction
@@ -135,14 +139,14 @@ It provides the following:
 	6) moderation-missing-stashed-image
 	7) edit-no-change
 
-10. [ModerationTestCheckuser.php]
+10. [ModerationCheckuserTest.php]
 	Answers the question: "Does checkuser-related stuff work correctly?"
 	Here we check that
 	1) moderator without 'moderation-checkuser' right can't see IPs,
 	2) moderator with 'moderation-checkuser' right can see IPs,
 	3) user-agent of whoever made the edit is saved in cu_changes table.
 
-11. [ModerationTestBlock.php]
+11. [ModerationBlockTest.php]
 	Answers the question: "Do the Block/Unblock links work as expected?"
 	Here we check that
 	1) Unblock (Block) link is only shown for blocked (non-blocked) user,
@@ -154,13 +158,13 @@ It provides the following:
 	7) block/unblock log entries are properly formatted on Special:Log,
 	8) (moderation-(un)block-ok) is printed after successful block/unblock.
 
-12. [ModerationTestEdit.php]
+12. [ModerationEditTest.php]
 	Answers the question: "Does the editing work as usual?"
 	Here we check that
 	1) signatures (~~~~) are substituted in edits sent to moderation,
 	2) sections can be edited.
 
-13. [ModerationTestPreload.php]
+13. [ModerationPreloadTest.php]
 	Answers the question: "Can the user continue editing his revision?"
 	Here we check that
 	1) text from the last queued edit is preloaded into the edit form,
@@ -171,7 +175,7 @@ It provides the following:
 	6) message (moderation-editing-your-version) is shown,
 	7) anonymous edits can still be preloaded after creating an account.
 
-14. [ModerationTestMerge.php]
+14. [ModerationMergeTest.php]
 	Answers the question: "Does the Merge link work as expected?"
 	Here we check that
 	1) edit conflict is detected when Approve is clicked,
@@ -190,14 +194,14 @@ It provides the following:
 	14) edit conflicts are detected when ApproveAll is clicked,
 	15) edits with detected conflict can be rejected.
 
-15. [ModerationTestPreview.php]
+15. [ModerationPreviewTest.php]
 	Answers the question: "Does the Preview link work as expected?"
 	Here we check that
 	1) Preview link is (by default) not shown on Special:Moderation,
 	2) Preview link opens a preview page with a correct HTML title,
 	3) edits containing '''bold'''/''italic'' have <b>/<i> tags in preview.
 
-16. [ModerationTestReturnto.php]
+16. [ModerationReturntoTest.php]
 	Answers the question: "Do moderation actions show Returnto link?"
 	Here we check that
 	1) successful action shows "Return to Special:Moderation" link,
