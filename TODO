@@ -12,6 +12,16 @@ Low-prio:
 * (interface) For non-automoderated users: show a message on their
 	Special:Contributions ensuring them that their edits will
 	appear there when they are approved.
+* (feature) Temporarily allow everyone to skip moderation on one specific page.
+	If some page is becoming popular amongst many new editors (e.g. fans of
+	some film are collectively writing about it), it makes sence to disable
+	moderation on it, because users will monitor the new changes themselves,
+	and administrator won't have to manually merge edit conflicts.
+	This mode should be time-limited, like page protections,
+	e.g. "Admin1 allowed unmoderated edits on Page2 for the next 3 days".
+	There shouldn't be an "indefinite" duration (or even >1 week), because
+	we don't want vandals to edit a bunch of such pages in a year or two.
+
 
 Background-prio (may not be needed):
 * (feature) Post factum elimination of duplicate anonymous edits (e.g. when one
