@@ -179,14 +179,14 @@ class ModerationActionApprove extends ModerationAction {
 			# This is the upload from stash.
 
 			$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash( $user );
+			$upload = new UploadFromStash( $user, $stash );
+
 			try {
-				$file = $stash->getFile( $row->stash_key );
-			} catch ( MWException $e ) {
+				$upload->initialize( $row->stash_key, $title->getText() );
+			} catch ( UploadStashFileNotFoundException $e ) {
 				throw new ModerationError( 'moderation-missing-stashed-image' );
 			}
 
-			$upload = new UploadFromStash( $user, $stash );
-			$upload->initialize( $row->stash_key, $title->getText() );
 			$status = $upload->performUpload( $row->comment, $row->text, 0, $user );
 		} else {
 			# This is normal edit (not an upload).
