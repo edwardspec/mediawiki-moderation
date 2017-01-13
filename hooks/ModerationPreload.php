@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2016 Edward Chernenko.
+	Copyright (C) 2014-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -190,7 +190,9 @@ class ModerationPreload {
 		$wgOut->wrapWikiMsg( '<div id="mw-editing-your-version">$1</div>', array( 'moderation-editing-your-version' ) );
 
 		$text = $row->text;
-		$editPage->summary = $row->comment;
+		if ( $editPage ) {
+			$editPage->summary = $row->comment;
+		}
 
 		if ( $section != false ) {
 			$fullContent = ContentHandler::makeContent( $text, $title );

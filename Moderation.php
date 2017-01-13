@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2016 Edward Chernenko.
+	Copyright (C) 2014-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ $wgExtensionCredits['antispam'][] = array(
 	'url' => 'https://www.mediawiki.org/wiki/Extension:Moderation',
 	'descriptionmsg' => 'moderation-desc',
 	'license-name' => 'GPL-3.0+',
-	'version' => '1.0.4'
+	'version' => '1.0.5'
 );
 
 $wgMessagesDirs['Moderation'] = array(
