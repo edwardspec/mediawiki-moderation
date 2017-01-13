@@ -15,22 +15,27 @@
 	/* Supply VisualEditor with preloaded pending edit, if there is one */
 	mw.loader.using( 'ext.visualEditor.targetLoader', function() {
 
-		var oldRequestPageData = mw.libs.ve.targetLoader.requestPageData,
-			api = new mw.Api();
+		var api = new mw.Api();
 
-		/* Override requestPageData() method */
-		mw.libs.ve.targetLoader.requestPageData = function( pageName, oldid, targetName, modified ) {
+		var funcName = mw.libs.ve.targetLoader.requestParsoidData ?
+			'requestParsoidData' : /* Modern VisualEditor (after commit c452e13) */
+			'requestPageData'; /* Legacy version */
+		var oldFunc = mw.libs.ve.targetLoader[funcName];
+
+		/* Override requestParsoidData() method */
+		mw.libs.ve.targetLoader[funcName] = function ( pageName, oldid, targetName, modified ) {
 
 			/*
 				useDefault() - call the original (unmodified) method from mw.libs.ve.
 				Example: return useDefault( "no change is awaiting moderation, so nothing to preload!" );
 			*/
+			var self = this,
+				params = arguments;
+
 			function useDefault( reason ) {
 				console.log( "Moderation: not preloading: " + reason );
 
-				return oldRequestPageData.apply( this, [
-					pageName, oldid, targetName, modified
-				] );
+				return oldFunc.apply( self, params );
 			}
 
 			/* If user is editing some older revision,
