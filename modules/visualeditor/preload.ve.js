@@ -19,17 +19,18 @@
 			api = new mw.Api();
 
 		/* Override requestPageData() method */
-		mw.libs.ve.targetLoader.requestPageData = function( pageName, oldid, targetName, modified ) {
+		mw.libs.ve.targetLoader.requestPageData = function ( mode, pageName, section, oldid, targetName, modified ) {
 
 			/*
 				useDefault() - call the original (unmodified) method from mw.libs.ve.
 				Example: return useDefault( "no change is awaiting moderation, so nothing to preload!" );
 			*/
+			var self = this;
 			function useDefault( reason ) {
 				console.log( "Moderation: not preloading: " + reason );
 
-				return oldRequestPageData.apply( this, [
-					pageName, oldid, targetName, modified
+				return oldRequestPageData.apply( self, [
+					mode, pageName, section, oldid, targetName, modified
 				] );
 			}
 
