@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2016 Edward Chernenko.
+	Copyright (C) 2014-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -85,6 +85,18 @@ class SpecialModeration extends QueryPage {
 
 	public function isCacheable() {
 		return false;
+	}
+
+	function preprocessResults( $db, $res ) {
+		/* Check all pages for whether they exist or not -
+			improves performance of Linker::link() in formatResult() */
+		$batch = new LinkBatch();
+		foreach ( $res as $row ) {
+			$batch->add( $row->namespace, $row->title );
+		}
+		$batch->execute();
+
+		$res->seek( 0 );
 	}
 
 	function linkParameters() {
