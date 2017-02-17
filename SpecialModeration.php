@@ -93,6 +93,18 @@ class SpecialModeration extends QueryPage {
 		$batch = new LinkBatch();
 		foreach ( $res as $row ) {
 			$batch->add( $row->namespace, $row->title );
+
+			/* Check userpages too - improves performance of Linker::userLink().
+				Not needed for anonymous users,
+				because their userLink() points to Special:Contributions.
+			*/
+			if ( $row->user ) {
+				$batch->add( NS_USER, $row->user_text );
+			}
+
+			if ( $row->rejected_by_user ) {
+				$batch->add( NS_USER, $row->rejected_by_user_text );
+			}
 		}
 		$batch->execute();
 
