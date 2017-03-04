@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2016 Edward Chernenko.
+	Copyright (C) 2014-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ abstract class ModerationAction extends ContextSource {
 		$this->getOutput()->addReturnTo( SpecialPage::getTitleFor( 'Moderation' ) );
 	}
 
-	/* The following methods can be overriden in the subclass */
+	/* The following methods can be overridden in the subclass */
 
 	/** @brief Whether the URL of this action must contain CSRF token */
 	public function requiresEditToken() {
@@ -88,21 +88,18 @@ abstract class ModerationAction extends ContextSource {
 	*/
 	protected function getUserpageOfPerformer() {
 		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
-		$row = $dbw->selectRow( 'moderation',
-			array(
-				'mod_user_text AS user_text'
-			),
+		$username = $dbw->selectField( 'moderation', 'mod_user_text',
 			array( 'mod_id' => $this->id ),
 			__METHOD__
 		);
-		return $row ? Title::makeTitle( NS_USER, $row->user_text ) : false;
+		return $username ? Title::makeTitle( NS_USER, $username ) : false;
 	}
 
 	/** @brief Construct new ModerationAction */
 	public static function factory( IContextSource $context )
 	{
 		$action = $context->getRequest()->getVal( 'modaction' );
-		if(!$action) {
+		if ( !$action ) {
 			return false;
 		}
 

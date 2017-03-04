@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2016 Edward Chernenko.
+	Copyright (C) 2016-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 	For example, if Extension:VisualEditor is detected,
 	then module 'ext.moderation.ve' will be attached.
 
-	This can be overriden in LocalSettings.php:
+	This can be overridden in LocalSettings.php:
 	$wgModerationSupportVisualEditor = true; - attach even if not detected.
 	$wgModerationSupportVisualEditor = false; - don't attach even if detected.
 	$wgModerationSupportVisualEditor = "guess"; - default behavior.
