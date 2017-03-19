@@ -144,7 +144,9 @@ It provides the following:
 	Here we check that
 	1) moderator without 'moderation-checkuser' right can't see IPs,
 	2) moderator with 'moderation-checkuser' right can see IPs,
-	3) user-agent of whoever made the edit is saved in cu_changes table.
+	3) user-agent of whoever made the edit is saved in cu_changes table,
+	4) user-agent of whoever made the upload is saved in cu_changes table,
+	5) user-agent is saved during ApproveAll.
 
 11. [ModerationBlockTest.php]
 	Answers the question: "Do the Block/Unblock links work as expected?"
