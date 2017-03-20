@@ -150,7 +150,7 @@ class ModerationActionApprove extends ModerationAction {
 		}
 
 		# Install hooks which affect postedit behavior of doEditContent().
-		ModerationApproveHook::install( array(
+		ModerationApproveHook::install( $title, $user, array(
 			# For CheckUser extension to work properly, IP, XFF and UA
 			# should be set to the correct values for the original user
 			# (not from the moderator)

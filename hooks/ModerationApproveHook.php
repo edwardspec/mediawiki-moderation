@@ -25,8 +25,8 @@
 class ModerationApproveHook {
 
 	/**
-		@brief FIFO stack of tasks which must be performed by postapprove hooks.
-		Format: array( array( 'ip' => ..., 'xff' => ..., 'ua' => ... ), ... )
+		@brief Array of tasks which must be performed by postapprove hooks.
+		Format: array( key1 => array( 'ip' => ..., 'xff' => ..., 'ua' => ... ), key2 => ... )
 	*/
 	protected static $tasks = array();
 
@@ -38,29 +38,32 @@ class ModerationApproveHook {
 	}
 
 	/**
-		@brief Find the task regarding edit by $userId on $title.
+		@brief Calculate key in $tasks array for $title/$username pair.
+	*/
+	protected function getTaskKey( Title $title, $username ) {
+		return join( '[', /* Symbol "[" is not allowed in both titles and usernames */
+			array(
+				$username,
+				$title->getNamespace(),
+				$title->getDBKey()
+			)
+		);
+	}
+
+	/**
+		@brief Find the task regarding edit by $username on $title.
 		@returns array( 'ip' => ..., 'xff' => ..., 'ua' => ..., ... )
 	*/
-	public function getTask( Title $title, $userId ) {
-		$key = wfMemcKey( 'task',
-			$userId,
-			$title->getNamespace(),
-			$title->getDBKey()
-		);
-
-		static $found = array(); /* array( key1 => task, key2 => ... ) */
-		if ( !isset( $found[$key] ) ) {
-			$found[$key] = array_shift( self::$tasks );
-		}
-
-		return $found[$key];
+	public function getTask( Title $title, $username ) {
+		$key = self::getTaskKey( $title, $username );
+		return self::$tasks[$key];
 	}
 
 	/**
 		@brief Find the entry in $tasks about change $rc.
 	*/
 	public function getTaskByRC( RecentChange $rc ) {
-		return $this->getTask( $rc->getTitle(), $rc->mAttribs['rc_user'] );
+		return $this->getTask( $rc->getTitle(), $rc->mAttribs['rc_user_text'] );
 	}
 
 	/*
@@ -127,7 +130,7 @@ class ModerationApproveHook {
 		self::$lastRevId = $rev->getId();
 
 		/* Modify rev_timestamp in the newly created revision */
-		$task = $this->getTask( $article->getTitle(), $user->getId() );
+		$task = $this->getTask( $article->getTitle(), $user->getName() );
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'revision',
@@ -142,8 +145,9 @@ class ModerationApproveHook {
 	/**
 		@brief Prepare the approve hook. Called before doEditContent().
 	*/
-	public static function install( array $task ) {
-		self::$tasks[] = $task;
+	public static function install( Title $title, User $user, array $task ) {
+		$key = self::getTaskKey( $title, $user->getName() );
+		self::$tasks[$key] = $task;
 
 		static $installed = false;
 		if ( !$installed ) {
