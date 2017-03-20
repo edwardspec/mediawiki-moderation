@@ -38,17 +38,29 @@ class ModerationApproveHook {
 	}
 
 	/**
-		@brief Find the entry in $tasks about change $revid.
+		@brief Find the task regarding edit by $userId on $title.
 		@returns array( 'ip' => ..., 'xff' => ..., 'ua' => ..., ... )
-		@retval false Not found.
 	*/
-	public function getTask( $revid ) {
-		static $found = array(); /* array( rev_id1 => task, rev_id2 => ... ) */
-		if ( !isset( $found[$revid] ) ) {
-			$found[$revid] = array_shift( self::$tasks );
+	public function getTask( Title $title, $userId ) {
+		$key = wfMemcKey( 'task',
+			$userId,
+			$title->getNamespace(),
+			$title->getDBKey()
+		);
+
+		static $found = array(); /* array( key1 => task, key2 => ... ) */
+		if ( !isset( $found[$key] ) ) {
+			$found[$key] = array_shift( self::$tasks );
 		}
 
-		return $found[$revid];
+		return $found[$key];
+	}
+
+	/**
+		@brief Find the entry in $tasks about change $rc.
+	*/
+	public function getTaskByRC( RecentChange $rc ) {
+		return $this->getTask( $rc->getTitle(), $rc->mAttribs['rc_user'] );
 	}
 
 	/*
@@ -59,7 +71,7 @@ class ModerationApproveHook {
 		so that they match the user who made the edit, not the moderator.
 	*/
 	public function onCheckUserInsertForRecentChange( $rc, &$fields ) {
-		$task = $this->getTask( $rc->mAttribs['rc_this_oldid'] );
+		$task = $this->getTaskByRC( $rc );
 
 		$fields['cuc_ip'] = IP::sanitizeIP( $task['ip'] );
 		$fields['cuc_ip_hex'] = $task['ip'] ? IP::toHex( $task['ip'] ) : null;
@@ -91,7 +103,7 @@ class ModerationApproveHook {
 			return true;
 		}
 
-		$task = $this->getTask( $rc->mAttribs['rc_this_oldid'] );
+		$task = $this->getTaskByRC( $rc );
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'recentchanges',
@@ -115,7 +127,7 @@ class ModerationApproveHook {
 		self::$lastRevId = $rev->getId();
 
 		/* Modify rev_timestamp in the newly created revision */
-		$task = $this->getTask( self::$lastRevId );
+		$task = $this->getTask( $article->getTitle(), $user->getId() );
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'revision',
