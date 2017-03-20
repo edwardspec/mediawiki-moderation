@@ -129,8 +129,8 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		$NUMBER_OF_UPLOADS = 2;
 
 		$t->loginAs( $t->unprivilegedUser );
-		$t->setUserAgent( $this->userUA );
 		for ( $i = 1; $i <= $NUMBER_OF_UPLOADS; $i ++ ) {
+			$t->setUserAgent( $this->userUA . '#' . $i );
 			$t->doTestUpload( "UA_Test_Upload${i}.png" );
 		}
 		$t->fetchSpecial();
@@ -143,14 +143,14 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		$t->httpGet( $entry->approveAllLink ); # Try modaction=approveall
 
 		$agents = $this->getCUCAgents( $NUMBER_OF_UPLOADS );
-		$i = 1;
+		$i = $NUMBER_OF_UPLOADS; /* Counting backwards, because getCUCAgents() selects in newest-to-latest order */
 		foreach ( $agents as $agent ) {
 			$this->assertNotEquals( $this->moderatorUA, $agent,
 				"testApproveAllUploadPrevervesUA(): Upload #$i: UserAgent in checkuser tables matches moderator's UserAgent" );
-			$this->assertEquals( $this->userUA, $agent,
+			$this->assertEquals( $this->userUA . '#' . $i, $agent,
 				"testApproveAllUploadPrevervesUA(): Upload #$i: UserAgent in checkuser tables doesn't match UserAgent of user who made the upload" );
 
-			$i ++;
+			$i --;
 		}
 	}
 }

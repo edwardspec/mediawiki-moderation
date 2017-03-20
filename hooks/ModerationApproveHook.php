@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2016 Edward Chernenko.
+	Copyright (C) 2014-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,11 +24,9 @@
 
 class ModerationApproveHook {
 
-	const REVID_UNKNOWN = 'LAST'; /**< Key for $tasks which means "revid doesn't exist yet", e.g. before doEditContent() */
-
 	/**
-		@brief Array of tasks which must be performed by postapprove hooks.
-		Format: array( rev_id1 => array( 'ip' => ..., 'xff' => ..., 'ua' => ... ), rev_id2 => ... )
+		@brief FIFO stack of tasks which must be performed by postapprove hooks.
+		Format: array( array( 'ip' => ..., 'xff' => ..., 'ua' => ... ), ... )
 	*/
 	protected static $tasks = array();
 
@@ -45,20 +43,12 @@ class ModerationApproveHook {
 		@retval false Not found.
 	*/
 	public function getTask( $revid ) {
-		$try_keys = array(
-			$revid,
-
-			/* In case the hook was triggered by doEditContent() immediately, without DeferredUpdate */
-			self::REVID_UNKNOWN
-		);
-
-		foreach ( $try_keys as $key ) {
-			if ( isset( self::$tasks[$key] ) ) {
-				return self::$tasks[$key];
-			}
+		static $found = array(); /* array( rev_id1 => task, rev_id2 => ... ) */
+		if ( !isset( $found[$revid] ) ) {
+			$found[$revid] = array_shift( self::$tasks );
 		}
 
-		return false;
+		return $found[$revid];
 	}
 
 	/*
@@ -70,9 +60,6 @@ class ModerationApproveHook {
 	*/
 	public function onCheckUserInsertForRecentChange( $rc, &$fields ) {
 		$task = $this->getTask( $rc->mAttribs['rc_this_oldid'] );
-		if ( !$task ) {
-			return true; /* Nothing to do */
-		}
 
 		$fields['cuc_ip'] = IP::sanitizeIP( $task['ip'] );
 		$fields['cuc_ip_hex'] = $task['ip'] ? IP::toHex( $task['ip'] ) : null;
@@ -105,9 +92,6 @@ class ModerationApproveHook {
 		}
 
 		$task = $this->getTask( $rc->mAttribs['rc_this_oldid'] );
-		if ( !$task ) {
-			return true; /* Nothing to do */
-		}
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'recentchanges',
@@ -130,22 +114,15 @@ class ModerationApproveHook {
 		/* Remember ID of this revision for getLastRevId() */
 		self::$lastRevId = $rev->getId();
 
-		/* Replace REVID_UNKNOWN in $tasks */
-		if ( isset( self::$tasks[self::REVID_UNKNOWN] )) {
-			self::$tasks[self::$lastRevId] = self::$tasks[self::REVID_UNKNOWN];
-			unset( self::$tasks[self::REVID_UNKNOWN] );
-		}
-
 		/* Modify rev_timestamp in the newly created revision */
 		$task = $this->getTask( self::$lastRevId );
-		if ( $task ) {
-			$dbw = wfGetDB( DB_MASTER );
-			$dbw->update( 'revision',
-				$task['revisionUpdate'],
-				array( 'rev_id' => self::$lastRevId ),
-				__METHOD__
-			);
-		}
+
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->update( 'revision',
+			$task['revisionUpdate'],
+			array( 'rev_id' => self::$lastRevId ),
+			__METHOD__
+		);
 
 		return true;
 	}
@@ -154,8 +131,7 @@ class ModerationApproveHook {
 		@brief Prepare the approve hook. Called before doEditContent().
 	*/
 	public static function install( array $task ) {
-		/* At this point we don't yet know the revid, so we use REVID_UNKNOWN */
-		self::$tasks[self::REVID_UNKNOWN] = $task;
+		self::$tasks[] = $task;
 
 		static $installed = false;
 		if ( !$installed ) {
@@ -164,8 +140,6 @@ class ModerationApproveHook {
 			$hook = new self;
 			$wgHooks['CheckUserInsertForRecentChange'][] = $hook;
 			$wgHooks['RecentChange_save'][] = $hook;
-
-			/* This hook will replace REVID_UNKNOWN with revision ID */
 			$wgHooks['NewRevisionFromEditComplete'][] = $hook;
 
 			$installed = true;
