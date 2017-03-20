@@ -62,18 +62,35 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 
 	/**
 		@brief Convenience function: get cuc_agent of the last entry in "cu_changes" table.
-		@param $where Extra conditions for SQL query.
+		@returns User-agent (string).
 	*/
-	public function getCUCAgent( $where = array( '1' ) ) {
+	public function getCUCAgent() {
+		return array_pop( self::getCUCAgents( 1 ) );
+	}
+
+	/**
+		@brief Convenience function: get cuc_agent of the last entries in "cu_changes" table.
+		@param $limit How many entries to select.
+		@returns Array of user-agents.
+	*/
+	public function getCUCAgents( $limit ) {
 		$dbw = wfGetDB( DB_MASTER );
-		return $dbw->selectField( 'cu_changes', 'cuc_agent',
-			$where,
+
+		/* No selectFieldValues() - must be backward compatible with MediaWiki 1.23 */
+		$res = $dbw->select( 'cu_changes', 'cuc_agent AS agent',
+			'1',
 			__METHOD__,
 			array(
 				'ORDER BY' => 'cuc_id DESC',
-				'LIMIT' => 1
+				'LIMIT' => $limit
 			)
 		);
+
+		$agents = array();
+		foreach ( $res as $row ) {
+			$agents[] = $row->agent;
+		}
+		return $agents;
 	}
 
 	/**
@@ -102,21 +119,22 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 
 	/**
 		@brief Ensure that modaction=approveall preserves user-agent of uploads.
+		@covers ModerationApproveHook::getTask()
 	*/
 	public function testApproveAllUploadPrevervesUA() {
 		$this->skipIfNoCheckuser();
 		$t = new ModerationTestsuite();
 
-		# 1. Perform upload.
+		# Perform several uploads.
+		$NUMBER_OF_UPLOADS = 2;
+
 		$t->loginAs( $t->unprivilegedUser );
 		$t->setUserAgent( $this->userUA );
-		$t->doTestUpload();
+		for ( $i = 1; $i <= $NUMBER_OF_UPLOADS; $i ++ ) {
+			$t->doTestUpload( "UA_Test_Upload${i}.png" );
+		}
 		$t->fetchSpecial();
 		$entry = $t->new_entries[0];
-
-		# 2. Perform another edit: we need to make sure that ModerationApproveHook:getTask()
-		# will work correctly during ApproveAll (even if this upload wasn't the last of the changes).
-		$t->doTestEdit();
 
 		# When the upload is approved, cu_changes.cuc_agent field should
 		# contain UserAgent of user who made the edit,
@@ -124,12 +142,15 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		$t->setUserAgent( $this->moderatorUA );
 		$t->httpGet( $entry->approveAllLink ); # Try modaction=approveall
 
-		$agent = $this->getCUCAgent( array(
-			'cuc_type' => RC_LOG /* We need to check the upload, so we ignore the non-upload edit */
-		) );
-		$this->assertNotEquals( $this->moderatorUA, $agent,
-			"testApproveAllUploadPrevervesUA(): UserAgent in checkuser tables matches moderator's UserAgent" );
-		$this->assertEquals( $this->userUA, $agent,
-			"testApproveAllUploadPrevervesUA(): UserAgent in checkuser tables doesn't match UserAgent of user who made the edit" );
+		$agents = $this->getCUCAgents( $NUMBER_OF_UPLOADS );
+		$i = 1;
+		foreach ( $agents as $agent ) {
+			$this->assertNotEquals( $this->moderatorUA, $agent,
+				"testApproveAllUploadPrevervesUA(): Upload #$i: UserAgent in checkuser tables matches moderator's UserAgent" );
+			$this->assertEquals( $this->userUA, $agent,
+				"testApproveAllUploadPrevervesUA(): Upload #$i: UserAgent in checkuser tables doesn't match UserAgent of user who made the upload" );
+
+			$i ++;
+		}
 	}
 }
