@@ -234,4 +234,61 @@ class ModerationPreload {
 
 		return true;
 	}
+
+	/*
+		onApiBeforeMain()
+		Make sure that api.php?action=edit&appendtext=... will append to the pending version.
+	*/
+	public static function onApiBeforeMain( &$main ) {
+		$request = $main->getRequest();
+		if ( $request->getVal( 'action' ) != 'edit' ) {
+			return true; /* Nothing to do */
+		}
+
+		$prepend = $request->getVal( 'prependtext', '' );
+		$append = $request->getVal( 'appendtext', '' );
+		if ( !$prepend && !$append ) {
+			return true; /* Usual api.php?action=edit&text= works correctly with Moderation */
+		}
+
+		$section = $request->getVal( 'section' );
+		if ( $section && $section == 'new' ) {
+			return true; /* Creating a new section: doesn't require preloading */
+		}
+
+		$pageObj = $main->getTitleOrPageId( $request->getValues( 'title', 'pageid' ) );
+		$title = $pageObj->getTitle();
+
+		$row = self::loadUnmoderatedEdit( $title );
+		if ( !$row ) {
+			return true; /* No pending version - ApiEdit will handle this correctly */
+		}
+
+		$content = ContentHandler::makeContent( $row->text, $title );
+		if ( $section ) {
+			$content = $content->getSection( $section );
+		}
+
+		$text = "";
+		if ( $content ) {
+			$text = $content->getNativeData();
+		}
+
+		/* Now we remove appendtext/prependtext from WebRequest object
+			and make ApiEdit think that this is a usual action=edit&text=... call.
+
+			Otherwise ApiEdit will attempt to prepend/append to the last revision
+			of the page, not to the preloaded revision.
+		*/
+		$query = $request->getValues();
+		$query['text'] = $prepend . $text . $append;
+		unset( $query['prependtext'] );
+		unset( $query['appendtext'] );
+
+		$req = new DerivativeRequest( $request, $query, true );
+		$main->getContext()->setRequest( $req );
+
+		/* Let ApiEdit handle the rest */
+		return true;
+	}
 }
