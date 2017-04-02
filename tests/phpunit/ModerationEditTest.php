@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2016 Edward Chernenko.
+	Copyright (C) 2015-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -91,9 +91,9 @@ class ModerationTestEdit extends MediaWikiTestCase
 			__METHOD__
 		);
 
-		$expected_text = join( '', $sections );
+		$expectedText = join( '', $sections );
 
-		$this->assertEquals( $expected_text, $row->text,
+		$this->assertEquals( $expectedText, $row->text,
 			"testEditSections(): Resulting text doesn't match expected" );
 
 		# Does PreSaveTransform work when editing sections?
@@ -123,8 +123,62 @@ class ModerationTestEdit extends MediaWikiTestCase
 			array( 'mod_id' => $t->new_entries[0]->id ),
 			__METHOD__
 		);
-		$expected_text = join( '', $sections );
-		$this->assertEquals( $expected_text, $row->text,
+		$expectedText = join( '', $sections );
+		$this->assertEquals( $expectedText, $row->text,
 			"testEditSections(): When section header is deleted, resulting text doesn't match expected " );
+	}
+
+	public function testApiEditAppend() {
+
+		# Does api.php?action=edit&{append,prepend}text=[...] work properly?
+		$t = new ModerationTestsuite();
+
+		$todoPrepend = array( "B", "A" );
+		$todoText = "C";
+		$todoAppend = array( "D", "E" );
+
+		$title = 'Test page 1';
+		$expectedText = join( '', array_merge(
+			array_reverse( $todoPrepend ),
+			array( $todoText ),
+			$todoAppend
+		) );
+
+		$t->loginAs( $t->automoderated );
+		$t->doTestEdit( $title, $todoText );
+
+		$t->loginAs( $t->unprivilegedUser );
+
+		# Do several edits using api.php?appendtext= and api.php?prependtext=
+		$query = array(
+			'action' => 'edit',
+			'title' => $title,
+			'token' => null
+		);
+
+		foreach ( $todoPrepend as $text ) {
+			$query['prependtext'] = $text;
+			$t->query( $query );
+		}
+
+		unset( $query['prependtext'] );
+		foreach ( $todoAppend as $text ) {
+			$query['appendtext'] = $text;
+			$t->query( $query );
+		}
+
+		$t->fetchSpecial();
+
+		$dbw = wfGetDB( DB_MASTER );
+		$row = $dbw->selectRow( 'moderation',
+			array( 'mod_text AS text' ),
+			array( 'mod_id' => $t->new_entries[0]->id ),
+			__METHOD__
+		);
+
+		$this->assertEquals( $expectedText, $row->text,
+			"testApiEditAppend(): Resulting text doesn't match expected" );
+
+
 	}
 }

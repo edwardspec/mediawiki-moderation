@@ -164,7 +164,8 @@ It provides the following:
 	Answers the question: "Does the editing work as usual?"
 	Here we check that
 	1) signatures (~~~~) are substituted in edits sent to moderation,
-	2) sections can be edited.
+	2) sections can be edited,
+	3) editing via API with appendtext= works correctly.
 
 13. [ModerationPreloadTest.php]
 	Answers the question: "Can the user continue editing his revision?"
