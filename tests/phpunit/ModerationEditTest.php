@@ -49,12 +49,6 @@ class ModerationTestEdit extends MediaWikiTestCase
 	public function testEditSections() {
 		$t = new ModerationTestsuite();
 
-		# Note: we must do more than one edit here,
-		# because sections-related code in ModerationEditHooks is only
-		# used when user makes more than one edit to the same page.
-		#
-		# On the first edit, mod_text doesn't exist and therefore
-		# doesn't need to be corrected.
 		$sections = array(
 			"Text in zero section\n\n",
 			"== First section ==\nText in first section\n\n",
