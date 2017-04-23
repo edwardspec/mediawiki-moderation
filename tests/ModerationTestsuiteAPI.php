@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2016 Edward Chernenko.
+	Copyright (C) 2015-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -96,8 +96,8 @@ class ModerationTestsuiteAPI {
 		@brief Create account via API. Note: will not login.
 	*/
 	public function apiCreateAccount( $username ) {
-		if(!class_exists('ApiAMCreateAccount')) {
-			return self::apiCreateAccountOld($username);
+		if ( !class_exists( 'ApiAMCreateAccount' ) ) {
+			return self::apiCreateAccountOld( $username );
 		}
 
 		# Step 1. Get the token.

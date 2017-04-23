@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2016 Edward Chernenko.
+	Copyright (C) 2014-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -51,6 +51,8 @@ class ModerationEditHooks {
 	{
 		global $wgOut, $wgContLang, $wgModerationNotificationEnable, $wgModerationNotificationNewOnly,
 			   $wgModerationEmail, $wgPasswordSender;
+
+		$preload = ModerationPreload::singleton();
 
 		if ( self::$inApprove ) {
 			return true;
@@ -112,7 +114,7 @@ class ModerationEditHooks {
 			'mod_header_xff' => $request->getHeader( 'X-Forwarded-For' ),
 			'mod_header_ua' => $request->getHeader( 'User-Agent' ),
 			'mod_text' => $content->preSaveTransform( $title, $user, $popts )->getNativeData(),
-			'mod_preload_id' => ModerationPreload::generatePreloadId(),
+			'mod_preload_id' => $preload->getId( true ),
 			'mod_preloadable' => 1
 		);
 
@@ -125,7 +127,7 @@ class ModerationEditHooks {
 		}
 
 		// Check if we need to update existing row (if this edit is by the same user to the same page)
-		$row = ModerationPreload::loadUnmoderatedEdit( $title );
+		$row = $preload->loadUnmoderatedEdit( $title );
 		if ( !$row ) { # No unmoderated edits
 			$dbw->insert( 'moderation', $fields, __METHOD__ );
 			ModerationEditHooks::$LastInsertId = $dbw->insertId();

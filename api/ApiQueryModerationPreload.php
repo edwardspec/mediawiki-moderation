@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2016 Edward Chernenko.
+	Copyright (C) 2016-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 		);
 
 		/* Load text which is currently awaiting moderation */
-		$row = ModerationPreload::loadUnmoderatedEdit( $title );
+		$row = ModerationPreload::singleton()->loadUnmoderatedEdit( $title );
 		if( !$row ) {
 			$r['missing'] = ''; /* There is no pending edit */
 		}
