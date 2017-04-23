@@ -176,7 +176,10 @@ It provides the following:
 	4) edit summary is passed to JavaScript when preloading new pages,
 	5) "ext.moderation.edit" module is loaded if something was preloaded,
 	6) message (moderation-editing-your-version) is shown,
-	7) anonymous edits can still be preloaded after creating an account.
+	7) anonymous edits can still be preloaded after creating an account,
+	8) API correctly returns preloaded text,
+	9) API correctly returns parsed HTML of preloaded wikitext,
+	10) API correctly returns requested section of preloaded text.
 
 14. [ModerationMergeTest.php]
 	Answers the question: "Does the Merge link work as expected?"

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2016 Edward Chernenko.
+	Copyright (C) 2015-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,9 +32,9 @@ class ModerationTestPreload extends MediaWikiTestCase
 		$t = new ModerationTestsuite();
 
 		$t->loginAs( $t->unprivilegedUser );
-		$t->doTestEdit(null, null, "The quick brown fox jumps over the lazy dog");
+		$t->doTestEdit( null, null, "The quick brown fox jumps over the lazy dog" );
 
-		$this->tryToPreload($t, __FUNCTION__);
+		$this->tryToPreload( $t, __FUNCTION__ );
 	}
 
 	/** @covers ModerationPreload::onEditFormInitialText */
@@ -48,7 +48,7 @@ class ModerationTestPreload extends MediaWikiTestCase
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit( $page, "Another text", "The quick brown fox jumps over the lazy dog" );
 
-		$this->tryToPreload($t, __FUNCTION__);
+		$this->tryToPreload( $t, __FUNCTION__ );
 	}
 
 	/** @covers ModerationPreload::onLocalUserCreated */
@@ -77,6 +77,81 @@ class ModerationTestPreload extends MediaWikiTestCase
 			$t->lastEdit['Text'],
 			$t->html->getPreloadedText( $t->lastEdit['Title'] ),
 			"testAnonymousPreload(): Text was not preloaded after creating an account" );
+	}
+
+	/** @covers ApiQueryModerationPreload */
+	public function testApiPreload() {
+		$t = new ModerationTestsuite();
+
+		/* We make an edit with '''bold''' and ''italic'' markup
+			and then check for <b> and <i> tags in "mpmode=parsed" mode.
+		*/
+		$boldText = 'very bold';
+		$italicText = 'somewhat italic';
+		$categories = array( 'Example category', 'Cats' );
+		$extraSectionText = "== More information ==\nText in section #1";
+
+		$text = "This text is '''$boldText''' and ''$italicText''.";
+		foreach ( $categories as $name ) {
+			$text .= "\n[[Category:$name]]";
+		}
+		$text .= "\n" . $extraSectionText;
+
+		$t->loginAs( $t->unprivilegedUser );
+		$t->doTestEdit( null, $text, "The quick brown fox jumps over the lazy dog" );
+
+		/* Test 1: mpmode=wikitext */
+		$ret = $t->query( array(
+			'action' => 'query',
+			'prop' => 'moderationpreload',
+			'mptitle' => $t->lastEdit['Title']
+		) );
+
+		$this->assertArrayHasKey( 'query', $ret );
+		$this->assertArrayHasKey( 'moderationpreload', $ret['query'] );
+
+		$mp = $ret['query']['moderationpreload'];
+		$this->assertEquals( $t->lastEdit['User'], $mp['user'] );
+		$this->assertEquals( $t->lastEdit['Title'], $mp['title'] );
+		$this->assertEquals( $t->lastEdit['Summary'], $mp['comment'] );
+		$this->assertArrayHasKey( 'wikitext', $mp );
+		$this->assertArrayNotHasKey( 'parsed', $mp );
+		$this->assertEquals( $text, $mp['wikitext'] );
+
+		/* Test 2: mpmode=parsed */
+		$ret = $t->query( array(
+			'action' => 'query',
+			'prop' => 'moderationpreload',
+			'mptitle' => $t->lastEdit['Title'],
+			'mpmode' => 'parsed'
+		) );
+
+		$mp = $ret['query']['moderationpreload'];
+		$this->assertArrayHasKey( 'parsed', $mp );
+		$this->assertArrayNotHasKey( 'wikitext', $mp );
+
+		$parsed = $mp['parsed'];
+		$this->assertArrayHasKey( 'text', $parsed );
+		$this->assertArrayHasKey( 'categorieshtml', $parsed );
+		$this->assertArrayHasKey( 'displaytitle', $parsed );
+
+		$this->assertContains( '<b>' . $boldText . '</b>', $parsed['text'] );
+		$this->assertContains( '<i>' . $italicText . '</i>', $parsed['text'] );
+
+		$this->assertContains( '(pagecategories: ' . count( $categories ) . ')',
+			$parsed['categorieshtml'] );
+		foreach ( $categories as $name ) {
+			$this->assertContains( $name, $parsed['categorieshtml'] );
+		}
+
+		/* Test 3: mpsection=N */
+		$ret = $t->query( array(
+			'action' => 'query',
+			'prop' => 'moderationpreload',
+			'mptitle' => $t->lastEdit['Title'],
+			'mpsection' => 1
+		) );
+		$this->assertEquals( $extraSectionText, $ret['query']['moderationpreload']['wikitext'] );
 	}
 
 	private function tryToPreload( ModerationTestsuite $t, $caller )
