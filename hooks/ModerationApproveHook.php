@@ -40,7 +40,7 @@ class ModerationApproveHook {
 	/**
 		@brief Calculate key in $tasks array for $title/$username pair.
 	*/
-	protected function getTaskKey( Title $title, $username ) {
+	protected static function getTaskKey( Title $title, $username ) {
 		return join( '[', /* Symbol "[" is not allowed in both titles and usernames */
 			array(
 				$username,
