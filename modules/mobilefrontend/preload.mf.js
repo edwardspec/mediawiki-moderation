@@ -44,7 +44,7 @@
 		};
 
 		/* Only load once */
-		if ( this.content !== undefined ) {
+		if ( this.content !== undefined && this.content !== '' ) {
 			return useDefault( "already loaded" );
 		}
 
