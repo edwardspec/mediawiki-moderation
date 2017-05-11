@@ -211,7 +211,7 @@ class ModerationPreload extends ContextSource {
 			$editPage->summary = $row->comment;
 		}
 
-		if ( $section != false ) {
+		if ( $section !== '' ) {
 			$fullContent = ContentHandler::makeContent( $text, $title );
 			$sectionContent = $fullContent->getSection( $section );
 
