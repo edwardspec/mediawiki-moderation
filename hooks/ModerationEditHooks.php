@@ -132,7 +132,7 @@ class ModerationEditHooks {
 			$dbw->insert( 'moderation', $fields, __METHOD__ );
 			ModerationEditHooks::$LastInsertId = $dbw->insertId();
 		} else {
-			if( self::$section != '' ) {
+			if ( self::$section != '' ) {
 				#
 				# We must recalculate $fields['mod_text'] here.
 				# Otherwise if the user adds or modifies two (or more) different sections (in consequent edits),
@@ -150,6 +150,7 @@ class ModerationEditHooks {
 				$new_content = $saved_content->replaceSection( self::$section, $new_section_content, '' );
 
 				$fields['mod_text'] = $new_content->preSaveTransform( $title, $user, $popts )->getNativeData();
+				$fields['mod_new_len'] = $new_content->getSize();
 			}
 
 			$dbw->update( 'moderation', $fields, array( 'mod_id' => $row->id ), __METHOD__ );
@@ -195,7 +196,7 @@ class ModerationEditHooks {
 
 			Here we just redirect the users back to the page they edited
 			(as was the behavior for unmoderated edits).
-			Notification "Your edit was successfully sent for moderation"
+			Notification "Your edit was successfully sent to moderation"
 			will be shown by JavaScript.
 		*/
 
