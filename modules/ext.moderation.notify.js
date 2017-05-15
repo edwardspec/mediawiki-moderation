@@ -38,7 +38,11 @@
 	/* Show "your edit was queued for moderation" to user.
 		May be called from [ext.moderation.ajaxhook.js].
 	*/
-	mw.moderation.notifyQueued = function( options = [] ) {
+	mw.moderation.notifyQueued = function( options ) {
+		if ( !options ) {
+			options = {};
+		}
+
 		if ( $( containerSel ).length ) {
 			/* User quickly clicked Submit several times in VisualEditor, etc.
 				Don't show the dialog twice.
