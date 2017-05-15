@@ -29,13 +29,13 @@
 */
 
 
-class ModerationPreload extends ContextSource {
+class ModerationPreload {
 
 	protected static $singleton = null; /**< Singleton instance */
 	protected $editPage = null; /**< EditPage object, passed by onAlternateEdit() to onEditFormPreloadText() */
+	private $user = null; /**< User object. If not set, $wgUser will be used. */
 
-	protected function __construct( IContextSource $context ) {
-		$this->setContext( $context );
+	protected function __construct() {
 	}
 
 	/**
@@ -44,10 +44,37 @@ class ModerationPreload extends ContextSource {
 	 */
 	public static function singleton() {
 		if ( is_null( self::$singleton ) ) {
-			self::$singleton = new self( RequestContext::getMain() );
+			self::$singleton = new self;
 		}
 
 		return self::$singleton;
+	}
+
+	/**
+		@brief Get the request.
+		@returns WebRequest object.
+	*/
+	protected function getRequest() {
+		return RequestContext::getMain()->getRequest();
+	}
+
+	/**
+		@brief Get the user.
+		@returns User object.
+	*/
+	protected function getUser() {
+		if ( $this->user ) {
+			return $this->user;
+		}
+
+		return RequestContext::getMain()->getUser();
+	}
+
+	/**
+		@brief Override the current user: preload for $user instead.
+	*/
+	protected function setUser( User $user ) {
+		$this->user = $user;
 	}
 
 	/**
@@ -115,7 +142,7 @@ class ModerationPreload extends ContextSource {
 	*/
 	public static function onLocalUserCreated( $user, $autocreated ) {
 		$preload = self::singleton();
-		$preload->getContext()->setUser( $user );
+		$preload->setUser( $user );
 
 		$anonId = $preload->getAnonId( false );
 		if ( !$anonId ) { # This visitor never saved any edits
@@ -202,7 +229,7 @@ class ModerationPreload extends ContextSource {
 			return;
 		}
 
-		$out = $preload->getOutput();
+		$out = RequestContext::getMain()->getOutput();
 		$out->addModules( 'ext.moderation.edit' );
 		$out->wrapWikiMsg( '<div id="mw-editing-your-version">$1</div>', array( 'moderation-editing-your-version' ) );
 
