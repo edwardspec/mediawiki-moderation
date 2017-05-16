@@ -3,29 +3,22 @@
 
 	A. Why is this needed?
 
-	1) api.php?action=edit returns error when we abort onPageContentSave hook,
+	When Moderation aborts PageContentSave hook, api.php?action=edit returns error,
 	so VisualEditor panics "The edit wasn't saved! Unknown error!".
-	2) when JavaScript-based editors load the main <textarea>
-	(their analogue of #wpTextbox1 in index.php?action=edit),
-	they ignore Preload hooks like onEditFormInitialText, so if this user
-	has a pending change, it won't be preloaded at all.
 
 	B. Why such an unusual implementation?
 
 	It turns out, neither API (in MediaWiki core) nor VisualEditor provide
 	any means of altering the API response via a PHP hook.
-	Until this solution was found, it looked impossible to make Moderation
-	work with VisualEditor by any changes on the Moderation side.
 
 	C. How does this solution work?
 
 	We intercept all AJAX responses (sic!), and if we determine that this
-	response is either (1) or (2) (see above), WE FAKE THE AJAX RESPONSE.
+	response is "Unknown error: moderation-edit-queued" (see above),
+	we FAKE THE AJAX RESPONSE by replacing it with "edit saved successfully!"
 
-	In (1), we replace error with "edit saved successfully!"
-	In (2), we inject preloaded text from showUnmoderatedEdit().
-
-	See also: [ext.moderation.preload.visualeditor.js].
+	NOTE: JavaScript editors also need "preloading" support.
+	See [visualeditor/preload.ve.js], [mobilefrontend/preload.mf.js] for details.
 */
 
 ( function ( mw, $ ) {
@@ -34,22 +27,29 @@
 	mw.moderation = mw.moderation || {};
 	mw.moderation.ajaxhook = mw.moderation.ajaxhook || {};
 
-	var lastQuery = null;
-
-	/* Remember the query from the last mw.Api call.
-		We don't want to parse raw parameter "sendBody" in XMLHttpRequest.send(),
-		because "sendBody" may be a FormData object (which can't be analyzed in IE).
+	/*
+		Intercept all API calls made via mw.Api(), rewrite the response if needed.
 	*/
 	mw.moderation.trackAjax = function( apiObj ) {
 		var oldFunc = apiObj.prototype.ajax;
 		apiObj.prototype.ajax = function( parameters, ajaxOptions ) {
-			lastQuery = parameters;
+			var lastQuery = parameters;
 
-			var ret = oldFunc.apply( this, arguments );
-			lastQuery = null;
+			ajaxOptions.dataFilter = function( rawData, dataType ) {
+				if ( dataType != 'json' ) {
+					return rawData;
+				}
 
-			return ret;
-		};
+				var newRet = rewriteAjaxResponse( lastQuery, JSON.parse( rawData ) );
+				if ( !newRet ) {
+					return rawData;
+				}
+
+				return JSON.stringify( newRet );
+			};
+
+			return oldFunc.apply( this, arguments );
+		}
 	};
 
 	mw.loader.using( 'mediawiki.api', function() {
@@ -110,51 +110,6 @@
 		}
 
 		return false; /* Nothing to overwrite */
-	};
-
-	/*
-		This hook is called on "readystatechange" event of every (!) XMLHttpRequest.
-		It runs in "capture mode" (will be called before any other
-		readystatechange callbacks, unless they are also in capture mode).
-	*/
-	function on_readystatechange_global( query ) {
-		if ( this.readyState != 4 ) {
-			return; /* Not ready yet */
-		}
-
-		/* Get JSON response from API */
-		var ret;
-		try {
-			ret = JSON.parse( this.responseText );
-		}
-		catch ( e ) {
-			return; /* Not a JSON, nothing to overwrite */
-		}
-
-		ret = rewriteAjaxResponse( query, ret );
-		if(ret) {
-			/* Overwrite readonly fields in this XMLHttpRequest */
-			Object.defineProperty( this, 'responseText', { writable: true } );
-			Object.defineProperty( this, 'status', { writable: true } );
-			this.responseText = JSON.stringify( ret );
-			this.status = 200;
-		}
-	}
-
-	/*
-		Install on_readystatechange_global() callback which will be
-		called for every XMLHttpRequest, regardless of who sent it.
-	*/
-	var oldSend = XMLHttpRequest.prototype.send;
-	XMLHttpRequest.prototype.send = function( sendBody ) {
-		if ( lastQuery ) {
-			this.addEventListener( "readystatechange",
-				on_readystatechange_global.bind( this, lastQuery ),
-				true // capture mode
-			);
-		}
-
-		oldSend.apply( this, arguments );
 	};
 
 }( mediaWiki, jQuery ) );
