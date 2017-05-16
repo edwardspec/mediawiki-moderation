@@ -36,7 +36,7 @@ $wgExtensionCredits['antispam'][] = array(
 	'url' => 'https://www.mediawiki.org/wiki/Extension:Moderation',
 	'descriptionmsg' => 'moderation-desc',
 	'license-name' => 'GPL-3.0+',
-	'version' => '1.0.21'
+	'version' => '1.0.22'
 );
 
 $wgMessagesDirs['Moderation'] = array(
@@ -112,6 +112,7 @@ $wgResourceModules['ext.moderation.ve'] = $moduleTemplate + array(
 );
 $wgResourceModules['ext.moderation.mf'] = $moduleTemplate + array(
 	'scripts' => array(
+		'mobilefrontend/legacy.ajaxhook.mf.js',
 		'mobilefrontend/notify.mf.js',
 		'mobilefrontend/preload.mf.js'
 	),
@@ -120,7 +121,8 @@ $wgResourceModules['ext.moderation.mf'] = $moduleTemplate + array(
 		'mediawiki.api',
 		'mediawiki.notification',
 		'mediawiki.util',
-		'mobile.editor.api'
+		'mobile.editor.api',
+		'ext.moderation.ajaxhook'
 	)
 );
 $wgResourceModules['ext.moderation.notify'] = $moduleTemplate + array(

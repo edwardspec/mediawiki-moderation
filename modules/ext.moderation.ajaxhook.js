@@ -34,6 +34,28 @@
 	mw.moderation = mw.moderation || {};
 	mw.moderation.ajaxhook = mw.moderation.ajaxhook || {};
 
+	var lastQuery = null;
+
+	/* Remember the query from the last mw.Api call.
+		We don't want to parse raw parameter "sendBody" in XMLHttpRequest.send(),
+		because "sendBody" may be a FormData object (which can't be analyzed in IE).
+	*/
+	mw.moderation.trackAjax = function( apiObj ) {
+		var oldFunc = apiObj.prototype.ajax;
+		apiObj.prototype.ajax = function( parameters, ajaxOptions ) {
+			lastQuery = parameters;
+
+			var ret = oldFunc.apply( this, arguments );
+			lastQuery = null;
+
+			return ret;
+		};
+	};
+
+	mw.loader.using( 'mediawiki.api', function() {
+		mw.moderation.trackAjax( mw.Api );
+	} );
+
 	/* Make an API response for action=edit.
 		This affects most API-based JavaScript editors, including MobileFrontend.
 	*/
@@ -91,39 +113,6 @@
 	};
 
 	/*
-		Helper function used in XMLHttpRequest.prototype.send() below.
-		Extracts all key/value pairs from the parameter of send(),
-		e.g. { action: "edit", "title": "Testpage1", ... }.
-	*/
-	function parseXHRSendBody( sendBody ) {
-		/* Get original request as array, e.g. { action: "edit", "title": "Testpage1", ... } */
-		var query = {}, pair;
-		if ( sendBody instanceof FormData )  {
-			/* FormData: from "mw.api" with enforced multipart/form-data, used by VisualEditor */
-			for ( pair of sendBody.entries() ) {
-				query[pair[0]] = pair[1];
-			}
-		}
-		else if( $.type( sendBody ) == 'string' ) {
-			/* Querystring: from "mw.api" with default behavior, used by MobileFrontend, etc. */
-			for ( pair of (new String( sendBody )).split( '&' ) ) {
-				var kv = pair.split( '=' ),
-					key = decodeURIComponent( kv[0] ),
-					val = decodeURIComponent( kv[1] );
-				query[key] = val;
-			}
-		}
-		else {
-			/* "mw.api" module uses only FormData or querystring,
-				so we don't need to support other formats.
-			*/
-			return false; /* Couldn't obtain the original query */
-		}
-
-		return query;
-	}
-
-	/*
 		This hook is called on "readystatechange" event of every (!) XMLHttpRequest.
 		It runs in "capture mode" (will be called before any other
 		readystatechange callbacks, unless they are also in capture mode).
@@ -158,11 +147,9 @@
 	*/
 	var oldSend = XMLHttpRequest.prototype.send;
 	XMLHttpRequest.prototype.send = function( sendBody ) {
-		/* Make parsed sendBody accessible in on_readystatechange_global() */
-		var query = parseXHRSendBody( sendBody );
-		if ( query ) {
+		if ( lastQuery ) {
 			this.addEventListener( "readystatechange",
-				on_readystatechange_global.bind( this, query ),
+				on_readystatechange_global.bind( this, lastQuery ),
 				true // capture mode
 			);
 		}

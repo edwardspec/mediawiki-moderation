@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.0.21",
+	"version": "1.0.22",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -102,6 +102,7 @@
 		"ext.moderation.mf": {
 			"position": "bottom",
 			"scripts": [
+				"mobilefrontend/legacy.ajaxhook.mf.js",
 				"mobilefrontend/notify.mf.js",
 				"mobilefrontend/preload.mf.js"
 			],
@@ -112,7 +113,8 @@
 				"mediawiki.api",
 				"mediawiki.notification",
 				"mediawiki.util",
-				"mobile.editor.api"
+				"mobile.editor.api",
+				"ext.moderation.ajaxhook"
 			]
 		},
 		"ext.moderation.notify": {
