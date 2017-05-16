@@ -70,16 +70,26 @@
 
 	/* Call notifyQueued() after editing in MobileFrontend editor */
 	mw.hook( 'moderation.ajaxhook.edit' ).add( function() {
+		var router;
 		try {
-			/* Modern MobileFrontend */
-			var router = M.require( 'mobile.startup/router' );
-			router.once( 'hashchange', function() {
-				mw.moderation.notifyQueued();
-			} );
+			try {
+				/* Router from MediaWiki core (MediaWiki 1.28+) */
+				router = mw.loader.require( 'mediawiki.router' );
+			}
+			catch ( e ) {
+				/* MobileFrontend for MediaWiki 1.27 */
+				router = M.require( 'mobile.startup/router' );
+			}
 		}
 		catch ( e ) {
 			/* Legacy MobileFrontend for MediaWiki 1.23 */
 			M.one(  'page-loaded', function() {
+				mw.moderation.notifyQueued();
+			} );
+		}
+
+		if ( router ) {
+			router.once( 'hashchange', function() {
 				mw.moderation.notifyQueued();
 			} );
 		}
