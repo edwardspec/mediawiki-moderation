@@ -102,7 +102,7 @@
 						var ret2 = parsefragment[0];
 
 						if ( ret.visualeditor && ret2.visualeditor ) {
-							ret.visualeditor.content = ret2.visualeditor.content;
+							ret.visualeditor.content = '<body>' + ret2.visualeditor.content + '</body>';
 						}
 
 						/* Return metadata + HTML (like api.php?action=visualeditor&paction=parse) */
