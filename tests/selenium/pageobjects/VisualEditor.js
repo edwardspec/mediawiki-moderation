@@ -8,37 +8,33 @@ const Page = require( './page' );
 class VisualEditor extends Page {
 
 	/** @brief Editable element in the editor */
-	get content() { return browser.element( '.ve-ce-branchNode' ); }
+	get content() { return $( '.ve-ce-documentNode' ); }
+
+	/** @brief "Save page" button in the editor. */
+	get saveButtonEvenDisabled() { return $( 'a=Save page' ); }
+
+	/** @brief "Describe what you changed" dialog */
+	get confirmDialog() { return $( '.oo-ui-processDialog-navigation' ); }
 
 	/**
-		@brief "Save page" button in the editor.
-		@note This function waits for "Save page" button to become enabled.
+		@brief Returns "Save page" button when it becomes enabled.
 	*/
 	get saveButton() {
-		var $submit = browser.element( 'a=Save page' );
+		var $submit = this.saveButtonEvenDisabled;
 
 		browser.waitUntil( function() {
 			return ( $submit.getAttribute( 'aria-disabled' ) === 'false' );
 		} );
-
-		/* FIXME: when using Firefox without this browser.pause(),
-			we sometimes drop out of the above-mentioned waitUntil()
-			before "Save page" is actually usable (so the .click() does nothing).
-			It's probably because the internal state of OOUI widget ("is disabled?")
-			is updated after the aria-disabled attribute.
-			There is probably a way to get rid of this pause().
-		*/
-		browser.pause( 500 );
 
 		return $submit;
 	}
 
 	/** @brief "Save page" button in "Describe what you changed" dialog */
 	get confirmButton() {
-		browser.waitForExist( '.oo-ui-processDialog-navigation' );
-		var $submit = browser.element( '.oo-ui-processDialog-navigation' ).element( 'a=Save page' );
-		browser.waitUntil( function() { return $submit.isVisible(); } );
+		this.confirmDialog.waitForExist();
 
+		var $submit = this.confirmDialog.element( 'a=Save page' );
+		$submit.waitForVisible();
 		return $submit;
 	}
 
@@ -46,8 +42,8 @@ class VisualEditor extends Page {
 		super.open( name + '?veaction=edit&vehidebetadialog=true' );
 
 		/* Wait for VisualEditor to be completely rendered */
-		browser.waitForExist( '.ve-ce-branchNode' );
-		browser.waitForExist( 'a=Save page' );
+		this.content.waitForExist();
+		this.saveButtonEvenDisabled.waitForExist();
 	}
 
 	edit( name, content ) {
