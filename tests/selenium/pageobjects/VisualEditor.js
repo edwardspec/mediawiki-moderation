@@ -43,14 +43,11 @@ class VisualEditor extends Page {
 	}
 
 	open( name ) {
-		super.open( name + '?veaction=edit' );
+		super.open( name + '?veaction=edit&vehidebetadialog=true' );
 
 		/* Wait for VisualEditor to be completely rendered */
 		browser.waitForExist( '.ve-ce-branchNode' );
-		browser.waitForExist( 'a=Start editing' );
-
-		/* Close "Switch to the source editor/Start editing" dialog */
-		browser.click( 'a=Start editing' );
+		browser.waitForExist( 'a=Save page' );
 	}
 
 	edit( name, content ) {
