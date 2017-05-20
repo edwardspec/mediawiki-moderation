@@ -7,9 +7,9 @@ exports.config = {
 		{
 			browserName: 'firefox'
 		},
-		{
+		/*{
 			browserName: 'chrome'
-		},
+		},*/
 	],
 
 	sync: true,
@@ -17,7 +17,7 @@ exports.config = {
 	coloredLogs: true,
 	bail: 0,
 	screenshotPath: '/tmp/',
-	baseUrl: 'http://localhost',
+	baseUrl: 'http://127.0.0.1',
 	waitforTimeout: 10000,
 	connectionRetryTimeout: 90000,
 	connectionRetryCount: 3,
