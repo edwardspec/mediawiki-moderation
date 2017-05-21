@@ -66,6 +66,7 @@
 	"moderation-rejected-by": "Отклонено {{GENDER:$1|участником|участницей}} $1",
 	"moderation-rejected-ok": "{{plural:$1|Отклонена одна правка|Отклонены правки ($1 шт.)}}.",
 	"moderation-reject": "Отклонить",
+	"moderation-pending-review": "Ожидает модерации",
 	"moderation-preview": "просм.",
 	"moderation-preview-title": "$1 — версия, ожидающая модерации",
 	"moderation-show": "разн.",

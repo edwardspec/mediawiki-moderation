@@ -36,7 +36,7 @@ $wgExtensionCredits['antispam'][] = array(
 	'url' => 'https://www.mediawiki.org/wiki/Extension:Moderation',
 	'descriptionmsg' => 'moderation-desc',
 	'license-name' => 'GPL-3.0+',
-	'version' => '1.0.25'
+	'version' => '1.0.26'
 );
 
 $wgMessagesDirs['Moderation'] = array(
@@ -116,6 +116,7 @@ $wgResourceModules['ext.moderation.mf'] = $moduleTemplate + array(
 		'mobilefrontend/notify.mf.js',
 		'mobilefrontend/preload.mf.js'
 	),
+	'styles' => 'mobilefrontend/notify.mf.css',
 	'targets' => array( 'mobile' ),
 	'dependencies' => array(
 		'mediawiki.api',
@@ -127,16 +128,18 @@ $wgResourceModules['ext.moderation.mf'] = $moduleTemplate + array(
 );
 $wgResourceModules['ext.moderation.notify'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.notify.js',
+	'styles' => 'ext.moderation.notify.css',
 	'dependencies' => array(
 		'mediawiki.jqueryMsg',
 		'mediawiki.user',
 		'mediawiki.util'
 	),
-        'messages' => array( 'moderation-edit-queued', 'moderation-suggest-signup' ),
+        'messages' => array( 'moderation-edit-queued', 'moderation-pending-review', 'moderation-suggest-signup' ),
         'targets' => array( 'desktop', 'mobile' )
 );
 $wgResourceModules['ext.moderation.notify.desktop'] = $moduleTemplate + array(
 	'scripts' => 'ext.moderation.notify.desktop.js',
+	'styles' => 'ext.moderation.notify.desktop.css',
 	'targets' => array( 'desktop' )
 );
 

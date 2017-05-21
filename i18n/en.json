@@ -66,6 +66,7 @@
 	"moderation-rejected-by": "Rejected by $1",
 	"moderation-rejected-ok": "Rejected $1 {{plural:$1|edit|edits}}.",
 	"moderation-reject": "Reject",
+	"moderation-pending-review": "Pending review",
 	"moderation-preview": "preview",
 	"moderation-preview-title": "Revision of \"$1\" awaiting moderation",
 	"moderation-show": "diff",

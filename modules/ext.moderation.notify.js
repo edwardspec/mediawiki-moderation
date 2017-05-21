@@ -50,7 +50,14 @@
 			return;
 		}
 
-		var $div = $( '<div/>' );
+		var $div = $( '<div/>' ).attr( 'id', 'postedit-modqueued' );
+
+		/* "Pending review" icon */
+		$div.append( $( '<div/>' )
+			.attr( 'id', 'pending-review' )
+			.append( mw.msg( 'moderation-pending-review' ) ) );
+
+		/* "Success: your edit has been sent to moderation" */
 		$div.append( $( '<p/>' ).append(
 			mw.message(
 				'moderation-edit-queued',
@@ -58,6 +65,7 @@
 			).plain()
 		) );
 
+		/* ""To skip moderation in the future, please sign up" */
 		if ( mw.user.getId() == 0 ) {
 			$div.append( $( '<p/>' ).append(
 				mw.message( 'moderation-suggest-signup' ).parse()
