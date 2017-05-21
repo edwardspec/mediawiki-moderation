@@ -26,18 +26,49 @@ class VisualEditor extends Page {
 		return this.getWhenVisible( '//*[@class="oo-ui-processDialog-navigation"]//a[node() = "Save page"]' );
 	}
 
+	/**
+		@brief Text in "Something went wrong" dialog.
+	*/
+	get errMsg() {
+		return $( '.oo-ui-processDialog-error' );
+	}
+
+	/**
+		@returns Displayed error (if any).
+		@retval null No error.
+	*/
+	get error() {
+		return this.errMsg.isVisible() ? this.errMsg.getText() : null;
+	}
+
 	open( name ) {
 		super.open( name + '?veaction=edit&vehidebetadialog=true' );
 	}
 
+	/**
+		@brief Edit the page in VisualEditor.
+		@param name Page title, e.g. "List of Linux distributions".
+		@param content Page content (arbitrary text).
+	*/
 	edit( name, content ) {
 		this.open( name );
 		this.content.addValue( content );
 		this.saveButton.click();
 		this.confirmButton.click();
 
-		/* After the edit: wait for the page to be loaded */
-		browser.waitForExist( '.postedit' );
+		/* After the edit: wait for
+			(1) the page to be loaded
+			OR
+			(2) VisualEditor error to be shown
+		*/
+		var self = this;
+		browser.waitUntil( function() {
+			return (
+				self.errMsg.isVisible()
+				||
+				( browser.getUrl().indexOf( 'veaction=edit' ) === -1 )
+			);
+		} );
 	}
 }
 
