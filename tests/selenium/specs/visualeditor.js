@@ -32,48 +32,44 @@ describe( 'VisualEditor', function () {
 			(MediaWiki without VisualEditor also uses postedit notifications from Moderation).
 			We should test this elsewhere.
 		*/
-
+		PostEdit.init();
 		expect( PostEdit.notification.isVisible(), 'notification.isVisible' ).to.be.true;
 
-		var starttime = new Date().getTime(); /* For "non-fading of notification" test, see below */
-
-		expect( PostEdit.pendingIcon.isVisible(), 'notification.isVisible' ).to.be.true;
-		expect( PostEdit.notificationText )
-			.to.match( /Success: your edit has been sent to moderation/ );
+		expect( PostEdit.pendingIcon.isVisible(), 'pendingIcon.isVisible' ).to.be.true;
+		expect( PostEdit.text )
+			.to.contain( 'Success: your edit has been sent to moderation' );
 
 		/* Notification contains the following links:
 			- edit
 			- signup (only for anonymous users)
-			- close notification (top-right)
 		*/
-		expect( PostEdit.notificationLinks, "notificationLinks" )
-			.to.have.lengthOf( this.isLoggedIn ? 2 : 3 );
+		expect( PostEdit.editLink.isVisible(), 'editLink.isVisible' ).to.be.true;
 
-		expect( PostEdit.notificationLinkEdit.query.title, 'notificationLinkEdit.query.title' )
+		expect( PostEdit.editLinkQuery.title, 'editLink.query.title' )
 			.to.equal( PageName );
-		expect( PostEdit.notificationLinkEdit.query.veaction, 'notificationLinkEdit.query.veaction' )
+		expect( PostEdit.editLinkQuery.veaction, 'editLink.query.veaction' )
 			.to.equal( 'edit' );
 
 		if ( !this.isLoggedIn ) {
+			expect( PostEdit.signupLink.isVisible(), 'signupLink.isVisible' ).to.be.true;
 			expect(
-				PostEdit.notificationLinkSignup.pathname.split( '/' ).pop(),
-				'notificationLinkSignup.title'
+				PostEdit.signupLink.getAttribute( 'href' ).split( '/' ).pop(),
+				'signupLink.title'
 			).to.equal( 'Special:CreateAccount' );
 		}
 
-		/* Default postedit notification of MediaWiki is removed after 3 seconds
+		/* Default postedit notification of MediaWiki is removed after 3.5 seconds
 			(because it's not important whether the user reads it or not).
 
 			Make sure that Moderation has countered this behavior,
 			because its message contains links that user might want to follow,
 			plus information about Moderation for first-time editors.
 		*/
-		browser.pause( 3000 - ( new Date().getTime() - starttime ) );
+		PostEdit.waitUsualFadeTime();
 		expect( PostEdit.notification.isVisible(), 'notification.isVisible' ).to.be.true;
 
 		/* Clicking on notification should remove it */
-		PostEdit.notification.click(); /* TODO: somehow make sure that we don't accidentally click on links */
-		browser.waitForExist( '.postedit', 500, true );
+		PostEdit.notification.click();
+		PostEdit.notification.waitForExist( 500, true ); /* Wait for it to vanish */
 	} );
-
 } );

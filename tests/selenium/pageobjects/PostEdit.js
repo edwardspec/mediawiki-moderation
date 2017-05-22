@@ -4,36 +4,35 @@ const Page = require( './page' ),
 
 /**
 	@brief Represents the page visited immediately after editing.
+	Detects postedit notifications (created by mw.notify from MediaWiki core).
 */
 
 class PostEdit extends Page {
+	get notification() { return $( '.postedit' ); }
+	get pendingIcon() { return $( '#pending-review' ); }
+	get editLink() { return $( 'a=your version of this page' ); }
+	get signupLink() { return $( 'a=sign up' ); }
 
-	/** @brief Postedit notification element (as created by mw.notify) */
-	get notification() { return this.getWhenExists( '.postedit' ); }
-
-	get notificationText() { return this.notification.getText(); }
-
-	get pendingIcon() { return this.getWhenExists( '#pending-review' ); }
-
-	get notificationLinks() { return this.notification.elements( 'a' ).value; }
-
-	get notificationLinkEdit() {
-		return this.parseUrl( this.getWhenExists( 'a=your version of this page' ) );
+	get text() { return this.notification.getText(); }
+	get editLinkQuery() {
+		return nodeUrl.parse( this.editLink.getAttribute( 'href' ), true, true ).query;
 	}
 
-	get notificationLinkSignup() {
-		return this.parseUrl( this.getWhenExists( 'a=sign up' ) );
+	/** Default time (in ms.) until the postedit notification is usually removed.
+		Must be the same as in [mediawiki.action.view.postEdit.js] of MediaWiki core. */
+	get usualFadeTime() { return 3500; }
+
+	/** @brief Wait for postedit notification to appear */
+	init() {
+		this.notification.waitForExist();
+		this.inittime = new Date().getTime(); /* Used in waitUsualFadeTime() */
 	}
 
 	/**
-		@brief Convenience function: parse the link URL.
+		@brief Pause until the time when MediaWiki should have removed this notification.
 	*/
-	parseUrl( linkElement ) {
-		return nodeUrl.parse(
-			linkElement.getAttribute( 'href' ),
-			true,
-			true
-		);
+	waitUsualFadeTime() {
+		browser.pause( this.usualFadeTime - ( new Date().getTime() - this.inittime ) );
 	}
 }
 
