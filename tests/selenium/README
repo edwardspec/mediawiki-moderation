@@ -50,6 +50,9 @@ To run the tests:
 	2) run the following:
 		./node_modules/.bin/wdio --baseUrl 'http://hostname.of.your.wiki'
 
+NOTE: when testing locally, you shouldn't minimize Firefox during the tests,
+because Firefox requires the window to be in focus to simulate the clicks in it.
+
 == Customizing ==
 
 See http://webdriver.io/guide/testrunner/configurationfile.html
