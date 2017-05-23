@@ -52,7 +52,14 @@ class VisualEditor extends Page {
 	*/
 	edit( name, content ) {
 		this.open( name );
+
+		/*
+			FIXME: sometimes this .addValue() is executed before
+			installation of the handler that enables saveButton.
+			Need a better waiting criteria here.
+		*/
 		this.content.addValue( content );
+
 		this.saveButton.click();
 		this.confirmButton.click();
 
