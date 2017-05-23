@@ -21,8 +21,8 @@ describe( 'VisualEditor PageObject', function () {
 				Content = Date.now() + ' ' + Math.random();
 
 			VisualEditor.edit( PageName, Content );
-			expect( VisualEditor.error, 'VisualEditor.error' ).to.be.null;
 
+			browser.pause( 500 );
 			browser.refresh();
 		} );
 	}

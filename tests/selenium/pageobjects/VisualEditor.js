@@ -43,6 +43,9 @@ class VisualEditor extends Page {
 
 	open( name ) {
 		super.open( name + '?veaction=edit&vehidebetadialog=true' );
+
+		/* Until the Surface is focused, it won't accept addInput() properly */
+		browser.waitForExist( '.ve-ce-surface-focused' );
 	}
 
 	/**
@@ -52,14 +55,7 @@ class VisualEditor extends Page {
 	*/
 	edit( name, content ) {
 		this.open( name );
-
-		/*
-			FIXME: in Firefox, this .addValue() is sometimes executed
-			before installation of the handler that enables saveButton.
-			Need a better waiting criteria here.
-		*/
 		this.content.addValue( content );
-
 		this.saveButton.click();
 		this.confirmButton.click();
 
