@@ -46,8 +46,8 @@ class VisualEditor extends Page {
 		return this.errMsg.isVisible() ? this.errMsg.getText() : null;
 	}
 
-	open( name, section = '' ) {
-		super.open( name + '?veaction=edit&vehidebetadialog=true' + ( section ? ( '&vesection=' + section ) : '' ) );
+	open( name ) {
+		super.open( name + '?veaction=edit&vehidebetadialog=true' );
 
 		/* Until the Surface is focused, it won't accept addInput() properly */
 		browser.waitForExist( '.ve-ce-surface-focused' );
@@ -59,8 +59,8 @@ class VisualEditor extends Page {
 		@param content Page content (arbitrary text).
 		@param summary Edit comment (e.g. "fixed typo").
 	*/
-	edit( name, content, summary = '', section = '' ) {
-		this.open( name, section );
+	edit( name, content, summary = '' ) {
+		this.open( name );
 		this.content.addValue( content );
 		this.saveButton.click();
 
