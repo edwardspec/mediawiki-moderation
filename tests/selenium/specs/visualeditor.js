@@ -20,7 +20,7 @@ describe( 'VisualEditor', function () {
 
 		PostEdit.init();
 		expect( PostEdit.notification.isVisible(), 'notification.isVisible' ).to.be.true;
-		expect( PostEdit.editLinkQuery.veaction, 'editLink.query.veaction' )
+		expect( PostEdit.editLink.query.veaction, 'editLink.query.veaction' )
 			.to.equal( 'edit' );
 	} );
 } );

@@ -1,6 +1,5 @@
 'use strict';
-const Page = require( './page' ),
-	nodeUrl = require( 'url' );
+const Page = require( './page' );
 
 /**
 	@brief Represents the page visited immediately after editing.
@@ -10,13 +9,10 @@ const Page = require( './page' ),
 class PostEdit extends Page {
 	get notification() { return $( '.postedit' ); }
 	get pendingIcon() { return $( '#pending-review' ); }
-	get editLink() { return $( 'a=your version of this page' ); }
-	get signupLink() { return $( 'a=sign up' ); }
+	get editLink() { return this.getLink( 'a=your version of this page' ); }
+	get signupLink() { return this.getLink( 'a=sign up' ); }
 
 	get text() { return this.notification.getText(); }
-	get editLinkQuery() {
-		return nodeUrl.parse( this.editLink.getAttribute( 'href' ), true, true ).query;
-	}
 
 	/** Default time (in ms.) until the postedit notification is usually removed.
 		Must be the same as in [mediawiki.action.view.postEdit.js] of MediaWiki core. */

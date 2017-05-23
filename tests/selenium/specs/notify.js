@@ -42,11 +42,12 @@ describe( 'Postedit notification', function () {
 	} );
 
 	it ( 'should contain "continue editing" link', function() {
+
 		expect( PostEdit.editLink.isVisible(), 'editLink.isVisible' ).to.be.true;
 
-		expect( PostEdit.editLinkQuery.title, 'editLink.query.title' )
+		expect( PostEdit.editLink.query.title, 'editLink.query.title' )
 			.to.equal( PageName );
-		expect( PostEdit.editLinkQuery.action, 'editLink.query.action' )
+		expect( PostEdit.editLink.query.action, 'editLink.query.action' )
 			.to.equal( 'edit' );
 	} );
 
@@ -58,8 +59,8 @@ describe( 'Postedit notification', function () {
 
 		expect( PostEdit.signupLink.isVisible(), 'signupLink.isVisible' ).to.be.true;
 		expect(
-			PostEdit.signupLink.getAttribute( 'href' ).split( '/' ).pop(),
-			'signupLink.title'
+			PostEdit.signupLink.query.title,
+			'signupLink.query.title'
 		).to.equal( 'Special:CreateAccount' );
 	} );
 
