@@ -8,7 +8,11 @@ const Page = require( './page' );
 class VisualEditor extends Page {
 
 	/** @brief Editable element in the editor */
-	get content() { return this.getWhenVisible( '.ve-ce-documentNode' ); }
+	get content() {
+		/* Until the Surface is focused, it won't accept addInput() properly */
+		browser.waitForExist( '.ve-ce-surface-focused' );
+		return this.getWhenVisible( '.ve-ce-documentNode' );
+	}
 
 	/** @brief "Save page" button in the editor */
 	get saveButton() {
@@ -31,6 +35,14 @@ class VisualEditor extends Page {
 		return this.getWhenVisible( '.ve-ui-mwSaveDialog-summary textarea' );
 	}
 
+	get welcomeStartButton() {
+		return this.getWhenVisible( 'a=Start editing' );
+	}
+
+	get editTab() {
+		return this.getWhenVisible( '#ca-ve-edit a' );
+	}
+
 	/**
 		@brief Text in "Something went wrong" dialog.
 	*/
@@ -46,11 +58,19 @@ class VisualEditor extends Page {
 		return this.errMsg.isVisible() ? this.errMsg.getText() : null;
 	}
 
+	/**
+		@brief Open VisualEditor for article "name".
+	*/
 	open( name ) {
 		super.open( name + '?veaction=edit&vehidebetadialog=true' );
+	}
 
-		/* Until the Surface is focused, it won't accept addInput() properly */
-		browser.waitForExist( '.ve-ce-surface-focused' );
+	/**
+		@brief Open VisualEditor for the already opened article via the UI.
+	*/
+	openSwitch() {
+		this.editTab.click();
+		this.welcomeStartButton.click();
 	}
 
 	/**
