@@ -47,7 +47,7 @@ class VisualEditor extends Page {
 	}
 
 	open( name, section = '' ) {
-		super.open( name + '?veaction=edit&vehidebetadialog=true' + ( section ? ( '&section' + section ) : '' ) );
+		super.open( name + '?veaction=edit&vehidebetadialog=true' + ( section ? ( '&vesection=' + section ) : '' ) );
 
 		/* Until the Surface is focused, it won't accept addInput() properly */
 		browser.waitForExist( '.ve-ce-surface-focused' );

@@ -2,7 +2,8 @@
 
 const expect = require( 'chai' ).expect,
 	VisualEditor = require( '../pageobjects/VisualEditor' ),
-	PostEdit = require( '../pageobjects/PostEdit' );
+	PostEdit = require( '../pageobjects/PostEdit' ),
+	EditPage = require( '../pageobjects/edit.page' );
 
 /*
 	Title of MediaWiki page which should be edited during this test.
@@ -44,5 +45,28 @@ describe( 'VisualEditor', function () {
 
 		expect( VisualEditor.summary.getValue(), 'VisualEditor.summary' )
 			.to.equal( Summary );
+	} );
+
+	it.skip( 'should show pending edit when editing a section', function () {
+
+		/* Prepare the page with several sections */
+		var Sections = [
+			Date.now(),
+			"== Header 1 ==\n" + Math.random(),
+			"== Header 2 ==\n" + Math.random(),
+			"== Header 3 ==\n" + Math.random()
+		];
+		EditPage.edit( PageName, Sections.join( "\n\n" ) );
+
+		/* Test preloading of a single section into VisualEditor */
+		var sectionIdx = 1;
+		VisualEditor.open( PageName, sectionIdx );
+
+		VisualEditor.content.waitForText();
+
+		/* TODO
+			expect( VisualEditor.content.getText(), 'VisualEditor.content' )
+				.to.equal( Sections[sectionIdx] );
+		*/
 	} );
 } );
