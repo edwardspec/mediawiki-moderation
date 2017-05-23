@@ -8,12 +8,13 @@ const expect = require( 'chai' ).expect,
 	Title of MediaWiki page which should be edited during this test.
 */
 var PageName = 'Test' + Math.random(),
-	Content = Date.now() + ' ' + Math.random();
+	Content = Date.now() + ' ' + Math.random(),
+	Summary = 'funny change #' + Math.random();
 
 describe( 'VisualEditor', function () {
 
 	it( 'should save the new edit without errors', function () {
-		VisualEditor.edit( PageName, Content );
+		VisualEditor.edit( PageName, Content, Summary );
 
 		expect( VisualEditor.error, 'VisualEditor.error' ).to.be.null;
 	} );
@@ -33,5 +34,15 @@ describe( 'VisualEditor', function () {
 		VisualEditor.content.waitForText();
 		expect( VisualEditor.content.getText(), 'VisualEditor.content' )
 			.to.equal( Content );
+	} );
+
+	it( 'should suggest summary of the pending edit', function () {
+
+		/* To see the summary, we need to open "Describe what you changed" dialog */
+		VisualEditor.content.addValue( '+' );
+		VisualEditor.saveButton.click();
+
+		expect( VisualEditor.summary.getValue(), 'VisualEditor.summary' )
+			.to.equal( Summary );
 	} );
 } );

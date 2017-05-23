@@ -26,6 +26,11 @@ class VisualEditor extends Page {
 		return this.getWhenVisible( '//*[@class="oo-ui-processDialog-navigation"]//a[node() = "Save page"]' );
 	}
 
+	/** @brief "Summary" field in "Describe what you changed" dialog */
+	get summary() {
+		return this.getWhenVisible( '.ve-ui-mwSaveDialog-summary textarea' );
+	}
+
 	/**
 		@brief Text in "Something went wrong" dialog.
 	*/
@@ -41,8 +46,8 @@ class VisualEditor extends Page {
 		return this.errMsg.isVisible() ? this.errMsg.getText() : null;
 	}
 
-	open( name ) {
-		super.open( name + '?veaction=edit&vehidebetadialog=true' );
+	open( name, section = '' ) {
+		super.open( name + '?veaction=edit&vehidebetadialog=true' + ( section ? ( '&section' + section ) : '' ) );
 
 		/* Until the Surface is focused, it won't accept addInput() properly */
 		browser.waitForExist( '.ve-ce-surface-focused' );
@@ -52,11 +57,14 @@ class VisualEditor extends Page {
 		@brief Edit the page in VisualEditor.
 		@param name Page title, e.g. "List of Linux distributions".
 		@param content Page content (arbitrary text).
+		@param summary Edit comment (e.g. "fixed typo").
 	*/
-	edit( name, content ) {
-		this.open( name );
+	edit( name, content, summary = '', section = '' ) {
+		this.open( name, section );
 		this.content.addValue( content );
 		this.saveButton.click();
+
+		this.summary.addValue( summary );
 		this.confirmButton.click();
 
 		/* After the edit: wait for
