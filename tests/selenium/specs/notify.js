@@ -2,7 +2,8 @@
 
 const expect = require( 'chai' ).expect,
 	EditPage = require( '../pageobjects/edit.page' ),
-	PostEdit = require( '../pageobjects/PostEdit' );
+	PostEdit = require( '../pageobjects/PostEdit' ),
+	CreateAccountPage = require( '../pageobjects/createaccount.page' );
 
 /*
 	Title of MediaWiki page which should be edited during this test.
@@ -51,12 +52,7 @@ describe( 'Postedit notification', function () {
 			.to.equal( 'edit' );
 	} );
 
-	it ( 'should contain "sign up" link (if user is anonymous)', function() {
-		if ( this.isLoggedIn ) {
-			/* TODO: add test [shouldn't contain "sign up" link (if not anonymous)] */
-			this.skip();
-		}
-
+	it ( 'should contain "sign up" link if the user is anonymous', function() {
 		expect( PostEdit.signupLink.isVisible(), 'signupLink.isVisible' ).to.be.true;
 		expect(
 			PostEdit.signupLink.query.title,
@@ -80,5 +76,17 @@ describe( 'Postedit notification', function () {
 		/* Clicking on notification should remove it */
 		PostEdit.notification.click();
 		PostEdit.notification.waitForExist( 500, true ); /* Wait for it to vanish */
+	} );
+
+	it ( 'shouldn\'t contain "sign up" link if the user is logged in', function() {
+
+		CreateAccountPage.createAccount( 'TestUser' + Math.random(), '123456' );
+		EditPage.edit(
+			PageName,
+			Date.now() + ' ' + Math.random() + "\n"
+		);
+		PostEdit.init();
+
+		expect( PostEdit.signupLink.isVisible(), 'signupLink.isVisible' ).to.be.false;
 	} );
 } );
