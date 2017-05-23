@@ -54,8 +54,8 @@ class VisualEditor extends Page {
 		this.open( name );
 
 		/*
-			FIXME: sometimes this .addValue() is executed before
-			installation of the handler that enables saveButton.
+			FIXME: in Firefox, this .addValue() is sometimes executed
+			before installation of the handler that enables saveButton.
 			Need a better waiting criteria here.
 		*/
 		this.content.addValue( content );
