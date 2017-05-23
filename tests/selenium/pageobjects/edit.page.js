@@ -9,7 +9,7 @@ class EditPage extends Page {
 	get save() { return browser.element( '#wpSave' ); }
 
 	open( name ) {
-		super.open( name + '?action=edit' );
+		super.open( name + '?action=edit&hidewelcomedialog=true' );
 	}
 
 	edit( name, content ) {
