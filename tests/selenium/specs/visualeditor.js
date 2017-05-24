@@ -50,7 +50,7 @@ describe( 'VisualEditor', function () {
 	it( 'should show pending edit when switching from "Edit source"', function () {
 
 		/* Avoid "[...] data you have entered may not be saved" dialog */
-		browser.refresh();
+		VisualEditor.disableMWOnUnload();
 
 		/* Emulate the switch from "Edit source" to VisualEditor */
 		EditPage.open( PageName );

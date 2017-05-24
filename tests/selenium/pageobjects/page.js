@@ -25,6 +25,17 @@ class Page {
 		return $( selector );
 	}
 
+	/**
+		@brief Prevent MediaWiki-initiated onunload alerts.
+		Disables the alert "[...] data you have entered may not be saved" when you navigate away from the current page.
+	*/
+	disableMWOnUnload() {
+		browser.execute( function() {
+			window.onbeforeunload = null;
+			$( window ).off( 'beforeunload' );
+		} );
+	}
+
 	/** @brief Check if current user is logged into MediaWiki */
 	get isLoggedIn() {
 		return browser.execute( function() {
