@@ -2,7 +2,7 @@
 
 const expect = require( 'chai' ).expect,
 	EditPage = require( '../pageobjects/edit.page' ),
-	PostEdit = require( '../pageobjects/PostEdit' ),
+	PostEdit = require( '../pageobjects/postedit.page' ),
 	CreateAccountPage = require( '../pageobjects/createaccount.page' );
 
 /*

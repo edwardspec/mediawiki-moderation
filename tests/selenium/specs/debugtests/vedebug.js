@@ -8,7 +8,7 @@
 
 'use strict';
 
-const VisualEditor = require( '../../pageobjects/VisualEditor' );
+const VisualEditor = require( '../../pageobjects/visualeditor.page' );
 
 describe( 'VisualEditor PageObject', function () {
 

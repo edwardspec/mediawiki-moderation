@@ -1,8 +1,8 @@
 'use strict';
 
 const expect = require( 'chai' ).expect,
-	VisualEditor = require( '../pageobjects/VisualEditor' ),
-	PostEdit = require( '../pageobjects/PostEdit' ),
+	VisualEditor = require( '../pageobjects/visualeditor.page' ),
+	PostEdit = require( '../pageobjects/postedit.page' ),
 	EditPage = require( '../pageobjects/edit.page' );
 
 /*
