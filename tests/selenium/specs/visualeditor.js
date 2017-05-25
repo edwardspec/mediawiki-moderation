@@ -45,13 +45,12 @@ describe( 'VisualEditor', function () {
 
 		expect( VisualEditor.summary.getValue(), 'VisualEditor.summary' )
 			.to.equal( Summary );
-	} );
-
-	it( 'should show pending edit when switching from "Edit source"', function () {
 
 		/* Avoid "[...] data you have entered may not be saved" dialog */
 		VisualEditor.disableMWOnUnload();
+	} );
 
+	it( 'should show pending edit when switching from "Edit source"', function () {
 		/* Emulate the switch from "Edit source" to VisualEditor */
 		EditPage.open( PageName );
 		VisualEditor.openSwitch();

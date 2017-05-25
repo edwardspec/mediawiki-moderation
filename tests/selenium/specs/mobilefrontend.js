@@ -15,10 +15,8 @@ describe( 'MobileFrontend', function () {
 
 	this.timeout( 12300000 );
 
-	var sectionIdx = 0;
-
 	it( 'should save the new edit without errors', function () {
-		MobileFrontend.edit( PageName, sectionIdx, Content, Summary );
+		MobileFrontend.edit( PageName, 0, Content, Summary );
 
 		expect( MobileFrontend.error, 'MobileFrontend.error' ).to.be.null;
 	} );
@@ -33,7 +31,7 @@ describe( 'MobileFrontend', function () {
 
 	it( 'should show pending edit when opening the edit form', function () {
 		browser.refresh(); /* Make sure old MobileFrontend form isn't still in the DOM */
-		MobileFrontend.open( PageName, sectionIdx );
+		MobileFrontend.open( PageName, 0 );
 
 		MobileFrontend.content.waitForValue();
 		expect( MobileFrontend.content.getValue(), 'MobileFrontend.content' )
@@ -48,8 +46,30 @@ describe( 'MobileFrontend', function () {
 
 		expect( MobileFrontend.summary.getValue(), 'MobileFrontend.summary' )
 			.to.equal( Summary );
+
+		/* Avoid "[...] data you have entered may not be saved" dialog */
+		MobileFrontend.disableMWOnUnload();
 	} );
 
+	it( 'should show pending edit when editing a section', function () {
 
+		/* Prepare the page with several sections */
+		var Sections = [
+			'Beginning of the article ' + Date.now(),
+			"== Header 1 ==\n" + Math.random(),
+			"== Header 2 ==\n" + Math.random()
+		];
+		MobileFrontend.edit( PageName, 0, Sections.join( "\n\n" ) );
 
+		browser.refresh(); /* Make sure old MobileFrontend form isn't still in the DOM */
+
+		/* Test preloading of a single section into MobileFrontend */
+		for ( var sectionIdx = 0; sectionIdx < Sections.length; sectionIdx ++ ) {
+			MobileFrontend.open( PageName, sectionIdx );
+
+			MobileFrontend.content.waitForValue();
+			expect( MobileFrontend.content.getValue(), 'MobileFrontend.content[' + sectionIdx +']' )
+					.to.equal( Sections[sectionIdx] );
+		}
+	} );
 } );
