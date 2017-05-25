@@ -2,6 +2,7 @@
 
 const expect = require( 'chai' ).expect,
 	EditPage = require( '../pageobjects/edit.page' ),
+	MobileFrontend = require( '../pageobjects/mobilefrontend.page' ),
 	PostEdit = require( '../pageobjects/postedit.page' ),
 	CreateAccountPage = require( '../pageobjects/createaccount.page' );
 
@@ -10,13 +11,35 @@ const expect = require( 'chai' ).expect,
 */
 var PageName = 'Test' + Math.random();
 
-describe( 'Postedit notification', function () {
+/* Run the same tests for desktop and mobile view */
+[ 'desktop', 'MobileFrontend' ].forEach( function( subTest ) {
+
+describe( 'Postedit notification (' + subTest + ')', function () {
+
+	var doTestEdit;
+	switch ( subTest ) {
+		case 'desktop':
+			doTestEdit = function() {
+				EditPage.edit(
+					PageName,
+					Date.now() + ' ' + Math.random() + "\n"
+				);
+			};
+			break;
+
+		case 'MobileFrontend':
+			doTestEdit = function() {
+				MobileFrontend.edit(
+					PageName,
+					0,
+					Date.now() + ' ' + Math.random() + "\n"
+				);
+			};
+	}
 
 	before( function() {
-		EditPage.edit(
-			PageName,
-			Date.now() + ' ' + Math.random() + "\n"
-		);
+		browser.deleteCookie(); /* Make sure we are not logged in */
+		doTestEdit();
 		PostEdit.init();
 	} );
 
@@ -75,18 +98,18 @@ describe( 'Postedit notification', function () {
 	it ( 'should be removed when you click on it', function() {
 		/* Clicking on notification should remove it */
 		PostEdit.notification.click();
-		PostEdit.notification.waitForExist( 500, true ); /* Wait for it to vanish */
+		PostEdit.notification.waitForExist( 1000, true ); /* Wait for it to vanish */
 	} );
 
 	it ( 'shouldn\'t contain "sign up" link if the user is logged in', function() {
 
 		CreateAccountPage.createAccount( 'TestUser' + Math.random(), '123456' );
-		EditPage.edit(
-			PageName,
-			Date.now() + ' ' + Math.random() + "\n"
-		);
+		doTestEdit();
 		PostEdit.init();
 
 		expect( PostEdit.signupLink.isVisible(), 'signupLink.isVisible' ).to.be.false;
 	} );
-} );
+} ); /* describe( ..., function { */
+
+
+} ); /* .forEach( function( subTest ) { */

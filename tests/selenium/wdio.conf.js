@@ -4,12 +4,8 @@ exports.config = {
 	],
 	maxInstances: 1,
 	capabilities: [
-		{
-			browserName: 'firefox'
-		},
-		/*{
-			browserName: 'chrome'
-		},*/
+		{ browserName: 'firefox' },
+		//{ browserName: 'chrome' },
 	],
 
 	sync: true,
@@ -25,6 +21,6 @@ exports.config = {
 	reporters: ['spec'],
 	mochaOpts: {
 		ui: 'bdd',
-		timeout: 30000
+		timeout: 50000
 	}
 }
