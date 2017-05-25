@@ -31,5 +31,25 @@ describe( 'MobileFrontend', function () {
 			.to.equal( 'edit' );
 	} );
 
+	it( 'should show pending edit when opening the edit form', function () {
+		browser.refresh(); /* Make sure old MobileFrontend form isn't still in the DOM */
+		MobileFrontend.open( PageName, sectionIdx );
+
+		MobileFrontend.content.waitForValue();
+		expect( MobileFrontend.content.getValue(), 'MobileFrontend.content' )
+			.to.equal( Content );
+	} );
+
+	it( 'should suggest summary of the pending edit', function () {
+
+		/* To see the summary, we need to open "How did you improve the page?" dialog */
+		MobileFrontend.content.addValue( '+' );
+		MobileFrontend.nextButton.click();
+
+		expect( MobileFrontend.summary.getValue(), 'MobileFrontend.summary' )
+			.to.equal( Summary );
+	} );
+
+
 
 } );
