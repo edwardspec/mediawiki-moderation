@@ -63,10 +63,19 @@ class MobileFrontend extends Page {
 		this.content.setValue( content );
 		this.nextButton.click();
 		this.summary.setValue( summary );
+
+		var expectingAlert = !this.isExistingPage;
 		this.saveButton.click();
 
 		/* Close "Are you sure you want to create a new page?" dialog */
-		if ( this.isExistingPage ) {
+		if ( expectingAlert ) {
+			browser.waitUntil( function() {
+				try {
+					return browser.alertText() !== '';
+				} catch ( e ) {
+					return false;
+				}
+			}, 1000 );
 			browser.alertAccept();
 		}
 

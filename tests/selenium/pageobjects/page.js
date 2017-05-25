@@ -40,14 +40,14 @@ class Page {
 	get isLoggedIn() {
 		return browser.execute( function() {
 			return mw.user.getId() !== 0;
-		} );
+		} ).value;
 	}
 
 	/** @brief Check if current page already exists */
 	get isExistingPage() {
 		return browser.execute( function() {
 			return mw.config.get( 'wgArticleId' ) !== 0;
-		} );
+		} ).value;
 	}
 
 	/**
