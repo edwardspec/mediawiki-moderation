@@ -7,7 +7,7 @@ const Page = require( './page' );
 */
 
 class PostEdit extends Page {
-	get notification() { return $( '.postedit' ); }
+	get notification() { return $( '.postedit, .mw-notification' ); }
 	get pendingIcon() { return $( '#pending-review' ); }
 	get editLink() { return this.getLink( 'a=your version of this page' ); }
 	get signupLink() { return this.getLink( 'a=sign up' ); }
