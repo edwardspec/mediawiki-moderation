@@ -9,10 +9,14 @@ const expect = require( 'chai' ).expect,
 /*
 	Title of MediaWiki page which should be edited during this test.
 */
-var PageName = 'Test' + Math.random();
+var PageName = 'Test' + Math.random(),
+	subtests = [
+		'desktop',
+		'MobileFrontend'
+	];
 
 /* Run the same tests for desktop and mobile view */
-[ 'desktop', 'MobileFrontend' ].forEach( function( subTest ) {
+subtests.forEach( function( subTest ) {
 
 describe( 'Postedit notification (' + subTest + ')', function () {
 
@@ -38,9 +42,15 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 	}
 
 	before( function() {
-		browser.deleteCookie(); /* Make sure we are not logged in */
+		/* Make sure we are logged in */
+		CreateAccountPage.createAccount( 'TestUser' + Math.random(), '123456' );
+
 		doTestEdit();
 		PostEdit.init();
+	} );
+
+	after( function() {
+		browser.deleteCookie(); /* Logout */
 	} );
 
 	it( 'should be visible', function () {
@@ -75,12 +85,9 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 			.to.equal( 'edit' );
 	} );
 
-	it ( 'should contain "sign up" link if the user is anonymous', function() {
-		expect( PostEdit.signupLink.isVisible(), 'signupLink.isVisible' ).to.be.true;
-		expect(
-			PostEdit.signupLink.query.title,
-			'signupLink.query.title'
-		).to.equal( 'Special:CreateAccount' );
+	it ( 'shouldn\'t contain "sign up" link if the user is logged in', function() {
+
+		expect( PostEdit.signupLink.isVisible(), 'signupLink.isVisible' ).to.be.false;
 	} );
 
 	it ( 'shouldn\'t disappear after 3.5 seconds', function() {
@@ -98,17 +105,28 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 	it ( 'should be removed when you click on it', function() {
 		/* Clicking on notification should remove it */
 		PostEdit.notification.click();
-		PostEdit.notification.waitForExist( 1000, true ); /* Wait for it to vanish */
+		PostEdit.notification.waitForVisible( 500, true ); /* Wait for it to vanish */
 	} );
 
-	it ( 'shouldn\'t contain "sign up" link if the user is logged in', function() {
+	it ( 'should contain "sign up" link if the user is anonymous', function() {
 
-		CreateAccountPage.createAccount( 'TestUser' + Math.random(), '123456' );
+		if ( browser.options.is1_23 ) {
+			console.log( '[SKIP] Test skipped: MobileFrontend in MediaWiki 1.23 requires login to edit.' );
+			this.skip();
+		}
+
+		browser.deleteCookie(); /* Logout */
+
 		doTestEdit();
 		PostEdit.init();
 
-		expect( PostEdit.signupLink.isVisible(), 'signupLink.isVisible' ).to.be.false;
+		expect( PostEdit.signupLink.isVisible(), 'signupLink.isVisible' ).to.be.true;
+		expect(
+			PostEdit.signupLink.query.title,
+			'signupLink.query.title'
+		).to.equal( 'Special:CreateAccount' );
 	} );
+
 } ); /* describe( ..., function { */
 
 

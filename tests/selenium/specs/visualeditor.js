@@ -14,6 +14,13 @@ var PageName = 'Test' + Math.random(),
 
 describe( 'VisualEditor', function () {
 
+	before( function() {
+		if ( browser.options.is1_23 ) {
+			console.log( '[SKIP] Test skipped: MediaWiki 1.23 doesn\'t support VisualEditor.' );
+			this.skip();
+		}
+	} );
+
 	it( 'should save the new edit without errors', function () {
 		VisualEditor.edit( PageName, Content, Summary );
 

@@ -1,4 +1,21 @@
 exports.config = {
+	/* Custom variables specific to Moderation:
+		name/password of MediaWiki user who is both moderator AND automoderated.
+	*/
+	moderatorUser: 'User 1',
+	moderatorPassword: '123456',
+
+	/*
+		Determine version of MediaWiki, so that non-applicable tests may be skipped.
+		For example, MediaWiki 1.23 doesn't really support VisualEditor.
+	*/
+	before: function() {
+		var BlankPage = require( './pageobjects/blank.page' );
+		BlankPage.open();
+		browser.options.is1_23 = BlankPage.is1_23;
+	},
+
+	/* Common WebdriverIO options */
 	specs: [
 		'specs/*.js'
 	],
@@ -7,7 +24,6 @@ exports.config = {
 		{ browserName: 'firefox' },
 		//{ browserName: 'chrome' },
 	],
-
 	sync: true,
 	logLevel: 'silent',
 	coloredLogs: true,

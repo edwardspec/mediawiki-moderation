@@ -8,16 +8,16 @@ const Page = require( './page' );
 class MobileFrontend extends Page {
 
 	/** @brief Editable element in the editor */
-	get content() { return $( '#wikitext-editor' ); }
+	get content() { return $( '#wikitext-editor,.wikitext-editor' ); }
 
 	/** @brief Button to close "You are not logged in" dialog */
 	get editAnonymouslyButton() { return $( 'a=Edit without logging in' ); }
 
 	/** "Next" button (navigates from textarea screen to "Enter edit summary" screen) */
-	get nextButton() { return $( 'button=Next' ); }
+	get nextButton() { return $( '.continue' ); }
 
 	/** "Save" button on the "Enter edit summary" screen */
-	get saveButton() { return $( 'button=Save' ); }
+	get saveButton() { return $( '.submit' ); }
 
 	/** @brief "Summary" field in "Describe what you changed" dialog */
 	get summary() { return this.getWhenVisible( '.summary' ); }

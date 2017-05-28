@@ -2,7 +2,8 @@
 
 const expect = require( 'chai' ).expect,
 	MobileFrontend = require( '../pageobjects/mobilefrontend.page' ),
-	PostEdit = require( '../pageobjects/postedit.page' );
+	PostEdit = require( '../pageobjects/postedit.page' ),
+	CreateAccountPage = require( '../pageobjects/createaccount.page' );
 
 /*
 	Title of MediaWiki page which should be edited during this test.
@@ -13,7 +14,12 @@ var PageName = 'Test' + Math.random(),
 
 describe( 'MobileFrontend', function () {
 
-	this.timeout( 12300000 );
+	before( function() {
+		if ( browser.options.is1_23 ) {
+			/* MobileFrontend editor in 1.23 requires login */
+			CreateAccountPage.createAccount( 'TestUser' + Math.random(), '123456' );
+		}
+	} );
 
 	it( 'should save the new edit without errors', function () {
 		MobileFrontend.edit( PageName, 0, Content, Summary );
