@@ -110,7 +110,7 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 
 	it ( 'should contain "sign up" link if the user is anonymous', function() {
 
-		if ( browser.options.is1_23 ) {
+		if ( browser.options.is1_23 && subTest == 'MobileFrontend' ) {
 			console.log( '[SKIP] Test skipped: MobileFrontend in MediaWiki 1.23 requires login to edit.' );
 			this.skip();
 		}
