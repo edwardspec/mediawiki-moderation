@@ -3,7 +3,8 @@
 const expect = require( 'chai' ).expect,
 	VisualEditor = require( '../pageobjects/visualeditor.page' ),
 	PostEdit = require( '../pageobjects/postedit.page' ),
-	EditPage = require( '../pageobjects/edit.page' );
+	EditPage = require( '../pageobjects/edit.page' ),
+	UserLoginPage = require( '../pageobjects/userlogin.page' );
 
 /*
 	Title of MediaWiki page which should be edited during this test.
@@ -73,4 +74,22 @@ describe( 'VisualEditor', function () {
 
 		We must login into an automoderated account to create an article.
 	*/
+
+	it( 'shouldn\'t show empty page after editing the existing article', function () {
+		/* First we need an existing article. Because of the moderation,
+			such article can only be created by an automoderated user.
+		*/
+		UserLoginPage.loginAsModerator();
+		EditPage.edit( PageName, 'Initial content: ' + Content );
+
+		browser.deleteCookie(); /* Logout */
+
+		/* Now that we have an existing page, edit it again as anonymous user */
+		VisualEditor.edit( PageName, 'Suggested content: ' + Content );
+		PostEdit.init();
+
+		expect( PostEdit.pageContent.getText(), 'PostEdit.pageContent' )
+			.to.not.equal( '' );
+	} );
+
 } );

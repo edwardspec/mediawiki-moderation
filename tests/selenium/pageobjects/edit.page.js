@@ -16,6 +16,13 @@ class EditPage extends Page {
 		this.open( name );
 		this.content.setValue( content );
 		this.save.click();
+
+		/* After the edit: wait for the page to be loaded.
+		*/
+		var self = this;
+		browser.waitUntil( function() {
+			return ( browser.getUrl().indexOf( 'action=edit' ) === -1 );
+		} );
 	}
 
 }

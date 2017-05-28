@@ -12,6 +12,8 @@ class PostEdit extends Page {
 	get editLink() { return this.getLink( 'a=your version of this page' ); }
 	get signupLink() { return this.getLink( 'a=sign up' ); }
 
+	get pageContent() { return $( '#mw-content-text' ); }
+
 	get text() { return this.notification.getText(); }
 
 	/** Default time (in ms.) until the postedit notification is usually removed.
