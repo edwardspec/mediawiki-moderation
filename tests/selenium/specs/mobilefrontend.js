@@ -67,6 +67,7 @@ describe( 'MobileFrontend', function () {
 		];
 		MobileFrontend.edit( PageName, 0, Sections.join( "\n\n" ) );
 
+		PostEdit.init(); /* Make sure the page has loaded before we go doing refresh() and MobileFrontend.open() */
 		browser.refresh(); /* Make sure old MobileFrontend form isn't still in the DOM */
 
 		/* Test preloading of a single section into MobileFrontend */
