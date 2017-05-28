@@ -16,7 +16,7 @@ class VisualEditor extends Page {
 
 	/** @brief "Save page" button in the editor */
 	get saveButton() {
-		var $submit = this.getWhenVisible( 'a=Save page' );
+		var $submit = this.getWhenVisible( '.ve-ui-toolbar-saveButton a' );
 
 		browser.waitUntil( function() {
 			return ( $submit.getAttribute( 'aria-disabled' ) === 'false' );
@@ -27,7 +27,7 @@ class VisualEditor extends Page {
 
 	/** @brief "Save page" button in "Describe what you changed" dialog */
 	get confirmButton() {
-		return this.getWhenVisible( '//*[@class="oo-ui-processDialog-navigation"]//a[node() = "Save page"]' );
+		return this.getWhenVisible( '.oo-ui-processDialog-navigation a[accesskey="s"]' );
 	}
 
 	/** @brief "Summary" field in "Describe what you changed" dialog */
