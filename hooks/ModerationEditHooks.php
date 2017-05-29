@@ -29,16 +29,20 @@ class ModerationEditHooks {
 	protected static $section = ''; /**< Number of edited section, if any (populated in onEditFilter) */
 	protected static $sectionText = null; /**< Text of edited section, if any (populated in onEditFilter) */
 
+	protected static $watchthis = null; /**< Checkbox "Watch this page", if found (populated in onEditFilter) */
+
 	/*
 		onEditFilter()
 		Save sections-related information, which will then be used in onPageContentSave.
 	*/
 	public static function onEditFilter( $editor, $text, $section, &$error, $summary )
 	{
-		if($section != '') {
+		if ( $section != '' ) {
 			self::$section = $section;
 			self::$sectionText = $text;
 		}
+
+		self::$watchthis = $editor->watchthis;
 
 		return true;
 	}
@@ -155,6 +159,17 @@ class ModerationEditHooks {
 
 			$dbw->update( 'moderation', $fields, array( 'mod_id' => $row->id ), __METHOD__ );
 			ModerationEditHooks::$LastInsertId = $row->id;
+		}
+
+		if ( !is_null( self::$watchthis ) && $user->isLoggedIn() ) {
+			/* Watch/Unwatch the page immediately:
+				watchlist is the user's own business,
+				no reason to wait for approval of the edit */
+			$watch = (bool) self::$watchthis;
+
+			if ( $watch != $user->isWatched( $title, false ) ) {
+				WatchAction::doWatchOrUnwatch( $watch, $title, $user );
+			}
 		}
 
 		// In case the caller treats "moderation-edit-queued" as an error.

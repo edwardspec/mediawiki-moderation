@@ -200,6 +200,7 @@ class ModerationTestsuite
 		$dbw->delete( 'image', array( '1' ), __METHOD__ );
 		$dbw->delete( 'uploadstash', array( '1' ), __METHOD__ );
 		$dbw->delete( 'recentchanges', array( '1' ), __METHOD__ );
+		$dbw->delete( 'watchlist', array( '1' ), __METHOD__ );
 
 		if ( $dbw->tableExists( 'cu_changes' ) )
 			$dbw->delete( 'cu_changes', array( '1' ), __METHOD__ );
