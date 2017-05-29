@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.0.27",
+	"version": "1.0.28",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -53,6 +53,7 @@
 		"ModerationAjaxHook": "util/ModerationAjaxHook.php",
 		"ModerationBlockCheck": "util/ModerationBlockCheck.php",
 		"ModerationCanSkip": "util/ModerationCanSkip.php",
+		"ModerationApiHooks": "hooks/ModerationApiHooks.php",
 		"ModerationApproveHook": "hooks/ModerationApproveHook.php",
 		"ModerationPreload": "hooks/ModerationPreload.php",
 		"ModerationEditHooks": "hooks/ModerationEditHooks.php",
@@ -163,10 +164,10 @@
 			"ModerationPreload::onAlternateEdit"
 		],
 		"ApiBeforeMain": [
-			"ModerationPreload::onApiBeforeMain"
+			"ModerationApiHooks::onApiBeforeMain"
 		],
 		"ApiCheckCanExecute": [
-			"ModerationUploadHooks::onApiCheckCanExecute"
+			"ModerationApiHooks::onApiCheckCanExecute"
 		],
 		"AuthPluginAutoCreate": [
 			"ModerationEditHooks::onAuthPluginAutoCreate"

@@ -36,7 +36,7 @@ $wgExtensionCredits['antispam'][] = array(
 	'url' => 'https://www.mediawiki.org/wiki/Extension:Moderation',
 	'descriptionmsg' => 'moderation-desc',
 	'license-name' => 'GPL-3.0+',
-	'version' => '1.0.27'
+	'version' => '1.0.28'
 );
 
 $wgMessagesDirs['Moderation'] = array(
@@ -52,6 +52,7 @@ $wgAutoloadClasses['ModerationSpecialUpload'] = __DIR__ . '/ModerationSpecialUpl
 $wgAutoloadClasses['ModerationAjaxHook'] = __DIR__ . '/util/ModerationAjaxHook.php';
 $wgAutoloadClasses['ModerationBlockCheck'] = __DIR__ . '/util/ModerationBlockCheck.php';
 $wgAutoloadClasses['ModerationCanSkip'] = __DIR__ . '/util/ModerationCanSkip.php';
+$wgAutoloadClasses['ModerationApiHooks'] = __DIR__ . '/hooks/ModerationApiHooks.php';
 $wgAutoloadClasses['ModerationApproveHook'] = __DIR__ . '/hooks/ModerationApproveHook.php';
 $wgAutoloadClasses['ModerationPreload'] = __DIR__ . '/hooks/ModerationPreload.php';
 $wgAutoloadClasses['ModerationEditHooks'] = __DIR__ . '/hooks/ModerationEditHooks.php';
@@ -68,8 +69,8 @@ $wgAutoloadClasses['ModerationActionPreview'] = __DIR__ . '/action/ModerationAct
 
 $wgHooks['AddNewAccount'][] = 'ModerationPreload::onAddNewAccount';
 $wgHooks['AlternateEdit'][] = 'ModerationPreload::onAlternateEdit';
-$wgHooks['ApiBeforeMain'][] = 'ModerationPreload::onApiBeforeMain';
-$wgHooks['ApiCheckCanExecute'][] = 'ModerationUploadHooks::onApiCheckCanExecute';
+$wgHooks['ApiBeforeMain'][] = 'ModerationApiHooks::onApiBeforeMain';
+$wgHooks['ApiCheckCanExecute'][] = 'ModerationApiHooks::onApiCheckCanExecute';
 $wgHooks['AuthPluginAutoCreate'][] = 'ModerationEditHooks::onAuthPluginAutoCreate';
 $wgHooks['BeforePageDisplay'][] = 'ModerationEditHooks::onBeforePageDisplay';
 $wgHooks['EditFilter'][] = 'ModerationEditHooks::onEditFilter';

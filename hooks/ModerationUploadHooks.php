@@ -92,15 +92,6 @@ class ModerationUploadHooks {
 		return true;
 	}
 
-	public static function onApiCheckCanExecute( $module, $user, &$message ) {
-		if ( $module == 'upload' && !ModerationCanSkip::canSkip( $user ) ) {
-			$message = 'nouploadmodule';
-			return false;
-		}
-
-		return true;
-	}
-
 	public static function ongetUserPermissionsErrors( $title, $user, $action, &$result ) {
 		/*
 			action=revert bypasses doUpload(), so it is not intercepted
