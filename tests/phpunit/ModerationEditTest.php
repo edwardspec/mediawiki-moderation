@@ -209,7 +209,31 @@ class ModerationTestEdit extends MediaWikiTestCase
 
 		$this->assertEquals( $expectedText, $dbText,
 			"testApiEditAppend(): Resulting text doesn't match expected" );
+	}
 
+	public function testApiNoSuchSectionYet() {
+		$t = new ModerationTestsuite();
 
+		# Does api.php?action=edit&section=N work if section #N doesn't exist
+		# in the article, but exists in the pending (preloaded) revision?
+
+		$title = 'Test page 1';
+		$text = "text 0\n== section 1 ==\ntext 1\n== section 2 ==\ntext 2\n== section 3 ==\ntext 3\n";
+		$sectionIdx = 2; /* This section exists in $text */
+
+		$t->loginAs( $t->unprivilegedUser );
+		$t->doTestEdit( $title, $text );
+
+		# Try api.php?action=edit&section=$sectionIdx
+		$ret = $t->query( array(
+			'action' => 'edit',
+			'title' => $title,
+			'token' => null,
+			'section' => $sectionIdx,
+			'text' => 'Whatever'
+		) );
+
+		$this->assertNotEquals( 'nosuchsection', $ret['error']['code'],
+			"testApiNoSuchSectionYet(): API returned nosuchsection error (which is incorrect)" );
 	}
 }

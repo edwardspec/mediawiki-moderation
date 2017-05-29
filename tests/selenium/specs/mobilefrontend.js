@@ -97,6 +97,11 @@ describe( 'MobileFrontend', function () {
 		PostEdit.init(); /* Wait until complete */
 
 		MobileFrontend.open( PageName, 0 );
+
+		/* To see the summary, we need to open "How did you improve the page?" dialog */
+		MobileFrontend.content.addValue( '+' );
+		MobileFrontend.nextButton.click();
+
 		expect( MobileFrontend.summary.getValue(), 'MobileFrontend.summary' )
 			.to.not.match( /\/\*.*\*\// );
 	} );

@@ -41,7 +41,10 @@ class ModerationApiHooks {
 
 	/*
 		onApiBeforeMain()
-		Make sure that api.php?action=edit&appendtext=... will append to the pending version.
+		Make sure that
+		1) api.php?action=edit&appendtext=... will append to the pending version.
+		2) api.php?action=edit&section=N won't complain 'nosuchsection' if
+		section N exists in the pending version.
 	*/
 	public static function onApiBeforeMain( &$main ) {
 		$request = $main->getRequest();
@@ -49,15 +52,12 @@ class ModerationApiHooks {
 			return true; /* Nothing to do */
 		}
 
+		$section = $request->getVal( 'section', '' );
 		$prepend = $request->getVal( 'prependtext', '' );
 		$append = $request->getVal( 'appendtext', '' );
-		if ( !$prepend && !$append ) {
-			return true; /* Usual api.php?action=edit&text= works correctly with Moderation */
-		}
 
-		$section = $request->getVal( 'section' );
-		if ( $section && $section == 'new' ) {
-			return true; /* Creating a new section: doesn't require preloading */
+		if ( !$prepend && !$append && !$section ) {
+			return true; /* Usual api.php?action=edit&text= works correctly with Moderation */
 		}
 
 		$pageObj = $main->getTitleOrPageId( $request->getValues( 'title', 'pageid' ) );
@@ -68,15 +68,21 @@ class ModerationApiHooks {
 			return true; /* No pending version - ApiEdit will handle this correctly */
 		}
 
-		$content = ContentHandler::makeContent( $row->text, $title );
+		$oldContent = ContentHandler::makeContent( $row->text, $title );
+		$content = $oldContent;
 		if ( $section ) {
-			$content = $content->getSection( $section );
+			if ( $section == 'new' ) {
+				$content = ContentHandler::makeContent( '', $title );
+			}
+			else {
+				$content = $oldContent->getSection( $section );
+				if ( !$content ) {
+					$this->dieUsage( "There is no section {$section}.", 'nosuchsection' );
+				}
+			}
 		}
 
-		$text = "";
-		if ( $content ) {
-			$text = $content->getNativeData();
-		}
+		$text = $content->getNativeData();
 
 		/* Now we remove appendtext/prependtext from WebRequest object
 			and make ApiEdit think that this is a usual action=edit&text=... call.
@@ -85,9 +91,26 @@ class ModerationApiHooks {
 			of the page, not to the preloaded revision.
 		*/
 		$query = $request->getValues();
-		$query['text'] = $prepend . $text . $append;
+		if ( !isset( $query['text'] ) ) {
+			$query['text'] = $prepend . $text . $append;
+		}
 		unset( $query['prependtext'] );
 		unset( $query['appendtext'] );
+
+		$query['text'] = rtrim( $query['text'] );
+
+		if ( $section ) {
+			/* We also remove section=N parameter,
+				because if section N doesn't exist in the page,
+				ApiEditPage will incorrectly complain "nosuchsection"
+				(even when section N exists in the pending version).
+			*/
+			$newSectionContent = ContentHandler::makeContent( $query['text'], $title );
+			$newContent = $oldContent->replaceSection( $section, $newSectionContent );
+
+			$query['text'] = $newContent->getNativeData();
+			unset( $query['section'] );
+		}
 
 		$req = new DerivativeRequest( $request, $query, true );
 		$main->getContext()->setRequest( $req );
