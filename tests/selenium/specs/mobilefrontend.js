@@ -10,7 +10,12 @@ const expect = require( 'chai' ).expect,
 */
 var PageName = 'Test' + Math.random(),
 	Content = Date.now() + ' ' + Math.random(),
-	Summary = 'funny change #' + Math.random();
+	Summary = 'funny change #' + Math.random(),
+	Sections = [
+		'Beginning of the article ' + Date.now(),
+		"== Header 1 ==\n" + Math.random(),
+		"== Header 2 ==\n" + Math.random()
+	];
 
 describe( 'MobileFrontend', function () {
 
@@ -60,11 +65,6 @@ describe( 'MobileFrontend', function () {
 	it( 'should show pending edit when editing a section', function () {
 
 		/* Prepare the page with several sections */
-		var Sections = [
-			'Beginning of the article ' + Date.now(),
-			"== Header 1 ==\n" + Math.random(),
-			"== Header 2 ==\n" + Math.random()
-		];
 		MobileFrontend.edit( PageName, 0, Sections.join( "\n\n" ) );
 
 		PostEdit.init(); /* Make sure the page has loaded before we go doing refresh() and MobileFrontend.open() */
@@ -79,4 +79,26 @@ describe( 'MobileFrontend', function () {
 					.to.equal( Sections[sectionIdx] );
 		}
 	} );
+
+	it( 'shouldn\'t mention several edited sections in the summary', function () {
+
+		// When saving the edit, MobileFrontend adds /* Section name */
+		// to the edit summary. However, Moderation preloads the previous
+		// summary when subsequently editing the same page.
+		//
+		// Here we test that this doesn't create ugly summaries
+		// like "/* Section 1 */ /* Section 3 */ /* Section 1 */ fix typo".
+
+		var sectionIdx = 1;
+
+		/* Edit the section without touching MobileFrontend.summary field
+			(whatever was preloaded into it stays unchanged) */
+		MobileFrontend.edit( PageName, sectionIdx, Sections[sectionIdx], false );
+		PostEdit.init(); /* Wait until complete */
+
+		MobileFrontend.open( PageName, 0 );
+		expect( MobileFrontend.summary.getValue(), 'MobileFrontend.summary' )
+			.to.not.match( /\/\*.*\*\// );
+	} );
+
 } );
