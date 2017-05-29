@@ -123,7 +123,7 @@ class ModerationApproveHook {
 	/*
 		onNewRevisionFromEditComplete()
 
-		Here we replace REVID_UNKNOWN in $tasks and fix rev_timestamp.
+		Here we determine $lastRevId and fix rev_timestamp.
 	*/
 	public function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
 		/* Remember ID of this revision for getLastRevId() */

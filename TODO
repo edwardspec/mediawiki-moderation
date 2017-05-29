@@ -12,27 +12,12 @@ Low-prio:
 * (interface) For non-automoderated users: show a message on their
 	Special:Contributions ensuring them that their edits will
 	appear there when they are approved.
-* (feature) Temporarily allow everyone to skip moderation on one specific page.
-	If some page is becoming popular amongst many new editors (e.g. fans of
-	some film are collectively writing about it), it makes sence to disable
-	moderation on it, because users will monitor the new changes themselves,
-	and administrator won't have to manually merge edit conflicts.
-	This mode should be time-limited, like page protections,
-	e.g. "Admin1 allowed unmoderated edits on Page2 for the next 3 days".
-	There shouldn't be an "indefinite" duration (or even >1 week), because
-	we don't want vandals to edit a bunch of such pages in a year or two.
-
+* (interface) Perform the actions like Approve via Ajax (without leaving Special:Moderation).
 
 Background-prio (may not be needed):
-* (feature) Post factum elimination of duplicate anonymous edits (e.g. when one
-	of those edits is preloaded by the user).
-* (interface) Ask "Really approve all edits from <user>?" when
-	clicking "Approve all" (NOT via JavaScript).
 * (interface) For each folder, display the number of new entries there
 	in the last day and week.
-* (interface) After the actions like Approve return to the moderation page,
-	displaying the message like "Approved N edits" in the page header.
 * (feature) Support uploads via API.
 
-Tests to implement:
-- use Selenium to test ajaxhook (VisualEditor/MobileFrontend support)
+FIXME:
+* tags assigned by Extension:AbuseFilter are not applied after Approve.
