@@ -2,8 +2,8 @@ exports.config = {
 	/* Custom variables specific to Moderation:
 		name/password of MediaWiki user who is both moderator AND automoderated.
 	*/
-	moderatorUser: 'User 1',
-	moderatorPassword: '123456',
+	moderatorUser: process.env.MEDIAWIKI_MODERATOR_USER || 'User 1',
+	moderatorPassword: process.env.MEDIAWIKI_MODERATOR_PASSWORD || '123456',
 
 	/*
 		Determine version of MediaWiki, so that non-applicable tests may be skipped.
