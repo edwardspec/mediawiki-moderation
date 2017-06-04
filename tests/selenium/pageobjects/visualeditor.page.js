@@ -9,9 +9,34 @@ class VisualEditor extends Page {
 
 	/** @brief Editable element in the editor */
 	get content() {
+
+		/*
+			VisualEditor is a huge nuisance to emulate.
+
+			Its "VisualEditor surface" object (wrapper of contenteditable)
+			is programmed to be in two modes: "focused" and "not focused".
+			It starts in "not focused" mode.
+			It won't accept new input correctly unless it becomes "focused" first.
+
+			For that to happen, "focusin" event must be fired.
+			The confusing part is, VisualEditor ignores this event unless
+			something within contenteditable is currently selected.
+
+			So doing $('.ve-ce-documentNode').addValue() isn't enough,
+			as it may click outside of any objects within contenteditable.
+
+			To be sure we select something, we click on <p> tag first
+			(this tag always exists, even if the article hasn't been created yet).
+		*/
+
 		/* Until the Surface is focused, it won't accept addInput() properly */
+		$( '.ve-ce-surface' ).waitForExist();
+		$( '.ve-ce-documentNode p' ).waitForExist();
+
+		$( '.ve-ce-documentNode p' ).click();
+
 		browser.waitForExist( '.ve-ce-surface-focused' );
-		return this.getWhenVisible( '.ve-ce-documentNode' );
+		return $( '.ve-ce-documentNode' );
 	}
 
 	/** @brief "Save page" button in the editor */
@@ -81,9 +106,9 @@ class VisualEditor extends Page {
 	*/
 	edit( name, content, summary = '' ) {
 		this.open( name );
+
 		this.content.addValue( content );
 		this.saveButton.click();
-
 		this.summary.addValue( summary );
 		this.confirmButton.click();
 
