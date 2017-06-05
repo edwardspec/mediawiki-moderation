@@ -28,21 +28,20 @@ class VisualEditor extends Page {
 			To be sure we select something, we click on <p> tag first
 			(this tag always exists, even if the article hasn't been created yet).
 		*/
-
 		$( '.ve-ce-surface' ).waitForExist();
 
-		var $p = $( '.ve-ce-documentNode p' );
-		$p.waitForExist();
+		var parSelector = '.ve-ce-documentNode p';
+		browser.waitForExist( parSelector );
 
 		/* Wait for VisualEditor to install click() handler on this <p> tag */
 		browser.waitUntil( function() {
-			return browser.execute( function( p ) {
-				return $._data( p, 'events' ).click !== undefined;
-			}, $p.value ).value;
+			return browser.selectorExecute( parSelector, function( p ) {
+				return $._data( p[0], 'events' ).click !== undefined;
+			} );
 		} );
 
 		/* Trigger (1) selection of this <p>, (2) focusin event */
-		$p.click();
+		$( parSelector ).click();
 
 		/* Wait for VisualEditor to set this Surface into the "focused" state */
 		browser.waitForExist( '.ve-ce-surface-focused' );
