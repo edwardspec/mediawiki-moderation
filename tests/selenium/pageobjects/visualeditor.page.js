@@ -29,12 +29,22 @@ class VisualEditor extends Page {
 			(this tag always exists, even if the article hasn't been created yet).
 		*/
 
-		/* Until the Surface is focused, it won't accept addInput() properly */
 		$( '.ve-ce-surface' ).waitForExist();
-		$( '.ve-ce-documentNode p' ).waitForExist();
 
-		$( '.ve-ce-documentNode p' ).click();
+		var $p = $( '.ve-ce-documentNode p' );
+		$p.waitForExist();
 
+		/* Wait for VisualEditor to install click() handler on this <p> tag */
+		browser.waitUntil( function() {
+			return browser.execute( function( p ) {
+				return $._data( p, 'events' ).click !== undefined;
+			}, $p.value ).value;
+		} );
+
+		/* Trigger (1) selection of this <p>, (2) focusin event */
+		$p.click();
+
+		/* Wait for VisualEditor to set this Surface into the "focused" state */
 		browser.waitForExist( '.ve-ce-surface-focused' );
 		return $( '.ve-ce-documentNode' );
 	}
