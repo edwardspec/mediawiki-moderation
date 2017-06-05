@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.0.30",
+	"version": "1.0.31",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -86,7 +86,7 @@
 			]
 		},
 		"ext.moderation.ve": {
-			"position": "bottom",
+			"position": "top",
 			"scripts": [
 				"visualeditor/ajaxhook.ve.js",
 				"visualeditor/preload.ve.js"

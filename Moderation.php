@@ -36,7 +36,7 @@ $wgExtensionCredits['antispam'][] = array(
 	'url' => 'https://www.mediawiki.org/wiki/Extension:Moderation',
 	'descriptionmsg' => 'moderation-desc',
 	'license-name' => 'GPL-3.0+',
-	'version' => '1.0.30'
+	'version' => '1.0.31'
 );
 
 $wgMessagesDirs['Moderation'] = array(
@@ -111,6 +111,7 @@ $wgResourceModules['ext.moderation.ve'] = $moduleTemplate + array(
 		'ext.moderation.ajaxhook'
 	)
 );
+$wgResourceModules['ext.moderation.ve']['position'] = 'top';
 $wgResourceModules['ext.moderation.mf'] = $moduleTemplate + array(
 	'scripts' => array(
 		'mobilefrontend/legacy.ajaxhook.mf.js',
