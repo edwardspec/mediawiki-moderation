@@ -67,20 +67,16 @@ class MobileFrontend extends Page {
 			this.summary.setValue( summary );
 		}
 
-		var expectingAlert = !this.isExistingPage;
-		this.saveButton.click();
+		/* Suppress "Are you sure you want to create a new page?" dialog.
+			Overwriting window.confirm is not supported in IE11,
+			catching alert with alertAccept() - not supported in Safari.
+		*/
+		browser.execute( function() {
+			window.confirm = function() { return true; };
+			return true;
+		} );
 
-		/* Close "Are you sure you want to create a new page?" dialog */
-		if ( expectingAlert ) {
-			browser.waitUntil( function() {
-				try {
-					return browser.alertText() !== '';
-				} catch ( e ) {
-					return false;
-				}
-			}, 1000 );
-			browser.alertAccept();
-		}
+		this.saveButton.click();
 
 		/* After the edit: wait for
 			(1) the page to be loaded
@@ -89,6 +85,11 @@ class MobileFrontend extends Page {
 		*/
 		var self = this;
 		browser.waitUntil( function() {
+
+			try { /* Handle "Are you sure?" dialog in IE11 (see above) */
+				browser.alertAccept();
+			} catch ( e ) { }
+
 			return (
 				self.errMsg.isVisible()
 				||

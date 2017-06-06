@@ -43,13 +43,6 @@ class Page {
 		} ).value;
 	}
 
-	/** @brief Check if current page already exists */
-	get isExistingPage() {
-		return browser.execute( function() {
-			return mw.config.get( 'wgArticleId' ) !== 0;
-		} ).value;
-	}
-
 	/**
 		@brief Select $link by selector. Adds $link.query field to the returned $link.
 	*/
