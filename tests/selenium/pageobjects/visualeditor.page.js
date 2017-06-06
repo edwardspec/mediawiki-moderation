@@ -28,23 +28,17 @@ class VisualEditor extends Page {
 			To be sure we select something, we click on <p> tag first
 			(this tag always exists, even if the article hasn't been created yet).
 		*/
-		$( '.ve-ce-surface' ).waitForExist();
+		$( '.ve-active' ).waitForExist();
 
 		var parSelector = '.ve-ce-documentNode p';
 		browser.waitForExist( parSelector );
 
-		/* Wait for VisualEditor to install click() handler on this <p> tag */
+		/* Try click() several times, because VisualEditor needs to install onclick() handler first */
 		browser.waitUntil( function() {
-			return browser.selectorExecute( parSelector, function( p ) {
-				return $._data( p[0], 'events' ).click !== undefined;
-			} );
+			$( parSelector ).click(); /* Trigger (1) selection of this <p>, (2) focusin event */
+			return browser.isExisting( '.ve-ce-surface-focused' );
 		} );
 
-		/* Trigger (1) selection of this <p>, (2) focusin event */
-		$( parSelector ).click();
-
-		/* Wait for VisualEditor to set this Surface into the "focused" state */
-		browser.waitForExist( '.ve-ce-surface-focused' );
 		return $( '.ve-ce-documentNode' );
 	}
 
@@ -71,6 +65,10 @@ class VisualEditor extends Page {
 
 	get welcomeStartButton() {
 		return this.getWhenVisible( 'a=Start editing' );
+	}
+
+	get welcomeDialog() {
+		return $( '.oo-ui-dialog' );
 	}
 
 	get editTab() {
@@ -104,7 +102,19 @@ class VisualEditor extends Page {
 	*/
 	openSwitch() {
 		this.editTab.click();
+		this.closeWelcomeDialog();
+	}
+
+	/**
+		@brief Close the welcome dialog.
+		This is needed when we can't pass vehidebetadialog=true in the URL,
+		e.g. when testing openSwitch().
+	*/
+	closeWelcomeDialog() {
 		this.welcomeStartButton.click();
+
+		/* Wait for dialog to disappear */
+		this.welcomeDialog.waitForVisible( 3000, true );
 	}
 
 	/**
