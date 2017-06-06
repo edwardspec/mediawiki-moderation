@@ -68,15 +68,12 @@ describe( 'VisualEditor', function () {
 			.to.equal( Content );
 	} );
 
-
-	/* TODO: we need to test .showParsed notification (see [ajaxhook.ve.js]),
-		which is only used when editing an existing article.
-
-		We must login into an automoderated account to create an article.
-	*/
-
 	it( 'shouldn\'t show empty page after editing the existing article', function () {
-		/* First we need an existing article. Because of the moderation,
+		/*
+			Test .showParsed notification (see [ajaxhook.ve.js]),
+			which is only used when editing an existing article.
+
+			First we need an existing article. Because of the moderation,
 			such article can only be created by an automoderated user.
 		*/
 		UserLoginPage.loginAsModerator();
