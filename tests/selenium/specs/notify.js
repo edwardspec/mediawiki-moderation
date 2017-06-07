@@ -4,7 +4,8 @@ const expect = require( 'chai' ).expect,
 	EditPage = require( '../pageobjects/edit.page' ),
 	MobileFrontend = require( '../pageobjects/mobilefrontend.page' ),
 	PostEdit = require( '../pageobjects/postedit.page' ),
-	CreateAccountPage = require( '../pageobjects/createaccount.page' );
+	CreateAccountPage = require( '../pageobjects/createaccount.page' ),
+	LogoutPage = require( '../pageobjects/logout.page' );
 
 /*
 	Title of MediaWiki page which should be edited during this test.
@@ -50,7 +51,7 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 	} );
 
 	after( function() {
-		browser.deleteCookie(); /* Logout */
+		LogoutPage.logout();
 	} );
 
 	it( 'should be visible', function () {
@@ -115,7 +116,7 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 			this.skip();
 		}
 
-		browser.deleteCookie(); /* Logout */
+		LogoutPage.logout();
 
 		doTestEdit();
 		PostEdit.init();
