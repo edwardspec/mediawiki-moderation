@@ -1,9 +1,9 @@
 /**
-	@brief Test of the testsuite itself: checks [pageobjects/VisualEditor.js].
+	@brief Test of the testsuite itself: checks [pageobjects/visualeditor.page.js].
 	Makes sure that VisualEditor.edit() works reliably (correctly waits for needed UI elements, etc.).
 
 	This file doesn't test the Moderation.
-	See [specs/visualeditor.js] for Moderation-related tests.
+	See [specs/*.js] for Moderation-related tests.
 */
 
 'use strict';
