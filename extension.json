@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.0.31",
+	"version": "1.0.32",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -15,6 +15,11 @@
 		},
 		"checkuser": {
 			"moderation-checkuser": true
+		}
+	},
+	"GrantPermissions": {
+		"basic": {
+			"skip-moderation": true
 		}
 	},
 	"AvailableRights": [
