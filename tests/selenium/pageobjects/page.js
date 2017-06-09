@@ -31,8 +31,9 @@ class Page {
 	*/
 	disableMWOnUnload() {
 		browser.execute( function() {
+			/* See [mediawiki.confirmCloseWindow.js] in MediaWiki core */
 			window.onbeforeunload = null;
-			$( window ).off( 'beforeunload' );
+			$( window ).off( 'beforeunload pageshow' );
 		} );
 	}
 
