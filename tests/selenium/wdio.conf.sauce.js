@@ -9,7 +9,6 @@ exports.config = merge( wdioConf.config, {
 	maxInstances: 5,
 
 	capabilities: [
-		/*
 		{
 			platform: 'Windows 10',
 			browserName: 'MicrosoftEdge',
@@ -30,9 +29,8 @@ exports.config = merge( wdioConf.config, {
 				'specs/visualeditor.js'
 			]
 		},
-		{ browserName: 'chrome' },
-		*/
-		{ browserName: 'firefox' }
+		{ browserName: 'chrome', version: 'latest' },
+		{ browserName: 'firefox', version: 'latest' }
 	],
 
 	services: [ 'sauce' ],
