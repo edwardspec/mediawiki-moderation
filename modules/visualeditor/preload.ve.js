@@ -63,7 +63,7 @@
 				mptitle: pageName,
 				mpmode: 'wikitext'
 			};
-			return api.get( qPreload ).then( function( data ) {
+			return api.post( qPreload ).then( function( data ) {
 
 				var wikitext = data.query.moderationpreload.wikitext;
 				if ( !wikitext ) {

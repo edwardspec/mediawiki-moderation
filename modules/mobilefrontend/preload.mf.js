@@ -72,7 +72,7 @@
 		}
 
 		var api = ( legacyMode ? this : this.api );
-		api.get( qPreload ).then( function( data ) {
+		api.post( qPreload ).then( function( data ) {
 			var wikitext = data.query.moderationpreload.wikitext;
 			if ( !wikitext ) {
 				/* Nothing to preload.
