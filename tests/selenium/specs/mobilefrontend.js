@@ -57,9 +57,6 @@ describe( 'MobileFrontend', function () {
 
 		expect( MobileFrontend.summary.getValue(), 'MobileFrontend.summary' )
 			.to.equal( Summary );
-
-		/* Avoid "[...] data you have entered may not be saved" dialog */
-		MobileFrontend.disableMWOnUnload();
 	} );
 
 	it( 'should show pending edit when editing a section', function () {

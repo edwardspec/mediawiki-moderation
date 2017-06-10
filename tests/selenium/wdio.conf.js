@@ -13,6 +13,32 @@ exports.config = {
 		var BlankPage = require( './pageobjects/blank.page' );
 		BlankPage.open();
 		browser.options.is1_23 = BlankPage.is1_23;
+
+		/*
+			Make browser.url() ignore "Are you sure you want to leave this page?" alerts.
+		*/
+		var oldUrlFunc = browser.url.bind( browser );
+		browser.url = function( url ) {
+
+			/* Try to suppress beforeunload events.
+				This doesn't work reliably in IE11, so there is a fallback alertAccept() below.
+				We can't remove this browser.execute(), because Safari doesn't support alertAccept().
+			*/
+			browser.execute( function() {
+				window.onbeforeunload = null;
+				$( window ).off( 'beforeunload pageshow' ); /* See [mediawiki.confirmCloseWindow.js] in MediaWiki core */
+			} );
+
+			var ret = oldUrlFunc( url );
+
+			try {
+				/* Fallback for IE11.
+					Not supported by SafariDriver, see browser.execute() above. */
+				browser.alertAccept();
+			} catch( e ) {}
+
+			return ret;
+		};
 	},
 
 	/* Common WebdriverIO options */
