@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2016 Edward Chernenko.
+	Copyright (C) 2014-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,16 +23,30 @@
 class ModerationActionApprove extends ModerationAction {
 
 	public function execute() {
-		if ( $this->actionName == 'approve' ) {
-			$this->executeApproveOne();
-		} elseif ( $this->actionName == 'approveall' ) {
+		return ( $this->actionName == 'approve' ) ?
+			$this->executeApproveOne() :
 			$this->executeApproveAll();
+	}
+
+	public function outputResult( array $result, OutputPage &$out ) {
+		$out->addWikiMsg(
+			'moderation-approved-ok',
+			count( $result['approved'] )
+		);
+
+		if ( !empty( $result['failed'] ) ) {
+			$out->addWikiMsg(
+				'moderation-approved-errors',
+				count( $result['failed'] )
+			);
 		}
 	}
 
 	public function executeApproveOne() {
 		$this->approveEditById( $this->id );
-		$this->getOutput()->addWikiMsg( 'moderation-approved-ok', 1 );
+		return array(
+			'approved' => array( $this->id )
+		);
 	}
 
 	public function executeApproveAll() {
@@ -63,14 +77,14 @@ class ModerationActionApprove extends ModerationAction {
 			throw new ModerationError( 'moderation-nothing-to-approveall' );
 		}
 
-		$approved = 0;
-		$failed = 0;
+		$approved = array();
+		$failed = array();
 		foreach ( $res as $row ) {
 			try {
 				$this->approveEditById( $row->id );
-				$approved ++;
+				$approved[] = $row->id;
 			} catch ( ModerationError $e ) {
-				$failed ++;
+				$failed[] = $row->id;
 			}
 		}
 
@@ -78,16 +92,15 @@ class ModerationActionApprove extends ModerationAction {
 			$logEntry = new ManualLogEntry( 'moderation', 'approveall' );
 			$logEntry->setPerformer( $this->moderator );
 			$logEntry->setTarget( $userpage );
-			$logEntry->setParameters( array( '4::count' => $approved ) );
+			$logEntry->setParameters( array( '4::count' => count( $approved ) ) );
 			$logid = $logEntry->insert();
 			$logEntry->publish( $logid );
 		}
 
-		$out = $this->getOutput();
-		$out->addWikiMsg( 'moderation-approved-ok', $approved );
-		if ( $failed ) {
-			$out->addWikiMsg( 'moderation-approved-errors', $failed );
-		}
+		return array(
+			'approved' => $approved,
+			'failed' => $failed
+		);
 	}
 
 	function approveEditById( $id ) {

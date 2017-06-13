@@ -21,6 +21,7 @@
 */
 
 class ModerationActionMerge extends ModerationAction {
+
 	public function execute() {
 		if ( !ModerationCanSkip::canSkip( $this->moderator ) ) { // In order to merge, moderator must also be automoderated
 			throw new ModerationError( 'moderation-merge-not-automoderated' );
@@ -46,17 +47,30 @@ class ModerationActionMerge extends ModerationAction {
 			throw new ModerationError( 'moderation-merge-not-needed' );
 		}
 
-		$title = Title::makeTitle( $row->namespace, $row->title );
+		return array(
+			'id' => $this->id,
+			'namespace' => $row->namespace,
+			'title' => $row->title,
+			'text' => $row->text,
+			'summary' => wfMessage(
+				'moderation-merge-comment',
+				$row->user_text
+			)->inContentLanguage()->plain()
+		);
+	}
+
+	public function outputResult( array $result, OutputPage &$out ) {
+		$title = Title::makeTitle( $result['namespace'], $result['title'] );
 		$article = new Article( $title );
 
-		ModerationEditHooks::$NewMergeID = $this->id;
+		ModerationEditHooks::$NewMergeID = $result['id'];
 
 		$editPage = new EditPage( $article );
 
 		$editPage->isConflict = true;
 		$editPage->setContextTitle( $title );
-		$editPage->textbox1 = $row->text;
-		$editPage->summary = wfMessage( 'moderation-merge-comment', $row->user_text )->inContentLanguage()->plain();
+		$editPage->textbox1 = $result['text'];
+		$editPage->summary = $result['summary'];
 
 		$editPage->showEditForm();
 	}

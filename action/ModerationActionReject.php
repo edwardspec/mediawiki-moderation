@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2016 Edward Chernenko.
+	Copyright (C) 2014-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,11 +23,13 @@
 class ModerationActionReject extends ModerationAction {
 
 	public function execute() {
-		if ( $this->actionName == 'reject' ) {
-			$this->executeRejectOne();
-		} elseif ( $this->actionName == 'rejectall' ) {
+		return ( $this->actionName == 'reject' ) ?
+			$this->executeRejectOne() :
 			$this->executeRejectAll();
-		}
+	}
+
+	public function outputResult( array $result, OutputPage &$out ) {
+		$out->addWikiMsg( 'moderation-rejected-ok', $result['rejected-count'] );
 	}
 
 	public function executeRejectOne() {
@@ -77,22 +79,26 @@ class ModerationActionReject extends ModerationAction {
 		);
 
 		$nrows = $dbw->affectedRows();
-		$out->addWikiMsg( $nrows ? 'moderation-rejected-ok' : 'moderation-edit-not-found', $nrows );
-
-		if ( $nrows ) {
-			$title = Title::makeTitle( $row->namespace, $row->title );
-
-			$logEntry = new ManualLogEntry( 'moderation', 'reject' );
-			$logEntry->setPerformer( $this->moderator );
-			$logEntry->setTarget( $title );
-			$logEntry->setParameters( array(
-				'modid' => $this->id,
-				'user' => $row->user,
-				'user_text' => $row->user_text
-			) );
-			$logid = $logEntry->insert();
-			$logEntry->publish( $logid );
+		if ( !$nrows ) {
+			throw new ModerationError( 'moderation-edit-not-found' );
 		}
+
+		$title = Title::makeTitle( $row->namespace, $row->title );
+
+		$logEntry = new ManualLogEntry( 'moderation', 'reject' );
+		$logEntry->setPerformer( $this->moderator );
+		$logEntry->setTarget( $title );
+		$logEntry->setParameters( array(
+			'modid' => $this->id,
+			'user' => $row->user,
+			'user_text' => $row->user_text
+		) );
+		$logid = $logEntry->insert();
+		$logEntry->publish( $logid );
+
+		return array(
+			'rejected-count' => $nrows
+		);
 	}
 
 	public function executeRejectAll() {
@@ -147,6 +153,8 @@ class ModerationActionReject extends ModerationAction {
 			$logEntry->publish( $logid );
 		}
 
-		$out->addWikiMsg( 'moderation-rejected-ok', $nrows );
+		return array(
+			'rejected-count' => $nrows
+		);
 	}
 }

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2016 Edward Chernenko.
+	Copyright (C) 2014-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,14 +32,23 @@ class ModerationActionShowImage extends ModerationAction {
 		return false;
 	}
 
-	public function send404ImageNotFound() {
-		$this->getOutput()->disable(); # No HTML output
-		StreamFile::prepareForStream( null, null, null, true ); # send 404 Not Found
+	public function outputResult( array $result, OutputPage &$out ) {
+		$out->disable(); # No HTML output (image only)
+
+		if ( isset( $result['missing'] ) ) {
+			StreamFile::prepareForStream( null, null, null, true ); # send 404 Not Found
+			return;
+		}
+
+		$headers = array();
+		$headers[] = 'Content-Disposition: ' .
+			FileBackend::makeContentDisposition( 'inline', $result['thumb-filename'] );
+
+		$repo = RepoGroup::singleton()->getLocalRepo();
+		$repo->streamFile( $result['thumb-path'], $headers );
 	}
 
 	public function execute() {
-		$out = $this->getOutput();
-
 		$dbr = wfGetDB( DB_SLAVE );
 		$row = $dbr->selectRow( 'moderation',
 			array(
@@ -64,7 +73,7 @@ class ModerationActionShowImage extends ModerationAction {
 		try {
 			$file = $stash->getFile( $row->stash_key );
 		} catch ( MWException $e ) {
-			return $this->send404ImageNotFound();
+			return array( 'missing' => '' );
 		}
 
 		$isThumb = $this->getRequest()->getVal( 'thumb' );
@@ -85,7 +94,7 @@ class ModerationActionShowImage extends ModerationAction {
 		}
 
 		if ( !$file ) {
-			return $this->send404ImageNotFound();
+			return array( 'missing' => '' );
 		}
 
 		$thumbFilename = '';
@@ -94,11 +103,9 @@ class ModerationActionShowImage extends ModerationAction {
 		}
 		$thumbFilename .= $row->title;
 
-		$headers = array();
-		$headers[] = 'Content-Disposition: ' .
-			FileBackend::makeContentDisposition( 'inline', $thumbFilename );
-
-		$out->disable(); # No HTML output (image only)
-		$file->getRepo()->streamFile( $file->getPath(), $headers );
+		return array(
+			'thumb-path' => $file->getPath(),
+			'thumb-filename' => $thumbFilename
+		);
 	}
 }

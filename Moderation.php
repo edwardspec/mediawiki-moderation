@@ -36,7 +36,7 @@ $wgExtensionCredits['antispam'][] = array(
 	'url' => 'https://www.mediawiki.org/wiki/Extension:Moderation',
 	'descriptionmsg' => 'moderation-desc',
 	'license-name' => 'GPL-3.0+',
-	'version' => '1.0.33'
+	'version' => '1.0.34'
 );
 
 $wgMessagesDirs['Moderation'] = array(
@@ -56,6 +56,7 @@ $wgAutoloadClasses['ModerationApiHooks'] = __DIR__ . '/hooks/ModerationApiHooks.
 $wgAutoloadClasses['ModerationApproveHook'] = __DIR__ . '/hooks/ModerationApproveHook.php';
 $wgAutoloadClasses['ModerationPreload'] = __DIR__ . '/hooks/ModerationPreload.php';
 $wgAutoloadClasses['ModerationEditHooks'] = __DIR__ . '/hooks/ModerationEditHooks.php';
+$wgAutoloadClasses['ModerationError'] = __DIR__ . '/util/ModerationError.php';
 $wgAutoloadClasses['ModerationUploadHooks'] = __DIR__ . '/hooks/ModerationUploadHooks.php';
 $wgAutoloadClasses['ModerationUpdater'] = __DIR__ . '/hooks/ModerationUpdater.php';
 $wgAutoloadClasses['ModerationAction'] = __DIR__ . '/action/ModerationAction.php';

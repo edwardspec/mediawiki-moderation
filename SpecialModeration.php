@@ -151,9 +151,13 @@ class SpecialModeration extends QueryPage {
 		$out->preventClickjacking();
 
 		$A = ModerationAction::factory( $this->getContext() );
-		if($A) {
+		if ( $A ) {
 			// Some action was requested
-			$A->run();
+			$result = $A->run();
+
+			$out = $this->getOutput();
+			$A->outputResult( $result, $out );
+			$out->addReturnTo( SpecialPage::getTitleFor( 'Moderation' ) );
 		}
 		else {
 			$out->addModules( 'ext.moderation' );
@@ -205,11 +209,11 @@ class SpecialModeration extends QueryPage {
 			'options' => array( 'USE INDEX' => array(
 				'moderation' => $index,
 				'moderation_block' => 'moderation_block_address'
-			)),
+			) ),
 			'join_conds' => array(
 				'moderation_block' => array(
 					'LEFT JOIN',
-					array('mb_address=mod_user_text')
+					array( 'mb_address=mod_user_text' )
 				)
 			)
 		);
@@ -332,23 +336,3 @@ class SpecialModeration extends QueryPage {
 	}
 }
 
-class ModerationError extends ErrorPageError {
-	public function __construct( $message ) {
-		parent::__construct( 'moderation', $message );
-	}
-
-	/* Completely override report() from ErrorPageError
-		in order to wrap the message in <div id='mw-mod-error'></div> */
-	public function report() {
-		global $wgOut;
-
-		$msg = ( $this->msg instanceof Message ) ?
-			$this->msg : $wgOut->msg( $this->msg );
-
-		$wgOut->prepareErrorPage( $wgOut->msg( $this->title ) );
-		$wgOut->addWikiText( '<div id="mw-mod-error" class="error">' .
-			$msg->plain() . '</div>' );
-		$wgOut->addReturnTo($wgOut->getTitle());
-		$wgOut->output();
-	}
-}

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2016 Edward Chernenko.
+	Copyright (C) 2014-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,9 +30,35 @@ class ModerationActionShow extends ModerationAction {
 		return false;
 	}
 
-	public function execute() {
-		$out = $this->getOutput();
+	public function outputResult( array $result, OutputPage &$out ) {
 		$out->addModuleStyles( 'mediawiki.action.history.diff' );
+		$out->setPageTitle( wfMessage( 'difference-title', $result['title'] ) );
+
+		if ( isset ( $result['image-thumb-html'] ) ) {
+			$out->addHTML( Xml::tags( 'a', array(
+				'href' => $result['image-url'],
+			), $result['image-thumb-html'] ) );
+		}
+
+		if ( isset ( $result['diff-html'] ) ) {
+			$out->addHTML( $result['diff-html'] );
+		}
+		else {
+			$out->addWikiMsg( $result['nodiff-reason'] );
+		}
+
+		$approveLink = SpecialModeration::makeModerationLink( 'approve', $this->id );
+		$rejectLink = SpecialModeration::makeModerationLink( 'reject', $this->id );
+
+		if ( !isset( $result['is-null-edit'] ) ) {
+			$out->addHTML( $approveLink );
+			$out->addHTML( ' / ' );
+		}
+		$out->addHTML( $rejectLink );
+	}
+
+	public function execute() {
+		$result = array();
 
 		$dbr = wfGetDB( DB_SLAVE );
 		$row = $dbr->selectRow( 'moderation',
@@ -55,8 +81,6 @@ class ModerationActionShow extends ModerationAction {
 
 		$title = Title::makeTitle( $row->namespace, $row->title );
 		$model = $title->getContentModel();
-
-		$out->setPageTitle( wfMessage( 'difference-title', $title->getPrefixedText() ) );
 
 		$oldContent = false;
 		if ( $row->cur_id != 0 ) {
@@ -116,11 +140,8 @@ class ModerationActionShow extends ModerationAction {
 				$htmlImg = $title->getFullText();
 			}
 
-			$html_a = Xml::tags( 'a', array(
-				'href' => $urlFull
-			), $htmlImg );
-
-			$out->addHTML( $html_a );
+			$result['image-url'] = $urlFull;
+			$result['image-thumb-html'] = $htmlImg;
 		}
 
 		$de = ContentHandler::getForModelID( $model )->createDifferenceEngine(
@@ -138,18 +159,21 @@ class ModerationActionShow extends ModerationAction {
 
 			$headerBefore = wfMessage( 'moderation-diff-header-before' )->text();
 			$headerAfter = wfMessage( 'moderation-diff-header-after' )->text();
-			$out->addHTML( $de->addHeader( $diff, $headerBefore, $headerAfter ) );
 
-			$approveLink = SpecialModeration::makeModerationLink( 'approve', $this->id );
-			$rejectLink = SpecialModeration::makeModerationLink( 'reject', $this->id );
-
-			$out->addHTML( $approveLink );
-			$out->addHTML( ' / ' );
-			$out->addHTML( $rejectLink );
+			$result['diff-html'] = $de->addHeader( $diff, $headerBefore, $headerAfter );
 		} else {
-			$out->addWikiMsg( $row->stash_key ?
-				( $title->exists() ? 'moderation-diff-reupload' : 'moderation-diff-upload-notext' )
-				: 'moderation-diff-no-changes' );
+			if ( $row->stash_key ) {
+				$result['nodiff-reason'] = $title->exists() ?
+					'moderation-diff-reupload' :
+					'moderation-diff-upload-notext';
+			}
+			else {
+				$result['nodiff-reason'] = 'moderation-diff-no-changes';
+				$result['null-edit'] = '';
+			}
 		}
+
+		$result['title'] = $title->getPrefixedText();
+		return $result;
 	}
 }

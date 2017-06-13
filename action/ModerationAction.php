@@ -54,18 +54,16 @@ abstract class ModerationAction extends ContextSource {
 		$request = $this->getRequest();
 
 		$token = $request->getVal( 'token' );
-		$this->id = $request->getVal( 'modid' );
+		$this->id = $request->getInt( 'modid' );
 
 		if (
 			$this->requiresEditToken() &&
 			!$this->moderator->matchEditToken( $token, $this->id )
-		)
-		{
+		) {
 			throw new ErrorPageError( 'sessionfailure-title', 'sessionfailure' );
 		}
 
-		$this->execute();
-		$this->getOutput()->addReturnTo( SpecialPage::getTitleFor( 'Moderation' ) );
+		return $this->execute();
 	}
 
 	/* The following methods can be overridden in the subclass */
@@ -80,7 +78,20 @@ abstract class ModerationAction extends ContextSource {
 		return true;
 	}
 
+	/**
+		@brief Function called when the action is invoked.
+		@return Array containing API response.
+		@throws ModerationError
+	*/
+
 	abstract public function execute();
+
+	/**
+		@brief Print the result of execute() in a human-readable way.
+		@param $result Value returned by execute().
+		@param $out OutputPage object.
+	*/
+	abstract public function outputResult( array $result, OutputPage &$out );
 
 	/**
 		@brief Utility function. Get userpage of user who made this edit.

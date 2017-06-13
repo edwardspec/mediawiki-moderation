@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2016 Edward Chernenko.
+	Copyright (C) 2014-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,9 +30,16 @@ class ModerationActionPreview extends ModerationAction {
 		return false;
 	}
 
-	public function execute() {
-		$out = $this->getOutput();
+	public function outputResult( array $result, OutputPage &$out ) {
+		$out->setPageTitle( wfMessage(
+			'moderation-preview-title',
+			$result['title']
+		) );
+		$out->addHTML( $result['html'] );
+		$out->addCategoryLinks( $result['categories'] );
+	}
 
+	public function execute() {
 		$dbr = wfGetDB( DB_SLAVE );
 		$row = $dbr->selectRow( 'moderation',
 			array(
@@ -49,13 +56,16 @@ class ModerationActionPreview extends ModerationAction {
 
 		$title = Title::makeTitle( $row->namespace, $row->title );
 
-		$popts = $out->parserOptions();
+		$popts = $this->getOutput()->parserOptions();
 		$popts->setEditSection( false );
 
 		$content = ContentHandler::makeContent( $row->text, null, $title->getContentModel() );
 		$pout = $content->getParserOutput( $title, 0, $popts, true );
 
-		$out->setPageTitle( wfMessage( 'moderation-preview-title', $title->getPrefixedText() ) );
-		$out->addParserOutput( $pout );
+		return array(
+			'title' => $title->getPrefixedText(),
+			'html' => $pout->getText(),
+			'categories' => $pout->getCategories()
+		);
 	}
 }

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2016 Edward Chernenko.
+	Copyright (C) 2014-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,6 +21,19 @@
 */
 
 class ModerationActionBlock extends ModerationAction {
+
+	public function outputResult( array $result, OutputPage &$out ) {
+		/* Messages used here (for grep):
+			moderation-block-fail
+			moderation-block-ok
+			moderation-unblock-fail
+			moderation-unblock-ok
+		*/
+		$out->addWikiMsg(
+			'moderation-' . ( $result['action'] == 'unblock' ? 'un' : '' ) . 'block-' . ( $result['success'] ? 'ok' : 'fail' ),
+			$result['username']
+		);
+	}
 
 	public function execute() {
 		$out = $this->getOutput();
@@ -65,9 +78,10 @@ class ModerationActionBlock extends ModerationAction {
 			$logEntry->publish( $logid );
 		}
 
-		$out->addWikiMsg(
-			'moderation-' . ( $this->actionName == 'unblock' ? 'un' : '' ) . 'block-' . ( $nrows ? 'ok' : 'fail' ),
-			$row->user_text
+		return array(
+			'action' => $this->actionName,
+			'username' => $row->user_text,
+			'success' => ( $nrows > 0 )
 		);
 	}
 }

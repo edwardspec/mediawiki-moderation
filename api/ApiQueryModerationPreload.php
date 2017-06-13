@@ -104,7 +104,7 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 		$parsed['categorieshtml'] = $ret['parse']['categorieshtml'];
 		$parsed['displaytitle'] = $ret['parse']['displaytitle'];
 
-		foreach ( array('text', 'categorieshtml') as $compatKey ) {
+		foreach ( array( 'text', 'categorieshtml' ) as $compatKey ) {
 			/* In MediaWiki 1.23, there is a subkey '*' under these keys */
 			if ( isset( $parsed[$compatKey]['*'] ) ) {
 				$parsed[$compatKey] = $parsed[$compatKey]['*'];
