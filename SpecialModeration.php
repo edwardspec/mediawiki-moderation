@@ -46,7 +46,7 @@ class SpecialModeration extends QueryPage {
 
 		$params = array( 'modaction' => $action, 'modid' => $id );
 		if ( $action != 'show' && $action != 'preview' ) {
-			$params['token'] = $wgUser->getEditToken( $id );
+			$params['token'] = $wgUser->getEditToken();
 		}
 
 		return Linker::link(
@@ -150,21 +150,28 @@ class SpecialModeration extends QueryPage {
 		$out = $this->getOutput();
 		$out->preventClickjacking();
 
-		$A = ModerationAction::factory( $this->getContext() );
-		if ( $A ) {
-			// Some action was requested
-			$result = $A->run();
-
-			$out = $this->getOutput();
-			$A->outputResult( $result, $out );
-			$out->addReturnTo( SpecialPage::getTitleFor( 'Moderation' ) );
-		}
-		else {
+		if ( !$this->getRequest()->getVal( 'modaction' ) ) {
+			/* Show the list of pending edits */
 			$out->addModules( 'ext.moderation' );
 			$out->addWikiMsg( 'moderation-text' );
 
-			return parent::execute( '' ); # '' suppresses warning in QueryPage.php
+			return parent::execute( $unused );
 		}
+
+		/* Some action was requested */
+		$A = ModerationAction::factory( $this->getContext() );
+		if ( $A->requiresEditToken() ) {
+			$token = $this->getRequest()->getVal( 'token' );
+			if ( !$this->getUser()->matchEditToken( $token ) ) {
+				throw new ErrorPageError( 'sessionfailure-title', 'sessionfailure' );
+			}
+		}
+
+		$result = $A->run();
+
+		$out = $this->getOutput();
+		$A->outputResult( $result, $out );
+		$out->addReturnTo( SpecialPage::getTitleFor( 'Moderation' ) );
 	}
 
 	function getOrderFields() {

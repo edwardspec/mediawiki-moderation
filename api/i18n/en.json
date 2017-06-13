@@ -5,6 +5,9 @@
 		]
 	},
 
+	"apihelp-moderation-approve-example": "Approve pending change #123.",
+	"apihelp-moderation-param-modaction": "Moderation-related action to perform.",
+	"apihelp-moderation-param-modid": "ID of the pending change.",
 	"apihelp-query+moderationpreload-description": "If the current user made an edit which is currently awaiting moderation, retrieve the text of this revision.",
 	"apihelp-query+moderationpreload-param-mode": "Expected format, either wikitext or parsed HTML.",
 	"apihelp-query+moderationpreload-param-title": "Title of the page. Cannot be used together with <var>$1pageid</var>.",

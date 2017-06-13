@@ -27,10 +27,14 @@ abstract class ModerationAction extends ContextSource {
 	public $moderator;
 
 	protected function __construct( IContextSource $context ) {
+
 		$this->setContext( $context );
 
 		$this->moderator = $this->getUser();
-		$this->actionName = $this->getRequest()->getVal( 'modaction' );
+
+		$request = $this->getRequest();
+		$this->actionName = $request->getVal( 'modaction' );
+		$this->id = $request->getInt( 'modid' );
 	}
 
 	final public function run() {
@@ -49,18 +53,6 @@ abstract class ModerationAction extends ContextSource {
 				$trxProfiler->resetExpectations();
 				$trxProfiler->setExpectations( $trxLimits['POST'], __METHOD__ );
 			}
-		}
-
-		$request = $this->getRequest();
-
-		$token = $request->getVal( 'token' );
-		$this->id = $request->getInt( 'modid' );
-
-		if (
-			$this->requiresEditToken() &&
-			!$this->moderator->matchEditToken( $token, $this->id )
-		) {
-			throw new ErrorPageError( 'sessionfailure-title', 'sessionfailure' );
 		}
 
 		return $this->execute();
@@ -110,10 +102,6 @@ abstract class ModerationAction extends ContextSource {
 	public static function factory( IContextSource $context )
 	{
 		$action = $context->getRequest()->getVal( 'modaction' );
-		if ( !$action ) {
-			return false;
-		}
-
 		switch ( $action ) {
 			case 'showimg':
 				return new ModerationActionShowImage( $context );
