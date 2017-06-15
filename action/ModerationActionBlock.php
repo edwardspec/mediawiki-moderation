@@ -36,8 +36,6 @@ class ModerationActionBlock extends ModerationAction {
 	}
 
 	public function execute() {
-		$out = $this->getOutput();
-
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
 			array(

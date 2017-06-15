@@ -33,8 +33,6 @@ class ModerationActionReject extends ModerationAction {
 	}
 
 	public function executeRejectOne() {
-		$out = $this->getOutput();
-
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
 			array(
@@ -102,8 +100,6 @@ class ModerationActionReject extends ModerationAction {
 	}
 
 	public function executeRejectAll() {
-		$out = $this->getOutput();
-
 		$userpage = $this->getUserpageOfPerformer();
 		if ( !$userpage ) {
 			throw new ModerationError( 'moderation-edit-not-found' );
