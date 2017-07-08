@@ -71,7 +71,7 @@
 	"moderation-preview-title": "Revision of \"$1\" awaiting moderation",
 	"moderation-show": "diff",
 	"moderation-suggest-signup": "To skip moderation in the future, please [[Special:CreateAccount|sign up]].",
-	"moderation-text": "This special page lists all edits which await moderation (approval or rejection).",
+	"moderation-text": "This special page lists all edits which await moderation (approval or rejection).<br>See also: [[Special:Log/moderation|moderation log]].",
 	"moderation-unblock-fail": "Couldn't find [[Special:Contributions/$1|$1]] in spammers list. Probably already removed.",
 	"moderation-unblock": "No longer a spammer",
 	"moderation-unblock-ok": "User [[Special:Contributions/$1|$1]] is no longer considered a spammer.",

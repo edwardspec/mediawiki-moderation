@@ -71,7 +71,7 @@
 	"moderation-preview-title": "$1 — версия, ожидающая модерации",
 	"moderation-show": "разн.",
 	"moderation-suggest-signup": "Чтобы пропускать модерацию в будущем, [[Special:CreateAccount|зарегистрируйтесь]], пожалуйста.",
-	"moderation-text": "На этой странице перечислены все правки, которые ожидают модерации (допуска или отклонения).",
+	"moderation-text": "На этой странице перечислены все правки, которые ожидают модерации (допуска или отклонения).<br>См. также: [[Special:Log/moderation|журнал модерации]].",
 	"moderation-unblock-fail": "Пользователя [[Special:Contributions/$1|$1]] нет в списке спамеров. Возможно, он уже исключён из списка.",
 	"moderation-unblock": "Более не спамер",
 	"moderation-unblock-ok": "Пользователь [[Special:Contributions/$1|$1]] исключён из списка спамеров.",
