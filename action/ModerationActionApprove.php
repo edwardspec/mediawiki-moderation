@@ -82,9 +82,13 @@ class ModerationActionApprove extends ModerationAction {
 		foreach ( $res as $row ) {
 			try {
 				$this->approveEditById( $row->id );
-				$approved[] = $row->id;
+				$approved[$row->id] = '';
 			} catch ( ModerationError $e ) {
-				$failed[] = $row->id;
+				$msg = $e->status->getMessage();
+				$failed[$row->id] = array(
+					'code' => $msg->getKey(),
+					'info' => $msg->plain()
+				);
 			}
 		}
 

@@ -140,6 +140,8 @@ class SpecialModeration extends QueryPage {
 	}
 
 	function execute( $unused ) {
+		global $wgModerationUseAjax;
+
 		if ( !$this->getUser()->isAllowed( 'moderation' ) ) {
 			$this->displayRestrictionError();
 			return;
@@ -152,8 +154,12 @@ class SpecialModeration extends QueryPage {
 
 		if ( !$this->getRequest()->getVal( 'modaction' ) ) {
 			/* Show the list of pending edits */
-			$out->addModules( 'ext.moderation' );
+			$out->addModules( 'ext.moderation.special' );
 			$out->addWikiMsg( 'moderation-text' );
+
+			if ( $wgModerationUseAjax ) {
+				$out->addModules( 'ext.moderation.special.ajax' );
+			}
 
 			return parent::execute( $unused );
 		}

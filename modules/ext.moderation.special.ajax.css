@@ -1,0 +1,31 @@
+.modline-done {  /* Ajax action completed */
+	text-decoration: line-through;
+}
+
+/* An icon to display the result of Ajax action */
+.modstatus {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	vertical-align: middle;
+}
+
+.modstatus-untouched {
+	background-image: url( 'images/untouched16x16.png' );
+}
+
+.modstatus-processing {
+	background-image: url( 'images/processing16x16.png' );
+}
+
+.modstatus-approved {
+	background-image: url( 'images/approved16x16.png' );
+}
+
+.modstatus-rejected {
+	background-image: url( 'images/rejected16x16.png' );
+}
+
+.modstatus-error {
+	background-image: url( 'images/error16x16.png' );
+}

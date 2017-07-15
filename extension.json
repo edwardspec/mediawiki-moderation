@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.0.37",
+	"version": "1.0.38",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -79,9 +79,18 @@
 		"ModerationActionPreview": "action/ModerationActionPreview.php"
 	},
 	"ResourceModules": {
-		"ext.moderation": {
+		"ext.moderation.special": {
 			"position": "bottom",
-			"styles": "ext.moderation.css"
+			"styles": "ext.moderation.special.css"
+		},
+		"ext.moderation.special.ajax": {
+			"position": "bottom",
+			"scripts": "ext.moderation.special.ajax.js",
+			"styles": "ext.moderation.special.ajax.css",
+			"dependencies": [
+				"mediawiki.api",
+				"mediawiki.Uri"
+			]
 		},
 		"ext.moderation.edit": {
 			"position": "bottom",
@@ -222,7 +231,8 @@
 		"ModerationEmail": "",
 		"ModerationSupportVisualEditor": "guess",
 		"ModerationSupportMobileFrontend": "guess",
-		"ModerationForceAjaxHook": false
+		"ModerationForceAjaxHook": false,
+		"ModerationUseAjax": false
 	},
 	"manifest_version": 1
 }

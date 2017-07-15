@@ -36,7 +36,7 @@ $wgExtensionCredits['antispam'][] = array(
 	'url' => 'https://www.mediawiki.org/wiki/Extension:Moderation',
 	'descriptionmsg' => 'moderation-desc',
 	'license-name' => 'GPL-3.0+',
-	'version' => '1.0.37'
+	'version' => '1.0.38'
 );
 
 $wgMessagesDirs['Moderation'] = array(
@@ -93,7 +93,17 @@ $moduleTemplate = array(
 	'remoteExtPath' => 'Moderation/modules',
 	'position' => 'bottom'
 );
-$wgResourceModules['ext.moderation'] = $moduleTemplate + array( 'styles' => 'ext.moderation.css' );
+$wgResourceModules['ext.moderation.special'] = $moduleTemplate + array(
+	'styles' => 'ext.moderation.special.css'
+);
+$wgResourceModules['ext.moderation.special.ajax'] = $moduleTemplate + array(
+	'scripts' => 'ext.moderation.special.ajax.js',
+	'styles' => 'ext.moderation.special.ajax.css',
+	'dependencies' => array(
+		'mediawiki.api',
+		'mediawiki.Uri'
+	)
+);
 $wgResourceModules['ext.moderation.edit'] = $moduleTemplate + array(
 	'styles' => 'ext.moderation.edit.css'
 );
@@ -191,3 +201,5 @@ $wgModerationEmail = $wgEmergencyContact;
 $wgModerationSupportVisualEditor = "guess"; /* Auto-detect */
 $wgModerationSupportMobileFrontend = "guess"; /* Auto-detect */
 $wgModerationForceAjaxHook = false; /* Set to true if some unknown-to-us extension has an API-based JavaScript editor */
+
+$wgModerationUseAjax = false; /* Experimental: Ajax handling of links on Special:Moderation */
