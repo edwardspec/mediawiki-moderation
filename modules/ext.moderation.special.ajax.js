@@ -23,12 +23,10 @@
 	}
 
 	function getRowsWithSameUser( $row ) {
+		var $rows = getRowsByData( 'user', $row.data( 'user' ) )
 
-		/* FIXME: ignore rows with 'approved' or 'rejected' status,
-			because they are not affected by ApproveAll/RejectAll.
-		*/
-
-		return getRowsByData( 'user', $row.data( 'user' ) );
+		/* Approved/rejected rows are not affected by ApproveAll/RejectAll */
+		return $rows.not( '.modstatus-approved,.modstatus-rejected' );
 	}
 
 	/**
@@ -45,10 +43,10 @@
 		$row.data( {
 			user: username,
 			modid: modid
-		} )
+		} );
 
-		/* Prepare status icon */
-		$row.prepend( $( '<span/>' ).addClass( 'modstatus' ) );
+		$row.addClass( 'modstatus-untouched' )
+			.prepend( $( '<span/>' ).addClass( 'modicon' ) );
 	}
 
 	/**
@@ -57,14 +55,37 @@
 		@param tooltip Text shown when hovering over the icon.
 	*/
 	function setRowsStatus( $rows, type, tooltip ) {
-		$rows.find( '.modstatus' )
-			.attr( 'class', 'modstatus modstatus-' + type )
-			.attr( 'title', tooltip );
+		$rows.attr( 'class', 'modline modstatus-' + type )
+		$rows.find( '.modicon' ).attr( 'title', tooltip );
+	}
 
-		if ( type != 'untouched' && type != 'processing' && type != 'error' ) {
-			$rows.addClass( 'modline-done' );
+	/**
+		@brief Enable/disable action links in $rows.
+		@param shouldBeEnabled If true, links will be enabled. If false, they will be disabled.
+		@param actions Array, e.g. [ 'approve', 'reject' ]. If contains 'ALL', all links are affected.
+	*/
+	function toggleLinks( $rows, shouldBeEnabled, actions ) {
+		if ( !actions.length ) {
+			return; /* Nothing to do */
+		}
+
+		var $links = $rows.find( 'a[data-modaction]' );
+
+		if ( actions[0] !== 'ALL' ) {
+			$links = $links.filter( function( idx, linkElem ) {
+				var action = $( linkElem ).attr( 'data-modaction' );
+				return ( actions.indexOf( action ) != -1 );
+			} );
+		}
+
+		if ( shouldBeEnabled ) {
+			$links.removeClass( 'modlink-disabled' );
+		}
+		else {
+			$links.addClass( 'modlink-disabled' );
 		}
 	}
+
 
 	/**
 		@brief Mark the edit as rejected. Called if Reject(all) returned success.
@@ -110,6 +131,9 @@
 						'error',
 						ret.moderation.failed[modid].info
 					);
+
+					/* TODO: re-enable action links (with toggleLinks),
+						unless they were disabled before */
 				}
 
 				for ( modid in ret.moderation.approved ) {
@@ -129,13 +153,19 @@
 	function runModaction( ev ) {
 		ev.preventDefault();
 
+		var $link = $( this );
+		if ( $link.hasClass( 'modlink-disabled' ) ) {
+			return; /* Action is no longer possible, e.g. "Reject" on already approved row */
+		}
+
 		var $row = $( this ).parent( '.modline' );
 
-		/* Translate the URI (e.g. modaction=approve&modid=123) into the API parameters */
-		var q = new mw.Uri( this.href ).query;
-		q.action = 'moderation';
-		delete q.title;
-		delete q.token;
+		/* Prepare API parameters */
+		var q = {
+			action: 'moderation',
+			modaction: $link.attr( 'data-modaction' ),
+			modid: $row.data( 'modid' )
+		};
 
 		var $affectedRows = $row; /* Rows that need "processing" icon */
 		if ( q.modaction == 'approveall' || q.modaction == 'rejectall' ) {
@@ -144,11 +174,45 @@
 
 		setRowsStatus( $affectedRows, 'processing', '...' );
 
+		/* Disable action links that will no longer be applicable after this action.
+			For example, after the row is approved, it can no longer be rejected. */
+
+		var disabledActions = [];
+		switch ( q.modaction ) {
+			case 'approve':
+			case 'approveall':
+				/* Approval completely deletes the row from Special:Moderation,
+					all actions (even "diff") won't be applicable */
+				disabledActions = [ 'ALL' ];
+				break;
+
+			case 'reject':
+			case 'rejectall':
+				/* Rejected edit can still be approved, but not via "Approve all" */
+				disabledActions = [
+					'reject',
+					'rejectall',
+					'approveall'
+				];
+				break;
+		}
+
+		toggleLinks( $affectedRows, false, disabledActions );
+
 		api.postWithToken( 'edit', q )
 			.done( function( ret ) {
 				handleSuccess( $row, q, ret );
 			} )
 			.fail( function( code, ret ) {
+
+				/* TODO: re-enable disabledActions (with toggleLinks),
+					unless they were disabled before.
+					For example:
+					1. you clicked Reject, this succeeded.
+					2. you clicked Approve, this failed,
+					3. "Approve" link should be re-enabled, but "Reject" shouldn't.
+				*/
+
 				console.log( 'Moderation: ajax error: ', JSON.stringify( ret ) );
 				setRowsStatus( $affectedRows, 'error', ret.error.info );
 			} );
@@ -156,8 +220,13 @@
 
 	/* Scan rows on Special:Moderation, install Ajax handlers */
 	$allRows.each( prepareRow )
-		.find( 'a[href*="modaction"]' ).click( runModaction );
-
-	setRowsStatus( $allRows, 'untouched', '' );
+		.find( 'a[href*="modaction"]' )
+			.each( function( idx, linkElem ) {
+				/* Extract modaction from href */
+				$( linkElem ).attr( 'data-modaction',
+					new mw.Uri( linkElem.href ).query.modaction
+				);
+			} )
+			.click( runModaction );
 
 }( mediaWiki, jQuery ) );
