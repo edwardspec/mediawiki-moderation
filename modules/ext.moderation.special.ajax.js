@@ -78,12 +78,64 @@
 			} );
 		}
 
-		if ( shouldBeEnabled ) {
-			$links.removeClass( 'modlink-disabled' );
+		/*
+			We maintain a counter of how many times was the link disabled.
+			If the link was first disabled by a successful action (e.g. Reject),
+			and then another action (e.g. Accept) resulted in an error,
+			we shouldn't re-enable the links which were disabled by the first action.
+		*/
+		$links.each( function( idx, linkElem ) {
+			var $link = $( linkElem ),
+				cnt = $link.data( 'disabled-count' );
+
+			if ( !cnt ) {
+				cnt = 0;
+			}
+
+			if ( shouldBeEnabled ) {
+				if ( cnt > 0 ) {
+					cnt --;
+				}
+
+				if ( cnt == 0 ) {
+					$link.removeClass( 'modlink-disabled' );
+				}
+			}
+			else {
+				cnt ++;
+				$link.addClass( 'modlink-disabled' );
+			}
+
+			$link.data( 'disabled-count', cnt );
+		} );
+	}
+
+	/**
+		@brief Determine which links should be disabled by successful action.
+		@param action Action name, e.g. 'approve' or 'reject'.
+	*/
+	function getDisabledActions( action ) {
+		var disabledActions = [];
+		switch ( action ) {
+			case 'approve':
+			case 'approveall':
+				/* Approval completely deletes the row from Special:Moderation,
+					all actions (even "diff") won't be applicable */
+				disabledActions = [ 'ALL' ];
+				break;
+
+			case 'reject':
+			case 'rejectall':
+				/* Rejected edit can still be approved, but not via "Approve all" */
+				disabledActions = [
+					'reject',
+					'rejectall',
+					'approveall'
+				];
+				break;
 		}
-		else {
-			$links.addClass( 'modlink-disabled' );
-		}
+
+		return disabledActions;
 	}
 
 
@@ -101,6 +153,16 @@
 	*/
 	function markApproved( $rows ) {
 		setRowsStatus( $rows, 'approved', '' ); /* TODO: add tooltip */
+	}
+
+	/**
+		@brief Mark the row as unsuccessfully modified.
+	*/
+	function markError( $rows, errorText, action ) {
+		setRowsStatus( $rows, 'error', errorText );
+
+		/* Re-enable disabledActions, unless they were disabled before. */
+		toggleLinks( $rows, true, getDisabledActions( action ) );
 	}
 
 	/**
@@ -126,14 +188,11 @@
 			case 'approveall':
 				var modid;
 				for ( modid in ret.moderation.failed ) {
-					setRowsStatus(
+					markError(
 						getRowById( modid ),
-						'error',
-						ret.moderation.failed[modid].info
+						ret.moderation.failed[modid].info,
+						'approveall'
 					);
-
-					/* TODO: re-enable action links (with toggleLinks),
-						unless they were disabled before */
 				}
 
 				for ( modid in ret.moderation.approved ) {
@@ -176,45 +235,15 @@
 
 		/* Disable action links that will no longer be applicable after this action.
 			For example, after the row is approved, it can no longer be rejected. */
-
-		var disabledActions = [];
-		switch ( q.modaction ) {
-			case 'approve':
-			case 'approveall':
-				/* Approval completely deletes the row from Special:Moderation,
-					all actions (even "diff") won't be applicable */
-				disabledActions = [ 'ALL' ];
-				break;
-
-			case 'reject':
-			case 'rejectall':
-				/* Rejected edit can still be approved, but not via "Approve all" */
-				disabledActions = [
-					'reject',
-					'rejectall',
-					'approveall'
-				];
-				break;
-		}
-
-		toggleLinks( $affectedRows, false, disabledActions );
+		toggleLinks( $affectedRows, false, getDisabledActions( q.modaction ) );
 
 		api.postWithToken( 'edit', q )
 			.done( function( ret ) {
 				handleSuccess( $row, q, ret );
 			} )
 			.fail( function( code, ret ) {
-
-				/* TODO: re-enable disabledActions (with toggleLinks),
-					unless they were disabled before.
-					For example:
-					1. you clicked Reject, this succeeded.
-					2. you clicked Approve, this failed,
-					3. "Approve" link should be re-enabled, but "Reject" shouldn't.
-				*/
-
 				console.log( 'Moderation: ajax error: ', JSON.stringify( ret ) );
-				setRowsStatus( $affectedRows, 'error', ret.error.info );
+				markError( $affectedRows, ret.error.info, q.modaction );
 			} );
 	}
 
