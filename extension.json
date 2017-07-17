@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.0.38",
+	"version": "1.0.39",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -90,6 +90,10 @@
 			"dependencies": [
 				"mediawiki.api",
 				"mediawiki.Uri"
+			],
+			"messages": [
+				"moderation-block",
+				"moderation-unblock"
 			]
 		},
 		"ext.moderation.edit": {

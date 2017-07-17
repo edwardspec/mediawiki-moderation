@@ -23,10 +23,7 @@
 	}
 
 	function getRowsWithSameUser( $row ) {
-		var $rows = getRowsByData( 'user', $row.data( 'user' ) )
-
-		/* Approved/rejected rows are not affected by ApproveAll/RejectAll */
-		return $rows.not( '.modstatus-approved,.modstatus-rejected' );
+		return getRowsByData( 'user', $row.data( 'user' ) );
 	}
 
 	/**
@@ -60,13 +57,12 @@
 	}
 
 	/**
-		@brief Enable/disable action links in $rows.
-		@param shouldBeEnabled If true, links will be enabled. If false, they will be disabled.
-		@param actions Array, e.g. [ 'approve', 'reject' ]. If contains 'ALL', all links are affected.
+		@brief Find action links in $rows.
+		@param actions Array, e.g. [ 'approve', 'reject' ]. If contains 'ALL', all links are selected.
 	*/
-	function toggleLinks( $rows, shouldBeEnabled, actions ) {
+	function findLinks( $rows, actions ) {
 		if ( !actions.length ) {
-			return; /* Nothing to do */
+			return $([]); /* Empty jQuery collection */
 		}
 
 		var $links = $rows.find( 'a[data-modaction]' );
@@ -77,6 +73,17 @@
 				return ( actions.indexOf( action ) != -1 );
 			} );
 		}
+
+		return $links;
+	}
+
+	/**
+		@brief Enable/disable action links in $rows.
+		@param shouldBeEnabled If true, links will be enabled. If false, they will be disabled.
+		@param actions Array, e.g. [ 'approve', 'reject' ]. If contains 'ALL', all links are affected.
+	*/
+	function toggleLinks( $rows, shouldBeEnabled, actions ) {
+		var $links = findLinks( $rows, actions );
 
 		/*
 			We maintain a counter of how many times was the link disabled.
@@ -167,22 +174,19 @@
 
 	/**
 		@brief Update Special:Moderation after a successful Ajax call.
-		@param $row The .modline element where we clicked on the action link (e.g. Reject).
+		@param $rows The .modline elements affected by this action.
 		@param q Query, e.g. { modid: 123, modaction: 'reject' }
 		@param ret Parsed JSON response, as returned by the API.
 	*/
-	function handleSuccess( $row, q, ret ) {
+	function handleSuccess( $rows, q, ret ) {
 		switch ( q.modaction ) {
 			case 'reject':
-				markRejected( $row );
-				break;
-
 			case 'rejectall':
-				markRejected( getRowsWithSameUser( $row ) );
+				markRejected( $rows );
 				break;
 
 			case 'approve':
-				markApproved( $row );
+				markApproved( $rows );
 				break;
 
 			case 'approveall':
@@ -199,6 +203,23 @@
 					markApproved( getRowById( modid ) );
 				}
 
+				break;
+
+			case 'block':
+			case 'unblock':
+				/* Replace 'block' link with 'unblock' link, and vise versa */
+				var newAction = ( q.modaction == 'block' ? 'unblock' : 'block' );
+
+				var $links = findLinks( $rows, [ 'block', 'unblock' ] );
+				$links.attr( 'data-modaction', newAction ).each( function( idx, linkElem ) {
+					linkElem.href = linkElem.href.replace( q.modaction, newAction );
+				} );
+
+				/* Messages used here (for grep):
+					moderation-block
+					moderation-unblock
+				*/
+				$links.text( mw.msg( 'moderation-' + newAction ) );
 				break;
 
 			default:
@@ -233,11 +254,18 @@
 		};
 
 		var $affectedRows = $row; /* Rows that need "processing" icon */
-		if ( action == 'approveall' || action == 'rejectall' ) {
+		if ( action == 'approveall' || action == 'rejectall' || action == 'block' || action == 'unblock' ) {
 			$affectedRows = getRowsWithSameUser( $row );
+
+			if ( action == 'approveall' || action == 'rejectall' ) {
+				/* Approved/rejected rows are not affected by ApproveAll/RejectAll */
+				$affectedRows = $affectedRows.not( '.modstatus-approved,.modstatus-rejected' );
+			}
 		}
 
-		setRowsStatus( $affectedRows, 'processing', '...' );
+		if ( action != 'block' && action != 'unblock' ) {
+			setRowsStatus( $affectedRows, 'processing', '...' );
+		}
 
 		/* Disable action links that will no longer be applicable after this action.
 			For example, after the row is approved, it can no longer be rejected. */
@@ -245,7 +273,7 @@
 
 		api.postWithToken( 'edit', q )
 			.done( function( ret ) {
-				handleSuccess( $row, q, ret );
+				handleSuccess( $affectedRows, q, ret );
 			} )
 			.fail( function( code, ret ) {
 				console.log( 'Moderation: ajax error: ', JSON.stringify( ret ) );

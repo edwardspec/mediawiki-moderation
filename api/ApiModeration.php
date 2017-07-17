@@ -60,7 +60,8 @@ class ApiModeration extends ApiBase {
 					'reject',
 					'rejectall',
 					'block',
-					'show',
+					'unblock',
+					// 'show'
 					// 'showimg',
 					// 'merge'
 				),
