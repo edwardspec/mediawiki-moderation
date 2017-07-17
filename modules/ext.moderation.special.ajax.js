@@ -210,24 +210,30 @@
 		@brief Handle the click on modaction link (e.g. "Reject").
 	*/
 	function runModaction( ev ) {
-		ev.preventDefault();
-
 		var $link = $( this );
 		if ( $link.hasClass( 'modlink-disabled' ) ) {
+			ev.preventDefault();
 			return; /* Action is no longer possible, e.g. "Reject" on already approved row */
 		}
+
+		var action = $link.attr( 'data-modaction' );
+		if ( action == 'show' || action == 'merge' ) {
+			return; /* Non-Ajax action */
+		}
+
+		ev.preventDefault();
 
 		var $row = $( this ).parent( '.modline' );
 
 		/* Prepare API parameters */
 		var q = {
 			action: 'moderation',
-			modaction: $link.attr( 'data-modaction' ),
+			modaction: action,
 			modid: $row.data( 'modid' )
 		};
 
 		var $affectedRows = $row; /* Rows that need "processing" icon */
-		if ( q.modaction == 'approveall' || q.modaction == 'rejectall' ) {
+		if ( action == 'approveall' || action == 'rejectall' ) {
 			$affectedRows = getRowsWithSameUser( $row );
 		}
 
@@ -235,7 +241,7 @@
 
 		/* Disable action links that will no longer be applicable after this action.
 			For example, after the row is approved, it can no longer be rejected. */
-		toggleLinks( $affectedRows, false, getDisabledActions( q.modaction ) );
+		toggleLinks( $affectedRows, false, getDisabledActions( action ) );
 
 		api.postWithToken( 'edit', q )
 			.done( function( ret ) {
@@ -243,7 +249,7 @@
 			} )
 			.fail( function( code, ret ) {
 				console.log( 'Moderation: ajax error: ', JSON.stringify( ret ) );
-				markError( $affectedRows, ret.error.info, q.modaction );
+				markError( $affectedRows, ret.error.info, action );
 			} );
 	}
 
