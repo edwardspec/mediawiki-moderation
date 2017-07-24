@@ -86,35 +86,18 @@
 		var $links = findLinks( $rows, actions );
 
 		/*
-			We maintain a counter of how many times was the link disabled.
-			If the link was first disabled by a successful action (e.g. Reject),
-			and then another action (e.g. Accept) resulted in an error,
-			we shouldn't re-enable the links which were disabled by the first action.
+			Don't re-enable links that were disabled by successful action.
+			For example, if Reject succeeded and then Approve resulted in an error,
+			we should re-enable Approve link, but not Reject link.
 		*/
-		$links.each( function( idx, linkElem ) {
-			var $link = $( linkElem ),
-				cnt = $link.data( 'disabled-count' );
+		$links = $links.not( '.modlink-not-applicable' );
 
-			if ( !cnt ) {
-				cnt = 0;
-			}
-
-			if ( shouldBeEnabled ) {
-				if ( cnt > 0 ) {
-					cnt --;
-				}
-
-				if ( cnt == 0 ) {
-					$link.removeClass( 'modlink-disabled' );
-				}
-			}
-			else {
-				cnt ++;
-				$link.addClass( 'modlink-disabled' );
-			}
-
-			$link.data( 'disabled-count', cnt );
-		} );
+		if ( shouldBeEnabled ) {
+			$links.removeClass( 'modlink-disabled' );
+		}
+		else {
+			$links.addClass( 'modlink-disabled' );
+		}
 	}
 
 	/**
@@ -225,6 +208,11 @@
 			default:
 				console.log( 'Post-Ajax handler: not implemented for modaction="' + q.modaction + '"' );
 		}
+
+		/* Mark disabled links as permanently disabled (unaffected by toggleLinks).
+			E.g. Reject is no longer applicable if Approve was successful.
+		*/
+		$rows.find( 'a.modlink-disabled' ).addClass( 'modlink-not-applicable' );
 	}
 
 	/**
