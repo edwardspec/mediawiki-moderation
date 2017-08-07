@@ -158,6 +158,19 @@ class ModerationActionApprove extends ModerationAction {
 			User::newFromId( $row->user ) :
 			User::newFromName( $row->user_text, false );
 
+		if ( defined( 'User::READ_LATEST' ) ) { /* 1.23 doesn't support it */
+			/* User could have been recently renamed or deleted.
+				Make sure we have the correct data. */
+			$user->load( User::READ_LATEST );
+		}
+
+		$displayName = $user->getName();
+		if ( $user->getId() == 0 && $row->user != 0 ) {
+			/* User was deleted,
+				e.g. via [maintenance/removeUnusedAccounts.php] */
+			$displayName = $row->user_text;
+		}
+
 		$flags = EDIT_DEFER_UPDATES | EDIT_AUTOSUMMARY;
 		if ( $row->bot && $user->isAllowed( 'bot' ) ) {
 			$flags |= EDIT_FORCE_BOT;
@@ -187,7 +200,7 @@ class ModerationActionApprove extends ModerationAction {
 				# performUpload() mistakenly tags image reuploads as made by moderator (rather than $user).
 				# Let's fix this here.
 				'rev_user' => $user->getId(),
-				'rev_user_text' => $user->getName()
+				'rev_user_text' => $displayName
 			)
 		) );
 

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015 Edward Chernenko.
+	Copyright (C) 2015-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -365,6 +365,31 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 		$this->assertLessThan( $ACCEPTABLE_DIFFERENCE, abs( $expected - $actual ),
 			"testApproveTimestamp(): timestamp of approved edit in RecentChanges is too different from the time of approval" );
+	}
+
+	/**
+		@brief Test that approval still works if author of edit was deleted
+		(e.g. via [maintenance/removeUnusedAccounts.php]).
+	*/
+	public function testApproveDeletedUser() {
+		$t = new ModerationTestsuite();
+
+		$t->loginAs( $t->unprivilegedUser );
+		$t->doTestEdit();
+
+		# Delete the author
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->delete( 'user', array(
+			'user_id' => $t->unprivilegedUser->getId()
+		), __METHOD__ );
+
+		$t->fetchSpecial();
+
+		$entry = $t->new_entries[0];
+		$this->assertNotNull( $entry->approveLink,
+			"testApproveDeletedUser(): Approve link not found" );
+
+		$rev = $this->tryToApprove( $t, $entry, __FUNCTION__ );
 	}
 
 	private function tryToApprove( $t, $entry, $caller )
