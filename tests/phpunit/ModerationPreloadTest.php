@@ -161,7 +161,7 @@ class ModerationTestPreload extends MediaWikiTestCase
 			$t->html->getPreloadedText( $t->lastEdit['Title'] ),
 			"$caller(): Preloaded text differs from what the user saved before" );
 
-		$elem = $t->html->getElementById( 'wpSummary' );
+		$elem = $t->html->getElementByXPath( '//input[@name="wpSummary"]' );
 		$this->assertEquals( $t->lastEdit['Summary'], $elem->getAttribute( 'value' ),
 			"$caller(): Preloaded summary doesn't match"
 		);

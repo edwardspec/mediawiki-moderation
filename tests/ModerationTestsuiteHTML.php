@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2016 Edward Chernenko.
+	Copyright (C) 2015-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -105,6 +105,17 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 		return trim( $elem->textContent );
 	}
+
+	/**
+		@brief Find the DOM element by XPath selector.
+		E.g. $t->html->getElementsByXPath( '//row[@name="wpSummary"]' )
+		@returns DOMElement
+	*/
+	public function getElementByXPath( $selector ) {
+		$xpath = new DomXpath( $this );
+		return $xpath->query( $selector )->item( 0 );
+	}
+
 
 	/**
 		@brief Fetch the edit form and return the text in #wpTextbox1.
