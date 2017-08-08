@@ -90,8 +90,15 @@
 	function rewriteAjaxResponse( query, ret ) {
 
 		/* Check whether we need to overwrite this AJAX response or not */
-		if ( ret.error && ret.error.info.indexOf( 'moderation-edit-queued' ) != -1 ) {
+		if ( !ret.error ) {
+			return false; /* Nothing to overwrite */
+		}
 
+		if (
+			ret.error.code == 'moderation-edit-queued' /* MW 1.29+ */
+			||
+			ret.error.info.indexOf( 'moderation-edit-queued' ) != -1 /* MW 1.28 and older */
+		) {
 			/* Set cookie for [ext.moderation.notify.js].
 				It means "edit was just queued for moderation".
 			*/

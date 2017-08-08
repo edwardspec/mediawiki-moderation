@@ -5,15 +5,16 @@
 ( function ( mw, $ ) {
 	'use strict';
 
-	var M = mw.mobileFrontend,
+	var isMobile = ( mw.config.get( 'skin' ) == 'minerva' ),
 		containerSel = '.postedit-container, .mw-notification-tag-modqueued';
 
 	mw.moderation = mw.moderation || {};
 
 	/* Display mobile/desktop version */
 	function show( $div ) {
+
 		var $d = $.Deferred(),
-			module = ( M ? 'ext.moderation.mf' : 'ext.moderation.notify.desktop' );
+			module = ( isMobile ? 'ext.moderation.mf' : 'ext.moderation.notify.desktop' );
 
 		mw.loader.using( module, function() {
 			mw.moderation.notifyCb( $div );
@@ -26,7 +27,7 @@
 	/* Get edit URL of the current page */
 	function getEditUrl() {
 		var q = {};
-		if ( !M && $.cookie( 'VEE' ) === 'visualeditor' ) {
+		if ( !isMobile && $.cookie( 'VEE' ) === 'visualeditor' ) {
 			q.veaction = 'edit';
 		}
 		else {
