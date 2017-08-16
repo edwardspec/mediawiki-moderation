@@ -264,9 +264,7 @@ class SpecialModeration extends QueryPage {
 		$line .= Linker::link( $title );
 		$line .= ' ';
 
-		$time = $this->getLanguage()->userTime( $result->timestamp, $this->getUser() );
-		$date = $this->getLanguage()->userDate( $result->timestamp, $this->getUser() );
-		$line .= Xml::tags( 'span', array( 'title' => $date ), $time );
+		$line .= $this->formatTimestamp( $result->timestamp );
 
 		$line .= ' . . ';
 		$line .= ' (' . $len_change . ')';
@@ -347,5 +345,48 @@ class SpecialModeration extends QueryPage {
 
 		return $html;
 	}
-}
 
+	/**
+		@brief Returns true if $timestamp is today, false otherwise.
+		@param $timestamp Timestamp in MediaWiki format (14 digits).
+	*/
+	private function isToday( $timestamp ) {
+		static $today = '',
+			$skippedToday = false;
+
+		if ( $skippedToday ) {
+			/* Optimization: results are sorted by timestamp (DESC),
+				so if we found even one timestamp with isToday=false,
+				then isToday=false for all following timestamps. */
+			return false;
+		}
+
+		$lang = $this->getLanguage();
+		$timestamp = $lang->userAdjust( $timestamp ); /* Respect the timezone selected by current user */
+
+		if ( !$today ) {
+			$today = substr( $lang->userAdjust( wfTimestampNow() ), 0, 8 );
+		}
+
+		$isToday = ( substr( $timestamp, 0, 8 ) == $today );
+		if ( !$isToday ) {
+			$skippedToday = true; /* The following timestamps are even earlier, no need to check them */
+		}
+
+		return $isToday;
+	}
+
+	/**
+		@brief Returns human-readable version of $timestamp.
+	*/
+	public function formatTimestamp( $timestamp ) {
+		$lang = $this->getLanguage();
+		$user = $this->getUser();
+
+		if ( $this->isToday( $timestamp ) ) {
+			return $lang->userTime( $timestamp, $user );
+		}
+
+		return $lang->userTimeAndDate( $timestamp, $user );
+	}
+}
