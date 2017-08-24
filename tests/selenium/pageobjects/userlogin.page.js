@@ -17,21 +17,7 @@ class UserLoginPage extends Page {
 		this.open();
 		this.username.setValue( username );
 		this.password.setValue( password );
-		this.loginButton.click();
-
-		/* After the login: wait for
-			(1) the page to be loaded
-			OR
-			(2) error to be shown
-		*/
-		var self = this;
-		browser.waitUntil( function() {
-			return (
-				self.errMsg.isVisible()
-				||
-				( browser.getUrl().indexOf( 'UserLogin' ) === -1 )
-			);
-		} );
+		this.submitAndWait( this.loginButton );
 	}
 
 	loginAsModerator() {

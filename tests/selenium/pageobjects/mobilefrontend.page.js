@@ -76,26 +76,7 @@ class MobileFrontend extends Page {
 			return true;
 		} );
 
-		this.saveButton.click();
-
-		/* After the edit: wait for
-			(1) the page to be loaded
-			OR
-			(2) MobileFrontend error to be shown
-		*/
-		var self = this;
-		browser.waitUntil( function() {
-
-			try { /* Handle "Are you sure?" dialog in IE11 (see above) */
-				browser.alertAccept();
-			} catch ( e ) { }
-
-			return (
-				self.errMsg.isVisible()
-				||
-				( browser.getUrl().indexOf( '#/editor/' ) === -1 )
-			);
-		} );
+		this.submitAndWait( this.saveButton );
 	}
 }
 

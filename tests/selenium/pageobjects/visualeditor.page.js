@@ -129,21 +129,7 @@ class VisualEditor extends Page {
 		this.content.addValue( content );
 		this.saveButton.click();
 		this.summary.addValue( summary );
-		this.confirmButton.click();
-
-		/* After the edit: wait for
-			(1) the page to be loaded
-			OR
-			(2) VisualEditor error to be shown
-		*/
-		var self = this;
-		browser.waitUntil( function() {
-			return (
-				self.errMsg.isVisible()
-				||
-				( browser.getUrl().indexOf( 'veaction=edit' ) === -1 )
-			);
-		} );
+		this.submitAndWait( this.confirmButton );
 	}
 }
 

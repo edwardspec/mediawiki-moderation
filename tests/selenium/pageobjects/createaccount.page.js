@@ -18,9 +18,7 @@ class CreateAccountPage extends Page {
 		this.username.setValue( username );
 		this.password.setValue( password );
 		this.confirmPassword.setValue( password );
-		this.create.click();
-
-		browser.waitForExist( '#mw-returnto' );
+		this.submitAndWait( this.create );
 	}
 
 }
