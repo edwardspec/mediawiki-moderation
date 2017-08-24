@@ -24,8 +24,8 @@ class ModerationUpdater {
 	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
 		$base = dirname( __FILE__ );
 
-		$db = $updater->addExtensionTable( 'moderation', "$base/../sql/patch-moderation.sql" );
-		$db = $updater->addExtensionTable( 'moderation_block', "$base/../sql/patch-moderation_block.sql" );
+		$db = $updater->addExtensionTable( 'moderation', "$base/../sql/moderation.sql" );
+		$db = $updater->addExtensionTable( 'moderation_block', "$base/../sql/moderation_block.sql" );
 
 		return true;
 	}
