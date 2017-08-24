@@ -41,6 +41,16 @@ exports.config = {
 		};
 	},
 
+	after: function() {
+		/* Latest Firefox displays "Do you really want to leave" dialog
+			even when WebDriver is being closed. Suppress that.
+		*/
+		browser.execute( function() {
+			window.onbeforeunload = null;
+			$( window ).off( 'beforeunload pageshow' ); /* See [mediawiki.confirmCloseWindow.js] in MediaWiki core */
+		} );
+	},
+
 	/* Common WebdriverIO options */
 	specs: [
 		'specs/*.js'
