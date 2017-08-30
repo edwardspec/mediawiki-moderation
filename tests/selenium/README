@@ -8,7 +8,7 @@ of Extension:VisualEditor and Extension:MobileFrontend.
 This is ONLY for tests which require executing JavaScript in the browser.
 Everything else should be in the PHPUnit testsuite (see README.testsuite).
 
-== TODO: needed tests ==
+== Needed tests ==
 
 1) notify: after saving the edit, you should see "Success: your edit
 has been sent to moderation" message (instead of the usual postedit message).
@@ -20,10 +20,6 @@ freaking out "Unknown error: moderation-edit-queued").
 3) preload: when you open an editor of VisualEditor/MobileFrontend while your
 previous edit on this page is still awaiting moderation, the text of your
 version should be substituted into the edit form.
-
-== Already implemented tests ==
-
-* visualeditor.js (for Extension:VisualEditor): ajaxhook, notify.
 
 == How to run ==
 
@@ -58,3 +54,9 @@ because Firefox requires the window to be in focus to simulate the clicks in it.
 See http://webdriver.io/guide/testrunner/configurationfile.html
 Configuration file is [extensions/Moderation/tests/selenium/wdio.conf.js]
 
+== Known issues ==
+
+MobileFrontend for MediaWiki 1.29 has a bug that interferes with the testsuite.
+The following patch must be applied:
+	https://gerrit.wikimedia.org/r/#/c/363012/
+This is only needed for MediaWiki 1.29 (not <= 1.28 or 1.30+).
