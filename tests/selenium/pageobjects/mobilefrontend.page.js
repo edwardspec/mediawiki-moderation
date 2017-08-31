@@ -41,7 +41,18 @@ class MobileFrontend extends Page {
 		@brief Open MobileFrontend editor for article "name".
 	*/
 	open( name, section = 0 ) {
-		super.open( name + '?mobileaction=toggle_view_mobile&action=edit&section=' + section );
+		this.switchToMobileSkin();
+
+		/* Make sure that post-edit redirect of MobileFrontend will take us to the article.
+			Also a workaround against https://github.com/mozilla/geckodriver/issues/790 */
+		super.open( name );
+
+		var hashPath = '#/editor/';
+		if ( browser.options.is1_23 ) {
+			hashPath = '#editor/'; // No leading slash
+		}
+
+		super.open( name + hashPath + section );
 		this.content.waitForExist();
 
 		if ( this.editAnonymouslyButton.isExisting() ) {
