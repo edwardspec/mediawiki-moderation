@@ -57,10 +57,20 @@
 			so that it won't be shown after reload.
 		*/
 		try {
-			mw.loader.using( 'mobile.toast', function() {
-				var toast = M.require( 'mobile.toast/toast' );
-				toast._showPending();
-			} );
+			try {
+				/* MediaWiki 1.29+ */
+				mw.loader.using( 'mobile.startup', function() {
+					var toast = M.require( 'mobile.startup/toast' );
+					toast._showPending();
+				} );
+			}
+			catch ( e ) {
+				/* MediaWiki 1.27-1.28 */
+				mw.loader.using( 'mobile.toast', function() {
+					var toast = M.require( 'mobile.toast/toast' );
+					toast._showPending();
+				} );
+			}
 		} catch ( e ) {
 			 /* Nothing to do - old MobileFrontend (e.g. for MediaWiki 1.23)
 				didn't have "show after reload" anyway.
