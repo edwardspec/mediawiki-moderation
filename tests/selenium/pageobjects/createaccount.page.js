@@ -11,6 +11,7 @@ class CreateAccountPage extends Page {
 
 	open() {
 		super.open( 'Special:CreateAccount' );
+		this.username.waitForVisible(); /* In Edge, browser.url() may return before DOM is ready */
 	}
 
 	createAccount( username, password ) {

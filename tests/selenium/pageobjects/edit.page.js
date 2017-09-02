@@ -10,7 +10,7 @@ class EditPage extends Page {
 
 	open( name ) {
 		super.open( name + '?action=edit&hidewelcomedialog=true' );
-		this.content.waitForVisible();
+		this.content.waitForVisible(); /* In Edge, browser.url() may return before DOM is ready */
 	}
 
 	edit( name, content ) {
