@@ -143,6 +143,11 @@
 				"mobile.editor.api",
 				"ext.moderation.ajaxhook",
 				"mobile.startup"
+			],
+			"messages": [
+				"mobile-frontend-editor-success-new-page",
+				"mobile-frontend-editor-success-landmark-1",
+				"mobile-frontend-editor-success"
 			]
 		},
 		"ext.moderation.notify": {

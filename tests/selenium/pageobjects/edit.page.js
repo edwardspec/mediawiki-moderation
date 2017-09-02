@@ -6,7 +6,7 @@ class EditPage extends Page {
 	get content() { return browser.element( '#wpTextbox1' ); }
 	get displayedContent() { return browser.element( '#mw-content-text' ); }
 	get heading() { return browser.element( '#firstHeading' ); }
-	get save() { return browser.element( '#wpSave' ); }
+	get save() { return browser.element( '[name="wpSave"]' ); }
 
 	open( name ) {
 		super.open( name + '?action=edit&hidewelcomedialog=true' );
