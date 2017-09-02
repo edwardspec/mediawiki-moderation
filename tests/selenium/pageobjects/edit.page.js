@@ -3,13 +3,14 @@ const Page = require( './page' );
 
 class EditPage extends Page {
 
-	get content() { return browser.element( '#wpTextbox1' ); }
-	get displayedContent() { return browser.element( '#mw-content-text' ); }
-	get heading() { return browser.element( '#firstHeading' ); }
-	get save() { return browser.element( '[name="wpSave"]' ); }
+	get content() { return $( '#wpTextbox1' ); }
+	get displayedContent() { return $( '#mw-content-text' ); }
+	get heading() { return $( '#firstHeading' ); }
+	get save() { return $( '[name="wpSave"]' ); }
 
 	open( name ) {
 		super.open( name + '?action=edit&hidewelcomedialog=true' );
+		this.content.waitForVisible();
 	}
 
 	edit( name, content ) {
