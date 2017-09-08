@@ -7,6 +7,9 @@ const Page = require( './page' );
 
 class MobileFrontend extends Page {
 
+	/** @brief "Edit" icon (opens mobile editor when clicked by the user) */
+	get openEditorIcon() { return $( '.mw-ui-icon-edit-enabled,#ca-edit.enabled' ); }
+
 	/** @brief Editable element in the editor */
 	get content() { return $( '#wikitext-editor,.wikitext-editor' ); }
 
@@ -51,6 +54,9 @@ class MobileFrontend extends Page {
 		if ( browser.options.is1_23 ) {
 			hashPath = '#editor/'; // No leading slash
 		}
+
+		/* Wait for haschange event to become aware of hashPath */
+		this.openEditorIcon.waitForExist();
 
 		super.open( name + hashPath + section );
 		this.content.waitForExist();
