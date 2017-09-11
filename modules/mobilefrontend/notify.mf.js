@@ -102,7 +102,7 @@
 		This callback is used by notifyQueued().
 		It displays $div as mw.notification.
 	*/
-	mw.moderation.notifyCb = function( $div ) {
+	mw.moderation.notifyCb = function( $div, readyCallback ) {
 		mw.notify( $div, {
 			tag: 'modqueued',
 			autoHide: false,
@@ -126,6 +126,8 @@
 			$( window ).one( 'hashchange', function() {
 				$( '.mw-notification-tag-modqueued' ).remove();
 			} );
+
+			readyCallback();
 		} );
 	}
 
