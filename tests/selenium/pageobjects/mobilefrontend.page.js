@@ -47,12 +47,7 @@ class MobileFrontend extends Page {
 			Also a workaround against https://github.com/mozilla/geckodriver/issues/790 */
 		super.open( name );
 
-		var hashPath = '#/editor/';
-		if ( browser.options.is1_23 ) {
-			hashPath = '#editor/'; // No leading slash
-		}
-
-		super.open( name + hashPath + section );
+		super.open( name + '?action=edit&section=' + section );
 		this.content.waitForExist();
 
 		if ( this.editAnonymouslyButton.isExisting() ) {
