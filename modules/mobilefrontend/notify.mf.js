@@ -6,27 +6,6 @@
 ( function ( mw, $ ) {
 	'use strict';
 
-	/*
-		FIXME: in Google Chrome only, MobileFrontend for MediaWiki 1.29
-		is inconsistent in whether it reloads the page after saving the edit
-		in section #0 (Note: editing other sections always reloads the page).
-
-		The cause for this should be investigated, because notifyQueued()
-		is only called on page reload.
-
-		Unlike the previous implementation (that worked in MediaWiki 1.28 and earlier),
-		we can no longer use router.hashchange event,
-		because [onSaveComplete] in [EditorOverlayBase.js] first sets window.location.href
-		and then calls window.location.reload() for sectionIdx>=1.
-
-		So if we just called notifyQueued() on every hashchange (as before),
-		it wouldn't be shown properly for sectionIdx>=1 (it will be briefly shown,
-		and then the page will reload, removing the notification instantly).
-
-		Instead we should detect situation "saving the edit re-rendered page without reloading it"
-		and call notifyQueued() only then.
-	*/
-
 	mw.moderation = mw.moderation || {};
 
 	var M = mw.mobileFrontend;
@@ -88,13 +67,6 @@
 					oldShow( msg, cssClass );
 				}
 			};
-
-			/* In MediaWiki 1.23, page wasn't necessarily reloaded after edit
-				(it could have been re-rendered without window.location.reload).
-				If this happens, display the notification right away. */
-			M.one(  'page-loaded', function() {
-				mw.moderation.notifyQueued();
-			} );
 		}
 	} );
 
@@ -123,6 +95,7 @@
 				this.remove();
 			} );
 
+			/* Remove when moving to another page */
 			$( window ).one( 'hashchange', function() {
 				$( '.mw-notification-tag-modqueued' ).remove();
 			} );
@@ -130,5 +103,23 @@
 			readyCallback();
 		} );
 	}
+
+	/* Workaround for Google Chrome issue.
+		In Chrome, onSaveComplete() sometimes doesn't reload the page
+		when changing window.location from /wiki/Something#/editor/0 to /wiki/Something
+		(expected correct behavior: it should ALWAYS reload the page).
+		The reason is unclear.
+
+		As a workaround, we modify window.location explicitly to be sure.
+		Note: we can't use window.location.reload() in onhashchange
+		(it was causing flaky SauceLabs results in IE11 and Firefox).
+
+		This code also reloads the page in legacy MediaWiki 1.23.
+	*/
+	mw.hook( 'moderation.ajaxhook.edit' ).add( function() {
+		$( window ).one( 'hashchange', function() {
+			window.location.search = '?modqueued=1';
+		} );
+	} );
 
 }( mediaWiki, jQuery ) );
