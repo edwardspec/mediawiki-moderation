@@ -29,7 +29,7 @@ exports.config = merge( wdioConf.config, {
 				'specs/visualeditor.js'
 			]
 		},
-		{ browserName: 'chrome', version: 'latest' },
+		{ browserName: 'chrome', version: '60.0' }, // 61.0 has odd "Element is not clickable at point" issue when clicking Save in edit.page.js.
 		{ browserName: 'firefox', version: 'latest' }
 	],
 
