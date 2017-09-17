@@ -34,8 +34,8 @@ exports.config = merge( wdioConf.config, {
 	],
 
 	services: [ 'sauce' ],
-	user: process.env.SAUCE_USER || '',
-	key: process.env.SAUCE_KEY || '',
+	user: process.env.SAUCE_USERNAME || '',
+	key: process.env.SAUCE_ACCESS_KEY || '',
 	sauceConnect: true,
 
 	waitforTimeout: 20000,
