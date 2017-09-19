@@ -38,7 +38,7 @@ exports.config = merge( wdioConf.config, {
 	key: process.env.SAUCE_ACCESS_KEY || '',
 	sauceConnect: true,
 
-	waitforTimeout: 20000,
+	waitforTimeout: 40000,
 	mochaOpts: {
 		timeout: 180000
 	}
