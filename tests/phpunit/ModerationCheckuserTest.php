@@ -65,7 +65,8 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		@returns User-agent (string).
 	*/
 	public function getCUCAgent() {
-		return array_pop( self::getCUCAgents( 1 ) );
+		$agents = self::getCUCAgents( 1 );
+		return array_pop( $agents );
 	}
 
 	/**
