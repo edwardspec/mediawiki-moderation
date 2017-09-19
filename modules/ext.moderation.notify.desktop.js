@@ -14,7 +14,7 @@
 		This callback is used by notifyQueued().
 		Displays $div as postEdit notification.
 	*/
-	mw.moderation.notifyCb = function( $div ) {
+	mw.moderation.notifyCb = function( $div, readyCallback ) {
 
 		/* Don't remove $div when clicking on links */
 		$div.find( 'a' ).click( function( e ) {
@@ -41,6 +41,8 @@
 			$newcont.click( function() {
 				$( containerClass ).remove();
 			} );
+
+			readyCallback();
 		} );
 	};
 

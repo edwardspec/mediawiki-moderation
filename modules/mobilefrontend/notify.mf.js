@@ -6,29 +6,75 @@
 ( function ( mw, $ ) {
 	'use strict';
 
-	var M = mw.mobileFrontend;
-
 	mw.moderation = mw.moderation || {};
 
-	function removeNotif() {
-		$( '.mw-notification-tag-modqueued' ).remove();
+	var M = mw.mobileFrontend;
+
+	/**
+		@brief Identify popups that should be overwritten.
+	*/
+	function shouldAllowMessage( msg ) {
+		switch ( msg ) {
+			case mw.msg( 'mobile-frontend-editor-success-new-page' ) :
+			case mw.msg( 'mobile-frontend-editor-success-landmark-1' ) :
+			case mw.msg( 'mobile-frontend-editor-success' ) :
+				return false;
+		}
+
+		return true;
 	}
+
+	/* Override Toast class to suppress default notification ("edit saved"),
+		because notifyQueued() already shows "edit queued for moderation" */
+	var $d = $.Deferred();
+	try {
+		try {
+			/* MediaWiki 1.29+ */
+			mw.loader.using( 'mobile.startup', function() {
+				$d.resolve( M.require( 'mobile.startup/toast' ) );
+			} );
+		}
+		catch ( e ) {
+			/* MediaWiki 1.27-1.28 */
+			mw.loader.using( 'mobile.toast', function() {
+				$d.resolve( M.require( 'mobile.toast/toast' ) );
+			} );
+		}
+	} catch ( e ) {
+		$d.resolve( M.require( 'toast' ) );
+	}
+
+	$d.done( function( toast ) {
+		var oldReload = toast.showOnPageReload;
+
+		/*
+			We must modify the message in showOnPageReload(),
+			because _showPending() will be called before we have
+			a chance to override show().
+		*/
+		if ( oldReload ) {
+			toast.showOnPageReload = function( msg, cssClass ) {
+				if ( shouldAllowMessage( msg ) ) {
+					oldReload( msg, cssClass );
+				}
+			};
+		}
+		else {
+			/* In MediaWiki 1.23-1.26, there was no showOnPageReload() */
+			var oldShow = toast.show;
+			toast.show = function( msg, cssClass ) {
+				if ( shouldAllowMessage( msg ) ) {
+					oldShow( msg, cssClass );
+				}
+			};
+		}
+	} );
 
 	/*
 		This callback is used by notifyQueued().
-		1) displays $div as mw.notification.
-		2) removes postedit notification from the MobileFrontend editor
-		(e.g. "mobile-frontend-editor-success").
+		It displays $div as mw.notification.
 	*/
-	mw.moderation.notifyCb = function( $div ) {
-		/* Suppress postedit message from MobileFrontend */
-		mw.util.addCSS(
-			'.toast, .mw-notification-tag-toast { display: none ! important; }'
-		);
-
-		$( window ).off( 'hashchange', removeNotif ); /* Only needed for MW 1.23 workaround, see below */
-
-		/* Mobile version */
+	mw.moderation.notifyCb = function( $div, readyCallback ) {
 		mw.notify( $div, {
 			tag: 'modqueued',
 			autoHide: false,
@@ -39,6 +85,7 @@
 				and #mw-notification-area became detached from DOM */
 			var $notif = $div.parents( '#mw-notification-area' ),
 				$body = $( 'body' );
+
 			if ( !$.contains( $body[0], $notif[0] ) ) {
 				$notif.appendTo( $body );
 			}
@@ -49,50 +96,30 @@
 			} );
 
 			/* Remove when moving to another page */
-			$( window ).one( 'hashchange', removeNotif );
-		} );
-
-		/* If MobileFrontend hasn't reloaded the page after edit,
-			remove "mobile-frontend-editor-success" from the toast queue,
-			so that it won't be shown after reload.
-		*/
-		try {
-			mw.loader.using( 'mobile.toast', function() {
-				var toast = M.require( 'mobile.toast/toast' );
-				toast._showPending();
+			$( window ).one( 'hashchange', function() {
+				$( '.mw-notification-tag-modqueued' ).remove();
 			} );
-		} catch ( e ) {
-			 /* Nothing to do - old MobileFrontend (e.g. for MediaWiki 1.23)
-				didn't have "show after reload" anyway.
-			*/
-		}
+
+			readyCallback();
+		} );
 	}
 
-	/* Call notifyQueued() after editing in MobileFrontend editor */
-	mw.hook( 'moderation.ajaxhook.edit' ).add( function() {
-		var router;
-		try {
-			try {
-				/* Router from MediaWiki core (MediaWiki 1.28+) */
-				router = mw.loader.require( 'mediawiki.router' );
-			}
-			catch ( e ) {
-				/* MobileFrontend for MediaWiki 1.27 */
-				router = M.require( 'mobile.startup/router' );
-			}
-		}
-		catch ( e ) {
-			/* Legacy MobileFrontend for MediaWiki 1.23 */
-			M.one(  'page-loaded', function() {
-				mw.moderation.notifyQueued();
-			} );
-		}
+	/* Workaround for Google Chrome issue.
+		In Chrome, onSaveComplete() sometimes doesn't reload the page
+		when changing window.location from /wiki/Something#/editor/0 to /wiki/Something
+		(expected correct behavior: it should ALWAYS reload the page).
+		The reason is unclear.
 
-		if ( router ) {
-			router.once( 'hashchange', function() {
-				mw.moderation.notifyQueued();
-			} );
-		}
+		As a workaround, we modify window.location explicitly to be sure.
+		Note: we can't use window.location.reload() in onhashchange
+		(it was causing flaky SauceLabs results in IE11 and Firefox).
+
+		This code also reloads the page in legacy MediaWiki 1.23.
+	*/
+	mw.hook( 'moderation.ajaxhook.edit' ).add( function() {
+		$( window ).one( 'hashchange', function() {
+			window.location.search = '?modqueued=1';
+		} );
 	} );
 
 }( mediaWiki, jQuery ) );

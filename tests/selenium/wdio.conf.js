@@ -26,7 +26,9 @@ exports.config = {
 			*/
 			browser.execute( function() {
 				window.onbeforeunload = null;
-				$( window ).off( 'beforeunload pageshow' ); /* See [mediawiki.confirmCloseWindow.js] in MediaWiki core */
+				if ( window.$ ) {
+					$( window ).off( 'beforeunload pageshow' ); /* See [mediawiki.confirmCloseWindow.js] in MediaWiki core */
+				}
 			} );
 
 			var ret = oldUrlFunc( url );
@@ -57,8 +59,8 @@ exports.config = {
 	],
 	maxInstances: 1,
 	capabilities: [
-		{ browserName: 'firefox' },
-		//{ browserName: 'chrome' },
+		//{ browserName: 'firefox' },
+		{ browserName: 'chrome' },
 	],
 	sync: true,
 	logLevel: 'silent',

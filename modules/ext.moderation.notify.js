@@ -17,8 +17,9 @@
 			module = ( isMobile ? 'ext.moderation.mf' : 'ext.moderation.notify.desktop' );
 
 		mw.loader.using( module, function() {
-			mw.moderation.notifyCb( $div );
-			$d.resolve();
+			mw.moderation.notifyCb( $div, function() {
+				$d.resolve();
+			} );
 		} );
 
 		return $d;

@@ -5,12 +5,14 @@ const expect = require( 'chai' ).expect,
 	MobileFrontend = require( '../pageobjects/mobilefrontend.page' ),
 	PostEdit = require( '../pageobjects/postedit.page' ),
 	CreateAccountPage = require( '../pageobjects/createaccount.page' ),
+	UserLoginPage = require( '../pageobjects/userlogin.page' ),
 	LogoutPage = require( '../pageobjects/logout.page' );
 
 /*
 	Title of MediaWiki page which should be edited during this test.
 */
 var PageName = 'Test' + Math.random(),
+	ExistingPageName = 'ExistingPage' + Math.random(),
 	subtests = [
 		'desktop',
 		'MobileFrontend'
@@ -24,18 +26,18 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 	var doTestEdit;
 	switch ( subTest ) {
 		case 'desktop':
-			doTestEdit = function() {
+			doTestEdit = function( title ) {
 				EditPage.edit(
-					PageName,
+					title,
 					Date.now() + ' ' + Math.random() + "\n"
 				);
 			};
 			break;
 
 		case 'MobileFrontend':
-			doTestEdit = function() {
+			doTestEdit = function( title ) {
 				MobileFrontend.edit(
-					PageName,
+					title,
 					0,
 					Date.now() + ' ' + Math.random() + "\n"
 				);
@@ -43,10 +45,15 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 	}
 
 	before( function() {
+		/* Pre-create the article ExistingPageName */
+		UserLoginPage.loginAsModerator();
+		EditPage.edit( ExistingPageName, 'Initial content: something ' + Math.random() );
+		LogoutPage.logout(); /* Logout */
+
 		/* Make sure we are logged in */
 		CreateAccountPage.createAccount( 'TestUser' + Math.random(), '123456' );
 
-		doTestEdit();
+		doTestEdit( PageName );
 		PostEdit.init();
 	} );
 
@@ -109,6 +116,18 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 		PostEdit.notification.waitForVisible( 500, true ); /* Wait for it to vanish */
 	} );
 
+	it( 'should be shown after editing the existing article', function () {
+		/*
+			Older MobileFrontend (for MediaWiki <=1.26) reloaded the page
+			when creating a new article and didn't reload it when editing
+			existing article. Our notification should work in both situations.
+		*/
+		doTestEdit( ExistingPageName );
+		PostEdit.init();
+
+		expect( PostEdit.notification.isVisible(), 'notification.isVisible' ).to.be.true;
+	} );
+
 	it ( 'should contain "sign up" link if the user is anonymous', function() {
 
 		if ( browser.options.is1_23 && subTest == 'MobileFrontend' ) {
@@ -118,7 +137,7 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 
 		LogoutPage.logout();
 
-		doTestEdit();
+		doTestEdit( PageName );
 		PostEdit.init();
 
 		expect( PostEdit.signupLink.isVisible(), 'signupLink.isVisible' ).to.be.true;

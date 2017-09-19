@@ -53,6 +53,12 @@ class MobileFrontend extends Page {
 		}
 
 		super.open( name + hashPath + section );
+
+		/* FIXME: in Edge, simply navigating to #/editor/0 sometimes doesn't open the editor.
+			Possible reason: hashchange event was called before MobileFrontend scripts
+			were completely initialized (so #/editor/ URL wasn't handled).
+		*/
+
 		this.content.waitForExist();
 
 		if ( this.editAnonymouslyButton.isExisting() ) {

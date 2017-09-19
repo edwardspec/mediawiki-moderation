@@ -11,6 +11,7 @@ class UserLoginPage extends Page {
 
 	open() {
 		super.open( 'Special:UserLogin' );
+		this.username.waitForVisible(); /* In Edge, browser.url() may return before DOM is ready */
 	}
 
 	login( username, password ) {

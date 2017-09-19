@@ -29,16 +29,16 @@ exports.config = merge( wdioConf.config, {
 				'specs/visualeditor.js'
 			]
 		},
-		{ browserName: 'chrome', version: 'latest' },
+		{ browserName: 'chrome', version: '60.0' }, // 61.0 has odd "Element is not clickable at point" issue when clicking Save in edit.page.js.
 		{ browserName: 'firefox', version: 'latest' }
 	],
 
 	services: [ 'sauce' ],
-	user: process.env.SAUCE_USER || '',
-	key: process.env.SAUCE_KEY || '',
+	user: process.env.SAUCE_USERNAME || '',
+	key: process.env.SAUCE_ACCESS_KEY || '',
 	sauceConnect: true,
 
-	waitforTimeout: 20000,
+	waitforTimeout: 40000,
 	mochaOpts: {
 		timeout: 180000
 	}

@@ -2,10 +2,6 @@ TODO:
 
 Medium-prio:
 * (testsuite) Provide ~100% automated test coverage of all functionality.
-* (testsuite) Fix Selenium testsuite to work with 1.29.
-	MobileFrontend for MediaWiki 1.29 shows odd behavior when editing sections
-	(even when Moderation is not installed), which breaks some tests.
-	Reproduced by [specs/debugtests/mobilefrontend-mw1.29.js].
 
 Low-prio:
 * (feature) Intercept renaming of pages.
