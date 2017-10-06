@@ -180,6 +180,15 @@ class ModerationPreload {
 		return true;
 	}
 
+	/**
+		@brief Legacy version of onLocalUserCreated() for autocreated account. Used for MediaWiki 1.25 and lower.
+	*/
+	public static function onAuthPluginAutoCreate( $user ) {
+		self::onLocalUserCreated( $user, true );
+
+		return true;
+	}
+
 	# loadUnmoderatedEdit() - check if there is a pending-moderation edit of this user to this page,
 	# and if such edit exists, then load its text and edit comment
 	public function loadUnmoderatedEdit( $title ) {

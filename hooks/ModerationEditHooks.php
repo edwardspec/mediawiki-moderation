@@ -286,12 +286,6 @@ class ModerationEditHooks {
 		return true;
 	}
 
-	public static function onAuthPluginAutoCreate( $user ) {
-		ModerationPreload::onAddNewAccount( $user, false );
-
-		return true;
-	}
-
 	public static function PrepareEditForm( $editpage, $out ) {
 		$mergeID = ModerationEditHooks::$NewMergeID;
 		if ( !$mergeID ) {

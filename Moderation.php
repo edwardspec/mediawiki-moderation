@@ -36,7 +36,7 @@ $wgExtensionCredits['antispam'][] = array(
 	'url' => 'https://www.mediawiki.org/wiki/Extension:Moderation',
 	'descriptionmsg' => 'moderation-desc',
 	'license-name' => 'GPL-3.0+',
-	'version' => '1.0.44'
+	'version' => '1.0.45'
 );
 
 $wgMessagesDirs['Moderation'] = array(
@@ -73,7 +73,7 @@ $wgHooks['AddNewAccount'][] = 'ModerationPreload::onAddNewAccount';
 $wgHooks['AlternateEdit'][] = 'ModerationPreload::onAlternateEdit';
 $wgHooks['ApiBeforeMain'][] = 'ModerationApiHooks::onApiBeforeMain';
 $wgHooks['ApiCheckCanExecute'][] = 'ModerationApiHooks::onApiCheckCanExecute';
-$wgHooks['AuthPluginAutoCreate'][] = 'ModerationEditHooks::onAuthPluginAutoCreate';
+$wgHooks['AuthPluginAutoCreate'][] = 'ModerationPreload::onAuthPluginAutoCreate';
 $wgHooks['BeforePageDisplay'][] = 'ModerationEditHooks::onBeforePageDisplay';
 $wgHooks['EditFilter'][] = 'ModerationEditHooks::onEditFilter';
 $wgHooks['EditFormInitialText'][] = 'ModerationPreload::onEditFormInitialText';
