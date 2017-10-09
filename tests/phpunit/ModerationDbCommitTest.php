@@ -50,9 +50,14 @@ class ModerationTestDbCommit extends MediaWikiTestCase
 			Because behavior of commit( ..., 'flush' ) varies when DBO_TRX is on/off,
 			we need to test both situations.
 		*/
-
-		$this->subtestDbCommitBeforeException( true ); /* with DBO_TRX */
-		$this->subtestDbCommitBeforeException( false ); /* without DBO_TRX */
+		foreach ( array( true, false ) as $isTrxAutomatic ) { /* with/without DBO_TRX */
+			foreach ( array( true, false ) as $isExplicitTransaction ) { /* with/without begin() before doEditContent() */
+				$this->subtestDbCommitBeforeException(
+					$isTrxAutomatic,
+					$isExplicitTransaction
+				);
+			}
+		}
 	}
 
 	protected function setTrxFlag( $db, $newTrxFlagValue ) {
@@ -64,10 +69,14 @@ class ModerationTestDbCommit extends MediaWikiTestCase
 		}
 	}
 
-	protected function subtestDbCommitBeforeException( $isTrxAutomatic )
+	protected function subtestDbCommitBeforeException( $isTrxAutomatic, $isExplicitTransaction )
 	{
 		$t = new ModerationTestsuite();
-		$subtestName = 'testDbCommitBeforeException(' . ( $isTrxAutomatic ? 'DBO_TRX' : '~DBO_TRX' ) . ')';
+		$subtestName = 'testDbCommitBeforeException(' .
+			( $isTrxAutomatic ? 'DBO_TRX' : '~DBO_TRX' ) .
+			', ' .
+			( $isExplicitTransaction ? 'with explicit begin()' : 'without begin()' )
+			. ')';
 
 		$dbw = wfGetDB( DB_MASTER );
 		$previousTrxFlagValue = $dbw->getFlag( DBO_TRX ); /* Will be restored after the test */
@@ -86,8 +95,13 @@ class ModerationTestDbCommit extends MediaWikiTestCase
 			$dbw->commit( __METHOD__, 'flush' );
 		}
 
-		/* Enable/disable DBO_TRX. */
+		/* Subtest condition #1: enable/disable DBO_TRX. */
 		$this->setTrxFlag( $dbw, $isTrxAutomatic );
+
+		/* Subtest condition #2: start (or not start) an explicit transaction. */
+		if ( $isExplicitTransaction ) {
+			$dbw->begin( __METHOD__ );
+		}
 
 		/* Create article using doEditContent() */
 		$page = $this->getRandomPage();
