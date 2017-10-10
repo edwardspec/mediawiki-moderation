@@ -26,6 +26,9 @@
 
 require_once( __DIR__ . "/../ModerationTestsuite.php" );
 
+/**
+	@covers RollbackResistantQuery
+*/
 class ModerationTestDbCommit extends MediaWikiTestCase
 {
 	public function getRandomTitle() {
@@ -117,7 +120,19 @@ class ModerationTestDbCommit extends MediaWikiTestCase
 			"$subtestName: doEditContent doesn't return 'moderation-edit-queued' status" );
 
 		/* Simulate situation when caller of doEditContent() throws an MWException */
-		MWExceptionHandler::rollbackMasterChangesAndLog( new MWException() );
+		$e = new MWException();
+
+		global $wgVersion;
+		if ( version_compare( $wgVersion, '1.27', '>=' ) ) {
+			MWExceptionHandler::rollbackMasterChangesAndLog( $e );
+		}
+		else {
+			/* Legacy MediaWiki 1.23 always uses 'flush' mode of rollback,
+				which won't work with explicit transaction */
+			$dbw->rollback( __METHOD__, $isExplicitTransaction ? '' : 'flush' );
+		}
+
+		MWExceptionHandler::logException( $e );
 
 		/* Double-check that DB row was created */
 		$wasCreated = $dbw->selectField( 'moderation', '1',

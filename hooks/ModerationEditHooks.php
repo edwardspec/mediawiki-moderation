@@ -106,7 +106,10 @@ class ModerationEditHooks {
 			'mod_user_text' => $user->getName(),
 			'mod_cur_id' => $page->getId(),
 			'mod_namespace' => $title->getNamespace(),
-			'mod_title' => $title->getText(),
+			'mod_title' => $title->getText(), /* FIXME (cosmetic): should be getDBKey(), as in other MediaWiki tables.
+							Not fixed right away because existing database would need to be updated
+							(which can only be done in a release, not a minor version change,
+							as noone runs update.php for those). */
 			'mod_comment' => $summary,
 			'mod_minor' => $is_minor,
 			'mod_bot' => $flags & EDIT_FORCE_BOT,
@@ -133,7 +136,15 @@ class ModerationEditHooks {
 		// Check if we need to update existing row (if this edit is by the same user to the same page)
 		$row = $preload->loadUnmoderatedEdit( $title );
 		if ( !$row ) { # No unmoderated edits
-			$dbw->insert( 'moderation', $fields, __METHOD__ );
+			/* We use RollbackResistantQuery, because the caller
+				of doEditContent() may assume that "moderation-edit-queued"
+				is an error and throw MWException, causing database rollback.
+			*/
+			RollbackResistantQuery::insert( $dbw, array(
+				'moderation',
+				$fields,
+				__METHOD__
+			) );
 			ModerationEditHooks::$LastInsertId = $dbw->insertId();
 		} else {
 			if ( self::$section != '' ) {
@@ -157,7 +168,12 @@ class ModerationEditHooks {
 				$fields['mod_new_len'] = $new_content->getSize();
 			}
 
-			$dbw->update( 'moderation', $fields, array( 'mod_id' => $row->id ), __METHOD__ );
+			RollbackResistantQuery::update( $dbw, array(
+				'moderation',
+				$fields,
+				array( 'mod_id' => $row->id ),
+				__METHOD__
+			) );
 			ModerationEditHooks::$LastInsertId = $row->id;
 		}
 
@@ -171,9 +187,6 @@ class ModerationEditHooks {
 				WatchAction::doWatchOrUnwatch( $watch, $title, $user );
 			}
 		}
-
-		// In case the caller treats "moderation-edit-queued" as an error.
-		$dbw->commit();
 
 		// Run hook to allow other extensions be notified about pending changes
 		Hooks::run( 'ModerationPending', array(

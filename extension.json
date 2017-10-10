@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.0.45",
+	"version": "1.0.46",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -76,7 +76,8 @@
 		"ModerationActionApprove": "action/ModerationActionApprove.php",
 		"ModerationActionReject": "action/ModerationActionReject.php",
 		"ModerationActionMerge": "action/ModerationActionMerge.php",
-		"ModerationActionPreview": "action/ModerationActionPreview.php"
+		"ModerationActionPreview": "action/ModerationActionPreview.php",
+		"RollbackResistantQuery": "util/RollbackResistantQuery.php"
 	},
 	"ResourceModules": {
 		"ext.moderation.special": {
