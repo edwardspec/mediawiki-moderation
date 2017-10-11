@@ -29,7 +29,7 @@ require_once( __DIR__ . "/../ModerationTestsuite.php" );
 /**
 	@covers RollbackResistantQuery
 */
-class ModerationTestDbCommit extends MediaWikiTestCase
+class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 {
 	public function getRandomTitle() {
 		return Title::newFromText( 'RandomPage_' . wfTimestampNow() . '_' . MWCryptRand::generateHex( 32 ) );
@@ -47,7 +47,7 @@ class ModerationTestDbCommit extends MediaWikiTestCase
 		return ContentHandler::makeContent( $this->getRandomText(), null, CONTENT_MODEL_WIKITEXT );
 	}
 
-	public function testDbCommitBeforeException() {
+	public function testRollbackResistantQuery() {
 		/* In MediaWiki, DBO_TRX flag can be enabled or disabled in $wgDBServers.
 			(default: DBO_TRX is enabled in non-CLI mode, disabled in CLI mode).
 			Because behavior of commit( ..., 'flush' ) varies when DBO_TRX is on/off,
@@ -55,10 +55,13 @@ class ModerationTestDbCommit extends MediaWikiTestCase
 		*/
 		foreach ( array( true, false ) as $isTrxAutomatic ) { /* with/without DBO_TRX */
 			foreach ( array( true, false ) as $isExplicitTransaction ) { /* with/without begin() before doEditContent() */
-				$this->subtestDbCommitBeforeException(
-					$isTrxAutomatic,
-					$isExplicitTransaction
-				);
+				foreach ( array( true, false ) as $isAtomic ) { /* with/without startAtomic() before doEditContent() */
+					$this->subtestRollbackResistantQuery(
+						$isTrxAutomatic,
+						$isExplicitTransaction,
+						$isAtomic
+					);
+				}
 			}
 		}
 	}
@@ -72,13 +75,15 @@ class ModerationTestDbCommit extends MediaWikiTestCase
 		}
 	}
 
-	protected function subtestDbCommitBeforeException( $isTrxAutomatic, $isExplicitTransaction )
+	protected function subtestRollbackResistantQuery( $isTrxAutomatic, $isExplicitTransaction, $isAtomic )
 	{
 		$t = new ModerationTestsuite();
-		$subtestName = 'testDbCommitBeforeException(' .
-			( $isTrxAutomatic ? 'DBO_TRX' : '~DBO_TRX' ) .
-			', ' .
-			( $isExplicitTransaction ? 'with explicit begin()' : 'without begin()' )
+		$subtestName = 'testRollbackResistantQuery('
+			. ( $isTrxAutomatic ? 'DBO_TRX' : '~DBO_TRX' )
+			. ', '
+			. ( $isExplicitTransaction ? 'with explicit begin()' : 'without begin()' )
+			. ', '
+			. ( $isAtomic ? 'with startAtomic()' : 'without startAtomic()' )
 			. ')';
 
 		$dbw = wfGetDB( DB_MASTER );
@@ -104,6 +109,11 @@ class ModerationTestDbCommit extends MediaWikiTestCase
 		/* Subtest condition #2: start (or not start) an explicit transaction. */
 		if ( $isExplicitTransaction ) {
 			$dbw->begin( __METHOD__ );
+		}
+
+		/* Subtest condition #3: call (or not call) startAtomic(). */
+		if ( $isAtomic ) {
+			$dbw->startAtomic( __METHOD__ );
 		}
 
 		/* Create article using doEditContent() */
