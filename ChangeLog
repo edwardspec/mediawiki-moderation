@@ -1,0 +1,45 @@
+List of changes between releases of Extension:Moderation.
+
+== Moderation 1.1.0 ==
+
+Features:
+* Support MediaWiki 1.28-1.29.
+* VisualEditor: Support Internet Explorer 11.
+* API: Support for prependtext/appendtext parameters (action=edit).
+* API: Provide moderation API (action=moderation).
+* Made "Watch this page" checkbox work even if edit was intercepted by Moderation.
+* Support situation when user got deleted (e.g. via [removeUnusedAccounts.php]).
+* Made sure that successfully queued edit won't be lost if DB rollback happens.
+* (disabled by default) Experimental Ajax handling of links on Special:Moderation.
+
+UI changes:
+* Added "pending review" icon to postedit notification.
+* Added link to Special:Log/moderation on Special:Moderation.
+* Now showing date on Special:Moderation.
+
+Bugfixes:
+* Fixed incorrect preloading of section #0.
+* Fixed incorrect calculation of mod_new_len when editing section.
+* Fixed bug that caused user-agent (for CheckUser extension) not to be preserved during ApproveAll.
+* Fixed issue of user sometimes becoming logged out after registration.
+* MobileFrontend: Fixed bug that caused pending edit not to preload when creating a new article.
+* VisualEditor: fixed error "String.split is not a function" in Chrome.
+
+Warnings fixed:
+* Fixed warning when MediaWiki uses alternate editor.
+* Fixed PHP 7.0 warnings (missing static).
+* Fixed warning "explicit commit of implicit transaction".
+* Removed obsolete hook AuthPluginAutoCreate for MediaWiki 1.27+.
+
+Refactoring, performance optimizations:
+* Faster rendering of Special:Moderation: used LinkBatch.
+* Simplified error handling of "file not found in stash".
+* Refactoring of ModerationPreload class.
+* Major refactoring of ajaxhook JavaScript.
+
+Configuration:
+* Added skip-moderation to $wgGrantPermissions['basic'] (MediaWiki 1.28+ only).
+
+== Moderation 1.0.0 ==
+
+First stable release.
