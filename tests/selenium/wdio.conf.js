@@ -49,7 +49,9 @@ exports.config = {
 		*/
 		browser.execute( function() {
 			window.onbeforeunload = null;
-			$( window ).off( 'beforeunload pageshow' ); /* See [mediawiki.confirmCloseWindow.js] in MediaWiki core */
+			if ( window.$ ) {
+				$( window ).off( 'beforeunload pageshow' ); /* See [mediawiki.confirmCloseWindow.js] in MediaWiki core */
+			}
 		} );
 	},
 
