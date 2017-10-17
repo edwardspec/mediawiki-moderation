@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015 Edward Chernenko.
+	Copyright (C) 2015-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -86,10 +86,8 @@ class ModerationTestReject extends MediaWikiTestCase
 		$this->assertEquals( $t->lastEdit['Title'], $le['title'] );
 		$this->assertEquals( $t->moderator->getName(), $le['user'] );
 
-		if(isset($le['params'])) { /* Not supported in MediaWiki 1.23 */
-			$this->assertEquals( $t->unprivilegedUser->getName(), $le['params']['user_text'] );
-			$this->assertEquals( $entry->id, $le['params']['modid'] );
-		}
+		$this->assertEquals( $t->unprivilegedUser->getName(), $le['params']['user_text'] );
+		$this->assertEquals( $entry->id, $le['params']['modid'] );
 
 		$events = $t->nonApiLogEntries( 1 );
 		$this->assertEquals( 'reject', $events[0]['type'] );
@@ -184,10 +182,7 @@ class ModerationTestReject extends MediaWikiTestCase
 			"testRejectAll(): Most recent log entry is not 'rejectall'" );
 		$this->assertEquals( $t->moderator->getName(), $le['user'] );
 		$this->assertEquals( $t->unprivilegedUser->getUserPage(), $le['title'] );
-
-		if(isset($le['params'])) { /* Not supported in MediaWiki 1.23 */
-			$this->assertEquals( $t->TEST_EDITS_COUNT, $le['params']['count'] );
-		}
+		$this->assertEquals( $t->TEST_EDITS_COUNT, $le['params']['count'] );
 
 		$events = $t->nonApiLogEntries( 1 );
 		$this->assertEquals( 'rejectall', $events[0]['type'] );

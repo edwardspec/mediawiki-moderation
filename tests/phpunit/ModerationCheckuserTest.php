@@ -76,9 +76,7 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 	*/
 	public function getCUCAgents( $limit ) {
 		$dbw = wfGetDB( DB_MASTER );
-
-		/* No selectFieldValues() - must be backward compatible with MediaWiki 1.23 */
-		$res = $dbw->select( 'cu_changes', 'cuc_agent AS agent',
+		return $dbw->selectFieldValues( 'cu_changes', 'cuc_agent',
 			'1',
 			__METHOD__,
 			array(
@@ -86,12 +84,6 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 				'LIMIT' => $limit
 			)
 		);
-
-		$agents = array();
-		foreach ( $res as $row ) {
-			$agents[] = $row->agent;
-		}
-		return $agents;
 	}
 
 	/**

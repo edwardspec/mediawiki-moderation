@@ -132,16 +132,7 @@ class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 		/* Simulate situation when caller of doEditContent() throws an MWException */
 		$e = new MWException();
 
-		global $wgVersion;
-		if ( version_compare( $wgVersion, '1.27', '>=' ) ) {
-			MWExceptionHandler::rollbackMasterChangesAndLog( $e );
-		}
-		else {
-			/* Legacy MediaWiki 1.23 always uses 'flush' mode of rollback,
-				which won't work with explicit transaction */
-			$dbw->rollback( __METHOD__, $isExplicitTransaction ? '' : 'flush' );
-		}
-
+		MWExceptionHandler::rollbackMasterChangesAndLog( $e );
 		MWExceptionHandler::logException( $e );
 
 		/* Double-check that DB row was created */
