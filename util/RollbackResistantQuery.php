@@ -92,7 +92,7 @@ class RollbackResistantQuery {
 				}, __METHOD__ );
 			}
 			else {
-				/* MediaWiki 1.27 (and earlier) doesn't call any callbacks after rollback(),
+				/* MediaWiki 1.27 doesn't call any callbacks after rollback(),
 					but we can at least detect MWException - what usually causes the rolback
 					in MWExceptionHandler::handleException() */
 

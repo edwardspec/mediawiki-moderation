@@ -158,11 +158,9 @@ class ModerationActionApprove extends ModerationAction {
 			User::newFromId( $row->user ) :
 			User::newFromName( $row->user_text, false );
 
-		if ( defined( 'User::READ_LATEST' ) ) { /* 1.23 doesn't support it */
-			/* User could have been recently renamed or deleted.
-				Make sure we have the correct data. */
-			$user->load( User::READ_LATEST );
-		}
+		/* User could have been recently renamed or deleted.
+			Make sure we have the correct data. */
+		$user->load( User::READ_LATEST );
 
 		$displayName = $user->getName();
 		if ( $user->getId() == 0 && $row->user != 0 ) {

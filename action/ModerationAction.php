@@ -45,14 +45,11 @@ abstract class ModerationAction extends ContextSource {
 
 			/* Suppress default assertion from $wgTrxProfilerLimits
 				("no non-readonly SQL queries during GET request") */
-			$profiler = Profiler::instance();
-			if ( method_exists( $profiler, 'getTransactionProfiler' ) ) {
-				$trxProfiler = $profiler->getTransactionProfiler();
-				$trxLimits = $this->getConfig()->get( 'TrxProfilerLimits' );
+			$trxProfiler = Profiler::instance()->getTransactionProfiler();
+			$trxLimits = $this->getConfig()->get( 'TrxProfilerLimits' );
 
-				$trxProfiler->resetExpectations();
-				$trxProfiler->setExpectations( $trxLimits['POST'], __METHOD__ );
-			}
+			$trxProfiler->resetExpectations();
+			$trxProfiler->setExpectations( $trxLimits['POST'], __METHOD__ );
 		}
 
 		return $this->execute();

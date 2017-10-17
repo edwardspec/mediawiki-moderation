@@ -121,16 +121,8 @@ class ModerationPreload {
 
 	/** @brief Make sure that results of $request->setSessionData() won't be lost */
 	protected function makeSureSessionExists() {
-		if ( method_exists( 'MediaWiki\Session\SessionManager', 'getGlobalSession' ) ) {
-			$session = MediaWiki\Session\SessionManager::getGlobalSession();
-			$session->persist();
-		}
-		else {
-			/* MediaWiki 1.26 and older */
-			if ( session_id() == '' ) {
-				wfSetupSession();
-			}
-		}
+		$session = MediaWiki\Session\SessionManager::getGlobalSession();
+		$session->persist();
 	}
 
 	/*
@@ -165,26 +157,6 @@ class ModerationPreload {
 		);
 
 		$preload->forgetAnonId();
-
-		return true;
-	}
-
-	/**
-		@brief Legacy version of onLocalUserCreated(). Used for MediaWiki 1.25 and lower.
-	*/
-	public static function onAddNewAccount( $user, $byEmail ) {
-		if ( !class_exists( 'MediaWiki\\Auth\\AuthManager' ) ) {
-			self::onLocalUserCreated( $user, false );
-		}
-
-		return true;
-	}
-
-	/**
-		@brief Legacy version of onLocalUserCreated() for autocreated account. Used for MediaWiki 1.25 and lower.
-	*/
-	public static function onAuthPluginAutoCreate( $user ) {
-		self::onLocalUserCreated( $user, true );
 
 		return true;
 	}

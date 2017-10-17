@@ -28,7 +28,7 @@ class ModerationApiHooks {
 
 		FIXME: this is needed because UploadVerifyFile hook doesn't receive description.
 		Find a way to workaround this.
-		(MediaWiki 1.28+ has UploadVerifyUpload hook, but we still need to support 1.23).
+		(MediaWiki 1.28+ has UploadVerifyUpload hook, but we still need to support 1.27).
 	*/
 	public static function onApiCheckCanExecute( $module, $user, &$message ) {
 		if ( $module == 'upload' && !ModerationCanSkip::canSkip( $user ) ) {
