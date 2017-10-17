@@ -26,14 +26,5 @@ class BlankPage extends Page {
 		@brief Get MediaWiki version, e.g. "1.28.2".
 	*/
 	get version() { return this.get( 'wgVersion' ); }
-
-	/**
-		@brief Returns true if this is MediaWiki 1.23, false otherwise.
-		This is important because 1.23 doesn't need certain tests.
-		For example, MobileFrontend in 1.23 requires login,
-		so we shouldn't test anonymous mobile postedit notification.
-	*/
-	get is1_23() { return this.version.match( /^1\.23/ ) ? true : false; }
-
 }
 module.exports = new BlankPage();

@@ -64,10 +64,6 @@ class Page {
 	getLink( selector ) {
 		var $link = $( selector );
 
-		/* Note: we can't use browser.execute() to run mw.Uri(...).query,
-			because in MediaWiki 1.23 it doesn't add 'title' parameter
-			for URLs like "/wiki/Cat?action=edit" */
-
 		Object.defineProperty( $link, 'query', {
 			get: function() {
 				var url = nodeUrl.parse( $link.getAttribute( 'href' ), true, true ),

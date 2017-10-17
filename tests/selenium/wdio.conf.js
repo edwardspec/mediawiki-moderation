@@ -5,14 +5,10 @@ exports.config = {
 	moderatorUser: process.env.MEDIAWIKI_MODERATOR_USER || 'User 1',
 	moderatorPassword: process.env.MEDIAWIKI_MODERATOR_PASSWORD || '123456',
 
-	/*
-		Determine version of MediaWiki, so that non-applicable tests may be skipped.
-		For example, MediaWiki 1.23 doesn't really support VisualEditor.
-	*/
 	before: function() {
+		/* Always open Special:BlankPage before tests */
 		var BlankPage = require( './pageobjects/blank.page' );
 		BlankPage.open();
-		browser.options.is1_23 = BlankPage.is1_23;
 
 		/*
 			Make browser.url() ignore "Are you sure you want to leave this page?" alerts.

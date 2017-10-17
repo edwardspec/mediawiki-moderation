@@ -19,13 +19,6 @@ var PageName = 'Test' + Math.random(),
 
 describe( 'MobileFrontend', function () {
 
-	before( function() {
-		if ( browser.options.is1_23 ) {
-			/* MobileFrontend editor in 1.23 requires login */
-			CreateAccountPage.createAccount( 'TestUser' + Math.random(), '123456' );
-		}
-	} );
-
 	it( 'should save the new edit without errors', function () {
 		MobileFrontend.edit( PageName, 0, Content, Summary );
 
