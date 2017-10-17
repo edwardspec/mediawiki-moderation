@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -231,15 +231,34 @@
 		]
 	},
 	"config": {
+		"@doc1": "If false, new edits are applied as usual (not sent to moderation).",
 		"ModerationEnable": true,
+
+		"@doc2": "Time (in seconds) after which rejected edit could no longer be approved.",
 		"ModerationTimeToOverrideRejection": 1209600,
+
+		"@doc3": "If true, Preview link is shown for pending edits. Normally you shouldn't enable this (when following Best Practices, approval/rejection depends on content, not formatting).",
 		"ModerationPreviewLink": false,
+
+		"@doc4": "If true, administrator is notified of new changes that await moderation.",
 		"ModerationNotificationEnable": false,
+
+		"@doc5": "If true, only notify about new pages, not all edits.",
 		"ModerationNotificationNewOnly": false,
+
+		"@doc6": "Email address to send notifications to.",
 		"ModerationEmail": "",
+
+		"@doc7": "If true/false, assume presence/absence of VisualEditor. Default: auto-detect.",
 		"ModerationSupportVisualEditor": "guess",
+
+		"@doc8": "If true/false, assume presence/absence of MobileFrontend. Default: auto-detect.",
 		"ModerationSupportMobileFrontend": "guess",
+
+		"@doc9": "If true, supports third-party JavaScript editors even if both VisualEditor and MobileFrontend are not installed.",
 		"ModerationForceAjaxHook": false,
+
+		"@doc10": "Experimental: if true, enable Ajax handling of links on Special:Moderation.",
 		"ModerationUseAjax": false
 	},
 	"manifest_version": 1
