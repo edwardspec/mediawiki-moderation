@@ -19,7 +19,7 @@
 
 		var funcName = mw.libs.ve.targetLoader.requestParsoidData ?
 			'requestParsoidData' : /* Modern VisualEditor (after commit c452e13) */
-			'requestPageData'; /* Legacy version */
+			'requestPageData'; /* Legacy version (1.27) */
 		var oldFunc = mw.libs.ve.targetLoader[funcName];
 
 		/* Override requestParsoidData() method */
