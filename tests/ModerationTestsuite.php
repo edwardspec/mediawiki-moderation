@@ -469,7 +469,7 @@ class ModerationTestsuite
 			# so we won't remove the braces around it.
 
 			if ( $div->getAttribute( 'class' ) == 'error' )
-				return $div->textContent; /* Error found */
+				return trim( $div->textContent ); /* Error found */
 		}
 
 		return null; # No errors

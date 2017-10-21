@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015 Edward Chernenko.
+	Copyright (C) 2015-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -186,4 +186,20 @@ class ModerationTestUpload extends MediaWikiTestCase
 		$this->assertEquals( $t->lastEdit['User'], $rev1['user'],
 			"testReupload(): Image reupload wasn't attributed to the user who made it" );
 	}
+
+	/*
+		TODO: multiupload test.
+
+	public function testMultiUpload() {
+		global $wgVersion;
+		if ( version_compare( $wgVersion, '1.28', '<' ) ) {
+			$this->markTestSkipped( 'Test skipped: MediaWiki 1.27 doesn\'t support multiupload.' );
+		}
+
+		$t = new ModerationTestsuite();
+
+		# Can upload be performed not via Special:Upload?
+		# (situation when image description and other parameters are not in $wgRequest).
+	}
+	*/
 }
