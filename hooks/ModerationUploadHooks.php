@@ -76,6 +76,13 @@ class ModerationUploadHooks {
 			return true;  /* Will be handled in UploadVerifyUpload hook (MediaWiki 1.28+) */
 		}
 
+		$context = RequestContext::getMain();
+		$user = $context->getUser();
+
+		if ( ModerationCanSkip::canSkip( $user ) ) {
+			return true;
+		}
+
 		/* Run validateName() check that normally happens after UploadVerifyFile hook
 			(we abort this hook, therefore validateName() must be called here).
 		*/
@@ -91,7 +98,6 @@ class ModerationUploadHooks {
 			This is a legacy approach for MediaWiki 1.27.
 			MediaWiki 1.28+ has UploadVerifyUpload hook which already knows this information.
 		*/
-		$context = RequestContext::getMain();
 		$special = new ModerationSpecialUpload( $context->getRequest() );
 		$special->publicLoadRequest();
 
@@ -107,7 +113,7 @@ class ModerationUploadHooks {
 
 		return self::onUploadVerifyUpload(
 			$upload,
-			$context->getUser(),
+			$user,
 			array(), /* $props - no need to calculate, because our onUploadVerifyUpload() doesn't use it */
 			$special->mComment,
 			$pageText,
