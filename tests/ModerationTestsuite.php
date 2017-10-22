@@ -297,6 +297,7 @@ class ModerationTestsuite
 	}
 
 	public $editViaAPI = false;
+	public $uploadViaAPI = false;
 
 	/**
 		@brief Make an edit via the usual interface, as real users do.
@@ -415,33 +416,27 @@ class ModerationTestsuite
 	*/
 	public function doTestUpload( $title = null, $source_filename = null, $text = null )
 	{
-		if ( !$title )
+		if ( !$title ) {
 			$title = $this->generateRandomTitle() . '.png';
+		}
 
-		if ( is_null( $text ) ) # Empty string (no description) is allowed
+		if ( is_null( $text ) ) { # Empty string (no description) is allowed
 			$text = $this->generateRandomText();
+		}
 
 		if ( !$source_filename ) {
 			$source_filename = __DIR__ . "/resources/image100x100.png";
 		}
 		$source_filename = realpath( $source_filename );
 
-		$req = $this->http->makeRequest( wfScript( 'index' ), 'POST' );
+		if ( $this->uploadViaAPI ) {
+			$status = $this->apiUpload( $title, $source_filename, $text );
+		}
+		else {
+			$status = $this->nonApiUpload( $title, $source_filename, $text );
+		}
 
-		$req->setHeader( 'Content-Type', 'multipart/form-data' );
-		$req->setData( array(
-			'title' => 'Special:Upload',
-			'wpUploadFile' => curl_file_create( $source_filename ),
-			'wpDestFile' => $title,
-			'wpIgnoreWarning' => '1',
-			'wpEditToken' => $this->api->editToken,
-			'wpUpload' => 'Upload',
-			'wpUploadDescription' => $text
-		) );
-
-		$status = $req->execute();
-		if ( !$status->isOK() )
-		{
+		if ( !$status->isOK() ) {
 			# HTTP error found.
 			# Braces '(', ')' are needed so that return value would
 			# have the same format as in HTML output below.
@@ -457,14 +452,14 @@ class ModerationTestsuite
 		$this->lastEdit['SHA1'] = sha1_file( $source_filename );
 		$this->lastEdit['Source'] = $source_filename;
 
-		if ( $req->getResponseHeader( 'Location' ) )
+		if ( $status->value['location'] ) {
 			return null; # No errors
+		}
 
-		$html = $this->html->loadFromString( $req->getContent() );
+		$html = $this->html->loadFromString( $status->value['content'] );
 		$divs = $html->getElementsByTagName( 'div' );
 
-		foreach ( $divs as $div )
-		{
+		foreach ( $divs as $div ) {
 			# Note: the message can have parameters,
 			# so we won't remove the braces around it.
 
@@ -473,6 +468,55 @@ class ModerationTestsuite
 		}
 
 		return null; # No errors
+	}
+
+	/**
+		@brief Make an upload via the usual Special:Upload, as real users do.
+		@returns Status object, value contains 'location' and 'content' keys.
+	*/
+	public function nonApiUpload( $title, $source_filename, $text )
+	{
+		$req = $this->http->makeRequest( wfScript( 'index' ), 'POST' );
+
+		$req->setHeader( 'Content-Type', 'multipart/form-data' );
+		$req->setData( array(
+			'title' => 'Special:Upload',
+			'wpUploadFile' => curl_file_create( $source_filename ),
+			'wpDestFile' => $title,
+			'wpIgnoreWarning' => '1',
+			'wpEditToken' => $this->api->editToken,
+			'wpUpload' => 'Upload',
+			'wpUploadDescription' => $text
+		) );
+
+		$status = $req->execute();
+		$status->value = array(
+			'location' => $req->getResponseHeader( 'Location' ),
+			'content' => $req->getContent()
+		);
+
+		return $status;
+	}
+
+	/**
+		@brief Make an upload via the usual Special:Upload, as real users do.
+		@returns Status object, value contains 'location' and 'content' keys.
+	*/
+	public function apiUpload( $title, $source_filename, $text )
+	{
+		/* TODO */
+		throw new MWException( 'Upload via API: not yet implemented in ModerationTestsuite.' );
+
+		/*
+		$ret = $this->query( array(
+			'action' => 'upload',
+			'title' => $title,
+			'text' => $text,
+			'token' => null,
+
+			// ...
+		) );
+		*/
 	}
 
 	/**
