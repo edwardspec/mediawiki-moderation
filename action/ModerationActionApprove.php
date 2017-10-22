@@ -148,7 +148,7 @@ class ModerationActionApprove extends ModerationAction {
 
 		# Disable moderation hook (ModerationEditHooks::onPageContentSave),
 		# so that it won't queue this edit again.
-		ModerationEditHooks::$inApprove = true;
+		ModerationCanSkip::enterApproveMode();
 
 		# Prepare everything
 		$title = Title::makeTitle( $row->namespace, $row->title );

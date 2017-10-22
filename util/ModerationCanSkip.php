@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2015 Edward Chernenko.
+	Copyright (C) 2014-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,6 +21,17 @@
 */
 
 class ModerationCanSkip {
+	protected static $inApprove = false; /**< Flag used in enterApproveMode() */
+
+	/**
+		@brief Enters "approve mode", making all further calls of canSkip() return true.
+		This is used in ModerationActionApprove, so that newly approved edit
+		wouldn't be stopped by Moderation again.
+	*/
+	public static function enterApproveMode() {
+		self::$inApprove = true;
+	}
+
 	public static function canSkip( $user ) {
 		global $wgModerationEnable;
 
@@ -32,6 +43,7 @@ class ModerationCanSkip {
 		*/
 		if (
 			!$wgModerationEnable ||
+			self::$inApprove ||
 			$user->isAllowed( 'skip-moderation' ) ||
 			$user->isAllowed( 'rollback' )
 		)

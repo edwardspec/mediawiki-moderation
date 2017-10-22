@@ -24,8 +24,6 @@ class ModerationEditHooks {
 	public static $LastInsertId = null; /**< mod_id of the last inserted row */
 	public static $NewMergeID = null; /** During modaction=merge, this is mod_id of the pending edit which is currently being merged */
 
-	public static $inApprove = false; /**< Set to true by ModerationActionApprove::prepareApproveHooks() */
-
 	protected static $section = ''; /**< Number of edited section, if any (populated in onEditFilter) */
 	protected static $sectionText = null; /**< Text of edited section, if any (populated in onEditFilter) */
 
@@ -57,10 +55,6 @@ class ModerationEditHooks {
 			   $wgModerationEmail, $wgPasswordSender;
 
 		$preload = ModerationPreload::singleton();
-
-		if ( self::$inApprove ) {
-			return true;
-		}
 
 		if ( ModerationCanSkip::canSkip( $user ) ) {
 			return true;

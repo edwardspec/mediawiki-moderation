@@ -26,10 +26,6 @@ class ModerationUploadHooks {
 		@brief Intercept image uploads and queue them for moderation.
 	*/
 	public static function onUploadVerifyUpload( $upload, $user, $__unused, $comment, $pageText, &$error ) {
-		if ( ModerationEditHooks::$inApprove ) {
-			return true;
-		}
-
 		if ( ModerationCanSkip::canSkip( $user ) ) {
 			return true;
 		}
