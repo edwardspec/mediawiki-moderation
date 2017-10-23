@@ -98,11 +98,11 @@ class ModerationTestUpload extends MediaWikiTestCase
 
 		# Upload the image first
 		$t->loginAs( $t->automoderated );
-		$t->doTestUpload( $title, __DIR__ . "/../resources/image640x50.png", "Text 1" );
+		$t->doTestUpload( $title, "image640x50.png", "Text 1" );
 
 		# Now queue reupload for moderation
 		$t->loginAs( $t->unprivilegedUser );
-		$error = $t->doTestUpload( $title, __DIR__ . "/../resources/image100x100.png", "Text 2" );
+		$error = $t->doTestUpload( $title, "image100x100.png", "Text 2" );
 		$t->fetchSpecial();
 
 		# Was the reupload queued for moderation?

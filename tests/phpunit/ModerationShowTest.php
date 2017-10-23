@@ -108,7 +108,7 @@ class ModerationTestShow extends MediaWikiTestCase
 		*/
 
 		$t->loginAs( $t->unprivilegedUser );
-		$error = $t->doTestUpload( "Test image 1.png", __DIR__ . "/../resources/image640x50.png",
+		$error = $t->doTestUpload( "Test image 1.png", "image640x50.png",
 			"" # Empty description: check for (moderation-diff-upload-notext)
 		);
 		$t->fetchSpecial();
@@ -202,7 +202,7 @@ class ModerationTestShow extends MediaWikiTestCase
 		# Check the thumbnail of image smaller than THUMB_WIDTH.
 		# Its thumbnail must be exactly the same size as original image.
 		$t->loginAs( $t->unprivilegedUser );
-		$t->doTestUpload( "Test image 2.png", __DIR__ . "/../resources/image100x100.png",
+		$t->doTestUpload( "Test image 2.png", "image100x100.png",
 			"Non-empty image description" );
 		$t->fetchSpecial();
 
