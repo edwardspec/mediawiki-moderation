@@ -24,14 +24,15 @@ class ModerationApiHooks {
 
 	/**
 		onApiCheckCanExecute()
-		Prevent uploads via API for non-automoderated user
-
-		FIXME: this is needed because UploadVerifyFile hook doesn't receive description.
-		Find a way to workaround this.
-		(MediaWiki 1.28+ has UploadVerifyUpload hook, but we still need to support 1.27).
+		Disable upload API for non-automoderated user in MediaWiki 1.27
+		(this feature is only supported in MediaWiki 1.28+).
 	*/
 	public static function onApiCheckCanExecute( $module, $user, &$message ) {
-		if ( $module == 'upload' && !ModerationCanSkip::canSkip( $user ) ) {
+		if (
+			$module->getModuleName() == 'upload'
+			&& !ModerationUploadHooks::haveUploadVerifyUpload()
+			&& !ModerationCanSkip::canSkip( $user )
+		) {
 			$message = 'nouploadmodule';
 			return false;
 		}

@@ -187,19 +187,52 @@ class ModerationTestUpload extends MediaWikiTestCase
 			"testReupload(): Image reupload wasn't attributed to the user who made it" );
 	}
 
-	/*
-		TODO: multiupload test.
-
-	public function testMultiUpload() {
+	public function testApiUpload() {
 		global $wgVersion;
 		if ( version_compare( $wgVersion, '1.28', '<' ) ) {
-			$this->markTestSkipped( 'Test skipped: MediaWiki 1.27 doesn\'t support multiupload.' );
+			$this->markTestSkipped( 'Test skipped: MediaWiki 1.27 doesn\'t support upload via API.' );
 		}
 
 		$t = new ModerationTestsuite();
+		$t->uploadViaAPI = true;
 
 		# Can upload be performed not via Special:Upload?
 		# (situation when image description and other parameters are not in $wgRequest).
+
+		$t->loginAs( $t->unprivilegedUser );
+		$error = $t->doTestUpload();
+		$t->fetchSpecial();
+
+		# Was the upload queued for moderation?
+		$this->assertEquals( '(moderation-image-queued)', $error );
+
+		# Is the data on Special:Moderation correct?
+		$entry = $t->new_entries[0];
+		$this->assertCount( 1, $t->new_entries,
+			"testApiUpload(): One upload was queued for moderation, but number of added entries in Pending folder isn't 1" );
+		$this->assertCount( 0, $t->deleted_entries,
+			"testApiUpload(): Something was deleted from Pending folder during the queueing" );
+		$this->assertEquals( $t->lastEdit['User'], $entry->user );
+		$this->assertEquals( $t->lastEdit['Title'], $entry->title );
 	}
+
+	/**
+		@covers ModerationApiHooks::onApiCheckCanExecute()
 	*/
+	public function testNoApiUploadBefore1_28() {
+		global $wgVersion;
+		if ( version_compare( $wgVersion, '1.28', '>=' ) ) {
+			$this->markTestSkipped( 'Test skipped: only applicable to MediaWiki 1.27.' );
+		}
+
+		$t = new ModerationTestsuite();
+		$t->uploadViaAPI = true;
+
+		$t->loginAs( $t->unprivilegedUser );
+		$error = $t->doTestUpload();
+
+		/* Uploads via API are only supported in MediaWiki 1.28+,
+			older MediaWiki should return error. */
+		$this->assertEquals( '(nouploadmodule)', $error );
+	}
 }

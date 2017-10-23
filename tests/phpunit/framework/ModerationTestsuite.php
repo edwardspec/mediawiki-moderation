@@ -499,18 +499,19 @@ class ModerationTestsuite
 	*/
 	public function apiUpload( $title, $source_filename, $text )
 	{
-		/* TODO */
-		throw new MWException( 'Upload via API: not yet implemented in ModerationTestsuite.' );
-
-		/*
 		$ret = $this->query( array(
 			'action' => 'upload',
-			'title' => $title,
+			'filename' => $title,
 			'text' => $text,
 			'token' => null,
 			'file' => curl_file_create( $source_filename )
 		) );
-		*/
+
+		if ( isset( $ret['error']['code'] ) ) {
+			return '(' . $ret['error']['code'] . ')';
+		}
+
+		return null; /* No errors */
 	}
 
 	/**
