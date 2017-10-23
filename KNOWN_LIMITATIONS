@@ -2,22 +2,30 @@ List of known limitations:
 
 ===============================================================================
 Limitation:
-	Unless the user has 'skip-moderation' right:
+	In MediaWiki 1.27 (not 1.28+),
+	unless the user has 'skip-moderation' right:
+
 	1) only uploads via conventional Special:Upload are supported.
 	2) Upload via API is disabled.
 	3) All other uploading extensions (like Extension:MultipleUpload) won't
 	work, unless they are providing the very same fields as Special:Upload.
-	4) Reverting image to previous version won't be allowed.
 Why:
-	"before-upload" hooks of MediaWiki (like VerifyFile) don't provide
-	things like comment, text etc., so we have to get them from $wgRequest
-	using the methods of Special:Upload.
-	If $wgRequest doesn't have those fields, we abort.
-	Reverting images is off, as it bypasses doUpload() and related hooks.
+	Before UploadVerifyUpload hook appeared in MediaWiki 1.28, we used
+	pre-upload hook UploadVerifyFile, which didn't provide necessary
+	information like edit comment, text etc., so we had to get this
+	from $wgRequest. If $wgRequest doesn't have those fields, we abort.
 ===============================================================================
 
 ===============================================================================
 Limitation:
+	Unless the user has 'skip-moderation' right,
+	reverting image to previous version won't be allowed.
+Why:
+	Reverting images bypasses doUpload() and related hooks.
+===============================================================================
+
+===============================================================================
+[Probably not applicable to MediaWiki 1.27+] Limitation:
 	if anonymous user who never edited before clicks Submit twice in a
 	short period of time, two equal pending edits can be created. This is
 	not a problem (one of them should be simply rejected by a moderator,
