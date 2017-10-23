@@ -62,6 +62,11 @@ class ModerationTestsuite
 		$req = $this->http->makeRequest( $url, $method );
 		$req->setData( $post_data );
 
+		if ( $method == 'POST' ) {
+			/* Can be an upload */
+			$req->setHeader( 'Content-Type', 'multipart/form-data' );
+		}
+
 		$status = $req->execute();
 
 		if ( !$status->isOK() &&
@@ -435,18 +440,10 @@ class ModerationTestsuite
 		$source_filename = realpath( $source_filename );
 
 		if ( $this->uploadViaAPI ) {
-			$status = $this->apiUpload( $title, $source_filename, $text );
+			$ret = $this->apiUpload( $title, $source_filename, $text );
 		}
 		else {
-			$status = $this->nonApiUpload( $title, $source_filename, $text );
-		}
-
-		if ( !$status->isOK() ) {
-			# HTTP error found.
-			# Braces '(', ')' are needed so that return value would
-			# have the same format as in HTML output below.
-
-			return '(' . $status->errors[0]['message'] . ')';
+			$ret = $this->nonApiUpload( $title, $source_filename, $text );
 		}
 
 		$this->lastEdit = array();
@@ -457,19 +454,20 @@ class ModerationTestsuite
 		$this->lastEdit['SHA1'] = sha1_file( $source_filename );
 		$this->lastEdit['Source'] = $source_filename;
 
-		if ( $status->value['location'] ) {
+		if ( $ret['location'] ) {
 			return null; # No errors
 		}
 
-		$html = $this->html->loadFromString( $status->value['content'] );
+		$html = $this->html->loadFromString( $ret['content'] );
 		$divs = $html->getElementsByTagName( 'div' );
 
 		foreach ( $divs as $div ) {
 			# Note: the message can have parameters,
 			# so we won't remove the braces around it.
 
-			if ( $div->getAttribute( 'class' ) == 'error' )
+			if ( $div->getAttribute( 'class' ) == 'error' ) {
 				return trim( $div->textContent ); /* Error found */
+			}
 		}
 
 		return null; # No errors
@@ -477,14 +475,11 @@ class ModerationTestsuite
 
 	/**
 		@brief Make an upload via the usual Special:Upload, as real users do.
-		@returns Status object, value contains 'location' and 'content' keys.
+		@returns Array with 'location' and 'content' keys.
 	*/
 	public function nonApiUpload( $title, $source_filename, $text )
 	{
-		$req = $this->http->makeRequest( wfScript( 'index' ), 'POST' );
-
-		$req->setHeader( 'Content-Type', 'multipart/form-data' );
-		$req->setData( array(
+		$req = $this->httpPost( wfScript( 'index' ), array(
 			'title' => 'Special:Upload',
 			'wpUploadFile' => curl_file_create( $source_filename ),
 			'wpDestFile' => $title,
@@ -494,13 +489,10 @@ class ModerationTestsuite
 			'wpUploadDescription' => $text
 		) );
 
-		$status = $req->execute();
-		$status->value = array(
+		return array(
 			'location' => $req->getResponseHeader( 'Location' ),
 			'content' => $req->getContent()
 		);
-
-		return $status;
 	}
 
 	/**
