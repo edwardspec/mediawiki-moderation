@@ -440,10 +440,10 @@ class ModerationTestsuite
 		$source_filename = realpath( $source_filename );
 
 		if ( $this->uploadViaAPI ) {
-			$ret = $this->apiUpload( $title, $source_filename, $text );
+			$error = $this->apiUpload( $title, $source_filename, $text );
 		}
 		else {
-			$ret = $this->nonApiUpload( $title, $source_filename, $text );
+			$error = $this->nonApiUpload( $title, $source_filename, $text );
 		}
 
 		$this->lastEdit = array();
@@ -454,28 +454,12 @@ class ModerationTestsuite
 		$this->lastEdit['SHA1'] = sha1_file( $source_filename );
 		$this->lastEdit['Source'] = $source_filename;
 
-		if ( $ret['location'] ) {
-			return null; # No errors
-		}
-
-		$html = $this->html->loadFromString( $ret['content'] );
-		$divs = $html->getElementsByTagName( 'div' );
-
-		foreach ( $divs as $div ) {
-			# Note: the message can have parameters,
-			# so we won't remove the braces around it.
-
-			if ( $div->getAttribute( 'class' ) == 'error' ) {
-				return trim( $div->textContent ); /* Error found */
-			}
-		}
-
-		return null; # No errors
+		return $error;
 	}
 
 	/**
 		@brief Make an upload via the usual Special:Upload, as real users do.
-		@returns Array with 'location' and 'content' keys.
+		@returns Error code (e.g. '(emptyfile)') or null.
 	*/
 	public function nonApiUpload( $title, $source_filename, $text )
 	{
@@ -489,15 +473,29 @@ class ModerationTestsuite
 			'wpUploadDescription' => $text
 		) );
 
-		return array(
-			'location' => $req->getResponseHeader( 'Location' ),
-			'content' => $req->getContent()
-		);
+		if ( $req->getResponseHeader( 'Location' ) ) {
+			return null; # No errors
+		}
+
+		/* Find HTML error, if any */
+		$html = $this->html->loadFromReq( $req );
+		$divs = $html->getElementsByTagName( 'div' );
+
+		foreach ( $divs as $div ) {
+			# Note: the message can have parameters,
+			# so we won't remove the braces around it.
+
+			if ( $div->getAttribute( 'class' ) == 'error' ) {
+				return trim( $div->textContent ); /* Error found */
+			}
+		}
+
+		return null; /* No errors */
 	}
 
 	/**
 		@brief Make an upload via the usual Special:Upload, as real users do.
-		@returns Status object, value contains 'location' and 'content' keys.
+		@returns Error code (e.g. '(emptyfile)') or null.
 	*/
 	public function apiUpload( $title, $source_filename, $text )
 	{
@@ -510,8 +508,7 @@ class ModerationTestsuite
 			'title' => $title,
 			'text' => $text,
 			'token' => null,
-
-			// ...
+			'file' => curl_file_create( $source_filename )
 		) );
 		*/
 	}
