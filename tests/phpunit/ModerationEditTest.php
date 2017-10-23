@@ -20,7 +20,7 @@
 	@brief Verifies that editing works as usual.
 */
 
-require_once( __DIR__ . "/../ModerationTestsuite.php" );
+require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 class ModerationTestEdit extends MediaWikiTestCase
 {

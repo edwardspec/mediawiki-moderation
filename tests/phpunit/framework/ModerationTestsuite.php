@@ -425,7 +425,7 @@ class ModerationTestsuite
 		}
 
 		if ( !$source_filename ) {
-			$source_filename = __DIR__ . "/resources/image100x100.png";
+			$source_filename = __DIR__ . "/../../resources/image100x100.png";
 		}
 		$source_filename = realpath( $source_filename );
 

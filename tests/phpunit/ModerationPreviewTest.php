@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2016 Edward Chernenko.
+	Copyright (C) 2016-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 	@brief Verifies that modaction=preview works as expected.
 */
 
-require_once( __DIR__ . "/../ModerationTestsuite.php" );
+require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 /**
 	@covers ModerationActionPreview

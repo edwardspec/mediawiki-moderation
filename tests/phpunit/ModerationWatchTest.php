@@ -20,7 +20,7 @@
 	@brief Verifies that "Watch this page" checkbox is respected when editing.
 */
 
-require_once( __DIR__ . "/../ModerationTestsuite.php" );
+require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 /**
 	@covers ModerationActionApprove

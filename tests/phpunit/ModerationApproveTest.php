@@ -20,7 +20,7 @@
 	@brief Verifies that modaction=approve(all) works as expected.
 */
 
-require_once( __DIR__ . "/../ModerationTestsuite.php" );
+require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 /**
 	@covers ModerationActionApprove
