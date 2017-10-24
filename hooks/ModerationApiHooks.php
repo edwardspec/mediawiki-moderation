@@ -26,14 +26,24 @@ class ModerationApiHooks {
 		onApiCheckCanExecute()
 		Disable upload API for non-automoderated user in MediaWiki 1.27
 		(this feature is only supported in MediaWiki 1.28+).
+
+		Also disable ApiFileRevert (this API doesn't any run pre-upload
+		hooks, thus allowing to bypass moderation.
 	*/
 	public static function onApiCheckCanExecute( $module, $user, &$message ) {
-		if (
-			$module->getModuleName() == 'upload'
-			&& !ModerationUploadHooks::haveUploadVerifyUpload()
-			&& !ModerationCanSkip::canSkip( $user )
-		) {
+		if ( ModerationCanSkip::canSkip( $user ) ) {
+			return true; /* No need to limit automoderated users */
+		}
+
+		$moduleName = $module->getModuleName();
+
+		if ( $moduleName == 'upload' && !ModerationUploadHooks::haveUploadVerifyUpload() ) {
 			$message = 'nouploadmodule';
+			return false;
+		}
+
+		if ( $moduleName == 'filerevert' ) {
+			$message = 'moderation-revert-not-allowed';
 			return false;
 		}
 
