@@ -123,10 +123,10 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	*/
 	public function getPreloadedText( $title )
 	{
-		$url = wfAppendQuery( wfScript( 'index' ), array(
+		$url = wfAppendQuery( wfScript( 'index' ), [
 			'title' => $title,
 			'action' => 'edit'
-		) );
+		] );
 		$this->loadFromURL( $url );
 
 		$elem = $this->getElementById( 'wpTextbox1' );
@@ -145,7 +145,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 		$this->loadFromURL( $url );
 		$scripts = $this->getElementsByTagName( 'script' );
 
-		$list = array();
+		$list = [];
 		foreach ( $scripts as $script )
 		{
 			$matches = null;
@@ -175,7 +175,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 		}
 
 		$inputs = $formElement->getElementsByTagName( 'input' );
-		$result = array();
+		$result = [];
 		foreach ( $inputs as $input )
 		{
 			$name = $input->getAttribute( 'name' );

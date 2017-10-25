@@ -136,7 +136,7 @@ class ModerationTestMerge extends MediaWikiTestCase
 
 		# Try to edit now
 		$req = $t->nonApiEdit( $this->page, $this->text3, "Wow, I merged an edit",
-			array( 'wpMergeID' => $id )
+			[ 'wpMergeID' => $id ]
 		);
 		$this->assertNotNull( $req->getResponseHeader( 'location' ),
 			"testMerge(): non-API edit with wpMergeID failed" );
@@ -197,7 +197,7 @@ class ModerationTestMerge extends MediaWikiTestCase
 
 		$someID = 12345;
 
-		$req = $t->httpPost( wfScript( 'index' ), array(
+		$req = $t->httpPost( wfScript( 'index' ), [
 			'action' => 'submit',
 			'title' => 'Test page 1',
 			'wpTextbox1' => 'Test text 1',
@@ -206,7 +206,7 @@ class ModerationTestMerge extends MediaWikiTestCase
 			# Preview mode, provide wpMergeID
 			'wpPreview' => '1',
 			'wpMergeID' => $someID
-		) );
+		] );
 		$t->html->loadFromReq( $req );
 
 		$form = $t->html->getElementById( 'editform' );

@@ -58,13 +58,13 @@ class ModerationTestUpload extends MediaWikiTestCase
 			"testUpload(): Result page doesn't contain (moderation-approved-ok: 1)" );
 
 		# Has the file been uploaded after the approval?
-		$ret = $t->query( array(
+		$ret = $t->query( [
 			'action' => 'query',
 			'prop' => 'imageinfo',
 			'iilimit' => 1,
 			'iiprop' => 'user|timestamp|comment|size|url|sha1',
 			'titles' => $entry->title
-		) );
+		] );
 		$ret_page = array_shift( $ret['query']['pages'] );
 		$ii = $ret_page['imageinfo'][0];
 
@@ -136,13 +136,13 @@ class ModerationTestUpload extends MediaWikiTestCase
 			"testReupload(): Result page doesn't contain (moderation-approved-ok: 1)" );
 
 		# Has the file been reuploaded after the approval?
-		$ret = $t->query( array(
+		$ret = $t->query( [
 			'action' => 'query',
 			'prop' => 'imageinfo',
 			'iilimit' => 1,
 			'iiprop' => 'user|timestamp|comment|size|url|sha1',
 			'titles' => $entry->title
-		) );
+		] );
 		$ret_page = array_shift( $ret['query']['pages'] );
 		$ii = $ret_page['imageinfo'][0];
 
@@ -154,13 +154,13 @@ class ModerationTestUpload extends MediaWikiTestCase
 		# tags image reuploads as made by moderator (and not $user).
 		# Was that fixed? (via ModerationApproveHook class)
 
-		$ret = $t->query( array(
+		$ret = $t->query( [
 			'action' => 'query',
 			'prop' => 'revisions',
 			'rvlimit' => 2, # See below
 			'rvprop' => 'user|timestamp|comment|content|ids',
 			'titles' => $entry->title
-		) );
+		] );
 
 		# Because API orders entries by timestamp (up to seconds), and
 		# it's likely that two uploads we just made will have the same

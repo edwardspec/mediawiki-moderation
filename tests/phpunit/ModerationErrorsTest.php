@@ -31,9 +31,9 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$t = new ModerationTestsuite();
 		$t->loginAs( $t->moderator );
 
-		$url = $t->getSpecialURL( array(
+		$url = $t->getSpecialURL( [
 			'modaction' => 'findgirlfriend'
-		) );
+		] );
 
 		$error = $t->html->getModerationError( $url );
 		$this->assertEquals( '(moderation-unknown-modaction)', $error );
@@ -47,7 +47,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$req = $t->httpGet( $entry->approveLink );
 
 		$entry->fakeBlockLink();
-		$links = array(
+		$links = [
 			$entry->showLink,
 			$entry->approveLink,
 			$entry->approveAllLink,
@@ -56,7 +56,7 @@ class ModerationTestErrors extends MediaWikiTestCase
 			$entry->blockLink,
 			$entry->unblockLink,
 			$entry->expectedActionLink( 'merge', true )
-		);
+		];
 		foreach ( $links as $url ) {
 			$error = $t->html->getModerationError( $url );
 			$this->assertEquals( '(moderation-edit-not-found)', $error );
@@ -101,8 +101,8 @@ class ModerationTestErrors extends MediaWikiTestCase
 
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
-			array( 'mod_stash_key AS stash_key' ),
-			array( 'mod_id' => $entry->id ),
+			[ 'mod_stash_key AS stash_key' ],
+			[ 'mod_id' => $entry->id ],
 			__METHOD__
 		);
 

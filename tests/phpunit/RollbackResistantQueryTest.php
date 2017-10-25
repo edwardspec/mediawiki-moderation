@@ -53,9 +53,9 @@ class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 			Because behavior of commit( ..., 'flush' ) varies when DBO_TRX is on/off,
 			we need to test both situations.
 		*/
-		foreach ( array( true, false ) as $isTrxAutomatic ) { /* with/without DBO_TRX */
-			foreach ( array( true, false ) as $isExplicitTransaction ) { /* with/without begin() before doEditContent() */
-				foreach ( array( true, false ) as $isAtomic ) { /* with/without startAtomic() before doEditContent() */
+		foreach ( [ true, false ] as $isTrxAutomatic ) { /* with/without DBO_TRX */
+			foreach ( [ true, false ] as $isExplicitTransaction ) { /* with/without begin() before doEditContent() */
+				foreach ( [ true, false ] as $isAtomic ) { /* with/without startAtomic() before doEditContent() */
 					$this->subtestRollbackResistantQuery(
 						$isTrxAutomatic,
 						$isExplicitTransaction,
@@ -93,10 +93,10 @@ class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 			Ensure clean test environment: current connection shouldn't have a pending transaction.
 		*/
 		$dbw->insert( 'text',
-			array(
+			[
 				'old_text' => 'whatever',
 				'old_flags' => ''
-			),
+			],
 			__METHOD__
 		);
 		if ( $dbw->trxLevel() ) {
@@ -137,10 +137,10 @@ class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 
 		/* Double-check that DB row was created */
 		$wasCreated = $dbw->selectField( 'moderation', '1',
-			array(
+			[
 				'mod_namespace' => $page->getTitle()->getNamespace(),
 				'mod_title' => $page->getTitle()->getText() # FIXME: ModerationEditHooks::onPageContentSave() uses getText(), not getDBKey()
-			),
+			],
 			__METHOD__
 		);
 		$this->assertNotFalse( $wasCreated, "$subtestName: newly added row is not in the 'moderation' table after MWException" );

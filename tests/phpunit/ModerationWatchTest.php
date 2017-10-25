@@ -33,19 +33,19 @@ class ModerationTestWatch extends MediaWikiTestCase
 		$title = 'Some page';
 
 		$t->loginAs( $t->unprivilegedUser );
-		$t->nonApiEdit( $title, 'Some text', 'Some summary', array(
+		$t->nonApiEdit( $title, 'Some text', 'Some summary', [
 			'wpWatchthis' => 1
-		) );
+		] );
 
 		/* Verify that $title was added to watchlist immediately,
 			even though the edit was intercepted by Moderation */
-		$ret = $t->query( array(
+		$ret = $t->query( [
 			'action' => 'query',
 			'list' => 'watchlistraw',
 			'wrnamespace' => NS_MAIN,
 			'wrfromtitle' => $title,
 			'wrlimit' => 1
-		) );
+		] );
 
 		$wl = $ret['watchlistraw'];
 		$this->assertNotEmpty( $wl,
@@ -57,10 +57,10 @@ class ModerationTestWatch extends MediaWikiTestCase
 			Uncheck the "Watch this page" checkbox and edit the same page.
 		*/
 		$t->nonApiEdit( $title, 'Some text2', 'Some summary2' );
-		$ret = $t->query( array(
+		$ret = $t->query( [
 			'action' => 'query',
 			'list' => 'watchlistraw'
-		) );
+		] );
 		$this->assertEmpty( $ret['watchlistraw'],
 			"testWatch(): All pages were unwatched, but watchlist is not empty" );
 	}

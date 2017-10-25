@@ -37,7 +37,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbText = $dbw->selectField( 'moderation', 'mod_text',
-			array( 'mod_id' => $t->new_entries[0]->id ),
+			[ 'mod_id' => $t->new_entries[0]->id ],
 			__METHOD__
 		);
 
@@ -48,12 +48,12 @@ class ModerationTestEdit extends MediaWikiTestCase
 	public function testEditSections() {
 		$t = new ModerationTestsuite();
 
-		$sections = array(
+		$sections = [
 			"Text in zero section\n\n",
 			"== First section ==\nText in first section\n\n",
 			"== Second section ==\nText in second section\n\n",
 			"== Third section ==\nText in third section\n\n"
-		);
+		];
 		$title = 'Test page 1';
 		$text = join( '', $sections );
 
@@ -63,11 +63,11 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$t->loginAs( $t->unprivilegedUser );
 
 		# Do several edits in the different sections of the text.
-		$query = array(
+		$query = [
 			'action' => 'edit',
 			'title' => $title,
 			'token' => null
-		);
+		];
 
 		$query['section'] = 0;
 		$query['text'] = $sections[0] = "New text in zero section\n\n";
@@ -85,7 +85,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbText = $dbw->selectField( 'moderation', 'mod_text',
-			array( 'mod_id' => $t->new_entries[0]->id ),
+			[ 'mod_id' => $t->new_entries[0]->id ],
 			__METHOD__
 		);
 
@@ -102,7 +102,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$ret = $t->query( $query );
 
 		$dbText = $dbw->selectField( 'moderation', 'mod_text',
-			array( 'mod_id' => $t->new_entries[0]->id ),
+			[ 'mod_id' => $t->new_entries[0]->id ],
 			__METHOD__
 		);
 
@@ -116,7 +116,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$ret = $t->query( $query );
 
 		$dbText = $dbw->selectField( 'moderation', 'mod_text',
-			array( 'mod_id' => $t->new_entries[0]->id ),
+			[ 'mod_id' => $t->new_entries[0]->id ],
 			__METHOD__
 		);
 		$expectedText = join( '', $sections );
@@ -129,10 +129,10 @@ class ModerationTestEdit extends MediaWikiTestCase
 
 		/* Make sure that mod_new_len is properly recalculated when editing sections */
 		$title = 'Test page 1';
-		$sections = array(
+		$sections = [
 			"Text in zero section",
 			"== First section ==\nText in first section",
-		);
+		];
 		$origText = join( "\n\n", $sections );
 
 		# First, create a preloadable edit
@@ -143,14 +143,14 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$req = $t->nonApiEdit( $title,
 			$sections[0], /* No changes */
 			'Some edit comment',
-			array( 'wpSection' => '0' )
+			[ 'wpSection' => '0' ]
 		);
 
 		$t->fetchSpecial();
 
 		$dbw = wfGetDB( DB_MASTER );
 		$newlen = $dbw->selectField( 'moderation', 'mod_new_len',
-			array( 'mod_id' => $t->new_entries[0]->id ),
+			[ 'mod_id' => $t->new_entries[0]->id ],
 			__METHOD__
 		);
 
@@ -165,14 +165,14 @@ class ModerationTestEdit extends MediaWikiTestCase
 		# Does api.php?action=edit&{append,prepend}text=[...] work properly?
 		$t = new ModerationTestsuite();
 
-		$todoPrepend = array( "B", "A" );
+		$todoPrepend = [ "B", "A" ];
 		$todoText = "C";
-		$todoAppend = array( "D", "E" );
+		$todoAppend = [ "D", "E" ];
 
 		$title = 'Test page 1';
 		$expectedText = join( '', array_merge(
 			array_reverse( $todoPrepend ),
-			array( $todoText ),
+			[ $todoText ],
 			$todoAppend
 		) );
 
@@ -182,11 +182,11 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$t->loginAs( $t->unprivilegedUser );
 
 		# Do several edits using api.php?appendtext= and api.php?prependtext=
-		$query = array(
+		$query = [
 			'action' => 'edit',
 			'title' => $title,
 			'token' => null
-		);
+		];
 
 		foreach ( $todoPrepend as $text ) {
 			$query['prependtext'] = $text;
@@ -203,7 +203,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbText = $dbw->selectField( 'moderation', 'mod_text',
-			array( 'mod_id' => $t->new_entries[0]->id ),
+			[ 'mod_id' => $t->new_entries[0]->id ],
 			__METHOD__
 		);
 
@@ -225,13 +225,13 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$t->doTestEdit( $title, $text );
 
 		# Try api.php?action=edit&section=$sectionIdx
-		$ret = $t->query( array(
+		$ret = $t->query( [
 			'action' => 'edit',
 			'title' => $title,
 			'token' => null,
 			'section' => $sectionIdx,
 			'text' => 'Whatever'
-		) );
+		] );
 
 		$this->assertNotEquals( 'nosuchsection', $ret['error']['code'],
 			"testApiNoSuchSectionYet(): API returned nosuchsection error (which is incorrect)" );

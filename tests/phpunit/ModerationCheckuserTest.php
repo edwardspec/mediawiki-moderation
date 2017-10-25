@@ -79,10 +79,10 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		return $dbw->selectFieldValues( 'cu_changes', 'cuc_agent',
 			'1',
 			__METHOD__,
-			array(
+			[
 				'ORDER BY' => 'cuc_id DESC',
 				'LIMIT' => $limit
-			)
+			]
 		);
 	}
 

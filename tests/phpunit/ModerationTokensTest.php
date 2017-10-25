@@ -36,13 +36,13 @@ class ModerationTestTokens extends MediaWikiTestCase
 		$entry->fakeBlockLink();
 
 		# Non-readonly actions require a correct token
-		$links = array( $entry->approveLink,
+		$links = [ $entry->approveLink,
 			$entry->approveAllLink,
 			$entry->rejectLink,
 			$entry->rejectAllLink,
 			$entry->blockLink,
 			$entry->unblockLink
-		);
+		];
 		foreach ( $links as $url )
 		{
 			$this->assertRegExp( '/\(sessionfailure-title\)/', $t->noTokenTitle( $url ) );

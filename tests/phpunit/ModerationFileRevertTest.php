@@ -32,9 +32,9 @@ class ModerationTestFileRevert extends MediaWikiTestCase
 		$t = new ModerationTestsuite();
 
 		$t->loginAs( $t->unprivilegedUser );
-		$req = $t->httpPost( wfScript( 'index' ), array(
+		$req = $t->httpPost( wfScript( 'index' ), [
 			'action' => 'revert'
-		) );
+		] );
 		$t->html->loadFromReq( $req );
 
 		$this->assertRegExp( '/\(moderation-revert-not-allowed\)/',
@@ -49,19 +49,19 @@ class ModerationTestFileRevert extends MediaWikiTestCase
 		$t = new ModerationTestsuite();
 
 		$t->loginAs( $t->unprivilegedUser );
-		$ret = $t->query( array(
+		$ret = $t->query( [
 			'action' => 'filerevert',
 			'filename' => 'whatever',
 			'archivename' => 'whatever',
 			'token' => null
-		) );
+		] );
 
 		/* File revert shouldn't be allowed (this user is not automoderated) */
 		$this->assertArrayHasKey( 'error', $ret );
-		$this->assertContains( $ret['error']['code'], array(
+		$this->assertContains( $ret['error']['code'], [
 			'unknownerror', # MediaWiki 1.28 and older
 			'moderation-revert-not-allowed' # MediaWiki 1.29+
-		) );
+		] );
 		if ( $ret['error']['code'] == 'unknownerror' ) {
 			$this->assertRegExp( '/moderation-revert-not-allowed/',
 				$ret['error']['info'] );

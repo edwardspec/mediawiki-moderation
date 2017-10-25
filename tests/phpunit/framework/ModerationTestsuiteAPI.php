@@ -33,10 +33,10 @@ class ModerationTestsuiteAPI {
 	public $editToken = false;
 
 	private function getEditToken() {
-		$ret = $this->query( array(
+		$ret = $this->query( [
 			'action' => 'tokens',
 			'type' => 'edit'
-		) );
+		] );
 
 		$this->editToken = $ret['tokens']['edittoken'];
 	}
@@ -60,11 +60,11 @@ class ModerationTestsuiteAPI {
 
 	public function apiLogin( $username ) {
 		# Step 1. Get the token.
-		$q = array(
+		$q = [
 			'action' => 'login',
 			'lgname' => $username,
 			'lgpassword' => $this->t->TEST_PASSWORD
-		);
+		];
 		$ret = $this->query( $q );
 
 		# Step 2. Actual login.
@@ -85,10 +85,10 @@ class ModerationTestsuiteAPI {
 	}
 
 	public function apiLoggedInAs() {
-		$ret = $this->query( array(
+		$ret = $this->query( [
 			'action' => 'query',
 			'meta' => 'userinfo'
-		) );
+		] );
 		return $ret['query']['userinfo']['name'];
 	}
 
@@ -101,23 +101,23 @@ class ModerationTestsuiteAPI {
 		}
 
 		# Step 1. Get the token.
-		$q = array(
+		$q = [
 			'action' => 'query',
 			'meta' => 'tokens',
 			'type' => 'createaccount'
-		);
+		];
 		$ret = $this->query( $q );
 		$token = $ret['query']['tokens']['createaccounttoken'];
 
 		# Step 2. Actually create an account.
-		$q = array(
+		$q = [
 			'action' => 'createaccount',
 			'username' => $username,
 			'password' => $this->t->TEST_PASSWORD,
 			'retype' => $this->t->TEST_PASSWORD,
 			'createtoken' => $token,
 			'createreturnurl' => 'http://localhost/' /* Not really used */
-		);
+		];
 		$ret = $this->query( $q );
 		return ( $ret['createaccount']['status'] == 'PASS' );
 	}
@@ -127,11 +127,11 @@ class ModerationTestsuiteAPI {
 	*/
 	protected function apiCreateAccountOld( $username ) {
 		# Step 1. Get the token.
-		$q = array(
+		$q = [
 			'action' => 'createaccount',
 			'name' => $username,
 			'password' => $this->t->TEST_PASSWORD
-		);
+		];
 		$ret = $this->query( $q );
 
 		# Step 2. Actually create an account.

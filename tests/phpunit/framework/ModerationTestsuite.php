@@ -39,14 +39,14 @@ class ModerationTestsuite
 		$this->html = new ModerationTestsuiteHTML( $this );
 	}
 	public $TEST_PASSWORD = '123456';
-	public function query( $query = array() ) {
+	public function query( $query = [] ) {
 		return $this->api->query( $query );
 	}
 
 	public function httpGet( $url ) {
-		return $this->executeHttpRequest( $url, 'GET', array() );
+		return $this->executeHttpRequest( $url, 'GET', [] );
 	}
-	public function httpPost( $url, $post_data = array() ) {
+	public function httpPost( $url, $post_data = [] ) {
 		return $this->executeHttpRequest( $url, 'POST', $post_data );
 	}
 	public function setUserAgent( $ua ) {
@@ -56,7 +56,7 @@ class ModerationTestsuite
 		$this->http->resetCookieJar();
 	}
 
-	public $ignoreHttpError = array();
+	public $ignoreHttpError = [];
 
 	private function executeHttpRequest( $url, $method, $post_data ) {
 		$req = $this->http->makeRequest( $url, $method );
@@ -81,12 +81,12 @@ class ModerationTestsuite
 	#
 	# Functions for parsing Special:Moderation.
 	#
-	private $lastFetchedSpecial = array();
+	private $lastFetchedSpecial = [];
 
 	public $new_entries;
 	public $deleted_entries;
 
-	public function getSpecialURL( $query = array() )
+	public function getSpecialURL( $query = [] )
 	{
 		$title = Title::newFromText( 'Moderation', NS_SPECIAL )->fixSpecialName();
 		return wfAppendQuery( $title->getLocalURL(), $query );
@@ -99,7 +99,7 @@ class ModerationTestsuite
 	*/
 	public function assumeFolderIsEmpty( $folder = 'DEFAULT' )
 	{
-		$this->lastFetchedSpecial[$folder] = array();
+		$this->lastFetchedSpecial[$folder] = [];
 	}
 
 	/**
@@ -115,7 +115,7 @@ class ModerationTestsuite
 			$this->loginAs( $this->moderator );
 		}
 
-		$query = array( 'limit' => 150 );
+		$query = [ 'limit' => 150 ];
 		if ( $folder != 'DEFAULT' ) {
 			$query['folder'] = $folder;
 		}
@@ -124,7 +124,7 @@ class ModerationTestsuite
 		$html = $this->html->loadFromURL( $url );
 		$spans = $html->getElementsByTagName( 'span' );
 
-		$entries = array();
+		$entries = [];
 		foreach ( $spans as $span )
 		{
 			if ( strpos( $span->getAttribute( 'class' ), 'modline' ) !== false ) {
@@ -137,7 +137,7 @@ class ModerationTestsuite
 			$before = $this->lastFetchedSpecial[$folder];
 		}
 		else {
-			$before = array();
+			$before = [];
 		}
 		$after = $entries;
 
@@ -150,7 +150,7 @@ class ModerationTestsuite
 	#
 	# Database-related functions.
 	#
-	private function createTestUser( $name, $groups = array() )
+	private function createTestUser( $name, $groups = [] )
 	{
 		$user = User::createNew( $name );
 		$user->setPassword( $this->TEST_PASSWORD );
@@ -194,37 +194,37 @@ class ModerationTestsuite
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->begin();
-		$dbw->delete( 'moderation', array( '1' ), __METHOD__ );
-		$dbw->delete( 'moderation_block', array( '1' ), __METHOD__ );
-		$dbw->delete( 'user', array( '1' ), __METHOD__ );
-		$dbw->delete( 'user_groups', array( '1' ), __METHOD__ );
-		$dbw->delete( 'user_properties', array( '1' ), __METHOD__ );
-		$dbw->delete( 'page', array( '1' ), __METHOD__ );
-		$dbw->delete( 'revision', array( '1' ), __METHOD__ );
-		$dbw->delete( 'logging', array( '1' ), __METHOD__ );
-		$dbw->delete( 'text', array( '1' ), __METHOD__ );
-		$dbw->delete( 'image', array( '1' ), __METHOD__ );
-		$dbw->delete( 'uploadstash', array( '1' ), __METHOD__ );
-		$dbw->delete( 'recentchanges', array( '1' ), __METHOD__ );
-		$dbw->delete( 'watchlist', array( '1' ), __METHOD__ );
+		$dbw->delete( 'moderation', [ '1' ], __METHOD__ );
+		$dbw->delete( 'moderation_block', [ '1' ], __METHOD__ );
+		$dbw->delete( 'user', [ '1' ], __METHOD__ );
+		$dbw->delete( 'user_groups', [ '1' ], __METHOD__ );
+		$dbw->delete( 'user_properties', [ '1' ], __METHOD__ );
+		$dbw->delete( 'page', [ '1' ], __METHOD__ );
+		$dbw->delete( 'revision', [ '1' ], __METHOD__ );
+		$dbw->delete( 'logging', [ '1' ], __METHOD__ );
+		$dbw->delete( 'text', [ '1' ], __METHOD__ );
+		$dbw->delete( 'image', [ '1' ], __METHOD__ );
+		$dbw->delete( 'uploadstash', [ '1' ], __METHOD__ );
+		$dbw->delete( 'recentchanges', [ '1' ], __METHOD__ );
+		$dbw->delete( 'watchlist', [ '1' ], __METHOD__ );
 
 		if ( $dbw->tableExists( 'cu_changes' ) )
-			$dbw->delete( 'cu_changes', array( '1' ), __METHOD__ );
+			$dbw->delete( 'cu_changes', [ '1' ], __METHOD__ );
 
 		$this->moderator =
-			$this->createTestUser( 'User 1', array( 'moderator', 'automoderated' ) );
+			$this->createTestUser( 'User 1', [ 'moderator', 'automoderated' ] );
 		$this->moderatorButNotAutomoderated =
-			$this->createTestUser( 'User 2', array( 'moderator' ) );
+			$this->createTestUser( 'User 2', [ 'moderator' ] );
 		$this->automoderated =
-			$this->createTestUser( 'User 3', array( 'automoderated' ) );
+			$this->createTestUser( 'User 3', [ 'automoderated' ] );
 		$this->rollback =
-			$this->createTestUser( 'User 4', array( 'rollback' ) );
+			$this->createTestUser( 'User 4', [ 'rollback' ] );
 		$this->unprivilegedUser =
-			$this->createTestUser( 'User 5', array() );
+			$this->createTestUser( 'User 5', [] );
 		$this->unprivilegedUser2 =
-			$this->createTestUser( 'User 6', array() );
+			$this->createTestUser( 'User 6', [] );
 		$this->moderatorAndCheckuser =
-			$this->createTestUser( 'User 7', array( 'moderator', 'checkuser' ) );
+			$this->createTestUser( 'User 7', [ 'moderator', 'checkuser' ] );
 
 		$dbw->commit();
 	}
@@ -292,13 +292,13 @@ class ModerationTestsuite
 	*/
 	public function apiEdit( $title, $text, $summary )
 	{
-		return $this->query( array(
+		return $this->query( [
 			'action' => 'edit',
 			'title' => $title,
 			'text' => $text,
 			'summary' => $summary,
 			'token' => null
-		) );
+		] );
 	}
 
 	public $editViaAPI = false;
@@ -308,9 +308,9 @@ class ModerationTestsuite
 		@brief Make an edit via the usual interface, as real users do.
 		@returns Completed request of type MWHttpRequest.
 	*/
-	public function nonApiEdit( $title, $text, $summary, $extra_params = array() )
+	public function nonApiEdit( $title, $text, $summary, $extra_params = [] )
 	{
-		return $this->httpPost( wfScript( 'index' ), array(
+		return $this->httpPost( wfScript( 'index' ), [
 			'action' => 'submit',
 			'title' => $title,
 			'wpTextbox1' => $text,
@@ -320,7 +320,7 @@ class ModerationTestsuite
 			'wpIgnoreBlankSummary' => '',
 			'wpRecreate' => '',
 			'wpEdittime' => wfTimestampNow()
-		) + $extra_params );
+		] + $extra_params );
 	}
 
 	public function doTestEdit( $title = null, $text = null, $summary = null )
@@ -346,7 +346,7 @@ class ModerationTestsuite
 
 		/* TODO: check if successful */
 
-		$this->lastEdit = array();
+		$this->lastEdit = [];
 		$this->lastEdit['User'] = $this->loggedInAs()->getName();
 		$this->lastEdit['Title'] = $title;
 		$this->lastEdit['Text'] = $text;
@@ -446,7 +446,7 @@ class ModerationTestsuite
 			$error = $this->nonApiUpload( $title, $source_filename, $text );
 		}
 
-		$this->lastEdit = array();
+		$this->lastEdit = [];
 		$this->lastEdit['Text'] = $text;
 		$this->lastEdit['User'] = $this->loggedInAs()->getName();
 		$this->lastEdit['Title'] =
@@ -463,7 +463,7 @@ class ModerationTestsuite
 	*/
 	public function nonApiUpload( $title, $source_filename, $text )
 	{
-		$req = $this->httpPost( wfScript( 'index' ), array(
+		$req = $this->httpPost( wfScript( 'index' ), [
 			'title' => 'Special:Upload',
 			'wpUploadFile' => curl_file_create( $source_filename ),
 			'wpDestFile' => $title,
@@ -471,7 +471,7 @@ class ModerationTestsuite
 			'wpEditToken' => $this->api->editToken,
 			'wpUpload' => 'Upload',
 			'wpUploadDescription' => $text
-		) );
+		] );
 
 		if ( $req->getResponseHeader( 'Location' ) ) {
 			return null; # No errors
@@ -499,13 +499,13 @@ class ModerationTestsuite
 	*/
 	public function apiUpload( $title, $source_filename, $text )
 	{
-		$ret = $this->query( array(
+		$ret = $this->query( [
 			'action' => 'upload',
 			'filename' => $title,
 			'text' => $text,
 			'token' => null,
 			'file' => curl_file_create( $source_filename )
-		) );
+		] );
 
 		if ( isset( $ret['error']['code'] ) ) {
 			return '(' . $ret['error']['code'] . ')';
@@ -520,12 +520,12 @@ class ModerationTestsuite
 	*/
 	public function apiLogEntries( $count = 100 )
 	{
-		$ret = $this->query( array(
+		$ret = $this->query( [
 			'action' => 'query',
 			'list' => 'logevents',
 			'letype' => 'moderation',
 			'lelimit' => $count
-		) );
+		] );
 		return $ret['query']['logevents'];
 	}
 
@@ -536,12 +536,12 @@ class ModerationTestsuite
 	public function nonApiLogEntries( $count = 100 )
 	{
 		$title = Title::newFromText( 'Log/moderation', NS_SPECIAL )->fixSpecialName();
-		$url = wfAppendQuery( $title->getLocalURL(), array(
+		$url = wfAppendQuery( $title->getLocalURL(), [
 			'limit' => $count
-		) );
+		] );
 		$html = $this->html->loadFromURL( $url );
 
-		$events = array();
+		$events = [];
 		$list_items = $html->getElementsByTagName( 'li' );
 		foreach ( $list_items as $li )
 		{
@@ -552,10 +552,10 @@ class ModerationTestsuite
 				if ( preg_match( '/\(logentry-moderation-([^:]+): (.*)\)\s*$/',
 					$li->textContent, $matches ) )
 				{
-					$events[] = array(
+					$events[] = [
 						'type' => $matches[1],
 						'params' => explode( ', ', $matches[2] )
-					);
+					];
 				}
 			}
 		}
@@ -567,13 +567,13 @@ class ModerationTestsuite
 	*/
 	public function getLastRevision( $title )
 	{
-		$ret = $this->query( array(
+		$ret = $this->query( [
 			'action' => 'query',
 			'prop' => 'revisions',
 			'rvlimit' => 1,
 			'rvprop' => 'user|timestamp|comment|content|ids',
 			'titles' => $title
-		) );
+		] );
 		$ret_page = array_shift( $ret['query']['pages'] );
 		return $ret_page['revisions'][0];
 	}

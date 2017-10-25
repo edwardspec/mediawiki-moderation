@@ -40,7 +40,7 @@ class ModerationTestsuiteHTTP {
 
 	public function makeRequest( $url, $method = 'POST' )
 	{
-		$options = array( 'method' => $method );
+		$options = [ 'method' => $method ];
 		if ( $this->followRedirects ) {
 			$options['followRedirects'] = true;
 			$this->followRedirects = false; # Reset the flag

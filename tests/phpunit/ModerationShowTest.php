@@ -53,9 +53,9 @@ class ModerationTestShow extends MediaWikiTestCase
 		$this->assertRegExp( '/\(difference-title: ' . preg_quote( $page ) . '\)/', $title,
 			"testShow(): Difference page has a wrong HTML title" );
 
-		$added_lines = array();
-		$deleted_lines = array();
-		$context_lines = array();
+		$added_lines = [];
+		$deleted_lines = [];
+		$context_lines = [];
 
 		$table_cells = $t->html->getElementsByTagName( 'td' );
 		foreach ( $table_cells as $td )

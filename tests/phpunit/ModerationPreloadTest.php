@@ -88,7 +88,7 @@ class ModerationTestPreload extends MediaWikiTestCase
 		*/
 		$boldText = 'very bold';
 		$italicText = 'somewhat italic';
-		$categories = array( 'Example category', 'Cats' );
+		$categories = [ 'Example category', 'Cats' ];
 		$extraSectionText = "== More information ==\nText in section #1";
 
 		$text = "This text is '''$boldText''' and ''$italicText''.";
@@ -101,11 +101,11 @@ class ModerationTestPreload extends MediaWikiTestCase
 		$t->doTestEdit( null, $text, "The quick brown fox jumps over the lazy dog" );
 
 		/* Test 1: mpmode=wikitext */
-		$ret = $t->query( array(
+		$ret = $t->query( [
 			'action' => 'query',
 			'prop' => 'moderationpreload',
 			'mptitle' => $t->lastEdit['Title']
-		) );
+		] );
 
 		$this->assertArrayHasKey( 'query', $ret );
 		$this->assertArrayHasKey( 'moderationpreload', $ret['query'] );
@@ -119,12 +119,12 @@ class ModerationTestPreload extends MediaWikiTestCase
 		$this->assertEquals( $text, $mp['wikitext'] );
 
 		/* Test 2: mpmode=parsed */
-		$ret = $t->query( array(
+		$ret = $t->query( [
 			'action' => 'query',
 			'prop' => 'moderationpreload',
 			'mptitle' => $t->lastEdit['Title'],
 			'mpmode' => 'parsed'
-		) );
+		] );
 
 		$mp = $ret['query']['moderationpreload'];
 		$this->assertArrayHasKey( 'parsed', $mp );
@@ -145,12 +145,12 @@ class ModerationTestPreload extends MediaWikiTestCase
 		}
 
 		/* Test 3: mpsection=N */
-		$ret = $t->query( array(
+		$ret = $t->query( [
 			'action' => 'query',
 			'prop' => 'moderationpreload',
 			'mptitle' => $t->lastEdit['Title'],
 			'mpsection' => 1
-		) );
+		] );
 		$this->assertEquals( $extraSectionText, $ret['query']['moderationpreload']['wikitext'] );
 	}
 

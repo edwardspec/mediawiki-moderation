@@ -222,8 +222,8 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'moderation',
-			array( 'mod_timestamp' => $ts->getTimestamp( TS_MW ) ),
-			array( 'mod_id' => $id ),
+			[ 'mod_timestamp' => $ts->getTimestamp( TS_MW ) ],
+			[ 'mod_id' => $id ],
 			__METHOD__
 		);
 
@@ -245,8 +245,8 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'moderation',
-			array( 'mod_timestamp' => $ts->getTimestamp( TS_MW ) ),
-			array( 'mod_id' => $id ),
+			[ 'mod_timestamp' => $ts->getTimestamp( TS_MW ) ],
+			[ 'mod_id' => $id ],
 			__METHOD__
 		);
 
@@ -279,10 +279,10 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 		/* Edit must be intercepted (this user is not automoderated) */
 		$this->assertArrayHasKey( 'error', $ret );
-		$this->assertContains( $ret['error']['code'], array(
+		$this->assertContains( $ret['error']['code'], [
 			'unknownerror', # MediaWiki 1.28 and older
 			'moderation-edit-queued' # MediaWiki 1.29+
-		) );
+		] );
 		if ( $ret['error']['code'] == 'unknownerror' ) {
 			$this->assertRegExp( '/moderation-edit-queued/',
 				$ret['error']['info'] );
@@ -326,8 +326,8 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'moderation',
-			array( 'mod_timestamp' => $ts->getTimestamp( TS_MW ) ),
-			array( 'mod_id' => $entry->id ),
+			[ 'mod_timestamp' => $ts->getTimestamp( TS_MW ) ],
+			[ 'mod_id' => $entry->id ],
 			__METHOD__
 		);
 		$rev = $this->tryToApprove( $t, $entry, __FUNCTION__ );
@@ -343,13 +343,13 @@ class ModerationTestApprove extends MediaWikiTestCase
 		# approved, so that it won't "appear in the past", confusing
 		# those who read RecentChanges.
 
-		$ret = $t->query( array(
+		$ret = $t->query( [
 			'action' => 'query',
 			'list' => 'recentchanges',
 			'rcprop' => 'timestamp',
 			'rclimit' => 1,
 			'rcuser' => $t->lastEdit['User']
-		) );
+		] );
 		$rc_timestamp = $ret['query']['recentchanges'][0]['timestamp'];
 
 		$this->assertNotEquals( $expected, $rc_timestamp,
@@ -382,9 +382,9 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 		# Delete the author
 		$dbw = wfGetDB( DB_MASTER );
-		$dbw->delete( 'user', array(
+		$dbw->delete( 'user', [
 			'user_id' => $t->unprivilegedUser->getId()
-		), __METHOD__ );
+		], __METHOD__ );
 
 		$t->fetchSpecial();
 
