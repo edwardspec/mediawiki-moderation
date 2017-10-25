@@ -226,7 +226,7 @@
 		}
 
 		var action = $link.attr( 'data-modaction' );
-		if ( action == 'show' || action == 'merge' ) {
+		if ( action == 'show' || action == 'merge' || action == 'preview' ) {
 			return; /* Non-Ajax action */
 		}
 
