@@ -79,6 +79,10 @@ class SpecialModeration extends QueryPage {
 		parent::__construct( 'Moderation', 'moderation' );
 	}
 
+	function getGroupName() {
+		return 'spam';
+	}
+
 	function isSyndicated() {
 		return false;
 	}
