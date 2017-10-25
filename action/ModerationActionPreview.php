@@ -42,12 +42,12 @@ class ModerationActionPreview extends ModerationAction {
 	public function execute() {
 		$dbr = wfGetDB( DB_SLAVE );
 		$row = $dbr->selectRow( 'moderation',
-			array(
+			[
 				'mod_namespace AS namespace',
 				'mod_title AS title',
 				'mod_text AS text'
-			),
-			array( 'mod_id' => $this->id ),
+			],
+			[ 'mod_id' => $this->id ],
 			__METHOD__
 		);
 		if ( !$row ) {
@@ -62,10 +62,10 @@ class ModerationActionPreview extends ModerationAction {
 		$content = ContentHandler::makeContent( $row->text, null, $title->getContentModel() );
 		$pout = $content->getParserOutput( $title, 0, $popts, true );
 
-		return array(
+		return [
 			'title' => $title->getPrefixedText(),
 			'html' => $pout->getText(),
 			'categories' => $pout->getCategories()
-		);
+		];
 	}
 }

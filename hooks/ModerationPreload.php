@@ -143,17 +143,17 @@ class ModerationPreload {
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'moderation',
-			array(
+			[
 				'mod_user' => $user->getId(),
 				'mod_user_text' => $user->getName(),
 				'mod_preload_id' => $preload->getId()
-			),
-			array(
+			],
+			[
 				'mod_preload_id' => $anonId,
 				'mod_preloadable' => 1
-			),
+			],
 			__METHOD__,
-			array( 'USE INDEX' => 'moderation_signup' )
+			[ 'USE INDEX' => 'moderation_signup' ]
 		);
 
 		$preload->forgetAnonId();
@@ -169,25 +169,25 @@ class ModerationPreload {
 			return;
 		}
 
-		$where = array(
+		$where = [
 			'mod_preloadable' => 1,
 			'mod_namespace' => $title->getNamespace(),
 			'mod_title' => $title->getText(),
 			'mod_preload_id' => $id
-		);
+		];
 
 		# Sequential edits are often done with small intervals of time between
 		# them, so we shouldn't wait for replication: DB_MASTER will be used.
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
-			array(
+			[
 				'mod_id AS id',
 				'mod_comment AS comment',
 				'mod_text AS text'
-			),
+			],
 			$where,
 			__METHOD__,
-			array( 'USE INDEX' => 'moderation_load' )
+			[ 'USE INDEX' => 'moderation_load' ]
 		);
 		return $row;
 	}
@@ -212,7 +212,7 @@ class ModerationPreload {
 
 		$out = RequestContext::getMain()->getOutput();
 		$out->addModules( 'ext.moderation.edit' );
-		$out->wrapWikiMsg( '<div id="mw-editing-your-version">$1</div>', array( 'moderation-editing-your-version' ) );
+		$out->wrapWikiMsg( '<div id="mw-editing-your-version">$1</div>', [ 'moderation-editing-your-version' ] );
 
 		$text = $row->text;
 		if ( $editPage ) {

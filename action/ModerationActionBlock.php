@@ -38,11 +38,11 @@ class ModerationActionBlock extends ModerationAction {
 	public function execute() {
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
-			array(
+			[
 				'mod_user AS user',
 				'mod_user_text AS user_text'
-			),
-			array( 'mod_id' => $this->id ),
+			],
+			[ 'mod_id' => $this->id ],
 			__METHOD__
 		);
 		if ( !$row ) {
@@ -52,19 +52,19 @@ class ModerationActionBlock extends ModerationAction {
 		$dbw = wfGetDB( DB_MASTER );
 		if ( $this->actionName == 'block' ) {
 			$dbw->replace( 'moderation_block',
-				array( 'mb_address' ),
-				array(
+				[ 'mb_address' ],
+				[
 					'mb_address' => $row->user_text,
 					'mb_user' => $row->user,
 					'mb_by' => $this->moderator->getId(),
 					'mb_by_text' => $this->moderator->getName(),
 					'mb_timestamp' => $dbw->timestamp( wfTimestampNow() )
-				),
+				],
 				__METHOD__
 			);
 			$logEntry = new ManualLogEntry( 'moderation', 'block' );
 		} else {
-			$dbw->delete( 'moderation_block', array( 'mb_address' => $row->user_text ), __METHOD__ );
+			$dbw->delete( 'moderation_block', [ 'mb_address' => $row->user_text ], __METHOD__ );
 			$logEntry = new ManualLogEntry( 'moderation', 'unblock' );
 		}
 
@@ -76,10 +76,10 @@ class ModerationActionBlock extends ModerationAction {
 			$logEntry->publish( $logid );
 		}
 
-		return array(
+		return [
 			'action' => $this->actionName,
 			'username' => $row->user_text,
 			'success' => ( $nrows > 0 )
-		);
+		];
 	}
 }

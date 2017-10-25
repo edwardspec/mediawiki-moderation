@@ -35,15 +35,15 @@ class ModerationActionReject extends ModerationAction {
 	public function executeRejectOne() {
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
-			array(
+			[
 				'mod_namespace AS namespace',
 				'mod_title AS title',
 				'mod_user AS user',
 				'mod_user_text AS user_text',
 				'mod_rejected AS rejected',
 				'mod_merged_revid AS merged_revid'
-			),
-			array( 'mod_id' => $this->id ),
+			],
+			[ 'mod_id' => $this->id ],
 			__METHOD__
 		);
 
@@ -60,19 +60,19 @@ class ModerationActionReject extends ModerationAction {
 		}
 
 		$dbw->update( 'moderation',
-			array(
+			[
 				'mod_rejected' => 1,
 				'mod_rejected_by_user' => $this->moderator->getId(),
 				'mod_rejected_by_user_text' => $this->moderator->getName(),
 				'mod_preloadable' => 0
-			),
-			array(
+			],
+			[
 				'mod_id' => $this->id,
 
 				# These checks prevent race condition
 				'mod_merged_revid' => 0,
 				'mod_rejected' => 0
-			),
+			],
 			__METHOD__
 		);
 
@@ -86,17 +86,17 @@ class ModerationActionReject extends ModerationAction {
 		$logEntry = new ManualLogEntry( 'moderation', 'reject' );
 		$logEntry->setPerformer( $this->moderator );
 		$logEntry->setTarget( $title );
-		$logEntry->setParameters( array(
+		$logEntry->setParameters( [
 			'modid' => $this->id,
 			'user' => $row->user,
 			'user_text' => $row->user_text
-		) );
+		] );
 		$logid = $logEntry->insert();
 		$logEntry->publish( $logid );
 
-		return array(
+		return [
 			'rejected-count' => $nrows
-		);
+		];
 	}
 
 	public function executeRejectAll() {
@@ -107,35 +107,35 @@ class ModerationActionReject extends ModerationAction {
 
 		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
 		$res = $dbw->select( 'moderation',
-			array( 'mod_id AS id' ),
-			array(
+			[ 'mod_id AS id' ],
+			[
 				'mod_user_text' => $userpage->getText(),
 				'mod_rejected' => 0,
 				'mod_merged_revid' => 0
-			),
+			],
 			__METHOD__,
-			array( 'USE INDEX' => 'moderation_rejectall' )
+			[ 'USE INDEX' => 'moderation_rejectall' ]
 		);
 		if ( !$res || $res->numRows() == 0 ) {
 			throw new ModerationError( 'moderation-nothing-to-rejectall' );
 		}
 
-		$ids = array();
+		$ids = [];
 		foreach ( $res as $row ) {
 			$ids[] = $row->id;
 		}
 
 		$dbw->update( 'moderation',
-			array(
+			[
 				'mod_rejected' => 1,
 				'mod_rejected_by_user' => $this->moderator->getId(),
 				'mod_rejected_by_user_text' => $this->moderator->getName(),
 				'mod_rejected_batch' => 1,
 				'mod_preloadable' => 0
-			),
-			array(
+			],
+			[
 				'mod_id' => $ids
-			),
+			],
 			__METHOD__
 		);
 
@@ -144,13 +144,13 @@ class ModerationActionReject extends ModerationAction {
 			$logEntry = new ManualLogEntry( 'moderation', 'rejectall' );
 			$logEntry->setPerformer( $this->moderator );
 			$logEntry->setTarget( $userpage );
-			$logEntry->setParameters( array( '4::count' => $nrows ) );
+			$logEntry->setParameters( [ '4::count' => $nrows ] );
 			$logid = $logEntry->insert();
 			$logEntry->publish( $logid );
 		}
 
-		return array(
+		return [
 			'rejected-count' => $nrows
-		);
+		];
 	}
 }

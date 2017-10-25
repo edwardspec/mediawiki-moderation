@@ -23,7 +23,7 @@
 class RollbackResistantQuery {
 
 	protected static $initialized = false; /**< Becomes true after initialize() */
-	protected static $performedQueries = array(); /**< array of all created RollbackResistantQuery objects */
+	protected static $performedQueries = []; /**< array of all created RollbackResistantQuery objects */
 
 	protected $dbw; /**< IDatabase */
 	protected $methodName; /**< Either 'insert' or 'update' */
@@ -116,7 +116,7 @@ class RollbackResistantQuery {
 			$query->executeNow();
 		}
 
-		self::$performedQueries = array();
+		self::$performedQueries = [];
 	}
 
 	/**
@@ -124,7 +124,7 @@ class RollbackResistantQuery {
 	*/
 	protected function executeNow() {
 		call_user_func_array(
-			array( $this->dbw, $this->methodName ),
+			[ $this->dbw, $this->methodName ],
 			$this->args
 		);
 	}

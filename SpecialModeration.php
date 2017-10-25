@@ -22,29 +22,29 @@
 
 class SpecialModeration extends QueryPage {
 	public $folder; // Currently selected folder (when viewing the moderation table)
-	public $folders_list = array(
-		'pending' => array( # Not yet moderated
+	public $folders_list = [
+		'pending' => [ # Not yet moderated
 			'mod_rejected' => 0,
 			'mod_merged_revid' => 0
-		),
-		'rejected' => array( # Rejected by the moderator
+		],
+		'rejected' => [ # Rejected by the moderator
 			'mod_rejected' => 1,
 			'mod_rejected_auto' => 0,
 			'mod_merged_revid' => 0
-		),
-		'merged' => array( # Manually merged (after the edit conflict on approval attempt)
+		],
+		'merged' => [ # Manually merged (after the edit conflict on approval attempt)
 			'mod_merged_revid <> 0'
-		),
-		'spam' => array( # Rejected automatically
+		],
+		'spam' => [ # Rejected automatically
 			'mod_rejected_auto' => 1
-		)
-	);
+		]
+	];
 	public $default_folder = 'pending';
 
 	public static function makeModerationLink( $action, $id ) {
 		global $wgUser;
 
-		$params = array( 'modaction' => $action, 'modid' => $id );
+		$params = [ 'modaction' => $action, 'modid' => $id ];
 		if ( $action != 'show' && $action != 'preview' ) {
 			$params['token'] = $wgUser->getEditToken();
 		}
@@ -52,9 +52,9 @@ class SpecialModeration extends QueryPage {
 		return Linker::link(
 			SpecialPage::getTitleFor( 'Moderation' ),
 			wfMessage( 'moderation-' . $action )->escaped(),
-			array( 'title' => wfMessage( 'tooltip-moderation-' . $action )->plain() ),
+			[ 'title' => wfMessage( 'tooltip-moderation-' . $action )->plain() ],
 			$params,
-			array( 'known', 'noclasses' )
+			[ 'known', 'noclasses' ]
 		);
 	}
 	protected static $earliestTs = false; /**< Cache used by getEarliestReapprovableTimestamp() */
@@ -112,29 +112,29 @@ class SpecialModeration extends QueryPage {
 	}
 
 	function linkParameters() {
-		return array( 'folder' => $this->folder );
+		return [ 'folder' => $this->folder ];
 	}
 
 	function getPageHeader() {
-		$folderLinks = array();
+		$folderLinks = [];
 		foreach ( array_keys( $this->folders_list ) as $f_name ) {
 			$msg = wfMessage( 'moderation-folder-' . $f_name );
 
 			if ( $f_name == $this->folder ) {
-				$folderLinks[] = Xml::element( 'strong', array( 'class' => 'selflink' ), $msg );
+				$folderLinks[] = Xml::element( 'strong', [ 'class' => 'selflink' ], $msg );
 			} else {
 				$folderLinks[] = Linker::link(
 					$this->getTitle(),
 					$msg->escaped(),
-					array( 'title' => wfMessage( 'tooltip-moderation-folder-' . $f_name ) ),
-					array( 'folder' => $f_name ),
-					array( 'known', 'noclasses' )
+					[ 'title' => wfMessage( 'tooltip-moderation-folder-' . $f_name ) ],
+					[ 'folder' => $f_name ],
+					[ 'known', 'noclasses' ]
 				);
 			}
 		}
 
 		return Xml::tags( 'div',
-			array( 'class' => 'mw-moderation-folders' ),
+			[ 'class' => 'mw-moderation-folders' ],
 			join( ' | ', $folderLinks )
 		);
 	}
@@ -181,7 +181,7 @@ class SpecialModeration extends QueryPage {
 	}
 
 	function getOrderFields() {
-		return array( 'mod_timestamp' );
+		return [ 'mod_timestamp' ];
 	}
 
 	function getQueryInfo() {
@@ -193,9 +193,9 @@ class SpecialModeration extends QueryPage {
 		$conds = $this->folders_list[$this->folder];
 		$index = 'moderation_folder_' . $this->folder;
 
-		return array(
-			'tables' => array( 'moderation', 'moderation_block' ),
-			'fields' => array(
+		return [
+			'tables' => [ 'moderation', 'moderation_block' ],
+			'fields' => [
 				'mod_id AS id',
 				'mod_timestamp AS timestamp',
 				'mod_user AS user',
@@ -217,19 +217,19 @@ class SpecialModeration extends QueryPage {
 				'mod_conflict AS conflict',
 				'mod_merged_revid AS merged_revid',
 				'mb_id AS moderation_blocked'
-			),
+			],
 			'conds' => $conds,
-			'options' => array( 'USE INDEX' => array(
+			'options' => [ 'USE INDEX' => [
 				'moderation' => $index,
 				'moderation_block' => 'moderation_block_address'
-			) ),
-			'join_conds' => array(
-				'moderation_block' => array(
+			] ],
+			'join_conds' => [
+				'moderation_block' => [
 					'LEFT JOIN',
-					array( 'mb_address=mod_user_text' )
-				)
-			)
-		);
+					[ 'mb_address=mod_user_text' ]
+				]
+			]
+		];
 	}
 
 	function formatResult( $skin, $result ) {
@@ -314,9 +314,9 @@ class SpecialModeration extends QueryPage {
 			$line .= ' [' . Linker::link(
 				$rev ? $rev->getTitle() : $title,
 				wfMessage( 'moderation-merged-link' )->escaped(),
-				array( 'title' => wfMessage( 'tooltip-moderation-merged-link' ) ),
-				array( 'diff' => $result->merged_revid ),
-				array( 'known', 'noclasses' )
+				[ 'title' => wfMessage( 'tooltip-moderation-merged-link' ) ],
+				[ 'diff' => $result->merged_revid ],
+				[ 'known', 'noclasses' ]
 			) . ']';
 		}
 
@@ -341,7 +341,7 @@ class SpecialModeration extends QueryPage {
 			}
 		}
 
-		$html = Xml::tags( 'span', array( 'class' => $class ), $line );
+		$html = Xml::tags( 'span', [ 'class' => $class ], $line );
 
 		return $html;
 	}

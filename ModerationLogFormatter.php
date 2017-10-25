@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2015 Edward Chernenko.
+	Copyright (C) 2014-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,8 +32,8 @@ class ModerationLogFormatter extends LogFormatter {
 			$link = Linker::linkKnown(
 				$this->entry->getTarget(),
 				wfMessage( 'moderation-log-diff', $revId )->text(),
-				array( 'title' => wfMessage( 'tooltip-moderation-approved-diff' ) ),
-				array( 'diff' => $revId )
+				[ 'title' => wfMessage( 'tooltip-moderation-approved-diff' ) ],
+				[ 'diff' => $revId ]
 			);
 			$params[4] = Message::rawParam( $link );
 		} elseif ( $type === 'reject' ) {
@@ -42,8 +42,8 @@ class ModerationLogFormatter extends LogFormatter {
 			$link = Linker::linkKnown(
 				SpecialPage::getTitleFor( 'Moderation' ),
 				wfMessage( 'moderation-log-change', $modId )->text(),
-				array( 'title' => wfMessage( 'tooltip-moderation-rejected-change' ) ),
-				array( 'modaction' => 'show', 'modid' => $modId )
+				[ 'title' => wfMessage( 'tooltip-moderation-rejected-change' ) ],
+				[ 'modaction' => 'show', 'modid' => $modId ]
 			);
 			$params[4] = Message::rawParam( $link );
 
@@ -56,16 +56,16 @@ class ModerationLogFormatter extends LogFormatter {
 			$link = Linker::linkKnown(
 				SpecialPage::getTitleFor( 'Moderation' ),
 				wfMessage( 'moderation-log-change', $modId )->text(),
-				array( 'title' => wfMessage( 'tooltip-moderation-rejected-change' ) ),
-				array( 'modaction' => 'show', 'modid' => $modId )
+				[ 'title' => wfMessage( 'tooltip-moderation-rejected-change' ) ],
+				[ 'modaction' => 'show', 'modid' => $modId ]
 			);
 			$params[4] = Message::rawParam( $link );
 
 			$link = Linker::linkKnown(
 				$this->entry->getTarget(),
 				wfMessage( 'moderation-log-diff', $revId )->text(),
-				array( 'title' => wfMessage( 'tooltip-moderation-approved-diff' ) ),
-				array( 'diff' => $revId )
+				[ 'title' => wfMessage( 'tooltip-moderation-approved-diff' ) ],
+				[ 'diff' => $revId ]
 			);
 			$params[5] = Message::rawParam( $link );
 		} elseif ( $type === 'approveall' || $type === 'rejectall' || $type === 'block' || $type === 'unblock' ) {

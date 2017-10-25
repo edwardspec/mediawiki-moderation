@@ -63,9 +63,9 @@ class ModerationEditHooks {
 		/*
 		 * Allow to intercept moderation process
 		 */
-		if ( !Hooks::run( 'ModerationIntercept', array(
+		if ( !Hooks::run( 'ModerationIntercept', [
 			$page, $user, $content, $summary, $is_minor, $is_watch, $section, $flags, $status
-		) ) ) {
+		] ) ) {
 			return true;
 		}
 
@@ -94,7 +94,7 @@ class ModerationEditHooks {
 
 		$dbw = wfGetDB( DB_MASTER );
 
-		$fields = array(
+		$fields = [
 			'mod_timestamp' => $dbw->timestamp( wfTimestampNow() ),
 			'mod_user' => $user->getId(),
 			'mod_user_text' => $user->getName(),
@@ -117,7 +117,7 @@ class ModerationEditHooks {
 			'mod_text' => $content->preSaveTransform( $title, $user, $popts )->getNativeData(),
 			'mod_preload_id' => $preload->getId( true ),
 			'mod_preloadable' => 1
-		);
+		];
 
 		if ( ModerationBlockCheck::isModerationBlocked( $user ) ) {
 			$fields['mod_rejected'] = 1;
@@ -134,11 +134,11 @@ class ModerationEditHooks {
 				of doEditContent() may assume that "moderation-edit-queued"
 				is an error and throw MWException, causing database rollback.
 			*/
-			RollbackResistantQuery::insert( $dbw, array(
+			RollbackResistantQuery::insert( $dbw, [
 				'moderation',
 				$fields,
 				__METHOD__
-			) );
+			] );
 			ModerationEditHooks::$LastInsertId = $dbw->insertId();
 		} else {
 			if ( self::$section != '' ) {
@@ -162,12 +162,12 @@ class ModerationEditHooks {
 				$fields['mod_new_len'] = $new_content->getSize();
 			}
 
-			RollbackResistantQuery::update( $dbw, array(
+			RollbackResistantQuery::update( $dbw, [
 				'moderation',
 				$fields,
-				array( 'mod_id' => $row->id ),
+				[ 'mod_id' => $row->id ],
 				__METHOD__
-			) );
+			] );
 			ModerationEditHooks::$LastInsertId = $row->id;
 		}
 
@@ -183,9 +183,9 @@ class ModerationEditHooks {
 		}
 
 		// Run hook to allow other extensions be notified about pending changes
-		Hooks::run( 'ModerationPending', array(
+		Hooks::run( 'ModerationPending', [
 			$fields, ModerationEditHooks::$LastInsertId
-		) );
+		] );
 
 		// Notify administrator about pending changes
 		if ( $wgModerationNotificationEnable ) {
@@ -202,10 +202,10 @@ class ModerationEditHooks {
 				$content = wfMessage( 'moderation-notification-content',
 					$page->getTitle()->getBaseText(),
 					$user->getName(),
-					SpecialPage::getTitleFor( 'Moderation' )->getFullURL( array(
+					SpecialPage::getTitleFor( 'Moderation' )->getFullURL( [
 						'modaction' => 'show',
 						'modid' => ModerationEditHooks::$LastInsertId
-					) )
+					] )
 				)->text();
 				$mailer->send( $to, $from, $subject, $content );
 			}
@@ -222,7 +222,7 @@ class ModerationEditHooks {
 			will be shown by JavaScript.
 		*/
 
-		$wgOut->redirect( $title->getFullURL( array( 'modqueued' => 1 ) ) );
+		$wgOut->redirect( $title->getFullURL( [ 'modqueued' => 1 ] ) );
 
 		$status->fatal( 'moderation-edit-queued' );
 		return false;
@@ -231,10 +231,10 @@ class ModerationEditHooks {
 	public static function onBeforePageDisplay( &$out, &$skin ) {
 
 		if ( !ModerationCanSkip::canSkip( $out->getUser() ) ) {
-			$out->addModules( array(
+			$out->addModules( [
 				'ext.moderation.notify',
 				'ext.moderation.notify.desktop'
-			) );
+			] );
 			ModerationAjaxHook::add( $out );
 		}
 
@@ -267,14 +267,14 @@ class ModerationEditHooks {
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'moderation',
-			array(
+			[
 				'mod_merged_revid' => $revision->getId(),
 				'mod_preloadable' => 0
-			),
-			array(
+			],
+			[
 				'mod_id' => $mergeID,
 				'mod_merged_revid' => 0 # No more than one merging
-			),
+			],
 			__METHOD__
 		);
 
@@ -282,10 +282,10 @@ class ModerationEditHooks {
 			$logEntry = new ManualLogEntry( 'moderation', 'merge' );
 			$logEntry->setPerformer( $user );
 			$logEntry->setTarget( $page->getTitle() );
-			$logEntry->setParameters( array(
+			$logEntry->setParameters( [
 				'modid' => $mergeID,
 				'revid' => $revision->getId()
-			) );
+			] );
 			$logid = $logEntry->insert();
 			$logEntry->publish( $logid );
 		}

@@ -35,9 +35,9 @@ class ModerationActionShow extends ModerationAction {
 		$out->setPageTitle( wfMessage( 'difference-title', $result['title'] ) );
 
 		if ( isset ( $result['image-thumb-html'] ) ) {
-			$out->addHTML( Xml::tags( 'a', array(
+			$out->addHTML( Xml::tags( 'a', [
 				'href' => $result['image-url'],
-			), $result['image-thumb-html'] ) );
+			], $result['image-thumb-html'] ) );
 		}
 
 		if ( isset ( $result['diff-html'] ) ) {
@@ -58,11 +58,11 @@ class ModerationActionShow extends ModerationAction {
 	}
 
 	public function execute() {
-		$result = array();
+		$result = [];
 
 		$dbr = wfGetDB( DB_SLAVE );
 		$row = $dbr->selectRow( 'moderation',
-			array(
+			[
 				'mod_user AS user',
 				'mod_user_text AS user_text',
 				'mod_last_oldid AS last_oldid',
@@ -71,8 +71,8 @@ class ModerationActionShow extends ModerationAction {
 				'mod_title AS title',
 				'mod_text AS text',
 				'mod_stash_key AS stash_key'
-			),
-			array( 'mod_id' => $this->id ),
+			],
+			[ 'mod_id' => $this->id ],
 			__METHOD__
 		);
 		if ( !$row ) {
@@ -97,10 +97,10 @@ class ModerationActionShow extends ModerationAction {
 		}
 
 		if ( $row->stash_key ) {
-			$urlParams = array(
+			$urlParams = [
 				'modaction' => 'showimg',
 				'modid' => $this->id
-			);
+			];
 			$specialTitle = SpecialPage::getTitleFor( 'Moderation' );
 			$urlFull = $specialTitle->getLinkURL( $urlParams );
 
@@ -131,9 +131,9 @@ class ModerationActionShow extends ModerationAction {
 			if ( $isImage ) {
 				$urlParams['thumb'] = 1;
 				$url_thumb = $specialTitle->getLinkURL( $urlParams );
-				$htmlImg = Xml::element( 'img', array(
+				$htmlImg = Xml::element( 'img', [
 					'src' => $url_thumb
-				) );
+				] );
 			} else {
 				# Not an image, so no thumbnail is needed.
 				# Just print a filename.

@@ -26,9 +26,9 @@ class ModerationApproveHook {
 
 	/**
 		@brief Array of tasks which must be performed by postapprove hooks.
-		Format: array( key1 => array( 'ip' => ..., 'xff' => ..., 'ua' => ... ), key2 => ... )
+		Format: [ key1 => [ 'ip' => ..., 'xff' => ..., 'ua' => ... ], key2 => ... ]
 	*/
-	protected static $tasks = array();
+	protected static $tasks = [];
 
 	protected static $lastRevId = null; /**< Revid of the last edit, populated in onNewRevisionFromEditComplete */
 
@@ -42,17 +42,17 @@ class ModerationApproveHook {
 	*/
 	protected static function getTaskKey( Title $title, $username ) {
 		return join( '[', /* Symbol "[" is not allowed in both titles and usernames */
-			array(
+			[
 				$username,
 				$title->getNamespace(),
 				$title->getDBKey()
-			)
+			]
 		);
 	}
 
 	/**
 		@brief Find the task regarding edit by $username on $title.
-		@returns array( 'ip' => ..., 'xff' => ..., 'ua' => ..., ... )
+		@returns [ 'ip' => ..., 'xff' => ..., 'ua' => ..., ... ]
 	*/
 	public function getTask( Title $title, $username ) {
 		$key = self::getTaskKey( $title, $username );
@@ -110,10 +110,12 @@ class ModerationApproveHook {
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'recentchanges',
-			array(
+			[
 				'rc_ip' => IP::sanitizeIP( $task['ip'] )
-			),
-			array( 'rc_id' => $rc->mAttribs['rc_id'] ),
+			],
+			[
+				'rc_id' => $rc->mAttribs['rc_id']
+			],
 			__METHOD__
 		);
 
@@ -135,7 +137,7 @@ class ModerationApproveHook {
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'revision',
 			$task['revisionUpdate'],
-			array( 'rev_id' => self::$lastRevId ),
+			[ 'rev_id' => self::$lastRevId ],
 			__METHOD__
 		);
 

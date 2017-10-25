@@ -44,9 +44,9 @@ class ModerationActionApprove extends ModerationAction {
 
 	public function executeApproveOne() {
 		$this->approveEditById( $this->id );
-		return array(
-			'approved' => array( $this->id )
-		);
+		return [
+			'approved' => [ $this->id ]
+		];
 	}
 
 	public function executeApproveAll() {
@@ -57,38 +57,38 @@ class ModerationActionApprove extends ModerationAction {
 
 		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
 		$res = $dbw->select( 'moderation',
-			array( 'mod_id AS id' ),
-			array(
+			[ 'mod_id AS id' ],
+			[
 				'mod_user_text' => $userpage->getText(),
 				'mod_rejected' => 0, # Previously rejected edits are not approved by "Approve all"
 				'mod_conflict' => 0 # No previously detected conflicts (they need manual merging).
-			),
+			],
 			__METHOD__,
-			array(
+			[
 				# Images are approved first.
 				# Otherwise the page can be rendered with the
 				# image redlink, because the image didn't exist
 				# when the edit to this page was approved.
 				'ORDER BY' => 'mod_stash_key IS NULL',
 				'USE INDEX' => 'moderation_approveall'
-			)
+			]
 		);
 		if ( !$res || $res->numRows() == 0 ) {
 			throw new ModerationError( 'moderation-nothing-to-approveall' );
 		}
 
-		$approved = array();
-		$failed = array();
+		$approved = [];
+		$failed = [];
 		foreach ( $res as $row ) {
 			try {
 				$this->approveEditById( $row->id );
 				$approved[$row->id] = '';
 			} catch ( ModerationError $e ) {
 				$msg = $e->status->getMessage();
-				$failed[$row->id] = array(
+				$failed[$row->id] = [
 					'code' => $msg->getKey(),
 					'info' => $msg->plain()
-				);
+				];
 			}
 		}
 
@@ -96,21 +96,21 @@ class ModerationActionApprove extends ModerationAction {
 			$logEntry = new ManualLogEntry( 'moderation', 'approveall' );
 			$logEntry->setPerformer( $this->moderator );
 			$logEntry->setTarget( $userpage );
-			$logEntry->setParameters( array( '4::count' => count( $approved ) ) );
+			$logEntry->setParameters( [ '4::count' => count( $approved ) ] );
 			$logid = $logEntry->insert();
 			$logEntry->publish( $logid );
 		}
 
-		return array(
+		return [
 			'approved' => $approved,
 			'failed' => $failed
-		);
+		];
 	}
 
 	function approveEditById( $id ) {
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
-			array(
+			[
 				'mod_id AS id',
 				'mod_timestamp AS timestamp',
 				'mod_user AS user',
@@ -129,8 +129,8 @@ class ModerationActionApprove extends ModerationAction {
 				'mod_merged_revid AS merged_revid',
 				'mod_rejected AS rejected',
 				'mod_stash_key AS stash_key'
-			),
-			array( 'mod_id' => $id ),
+			],
+			[ 'mod_id' => $id ],
 			__METHOD__
 		);
 
@@ -178,7 +178,7 @@ class ModerationActionApprove extends ModerationAction {
 		}
 
 		# Install hooks which affect postedit behavior of doEditContent().
-		ModerationApproveHook::install( $title, $user, array(
+		ModerationApproveHook::install( $title, $user, [
 			# For CheckUser extension to work properly, IP, XFF and UA
 			# should be set to the correct values for the original user
 			# (not from the moderator)
@@ -186,7 +186,7 @@ class ModerationActionApprove extends ModerationAction {
 			'xff' => $row->header_xff,
 			'ua' => $row->header_ua,
 
-			'revisionUpdate' => array(
+			'revisionUpdate' => [
 				# Here we set the timestamp of this edit to $row->timestamp
 				# (this is needed because doEditContent() always uses current timestamp).
 				#
@@ -199,8 +199,8 @@ class ModerationActionApprove extends ModerationAction {
 				# Let's fix this here.
 				'rev_user' => $user->getId(),
 				'rev_user_text' => $displayName
-			)
-		) );
+			]
+		] );
 
 		$status = Status::newGood();
 		if ( $row->stash_key ) {
@@ -267,8 +267,8 @@ class ModerationActionApprove extends ModerationAction {
 					} else {
 						$dbw = wfGetDB( DB_MASTER );
 						$dbw->update( 'moderation',
-							array( 'mod_conflict' => 1 ),
-							array( 'mod_id' => $id ),
+							[ 'mod_conflict' => 1 ],
+							[ 'mod_id' => $id ],
 							__METHOD__
 						);
 						$dbw->commit( __METHOD__ );
@@ -286,7 +286,7 @@ class ModerationActionApprove extends ModerationAction {
 		$logEntry = new ManualLogEntry( 'moderation', 'approve' );
 		$logEntry->setPerformer( $this->moderator );
 		$logEntry->setTarget( $title );
-		$logEntry->setParameters( array( 'revid' => ModerationApproveHook::getLastRevId() ) );
+		$logEntry->setParameters( [ 'revid' => ModerationApproveHook::getLastRevId() ] );
 		$logid = $logEntry->insert();
 		$logEntry->publish( $logid );
 
@@ -294,6 +294,6 @@ class ModerationActionApprove extends ModerationAction {
 		# because they already exist in page history, recentchanges etc.
 
 		$dbw = wfGetDB( DB_MASTER );
-		$dbw->delete( 'moderation', array( 'mod_id' => $id ), __METHOD__ );
+		$dbw->delete( 'moderation', [ 'mod_id' => $id ], __METHOD__ );
 	}
 }

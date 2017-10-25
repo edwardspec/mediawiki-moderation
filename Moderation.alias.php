@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2015 Edward Chernenko.
+	Copyright (C) 2014-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,12 +20,12 @@
 	@brief Aliases of [[Special:Moderation]] in other languages.
 */
 
-$specialPageAliases = array();
+$specialPageAliases = [];
 
  /** English
  * @author Edward Chernenko
  */
-$specialPageAliases['en'] = array(
-	'Moderation' => array( 'Moderation' ),
-	'ModerationBlock' => array( 'ModerationBlock' )
-);
+$specialPageAliases['en'] = [
+	'Moderation' => [ 'Moderation' ],
+	'ModerationBlock' => [ 'ModerationBlock' ]
+];

@@ -35,11 +35,11 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 		$title = $page->getTitle();
 
 		/* Prepare the result array */
-		$r = array(
+		$r = [
 			'user' => $this->getUser()->getName(),
 			'title' => $title->getFullText(),
 			'pageid' => $title->getArticleID()
-		);
+		];
 
 		/* Load text which is currently awaiting moderation */
 		$row = ModerationPreload::singleton()->loadUnmoderatedEdit( $title );
@@ -78,13 +78,13 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 		@returns array with keys 'text', 'categorieshtml', 'displaytitle'
 	*/
 	protected function parse( Title $title, $wikitext ) {
-		$apiParams = array(
+		$apiParams = [
 			'action' => 'parse',
 			'text' => $wikitext,
 			'title' => $title->getFullText(),
 			'prop' => 'text|categorieshtml|displaytitle',
 			'disablepp' => ''
-		);
+		];
 
 		$api = new ApiMain(
 			new DerivativeRequest(
@@ -95,11 +95,11 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 		);
 		$api->execute();
 
-		$ret = $api->getResult()->getResultData( null, array(
+		$ret = $api->getResult()->getResultData( null, [
 			'Strip' => 'all'
-		) );
+		] );
 
-		$parsed = array();
+		$parsed = [];
 		$parsed['text'] = $ret['parse']['text'];
 		$parsed['categorieshtml'] = $ret['parse']['categorieshtml'];
 		$parsed['displaytitle'] = $ret['parse']['displaytitle'];
@@ -108,27 +108,27 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 	}
 
 	public function getAllowedParams() {
-		return array(
-			'mode' => array(
+		return [
+			'mode' => [
 				ApiBase::PARAM_DFLT => 'wikitext',
-				ApiBase::PARAM_TYPE => array( 'wikitext', 'parsed' )
-			),
+				ApiBase::PARAM_TYPE => [ 'wikitext', 'parsed' ]
+			],
 			'title' => null,
 			'pageid' => [
 				ApiBase::PARAM_TYPE => 'integer'
 			],
 			'section' => null
-		);
+		];
 	}
 
 	protected function getExamplesMessages() {
-		return array(
+		return [
 			'action=query&prop=moderationpreload&mptitle=Cat'
 				=> 'apihelp-query+moderationpreload-wikitext-example',
 			'action=query&prop=moderationpreload&mptitle=Dog&mpmode=html'
 				=> 'apihelp-query+moderationpreload-parsed-example',
 			'action=query&prop=moderationpreload&mptitle=Cat&mpsection=2'
 				=> 'apihelp-query+moderationpreload-section-example',
-		);
+		];
 	}
 }

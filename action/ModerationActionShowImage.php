@@ -40,7 +40,7 @@ class ModerationActionShowImage extends ModerationAction {
 			return;
 		}
 
-		$headers = array();
+		$headers = [];
 		$headers[] = 'Content-Disposition: ' .
 			FileBackend::makeContentDisposition( 'inline', $result['thumb-filename'] );
 
@@ -51,13 +51,13 @@ class ModerationActionShowImage extends ModerationAction {
 	public function execute() {
 		$dbr = wfGetDB( DB_SLAVE );
 		$row = $dbr->selectRow( 'moderation',
-			array(
+			[
 				'mod_user AS user',
 				'mod_user_text AS user_text',
 				'mod_title AS title',
 				'mod_stash_key AS stash_key'
-			),
-			array( 'mod_id' => $this->id ),
+			],
+			[ 'mod_id' => $this->id ],
 			__METHOD__
 		);
 		if ( !$row ) {
@@ -73,12 +73,12 @@ class ModerationActionShowImage extends ModerationAction {
 		try {
 			$file = $stash->getFile( $row->stash_key );
 		} catch ( MWException $e ) {
-			return array( 'missing' => '' );
+			return [ 'missing' => '' ];
 		}
 
 		$isThumb = $this->getRequest()->getVal( 'thumb' );
 		if ( $isThumb ) {
-			$thumb = $file->transform( array( 'width' => self::THUMB_WIDTH ), File::RENDER_NOW );
+			$thumb = $file->transform( [ 'width' => self::THUMB_WIDTH ], File::RENDER_NOW );
 			if ( $thumb ) {
 				if ( $thumb->fileIsSource() ) {
 					$isThumb = false;
@@ -94,7 +94,7 @@ class ModerationActionShowImage extends ModerationAction {
 		}
 
 		if ( !$file ) {
-			return array( 'missing' => '' );
+			return [ 'missing' => '' ];
 		}
 
 		$thumbFilename = '';
@@ -103,9 +103,9 @@ class ModerationActionShowImage extends ModerationAction {
 		}
 		$thumbFilename .= $row->title;
 
-		return array(
+		return [
 			'thumb-path' => $file->getPath(),
 			'thumb-filename' => $thumbFilename
-		);
+		];
 	}
 }

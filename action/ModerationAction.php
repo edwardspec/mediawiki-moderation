@@ -89,7 +89,7 @@ abstract class ModerationAction extends ContextSource {
 	protected function getUserpageOfPerformer() {
 		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
 		$username = $dbw->selectField( 'moderation', 'mod_user_text',
-			array( 'mod_id' => $this->id ),
+			[ 'mod_id' => $this->id ],
 			__METHOD__
 		);
 		return $username ? Title::makeTitle( NS_USER, $username ) : false;

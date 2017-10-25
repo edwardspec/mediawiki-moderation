@@ -29,14 +29,14 @@ class ModerationActionMerge extends ModerationAction {
 
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
-			array(
+			[
 				'mod_namespace AS namespace',
 				'mod_title AS title',
 				'mod_user_text AS user_text',
 				'mod_text AS text',
 				'mod_conflict AS conflict'
-			),
-			array( 'mod_id' => $this->id ),
+			],
+			[ 'mod_id' => $this->id ],
 			__METHOD__
 		);
 		if ( !$row ) {
@@ -47,7 +47,7 @@ class ModerationActionMerge extends ModerationAction {
 			throw new ModerationError( 'moderation-merge-not-needed' );
 		}
 
-		return array(
+		return [
 			'id' => $this->id,
 			'namespace' => $row->namespace,
 			'title' => $row->title,
@@ -56,7 +56,7 @@ class ModerationActionMerge extends ModerationAction {
 				'moderation-merge-comment',
 				$row->user_text
 			)->inContentLanguage()->plain()
-		);
+		];
 	}
 
 	public function outputResult( array $result, OutputPage &$out ) {

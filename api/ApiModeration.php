@@ -52,9 +52,9 @@ class ApiModeration extends ApiBase {
 	}
 
 	public function getAllowedParams() {
-		return array(
-			'modaction' => array(
-				ApiBase::PARAM_TYPE => array(
+		return [
+			'modaction' => [
+				ApiBase::PARAM_TYPE => [
 					'approve',
 					'approveall',
 					'reject',
@@ -64,20 +64,20 @@ class ApiModeration extends ApiBase {
 					// 'show'
 					// 'showimg',
 					// 'merge'
-				),
+				],
 				ApiBase::PARAM_REQUIRED => true
-			),
-			'modid' => array(
+			],
+			'modid' => [
 				ApiBase::PARAM_TYPE => 'integer',
 				ApiBase::PARAM_REQUIRED => true
-			)
+			]
 		);
 	}
 
 	protected function getExamplesMessages() {
-		return array(
+		return [
 			'action=moderation&modaction=approve&modid=123'
 				=> 'apihelp-moderation-approve-example'
-		);
+		];
 	}
 }

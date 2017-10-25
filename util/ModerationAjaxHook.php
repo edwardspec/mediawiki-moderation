@@ -62,7 +62,7 @@ class ModerationAjaxHook {
 		@brief Add needed modules to $out.
 	*/
 	public static function add( OutputPage &$out ) {
-		$modules = array();
+		$modules = [];
 
 		if ( self::need( 'ModerationSupportVisualEditor', self::guessVE() ) ) {
 			$modules[] = 'ext.moderation.ve';

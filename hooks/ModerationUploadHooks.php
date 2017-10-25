@@ -34,7 +34,7 @@ class ModerationUploadHooks {
 		try {
 			$file = $upload->stashFile( $user );
 		} catch ( MWException $e ) {
-			$error = array( 'api-error-stashfailed' );
+			$error = [ 'api-error-stashfailed' ];
 			return true;
 		}
 
@@ -57,12 +57,12 @@ class ModerationUploadHooks {
 		*/
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'moderation',
-			array( 'mod_stash_key' => $file->getFileKey() ),
-			array( 'mod_id' => ModerationEditHooks::$LastInsertId ),
+			[ 'mod_stash_key' => $file->getFileKey() ],
+			[ 'mod_id' => ModerationEditHooks::$LastInsertId ],
 			__METHOD__
 		);
 
-		$error = array( 'moderation-image-queued' );
+		$error = [ 'moderation-image-queued' ];
 		return true;
 	}
 
@@ -95,7 +95,7 @@ class ModerationUploadHooks {
 		*/
 		$result = $upload->validateName();
 		if ( $result !== true ) {
-			$status = array( $upload->getVerificationErrorCode( $result['status'] ) );
+			$status = [ $upload->getVerificationErrorCode( $result['status'] ) ];
 			return true;
 		}
 
@@ -121,7 +121,7 @@ class ModerationUploadHooks {
 		return self::onUploadVerifyUpload(
 			$upload,
 			$user,
-			array(), /* $props - no need to calculate, because our onUploadVerifyUpload() doesn't use it */
+			[], /* $props - no need to calculate, because our onUploadVerifyUpload() doesn't use it */
 			$special->mComment,
 			$pageText,
 			$status
