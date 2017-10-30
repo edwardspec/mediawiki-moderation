@@ -25,17 +25,20 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	/** @brief Libxml error code for "unknown tag", see http://www.xmlsoft.org/html/libxml-xmlerror.html */
 	const XML_HTML_UNKNOWN_TAG = 801;
 
-	private $t; # ModerationTestsuite
-	function __construct( ModerationTestsuite $t ) {
-		$this->t = $t;
+	protected $engine; # ModerationTestsuiteEngine object
+
+	function __construct( ModerationTestsuiteEngine $engine ) {
+		$this->engine = $engine;
 	}
 
 	public function loadFromURL( $url ) {
-		if ( !$url ) return;
+		if ( !$url ) {
+			return;
+		}
 
-		$this->t->ignoreHttpError[404] = true;
-		$req = $this->t->httpGet( $url );
-		$this->t->ignoreHttpError[404] = false;
+		$this->engine->ignoreHttpError( 404 );
+		$req = $this->engine->httpGet( $url );
+		$this->engine->stopIgnoringHttpError( 404 );
 
 		return $this->loadFromReq( $req );
 	}

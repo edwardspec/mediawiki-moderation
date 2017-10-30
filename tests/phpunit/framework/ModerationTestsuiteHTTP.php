@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015 Edward Chernenko.
+	Copyright (C) 2015-2017 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,10 +21,7 @@
 */
 
 class ModerationTestsuiteHTTP {
-	private $t; # ModerationTestsuite
-	function __construct( ModerationTestsuite $t ) {
-		$this->t = $t;
-
+	function __construct() {
 		$this->resetCookieJar();
 	}
 

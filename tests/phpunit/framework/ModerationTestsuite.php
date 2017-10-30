@@ -20,62 +20,48 @@
 	@brief Automated testsuite of Extension:Moderation.
 */
 
-require_once( __DIR__ . '/ModerationTestsuiteAPI.php' );
+require_once( __DIR__ . '/IModerationTestsuiteEngine.php' );
+require_once( __DIR__ . '/ModerationTestsuiteEngine.php' );
 require_once( __DIR__ . '/ModerationTestsuiteEntry.php' );
 require_once( __DIR__ . '/ModerationTestsuiteHTML.php' );
 require_once( __DIR__ . '/ModerationTestsuiteHTTP.php' );
+require_once( __DIR__ . '/ModerationTestsuiteRealHttpEngine.php' );
 
 class ModerationTestsuite
 {
+	const TEST_PASSWORD = '123456';
+
 	private $http;
-	private $api;
 	public $html;
+
+	protected $engine; /**< ModerationTestsuiteEngine class */
 
 	function __construct() {
 		$this->prepareDbForTests();
 
-		$this->http = new ModerationTestsuiteHTTP( $this );
-		$this->api = new ModerationTestsuiteAPI( $this );
-		$this->html = new ModerationTestsuiteHTML( $this );
-	}
-	public $TEST_PASSWORD = '123456';
-	public function query( $query = [] ) {
-		return $this->api->query( $query );
+		$this->engine = ModerationTestsuiteEngine::factory();
+
+		$this->http = new ModerationTestsuiteHTTP;
+		$this->html = new ModerationTestsuiteHTML( $this->engine );
 	}
 
-	public function httpGet( $url ) {
-		return $this->executeHttpRequest( $url, 'GET', [] );
+	public function query( $apiQuery ) {
+		return $this->engine->query( $apiQuery );
 	}
-	public function httpPost( $url, $post_data = [] ) {
-		return $this->executeHttpRequest( $url, 'POST', $post_data );
+	public function httpGet( $url ) {
+		return $this->engine->httpGet( $url );
+	}
+	public function httpPost( $url, array $postData = [] ) {
+		return $this->engine->httpPost( $url, $postData );
 	}
 	public function setUserAgent( $ua ) {
-		$this->http->userAgent = $ua;
+		$this->engine->setUserAgent( $ua );
 	}
 	public function deleteAllCookies() {
-		$this->http->resetCookieJar();
+		$this->engine->deleteAllCookies();
 	}
-
-	public $ignoreHttpError = [];
-
-	private function executeHttpRequest( $url, $method, $post_data ) {
-		$req = $this->http->makeRequest( $url, $method );
-		$req->setData( $post_data );
-
-		if ( $method == 'POST' ) {
-			/* Can be an upload */
-			$req->setHeader( 'Content-Type', 'multipart/form-data' );
-		}
-
-		$status = $req->execute();
-
-		if ( !$status->isOK() &&
-			!in_array( $req->getStatus(), $this->ignoreHttpError )
-		) {
-			throw new ModerationTestsuiteHttpError;
-		}
-
-		return $req;
+	public function getEditToken() {
+		return $this->engine->getEditToken();
 	}
 
 	#
@@ -153,7 +139,7 @@ class ModerationTestsuite
 	private function createTestUser( $name, $groups = [] )
 	{
 		$user = User::createNew( $name );
-		$user->setPassword( $this->TEST_PASSWORD );
+		$user->setPassword( self::TEST_PASSWORD );
 
 		# With "qqx" language selected, messages are replaced with
 		# their names, so parsing process is translation-independent.
@@ -240,36 +226,35 @@ class ModerationTestsuite
 	public $unprivilegedUser2;
 	public $moderatorAndCheckuser;
 
-	private $t_loggedInAs = null;
+	protected $currentUser = null; /**< User object */
 
 	public function loggedInAs() {
-		return $this->t_loggedInAs;
+		return $this->currentUser;
 	}
 
 	public function isModerator() {
-		if(!$this->t_loggedInAs) {
+		if ( !$this->currentUser ) {
 			return false;
 		}
 
-		$user_id = $this->t_loggedInAs->getId();
-		return ($user_id == $this->moderator->getId()) ||
-			($user_id == $this->moderatorButNotAutomoderated->getId());
+		$userId = $this->currentUser->getId();
+		return ( $userId == $this->moderator->getId() ) ||
+			( $userId == $this->moderatorButNotAutomoderated->getId() );
 	}
 
 	public function loginAs( User $user )
 	{
-		if($this->t_loggedInAs && $user->getId() == $this->t_loggedInAs->getId()) {
+		if ( $this->currentUser && $user->getId() == $this->currentUser->getId() ) {
 			return; /* Nothing to do, already logged in */
 		}
 
-		$this->api->apiLogin( $user->getName() );
-		$this->t_loggedInAs = $user;
+		$this->engine->loginAs( $user );
+		$this->currentUser = $user;
 	}
 
 	public function logout() {
-		$this->api->apiLogout();
-		$this->t_loggedInAs =
-			User::newFromName( $this->api->apiLoggedInAs(), false );
+		$this->engine->logout();
+		$this->currentUser = $this->engine->loggedInAs();
 	}
 
 	/**
@@ -277,10 +262,7 @@ class ModerationTestsuite
 		@note Will not login automatically (loginAs must be called).
 	*/
 	public function createAccount( $username ) {
-		if ( !$this->api->apiCreateAccount( $username ) ) {
-			return false;
-		}
-		return User::newFromName( $username, false );
+		return $this->engine->createAccount( $username );
 	}
 
 	/**
@@ -315,7 +297,7 @@ class ModerationTestsuite
 			'title' => $title,
 			'wpTextbox1' => $text,
 			'wpSummary' => $summary,
-			'wpEditToken' => $this->api->editToken,
+			'wpEditToken' => $this->getEditToken(),
 			'wpSave' => 'Save',
 			'wpIgnoreBlankSummary' => '',
 			'wpRecreate' => '',
@@ -468,7 +450,7 @@ class ModerationTestsuite
 			'wpUploadFile' => curl_file_create( $source_filename ),
 			'wpDestFile' => $title,
 			'wpIgnoreWarning' => '1',
-			'wpEditToken' => $this->api->editToken,
+			'wpEditToken' => $this->getEditToken(),
 			'wpUpload' => 'Upload',
 			'wpUploadDescription' => $text
 		] );
