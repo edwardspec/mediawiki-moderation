@@ -494,7 +494,7 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Make an upload via the usual Special:Upload, as real users do.
+		@brief Make an upload via API.
 		@returns Error code (e.g. '(emptyfile)') or null.
 	*/
 	public function apiUpload( $title, $source_filename, $text )
