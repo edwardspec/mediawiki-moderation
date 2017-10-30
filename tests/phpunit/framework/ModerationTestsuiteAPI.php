@@ -96,10 +96,6 @@ class ModerationTestsuiteAPI {
 		@brief Create account via API. Note: will not login.
 	*/
 	public function apiCreateAccount( $username ) {
-		if ( !class_exists( 'ApiAMCreateAccount' ) ) {
-			return self::apiCreateAccountOld( $username );
-		}
-
 		# Step 1. Get the token.
 		$q = [
 			'action' => 'query',
@@ -120,52 +116,5 @@ class ModerationTestsuiteAPI {
 		];
 		$ret = $this->query( $q );
 		return ( $ret['createaccount']['status'] == 'PASS' );
-	}
-
-	/**
-		@brief Legacy version of apiCreateAccount().
-	*/
-	protected function apiCreateAccountOld( $username ) {
-		# Step 1. Get the token.
-		$q = [
-			'action' => 'createaccount',
-			'name' => $username,
-			'password' => $this->t->TEST_PASSWORD
-		];
-		$ret = $this->query( $q );
-
-		# Step 2. Actually create an account.
-		$q['token'] = $ret['createaccount']['token'];
-		$ret = $this->query( $q );
-
-		if ( $ret['createaccount']['result'] == 'NeedCaptcha' ) {
-			# Simple captcha is installed with MediaWiki by default,
-			# so we need to support it.
-			# Others are not our concern.
-
-			$captcha = $ret['createaccount']['captcha'];
-			if ( $captcha['type'] != 'simple' ) {
-				# No need to support that
-				return false;
-			}
-
-			# Sanitize the output to make it safe for eval()
-			$formula = $captcha['question'];
-			$formula = preg_replace( '/−/', '-', $formula );
-			$formula = preg_replace( '/[^0-9\+\-]/', '', $formula );
-			$formula = 'return ' . $formula . ';';
-
-			$q['captchaword'] = eval( $formula );
-			$q['captchaid'] = $captcha['id'];
-
-			$ret = $this->query( $q );
-
-		}
-
-		if ( $ret['createaccount']['result'] == 'Success' ) {
-			return true;
-		}
-
-		return false;
 	}
 }
