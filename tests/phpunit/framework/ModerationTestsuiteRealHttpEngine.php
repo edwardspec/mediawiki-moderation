@@ -77,7 +77,7 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 			throw new ModerationTestsuiteHttpError;
 		}
 
-		return $req;
+		return ModerationTestsuiteResponse::newFromMWHttpRequest( $req );
 	}
 
 	public function logout() {

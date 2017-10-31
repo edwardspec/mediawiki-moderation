@@ -26,6 +26,7 @@ require_once( __DIR__ . '/ModerationTestsuiteEntry.php' );
 require_once( __DIR__ . '/ModerationTestsuiteHTML.php' );
 require_once( __DIR__ . '/ModerationTestsuiteHTTP.php' );
 require_once( __DIR__ . '/ModerationTestsuiteRealHttpEngine.php' );
+require_once( __DIR__ . '/ModerationTestsuiteResponse.php' );
 
 class ModerationTestsuite
 {
@@ -288,7 +289,7 @@ class ModerationTestsuite
 
 	/**
 		@brief Make an edit via the usual interface, as real users do.
-		@returns Completed request of type MWHttpRequest.
+		@returns ModerationTestsuiteResponse object.
 	*/
 	public function nonApiEdit( $title, $text, $summary, $extra_params = [] )
 	{

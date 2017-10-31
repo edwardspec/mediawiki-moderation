@@ -37,7 +37,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 	/**
 		@brief Perform GET request.
-		@returns MWHttpRequest object.
+		@returns ModerationTestsuiteResponse object.
 	*/
 	public function httpGet( $url ) {
 		return $this->executeHttpRequest( $url, 'GET', [] );
@@ -45,7 +45,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 	/**
 		@brief Perform POST request.
-		@returns MWHttpRequest object.
+		@returns ModerationTestsuiteResponse object.
 	*/
 	public function httpPost( $url, array $postData = [] ) {
 		return $this->executeHttpRequest( $url, 'POST', $postData );

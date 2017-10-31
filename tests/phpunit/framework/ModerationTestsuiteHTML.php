@@ -43,7 +43,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 		return $this->loadFromReq( $req );
 	}
 
-	public function loadFromReq( MWHttpRequest $req ) {
+	public function loadFromReq( ModerationTestsuiteResponse $req ) {
 		return $this->loadFromString( $req->getContent() );
 	}
 
