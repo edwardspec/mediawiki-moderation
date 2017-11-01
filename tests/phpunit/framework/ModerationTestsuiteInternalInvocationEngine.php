@@ -53,7 +53,7 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 		because it may be used by the code we are testing,
 		either explicitly or via $wgUser, etc.
 	*/
-	protected function makeRequestContext( $url, array $data, $isPosted ) {
+	protected function makeRequestContext( $url, array $data, $isPosted, $isApi ) {
 
 		$url = wfExpandUrl( $url, PROTO_CANONICAL );
 		var_dump( "Sending request to $url..." );
@@ -63,15 +63,23 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 		$request->setRequestURL( $url );
 		$request->setHeader( 'User-Agent', $this->userAgent );
 
-		/* Prepare Title (will be null for API) */
-		$title = null;
+		/* Add query string parameters (if any) to $request */
+		$bits = wfParseUrl( $url );
+		if ( isset( $bits['query'] ) ) {
+			foreach ( explode( '&', $bits['query'] ) as $keyval ) {
+				list( $key, $val ) = array_map( 'urldecode', explode( '=', $keyval ) );
+				$request->setVal( $key, $val );
+			}
+		}
 
-		$_SERVER['REQUEST_URI'] = $url;
-		$info = WebRequest::getPathInfo( 'title' );
-		if ( isset( $info['title'] ) ) {
-			$title = Title::newFromText( $info['title'] );
-		};
-		unset( $_SERVER['REQUEST_URI'] ); /* Was only needed for getPathInfo() */
+		/* Prepare Title (will be null for API) */
+		if ( !$isApi ) {
+			$_SERVER['REQUEST_URI'] = $url;
+			$request->interpolateTitle();
+			unset( $_SERVER['REQUEST_URI'] ); /* No longer needed */
+		}
+
+		$title = Title::newFromText( $request->getVal( 'title' ) );
 
 		/* Prepare User */
 		$user = $this->getUser();
@@ -90,6 +98,9 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 		/* Bind OutputPage to the global context */
 		$out->setContext( $context );
 
+		/* Set cookies. CSRF token check in API assumes that $request has them. */
+		$user->setCookies( $request );
+
 		return $context;
 	}
 
@@ -107,7 +118,8 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 		$apiContext = $this->makeRequestContext(
 			wfScript( 'api' ),
 			$apiQuery,
-			true /* $isPosted */
+			true, /* $isPosted */
+			true /* $isApi */
 		);
 
 		$api = new ApiMain( $apiContext, true );
@@ -141,7 +153,8 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 		$httpContext = $this->makeRequestContext(
 			$url,
 			$postData,
-			( $method == 'POST' ) /* $isPosted */
+			( $method == 'POST' ), /* $isPosted */
+			false /* $isApi */
 		);
 
 
