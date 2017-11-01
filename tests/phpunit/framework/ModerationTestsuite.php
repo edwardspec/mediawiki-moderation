@@ -27,6 +27,7 @@ require_once( __DIR__ . '/ModerationTestsuiteHTML.php' );
 require_once( __DIR__ . '/ModerationTestsuiteHTTP.php' );
 require_once( __DIR__ . '/ModerationTestsuiteRealHttpEngine.php' );
 require_once( __DIR__ . '/ModerationTestsuiteResponse.php' );
+require_once( __DIR__ . '/ModerationTestsuiteInternalInvocationEngine.php' );
 
 class ModerationTestsuite
 {

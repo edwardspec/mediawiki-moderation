@@ -32,6 +32,10 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 		@brief Create engine object.
 	*/
 	public static function factory() {
+		if ( getenv( 'MODERATION_TEST_INTERNAL' ) ) {
+			return new ModerationTestsuiteInternalInvocationEngine;
+		}
+
 		return new ModerationTestsuiteRealHttpEngine;
 	}
 

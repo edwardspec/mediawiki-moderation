@@ -26,32 +26,50 @@
 class ModerationTestsuiteResponse {
 
 	protected $content; /**< Response text */
-	protected $headers; /**< Response headers, e.g. [ 'Content-Type' => 'text/html' ] */
 	protected $httpCode; /**< HTTP return code, e.g. 200 */
+	protected $getHeaderMethod; /**< callable, implementation-specific method used by getResponseHeader() */
 
-	function __construct( $content, $headers, $httpCode ) {
+	protected function __construct( $content, $httpCode, callable $getHeaderMethod ) {
 		$this->content = $content;
-		$this->headers = $headers;
 		$this->httpCode = $httpCode;
+		$this->getHeaderMethod = $getHeaderMethod;
 	}
 
+	/**
+		@brief Create response from real MWHttpRequest.
+		@returns ModerationTestsuiteResponse object.
+	*/
 	public static function newFromMWHttpRequest( MWHttpRequest $httpRequest ) {
 		return new self(
 			$httpRequest->getContent(),
-			$httpRequest->getResponseHeaders(),
-			$httpRequest->getStatus()
+			$httpRequest->getStatus(),
+			[ $httpRequest, 'getResponseHeader' ]
 		);
 	}
 
-	public function getResponseHeader( $headerName ) {
-		$headerName = strtolower( $headerName );
+	/**
+		@brief Create response from OutputPage after internal invocation.
+		@param $capturedContent Text printed by $mediaWiki->run(), as captured by ob_start()/ob_get_clean().
+		@returns ModerationTestsuiteResponse object.
+	*/
+	public static function newFromOutput( OutputPage $out, $capturedContent ) {
+		$mwResponse = $out->getRequest()->response(); /**< FauxResponse object */
 
-		if ( isset( $this->headers[$headerName] ) ) {
-			$lines = $this->headers[$headerName];
-			return array_pop( $lines ); /* Return the last header with this name */
+		$req = new self(
+			$capturedContent,
+			$mwResponse->getStatusCode(),
+			[ $mwResponse, 'getHeader' ]
+		);
+
+		if ( $req->isRedirect() ) {
+			var_dump( "Got redirected to " . $req->getResponseHeader( 'location' ) );
 		}
 
-		return null;
+		return $req;
+	}
+
+	public function getResponseHeader( $headerName ) {
+		return call_user_func( $this->getHeaderMethod, $headerName );
 	}
 
 	public function getStatus() {
