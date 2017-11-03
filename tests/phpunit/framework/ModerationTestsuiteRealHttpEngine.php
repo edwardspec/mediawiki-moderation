@@ -55,6 +55,26 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 		return FormatJson::decode( $req->getContent(), true );
 	}
 
+	public function loginAs( User $user ) {
+		# Step 1. Get the token.
+		$q = [
+			'action' => 'login',
+			'lgname' => $user->getName(),
+			'lgpassword' => ModerationTestsuite::TEST_PASSWORD
+		];
+		$ret = $this->query( $q );
+
+		# Step 2. Actual login.
+		$q['lgtoken'] = $ret['login']['token'];
+		$ret = $this->query( $q );
+
+		if ( $ret['login']['result'] == 'Success' ) {
+			$this->getEditToken( true ); # It's different for a logged-in user
+			return true;
+		}
+
+		return false;
+	}
 
 	public function deleteAllCookies() {
 		$this->http->resetCookieJar();
