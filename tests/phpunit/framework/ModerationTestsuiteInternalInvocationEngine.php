@@ -56,7 +56,8 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 	protected function makeRequestContext( $url, array $data, $isPosted, $isApi ) {
 
 		$url = wfExpandUrl( $url, PROTO_CANONICAL );
-		var_dump( "Sending request to $url..." );
+
+		# var_dump( [ 'Sending internal request' => [ 'url' => $url, 'data' => $data ] ] );
 
 		/* Prepare Request */
 		$request = new FauxRequest( $data, $isPosted );
@@ -100,6 +101,12 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 
 		/* Set cookies. CSRF token check in API assumes that $request has them. */
 		$user->setCookies( $request );
+
+		/* Set legacy global variables */
+		global $wgUser, $wgRequest, $wgOut;
+		$wgUser = $user;
+		$wgRequest = $request;
+		$wgOut = $out;
 
 		return $context;
 	}
