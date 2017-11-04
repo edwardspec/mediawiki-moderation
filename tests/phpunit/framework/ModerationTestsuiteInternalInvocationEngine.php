@@ -177,8 +177,8 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 			- get cookies from the response
 		*/
 
-		return ModerationTestsuiteResponse::newFromOutput(
-			$httpContext->getOutput(),
+		return ModerationTestsuiteResponse::newFromInternalInvocation(
+			$httpContext,
 			$capturedContent
 		);
 	}

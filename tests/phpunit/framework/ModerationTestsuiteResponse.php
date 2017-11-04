@@ -48,24 +48,29 @@ class ModerationTestsuiteResponse {
 	}
 
 	/**
-		@brief Create response from OutputPage after internal invocation.
+		@brief Create response after internal invocation.
+		@param $context Context used during $mediaWiki->run().
 		@param $capturedContent Text printed by $mediaWiki->run(), as captured by ob_start()/ob_get_clean().
 		@returns ModerationTestsuiteResponse object.
 	*/
-	public static function newFromOutput( OutputPage $out, $capturedContent ) {
-		$mwResponse = $out->getRequest()->response(); /**< FauxResponse object */
+	public static function newFromInternalInvocation( IContextSource $context, $capturedContent ) {
+		$mwResponse = $context->getRequest()->response(); /**< FauxResponse object */
 
-		$req = new self(
-			$capturedContent,
-			$mwResponse->getStatusCode(),
-			[ $mwResponse, 'getHeader' ]
-		);
-
-		if ( $req->isRedirect() ) {
-			var_dump( "Got redirected to " . $req->getResponseHeader( 'location' ) );
+		$httpCode = $mwResponse->getStatusCode();
+		if ( !$httpCode ) { /* WebResponse doesn't set code for successful requests */
+			if ( $mwResponse->getHeader( 'Location' ) ) {
+				$httpCode = 302; /* Successful redirect */
+			}
+			else {
+				$httpCode = 200; /* Successful non-redirect */
+			}
 		}
 
-		return $req;
+		return new self(
+			$capturedContent,
+			$httpCode,
+			[ $mwResponse, 'getHeader' ]
+		);
 	}
 
 	public function getResponseHeader( $headerName ) {
