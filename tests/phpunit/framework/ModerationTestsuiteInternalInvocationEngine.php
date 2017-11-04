@@ -129,31 +129,75 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 			true /* $isApi */
 		);
 
-		$api = new ApiMain( $apiContext, true );
-		$result = $api->getResult();
-		try {
-			$api->execute();
-		}
-		catch ( ApiUsageException $e ) {
-			/* FIXME: code duplication, just subclass ApiMain and use their method */
+		return $this->forkAndRun( function() use ( $apiContext )  {
+			$api = new ApiMain( $apiContext, true );
+			$result = $api->getResult();
+			try {
+				$api->execute();
+			}
+			catch ( ApiUsageException $e ) {
+				/* FIXME: code duplication, just subclass ApiMain and use their method */
 
-			$messages = [];
-			foreach ( $e->getStatusValue()->getErrorsByType( 'error' ) as $error ) {
-				$messages[] = ApiMessage::create( $error );
+				$messages = [];
+				foreach ( $e->getStatusValue()->getErrorsByType( 'error' ) as $error ) {
+					$messages[] = ApiMessage::create( $error );
+				}
+
+				$result->reset();
+
+				$formatter = $api->getErrorFormatter();
+				$formatter->addError( $e->getModulePath(), $messages );
 			}
 
-			$result->reset();
-
-			$formatter = $api->getErrorFormatter();
-			$formatter->addError( $e->getModulePath(), $messages );
-		}
-
-		return $result->getResultData();
+			return $result->getResultData();
+		} );
 	}
 
 
 	public function deleteAllCookies() {
 		$_COOKIE = [];
+	}
+
+	/**
+		@brief Fork PHP and run $function in the child process.
+		@returns Value returned by $function.
+
+		Note: this method will only return in parent process.
+	*/
+	public function forkAndRun( callable $function ) {
+		wfGetLB()->closeAll(); /* Make child process reopen the SQL connection */
+
+		/* Create a temporary file.
+			Child will write the result into it. */
+		$tmpFilename = tempnam( sys_get_temp_dir(), 'testsuite.result' );
+
+		$pid = pcntl_fork();
+		if ( $pid < 0 ) {
+			throw new Exception( 'pcntl_fork() failed' );
+		}
+
+		if ( $pid == 0 ) {
+			/* We are in the child process */
+			$result = call_user_func( $function );
+
+			file_put_contents( $tmpFilename, FormatJson::encode( $result ) );
+			flush();
+
+			/* Child process is no longer needed. Exit immediately.
+				We can't use exit(0), because child process also has PHPUnit,
+				and PHPUnit complains of exit() without tearDown(). */
+			posix_kill( posix_getpid(), SIGKILL );
+		}
+
+		/* We are in the parent process. Wait for child process to exit. */
+		$status = null;
+		pcntl_waitpid( $pid, $status );
+
+		/* Return the results provided by the child process. */
+		$result = FormatJson::decode( file_get_contents( $tmpFilename ), true );
+		unlink( $tmpFilename ); /* No longer needed */
+
+		return $result;
 	}
 
 	public function executeHttpRequest( $url, $method = 'GET', array $postData = [] ) {
