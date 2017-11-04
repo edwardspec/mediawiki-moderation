@@ -71,7 +71,7 @@ class ApiModeration extends ApiBase {
 				ApiBase::PARAM_TYPE => 'integer',
 				ApiBase::PARAM_REQUIRED => true
 			]
-		);
+		];
 	}
 
 	protected function getExamplesMessages() {
