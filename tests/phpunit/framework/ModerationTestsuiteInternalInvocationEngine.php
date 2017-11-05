@@ -180,7 +180,7 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 			/* We are in the child process */
 			$result = call_user_func( $function );
 
-			file_put_contents( $tmpFilename, FormatJson::encode( $result ) );
+			file_put_contents( $tmpFilename, serialize( $result ) );
 			flush();
 
 			/* Child process is no longer needed. Exit immediately.
@@ -194,7 +194,7 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 		pcntl_waitpid( $pid, $status );
 
 		/* Return the results provided by the child process. */
-		$result = FormatJson::decode( file_get_contents( $tmpFilename ), true );
+		$result = unserialize( file_get_contents( $tmpFilename ) );
 		unlink( $tmpFilename ); /* No longer needed */
 
 		return $result;
@@ -208,12 +208,19 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 			false /* $isApi */
 		);
 
+		$result = $this->forkAndRun( function() use ( $httpContext )  {
+			ob_start();
 
-		$mediaWiki = new MediaWiki( $httpContext );
+			$mediaWiki = new MediaWiki( $httpContext );
+			$mediaWiki->run();
 
-		ob_start();
-		$mediaWiki->run();
-		$capturedContent = ob_get_clean();
+			$capturedContent = ob_get_clean();
+
+			return [
+				'FauxResponse' => $httpContext->getRequest()->response(),
+				'capturedContent' => $capturedContent
+			];
+		} );
 
 		/* TODO:
 			- handle uploads (CURLFile parameters in $postData)
@@ -221,9 +228,9 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 			- get cookies from the response
 		*/
 
-		return ModerationTestsuiteResponse::newFromInternalInvocation(
-			$httpContext,
-			$capturedContent
+		return ModerationTestsuiteResponse::newFromFauxResponse(
+			$result['FauxResponse'],
+			$result['capturedContent']
 		);
 	}
 

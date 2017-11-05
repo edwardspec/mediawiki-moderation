@@ -49,13 +49,11 @@ class ModerationTestsuiteResponse {
 
 	/**
 		@brief Create response after internal invocation.
-		@param $context Context used during $mediaWiki->run().
+		@param $mwResponse FauxResponse object after $mediaWiki->run().
 		@param $capturedContent Text printed by $mediaWiki->run(), as captured by ob_start()/ob_get_clean().
 		@returns ModerationTestsuiteResponse object.
 	*/
-	public static function newFromInternalInvocation( IContextSource $context, $capturedContent ) {
-		$mwResponse = $context->getRequest()->response(); /**< FauxResponse object */
-
+	public static function newFromFauxResponse( FauxResponse $mwResponse, $capturedContent ) {
 		$httpCode = $mwResponse->getStatusCode();
 		if ( !$httpCode ) { /* WebResponse doesn't set code for successful requests */
 			if ( $mwResponse->getHeader( 'Location' ) ) {
