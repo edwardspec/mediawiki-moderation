@@ -30,19 +30,22 @@ class ModerationTestsuiteApiMain extends ApiMain {
 		so its return value will be exactly the same
 		as if api.php was called NOT via internal invocation.
 	*/
-	public static function doInternalInvocation( IContextSource $context ) {
+	public static function invoke( IContextSource $context ) {
 		$api = new self( $context, true );
-		$result = $api->getResult();
+		return $api->doInternalInvocation();
+	}
 
-		try {
-			$api->execute();
-		}
-		catch ( ApiUsageException $e ) {
-			$api->substituteResultWithError( $e );
-		}
+	protected function doInternalInvocation() {
+		ob_start();
 
-		/* FIXME: must run getResultData() through the ApiFormatter (result printer) */
+		$this->executeActionWithErrorHandling();
+		$this->setupExternalResponse(
+			$this->getModule(),
+			$this->extractRequestParams()
+		);
+		$this->printResult();
 
-		return $result->getResultData();
+		$capturedContent = ob_get_clean();
+		return FormatJson::decode( $capturedContent, true );
 	}
 }

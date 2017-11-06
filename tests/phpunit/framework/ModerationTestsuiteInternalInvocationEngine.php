@@ -117,6 +117,8 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 			will be set to the current value of $editToken.
 	*/
 	public function query( array $apiQuery ) {
+		$apiQuery['format'] = 'json';
+
 		if ( array_key_exists( 'token', $apiQuery )
 			&& is_null( $apiQuery['token'] ) ) {
 				$apiQuery['token'] = $this->getEditToken();
@@ -130,7 +132,7 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 		);
 
 		return $this->forkAndRun( function() use ( $apiContext )  {
-			return ModerationTestsuiteApiMain::doInternalInvocation( $apiContext );
+			return ModerationTestsuiteApiMain::invoke( $apiContext );
 		} );
 	}
 
