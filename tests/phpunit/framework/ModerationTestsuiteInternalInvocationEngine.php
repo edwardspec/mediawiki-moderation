@@ -59,6 +59,21 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 
 		# var_dump( [ 'Sending internal request' => [ 'url' => $url, 'data' => $data ] ] );
 
+		/* Handle CURL uploads in $data */
+		$_FILES = [];
+		foreach ( $data as $key => $val ) {
+			if ( $val instanceof CURLFile ) {
+				$_FILES[$key] = array(
+					'name' => 'whatever', # Not used anywhere
+					'type' => $val->getMimeType(),
+					'tmp_name' => $val->getFilename(),
+					'size' => filesize( $val->getFilename() ),
+					'error' => 0
+				);
+				unset( $data[$key] );
+			}
+		}
+
 		/* Prepare Request */
 		$request = new FauxRequest( $data, $isPosted );
 		$request->setRequestURL( $url );
@@ -209,7 +224,6 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 		} );
 
 		/* TODO:
-			- handle uploads (CURLFile parameters in $postData)
 			- follow redirects if necessary
 			- get cookies from the response
 		*/
