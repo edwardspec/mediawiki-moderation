@@ -24,6 +24,22 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 
 	private $user = null; /**< User object. Used during simulated requests. */
 
+	public function __construct() {
+		/*
+			Enforce CACHE_DB for sessions, because sessions created
+			by the child process must be available in the parent.
+			In CLI mode, CACHE_ACCEL would not provide that.
+		*/
+		global $wgSessionCacheType;
+		if ( $wgSessionCacheType != CACHE_DB ) {
+			/* Unfortunately it's too late to override the variable.
+				SessionManager is a singleton and has already been created,
+				and it provides no methods to change the storage.
+			*/
+			throw new Exception( 'Moderation Testsuite: please set $wgSessionCacheType to CACHE_DB in LocalSettings.php.' );
+		}
+	}
+
 	protected function getUser() {
 		if ( !$this->user ) {
 			$this->user = User::newFromName( '127.0.0.1', false );
@@ -152,6 +168,7 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 
 	public function deleteAllCookies() {
 		$_COOKIE = [];
+		SessionManager::singleton()->getGlobalSession()->clear();
 	}
 
 	/**
@@ -161,7 +178,8 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 		Note: this method will only return in parent process.
 	*/
 	public function forkAndRun( callable $function ) {
-		wfGetLB()->closeAll(); /* Make child process reopen the SQL connection */
+		/* Make child process reopen the SQL connection */
+		wfGetLB()->closeAll();
 
 		/* Create a temporary file.
 			Child will write the result into it. */
@@ -214,16 +232,31 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 
 			return [
 				'FauxResponse' => $httpContext->getRequest()->response(),
-				'capturedContent' => $capturedContent
+				'capturedContent' => $capturedContent,
+				'childSessionId' => $httpContext->getRequest()->getSession()->getSessionId()
 			];
 		} );
 
-		/* TODO:
-			- get cookies from the response
-		*/
+		$fauxResponse = $result['FauxResponse'];
+
+		/* Add newly added cookies into $_COOKIE */
+		$cookies = $fauxResponse->getCookies();
+		foreach ( $cookies as $cookieName => $cookieInfo ) {
+			if ( $cookieInfo['expire'] > time() ) {
+				/* Cookie already expired, delete it */
+				unset( $_COOKIE[$cookieName] );
+			}
+			else {
+				/* New cookie */
+				$_COOKIE[$cookieName] = $cookieInfo['value'];
+			}
+		}
+
+		/* Provide parent process with session from the child process */
+		$httpContext->getRequest()->setSessionId( $result['childSessionId'] );
 
 		return ModerationTestsuiteResponse::newFromFauxResponse(
-			$result['FauxResponse'],
+			$fauxResponse,
 			$result['capturedContent']
 		);
 	}
