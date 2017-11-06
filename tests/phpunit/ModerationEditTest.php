@@ -101,6 +101,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$query['text'] = "== New section 2 ==\n~~~\n\n";
 		$ret = $t->query( $query );
 
+		$dbw = wfGetDB( DB_MASTER );
 		$dbText = $dbw->selectField( 'moderation', 'mod_text',
 			[ 'mod_id' => $t->new_entries[0]->id ],
 			__METHOD__
@@ -115,6 +116,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$query['text'] = $sections[2] = "When editing this section, the user removed <nowiki>== This ==</nowiki>\n\n";
 		$ret = $t->query( $query );
 
+		$dbw = wfGetDB( DB_MASTER );
 		$dbText = $dbw->selectField( 'moderation', 'mod_text',
 			[ 'mod_id' => $t->new_entries[0]->id ],
 			__METHOD__
