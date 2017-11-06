@@ -130,26 +130,7 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 		);
 
 		return $this->forkAndRun( function() use ( $apiContext )  {
-			$api = new ApiMain( $apiContext, true );
-			$result = $api->getResult();
-			try {
-				$api->execute();
-			}
-			catch ( ApiUsageException $e ) {
-				/* FIXME: code duplication, just subclass ApiMain and use their method */
-
-				$messages = [];
-				foreach ( $e->getStatusValue()->getErrorsByType( 'error' ) as $error ) {
-					$messages[] = ApiMessage::create( $error );
-				}
-
-				$result->reset();
-
-				$formatter = $api->getErrorFormatter();
-				$formatter->addError( $e->getModulePath(), $messages );
-			}
-
-			return $result->getResultData();
+			return ModerationTestsuiteApiMain::doInternalInvocation( $apiContext );
 		} );
 	}
 

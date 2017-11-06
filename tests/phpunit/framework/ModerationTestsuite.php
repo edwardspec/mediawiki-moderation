@@ -20,6 +20,7 @@
 	@brief Automated testsuite of Extension:Moderation.
 */
 
+require_once( __DIR__ . '/ModerationTestsuiteApiMain.php' );
 require_once( __DIR__ . '/IModerationTestsuiteEngine.php' );
 require_once( __DIR__ . '/ModerationTestsuiteEngine.php' );
 require_once( __DIR__ . '/ModerationTestsuiteEntry.php' );
