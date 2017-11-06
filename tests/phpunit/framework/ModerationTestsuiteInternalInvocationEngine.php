@@ -22,7 +22,6 @@
 
 class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEngine {
 
-	private $userAgent = ''; /**< User-agent string. Used during simulated requests. */
 	private $user = null; /**< User object. Used during simulated requests. */
 
 	protected function getUser() {
@@ -40,10 +39,6 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 
 	public function logout() {
 		$this->user = null;
-	}
-
-	public function setUserAgent( $ua ) {
-		$this->userAgent = $ua;
 	}
 
 	/**
@@ -77,7 +72,7 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 		/* Prepare Request */
 		$request = new FauxRequest( $data, $isPosted );
 		$request->setRequestURL( $url );
-		$request->setHeader( 'User-Agent', $this->userAgent );
+		$request->setHeader( 'User-Agent', $this->getUserAgent() );
 
 		/* Add query string parameters (if any) to $request */
 		$bits = wfParseUrl( $url );

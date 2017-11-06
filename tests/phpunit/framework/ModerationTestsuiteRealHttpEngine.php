@@ -22,20 +22,23 @@
 
 class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 
-	protected $http; /**< ModerationTestsuiteHTTP object */
 	protected $api; /**< ModerationTestsuiteAPI object */
 
 	protected $apiUrl;
 	protected $editToken = false;
 
-	function __construct() {
-		$this->http = new ModerationTestsuiteHTTP( $this );
+	private $cookieJar = null; # Cookie storage (from login() and anonymous preloading)
 
+	function __construct() {
 		$this->apiUrl = wfScript( 'api' );
 	}
 
-	public function setUserAgent( $ua ) {
-		$this->http->userAgent = $ua;
+	protected function getCookieJar() {
+		if ( !$this->cookieJar ) {
+			$this->cookieJar = new CookieJar;
+		}
+
+		return $this->cookieJar;
 	}
 
 	/**
@@ -77,11 +80,15 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 	}
 
 	public function deleteAllCookies() {
-		$this->http->resetCookieJar();
+		$this->cookieJar = null;
 	}
 
 	public function executeHttpRequest( $url, $method = 'GET', array $postData = [] ) {
-		$req = $this->http->makeRequest( $url, $method );
+		$req = MWHttpRequest::factory( $url, [
+			'method' => $method
+		] );
+		$req->setUserAgent( $this->getUserAgent() );
+		$req->setCookieJar( $this->getCookieJar() );
 		$req->setData( $postData );
 
 		if ( $method == 'POST' ) {

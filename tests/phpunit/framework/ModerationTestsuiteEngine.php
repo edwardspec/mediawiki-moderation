@@ -28,6 +28,8 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 	protected $ignoredHttpErrors = [];
 
+	private $userAgent = ''; /**< User-agent string. Used during requests. */
+
 	/**
 		@brief Create engine object.
 	*/
@@ -37,6 +39,16 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 		}
 
 		return new ModerationTestsuiteRealHttpEngine;
+	}
+
+	/** @brief Set user-agent string, e.g. "Mozilla/5.0" */
+	public function setUserAgent( $ua ) {
+		$this->userAgent = $ua;
+	}
+
+	/** @brief Returns user-agent string. */
+	public function getUserAgent() {
+		return $this->userAgent;
 	}
 
 	/**

@@ -25,7 +25,6 @@ require_once( __DIR__ . '/IModerationTestsuiteEngine.php' );
 require_once( __DIR__ . '/ModerationTestsuiteEngine.php' );
 require_once( __DIR__ . '/ModerationTestsuiteEntry.php' );
 require_once( __DIR__ . '/ModerationTestsuiteHTML.php' );
-require_once( __DIR__ . '/ModerationTestsuiteHTTP.php' );
 require_once( __DIR__ . '/ModerationTestsuiteRealHttpEngine.php' );
 require_once( __DIR__ . '/ModerationTestsuiteResponse.php' );
 require_once( __DIR__ . '/ModerationTestsuiteInternalInvocationEngine.php' );
@@ -33,19 +32,18 @@ require_once( __DIR__ . '/ModerationTestsuiteInternalInvocationEngine.php' );
 class ModerationTestsuite
 {
 	const TEST_PASSWORD = '123456';
-
-	private $http;
-	public $html;
+	const DEFAULT_USER_AGENT = 'MediaWiki Moderation Testsuite';
 
 	protected $engine; /**< ModerationTestsuiteEngine class */
+	public $html; /**< ModerationTestsuiteHTML class */
 
 	function __construct() {
 		$this->prepareDbForTests();
 
 		$this->engine = ModerationTestsuiteEngine::factory();
 
-		$this->http = new ModerationTestsuiteHTTP;
 		$this->html = new ModerationTestsuiteHTML( $this->engine );
+		$this->setUserAgent( self::DEFAULT_USER_AGENT );
 	}
 
 	public function query( $apiQuery ) {
