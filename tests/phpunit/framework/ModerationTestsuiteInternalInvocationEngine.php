@@ -224,7 +224,6 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 		} );
 
 		/* TODO:
-			- follow redirects if necessary
 			- get cookies from the response
 		*/
 

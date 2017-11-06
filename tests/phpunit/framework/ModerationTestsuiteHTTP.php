@@ -28,22 +28,10 @@ class ModerationTestsuiteHTTP {
 	private $cookie_jar; # Cookie storage (from login() and anonymous preloading)
 
 	public $userAgent = 'MediaWiki Moderation Testsuite';
-	private $followRedirects = false;
-
-	public function followRedirectsInOneNextRequest()
-	{
-		$this->followRedirects = true;
-	}
 
 	public function makeRequest( $url, $method = 'POST' )
 	{
-		$options = [ 'method' => $method ];
-		if ( $this->followRedirects ) {
-			$options['followRedirects'] = true;
-			$this->followRedirects = false; # Reset the flag
-		}
-
-		$req = MWHttpRequest::factory( $url, $options );
+		$req = MWHttpRequest::factory( $url, [ 'method' => $method ] );
 		$req->setUserAgent( $this->userAgent );
 		$req->setCookieJar( $this->cookie_jar );
 
