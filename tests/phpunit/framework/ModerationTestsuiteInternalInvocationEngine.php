@@ -69,7 +69,10 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 		if ( isset( $bits['query'] ) ) {
 			foreach ( explode( '&', $bits['query'] ) as $keyval ) {
 				list( $key, $val ) = array_map( 'urldecode', explode( '=', $keyval ) );
-				$request->setVal( $key, $val );
+
+				if ( !array_key_exists( $key, $data ) ) { /* GET parameters don't override POST $data */
+					$request->setVal( $key, $val );
+				}
 			}
 		}
 
