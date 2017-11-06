@@ -38,12 +38,16 @@ class ModerationTestsuiteApiMain extends ApiMain {
 	protected function doInternalInvocation() {
 		ob_start();
 
-		$this->executeActionWithErrorHandling();
-		$this->setupExternalResponse(
-			$this->getModule(),
-			$this->extractRequestParams()
-		);
-		$this->printResult();
+		$this->executeActionWithErrorHandling(); /* Run the API. Automatically prints errors */
+
+		if ( !$this->getResult()->getResultData( 'error' ) ) {
+			/* Not an error: print the result */
+			$this->setupExternalResponse(
+				$this->getModule(),
+				$this->extractRequestParams()
+			);
+			$this->printResult();
+		}
 
 		$capturedContent = ob_get_clean();
 		return FormatJson::decode( $capturedContent, true );
