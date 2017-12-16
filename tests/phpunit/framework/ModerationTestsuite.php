@@ -291,8 +291,12 @@ class ModerationTestsuite
 		@brief Make an edit via the usual interface, as real users do.
 		@returns ModerationTestsuiteResponse object.
 	*/
-	public function nonApiEdit( $title, $text, $summary, $extra_params = [] )
+	public function nonApiEdit( $title, $text, $summary, $extraParams = [] )
 	{
+		if ( defined( 'EditPage::UNICODE_CHECK' ) ) { // MW 1.30+
+			$extraParams['wpUnicodeCheck'] = EditPage::UNICODE_CHECK;
+		}
+
 		return $this->httpPost( wfScript( 'index' ), [
 			'action' => 'submit',
 			'title' => $title,
@@ -303,7 +307,7 @@ class ModerationTestsuite
 			'wpIgnoreBlankSummary' => '',
 			'wpRecreate' => '',
 			'wpEdittime' => wfTimestampNow()
-		] + $extra_params );
+		] + $extraParams );
 	}
 
 	public function doTestEdit( $title = null, $text = null, $summary = null )
