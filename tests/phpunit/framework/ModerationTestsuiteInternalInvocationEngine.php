@@ -20,6 +20,8 @@
 	@brief Testsuite engine that simulates HTTP requests via internal invocation of MediaWiki.
 */
 
+use MediaWiki\Session\SessionManager;
+
 class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEngine {
 
 	private $user = null; /**< User object. Used during simulated requests. */
@@ -160,8 +162,8 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 			true /* $isApi */
 		);
 
-		return $this->forkAndRun( function() use ( $apiContext )  {
-			return ModerationTestsuiteApiMain::invoke( $apiContext );
+		return $this->forkAndRun( $apiContext, function( $childContext ) {
+			return ModerationTestsuiteApiMain::invoke( $childContext );
 		} );
 	}
 
@@ -177,7 +179,7 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 
 		Note: this method will only return in parent process.
 	*/
-	public function forkAndRun( callable $function ) {
+	public function forkAndRun( IContextSource $context, callable $function ) {
 		/* Make child process reopen the SQL connection */
 		wfGetLB()->closeAll();
 
@@ -192,9 +194,16 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 
 		if ( $pid == 0 ) {
 			/* We are in the child process */
-			$result = call_user_func( $function );
+			$retval = call_user_func( $function, $context );
 
-			file_put_contents( $tmpFilename, serialize( $result ) );
+			/* Notify the parent of the results */
+			$info = [
+				'retval' => $retval,
+				'FauxResponse' => $context->getRequest()->response(),
+				'childSessionId' => $context->getRequest()->getSession()->getSessionId()
+			];
+
+			file_put_contents( $tmpFilename, serialize( $info ) );
 			flush();
 
 			/* Child process is no longer needed. Exit immediately.
@@ -208,39 +217,11 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 		pcntl_waitpid( $pid, $status );
 
 		/* Return the results provided by the child process. */
-		$result = unserialize( file_get_contents( $tmpFilename ) );
+		$info = unserialize( file_get_contents( $tmpFilename ) );
 		unlink( $tmpFilename ); /* No longer needed */
 
-		return $result;
-	}
-
-	public function executeHttpRequest( $url, $method = 'GET', array $postData = [] ) {
-		$httpContext = $this->makeRequestContext(
-			$url,
-			$postData,
-			( $method == 'POST' ), /* $isPosted */
-			false /* $isApi */
-		);
-
-		$result = $this->forkAndRun( function() use ( $httpContext )  {
-			ob_start();
-
-			$mediaWiki = new MediaWiki( $httpContext );
-			$mediaWiki->run();
-
-			$capturedContent = ob_get_clean();
-
-			return [
-				'FauxResponse' => $httpContext->getRequest()->response(),
-				'capturedContent' => $capturedContent,
-				'childSessionId' => $httpContext->getRequest()->getSession()->getSessionId()
-			];
-		} );
-
-		$fauxResponse = $result['FauxResponse'];
-
 		/* Add newly added cookies into $_COOKIE */
-		$cookies = $fauxResponse->getCookies();
+		$cookies = $info['FauxResponse']->getCookies();
 		foreach ( $cookies as $cookieName => $cookieInfo ) {
 			if ( $cookieInfo['expire'] > time() ) {
 				/* Cookie already expired, delete it */
@@ -252,11 +233,37 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 			}
 		}
 
-		/* Provide parent process with session from the child process */
-		$httpContext->getRequest()->setSessionId( $result['childSessionId'] );
+		$context->getRequest()->setSessionId( $info['childSessionId'] );
+
+		return $info['retval'];
+	}
+
+	public function executeHttpRequest( $url, $method = 'GET', array $postData = [] ) {
+		$httpContext = $this->makeRequestContext(
+			$url,
+			$postData,
+			( $method == 'POST' ), /* $isPosted */
+			false /* $isApi */
+		);
+
+		$result = $this->forkAndRun( $httpContext, function( $childContext ) {
+			ob_start();
+
+			$mediaWiki = new MediaWiki( $childContext );
+			$mediaWiki->run();
+
+			$capturedContent = ob_get_clean();
+
+			$childContext->getRequest()->getSession()->save();
+
+			return [
+				'FauxResponse' => $childContext->getRequest()->response(),
+				'capturedContent' => $capturedContent
+			];
+		} );
 
 		return ModerationTestsuiteResponse::newFromFauxResponse(
-			$fauxResponse,
+			$fauxResponse = $result['FauxResponse'],
 			$result['capturedContent']
 		);
 	}
