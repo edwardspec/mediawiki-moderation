@@ -2,6 +2,7 @@ TODO:
 
 Medium-prio:
 * (testsuite) Provide ~100% automated test coverage of all functionality.
+* (feature) Allow moderator to turn off in-wiki notifications in Preferences.
 
 Low-prio:
 * (feature) Intercept renaming of pages.
@@ -13,6 +14,11 @@ Low-prio:
 	Special:Contributions ensuring them that their edits will
 	appear there when they are approved.
 * (interface) Perform the actions like Approve via Ajax (without leaving Special:Moderation).
+	Partially implemented ($wgModerationUseAjax), but we need some feedback
+	from users on UX (is it convenient to use or not?)
+* (testsuite) Troubleshoot session-related issues in "Internal invocation" mode.
+	Currently preload-related tests don't succeed in this mode,
+	because PHP session is not properly preserved before/after pcntl_fork().
 
 Background-prio (may not be needed):
 * (interface) For each folder, display the number of new entries there
@@ -23,3 +29,4 @@ FIXME:
 
 Tests needed:
 * API: api.php?action=moderation
+* In-wiki notification "New changes await moderation" for moderators.

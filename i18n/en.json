@@ -55,6 +55,7 @@
 	"moderation-merge-not-needed": "Try to approve this edit first: manual merging might not be needed.",
 	"moderation-missing-stashed-image": "This upload can't be approved: image is missing from the stash (probably deleted by the user via [[Special:UploadStash]]).",
 	"moderation": "Moderation",
+	"moderation-new-changes-appeared": "New changes await moderation.",
 	"moderation-no-merge-link-not-automoderated": "Can't merge (not automoderated)",
 	"moderation-revert-not-allowed": "Only automoderated users can revert images to previous revisions.",
 	"moderation-nothing-to-approveall": "No edits are pending moderation: nothing to approve.",

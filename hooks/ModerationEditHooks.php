@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2017 Edward Chernenko.
+	Copyright (C) 2014-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -210,6 +210,9 @@ class ModerationEditHooks {
 				$mailer->send( $to, $from, $subject, $content );
 			}
 		}
+
+		/* Enable in-wiki notification "New changes await moderation" for moderators */
+		ModerationNotifyModerator::setPendingTime( $fields['mod_timestamp'] );
 
 		/*
 			We have queued this edit for moderation.

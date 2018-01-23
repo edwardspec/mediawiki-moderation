@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2017 Edward Chernenko.
+	Copyright (C) 2014-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -164,6 +164,9 @@ class SpecialModeration extends QueryPage {
 			if ( $wgModerationUseAjax ) {
 				$out->addModules( 'ext.moderation.special.ajax' );
 			}
+
+			/* Close "New changes await moderation" notification until new changes appear */
+			ModerationNotifyModerator::setSeen( $this->getUser(), wfTimestampNow() );
 
 			return parent::execute( $unused );
 		}

@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.1.13",
+	"version": "1.1.14",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -67,6 +67,7 @@
 		"ModerationPreload": "hooks/ModerationPreload.php",
 		"ModerationEditHooks": "hooks/ModerationEditHooks.php",
 		"ModerationError": "util/ModerationError.php",
+		"ModerationNotifyModerator": "hooks/ModerationNotifyModerator.php",
 		"ModerationUploadHooks": "hooks/ModerationUploadHooks.php",
 		"ModerationUpdater": "hooks/ModerationUpdater.php",
 		"ModerationAction": "action/ModerationAction.php",
@@ -206,6 +207,9 @@
 		],
 		"EditFormPreloadText": [
 			"ModerationPreload::onEditFormPreloadText"
+		],
+		"GetNewMessagesAlert": [
+			"ModerationNotifyModerator::onGetNewMessagesAlert"
 		],
 		"LoadExtensionSchemaUpdates": [
 			"ModerationUpdater::onLoadExtensionSchemaUpdates"
