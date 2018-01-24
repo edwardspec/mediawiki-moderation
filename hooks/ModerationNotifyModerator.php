@@ -22,8 +22,6 @@
 
 class ModerationNotifyModerator {
 
-	const SEEN_SESSION_KEY = 'moderation-seen-timestamp'; /**< Session key used by getSeen() and setSeen() */
-
 	/*
 		onGetNewMessagesAlert()
 		Show in-wiki notification "new edits are pending moderation" to moderators.
@@ -51,9 +49,8 @@ class ModerationNotifyModerator {
 		/*
 			Determine if $user visited Special:Moderation after $pendingTime.
 
-			NOTE: $seenTime being false means that moderator's
-			session has expired. We assume that moderator hasn't
-			visited the wiki recently, so we always notify.
+			NOTE: $seenTime being false means that moderator hasn't visited
+			Special:Moderation for 7 days, so we always notify.
 		*/
 		$seenTime = self::getSeen( $user );
 		if ( $seenTime && $seenTime >= $pendingTime ) {
@@ -69,14 +66,14 @@ class ModerationNotifyModerator {
 	}
 
 	/** @brief Returns memcached key used by getPendingTime()/setPendingTime()  */
-	protected static function getCacheKey() {
+	protected static function getPendingCacheKey() {
 		return wfMemcKey( 'moderation-newest-pending-timestamp' );
 	}
 
 	/** @brief Returns most recent mod_timestamp of pending edit */
 	protected static function getPendingTime() {
 		$cache = wfGetMainCache();
-		$cacheKey = self::getCacheKey();
+		$cacheKey = self::getPendingCacheKey();
 
 		$result = $cache->get( $cacheKey );
 		if ( $result === false ) { /* Not found in the cache */
@@ -103,7 +100,12 @@ class ModerationNotifyModerator {
 	/** @brief Update the cache of getPendingTime() with more actual value. */
 	public static function setPendingTime( $newTimestamp ) {
 		$cache = wfGetMainCache();
-		$cache->set( self::getCacheKey(), $newTimestamp, 86400 ); /* 24 hours */
+		$cache->set( self::getPendingCacheKey(), $newTimestamp, 86400 ); /* 24 hours */
+	}
+
+	/** @brief Returns memcached key used by getSeen()/setSeen()  */
+	protected static function getSeenCacheKey( User $user ) {
+		return wfMemcKey( 'moderation-seen-timestamp', $user->getId() );
 	}
 
 	/**
@@ -111,13 +113,15 @@ class ModerationNotifyModerator {
 		@retval false Unknown.
 	*/
 	protected static function getSeen( User $user ) {
-		return $user->getRequest()->getSessionData( self::SEEN_SESSION_KEY );
+		$cache = wfGetMainCache();
+		return $cache->get( self::getSeenCacheKey( $user ) );
 	}
 
 	/**
 		@brief Remember the newest mod_timestamp seen by $user.
 	*/
 	public static function setSeen( User $user, $timestamp ) {
-		return $user->getRequest()->setSessionData( self::SEEN_SESSION_KEY, $timestamp );
+		$cache = wfGetMainCache();
+		$cache->set( self::getSeenCacheKey( $user ), $timestamp, 604800 ); /* 7 days */
 	}
 }
