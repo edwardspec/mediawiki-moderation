@@ -78,6 +78,11 @@ class ModerationNotifyModerator {
 		$result = $cache->get( $cacheKey );
 		if ( $result === false ) { /* Not found in the cache */
 			$result = self::getPendingTimeUncached();
+			if ( !$result ) {
+				/* Situation "there are no pending edits" must also be cached */
+				$result = 0;
+			}
+
 			$cache->set( $cacheKey, $result, 86400 ); /* 24 hours, can be explicitly renewed by setPendingTime() */
 		}
 
