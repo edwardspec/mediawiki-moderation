@@ -103,6 +103,16 @@ class ModerationNotifyModerator {
 		$cache->set( self::getPendingCacheKey(), $newTimestamp, 86400 ); /* 24 hours */
 	}
 
+	/**
+		@brief Clear the cache of getPendingTime().
+		Used instead of setPendingTime() when we don't know $newTimestamp,
+		e.g. in modaction=rejectall.
+	*/
+	public static function invalidatePendingTime() {
+		$cache = wfGetMainCache();
+		$cache->delete( self::getPendingCacheKey() );
+	}
+
 	/** @brief Returns memcached key used by getSeen()/setSeen()  */
 	protected static function getSeenCacheKey( User $user ) {
 		return wfMemcKey( 'moderation-seen-timestamp', $user->getId() );

@@ -291,6 +291,10 @@ class ModerationEditHooks {
 			] );
 			$logid = $logEntry->insert();
 			$logEntry->publish( $logid );
+
+			/* Clear the cache of "Most recent mod_timestamp of pending edit"
+				- could have changed */
+			ModerationNotifyModerator::invalidatePendingTime();
 		}
 
 		return true;

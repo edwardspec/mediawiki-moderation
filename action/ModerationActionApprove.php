@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2017 Edward Chernenko.
+	Copyright (C) 2014-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,9 +23,17 @@
 class ModerationActionApprove extends ModerationAction {
 
 	public function execute() {
-		return ( $this->actionName == 'approve' ) ?
+		$ret = ( $this->actionName == 'approve' ) ?
 			$this->executeApproveOne() :
 			$this->executeApproveAll();
+
+		if ( $ret['approved'] ) {
+			/* Clear the cache of "Most recent mod_timestamp of pending edit"
+				- could have changed */
+			ModerationNotifyModerator::invalidatePendingTime();
+		}
+
+		return $ret;
 	}
 
 	public function outputResult( array $result, OutputPage &$out ) {
