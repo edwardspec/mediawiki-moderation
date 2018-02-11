@@ -2,7 +2,6 @@ TODO:
 
 Medium-prio:
 * (testsuite) Provide ~100% automated test coverage of all functionality.
-* (feature) Allow moderator to turn off in-wiki notifications in Preferences.
 
 Low-prio:
 * (feature) Intercept renaming of pages.
@@ -29,4 +28,4 @@ FIXME:
 
 Tests needed:
 * API: api.php?action=moderation
-* In-wiki notification "New changes await moderation" for moderators.
+

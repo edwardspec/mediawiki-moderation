@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2017 Edward Chernenko.
+	Copyright (C) 2015-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -76,6 +76,9 @@ class ModerationTestsuiteHTML extends DOMDocument {
 		return $this;
 	}
 
+	/**
+		@brief Returns the text of the <title> tag.
+	*/
 	public function getTitle( $url = null )
 	{
 		$this->loadFromURL( $url );
@@ -84,17 +87,24 @@ class ModerationTestsuiteHTML extends DOMDocument {
 			getElementsByTagName( 'title' )->item( 0 )->textContent;
 	}
 
+	/**
+		@brief Returns HTML element of the error message shown by Moderation.
+	*/
 	public function getModerationError( $url = null )
 	{
 		$this->loadFromURL( $url );
 
 		$elem = $this->getElementById( 'mw-mod-error' );
-		if ( !$elem )
+		if ( !$elem ) {
 			return null;
+		}
 
 		return $elem->textContent;
 	}
 
+	/**
+		@brief Returns HTML element of the main text of the page.
+	*/
 	public function getMainContent( $url = null )
 	{
 		$this->loadFromURL( $url );
@@ -102,11 +112,28 @@ class ModerationTestsuiteHTML extends DOMDocument {
 		return $this->getElementById( 'mw-content-text' );
 	}
 
+	/**
+		@brief Returns main text of the page (without navigation, etc.).
+	*/
 	public function getMainText( $url = null )
 	{
 		$elem = $this->getMainContent( $url );
 
 		return trim( $elem->textContent );
+	}
+
+	/**
+		@brief  Returns the text of the notice "You have new messages".
+	*/
+	public function getNewMessagesNotice( $url = null ) {
+		$this->loadFromURL( $url );
+		$elem = $this->getElementByXPath( '//*[@class="usermessage"]' );
+
+		if ( !$elem ) {
+			return null;
+		}
+
+		return $elem->textContent;
 	}
 
 	/**
