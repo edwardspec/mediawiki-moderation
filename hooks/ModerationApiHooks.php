@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017 Edward Chernenko.
+	Copyright (C) 2017-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@ class ModerationApiHooks {
 		Disable upload API for non-automoderated user in MediaWiki 1.27
 		(this feature is only supported in MediaWiki 1.28+).
 
-		Also disable ApiFileRevert (this API doesn't any run pre-upload
-		hooks, thus allowing to bypass moderation.
+		Also disable ApiFileRevert (this API doesn't run any pre-upload
+		hooks, thus allowing to bypass moderation).
 	*/
 	public static function onApiCheckCanExecute( $module, $user, &$message ) {
 		if ( ModerationCanSkip::canSkip( $user ) ) {
