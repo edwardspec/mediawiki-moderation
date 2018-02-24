@@ -275,7 +275,7 @@ class SpecialModeration extends QueryPage {
 			$line .= wfMessage( 'moderation-whois-link', $result->ip )->parse(); # NOTE: no space before is on purpose, this link can be in <sup></sup> tags
 		}
 
-		$line .= ' (' . $result->comment . ')';
+		$line .= ' ' . Linker::commentBlock( $result->comment, $title );
 
 		if ( !$result->merged_revid ) {
 			$line .= ' [';
