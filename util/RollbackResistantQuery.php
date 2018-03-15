@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017 Edward Chernenko.
+	Copyright (C) 2017-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -33,7 +33,6 @@ class RollbackResistantQuery {
 		@brief Perform $dbw->insert() that won't be undone by $dbw->rollback().
 		@param $dbw Database object.
 		@param $args Arguments of $dbw->insert() call.
-		@note Query MUST be idempotent (if you call it twice, second call shouldn't insert a second row due to UNIQUE INDEX).
 	*/
 	public static function insert( IDatabase $dbw, array $args ) {
 		new self( 'insert', $dbw, $args );
@@ -43,7 +42,6 @@ class RollbackResistantQuery {
 		@brief Perform $dbw->update() that won't be undone by $dbw->rollback().
 		@param $dbw Database object.
 		@param $args Arguments of $dbw->update() call.
-		@note Query MUST be idempotent (if you call it twice, second call shouldn't change anything).
 	*/
 	public static function update( IDatabase $dbw, array $args ) {
 		new self( 'update', $dbw, $args );
@@ -97,7 +95,10 @@ class RollbackResistantQuery {
 					in MWExceptionHandler::handleException() */
 
 				Hooks::register( 'LogException', function( $e, $suppressed ) use ( $query ) {
-					if ( !( $e instanceof DBError ) ) { /* DBError likely means that rollback failed */
+					if (
+						!( $e instanceof DBError ) && /* DBError likely means that rollback failed */
+						!( $e instanceof JobQueueError ) /* Non-fatal error in JobQueue, doesn't cause rollback */
+					) {
 						$query->onRollback();
 					}
 
@@ -109,7 +110,6 @@ class RollbackResistantQuery {
 
 	/**
 		@brief Re-run all $performedQueries. Called after the database rollback.
-		@note We assume that all queries are idempotent. See insert()/update() for details.
 	*/
 	protected function onRollback() {
 		foreach ( self::$performedQueries as $query ) {
