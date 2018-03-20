@@ -54,9 +54,8 @@ class ModerationEditHooks {
 		global $wgOut, $wgContLang, $wgModerationNotificationEnable, $wgModerationNotificationNewOnly,
 			   $wgModerationEmail, $wgPasswordSender;
 
-		$preload = ModerationPreload::singleton();
-
-		if ( ModerationCanSkip::canSkip( $user ) ) {
+		$title = $page->getTitle();
+		if ( ModerationCanSkip::canSkip( $user, $title->getNamespace() ) ) {
 			return true;
 		}
 
@@ -86,10 +85,10 @@ class ModerationEditHooks {
 			return true;
 		}
 
+		$preload = ModerationPreload::singleton();
+
 		$old_content = $page->getContent( Revision::RAW ); // current revision's content
 		$request = $user->getRequest();
-		$title = $page->getTitle();
-
 		$popts = ParserOptions::newFromUserAndLang( $user, $wgContLang );
 
 		$dbw = wfGetDB( DB_MASTER );
@@ -233,7 +232,7 @@ class ModerationEditHooks {
 
 	public static function onBeforePageDisplay( &$out, &$skin ) {
 
-		if ( !ModerationCanSkip::canSkip( $out->getUser() ) ) {
+		if ( !ModerationCanSkip::canSkip( $out->getUser(), $out->getTitle()->getNamespace() ) ) {
 			$out->addModules( [
 				'ext.moderation.notify',
 				'ext.moderation.notify.desktop'

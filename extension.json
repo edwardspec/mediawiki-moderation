@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.1.19",
+	"version": "1.1.20",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -262,7 +262,13 @@
 		"ModerationForceAjaxHook": false,
 
 		"@doc10": "Experimental: if true, enable Ajax handling of links on Special:Moderation.",
-		"ModerationUseAjax": false
+		"ModerationUseAjax": false,
+
+		"@doc11": "If set to an array of namespace numbers (e.g. NS_MAIN, NS_FILE), moderation is only enabled in these namespaces (edits in other namespaces will bypass moderation). Default (empty array): moderation is enabled everywhere.",
+		"ModerationOnlyInNamespaces": [],
+
+		"@doc12": "If set to an array of namespace numbers (e.g. NS_MAIN, NS_FILE), non-automoderated users can bypass moderation in these namespaces. Default (empty array): moderation can't be bypassed anywhere.",
+		"ModerationIgnoredInNamespaces": []
 	},
 	"manifest_version": 1
 }

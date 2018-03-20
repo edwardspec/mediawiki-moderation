@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2017 Edward Chernenko.
+	Copyright (C) 2014-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,8 +32,12 @@ class ModerationCanSkip {
 		self::$inApprove = true;
 	}
 
-	public static function canSkip( $user ) {
-		global $wgModerationEnable;
+	/**
+		@brief Check if $user can skip moderation in namespace $namespaceNumber.
+	*/
+	public static function canSkip( User $user, $namespaceNumber ) {
+		global $wgModerationEnable, $wgModerationOnlyInNamespaces,
+			$wgModerationIgnoredInNamespaces;
 
 		/*
 			NOTE: it makes little sense for some user to have 'rollback'
@@ -49,6 +53,15 @@ class ModerationCanSkip {
 		)
 		{
 			return true;
+		}
+
+		// Is moderation disabled/enabled on per-namespace level?
+		if ( in_array( $namespaceNumber, $wgModerationIgnoredInNamespaces ) ) {
+			return true; /* This namespace is NOT moderated, e.g. Sandbox:Something */
+		}
+
+		if ( $wgModerationOnlyInNamespaces && !in_array( $namespaceNumber, $wgModerationOnlyInNamespaces ) ) {
+			return true; /* This namespace is NOT moderated */
 		}
 
 		return false;

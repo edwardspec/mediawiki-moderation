@@ -31,7 +31,7 @@ class ModerationApiHooks {
 		hooks, thus allowing to bypass moderation).
 	*/
 	public static function onApiCheckCanExecute( $module, $user, &$message ) {
-		if ( ModerationCanSkip::canSkip( $user ) ) {
+		if ( ModerationCanSkip::canSkip( $user, NS_FILE ) ) {
 			return true; /* No need to limit automoderated users */
 		}
 

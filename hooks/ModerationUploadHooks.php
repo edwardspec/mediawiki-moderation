@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2017 Edward Chernenko.
+	Copyright (C) 2014-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ class ModerationUploadHooks {
 		@brief Intercept image uploads and queue them for moderation.
 	*/
 	public static function onUploadVerifyUpload( $upload, $user, $__unused, $comment, $pageText, &$error ) {
-		if ( ModerationCanSkip::canSkip( $user ) ) {
+		if ( ModerationCanSkip::canSkip( $user, NS_FILE ) ) {
 			return true;
 		}
 
@@ -86,7 +86,7 @@ class ModerationUploadHooks {
 		$context = RequestContext::getMain();
 		$user = $context->getUser();
 
-		if ( ModerationCanSkip::canSkip( $user ) ) {
+		if ( ModerationCanSkip::canSkip( $user, NS_FILE ) ) {
 			return true;
 		}
 
@@ -136,7 +136,7 @@ class ModerationUploadHooks {
 		*/
 		$context = RequestContext::getMain();
 		$exactAction = Action::getActionName( $context );
-		if ( $exactAction == 'revert' && !ModerationCanSkip::canSkip( $user ) ) {
+		if ( $exactAction == 'revert' && !ModerationCanSkip::canSkip( $user, NS_FILE ) ) {
 			$result = 'moderation-revert-not-allowed';
 			return false;
 		}

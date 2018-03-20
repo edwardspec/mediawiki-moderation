@@ -289,7 +289,8 @@ class SpecialModeration extends QueryPage {
 			if ( $result->conflict ) {
 				$class .= ' modconflict';
 
-				if ( ModerationCanSkip::canSkip( $this->getUser() ) ) { // In order to merge, moderator must also be automoderated
+				// In order to merge, moderator must also be automoderated
+				if ( ModerationCanSkip::canSkip( $this->getUser(), $result->namespace ) ) {
 					$line .= $this->makeModerationLink( 'merge', $result->id );
 				} else {
 					$line .= wfMessage( 'moderation-no-merge-link-not-automoderated' );

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2017 Edward Chernenko.
+	Copyright (C) 2014-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,10 +23,6 @@
 class ModerationActionMerge extends ModerationAction {
 
 	public function execute() {
-		if ( !ModerationCanSkip::canSkip( $this->moderator ) ) { // In order to merge, moderator must also be automoderated
-			throw new ModerationError( 'moderation-merge-not-automoderated' );
-		}
-
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
 			[
@@ -45,6 +41,11 @@ class ModerationActionMerge extends ModerationAction {
 
 		if ( !$row->conflict ) {
 			throw new ModerationError( 'moderation-merge-not-needed' );
+		}
+
+		// In order to merge, moderator must also be automoderated
+		if ( !ModerationCanSkip::canSkip( $this->moderator, $row->namespace ) ) {
+			throw new ModerationError( 'moderation-merge-not-automoderated' );
 		}
 
 		return [
