@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2017 Edward Chernenko.
+	Copyright (C) 2014-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -36,7 +36,14 @@ class ModerationActionShowImage extends ModerationAction {
 		$out->disable(); # No HTML output (image only)
 
 		if ( isset( $result['missing'] ) ) {
-			StreamFile::prepareForStream( null, null, null, true ); # send 404 Not Found
+			// Send 404 Not Found
+			if ( method_exists( 'StreamFile', 'send404Message' ) ) { /* MediaWiki 1.28+ */
+				StreamFile::send404Message( '' );
+			}
+			else { /* MediaWiki 1.27 */
+				StreamFile::prepareForStream( null, null, null, true );
+			}
+
 			return;
 		}
 

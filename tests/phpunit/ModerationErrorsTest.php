@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2017 Edward Chernenko.
+	Copyright (C) 2015-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -111,6 +111,15 @@ class ModerationTestErrors extends MediaWikiTestCase
 
 		$error = $t->html->getModerationError( $entry->approveLink );
 		$this->assertEquals( '(moderation-missing-stashed-image)', $error );
+
+		/* Additionally check that ShowImg link returns "404 Not Found" */
+		$t->ignoreHttpError( 404 );
+		$req = $t->httpGet( $entry->expectedShowImgLink() );
+		$t->stopIgnoringHttpError( 404 );
+
+		$this->assertEquals( 404, $req->getStatus(),
+			"testMissingStashedImage(): URL of modaction=showimg doesn't return 404 Not Found"
+		);
 	}
 
 	public function testEditNoChange() {

@@ -65,6 +65,20 @@ class ModerationTestsuite
 		return $this->engine->getEditToken();
 	}
 
+	/**
+		@brief Don't throw exception when HTTP request returns $code.
+	*/
+	public function ignoreHttpError( $code ) {
+		$this->engine->ignoreHttpError( $code );
+	}
+
+	/**
+		@brief Re-enable throwing an exception when HTTP request returns $code.
+	*/
+	public function stopIgnoringHttpError( $code ) {
+		$this->engine->stopIgnoringHttpError( $code );
+	}
+
 	#
 	# Functions for parsing Special:Moderation.
 	#
