@@ -80,7 +80,7 @@
 	"moderation-whois-link": "<span class='plainlinks'><sup>[[http://whois.domaintools.com/$1 ?]]</sup></span>",
 	"right-moderation-checkuser": "Can see IPs of editors in the moderation interface",
 	"right-moderation": "Moderate edits",
-	"right-skip-moderation": "Automatically have their edits marked as moderated",
+	"right-skip-moderation": "Have their edits bypass moderation",
 	"tooltip-moderation-approveall": "Approve all edits from this user/IP",
 	"tooltip-moderation-approve": "Approve this single edit",
 	"tooltip-moderation-approved-diff": "View the approved edit",
