@@ -29,3 +29,4 @@ FIXME:
 
 Tests needed:
 * API: api.php?action=moderation
+* PageForms plugin (preload, "continue editing" link in postedit notification)

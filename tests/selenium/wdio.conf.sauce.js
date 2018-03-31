@@ -20,9 +20,9 @@ exports.config = merge( wdioConf.config, {
 			version: '11.0'
 		},
 		{
-			platform: 'macOS 10.12',
+			platform: 'macOS 10.13',
 			browserName: 'safari',
-			version: '10.0',
+			version: '11.0',
 			exclude: [
 				// SafariDriver doesn't support sendKeys() to contenteditable,
 				// so we can't test VisualEditor in it

@@ -223,11 +223,27 @@ class ModerationEditHooks {
 			Notification "Your edit was successfully sent to moderation"
 			will be shown by JavaScript.
 		*/
-
-		$wgOut->redirect( $title->getFullURL( [ 'modqueued' => 1 ] ) );
+		$wgOut->redirect( self::getRedirectURL( $title, $wgOut ) );
 
 		$status->fatal( 'moderation-edit-queued' );
 		return false;
+	}
+
+	/**
+		@brief Returns the URL to where the user is redirected after successful edit.
+		@param $title Title of the article that was edited.
+		@param $context Any object that contains current context.
+	*/
+	protected static function getRedirectURL( Title $title, IContextSource $context ) {
+		$query = [ 'modqueued' => 1 ];
+
+		# Are we are editing via Special:FormEdit? (from Extension:PageForms)
+		$specialTitle = Title::newFromText( $context->getRequest()->getVal( 'title' ) );
+		if ( $specialTitle && $specialTitle->isSpecial( 'FormEdit' ) ) {
+			$query['returnto'] = $specialTitle->getFullText();
+		}
+
+		return $title->getFullURL( $query );
 	}
 
 	public static function onBeforePageDisplay( &$out, &$skin ) {

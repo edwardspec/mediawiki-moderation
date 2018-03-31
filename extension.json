@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.1.23",
+	"version": "1.1.24",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -64,6 +64,7 @@
 		"ModerationCanSkip": "util/ModerationCanSkip.php",
 		"ModerationApiHooks": "hooks/ModerationApiHooks.php",
 		"ModerationApproveHook": "hooks/ModerationApproveHook.php",
+		"ModerationPageForms": "plugins/ModerationPageForms.php",
 		"ModerationPreload": "hooks/ModerationPreload.php",
 		"ModerationEditHooks": "hooks/ModerationEditHooks.php",
 		"ModerationError": "util/ModerationError.php",
@@ -158,6 +159,7 @@
 			"dependencies": [
 				"mediawiki.jqueryMsg",
 				"mediawiki.user",
+				"mediawiki.Uri",
 				"mediawiki.util"
 			],
 			"messages": [
@@ -219,6 +221,12 @@
 		],
 		"PageContentSave": [
 			"ModerationEditHooks::onPageContentSave"
+		],
+		"PageForms::EditFormPreloadText": [
+			"ModerationPageForms::preloadText"
+		],
+		"PageForms::EditFormInitialText": [
+			"ModerationPageForms::preloadText"
 		],
 		"EditPage::showEditForm:fields": [
 			"ModerationEditHooks::PrepareEditForm"

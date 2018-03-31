@@ -27,6 +27,11 @@
 
 	/* Get edit URL of the current page */
 	function getEditUrl() {
+		var returnto = new mw.Uri().query.returnto;
+		if ( returnto ) { /* Custom edit form requested, e.g. Special:EditForm from Extension:PageForms */
+			return mw.util.getUrl( returnto );
+		}
+
 		var q = {};
 		if ( !isMobile && $.cookie( 'VEE' ) === 'visualeditor' ) {
 			q.veaction = 'edit';
