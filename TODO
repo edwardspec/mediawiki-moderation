@@ -25,7 +25,6 @@ Background-prio (may not be needed):
 
 FIXME:
 * tags assigned by Extension:AbuseFilter are not applied after Approve.
-* PHP warning in action=showimg in MediaWiki 1.30.
 
 Tests needed:
 * API: api.php?action=moderation
