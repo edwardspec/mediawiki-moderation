@@ -30,6 +30,13 @@ class ModerationPageForms {
 		PageForms::EditFormInitialText (when editing existing page)
 	*/
 	public static function preloadText( &$preloadContent, $targetTitle, $formTitle ) {
+		if ( !$targetTitle ) {
+			// We are on [[Special:FormEdit/A]], where A is the name of form.
+			// Unlike [[Special:FormEdit/A/B]], user is currently not editing
+			// a particular page "B", so there is nothing to preload.
+			return true;
+		}
+
 		ModerationPreload::onEditFormPreloadText( $preloadContent, $targetTitle );
 		return true;
 	}
