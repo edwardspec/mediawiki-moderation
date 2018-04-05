@@ -28,8 +28,10 @@
 	/* Get edit URL of the current page */
 	function getEditUrl() {
 		var returnto = new mw.Uri().query.returnto;
-		if ( returnto ) { /* Custom edit form requested, e.g. Special:EditForm from Extension:PageForms */
-			return mw.util.getUrl( returnto );
+		if ( returnto ) {
+			/* Custom edit form requested, e.g. Special:FormEdit
+				or ?action=formedit from Extension:PageForms */
+			return mw.util.getUrl.apply( null, JSON.parse( returnto ) );
 		}
 
 		var q = {};

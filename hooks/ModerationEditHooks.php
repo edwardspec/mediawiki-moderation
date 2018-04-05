@@ -237,10 +237,18 @@ class ModerationEditHooks {
 	protected static function getRedirectURL( Title $title, IContextSource $context ) {
 		$query = [ 'modqueued' => 1 ];
 
-		# Are we are editing via Special:FormEdit? (from Extension:PageForms)
-		$specialTitle = Title::newFromText( $context->getRequest()->getVal( 'title' ) );
-		if ( $specialTitle && $specialTitle->isSpecial( 'FormEdit' ) ) {
-			$query['returnto'] = $specialTitle->getFullText();
+		/* Are customized "continue editing" links needed?
+			E.g. Special:FormEdit or ?action=formedit from Extension:PageForms. */
+		$returnto = null;
+		$returntoquery = [];
+		Hooks::run( 'ModerationContinueEditingLink', [ &$returnto, &$returntoquery, $title, $context ] );
+
+		if ( $returnto || $returntoquery ) {
+			/* Pack into one parameter to simplify the JavaScript part. */
+			$query['returnto'] = FormatJSON::encode( [
+				$returnto,
+				$returntoquery
+			] );
 		}
 
 		return $title->getFullURL( $query );
