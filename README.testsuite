@@ -24,15 +24,11 @@ WARNING: THIS TEST DOESN'T PRESERVE EXISTING DATABASE. EVERYTHING IS DELETED.
 
 3) Run the following command:
 
-for i in extensions/Moderation/tests/phpunit/*.php; do tests/phpunit/phpunit.php $i; done
-
-For MediaWiki 1.28+ you can use a shorter command:
-
 tests/phpunit/phpunit.php extensions/Moderation
 
 == Writing new tests ==
 
-File [tests/ModerationTestsuite.php] is the general framework
+File [tests/phpunit/framework/ModerationTestsuite.php] is the general framework
 for blackbox testing of Extension:Moderation.
 
 It provides the following:
