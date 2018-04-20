@@ -27,6 +27,8 @@ class ModerationUpdater {
 		$db = $updater->addExtensionTable( 'moderation', "$base/../sql/patch-moderation.sql" );
 		$db = $updater->addExtensionTable( 'moderation_block', "$base/../sql/patch-moderation_block.sql" );
 
+		ModerationVersionCheck::markDbAsUpdated();
+
 		return true;
 	}
 }
