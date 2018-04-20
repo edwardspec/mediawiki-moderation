@@ -89,7 +89,7 @@ class ModerationVersionCheck {
 		$fields = self::$where + [ 'pp_value' => self::getVersionOfModeration() ];
 
 		$dbw = wfGetDB( DB_MASTER );
-		$dbw->insert( 'page_props', $fields, __METHOD__ );
+		$dbw->replace( 'page_props', [ 'pp_page', 'pp_propname' ], $fields, __METHOD__ );
 
 		/* Invalidate cache of wasDbUpdatedAfter() */
 		$cache = wfGetMainCache();
