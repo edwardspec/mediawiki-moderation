@@ -102,7 +102,8 @@ class ModerationEditHooks {
 			'mod_title' => $title->getText(), /* FIXME (cosmetic): should be getDBKey(), as in other MediaWiki tables.
 							Not fixed right away because existing database would need to be updated
 							(which can only be done in a release, not a minor version change,
-							as noone runs update.php for those). */
+							as noone runs update.php for those).
+							TODO: use wasDbUpdatedAfter() for seamless update. */
 			'mod_comment' => $summary,
 			'mod_minor' => $is_minor,
 			'mod_bot' => $flags & EDIT_FORCE_BOT,
@@ -117,6 +118,24 @@ class ModerationEditHooks {
 			'mod_preload_id' => $preload->getId( true ),
 			'mod_preloadable' => 1
 		];
+
+		if ( class_exists( 'AbuseFilter' )
+			&& !empty( AbuseFilter::$tagsToSet )
+			&& ModerationVersionCheck::wasDbUpdatedAfter( '1.1.29' )
+		) {
+			/* AbuseFilter wants to assign some tags to this edit.
+				Let's store them (they will be used in modaction=approve).
+			*/
+			$afActionID = join( '-', [
+				$title->getPrefixedText(),
+				$user->getName(),
+				'edit' /* TODO: does this need special handling for uploads? */
+			] );
+
+			if ( isset( AbuseFilter::$tagsToSet[$afActionID] ) ) {
+				$fields['mod_tags'] = join( "\n", AbuseFilter::$tagsToSet[$afActionID] );
+			}
+		}
 
 		if ( ModerationBlockCheck::isModerationBlocked( $user ) ) {
 			$fields['mod_rejected'] = 1;

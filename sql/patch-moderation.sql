@@ -1,6 +1,6 @@
 --
 --	Extension:Moderation - MediaWiki extension.
---	Copyright (C) 2014-2015 Edward Chernenko.
+--	Copyright (C) 2014-2018 Edward Chernenko.
 --
 --	This program is free software; you can redistribute it and/or modify
 --	it under the terms of the GNU General Public License as published by
@@ -66,6 +66,7 @@ CREATE TABLE /*_*/moderation (
 
 	mod_header_xff varbinary(255) NULL default '', -- contents of 'X-Forwarded-For' request header
 	mod_header_ua varbinary(255) NULL default '', -- contents of 'User-Agent' request header
+	mod_tags blob NULL default '',  -- \n-separated list of ChangeTags (tags assigned by AbuseFilter, etc.)
 
 	--	Part 3. Moderation-specific fields.
 

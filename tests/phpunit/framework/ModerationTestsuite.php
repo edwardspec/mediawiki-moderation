@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2017 Edward Chernenko.
+	Copyright (C) 2015-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -208,6 +208,8 @@ class ModerationTestsuite
 		$dbw->delete( 'uploadstash', [ '1' ], __METHOD__ );
 		$dbw->delete( 'recentchanges', [ '1' ], __METHOD__ );
 		$dbw->delete( 'watchlist', [ '1' ], __METHOD__ );
+		$dbw->delete( 'abuse_filter', [ '1' ], __METHOD__ );
+		$dbw->delete( 'abuse_filter_action', [ '1' ], __METHOD__ );
 
 		if ( $dbw->tableExists( 'cu_changes' ) )
 			$dbw->delete( 'cu_changes', [ '1' ], __METHOD__ );

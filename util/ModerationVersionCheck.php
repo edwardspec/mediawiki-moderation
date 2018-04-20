@@ -17,12 +17,14 @@
 
 /**
 	@file
-	@brief Functions for gently applying database updates between versions.
+	@brief Functions for seamless database updates between versions.
 */
 
 class ModerationVersionCheck {
 
 	const EXTENSION_NAME = 'Moderation'; /**< Name of extension (as listed in extension.json) */
+
+	protected static $dbUpdatedVersion = null; /**< Stores result of getDbUpdatedVersion() */
 
 	/** @brief WHERE conditions used in getDbUpdatedVersionUncached(), markDbAsUpdated() */
 	protected static $where = [
@@ -48,6 +50,11 @@ class ModerationVersionCheck {
 		@brief Returns version that Moderation had during the latest invocation of update.php.
 	*/
 	protected static function getDbUpdatedVersion() {
+		if ( self::$dbUpdatedVersion ) {
+			/* Already known, no need to look in Memcached */
+			return self::$dbUpdatedVersion;
+		}
+
 		$cache = wfGetMainCache();
 		$cacheKey = self::getCacheKey();
 
@@ -57,13 +64,23 @@ class ModerationVersionCheck {
 			$cache->set( $cacheKey, $result, 86400 ); /* 24 hours */
 		}
 
+		self::$dbUpdatedVersion = $result;
 		return $result;
 	}
 
 	/** @brief Uncached version of getDbUpdatedVersion(). Shouldn't be used outside of getDbUpdatedVersion() */
 	protected static function getDbUpdatedVersionUncached() {
 		$dbr = wfGetDB( DB_SLAVE );
-		return $dbr->selectField( 'page_props', 'pp_value', self::$where, __METHOD__ );
+		$version = $dbr->selectField( 'page_props', 'pp_value', self::$where, __METHOD__ );
+
+		if ( !$version ) {
+			/* Assume that update.php hasn't been called for a very long time.
+				This will disable all features that check wasDbUpdatedAfter().
+			*/
+			$version = '1.0.0';
+		}
+
+		return $version;
 	}
 
 	/**
@@ -93,6 +110,6 @@ class ModerationVersionCheck {
 
 		/* Invalidate cache of wasDbUpdatedAfter() */
 		$cache = wfGetMainCache();
-		$cache->delete( self::getCacheKey() );
+		$cache->delete( self::getCacheKey() ); /* Note: won't affect CACHE_ACCEL, update.php has no access to it */
 	}
 }

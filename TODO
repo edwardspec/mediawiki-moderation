@@ -23,9 +23,6 @@ Background-prio (may not be needed):
 * (interface) For each folder, display the number of new entries there
 	in the last day and week.
 
-FIXME:
-* tags assigned by Extension:AbuseFilter are not applied after Approve.
-
 Tests needed:
 * API: api.php?action=moderation
 * PageForms plugin (preload, "continue editing" link in postedit notification)

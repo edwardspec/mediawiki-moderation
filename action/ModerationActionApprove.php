@@ -116,28 +116,35 @@ class ModerationActionApprove extends ModerationAction {
 	}
 
 	function approveEditById( $id ) {
+		$fields = [
+			'mod_id AS id',
+			'mod_timestamp AS timestamp',
+			'mod_user AS user',
+			'mod_user_text AS user_text',
+			'mod_cur_id AS cur_id',
+			'mod_namespace AS namespace',
+			'mod_title AS title',
+			'mod_comment AS comment',
+			'mod_minor AS minor',
+			'mod_bot AS bot',
+			'mod_last_oldid AS last_oldid',
+			'mod_ip AS ip',
+			'mod_header_xff AS header_xff',
+			'mod_header_ua AS header_ua',
+			'mod_text AS text',
+			'mod_merged_revid AS merged_revid',
+			'mod_rejected AS rejected',
+			'mod_stash_key AS stash_key'
+		];
+
+		$tagsAreSupported = ModerationVersionCheck::wasDbUpdatedAfter( '1.1.29' );
+		if ( $tagsAreSupported ) {
+			$fields[] = 'mod_tags AS tags';
+		}
+
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
-			[
-				'mod_id AS id',
-				'mod_timestamp AS timestamp',
-				'mod_user AS user',
-				'mod_user_text AS user_text',
-				'mod_cur_id AS cur_id',
-				'mod_namespace AS namespace',
-				'mod_title AS title',
-				'mod_comment AS comment',
-				'mod_minor AS minor',
-				'mod_bot AS bot',
-				'mod_last_oldid AS last_oldid',
-				'mod_ip AS ip',
-				'mod_header_xff AS header_xff',
-				'mod_header_ua AS header_ua',
-				'mod_text AS text',
-				'mod_merged_revid AS merged_revid',
-				'mod_rejected AS rejected',
-				'mod_stash_key AS stash_key'
-			],
+			$fields,
 			[ 'mod_id' => $id ],
 			__METHOD__
 		);
@@ -193,6 +200,7 @@ class ModerationActionApprove extends ModerationAction {
 			'ip' => $row->ip,
 			'xff' => $row->header_xff,
 			'ua' => $row->header_ua,
+			'tags' => $tagsAreSupported ? $row->tags : false,
 
 			'revisionUpdate' => [
 				# Here we set the timestamp of this edit to $row->timestamp

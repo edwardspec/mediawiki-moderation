@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2017 Edward Chernenko.
+	Copyright (C) 2014-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -102,22 +102,33 @@ class ModerationApproveHook {
 	*/
 	public function onRecentChange_save( &$rc ) {
 		global $wgPutIPinRC;
-		if ( !$wgPutIPinRC ) {
-			return true;
-		}
 
 		$task = $this->getTaskByRC( $rc );
 
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->update( 'recentchanges',
-			[
-				'rc_ip' => IP::sanitizeIP( $task['ip'] )
-			],
-			[
-				'rc_id' => $rc->mAttribs['rc_id']
-			],
-			__METHOD__
-		);
+		if ( $wgPutIPinRC ) {
+			$dbw = wfGetDB( DB_MASTER );
+			$dbw->update( 'recentchanges',
+				[
+					'rc_ip' => IP::sanitizeIP( $task['ip'] )
+				],
+				[
+					'rc_id' => $rc->mAttribs['rc_id']
+				],
+				__METHOD__
+			);
+		}
+
+		if ( $task['tags'] ) {
+			/* Add tags assigned by AbuseFilter, etc. */
+			ChangeTags::addTags(
+				explode( "\n", $task['tags'] ),
+				$rc->mAttribs['rc_id'],
+				$rc->mAttribs['rc_this_oldid'],
+				$rc->mAttribs['rc_logid'],
+				null,
+				$rc
+			);
+		}
 
 		return true;
 	}

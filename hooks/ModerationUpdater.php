@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2016 Edward Chernenko.
+	Copyright (C) 2014-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,11 +24,11 @@ class ModerationUpdater {
 	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
 		$base = dirname( __FILE__ );
 
-		$db = $updater->addExtensionTable( 'moderation', "$base/../sql/patch-moderation.sql" );
-		$db = $updater->addExtensionTable( 'moderation_block', "$base/../sql/patch-moderation_block.sql" );
+		$updater->addExtensionTable( 'moderation', "$base/../sql/patch-moderation.sql" );
+		$updater->addExtensionTable( 'moderation_block', "$base/../sql/patch-moderation_block.sql" );
+		$updater->addExtensionField( 'moderation', 'mod_tags', "$base/../sql/patch-moderation-mod_tags.sql" );
 
 		ModerationVersionCheck::markDbAsUpdated();
-
 		return true;
 	}
 }
