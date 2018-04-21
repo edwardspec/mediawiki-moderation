@@ -137,7 +137,7 @@ class ModerationActionApprove extends ModerationAction {
 			'mod_stash_key AS stash_key'
 		];
 
-		$tagsAreSupported = ModerationVersionCheck::wasDbUpdatedAfter( '1.1.29' );
+		$tagsAreSupported = ModerationVersionCheck::areTagsSupported();
 		if ( $tagsAreSupported ) {
 			$fields[] = 'mod_tags AS tags';
 		}

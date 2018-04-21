@@ -121,7 +121,7 @@ class ModerationEditHooks {
 
 		if ( class_exists( 'AbuseFilter' )
 			&& !empty( AbuseFilter::$tagsToSet )
-			&& ModerationVersionCheck::wasDbUpdatedAfter( '1.1.29' )
+			&& ModerationVersionCheck::areTagsSupported()
 		) {
 			/* AbuseFilter wants to assign some tags to this edit.
 				Let's store them (they will be used in modaction=approve).

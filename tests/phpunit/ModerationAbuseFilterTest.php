@@ -25,7 +25,7 @@ require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 class ModerationTestAbuseFilter extends MediaWikiTestCase
 {
 	public function testAbuseFilterTags() {
-		if ( !ModerationVersionCheck::wasDbUpdatedAfter( '1.1.29' ) ) {
+		if ( !ModerationVersionCheck::areTagsSupported() ) {
 			$this->markTestSkipped( 'Test skipped: DB schema is outdated, please run update.php.' );
 		}
 

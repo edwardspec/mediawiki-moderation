@@ -22,6 +22,13 @@
 
 class ModerationVersionCheck {
 
+	/** @brief Returns true if the database has mod_tags field, false otherwise */
+	public static function areTagsSupported() {
+		return self::wasDbUpdatedAfter( '1.1.29' );
+	}
+
+	/*-------------------------------------------------------------------*/
+
 	const EXTENSION_NAME = 'Moderation'; /**< Name of extension (as listed in extension.json) */
 
 	protected static $dbUpdatedVersion = null; /**< Stores result of getDbUpdatedVersion() */
@@ -42,7 +49,7 @@ class ModerationVersionCheck {
 		@param $versionOfModeration Version of Extension:Moderation, as listed in extension.json.
 		@returns True if update.php was called, false otherwise.
 	*/
-	public static function wasDbUpdatedAfter( $versionOfModeration ) {
+	protected static function wasDbUpdatedAfter( $versionOfModeration ) {
 		return version_compare( $versionOfModeration, self::getDbUpdatedVersion(), '<=' );
 	}
 
