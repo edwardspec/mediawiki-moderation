@@ -27,6 +27,22 @@ class ModerationVersionCheck {
 		return self::wasDbUpdatedAfter( '1.1.29' );
 	}
 
+	/** @brief Returns false if mod_title contains spaces (obsolete behavior), true if underscores (correct behavior) */
+	public static function usesDbKeyAsTitle() {
+		return self::wasDbUpdatedAfter( '1.1.31' );
+	}
+
+	/** @brief Calculate mod_title for $title.
+		Backward compatible with old Moderation databases that used spaces instead of underscores.
+	*/
+	public static function getModTitleFor( Title $title ) {
+		if ( self::usesDbKeyAsTitle() ) {
+			return $title->getDBKey();
+		}
+
+		return $title->getText(); /* Legacy approach */
+	}
+
 	/*-------------------------------------------------------------------*/
 
 	const EXTENSION_NAME = 'Moderation'; /**< Name of extension (as listed in extension.json) */

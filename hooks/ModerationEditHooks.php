@@ -99,11 +99,7 @@ class ModerationEditHooks {
 			'mod_user_text' => $user->getName(),
 			'mod_cur_id' => $page->getId(),
 			'mod_namespace' => $title->getNamespace(),
-			'mod_title' => $title->getText(), /* FIXME (cosmetic): should be getDBKey(), as in other MediaWiki tables.
-							Not fixed right away because existing database would need to be updated
-							(which can only be done in a release, not a minor version change,
-							as noone runs update.php for those).
-							TODO: use wasDbUpdatedAfter() for seamless update. */
+			'mod_title' => ModerationVersionCheck::getModTitleFor( $title ),
 			'mod_comment' => $summary,
 			'mod_minor' => $is_minor,
 			'mod_bot' => $flags & EDIT_FORCE_BOT,

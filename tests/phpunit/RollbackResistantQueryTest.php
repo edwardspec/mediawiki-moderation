@@ -139,7 +139,7 @@ class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 		$wasCreated = $dbw->selectField( 'moderation', '1',
 			[
 				'mod_namespace' => $page->getTitle()->getNamespace(),
-				'mod_title' => $page->getTitle()->getText() # FIXME: ModerationEditHooks::onPageContentSave() uses getText(), not getDBKey()
+				'mod_title' => ModerationVersionCheck::getModTitleFor( $page->getTitle() )
 			],
 			__METHOD__
 		);

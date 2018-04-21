@@ -24,9 +24,17 @@ class ModerationUpdater {
 	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
 		$base = dirname( __FILE__ );
 
+		/* Main database schema */
 		$updater->addExtensionTable( 'moderation', "$base/../sql/patch-moderation.sql" );
 		$updater->addExtensionTable( 'moderation_block', "$base/../sql/patch-moderation_block.sql" );
+
+		/* DB changes needed when updating Moderation from its previous version */
+
+		// ... to Moderation 1.1.29
 		$updater->addExtensionField( 'moderation', 'mod_tags', "$base/../sql/patch-moderation-mod_tags.sql" );
+
+		// ... to Moderation 1.1.31
+		$updater->modifyField( 'moderation', 'mod_title', "$base/../sql/patch-fix-titledbkey.sql", true );
 
 		ModerationVersionCheck::markDbAsUpdated();
 		return true;

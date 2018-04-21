@@ -171,7 +171,7 @@ class ModerationTestShow extends MediaWikiTestCase
 
 		$this->assertEquals( $t->lastEdit['SHA1'], sha1( $req->getContent() ),
 			"testShowUpload(): Checksum of image downloaded via modaction=showimg doesn't match the checksum of original image" );
-		$this->assertEquals( "inline;filename*=UTF-8''Test%20image%201.png", $req->getResponseHeader( 'Content-Disposition' ),
+		$this->assertEquals( "inline;filename*=UTF-8''Test_image_1.png", $req->getResponseHeader( 'Content-Disposition' ),
 			"testShowUpload(640x50): Wrong Content-Disposition header from modaction=showimg" );
 
 		# Check the thumbnail
@@ -181,7 +181,7 @@ class ModerationTestShow extends MediaWikiTestCase
 		$this->assertRegExp( '/^image\//', $req->getResponseHeader( 'Content-Type' ),
 			"testShowUpload(640x50): Wrong Content-Type header from modaction=showimg&thumb=1" );
 		$this->assertEquals( "inline;filename*=UTF-8''" .
-			ModerationActionShowImage::THUMB_WIDTH . "px-Test%20image%201.png",
+			ModerationActionShowImage::THUMB_WIDTH . "px-Test_image_1.png",
 			$req->getResponseHeader( 'Content-Disposition' ),
 			"testShowUpload(640x50): Wrong Content-Disposition header from modaction=showimg&thumb=1" );
 
@@ -215,7 +215,7 @@ class ModerationTestShow extends MediaWikiTestCase
 			"testShowUpload(100x100): Wrong Content-Type header from modaction=showimg&thumb=1" );
 
 		# No "px-" in the filename, because this thumbnail isn't different from the original file
-		$this->assertEquals( "inline;filename*=UTF-8''Test%20image%202.png",
+		$this->assertEquals( "inline;filename*=UTF-8''Test_image_2.png",
 			$req->getResponseHeader( 'Content-Disposition' ),
 			"testShowUpload(100x100): Wrong Content-Disposition header from modaction=showimg&thumb=1" );
 

@@ -172,7 +172,7 @@ class ModerationPreload {
 		$where = [
 			'mod_preloadable' => 1,
 			'mod_namespace' => $title->getNamespace(),
-			'mod_title' => $title->getText(),
+			'mod_title' => ModerationVersionCheck::getModTitleFor( $title ),
 			'mod_preload_id' => $id
 		];
 
