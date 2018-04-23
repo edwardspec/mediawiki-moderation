@@ -1,5 +1,16 @@
 List of changes between releases of Extension:Moderation.
 
+== Moderation 1.1.0.3 ==
+
+Security release for legacy MediaWiki 1.23 (obsolete LTS).
+Unlike Moderation 1.2.0, this release has no changes except those needed for security.
+If you are at MediaWiki 1.27+, please use Moderation 1.2.0.
+
+Security updates:
+* Restricted filerevert API (revert image to older version) to automoderated
+users, because this action can't be intercepted by Moderation.
+* Fixed improper escaping of user-provided mod_comment on Special:Moderation.
+
 == Moderation 1.1.0 ==
 
 Features:
