@@ -1,5 +1,52 @@
 List of changes between releases of Extension:Moderation.
 
+== Moderation 1.2.0 ==
+
+Note: this version requires MediaWiki 1.27+. MediaWiki 1.23 is no longer supported.
+Note: please run update.php (there are changes to DB schema).
+
+Features:
+* Support MediaWiki 1.30.
+* Support uploads via API and MultiUpload-like extensions in MediaWiki 1.28+.
+* In-wiki notification "New changes await moderation" is now shown to moderators.
+* Allowed to disable/enable Moderation on per-namespace basis via
+$wgModerationIgnoredInNamespaces and $wgModerationOnlyInNamespaces.
+* Support third-party Extension:PageForms (editing via Special:FormEdit).
+* AbuseFilter: tags set by AbuseFilter are now preserved by Moderation.
+
+UI changes:
+* Moderation is now listed under Antispam section of Special:SpecialPages.
+
+Security updates:
+* Restricted filerevert API (revert image to older version) to automoderated
+users, because this action can't be intercepted by Moderation.
+* Fixed improper escaping of user-provided mod_comment on Special:Moderation.
+
+Bugfixes:
+* Fixed situation when JobQueueError (caused by another extension) resulted in
+duplicate rows on Special:Moderation.
+* Fixed "404 Not Found" not being sent for missing stash images (MW 1.28+).
+* In $wgModerationUseAjax mode, Preview is no longer treated as one-click action.
+* Field mod_title now uses underscores (as other MediaWiki tables), not spaces.
+
+Documentation:
+* Explained each configuration variable in extension.json.
+
+Refactoring, performance optimizations:
+* Removed legacy code for MediaWiki 1.23-1.26.
+* Replaced PHP syntax array() with shorter []
+
+== Moderation 1.1.0.3 ==
+
+Security release for legacy MediaWiki 1.23 (obsolete LTS).
+Unlike Moderation 1.2.0, this release has no changes except those needed for security.
+If you are at MediaWiki 1.27+, please use Moderation 1.2.0.
+
+Security updates:
+* Restricted filerevert API (revert image to older version) to automoderated
+users, because this action can't be intercepted by Moderation.
+* Fixed improper escaping of user-provided mod_comment on Special:Moderation.
+
 == Moderation 1.1.0 ==
 
 Features:
