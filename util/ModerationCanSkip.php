@@ -34,10 +34,10 @@ class ModerationCanSkip {
 
 	/**
 		@brief Check if $user can skip moderation in namespace $namespaceNumber.
+		@param $namespaceNumber2 If set, BOTH namespaces must be non-moderated to skip moderation.
 	*/
-	public static function canSkip( User $user, $namespaceNumber ) {
-		global $wgModerationEnable, $wgModerationOnlyInNamespaces,
-			$wgModerationIgnoredInNamespaces;
+	public static function canSkip( User $user, $namespaceNumber, $namespaceNumber2 = null ) {
+		global $wgModerationEnable;
 
 		/*
 			NOTE: it makes little sense for some user to have 'rollback'
@@ -55,7 +55,25 @@ class ModerationCanSkip {
 			return true;
 		}
 
-		// Is moderation disabled/enabled on per-namespace level?
+		/* Is moderation disabled in affected namespace(s)? */
+		$canSkipInNs = self::canSkipInNamespace( $namespaceNumber );
+		if ( $canSkipInNs && !is_null( $namespaceNumber2 ) && $namespaceNumber2 != $namespaceNumber ) {
+			/* When renaming pages from one namespace to another,
+				both source and target namespace must be non-moderated
+				for moderation to be skipped. */
+			$canSkipInNs = self::canSkipInNamespace( $namespaceNumber2 );
+		}
+
+		return $canSkipInNs;
+	}
+
+	/**
+		@brief Check if moderation can be skipped in namespace $namespaceNumber.
+	*/
+	public static function canSkipInNamespace( $namespaceNumber ) {
+		global $wgModerationOnlyInNamespaces,
+			$wgModerationIgnoredInNamespaces;
+
 		if ( in_array( $namespaceNumber, $wgModerationIgnoredInNamespaces ) ) {
 			return true; /* This namespace is NOT moderated, e.g. Sandbox:Something */
 		}
