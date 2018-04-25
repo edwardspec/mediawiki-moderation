@@ -94,7 +94,7 @@ class ModerationEditHooks {
 		$dbw = wfGetDB( DB_MASTER );
 
 		$fields = [
-			'mod_timestamp' => $dbw->timestamp( wfTimestampNow() ),
+			'mod_timestamp' => $dbw->timestamp(),
 			'mod_user' => $user->getId(),
 			'mod_user_text' => $user->getName(),
 			'mod_cur_id' => $page->getId(),
