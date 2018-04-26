@@ -230,6 +230,11 @@ class ModerationTestsuite
 			$this->createTestUser( 'User 7', [ 'moderator', 'checkuser' ] );
 
 		$dbw->commit();
+
+		if ( class_exists( 'AbuseFilter' ) ) {
+			/* Prevent tags set by the previous test from affecting the current test */
+			AbuseFilter::$tagsToSet = [];
+		}
 	}
 
 	#

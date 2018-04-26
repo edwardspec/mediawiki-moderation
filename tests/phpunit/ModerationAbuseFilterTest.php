@@ -76,6 +76,7 @@ class ModerationTestAbuseFilter extends MediaWikiTestCase
 
 		/* Disable the filter (so that it would no longer add tags to newly made edits). */
 		$dbw->update( 'abuse_filter', [ 'af_enabled' => 0 ], [ 'af_id' => $filterId ], __METHOD__ );
+		AbuseFilter::$tagsToSet = [];
 
 		/* Approve the edit. Make sure that Moderation applies previously stored tags. */
 		$entry = $t->new_entries[0];
