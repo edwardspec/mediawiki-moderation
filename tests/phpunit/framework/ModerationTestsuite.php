@@ -231,9 +231,15 @@ class ModerationTestsuite
 
 		$dbw->commit();
 
+		$this->purgeTagCache();
+	}
+
+	/** @brief Prevent tags set by the previous test from affecting the current test */
+	public function purgeTagCache() {
+		ChangeTags::purgeTagCacheAll(); /* For RealHttpEngine tests */
+
 		if ( class_exists( 'AbuseFilter' ) ) {
-			/* Prevent tags set by the previous test from affecting the current test */
-			AbuseFilter::$tagsToSet = [];
+			AbuseFilter::$tagsToSet = []; /* For InternalInvocationEngine tests */
 		}
 	}
 
