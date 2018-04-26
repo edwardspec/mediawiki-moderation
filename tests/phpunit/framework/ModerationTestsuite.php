@@ -210,9 +210,12 @@ class ModerationTestsuite
 		$dbw->delete( 'watchlist', [ '1' ], __METHOD__ );
 		$dbw->delete( 'abuse_filter', [ '1' ], __METHOD__ );
 		$dbw->delete( 'abuse_filter_action', [ '1' ], __METHOD__ );
+		$dbw->delete( 'change_tag', [ '1' ], __METHOD__ );
+		$dbw->delete( 'tag_summary', [ '1' ], __METHOD__ );
 
-		if ( $dbw->tableExists( 'cu_changes' ) )
+		if ( $dbw->tableExists( 'cu_changes' ) ) {
 			$dbw->delete( 'cu_changes', [ '1' ], __METHOD__ );
+		}
 
 		$this->moderator =
 			$this->createTestUser( 'User 1', [ 'moderator', 'automoderated' ] );
