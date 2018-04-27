@@ -85,105 +85,15 @@ class ModerationEditHooks {
 			return true;
 		}
 
-		$preload = ModerationPreload::singleton();
+		$entry = new ModerationDatabaseEntry( $title, $user );
+		$entry->edit( $page, $content )
+			->setBot( $flags & EDIT_FORCE_BOT )
+			->setMinor( $is_minor )
+			->setSummary( $summary )
+			->setSection( self::$section, self::$sectionText );
 
-		$old_content = $page->getContent( Revision::RAW ); // current revision's content
-		$request = $user->getRequest();
-		$popts = ParserOptions::newFromUserAndLang( $user, $wgContLang );
-
-		$dbw = wfGetDB( DB_MASTER );
-
-		$fields = [
-			'mod_timestamp' => $dbw->timestamp(),
-			'mod_user' => $user->getId(),
-			'mod_user_text' => $user->getName(),
-			'mod_cur_id' => $page->getId(),
-			'mod_namespace' => $title->getNamespace(),
-			'mod_title' => ModerationVersionCheck::getModTitleFor( $title ),
-			'mod_comment' => $summary,
-			'mod_minor' => $is_minor,
-			'mod_bot' => $flags & EDIT_FORCE_BOT,
-			'mod_new' => $page->exists() ? 0 : 1,
-			'mod_last_oldid' => $page->getLatest(),
-			'mod_ip' => $request->getIP(),
-			'mod_old_len' => $old_content ? $old_content->getSize() : 0,
-			'mod_new_len' => $content->getSize(),
-			'mod_header_xff' => $request->getHeader( 'X-Forwarded-For' ),
-			'mod_header_ua' => $request->getHeader( 'User-Agent' ),
-			'mod_text' => $content->preSaveTransform( $title, $user, $popts )->getNativeData(),
-			'mod_preload_id' => $preload->getId( true ),
-			'mod_preloadable' => 1
-		];
-
-		if ( class_exists( 'AbuseFilter' )
-			&& !empty( AbuseFilter::$tagsToSet )
-			&& ModerationVersionCheck::areTagsSupported()
-		) {
-			/* AbuseFilter wants to assign some tags to this edit.
-				Let's store them (they will be used in modaction=approve).
-			*/
-			$afActionID = join( '-', [
-				$title->getPrefixedText(),
-				$user->getName(),
-				'edit' /* TODO: does this need special handling for uploads? */
-			] );
-
-			if ( isset( AbuseFilter::$tagsToSet[$afActionID] ) ) {
-				$fields['mod_tags'] = join( "\n", AbuseFilter::$tagsToSet[$afActionID] );
-			}
-		}
-
-		if ( ModerationBlockCheck::isModerationBlocked( $user ) ) {
-			$fields['mod_rejected'] = 1;
-			$fields['mod_rejected_by_user'] = 0;
-			$fields['mod_rejected_by_user_text'] = wfMessage( 'moderation-blocker' )->inContentLanguage()->text();
-			$fields['mod_rejected_auto'] = 1;
-			$fields['mod_preloadable'] = 1; # User can still edit this change, so that spammers won't notice that they are blocked
-		}
-
-		// Check if we need to update existing row (if this edit is by the same user to the same page)
-		$row = $preload->loadUnmoderatedEdit( $title );
-		if ( !$row ) { # No unmoderated edits
-			/* We use RollbackResistantQuery, because the caller
-				of doEditContent() may assume that "moderation-edit-queued"
-				is an error and throw MWException, causing database rollback.
-			*/
-			RollbackResistantQuery::insert( $dbw, [
-				'moderation',
-				$fields,
-				__METHOD__
-			] );
-			ModerationEditHooks::$LastInsertId = $dbw->insertId();
-		} else {
-			if ( self::$section != '' ) {
-				#
-				# We must recalculate $fields['mod_text'] here.
-				# Otherwise if the user adds or modifies two (or more) different sections (in consequent edits),
-				# then only modification to the last one will be saved,
-				# because $content is [old content] PLUS [modified section from the edit].
-				#
-
-				# $new_section_content is exactly what the user just wrote in the edit form (one section only).
-				$new_section_content = ContentHandler::makeContent( self::$sectionText, null, $content->getModel() );
-
-				# $saved_content is mod_text which is currently written in the "moderation" table of DB.
-				$saved_content = ContentHandler::makeContent( $row->text, null, $content->getModel() );
-
-				# $new_content is $saved_content with replaced section.
-				$new_content = $saved_content->replaceSection( self::$section, $new_section_content, '' );
-
-				$fields['mod_text'] = $new_content->preSaveTransform( $title, $user, $popts )->getNativeData();
-				$fields['mod_new_len'] = $new_content->getSize();
-			}
-
-			RollbackResistantQuery::update( $dbw, [
-				'moderation',
-				$fields,
-				[ 'mod_id' => $row->id ],
-				__METHOD__
-			] );
-			ModerationEditHooks::$LastInsertId = $row->id;
-		}
+		$fields = $entry->queue();
+		ModerationEditHooks::$LastInsertId = $fields['mod_id'];
 
 		if ( !is_null( self::$watchthis ) && $user->isLoggedIn() ) {
 			/* Watch/Unwatch the page immediately:
