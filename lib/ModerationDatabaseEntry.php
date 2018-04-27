@@ -122,19 +122,22 @@ class ModerationDatabaseEntry {
 		return ModerationPreload::singleton();
 	}
 
-	protected function getPendingChange() {
+	protected function getPendingChange( $preloadFlags = 0 ) {
 		if ( is_null( $this->pendingChange ) ) {
 			$preload = $this->getPreload();
 			$preload->setUser( $this->user );
 
-			$this->pendingChange = $preload->loadUnmoderatedEdit( $this->title );
+			$this->pendingChange = $preload->loadUnmoderatedEdit(
+				$this->title,
+				$preloadFlags
+			);
 		}
 
 		return $this->pendingChange;
 	}
 
 	protected function getId() {
-		$row = $this->getPendingChange();
+		$row = $this->getPendingChange( ModerationPreload::PRELOAD_FLAG_ONLYID );
 		return $row ? $row->id : false;
 	}
 

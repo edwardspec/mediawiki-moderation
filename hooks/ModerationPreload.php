@@ -31,6 +31,9 @@
 
 class ModerationPreload {
 
+	/* Flags for loadUnmoderatedEdit() */
+	const PRELOAD_FLAG_ONLYID = 1; /**< Preload only mod_id (nothing else) */
+
 	protected static $singleton = null; /**< Singleton instance */
 	protected $editPage = null; /**< EditPage object, passed by onAlternateEdit() to onEditFormPreloadText() */
 	private $user = null; /**< User object. If not set, $wgUser will be used. */
@@ -161,9 +164,13 @@ class ModerationPreload {
 		return true;
 	}
 
-	# loadUnmoderatedEdit() - check if there is a pending-moderation edit of this user to this page,
-	# and if such edit exists, then load its text and edit comment
-	public function loadUnmoderatedEdit( $title ) {
+	/**
+		@brief Check if there is a pending-moderation edit of this user
+		to this page, and if such edit exists, then load its text and
+		edit comment.
+		@param $flags Any combination of MOD_PRELOAD_* flags.
+	*/
+	public function loadUnmoderatedEdit( $title, $flags = 0 ) {
 		$id = $this->getId();
 		if ( !$id ) { # This visitor never saved any edits
 			return;
@@ -175,6 +182,14 @@ class ModerationPreload {
 			'mod_title' => ModerationVersionCheck::getModTitleFor( $title ),
 			'mod_preload_id' => $id
 		];
+
+		$fields = [ 'mod_id AS id' ];
+		if ( !( $flags & self::PRELOAD_FLAG_ONLYID ) ) {
+			$fields += [
+				'mod_comment AS comment',
+				'mod_text AS text'
+			];
+		}
 
 		# Sequential edits are often done with small intervals of time between
 		# them, so we shouldn't wait for replication: DB_MASTER will be used.
