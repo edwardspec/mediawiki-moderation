@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2017 Edward Chernenko.
+	Copyright (C) 2015-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -46,7 +46,16 @@ class ModerationTestEdit extends MediaWikiTestCase
 	}
 
 	public function testEditSections() {
+		/* Sections are handled differently in API and non-API editing.
+			Test both situations.
+		*/
+		$this->subtestEditSections( false );
+		$this->subtestEditSections( true );
+	}
+
+	protected function subtestEditSections( $useApi ) {
 		$t = new ModerationTestsuite();
+		$t->editViaAPI = $useApi;
 
 		$sections = [
 			"Text in zero section\n\n",

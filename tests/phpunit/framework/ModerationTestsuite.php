@@ -303,7 +303,7 @@ class ModerationTestsuite
 			session cookies (used for anonymous preloading)
 		@returns API response
 	*/
-	public function apiEdit( $title, $text, $summary )
+	public function apiEdit( $title, $text, $summary, array $extraParams = [] )
 	{
 		return $this->query( [
 			'action' => 'edit',
@@ -311,7 +311,7 @@ class ModerationTestsuite
 			'text' => $text,
 			'summary' => $summary,
 			'token' => null
-		] );
+		] + $extraParams );
 	}
 
 	public $editViaAPI = false;
@@ -321,7 +321,7 @@ class ModerationTestsuite
 		@brief Make an edit via the usual interface, as real users do.
 		@returns ModerationTestsuiteResponse object.
 	*/
-	public function nonApiEdit( $title, $text, $summary, $extraParams = [] )
+	public function nonApiEdit( $title, $text, $summary, array $extraParams = [] )
 	{
 		if ( defined( 'EditPage::UNICODE_CHECK' ) ) { // MW 1.30+
 			$extraParams['wpUnicodeCheck'] = EditPage::UNICODE_CHECK;
@@ -340,25 +340,32 @@ class ModerationTestsuite
 		] + $extraParams );
 	}
 
-	public function doTestEdit( $title = null, $text = null, $summary = null )
+	public function doTestEdit( $title = null, $text = null, $summary = null, $section = '' )
 	{
-		if ( !$title )
+		if ( !$title ) {
 			$title = $this->generateRandomTitle();
+		}
 
-		if ( !$text )
+		if ( !$text ) {
 			$text = $this->generateRandomText();
+		}
 
-		if ( !$summary )
+		if ( !$summary ) {
 			$summary = $this->generateEditSummary();
+		}
 
 		# TODO: ensure that page $title doesn't already contain $text
 		# (to avoid extremely rare test failures due to random collisions)
 
 		if ( $this->editViaAPI ) {
-			$ret = $this->apiEdit( $title, $text, $summary );
+			$ret = $this->apiEdit( $title, $text, $summary,
+				array_filter( [ 'section' => $section ] )
+			);
 		}
 		else {
-			$ret = $this->nonApiEdit( $title, $text, $summary );
+			$ret = $this->nonApiEdit( $title, $text, $summary,
+				array_filter( [ 'wpSection' => $section ] )
+			);
 		}
 
 		/* TODO: check if successful */
