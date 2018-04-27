@@ -73,7 +73,7 @@ class ModerationPreload {
 	/**
 		@brief Override the current user: preload for $user instead.
 	*/
-	protected function setUser( User $user ) {
+	public function setUser( User $user ) {
 		$this->user = $user;
 	}
 

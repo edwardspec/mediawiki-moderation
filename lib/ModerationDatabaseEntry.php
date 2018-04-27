@@ -34,7 +34,8 @@ class ModerationDatabaseEntry {
 	protected $wikiPage = null; /**< WikiPage object (page to be edited) */
 	protected $newContent = null; /**< Content object (new text of the page) */
 	protected $newTitle = null; /**< Title object (title of the destination when moving the page) */
-	protected $id = null; /**< mod_id (integer) when updating existing row, null when creating a new row */
+
+	private $pendingChange = null; /**< False if no pending change, array( 'mod_id' => ..., 'mod_text' => ... ) otherwise */
 
 	protected $title; /**< Title object (page to be edited) */
 	protected $user; /**< User object (author of the edit) */
@@ -100,11 +101,6 @@ class ModerationDatabaseEntry {
 		return $this;
 	}
 
-	protected function setId( $modid ) {
-		$this->id = $modid;
-		return $this;
-	}
-
 	/*-------------------------------------------------------------------*/
 
 	/**
@@ -126,15 +122,20 @@ class ModerationDatabaseEntry {
 		return ModerationPreload::singleton();
 	}
 
-	protected function loadUnmoderatedEdit() {
-		/* FIXME: should do $preload->setUser( $this->user ),
-			because $this->user may be different from $wgUser */
-		$row = $this->getPreload()->loadUnmoderatedEdit( $this->title );
-		if ( $row ) {
-			$this->setId( $row->id );
+	protected function getPendingChange() {
+		if ( is_null( $this->pendingChange ) ) {
+			$preload = $this->getPreload();
+			$preload->setUser( $this->user );
+
+			$this->pendingChange = $preload->loadUnmoderatedEdit( $this->title );
 		}
 
-		return $row;
+		return $this->pendingChange;
+	}
+
+	protected function getId() {
+		$row = $this->getPendingChange();
+		return $row ? $row->id : false;
 	}
 
 	/**
@@ -219,22 +220,21 @@ class ModerationDatabaseEntry {
 		}
 
 		// Check if we need to update existing row (if this edit is by the same user to the same page)
-		$row = $this->loadUnmoderatedEdit();
-		if ( $row && $this->section !== '' ) {
-			#
-			# We must recalculate $fields['mod_text'] here.
-			# Otherwise if the user adds or modifies two (or more) different sections (in consequent edits),
-			# then only modification to the last one will be saved,
-			# because $this->newContent is [old content] PLUS [modified section from the edit].
-			#
-			# $newSectionContent is exactly what the user just wrote in the edit form (one section only).
-			$newSectionContent = $this->makeContent( $this->sectionText );
-
-			# $savedContent is mod_text which is currently written in the "moderation" table of DB.
-			$savedContent = $this->makeContent( $row->text );
-
-			# We set $this->newContent to $savedContent with replaced section.
-			$this->newContent = $savedContent->replaceSection( $this->section, $newSectionContent, '' );
+		if ( $this->section !== '' ) {
+			$row = $this->getPendingChange();
+			if ( $row ) {
+				#
+				# We must recalculate $fields['mod_text'] here.
+				# Otherwise if the user adds or modifies two (or more) different sections (in consequent edits),
+				# then only modification to the last one will be saved,
+				# because $this->newContent is [old content] PLUS [modified section from the edit].
+				#
+				$this->newContent = $this->makeContent( $row->text )->replaceSection(
+					$this->section,
+					$this->makeContent( $this->sectionText ),
+					''
+				);
+			}
 		}
 
 		$fields['mod_text'] = $this->preSaveTransform( $this->newContent );
@@ -251,14 +251,16 @@ class ModerationDatabaseEntry {
 		$dbw = wfGetDB( DB_MASTER );
 		$fields = $this->getFields();
 
-		if ( $this->id ) {
+		/* Update existing row, if any,
+			insert new row otherwise. */
+		$id = $this->getId();
+		if ( $id ) {
 			RollbackResistantQuery::update( $dbw, [
 				'moderation',
 				$fields,
-				[ 'mod_id' => $this->id ],
+				[ 'mod_id' => $id ],
 				__METHOD__
 			] );
-			$fields['mod_id'] = $this->id;
 		}
 		else {
 			RollbackResistantQuery::insert( $dbw, [
@@ -266,9 +268,10 @@ class ModerationDatabaseEntry {
 				$fields,
 				__METHOD__
 			] );
-			$fields['mod_id'] = $dbw->insertId();
+			$id = $dbw->insertId();
 		}
 
+		$fields['mod_id'] = $id;
 		return $fields;
 	}
 }
