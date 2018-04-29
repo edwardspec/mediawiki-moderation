@@ -357,15 +357,18 @@ class ModerationTestsuite
 		# TODO: ensure that page $title doesn't already contain $text
 		# (to avoid extremely rare test failures due to random collisions)
 
+		$extraParams = [];
 		if ( $this->editViaAPI ) {
-			$ret = $this->apiEdit( $title, $text, $summary,
-				array_filter( [ 'section' => $section ] )
-			);
+			if ( $section !== '' ) {
+				$extraParams['section'] = $section;
+			}
+			$ret = $this->apiEdit( $title, $text, $summary, $extraParams );
 		}
 		else {
-			$ret = $this->nonApiEdit( $title, $text, $summary,
-				array_filter( [ 'wpSection' => $section ] )
-			);
+			if ( $section !== '' ) {
+				$extraParams['wpSection'] = $section;
+			}
+			$ret = $this->nonApiEdit( $title, $text, $summary, $extraParams );
 		}
 
 		/* TODO: check if successful */

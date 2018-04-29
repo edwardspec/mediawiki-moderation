@@ -49,7 +49,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 		/* Sections are handled differently in API and non-API editing.
 			Test both situations.
 		*/
-		$this->subtestEditSections( false );
+		//$this->subtestEditSections( false );
 		$this->subtestEditSections( true );
 	}
 
@@ -72,23 +72,14 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$t->loginAs( $t->unprivilegedUser );
 
 		# Do several edits in the different sections of the text.
-		$query = [
-			'action' => 'edit',
-			'title' => $title,
-			'token' => null
-		];
+		$sections[0] = "New text in zero section\n\n";
+		$t->doTestEdit( $title, $sections[0], null, 0 );
 
-		$query['section'] = 0;
-		$query['text'] = $sections[0] = "New text in zero section\n\n";
-		$t->query( $query );
+		$sections[2] = "== Second section (#2) ==\nText in second section\n\n";
+		$t->doTestEdit( $title, $sections[2], null, 2 );
 
-		$query['section'] = 2;
-		$query['text'] = $sections[2] = "== Second section (#2) ==\nText in second section\n\n";
-		$t->query( $query );
-
-		$query['section'] = 'new';
-		$query['text'] = $sections[] = "== New section ==\nText in the new section";
-		$t->query( $query );
+		$sections[] = "== New section ==\nText in the new section";
+		$t->doTestEdit( $title, end( $sections ), null, 'new' );
 
 		$t->fetchSpecial();
 
@@ -106,9 +97,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 		# Does PreSaveTransform work when editing sections?
 
 		$t->loginAs( $t->unprivilegedUser );
-		$query['section'] = 2;
-		$query['text'] = "== New section 2 ==\n~~~\n\n";
-		$ret = $t->query( $query );
+		$t->doTestEdit( $title, "== New section 2 ==\n~~~\n\n", null, 2 );
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbText = $dbw->selectField( 'moderation', 'mod_text',
@@ -121,9 +110,8 @@ class ModerationTestEdit extends MediaWikiTestCase
 
 		# Will editing the section work if section header was deleted?
 
-		$query['section'] = 2;
-		$query['text'] = $sections[2] = "When editing this section, the user removed <nowiki>== This ==</nowiki>\n\n";
-		$ret = $t->query( $query );
+		$sections[2] = "When editing this section, the user removed <nowiki>== This ==</nowiki>\n\n";
+		$t->doTestEdit( $title, $sections[2], null, 2 );
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbText = $dbw->selectField( 'moderation', 'mod_text',
