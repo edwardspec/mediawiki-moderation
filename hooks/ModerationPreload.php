@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2017 Edward Chernenko.
+	Copyright (C) 2014-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,9 +30,6 @@
 
 
 class ModerationPreload {
-
-	/* Flags for loadUnmoderatedEdit() */
-	const PRELOAD_FLAG_ONLYID = 1; /**< Preload only mod_id (nothing else) */
 
 	protected static $singleton = null; /**< Singleton instance */
 	protected $editPage = null; /**< EditPage object, passed by onAlternateEdit() to onEditFormPreloadText() */
@@ -168,9 +165,8 @@ class ModerationPreload {
 		@brief Check if there is a pending-moderation edit of this user
 		to this page, and if such edit exists, then load its text and
 		edit comment.
-		@param $flags Any combination of MOD_PRELOAD_* flags.
 	*/
-	public function loadUnmoderatedEdit( $title, $flags = 0 ) {
+	public function loadUnmoderatedEdit( $title ) {
 		$id = $this->getId();
 		if ( !$id ) { # This visitor never saved any edits
 			return;
@@ -182,14 +178,6 @@ class ModerationPreload {
 			'mod_title' => ModerationVersionCheck::getModTitleFor( $title ),
 			'mod_preload_id' => $id
 		];
-
-		$fields = [ 'mod_id AS id' ];
-		if ( !( $flags & self::PRELOAD_FLAG_ONLYID ) ) {
-			$fields += [
-				'mod_comment AS comment',
-				'mod_text AS text'
-			];
-		}
 
 		# Sequential edits are often done with small intervals of time between
 		# them, so we shouldn't wait for replication: DB_MASTER will be used.
