@@ -323,11 +323,7 @@ class ModerationTestsuite
 	*/
 	public function nonApiEdit( $title, $text, $summary, array $extraParams = [] )
 	{
-		if ( defined( 'EditPage::UNICODE_CHECK' ) ) { // MW 1.30+
-			$extraParams['wpUnicodeCheck'] = EditPage::UNICODE_CHECK;
-		}
-
-		return $this->httpPost( wfScript( 'index' ), [
+		$params = $extraParams + [
 			'action' => 'submit',
 			'title' => $title,
 			'wpTextbox1' => $text,
@@ -335,9 +331,19 @@ class ModerationTestsuite
 			'wpEditToken' => $this->getEditToken(),
 			'wpSave' => 'Save',
 			'wpIgnoreBlankSummary' => '',
-			'wpRecreate' => '',
-			'wpEdittime' => wfTimestampNow()
-		] + $extraParams );
+			'wpRecreate' => ''
+		];
+
+		if ( defined( 'EditPage::UNICODE_CHECK' ) ) { // MW 1.30+
+			$params['wpUnicodeCheck'] = EditPage::UNICODE_CHECK;
+		}
+
+		/* Determine wpEdittime (timestamp of the current revision of $title),
+			otherwise edit conflict will occur. */
+		$rev = $this->getLastRevision( $title );
+		$params['wpEdittime'] = $rev ? wfTimestamp( TS_MW, $rev['timestamp'] ) : '';
+
+		return $this->httpPost( wfScript( 'index' ), $params );
 	}
 
 	public function doTestEdit( $title = null, $text = null, $summary = null, $section = '' )
@@ -601,8 +607,8 @@ class ModerationTestsuite
 			'rvprop' => 'user|timestamp|comment|content|ids',
 			'titles' => $title
 		] );
-		$ret_page = array_shift( $ret['query']['pages'] );
-		return $ret_page['revisions'][0];
+		$retPage = array_shift( $ret['query']['pages'] );
+		return isset( $retPage['missing'] ) ? false : $retPage['revisions'][0];
 	}
 
 	/**

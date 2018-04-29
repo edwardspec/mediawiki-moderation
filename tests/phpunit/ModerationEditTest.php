@@ -49,7 +49,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 		/* Sections are handled differently in API and non-API editing.
 			Test both situations.
 		*/
-		//$this->subtestEditSections( false );
+		$this->subtestEditSections( false );
 		$this->subtestEditSections( true );
 	}
 
