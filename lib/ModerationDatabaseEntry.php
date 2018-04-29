@@ -133,11 +133,6 @@ class ModerationDatabaseEntry {
 		return $this->pendingChange;
 	}
 
-	protected function getId() {
-		$row = $this->getPendingChange();
-		return $row ? $row->id : false;
-	}
-
 	/**
 		@brief Utility function: construct Content object from $text.
 		@returns Content object.
@@ -171,7 +166,7 @@ class ModerationDatabaseEntry {
 			'mod_header_xff' => $request->getHeader( 'X-Forwarded-For' ),
 			'mod_header_ua' => $request->getHeader( 'User-Agent' ),
 			'mod_preload_id' => $this->getPreload()->getId( true ),
-			'mod_preloadable' => 1
+			'mod_preloadable' => ModerationVersionCheck::preloadableYes()
 		];
 
 		if ( $this->wikiPage ) {
@@ -211,7 +206,11 @@ class ModerationDatabaseEntry {
 			$fields['mod_rejected_by_user'] = 0;
 			$fields['mod_rejected_by_user_text'] = wfMessage( 'moderation-blocker' )->inContentLanguage()->text();
 			$fields['mod_rejected_auto'] = 1;
-			$fields['mod_preloadable'] = 1; # User can still edit this change, so that spammers won't notice that they are blocked
+
+			# Note: we don't disable $fields['mod_preloadable'],
+			# so that the spammers won't notice that they are blocked
+			# (they can continue editing this change,
+			# even though the change will be in the Spam folder)
 		}
 
 		if ( !$this->newContent ) {
@@ -248,12 +247,44 @@ class ModerationDatabaseEntry {
 		@returns $fields array.
 	*/
 	public function queue() {
-		$dbw = wfGetDB( DB_MASTER );
 		$fields = $this->getFields();
 
-		/* Update existing row, if any,
-			insert new row otherwise. */
-		$id = $this->getId();
+		$fields['mod_id'] = ModerationVersionCheck::hasUniqueIndex() ?
+			$this->insert( $fields ) :
+			$this->insertOld( $fields );
+		return $fields;
+	}
+
+	/**
+		@brief Insert $fields into the moderation SQL table.
+		@returns mod_id of affected row.
+	*/
+	protected function insert( array $fields ) {
+		$dbw = wfGetDB( DB_MASTER );
+		RollbackResistantQuery::upsert( $dbw, [
+			'moderation',
+			$fields,
+			[
+				'mod_preloadable',
+				'mod_namespace',
+				'mod_title',
+				'mod_preload_id'
+			],
+			$fields,
+			__METHOD__
+		] );
+		return $dbw->insertId();
+	}
+
+	/**
+		@brief Legacy version of insert() for old databases without UNIQUE INDEX.
+		@returns mod_id of affected row.
+	*/
+	protected function insertOld( array $fields ) {
+		$row = $this->getPendingChange();
+		$id = $row ? $row->id : false;
+
+		$dbw = wfGetDB( DB_MASTER );
 		if ( $id ) {
 			RollbackResistantQuery::update( $dbw, [
 				'moderation',
@@ -271,7 +302,6 @@ class ModerationDatabaseEntry {
 			$id = $dbw->insertId();
 		}
 
-		$fields['mod_id'] = $id;
-		return $fields;
+		return $id;
 	}
 }

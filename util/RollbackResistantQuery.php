@@ -26,8 +26,8 @@ class RollbackResistantQuery {
 	protected static $performedQueries = []; /**< array of all created RollbackResistantQuery objects */
 
 	protected $dbw; /**< IDatabase */
-	protected $methodName; /**< Either 'insert' or 'update' */
-	protected $args; /**< Array of parameters to be passed to $dbw->insert() or $dbw->update() */
+	protected $methodName; /**< Database method, e.g. 'insert' or 'update' */
+	protected $args; /**< Array of parameters to be passed to $dbw->insert(), etc. */
 
 	/**
 		@brief Perform $dbw->insert() that won't be undone by $dbw->rollback().
@@ -48,16 +48,30 @@ class RollbackResistantQuery {
 	}
 
 	/**
+		@brief Perform $dbw->replace() that won't be undone by $dbw->rollback().
+		@param $dbw Database object.
+		@param $args Arguments of $dbw->replace() call.
+	*/
+	public static function replace( IDatabase $dbw, array $args ) {
+		new self( 'replace', $dbw, $args );
+	}
+
+	/**
+		@brief Perform $dbw->upsert() that won't be undone by $dbw->rollback().
+		@param $dbw Database object.
+		@param $args Arguments of $dbw->upsert() call.
+	*/
+	public static function upsert( IDatabase $dbw, array $args ) {
+		new self( 'upsert', $dbw, $args );
+	}
+
+	/**
 		@brief Create and immediately execute a new query.
-		@param $methodName One of the following strings: 'insert', 'update'.
+		@param $methodName String, e.g. 'insert', 'update' or 'replace'.
 		@param $dbw Database object.
 		@param $args Arguments of $dbw->update() call.
 	*/
 	protected function __construct( $methodName, IDatabase $dbw, array $args ) {
-		if ( $methodName != 'insert' && $methodName != 'update' ) {
-			throw new MWException( 'Unknown action, only insert or update are supported' );
-		}
-
 		$this->dbw = $dbw;
 		$this->methodName = $methodName;
 		$this->args = $args;

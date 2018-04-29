@@ -82,7 +82,14 @@ CREATE TABLE /*_*/moderation (
 	mod_rejected_batch tinyint NOT NULL default 0, -- Set to 1 if "reject all edits by this user" button was used
 	mod_rejected_auto tinyint NOT NULL default 0, -- Set to 1 if this user was marked with "reject all future edits from this user"
 
-	mod_preloadable tinyint NOT NULL default 1, -- Whether the user can continue changing this edit. Set to 0 for merged and rejected edits, but not for rejected automatically (rejected_auto=1)
+	-- Whether the user can continue changing this edit.
+	-- mod_preloadable=0 means "Yes" (pending edits and edits with rejected_auto=1)
+	-- mod_preloadable=mod_id means "No" (merged and rejected edits)
+	--
+	-- This field is used for making moderation_load index UNIQUE:
+	-- user A can have only one pending edit in page B,
+	-- user A can have many rejected edits in page B.
+	mod_preloadable int unsigned NOT NULL default 0,
 
 	mod_conflict tinyint NOT NULL default 0, -- Set to 1 if moderator tried to approve this, but "needs manual merging" error occured
 	mod_merged_revid int unsigned NOT NULL default 0, -- If not 0, moderator has already merged this, and this is the revision number of the result.
@@ -94,7 +101,7 @@ CREATE TABLE /*_*/moderation (
 --
 --	"moderation_load" index is used by loadUnmoderatedEdit().
 --
-CREATE INDEX /*i*/moderation_load ON /*_*/moderation (mod_preloadable, mod_namespace, mod_title, mod_preload_id);
+CREATE UNIQUE INDEX /*i*/moderation_load ON /*_*/moderation (mod_preloadable, mod_namespace, mod_title, mod_preload_id);
 
 --
 --	"moderation_approveall" and "moderation_rejectall" are used by approveall/rejectall modactions.

@@ -220,7 +220,7 @@ class ModerationEditHooks {
 		$dbw->update( 'moderation',
 			[
 				'mod_merged_revid' => $revision->getId(),
-				'mod_preloadable' => 0
+				ModerationVersionCheck::setPreloadableToNo()
 			],
 			[
 				'mod_id' => $mergeID,

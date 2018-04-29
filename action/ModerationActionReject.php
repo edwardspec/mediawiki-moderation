@@ -72,7 +72,7 @@ class ModerationActionReject extends ModerationAction {
 				'mod_rejected' => 1,
 				'mod_rejected_by_user' => $this->moderator->getId(),
 				'mod_rejected_by_user_text' => $this->moderator->getName(),
-				'mod_preloadable' => 0
+				ModerationVersionCheck::setPreloadableToNo()
 			],
 			[
 				'mod_id' => $this->id,
@@ -139,7 +139,7 @@ class ModerationActionReject extends ModerationAction {
 				'mod_rejected_by_user' => $this->moderator->getId(),
 				'mod_rejected_by_user_text' => $this->moderator->getName(),
 				'mod_rejected_batch' => 1,
-				'mod_preloadable' => 0
+				ModerationVersionCheck::setPreloadableToNo()
 			],
 			[
 				'mod_id' => $ids

@@ -34,7 +34,10 @@ class ModerationUpdater {
 		$updater->addExtensionField( 'moderation', 'mod_tags', "$base/../sql/patch-moderation-mod_tags.sql" );
 
 		// ... to Moderation 1.1.31
-		$updater->modifyField( 'moderation', 'mod_title', "$base/../sql/patch-fix-titledbkey.sql", true );
+		$updater->modifyExtensionField( 'moderation', 'mod_title', "$base/../sql/patch-fix-titledbkey.sql" );
+
+		// ... to Moderation 1.2.9
+		$updater->addExtensionUpdate( [ 'applyPatch', "$base/../sql/patch-make-preload-unique.sql", true ] );
 
 		ModerationVersionCheck::markDbAsUpdated();
 		return true;

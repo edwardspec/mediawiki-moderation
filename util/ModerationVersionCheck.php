@@ -32,6 +32,12 @@ class ModerationVersionCheck {
 		return self::wasDbUpdatedAfter( '1.1.31' );
 	}
 
+	/** @brief Returns false if mod_preloadable is 0 or 1 (obsolete behavior),
+		true if unique for rejected edits (correct behavior) */
+	public static function hasUniqueIndex() {
+		return self::wasDbUpdatedAfter( '1.2.9' );
+	}
+
 	/** @brief Calculate mod_title for $title.
 		Backward compatible with old Moderation databases that used spaces instead of underscores.
 	*/
@@ -41,6 +47,33 @@ class ModerationVersionCheck {
 		}
 
 		return $title->getText(); /* Legacy approach */
+	}
+
+	/**
+		@brief Returns value of mod_preloadable that means "YES, this change can be preloaded".
+	*/
+	public static function preloadableYes() {
+		if ( self::hasUniqueIndex() ) {
+			/* Current approach: 0 for YES, mod_id for NO */
+			return 0;
+		}
+
+		/* Legacy approach: 1 for YES, 0 for NO */
+		return 1;
+	}
+
+	/**
+		@brief Determines how to mark edit as NOT preloadable in SQL UPDATE.
+		@returns One element of $fields parameter for $db->update().
+	*/
+	public static function setPreloadableToNo() {
+		if ( self::hasUniqueIndex() ) {
+			/* Current approach: 0 for YES, mod_id for NO */
+			return 'mod_preloadable=mod_id';
+		}
+
+		/* Legacy approach: 1 for YES, 0 for NO */
+		return 'mod_preloadable=0';
 	}
 
 	/*-------------------------------------------------------------------*/

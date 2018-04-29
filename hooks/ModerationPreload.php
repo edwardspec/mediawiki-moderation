@@ -150,7 +150,7 @@ class ModerationPreload {
 			],
 			[
 				'mod_preload_id' => $anonId,
-				'mod_preloadable' => 1
+				'mod_preloadable' => ModerationVersionCheck::preloadableYes()
 			],
 			__METHOD__,
 			[ 'USE INDEX' => 'moderation_signup' ]
@@ -173,7 +173,7 @@ class ModerationPreload {
 		}
 
 		$where = [
-			'mod_preloadable' => 1,
+			'mod_preloadable' => ModerationVersionCheck::preloadableYes(),
 			'mod_namespace' => $title->getNamespace(),
 			'mod_title' => ModerationVersionCheck::getModTitleFor( $title ),
 			'mod_preload_id' => $id
