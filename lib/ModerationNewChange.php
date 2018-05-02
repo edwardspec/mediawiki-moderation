@@ -20,7 +20,7 @@
 	@brief Methods to manage "moderation" SQL table.
 */
 
-class ModerationDatabaseEntry {
+class ModerationNewChange {
 
 	const MOD_TYPE_EDIT = 'edit';
 	const MOD_TYPE_MOVE = 'move';

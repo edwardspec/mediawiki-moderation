@@ -85,14 +85,13 @@ class ModerationEditHooks {
 			return true;
 		}
 
-		$entry = new ModerationDatabaseEntry( $title, $user );
-		$entry->edit( $page, $content )
+		$change = new ModerationNewChange( $title, $user );
+		$fields = $change->edit( $page, $content )
 			->setBot( $flags & EDIT_FORCE_BOT )
 			->setMinor( $is_minor )
 			->setSummary( $summary )
-			->setSection( self::$section, self::$sectionText );
-
-		$fields = $entry->queue();
+			->setSection( self::$section, self::$sectionText )
+			->queue();
 		ModerationEditHooks::$LastInsertId = $fields['mod_id'];
 
 		if ( !is_null( self::$watchthis ) && $user->isLoggedIn() ) {
