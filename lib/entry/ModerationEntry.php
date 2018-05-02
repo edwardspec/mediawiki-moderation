@@ -82,10 +82,10 @@ abstract class ModerationEntry {
 	}
 
 	/**
-		@brief Load ModerationEntry from the database by mod_id.
-		@throws ModerationError
+		@brief Get the list of fields needed for selecting $row, as expected by newFromRow().
+		@returns array ($fields parameter for $db->select()).
 	*/
-	public static function newFromId( $id ) {
+	public static function getFields() {
 		$fields = [
 			'mod_id AS id',
 			'mod_timestamp AS timestamp',
@@ -106,14 +106,21 @@ abstract class ModerationEntry {
 			'mod_rejected AS rejected',
 			'mod_stash_key AS stash_key'
 		];
-
 		if ( ModerationVersionCheck::areTagsSupported() ) {
 			$fields[] = 'mod_tags AS tags';
 		}
 
+		return $fields;
+	}
+
+	/**
+		@brief Load ModerationEntry from the database by mod_id.
+		@throws ModerationError
+	*/
+	public static function newFromId( $id ) {
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
-			$fields,
+			self::getFields(),
 			[ 'mod_id' => $id ],
 			__METHOD__
 		);
