@@ -137,21 +137,6 @@ abstract class ModerationEntry {
 	}
 
 	/**
-		@brief Throws ModerationError if $row is not approvable.
-	*/
-	protected function assertApprovable() {
-		$row = $this->getRow();
-
-		if ( $row->merged_revid ) {
-			throw new ModerationError( 'moderation-already-merged' );
-		}
-
-		if ( $row->rejected && $row->timestamp < SpecialModeration::getEarliestReapprovableTimestamp() ) {
-			throw new ModerationError( 'moderation-rejected-long-ago' );
-		}
-	}
-
-	/**
 		@brief Install hooks which affect postedit behavior of doEditContent().
 	*/
 	protected function installApproveHook() {
@@ -190,8 +175,16 @@ abstract class ModerationEntry {
 		@brief Approve this change.
 		@throws ModerationError
 	*/
-	final public function approve() {
-		$this->assertApprovable();
+	final public function approve( User $moderator ) {
+		$row = $this->getRow();
+
+		/* Can this change be approved? */
+		if ( $row->merged_revid ) {
+			throw new ModerationError( 'moderation-already-merged' );
+		}
+		if ( $row->rejected && $row->timestamp < SpecialModeration::getEarliestReapprovableTimestamp() ) {
+			throw new ModerationError( 'moderation-rejected-long-ago' );
+		}
 
 		# Disable moderation hook (ModerationEditHooks::onPageContentSave),
 		# so that it won't queue this edit again.
@@ -201,7 +194,42 @@ abstract class ModerationEntry {
 		$this->installApproveHook();
 
 		# Do the actual approval.
-		return $this->doApprove();
+		$status = $this->doApprove();
+		if ( !$status->isGood() ) {
+			/* Uniform handling of errors from doEditContent(), etc.:
+				throw the ModerationError exception */
+			throw new ModerationError( $status->getMessage() );
+		}
+
+		# Create post-approval log entry ("successfully approved").
+		$logEntry = new ManualLogEntry( 'moderation', $this->getApproveLogSubtype() );
+		$logEntry->setPerformer( $moderator );
+		$logEntry->setTarget( $this->getTitle() );
+		$logEntry->setParameters( $this->getApproveLogParameters() );
+		$logid = $logEntry->insert();
+		$logEntry->publish( $logid );
+
+		# Approved edits are removed from "moderation" table,
+		# because they already exist in page history, recentchanges etc.
+
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->delete( 'moderation', [ 'mod_id' => $row->id ], __METHOD__ );
+	}
+
+	/**
+		@brief Post-approval log subtype. May be overridden in subclass.
+		@returns String (e.g. "approve" for "moderation/approve" log).
+	*/
+	protected function getApproveLogSubtype() {
+		return 'approve';
+	}
+
+	/**
+		@brief Parameters for post-approval log.
+		@returns array
+	*/
+	protected function getApproveLogParameters() {
+		return [ 'revid' => ModerationApproveHook::getLastRevId() ];
 	}
 
 	/**

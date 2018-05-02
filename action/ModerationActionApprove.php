@@ -117,23 +117,6 @@ class ModerationActionApprove extends ModerationAction {
 
 	function approveEditById( $id ) {
 		$entry = ModerationEntry::newFromId( $id );
-		$status = $entry->approve();
-
-		if ( !$status->isGood() ) {
-			throw new ModerationError( $status->getMessage() );
-		}
-
-		$logEntry = new ManualLogEntry( 'moderation', 'approve' );
-		$logEntry->setPerformer( $this->moderator );
-		$logEntry->setTarget( $entry->getTitle() );
-		$logEntry->setParameters( [ 'revid' => ModerationApproveHook::getLastRevId() ] );
-		$logid = $logEntry->insert();
-		$logEntry->publish( $logid );
-
-		# Approved edits are removed from "moderation" table,
-		# because they already exist in page history, recentchanges etc.
-
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->delete( 'moderation', [ 'mod_id' => $id ], __METHOD__ );
+		$entry->approve( $this->moderator );
 	}
 }
