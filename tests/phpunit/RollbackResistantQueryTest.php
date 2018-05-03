@@ -77,6 +77,12 @@ class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 
 	protected function subtestRollbackResistantQuery( $isTrxAutomatic, $isExplicitTransaction, $isAtomic )
 	{
+		global $wgVersion;
+		if ( version_compare( $wgVersion, '1.31', '>=' ) && $isTrxAutomatic && $isExplicitTransaction ) {
+			/* In MediaWiki 1.31+, $dbw->begin() is not allowed in DBO_TRX mode */
+			return;
+		}
+
 		$t = new ModerationTestsuite();
 		$subtestName = 'testRollbackResistantQuery('
 			. ( $isTrxAutomatic ? 'DBO_TRX' : '~DBO_TRX' )

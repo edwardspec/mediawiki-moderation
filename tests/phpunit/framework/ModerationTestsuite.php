@@ -194,7 +194,6 @@ class ModerationTestsuite
 		}
 
 		$dbw = wfGetDB( DB_MASTER );
-		$dbw->begin();
 		$dbw->delete( 'moderation', [ '1' ], __METHOD__ );
 		$dbw->delete( 'moderation_block', [ '1' ], __METHOD__ );
 		$dbw->delete( 'user', [ '1' ], __METHOD__ );
@@ -231,8 +230,6 @@ class ModerationTestsuite
 			$this->createTestUser( 'User 6', [] );
 		$this->moderatorAndCheckuser =
 			$this->createTestUser( 'User 7', [ 'moderator', 'checkuser' ] );
-
-		$dbw->commit();
 
 		$this->purgeTagCache();
 	}
