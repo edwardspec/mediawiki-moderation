@@ -128,7 +128,7 @@ class SpecialModeration extends QueryPage {
 				$folderLinks[] = Xml::element( 'strong', [ 'class' => 'selflink' ], $msg );
 			} else {
 				$folderLinks[] = Linker::link(
-					$this->getTitle(),
+					$this->getPageTitle(),
 					$msg->escaped(),
 					[ 'title' => wfMessage( 'tooltip-moderation-folder-' . $f_name ) ],
 					[ 'folder' => $f_name ],

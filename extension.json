@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.2.14",
+	"version": "1.2.15",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
