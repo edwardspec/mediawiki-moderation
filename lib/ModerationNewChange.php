@@ -169,6 +169,18 @@ class ModerationNewChange {
 			'mod_preloadable' => ModerationVersionCheck::preloadableYes()
 		];
 
+		if ( ModerationVersionCheck::hasModType() ) {
+			/* This may be a non-edit change (e.g. page move) */
+			$fields['mod_type'] = $this->type;
+
+			if ( $this->newTitle ) {
+				$fields += [
+					'mod_page2_namespace' => $this->newTitle->getNamespace(),
+					'mod_page2_title' => $this->newTitle->getDBKey()
+				];
+			}
+		}
+
 		if ( $this->wikiPage ) {
 			/* Not relevant to page moves */
 			$fields += [

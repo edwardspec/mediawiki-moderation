@@ -32,6 +32,11 @@ class ModerationVersionCheck {
 		return self::wasDbUpdatedAfter( '1.1.31' );
 	}
 
+	/** @brief Returns true if the database has mod_type field, false otherwise */
+	public static function hasModType() {
+		return self::wasDbUpdatedAfter( '1.2.17' );
+	}
+
 	/** @brief Returns false if mod_preloadable is 0 or 1 (obsolete behavior),
 		true if unique for rejected edits (correct behavior) */
 	public static function hasUniqueIndex() {

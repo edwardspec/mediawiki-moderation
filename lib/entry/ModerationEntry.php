@@ -106,8 +106,17 @@ abstract class ModerationEntry {
 			'mod_rejected AS rejected',
 			'mod_stash_key AS stash_key'
 		];
+
 		if ( ModerationVersionCheck::areTagsSupported() ) {
 			$fields[] = 'mod_tags AS tags';
+		}
+
+		if ( ModerationVersionCheck::hasModType() ) {
+			$fields += [
+				'mod_type AS type',
+				'mod_page2_namespace AS page2_namespace',
+				'mod_page2_title AS page2_title'
+			];
 		}
 
 		return $fields;

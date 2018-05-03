@@ -95,13 +95,23 @@ CREATE TABLE /*_*/moderation (
 	mod_merged_revid int unsigned NOT NULL default 0, -- If not 0, moderator has already merged this, and this is the revision number of the result.
 
 	mod_text MEDIUMBLOB, -- Resulting text of proposed edit
-	mod_stash_key varchar(255) DEFAULT NULL -- If this edit is image upload, contains stash key. NULL for normal edits.
+	mod_stash_key varchar(255) DEFAULT NULL, -- If this edit is image upload, contains stash key. NULL for normal edits.
+
+	-- Type of change, e.g. "edit" or "move".
+	-- Note: uploads use mod_type=edit, because they modify the text of "File:Something" page.
+	mod_type varchar(16) binary not null default 'edit',
+
+	-- Additional page title (not applicable to mod_type=edit).
+	-- When renaming the page (mod_type=move), these fields contain new pagename.
+	mod_page2_namespace int NOT NULL default 0,
+	mod_page2_title varchar(255) binary NOT NULL default ''
+
 ) /*$wgDBTableOptions*/;
 
 --
 --	"moderation_load" index is used by loadUnmoderatedEdit().
 --
-CREATE UNIQUE INDEX /*i*/moderation_load ON /*_*/moderation (mod_preloadable, mod_namespace, mod_title, mod_preload_id);
+CREATE UNIQUE INDEX /*i*/moderation_load ON /*_*/moderation (mod_preloadable, mod_type, mod_namespace, mod_title, mod_preload_id);
 
 --
 --	"moderation_approveall" and "moderation_rejectall" are used by approveall/rejectall modactions.
