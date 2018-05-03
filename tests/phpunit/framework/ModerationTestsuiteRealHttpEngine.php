@@ -91,7 +91,7 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 		$req->setCookieJar( $this->getCookieJar() );
 		$req->setData( $postData );
 
-		if ( $method == 'POST' ) {
+		if ( $method == 'POST' && function_exists( 'curl_init' ) ) {
 			/* Can be an upload */
 			$req->setHeader( 'Content-Type', 'multipart/form-data' );
 		}
