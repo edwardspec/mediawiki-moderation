@@ -261,7 +261,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 	}
 
 	/**
-		@covers ModerationActionApprove::prepareApproveHooks()
+		@covers ModerationCanSkip::enterApproveMode()
 		@brief This test verifies that moderator can be NOT automoderated.
 
 		There is no real use for such setup other than debugging,
