@@ -101,7 +101,6 @@ class ModerationEntryEdit extends ModerationEntry {
 			[ 'mod_id' => $row->id ],
 			__METHOD__
 		);
-		$dbw->commit( __METHOD__ );
 
 		throw new ModerationError( 'moderation-edit-conflict' );
 	}
