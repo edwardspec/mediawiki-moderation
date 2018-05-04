@@ -194,6 +194,14 @@ class ModerationTestsuite
 		}
 
 		$dbw = wfGetDB( DB_MASTER );
+
+		/* Make sure the database is in a consistent state
+			(after messy tests like RollbackResistantQueryTest.php) */
+		if ( $dbw->writesOrCallbacksPending() ) {
+			$dbw->commit( __METHOD__, 'flush' );
+		}
+
+		$dbw->begin( __METHOD__ );
 		$dbw->delete( 'moderation', [ '1' ], __METHOD__ );
 		$dbw->delete( 'moderation_block', [ '1' ], __METHOD__ );
 		$dbw->delete( 'user', [ '1' ], __METHOD__ );
@@ -230,6 +238,8 @@ class ModerationTestsuite
 			$this->createTestUser( 'User 6', [] );
 		$this->moderatorAndCheckuser =
 			$this->createTestUser( 'User 7', [ 'moderator', 'checkuser' ] );
+
+		$dbw->commit( __METHOD__ );
 
 		$this->purgeTagCache();
 	}
