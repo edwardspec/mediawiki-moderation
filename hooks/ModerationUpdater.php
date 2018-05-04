@@ -23,6 +23,7 @@
 class ModerationUpdater {
 	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
 		$base = dirname( __FILE__ );
+		$dbw = $updater->getDB();
 
 		/* Main database schema */
 		$updater->addExtensionTable( 'moderation', "$base/../sql/patch-moderation.sql" );
@@ -37,7 +38,9 @@ class ModerationUpdater {
 		$updater->modifyExtensionField( 'moderation', 'mod_title', "$base/../sql/patch-fix-titledbkey.sql" );
 
 		// ... to Moderation 1.2.9
-		$updater->addExtensionUpdate( [ 'applyPatch', "$base/../sql/patch-make-preload-unique.sql", true ] );
+		if ( !$dbw->indexUnique( 'moderation', 'moderation_load' ) ) {
+			$updater->addExtensionUpdate( [ 'applyPatch', "$base/../sql/patch-make-preload-unique.sql", true ] );
+		}
 
 		// ... to Moderation 1.2.17
 		$updater->addExtensionField( 'moderation', 'mod_type', "$base/../sql/patch-moderation-mod_type.sql" );
