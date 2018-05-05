@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2017 Edward Chernenko.
+	Copyright (C) 2014-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -70,6 +70,8 @@ class ModerationActionBlock extends ModerationAction {
 
 		$nrows = $dbw->affectedRows();
 		if ( $nrows > 0 ) {
+			ModerationBlockCheck::invalidateCache( User::newFromId( $row->user ) );
+
 			$logEntry->setPerformer( $this->moderator );
 			$logEntry->setTarget( Title::makeTitle( NS_USER, $row->user_text ) );
 			$logid = $logEntry->insert();
