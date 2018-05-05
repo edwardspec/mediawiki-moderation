@@ -28,8 +28,8 @@
 				$deferred = $.Deferred();
 			}
 
-			oldGetContent.call( self ).then( function( content, userinfo ) {
-				$deferred.resolve( content, userinfo );
+			oldGetContent.call( self ).then( function() {
+				$deferred.resolve.apply( null, arguments );
 			});
 			return $deferred;
 		};
@@ -62,6 +62,17 @@
 			qPreload.mpsection = this.sectionId;
 		}
 
+		/* MediaWiki 1.31+ expects different format of return value,
+			and also information on whether this user (if blocked)
+			is allowed to edit his/her talkpage.
+		*/
+		var isMW31 = mw.config.get( 'wgVersion' ).split( '.' )[1] >= 31;
+		if ( isMW31 ) {
+			qPreload.list = 'blocks';
+			qPreload.bkusers = mw.user.getName();
+			qPreload.bkprop = 'flags';
+		}
+
 		this.api.post( qPreload ).then( function( data ) {
 			var wikitext = data.query.moderationpreload.wikitext;
 			if ( !wikitext ) {
@@ -84,7 +95,18 @@
 			self.timestamp = ""; /* Ok to leave empty */
 			self.originalContent = self.content;
 
-			$result.resolve( self.content, data.query.userinfo );
+			if ( isMW31 ) {
+				/* MediaWiki 1.31+ */
+				$result.resolve( {
+					text: self.content,
+					user: data.query.userinfo,
+					block: data.query.blocks ? data.query.blocks[0] : {}
+				} );
+			}
+			else {
+				/* Legacy format, MediaWiki 1.27-1.30 */
+				$result.resolve( self.content, data.query.userinfo );
+			}
 		} );
 
 		return $result;
