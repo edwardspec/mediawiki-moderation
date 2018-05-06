@@ -75,15 +75,56 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		@returns Array of user-agents.
 	*/
 	public function getCUCAgents( $limit ) {
+		/*
+			Tricky part is, cu_changes table is updated in RecentChange::save()
+			via DeferredUpdates, and our testsuite could have received
+			the HTTP response before this happened.
+			At which point cu_changes wouldn't contain the last edit.
+
+			Therefore we have to poll, waiting for new cu_changes row to appear.
+		*/
+		$pollTimeLimitSeconds = 5; /* Polling will fail after these many seconds */
+		$pollRetryPeriodSeconds = 0.2; /* How often to check cu_changes */
+
+		/*
+			Luckily we know rev_id of these new edits, because
+			update of "revision" table is NOT deferred.
+		*/
 		$dbw = wfGetDB( DB_MASTER );
-		return $dbw->selectFieldValues( 'cu_changes', 'cuc_agent',
+		$revisionIds = $dbw->selectFieldValues(
+			'revision', 'rev_id',
 			'1',
 			__METHOD__,
 			[
-				'ORDER BY' => 'cuc_id DESC',
+				'ORDER BY' => 'rev_id DESC',
 				'LIMIT' => $limit
 			]
 		);
+
+		/* Wait for all $revisionIds to appear in cu_changes table */
+		$maxTime = time() + $pollTimeLimitSeconds;
+		do {
+			$agents = $dbw->selectFieldValues(
+				'cu_changes', 'cuc_agent',
+				[
+					'cuc_this_oldid' => $revisionIds
+				],
+				__METHOD__,
+				[
+					'ORDER BY' => 'cuc_id DESC',
+					'LIMIT' => $limit
+				]
+			);
+			if ( count( $agents ) >= $limit ) {
+				/* All rows have appeared in cu_changes table */
+				return $agents;
+			}
+
+			/* Continue polling */
+			usleep( $pollRetryPeriodSeconds * 1000 * 1000 );
+		} while( time() < $maxTime );
+
+		throw MWException( "getCUCAgents(): new $limit entries haven't appeared in $pollTimeLimitSeconds seconds." );
 	}
 
 	/**
