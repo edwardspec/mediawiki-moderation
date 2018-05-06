@@ -61,73 +61,6 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Convenience function: get cuc_agent of the last entry in "cu_changes" table.
-		@returns User-agent (string).
-	*/
-	public function getCUCAgent() {
-		$agents = self::getCUCAgents( 1 );
-		return array_pop( $agents );
-	}
-
-	/**
-		@brief Convenience function: get cuc_agent of the last entries in "cu_changes" table.
-		@param $limit How many entries to select.
-		@returns Array of user-agents.
-	*/
-	public function getCUCAgents( $limit ) {
-		/*
-			Tricky part is, cu_changes table is updated in RecentChange::save()
-			via DeferredUpdates, and our testsuite could have received
-			the HTTP response before this happened.
-			At which point cu_changes wouldn't contain the last edit.
-
-			Therefore we have to poll, waiting for new cu_changes row to appear.
-		*/
-		$pollTimeLimitSeconds = 5; /* Polling will fail after these many seconds */
-		$pollRetryPeriodSeconds = 0.2; /* How often to check cu_changes */
-
-		/*
-			Luckily we know rev_id of these new edits, because
-			update of "revision" table is NOT deferred.
-		*/
-		$dbw = wfGetDB( DB_MASTER );
-		$revisionIds = $dbw->selectFieldValues(
-			'revision', 'rev_id',
-			'1',
-			__METHOD__,
-			[
-				'ORDER BY' => 'rev_id DESC',
-				'LIMIT' => $limit
-			]
-		);
-
-		/* Wait for all $revisionIds to appear in cu_changes table */
-		$maxTime = time() + $pollTimeLimitSeconds;
-		do {
-			$agents = $dbw->selectFieldValues(
-				'cu_changes', 'cuc_agent',
-				[
-					'cuc_this_oldid' => $revisionIds
-				],
-				__METHOD__,
-				[
-					'ORDER BY' => 'cuc_id DESC',
-					'LIMIT' => $limit
-				]
-			);
-			if ( count( $agents ) >= $limit ) {
-				/* All rows have appeared in cu_changes table */
-				return $agents;
-			}
-
-			/* Continue polling */
-			usleep( $pollRetryPeriodSeconds * 1000 * 1000 );
-		} while( time() < $maxTime );
-
-		throw MWException( "getCUCAgents(): new $limit entries haven't appeared in $pollTimeLimitSeconds seconds." );
-	}
-
-	/**
 		@brief Ensure that modaction=approve preserves user-agent of edits.
 	*/
 	public function testApproveEditPrevervesUA() {
@@ -144,7 +77,7 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		$t->setUserAgent( $this->moderatorUA );
 		$t->httpGet( $entry->approveLink );
 
-		$agent = $this->getCUCAgent();
+		$agent = $t->getCUCAgent();
 		$this->assertNotEquals( $this->moderatorUA, $agent,
 			"testApproveEditPrevervesUA(): UserAgent in checkuser tables matches moderator's UserAgent" );
 		$this->assertEquals( $this->userUA, $agent,
@@ -176,7 +109,7 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		$t->setUserAgent( $this->moderatorUA );
 		$t->httpGet( $entry->approveAllLink ); # Try modaction=approveall
 
-		$agents = $this->getCUCAgents( $NUMBER_OF_UPLOADS );
+		$agents = $t->getCUCAgents( $NUMBER_OF_UPLOADS );
 		$i = $NUMBER_OF_UPLOADS; /* Counting backwards, because getCUCAgents() selects in newest-to-latest order */
 		foreach ( $agents as $agent ) {
 			$this->assertNotEquals( $this->moderatorUA, $agent,

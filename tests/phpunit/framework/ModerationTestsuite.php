@@ -635,6 +635,86 @@ class ModerationTestsuite
 		$bad_url = preg_replace( '/(token=)([^&]*)/', '\1WRONG\2', $url );
 		return $this->html->getTitle( $bad_url );
 	}
+
+	/**
+		@brief Wait for "recentchanges" table to be updated by DeferredUpdates.
+		@param $numberOfEdits How many recent revisions must be in RecentChanges.
+		@returns Array of revision IDs.
+
+		This function is needed before testing cu_changes or tags:
+		they are updated in RecentChange_save hook,
+		so they might not yet exist when we return from doTestEdit().
+	*/
+	public function waitForRecentChangesToAppear( $numberOfEdits ) {
+		$pollTimeLimitSeconds = 5; /* Polling will fail after these many seconds */
+		$pollRetryPeriodSeconds = 0.2; /* How often to check cu_changes */
+
+		/*
+			Determine rev_id of the last $numberOfEdits.
+			Luckily the update of "revision" table is NOT deferred.
+		*/
+		$dbw = wfGetDB( DB_MASTER );
+		$revisionIds = $dbw->selectFieldValues(
+			'revision', 'rev_id',
+			'1',
+			__METHOD__,
+			[
+				'ORDER BY' => 'rev_id DESC',
+				'LIMIT' => $numberOfEdits
+			]
+		);
+
+		/* Wait for all $revisionIds to appear in cu_changes table */
+		$maxTime = time() + $pollTimeLimitSeconds;
+		do {
+			$rcRowsFound = $dbw->selectRowCount(
+				'recentchanges', '1',
+				[
+					'rc_this_oldid' => $revisionIds
+				],
+				__METHOD__
+			);
+			if ( $rcRowsFound >= $numberOfEdits ) {
+				return $revisionIds; /* Success */
+			}
+
+			/* Continue polling */
+			usleep( $pollRetryPeriodSeconds * 1000 * 1000 );
+		} while( time() < $maxTime );
+
+		throw MWException( "waitForRecentChangesToAppear(): new $numberOfEdits entries haven't appeared in $pollTimeLimitSeconds seconds." );
+	}
+
+	/**
+		@brief Get cuc_agent of the last entry in "cu_changes" table.
+		@returns User-agent (string).
+	*/
+	public function getCUCAgent() {
+		$agents = $this->getCUCAgents( 1 );
+		return array_pop( $agents );
+	}
+
+	/**
+		@brief Get cuc_agent of the last entries in "cu_changes" table.
+		@param $limit How many entries to select.
+		@returns Array of user-agents.
+	*/
+	public function getCUCAgents( $limit ) {
+		$revisionIds = $this->waitForRecentChangesToAppear( $limit );
+
+		$dbw = wfGetDB( DB_MASTER );
+		return $dbw->selectFieldValues(
+			'cu_changes', 'cuc_agent',
+			[
+				'cuc_this_oldid' => $revisionIds
+			],
+			__METHOD__,
+			[
+				'ORDER BY' => 'cuc_id DESC',
+				'LIMIT' => $limit
+			]
+		);
+	}
 }
 
 

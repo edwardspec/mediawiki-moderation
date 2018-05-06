@@ -82,11 +82,13 @@ class ModerationTestAbuseFilter extends MediaWikiTestCase
 		$entry = $t->new_entries[0];
 		$t->httpGet( $entry->approveLink );
 
+		$t->waitForRecentChangesToAppear( 1 );
+
 		$ret = $t->query( [
 			'action' => 'query',
 			'list' => 'recentchanges',
 			'rclimit' => 1,
-			'rcprop' => 'tags|user|title|ids'
+			'rcprop' => 'tags|user|title'
 		] );
 		$rc = $ret['query']['recentchanges'][0];
 
