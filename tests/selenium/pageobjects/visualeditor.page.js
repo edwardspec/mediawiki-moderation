@@ -55,7 +55,7 @@ class VisualEditor extends Page {
 
 	/** @brief "Save page" button in "Describe what you changed" dialog */
 	get confirmButton() {
-		return this.getWhenVisible( '.oo-ui-processDialog-navigation a[accesskey="s"]' );
+		return this.getWhenVisible( '//*[@class="oo-ui-processDialog-navigation"]//a[contains(.,"Save")]' );
 	}
 
 	/** @brief "Summary" field in "Describe what you changed" dialog */
