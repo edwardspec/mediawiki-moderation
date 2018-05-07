@@ -46,7 +46,7 @@ class ModerationTestsuiteApiMain extends ApiMain {
 				$this->getModule(),
 				$this->extractRequestParams()
 			);
-			$this->printResult();
+			$this->printResult( false );
 		}
 
 		$capturedContent = ob_get_clean();
