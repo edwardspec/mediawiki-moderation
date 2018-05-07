@@ -98,16 +98,10 @@ class ModerationTestErrors extends MediaWikiTestCase
 		$t->fetchSpecial();
 
 		$entry = $t->new_entries[0];
-
-		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( 'moderation',
-			[ 'mod_stash_key AS stash_key' ],
-			[ 'mod_id' => $entry->id ],
-			__METHOD__
-		);
+		$stashKey = $entry->getDbField( 'mod_stash_key' );
 
 		$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash();
-		$stash->removeFileNoAuth( $row->stash_key );
+		$stash->removeFileNoAuth( $stashKey );
 
 		$error = $t->html->getModerationError( $entry->approveLink );
 		$this->assertEquals( '(moderation-missing-stashed-image)', $error );

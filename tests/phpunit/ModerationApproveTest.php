@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2017 Edward Chernenko.
+	Copyright (C) 2015-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -209,9 +209,8 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$t->doTestEdit();
 		$t->fetchSpecial();
 
-		$id = $t->new_entries[0]->id;
-
-		$t->httpGet( $t->new_entries[0]->rejectLink );
+		$entry = $t->new_entries[0];
+		$t->httpGet( $entry->rejectLink );
 
 		/* Modify mod_timestamp to make this edit 1 hour older than
 			allowed by $wgModerationTimeToOverrideRejection. */
@@ -220,12 +219,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$ts->timestamp->modify( '-' . intval( $wgModerationTimeToOverrideRejection ) . ' seconds' );
 		$ts->timestamp->modify( '-1 hour' ); /* Should NOT be approvable */
 
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->update( 'moderation',
-			[ 'mod_timestamp' => $ts->getTimestamp( TS_MW ) ],
-			[ 'mod_id' => $id ],
-			__METHOD__
-		);
+		$entry->updateDbRow( [ 'mod_timestamp' => $ts->getTimestamp( TS_MW ) ] );
 
 		$t->fetchSpecial( 'rejected' );
 
@@ -242,13 +236,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 			than $wgModerationTimeToOverrideRejection ago */
 
 		$ts->timestamp->modify( '+2 hour' ); /* Should be approvable */
-
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->update( 'moderation',
-			[ 'mod_timestamp' => $ts->getTimestamp( TS_MW ) ],
-			[ 'mod_id' => $id ],
-			__METHOD__
-		);
+		$entry->updateDbRow( [ 'mod_timestamp' => $ts->getTimestamp( TS_MW ) ] );
 
 		$t->assumeFolderIsEmpty( 'rejected' );
 		$t->fetchSpecial( 'rejected' );
@@ -324,12 +312,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$ts = new MWTimestamp( time() );
 		$ts->timestamp->modify( '-' . $TEST_TIME_CHANGE );
 
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->update( 'moderation',
-			[ 'mod_timestamp' => $ts->getTimestamp( TS_MW ) ],
-			[ 'mod_id' => $entry->id ],
-			__METHOD__
-		);
+		$entry->updateDbRow( [ 'mod_timestamp' => $ts->getTimestamp( TS_MW ) ] );
 		$rev = $this->tryToApprove( $t, $entry, __FUNCTION__ );
 
 		# Page history should mention the time when edit was made,

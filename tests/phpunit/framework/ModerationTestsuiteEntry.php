@@ -49,7 +49,7 @@ class ModerationTestsuiteEntry
 
 	public $conflict = false;
 
-	function __construct( DomElement $span )
+	public function __construct( DomElement $span )
 	{
 		if ( strpos( $span->getAttribute( 'class' ), 'modconflict' ) !== false ) {
 			$this->conflict = true;
@@ -149,7 +149,7 @@ class ModerationTestsuiteEntry
 		$this->id = $matches[1];
 	}
 
-	static public function findById( $array, $id )
+	public static function findById( $array, $id )
 	{
 		foreach ( $array as $e )
 		{
@@ -159,7 +159,7 @@ class ModerationTestsuiteEntry
 		return null;
 	}
 
-	static public function findByUser( $array, $user )
+	public static function findByUser( $array, $user )
 	{
 		if ( get_class( $user ) == 'User' )
 			$user = $user->getName();
@@ -220,5 +220,38 @@ class ModerationTestsuiteEntry
 
 		return preg_replace( '/modaction=(block|unblock|show)/', 'modaction=' . $action, $sample );
 	}
-}
 
+	/**
+		@brief Fetches this entry from the database and returns $field.
+		@param $field Field name, e.g. "mod_len_new".
+	*/
+	public function getDbField( $field ) {
+		$dbw = wfGetDB( DB_MASTER );
+		return $dbw->selectField(
+			'moderation',
+			$field,
+			[ 'mod_id' => $this->id ],
+			__METHOD__
+		);
+	}
+
+	/**
+		@brief Returns mod_text of this entry (loaded from the database).
+	*/
+	public function getDbText() {
+		return $this->getDbField( 'mod_text' );
+	}
+
+	/**
+		@brief Modified this entry in the database.
+		@param $updates List of updates, as expected by $dbw->update().
+	*/
+	public function updateDbRow( array $updates ) {
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->update( 'moderation',
+			$updates,
+			[ 'mod_id' => $this->id ],
+			__METHOD__
+		);
+	}
+}

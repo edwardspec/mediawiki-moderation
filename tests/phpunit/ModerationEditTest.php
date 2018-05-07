@@ -35,13 +35,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$t->doTestEdit( null, $text );
 		$t->fetchSpecial();
 
-		$dbw = wfGetDB( DB_MASTER );
-		$dbText = $dbw->selectField( 'moderation', 'mod_text',
-			[ 'mod_id' => $t->new_entries[0]->id ],
-			__METHOD__
-		);
-
-		$this->assertNotEquals( $text, $dbText,
+		$this->assertNotEquals( $text, $t->new_entries[0]->getDbText(),
 			"testPreSaveTransform(): Signature (~~~~) hasn't been properly substituted." );
 	}
 
@@ -83,15 +77,9 @@ class ModerationTestEdit extends MediaWikiTestCase
 
 		$t->fetchSpecial();
 
-		$dbw = wfGetDB( DB_MASTER );
-		$dbText = $dbw->selectField( 'moderation', 'mod_text',
-			[ 'mod_id' => $t->new_entries[0]->id ],
-			__METHOD__
-		);
-
 		$expectedText = join( '', $sections );
 
-		$this->assertEquals( $expectedText, $dbText,
+		$this->assertEquals( $expectedText, $t->new_entries[0]->getDbText(),
 			"testEditSections(): Resulting text doesn't match expected" );
 
 		# Does PreSaveTransform work when editing sections?
@@ -99,13 +87,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit( $title, "== New section 2 ==\n~~~\n\n", null, 2 );
 
-		$dbw = wfGetDB( DB_MASTER );
-		$dbText = $dbw->selectField( 'moderation', 'mod_text',
-			[ 'mod_id' => $t->new_entries[0]->id ],
-			__METHOD__
-		);
-
-		$this->assertNotRegExp( '/~~~/', $dbText,
+		$this->assertNotRegExp( '/~~~/', $t->new_entries[0]->getDbText(),
 			"testEditSections(): Signature (~~~~) hasn't been properly substituted." );
 
 		# Will editing the section work if section header was deleted?
@@ -113,13 +95,8 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$sections[2] = "When editing this section, the user removed <nowiki>== This ==</nowiki>\n\n";
 		$t->doTestEdit( $title, $sections[2], null, 2 );
 
-		$dbw = wfGetDB( DB_MASTER );
-		$dbText = $dbw->selectField( 'moderation', 'mod_text',
-			[ 'mod_id' => $t->new_entries[0]->id ],
-			__METHOD__
-		);
 		$expectedText = join( '', $sections );
-		$this->assertEquals( $expectedText, $dbText,
+		$this->assertEquals( $expectedText, $t->new_entries[0]->getDbText(),
 			"testEditSections(): When section header is deleted, resulting text doesn't match expected " );
 	}
 
@@ -147,11 +124,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 
 		$t->fetchSpecial();
 
-		$dbw = wfGetDB( DB_MASTER );
-		$newlen = $dbw->selectField( 'moderation', 'mod_new_len',
-			[ 'mod_id' => $t->new_entries[0]->id ],
-			__METHOD__
-		);
+		$newlen = $t->new_entries[0]->getDbField( 'mod_new_len' );
 
 		$this->assertNotEquals( strlen( $sections[0] ), $newlen,
 			"testNewSize(): Incorrect length: matches the length of the edited section" );
@@ -200,13 +173,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 
 		$t->fetchSpecial();
 
-		$dbw = wfGetDB( DB_MASTER );
-		$dbText = $dbw->selectField( 'moderation', 'mod_text',
-			[ 'mod_id' => $t->new_entries[0]->id ],
-			__METHOD__
-		);
-
-		$this->assertEquals( $expectedText, $dbText,
+		$this->assertEquals( $expectedText, $t->new_entries[0]->getDbText(),
 			"testApiEditAppend(): Resulting text doesn't match expected" );
 	}
 

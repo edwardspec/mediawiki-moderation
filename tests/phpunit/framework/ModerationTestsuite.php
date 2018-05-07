@@ -647,7 +647,7 @@ class ModerationTestsuite
 	*/
 	public function waitForRecentChangesToAppear( $numberOfEdits ) {
 		$pollTimeLimitSeconds = 5; /* Polling will fail after these many seconds */
-		$pollRetryPeriodSeconds = 0.2; /* How often to check cu_changes */
+		$pollRetryPeriodSeconds = 0.2; /* How often to check recentchanges */
 
 		/*
 			Determine rev_id of the last $numberOfEdits.
@@ -664,7 +664,7 @@ class ModerationTestsuite
 			]
 		);
 
-		/* Wait for all $revisionIds to appear in cu_changes table */
+		/* Wait for all $revisionIds to appear in recentchanges table */
 		$maxTime = time() + $pollTimeLimitSeconds;
 		do {
 			$rcRowsFound = $dbw->selectRowCount(

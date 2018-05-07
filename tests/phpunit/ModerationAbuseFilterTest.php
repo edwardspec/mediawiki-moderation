@@ -75,6 +75,7 @@ class ModerationTestAbuseFilter extends MediaWikiTestCase
 		$t->fetchSpecial();
 
 		/* Disable the filter (so that it would no longer add tags to newly made edits). */
+		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'abuse_filter', [ 'af_enabled' => 0 ], [ 'af_id' => $filterId ], __METHOD__ );
 		$t->purgeTagCache();
 
