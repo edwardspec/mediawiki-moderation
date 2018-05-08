@@ -46,14 +46,7 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 		@note If $apiQuery contains 'token' => 'null', then 'token'
 			will be set to the current value of $editToken.
 	*/
-	public function query( array $apiQuery ) {
-		$apiQuery['format'] = 'json';
-
-		if ( array_key_exists( 'token', $apiQuery )
-			&& is_null( $apiQuery['token'] ) ) {
-				$apiQuery['token'] = $this->getEditToken();
-		}
-
+	protected function doQuery( array $apiQuery ) {
 		$req = $this->httpPost( $this->apiUrl, $apiQuery );
 		return FormatJson::decode( $req->getContent(), true );
 	}
