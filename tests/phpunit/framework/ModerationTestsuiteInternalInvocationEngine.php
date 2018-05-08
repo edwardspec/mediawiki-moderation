@@ -167,14 +167,30 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 	}
 
 	/**
+		@brief Reset all objects that can't be shared by forked processes.
+		@see ForkController::prepareEnvironment()
+	*/
+	protected function prepareEnvironment() {
+		wfGetLB()->closeAll();
+		FileBackendGroup::destroySingleton();
+		LockManagerGroup::destroySingletons();
+		JobQueueGroup::destroySingletons();
+		ObjectCache::clear();
+		RedisConnectionPool::destroySingletons();
+
+		global $wgMemc;
+		$wgMemc = null;
+	}
+
+	/**
 		@brief Fork PHP and run $function in the child process.
 		@returns Value returned by $function.
 
 		Note: this method will only return in parent process.
 	*/
 	public function forkAndRun( IContextSource $context, callable $function ) {
-		/* Make child process reopen the SQL connection */
-		wfGetLB()->closeAll();
+		/* Make child process reopen the SQL connection, etc. */
+		$this->prepareEnvironment();
 
 		/* Create a temporary file.
 			Child will write the result into it. */
