@@ -38,7 +38,7 @@ class ModerationUpdater {
 		$updater->modifyExtensionField( 'moderation', 'mod_title', "$base/../sql/patch-fix-titledbkey.sql" );
 
 		// ... to Moderation 1.2.9
-		if ( !$dbw->indexUnique( 'moderation', 'moderation_load' ) ) {
+		if ( $dbw->tableExists( 'moderation' ) && !$dbw->indexUnique( 'moderation', 'moderation_load' ) ) {
 			$updater->addExtensionUpdate( [ 'applyPatch', "$base/../sql/patch-make-preload-unique.sql", true ] );
 		}
 
