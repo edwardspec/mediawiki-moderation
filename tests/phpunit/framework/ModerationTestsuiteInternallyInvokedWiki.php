@@ -40,7 +40,12 @@ class ModerationTestsuiteInternallyInvokedWiki {
 		$this->files = [];
 		foreach ( $data as $key => $val ) {
 			if ( $val instanceof CURLFile ) {
-				$this->files[$key] = $val->getFilename();
+				/* Create a temporary copy of this file,
+					so that the original file won't be deleted after the upload */
+				$tmpFilename = tempnam( sys_get_temp_dir(), 'testsuite.upload' );
+				copy( $val->getFilename(), $tmpFilename );
+
+				$this->files[$key] = $tmpFilename;
 				unset( $data[$key] ); // CURLFile is not serializable
 			}
 		}
