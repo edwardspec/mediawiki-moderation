@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017 Edward Chernenko.
+	Copyright (C) 2017-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -36,8 +36,6 @@ class ModerationTestsuiteApiMain extends ApiMain {
 	}
 
 	protected function doInternalInvocation() {
-		ob_start();
-
 		$this->executeActionWithErrorHandling(); /* Run the API. Automatically prints errors */
 
 		if ( !$this->getResult()->getResultData( 'error' ) ) {
@@ -48,8 +46,5 @@ class ModerationTestsuiteApiMain extends ApiMain {
 			);
 			$this->printResult( false );
 		}
-
-		$capturedContent = ob_get_clean();
-		return FormatJson::decode( $capturedContent, true );
 	}
 }

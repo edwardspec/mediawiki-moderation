@@ -28,6 +28,7 @@ require_once( __DIR__ . '/ModerationTestsuiteHTML.php' );
 require_once( __DIR__ . '/ModerationTestsuiteRealHttpEngine.php' );
 require_once( __DIR__ . '/ModerationTestsuiteResponse.php' );
 require_once( __DIR__ . '/ModerationTestsuiteInternalInvocationEngine.php' );
+require_once( __DIR__ . '/ModerationTestsuiteInternallyInvokedWiki.php' );
 
 class ModerationTestsuite
 {
@@ -57,9 +58,6 @@ class ModerationTestsuite
 	}
 	public function setUserAgent( $ua ) {
 		$this->engine->setUserAgent( $ua );
-	}
-	public function deleteAllCookies() {
-		$this->engine->deleteAllCookies();
 	}
 	public function getEditToken() {
 		return $this->engine->getEditToken();

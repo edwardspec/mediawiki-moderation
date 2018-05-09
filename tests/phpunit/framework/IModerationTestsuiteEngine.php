@@ -26,8 +26,6 @@ interface IModerationTestsuiteEngine {
 	public function query( array $apiQuery );
 	public function executeHttpRequest( $url, $method = 'GET', array $postData = [] );
 
-	public function deleteAllCookies();
-
 	public function ignoreHttpError( $code );
 	public function stopIgnoringHttpError( $code );
 

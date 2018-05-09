@@ -72,10 +72,6 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 		return false;
 	}
 
-	public function deleteAllCookies() {
-		$this->cookieJar = null;
-	}
-
 	public function executeHttpRequest( $url, $method = 'GET', array $postData = [] ) {
 		$req = MWHttpRequest::factory( $url, [
 			'method' => $method
@@ -101,10 +97,9 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 	}
 
 	public function logout() {
-		$this->deleteAllCookies();
+		$this->cookieJar = null;
 		$this->getEditToken( true );
 	}
-
 
 	public function getEditToken( $updateCache = false ) {
 		if ( $updateCache || !$this->editToken ) {
