@@ -97,7 +97,7 @@ class ModerationTestsuiteInternallyInvokedWiki {
 		}
 
 		/* Prepare Request */
-		$request = new FauxRequest( $this->data, $this->isPosted, $session );
+		$request = new FauxRequest( $this->data, $this->isPosted );
 		$request->setRequestURL( $url );
 
 		$request->setCookies(
@@ -217,7 +217,9 @@ class ModerationTestsuiteInternallyInvokedWiki {
 			$inputFilename,
 			$outputFilename
 		);
-		$unexpectedOutput = wfShellExecWithStderr( $cmd );
+
+		$retval = false;
+		$unexpectedOutput = wfShellExecWithStderr( $cmd, $retval, [], [ 'memory' => -1 ] );
 
 		if ( $unexpectedOutput ) {
 			/* Allow PHPUnit to complain about this */
