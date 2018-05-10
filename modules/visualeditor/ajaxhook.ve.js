@@ -60,6 +60,11 @@
 			}
 		} );
 
+		/* Clear autosave storage of VisualEditor */
+		if ( mw.storage ) {
+			mw.storage.session.remove( 've-docstate' );
+		}
+
 		return ret;
 	};
 
