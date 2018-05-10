@@ -23,7 +23,7 @@
 		var oldFunc = mw.libs.ve.targetLoader[funcName];
 
 		/* Override requestParsoidData() method */
-		mw.libs.ve.targetLoader[funcName] = function ( pageName, oldid, targetName, modified ) {
+		mw.libs.ve.targetLoader[funcName] = function ( pageName, options ) {
 
 			/*
 				useDefault() - call the original (unmodified) method from mw.libs.ve.
@@ -38,10 +38,25 @@
 				return oldFunc.apply( self, params );
 			}
 
+			if ( !( options instanceof Object ) ) {
+				/* Legacy syntax in MediaWiki 1.27-1.30: params[] were
+					pageName, oldid, targetName and modified.
+				*/
+				options = {
+					oldid: params[1],
+					targetName: params[2],
+					modified: params[3]
+				};
+			}
+
 			/* If user is editing some older revision,
 				then preloading is not needed here */
-			if ( oldid !== undefined && oldid != mw.config.get('wgCurRevisionId' ) ) {
+			if ( options.oldId !== undefined && options.oldId != mw.config.get('wgCurRevisionId' ) ) {
 				return useDefault( "user is editing an older revision" );
+			}
+
+			if ( options.wikitext !== undefined ) {
+				return useDefault( "requestParsoidData() is parsing custom wikitext, not the current revision" );
 			}
 
 			/* We need to get the following information:
