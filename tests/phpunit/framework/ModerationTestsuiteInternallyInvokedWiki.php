@@ -152,13 +152,14 @@ class ModerationTestsuiteInternallyInvokedWiki {
 		$out->setContext( $context );
 
 		/* Set cookies. CSRF token check in API assumes that $request has them. */
-		$user->setCookies( $request );
+		$user->setCookies( $request, null, true );
 
 		/* Set legacy global variables */
-		global $wgUser, $wgRequest, $wgOut;
+		global $wgUser, $wgRequest, $wgOut, $wgTitle;
 		$wgUser = $user;
 		$wgRequest = $request;
 		$wgOut = $out;
+		$wgTitle = $title;
 
 		return $context;
 	}
