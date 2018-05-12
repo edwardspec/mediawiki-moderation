@@ -94,15 +94,12 @@ class ModerationEditHooks {
 			->queue();
 		ModerationEditHooks::$LastInsertId = $fields['mod_id'];
 
-		if ( !is_null( self::$watchthis ) && $user->isLoggedIn() ) {
+		if ( !is_null( self::$watchthis ) ) {
 			/* Watch/Unwatch the page immediately:
 				watchlist is the user's own business,
 				no reason to wait for approval of the edit */
 			$watch = (bool) self::$watchthis;
-
-			if ( $watch != $user->isWatched( $title, false ) ) {
-				WatchAction::doWatchOrUnwatch( $watch, $title, $user );
-			}
+			WatchAction::doWatchOrUnwatch( $watch, $title, $user );
 		}
 
 		// Run hook to allow other extensions be notified about pending changes
