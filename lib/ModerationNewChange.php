@@ -278,6 +278,7 @@ class ModerationNewChange {
 			$fields,
 			[
 				'mod_preloadable',
+				'mod_type',
 				'mod_namespace',
 				'mod_title',
 				'mod_preload_id'

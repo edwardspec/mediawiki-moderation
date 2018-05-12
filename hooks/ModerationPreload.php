@@ -174,6 +174,7 @@ class ModerationPreload {
 
 		$where = [
 			'mod_preloadable' => ModerationVersionCheck::preloadableYes(),
+			'mod_type' => ModerationNewChange::MOD_TYPE_EDIT,
 			'mod_namespace' => $title->getNamespace(),
 			'mod_title' => ModerationVersionCheck::getModTitleFor( $title ),
 			'mod_preload_id' => $id

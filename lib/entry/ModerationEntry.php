@@ -82,6 +82,20 @@ abstract class ModerationEntry {
 	}
 
 	/**
+		@brief Returns Title of the second affected page (if any).
+		E.g. new name of the article when renaming it.
+		@retval null Not applicable (e.g. mod_type=edit).
+	*/
+	public function getPage2Title() {
+		$row = $this->getRow();
+		if ( !$row->page2_title ) {
+			return null;
+		}
+
+		return Title::makeTitle( $row->page2_namespace, $row->page2_title );
+	}
+
+	/**
 		@brief Get the list of fields needed for selecting $row, as expected by newFromRow().
 		@returns array ($fields parameter for $db->select()).
 	*/
@@ -112,11 +126,11 @@ abstract class ModerationEntry {
 		}
 
 		if ( ModerationVersionCheck::hasModType() ) {
-			$fields += [
+			$fields = array_merge( $fields, [
 				'mod_type AS type',
 				'mod_page2_namespace AS page2_namespace',
 				'mod_page2_title AS page2_title'
-			];
+			] );
 		}
 
 		return $fields;
@@ -145,6 +159,10 @@ abstract class ModerationEntry {
 		@throws ModerationError
 	*/
 	public static function newFromRow( $row ) {
+		if ( $row->type == ModerationNewChange::MOD_TYPE_MOVE ) {
+			return new ModerationEntryMove( $row );
+		}
+
 		if ( $row->stash_key ) {
 			return new ModerationEntryUpload( $row );
 		}
@@ -210,7 +228,7 @@ abstract class ModerationEntry {
 		$this->installApproveHook();
 
 		# Do the actual approval.
-		$status = $this->doApprove();
+		$status = $this->doApprove( $moderator );
 		if ( !$status->isGood() ) {
 			/* Uniform handling of errors from doEditContent(), etc.:
 				throw the ModerationError exception */
@@ -253,5 +271,5 @@ abstract class ModerationEntry {
 		@returns Status object.
 		@throws ModerationError
 	*/
-	abstract public function doApprove();
+	abstract public function doApprove( User $moderator );
 }

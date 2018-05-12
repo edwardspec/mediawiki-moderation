@@ -26,7 +26,7 @@ class ModerationEntryUpload extends ModerationEntry {
 		@returns Status object.
 		@throws ModerationError
 	*/
-	public function doApprove() {
+	public function doApprove( User $moderator ) {
 		$row = $this->getRow();
 		$user = $this->getUser();
 

@@ -24,9 +24,8 @@ class ModerationEntryEdit extends ModerationEntry {
 	/**
 		@brief Approve this upload.
 		@returns Status object.
-		@throws ModerationError
 	*/
-	public function doApprove() {
+	public function doApprove( User $moderator ) {
 		$row = $this->getRow();
 
 		$user = $this->getUser();
