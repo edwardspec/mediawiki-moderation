@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.2.25",
+	"version": "1.2.26",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -71,6 +71,7 @@
 		"ModerationEditHooks": "hooks/ModerationEditHooks.php",
 		"ModerationEntry": "lib/entry/ModerationEntry.php",
 		"ModerationEntryEdit": "lib/entry/ModerationEntryEdit.php",
+		"ModerationEntryMove": "lib/entry/ModerationEntryMove.php",
 		"ModerationEntryUpload": "lib/entry/ModerationEntryUpload.php",
 		"ModerationError": "util/ModerationError.php",
 		"ModerationNotifyModerator": "hooks/ModerationNotifyModerator.php",

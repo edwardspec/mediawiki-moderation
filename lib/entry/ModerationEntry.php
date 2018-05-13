@@ -159,6 +159,10 @@ abstract class ModerationEntry {
 		@throws ModerationError
 	*/
 	public static function newFromRow( $row ) {
+		if ( !isset( $row->type ) ) { // !ModerationVersionCheck::hasModType()
+			$row->type = ModerationNewChange::MOD_TYPE_EDIT;
+		}
+
 		if ( $row->type == ModerationNewChange::MOD_TYPE_MOVE ) {
 			return new ModerationEntryMove( $row );
 		}
