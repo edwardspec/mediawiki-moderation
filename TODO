@@ -23,11 +23,17 @@ Low-prio:
 	because PHP session is not properly preserved before/after pcntl_fork().
 * (feature) Special page to list users blocked via "Mark as spammer".
 * (feature) modaction=promote for quickly assigning "automoderated" flag.
+* (testsuite) Investigate some tests being flaky under PHP-FPM (but not mod_php).
+* (performance) Optimize modaction=approveall by merging the UPDATE queries
+	in ApproveHook::onRecentChange_save().
 
 Background-prio (may not be needed):
 * (meta) Display notification "Please run update.php" on Special:Moderation if
 some new feature (that requires DB update) is disabled because it wasn't done.
 * (feature) Show "rejected edits" link to moderators on Special:Contributions.
+* (feature) Should ApproveHook update timestamp of upload/move logs?
+* (feature) Show "you have N pending edits" link to non-automoderated users,
+so that they would know to which pages to return to continue editing?
 
 Tests needed:
 * API: api.php?action=moderation

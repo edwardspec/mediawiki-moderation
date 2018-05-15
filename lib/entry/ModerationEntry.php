@@ -183,7 +183,7 @@ abstract class ModerationEntry {
 
 		$dbr = wfGetDB( DB_SLAVE ); /* Only for $dbr->timestamp(), won't do any SQL queries */
 
-		ModerationApproveHook::install( $this->getTitle(), $user, [
+		ModerationApproveHook::install( $this->getTitle(), $user, $row->type, [
 			# For CheckUser extension to work properly, IP, XFF and UA
 			# should be set to the correct values for the original user
 			# (not from the moderator)
