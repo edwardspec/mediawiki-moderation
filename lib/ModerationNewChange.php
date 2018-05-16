@@ -151,8 +151,10 @@ class ModerationNewChange {
 	*/
 	protected function getFields() {
 		$request = $this->user->getRequest();
+		$dbr = wfGetDB( DB_SLAVE ); /* Only for $dbr->timestamp(), won't do any SQL queries */
+
 		$fields = [
-			'mod_timestamp' => wfTimestampNow(),
+			'mod_timestamp' => $dbr->timestamp(),
 			'mod_user' => $this->user->getId(),
 			'mod_user_text' => $this->user->getName(),
 			'mod_namespace' => $this->title->getNamespace(),

@@ -6,6 +6,7 @@ High-prio:
 Medium-prio:
 * (feature) Intercept renaming of pages.
 * (testsuite) Provide ~100% automated test coverage of all functionality.
+* (compat) Support PostgreSQL.
 
 Low-prio:
 * (feature) Provide flexible handling of zero edits, for example suppress if
