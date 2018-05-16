@@ -40,33 +40,23 @@ abstract class ModerationEntry {
 	protected function getUser() {
 		if ( is_null( $this->user ) ) {
 			$row = $this->getRow();
-			$this->user = $row->user ?
+			$user = $row->user ?
 				User::newFromId( $row->user ) :
 				User::newFromName( $row->user_text, false );
 
 			/* User could have been recently renamed or deleted.
 				Make sure we have the correct data. */
-			$this->user->load( User::READ_LATEST );
+			$user->load( User::READ_LATEST );
+			if ( $user->getId() == 0 && $row->user != 0 ) {
+				/* User was deleted,
+					e.g. via [maintenance/removeUnusedAccounts.php] */
+				$user->setName( $row->user_text );
+			}
+
+			$this->user = $user;
 		}
 
 		return $this->user;
-	}
-
-	/**
-		@brief Return username (string) of author.
-		Works even if author's user account was deleted.
-	*/
-	protected function getUserDisplayName() {
-		$user = $this->getUser();
-		$row = $this->getRow();
-
-		if ( $user->getId() == 0 && $row->user != 0 ) {
-			/* User was deleted,
-				e.g. via [maintenance/removeUnusedAccounts.php] */
-			return $row->user_text;
-		}
-
-		return $user->getName();
 	}
 
 	/**
@@ -163,6 +153,10 @@ abstract class ModerationEntry {
 			$row->type = ModerationNewChange::MOD_TYPE_EDIT;
 		}
 
+		if ( !isset( $row->tags ) ) { // !ModerationVersionCheck::areTagsSupported()
+			$row->tags = false;
+		}
+
 		if ( $row->type == ModerationNewChange::MOD_TYPE_MOVE ) {
 			return new ModerationEntryMove( $row );
 		}
@@ -181,8 +175,6 @@ abstract class ModerationEntry {
 		$row = $this->getRow();
 		$user = $this->getUser();
 
-		$dbr = wfGetDB( DB_SLAVE ); /* Only for $dbr->timestamp(), won't do any SQL queries */
-
 		ModerationApproveHook::install( $this->getTitle(), $user, $row->type, [
 			# For CheckUser extension to work properly, IP, XFF and UA
 			# should be set to the correct values for the original user
@@ -190,22 +182,15 @@ abstract class ModerationEntry {
 			'ip' => $row->ip,
 			'xff' => $row->header_xff,
 			'ua' => $row->header_ua,
-			'tags' => ModerationVersionCheck::areTagsSupported() ? $row->tags : false,
+			'tags' => $row->tags,
 
-			'revisionUpdate' => [
-				# Here we set the timestamp of this edit to $row->timestamp
-				# (this is needed because doEditContent() always uses current timestamp).
-				#
-				# NOTE: timestamp in recentchanges table is not updated on purpose:
-				# users would want to see new edits as they appear,
-				# without the edits surprisingly appearing somewhere in the past.
-				'rev_timestamp' => $dbr->timestamp( $row->timestamp ),
-
-				# performUpload() mistakenly tags image reuploads as made by moderator (rather than $user).
-				# Let's fix this here.
-				'rev_user' => $user->getId(),
-				'rev_user_text' => $this->getUserDisplayName()
-			]
+			# Here we set the timestamp of this edit to $row->timestamp
+			# (this is needed because doEditContent() always uses current timestamp).
+			#
+			# NOTE: timestamp in recentchanges table is not updated on purpose:
+			# users would want to see new edits as they appear,
+			# without the edits surprisingly appearing somewhere in the past.
+			'timestamp' => $row->timestamp
 		] );
 	}
 

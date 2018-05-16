@@ -168,7 +168,7 @@ class ModerationApproveHook {
 		}
 
 		$dbw->update( 'revision',
-			$task['revisionUpdate'],
+			[ 'rev_timestamp' => $task['timestamp'] ],
 			[ 'rev_id' => $revIdsToModify ],
 			__METHOD__
 		);
