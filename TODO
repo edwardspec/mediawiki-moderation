@@ -38,3 +38,8 @@ so that they would know to which pages to return to continue editing?
 Tests needed:
 * API: api.php?action=moderation
 * PageForms plugin (preload, "continue editing" link in postedit notification)
+
+FIXME:
+* ApproveHook shouldn't set rev_timestamp of newly approved edit to be earlier
+	than timestamp of the latest revision, because Page History is sorted
+	by rev_timestamp and would show these two revisions in the wrong order.

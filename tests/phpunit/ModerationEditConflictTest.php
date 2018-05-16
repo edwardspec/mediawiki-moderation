@@ -24,44 +24,30 @@
 
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
-class ModerationEditConflictMerge extends MediaWikiTestCase
+class ModerationTestEditConflict extends MediaWikiTestCase
 {
 	public function testResolvableEditConflict() {
 		/*
-			Ensure that resolvable edit conflicts
-			are resolved automatically during modaction=approve.
+			Ensure that resolvable edit conflicts are automatically
+			resolved during modaction=approve.
 
-			Here we edit the same existing page with two non-automoderated users.
-			These users change different parts of the text,
-			therefore their edit conflict should be automatically resolved.
-
-			We then try to approve both edits on Special:Moderation
-			and check whether the resulting text is correct.
+			Here the two users edit different parts of the text,
+			so that their changes can be merged automatically.
 		*/
-
 		$title = 'Test page 1';
-		$originalText = "Original paragraph about dogs\n\nOriginal paragraph about cats";
-		$text1 = "Original paragraph about dogs\n\nModified paragraph about cats";
-		$text2 = "Modified paragraph about dogs\n\nOriginal paragraph about cats";
 		$expectedText = "Modified paragraph about dogs\n\nModified paragraph about cats";
 
 		$t = new ModerationTestsuite();
 
-		$t->loginAs( $t->automoderated );
-		$t->doTestEdit( $title, $originalText );
+		$entry = $t->causeEditConflict(
+			$title,
+			"Original paragraph about dogs\n\nOriginal paragraph about cats",
+			"Original paragraph about dogs\n\nModified paragraph about cats",
+			"Modified paragraph about dogs\n\nOriginal paragraph about cats"
+		);
 
-		$t->loginAs( $t->unprivilegedUser );
-		$t->doTestEdit( $title, $text1 );
-
-		$t->loginAs( $t->unprivilegedUser2 );
-		$t->doTestEdit( $title, $text2 );
-
-		$t->fetchSpecial();
-
-		$this->assertNull( $t->html->getModerationError( $t->new_entries[1]->approveLink ),
-			"testResolvableEditConflict(): Approval of the first edit failed" );
-		$this->assertNull( $t->html->getModerationError( $t->new_entries[0]->approveLink ),
-			"testResolvableEditConflict(): Approval of the second edit failed" );
+		$this->assertNull( $t->html->getModerationError( $entry->approveLink ),
+			"testResolvableEditConflict(): Approval failed" );
 
 		$rev = $t->getLastRevision( $title );
 		$this->assertEquals( $expectedText, $rev['*'],

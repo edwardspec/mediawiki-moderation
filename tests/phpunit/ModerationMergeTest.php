@@ -41,30 +41,26 @@ class ModerationTestMerge extends MediaWikiTestCase
 	private $text2 = "Normal line 1\nNormal line 4\n";
 	private $text3 = "Normal line 1\nJust made line 2 more interesting\nNormal line 4\n";
 
-	private function makeEditConflict( ModerationTestsuite $t ) {
-		$t->loginAs( $t->automoderated );
-		$t->doTestEdit( $this->page, $this->text0,
-			"Create an article. Some lines here are boring." );
-		$t->loginAs( $t->unprivilegedUser );
-		$t->doTestEdit( $this->page, $this->text1,
-			"Improve one of the boring lines" );
-		$t->loginAs( $t->automoderated );
-		$t->doTestEdit( $this->page, $this->text2,
-			"Delete all boring lines" );
+	private function makeUnresolvableEditConflict( ModerationTestsuite $t ) {
+		return $t->causeEditConflict(
+			$this->page,
+			$this->text0,
+			$this->text1,
+			$this->text2
+		);
 	}
 
 	public function testMerge() {
 		$t = new ModerationTestsuite();
-		$this->makeEditConflict( $t );
 
 		# Done: attempt to approve the edit by $t->unprivilegedUser
 		# will cause an edit conflict.
 
-		$t->fetchSpecial();
-		$this->assertFalse( $t->new_entries[0]->conflict,
+		$entry = $this->makeUnresolvableEditConflict( $t );
+		$this->assertFalse( $entry->conflict,
 			"testMerge(): Edit with not-yet-detected conflict is marked with class='modconflict'" );
 
-		$error = $t->html->getModerationError( $t->new_entries[0]->approveLink );
+		$error = $t->html->getModerationError( $entry->approveLink );
 		$this->assertEquals( '(moderation-edit-conflict)', $error,
 			"testMerge(): Edit conflict not detected by modaction=approve" );
 
@@ -231,10 +227,9 @@ class ModerationTestMerge extends MediaWikiTestCase
 	*/
 	public function testMergeToken() {
 		$t = new ModerationTestsuite();
-		$this->makeEditConflict( $t );
 
-		$t->fetchSpecial();
-		$t->httpGet( $t->new_entries[0]->approveLink );
+		$entry = $this->makeUnresolvableEditConflict( $t );
+		$t->httpGet( $entry->approveLink );
 
 		$t->assumeFolderIsEmpty();
 		$t->fetchSpecial();
@@ -247,7 +242,7 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$t = new ModerationTestsuite();
 
 		$t->doNTestEditsWith( $t->unprivilegedUser, null, 'Page A' );
-		$this->makeEditConflict( $t );
+		$this->makeUnresolvableEditConflict( $t );
 		$t->doNTestEditsWith( $t->unprivilegedUser, null, 'Page B' );
 
 		# Will attempt to ApproveAll the edit by $t->unprivilegedUser
@@ -276,14 +271,12 @@ class ModerationTestMerge extends MediaWikiTestCase
 
 	public function testRejectConflict() {
 		$t = new ModerationTestsuite();
-		$this->makeEditConflict( $t );
 
 		# Can we reject edit with a conflict?
+		$entry = $this->makeUnresolvableEditConflict( $t );
+		$t->httpGet( $entry->approveLink );
 
-		$t->fetchSpecial();
-		$t->httpGet( $t->new_entries[0]->approveLink );
-
-		$t->html->loadFromURL( $t->new_entries[0]->rejectLink );
+		$t->html->loadFromURL( $entry->rejectLink );
 		$this->assertRegExp( '/\(moderation-rejected-ok: 1\)/',
 			$t->html->getMainText(),
 			"testRejectConflict(): Result page doesn't contain (moderation-rejected-ok: 1)" );

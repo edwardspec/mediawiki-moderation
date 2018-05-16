@@ -684,6 +684,24 @@ class ModerationTestsuite
 	}
 
 	/**
+		@brief Queue an edis that would cause an edit conflict when approved.
+		@returns ModerationEntry
+	*/
+	public function causeEditConflict( $title, $origText, $textOfUser1, $textOfUser2 ) {
+		$this->loginAs( $this->automoderated );
+		$this->doTestEdit( $title, $origText );
+
+		$this->loginAs( $this->unprivilegedUser );
+		$this->doTestEdit( $title, $textOfUser1 );
+
+		$this->loginAs( $this->automoderated );
+		$this->doTestEdit( $title, $textOfUser2 );
+
+		$this->fetchSpecial();
+		return $this->new_entries[0];
+	}
+
+	/**
 		@brief Get cuc_agent of the last entry in "cu_changes" table.
 		@returns User-agent (string).
 	*/
