@@ -163,7 +163,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		}
 
 		$t->fetchSpecial( 'rejected' );
-		$t->httpGet( $approveAllLink, 'GET' );
+		$t->httpGet( $approveAllLink );
 		$t->fetchSpecial( 'rejected' );
 
 		$this->assertCount( 0, $t->new_entries,
@@ -351,6 +351,76 @@ class ModerationTestApprove extends MediaWikiTestCase
 
 		$this->assertLessThan( $ACCEPTABLE_DIFFERENCE, abs( $expected - $actual ),
 			"testApproveTimestamp(): timestamp of approved edit in RecentChanges is too different from the time of approval" );
+	}
+
+	public function testApproveAllTimestamp() {
+		/*
+			Check that rev_timestamp and rc_ip are properly modified by modaction=approveall.
+		*/
+		$testPages = [
+			'Page 16' => [
+				'timestamp' => '20100101001600',
+				'ip' => '127.0.0.16'
+			],
+			'Page 14' => [
+				'timestamp' => '20100101001400',
+				'ip' => '127.0.0.14'
+			],
+			'Page 12' => [
+				'timestamp' => '20100101001600',
+				'ip' => '127.0.0.14'
+			]
+		];
+
+		$t = new ModerationTestsuite();
+
+		$t->loginAs( $t->unprivilegedUser );
+
+		foreach ( $testPages as $title => $task ) {
+			$t->doTestEdit( $title );
+		}
+
+		$t->fetchSpecial();
+		foreach ( $t->new_entries as $entry ) {
+			$task = $testPages[$entry->title];
+			$entry->updateDbRow( [
+				'mod_timestamp' => $task['timestamp'],
+				'mod_ip' => $task['ip']
+			] );
+		}
+
+		$t->httpGet( $t->new_entries[0]->approveAllLink );
+
+		# Check rev_timestamp/rc_ip.
+
+		$dbw = wfGetDB( DB_MASTER );
+
+		foreach ( $testPages as $title => $task ) {
+			$row = $dbw->selectRow(
+				[ 'page', 'revision', 'recentchanges' ],
+				[
+					'rev_timestamp',
+					'rc_ip'
+				],
+				Title::newFromText( $title )->pageCond(),
+				__METHOD__,
+				[],
+				[
+					'revision' => [ 'INNER JOIN', [
+						'rev_id=page_latest'
+					] ],
+					'recentchanges' => [ 'INNER JOIN', [
+						'rc_this_oldid=page_latest'
+					] ]
+				]
+			);
+
+			$this->assertEquals( $task['timestamp'], $row->rev_timestamp,
+				"testApproveAllTimestamp(): approved edit has incorrect timestamp in the page history" );
+
+			$this->assertEquals( $task['ip'], $row->rc_ip,
+				"testApproveAllTimestamp(): approved edit has incorrect IP in recentchanges" );
+		}
 	}
 
 	/**

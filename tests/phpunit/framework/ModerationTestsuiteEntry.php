@@ -149,7 +149,7 @@ class ModerationTestsuiteEntry
 		$this->id = $matches[1];
 	}
 
-	public static function findById( $array, $id )
+	public static function findById( array $array, $id )
 	{
 		foreach ( $array as $e )
 		{
@@ -159,7 +159,7 @@ class ModerationTestsuiteEntry
 		return null;
 	}
 
-	public static function findByUser( $array, $user )
+	public static function findByUser( array $array, $user )
 	{
 		if ( get_class( $user ) == 'User' )
 			$user = $user->getName();
