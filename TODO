@@ -25,8 +25,6 @@ Low-prio:
 * (feature) Special page to list users blocked via "Mark as spammer".
 * (feature) modaction=promote for quickly assigning "automoderated" flag.
 * (testsuite) Investigate some tests being flaky under PHP-FPM (but not mod_php).
-* (performance) Optimize modaction=approveall by merging the UPDATE queries
-	in ApproveHook::onRecentChange_save().
 
 Background-prio (may not be needed):
 * (meta) Display notification "Please run update.php" on Special:Moderation if
@@ -39,6 +37,7 @@ so that they would know to which pages to return to continue editing?
 Tests needed:
 * API: api.php?action=moderation
 * PageForms plugin (preload, "continue editing" link in postedit notification)
+* Timestamps after modaction=approveall.
 
 FIXME:
 * ApproveHook shouldn't set rev_timestamp of newly approved edit to be earlier

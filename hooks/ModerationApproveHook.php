@@ -22,13 +22,87 @@
 	Corrects rev_timestamp, rc_ip and checkuser logs when edit is approved.
 */
 
-class ModerationApproveHook {
+class ModerationApproveHook implements DeferrableUpdate {
+
+	protected $useCount = 0; /**< How many times was this DeferrableUpdate queued */
+
+	/**
+		@brief Database updates that will be applied in doUpdate().
+		Format: [ 'recentchanges' => [ rc_id1 => [ 'rc_ip' => ip1, ... ], ... ], 'revision' => ..., ]
+	*/
+	protected $dbUpdates = [];
+
+	/**
+		@brief List of _id fields in tables mentioned in $dbUpdates.
+	*/
+	protected $idFieldNames = [
+		'recentchanges' => 'rc_id',
+		'revision' => 'rev_id'
+	];
 
 	/**
 		@brief Array of tasks which must be performed by postapprove hooks.
 		Format: [ key1 => [ 'ip' => ..., 'xff' => ..., 'ua' => ... ], key2 => ... ]
 	*/
 	protected static $tasks = [];
+
+	protected function __construct() {
+	}
+
+	public function newDeferrableUpdate() {
+		$this->useCount ++;
+		return $this;
+	}
+
+	public function onPageContentSaveComplete() {
+		DeferredUpdates::addUpdate( $this->newDeferrableUpdate() );
+	}
+
+	public function doUpdate() {
+		/* This DeferredUpdate is installed after every edit.
+			Only the last of these updates should run, because
+			all RecentChange_save hooks must be completed before it.
+		*/
+		if ( -- $this->useCount > 0 ) {
+			return;
+		}
+
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->startAtomic( __METHOD__ );
+
+		foreach ( $this->dbUpdates as $table => $updates ) {
+			$idFieldName = $this->idFieldNames[$table];
+
+			$caseSql = []; /* [ 'rev_timestamp' => 'CASE rev_id WHEN 12345 THEN ... WHEN 12350 THEN ...' */
+			foreach ( $updates as $idFieldValue => $values ) {
+				foreach ( $values as $field => $val ) {
+					if ( !isset( $caseSql[$field] ) ) {
+						$caseSql[$field] = 'CASE ' . $idFieldName . ' ';
+					}
+
+					$caseSql[$field] .=
+						' WHEN ' .
+						$dbw->addQuotes( $idFieldValue ) .
+						' THEN ' .
+						$dbw->addQuotes( $val );
+				}
+			}
+
+			$where = []; /* WHERE conditions for UPDATE query */
+			foreach ( $caseSql as $field => $sqlQuery ) {
+				$where[] = $field . '=(' . $sqlQuery . ' END)';
+			}
+
+			/* Do all changes in one UPDATE */
+			$dbw->update( $table,
+				$where,
+				[ $idFieldName => array_keys( $updates ) ],
+				__METHOD__
+			);
+		}
+
+		$dbw->endAtomic( __METHOD__ );
+	}
 
 	protected static $lastRevId = null; /**< Revid of the last edit, populated in onNewRevisionFromEditComplete */
 
@@ -118,6 +192,26 @@ class ModerationApproveHook {
 		return true;
 	}
 
+	/**
+		@brief Schedule post-approval UPDATE SQL query.
+		@param $table Name of table, e.g. 'revision'.
+		@param $ids ID (integer, e.g. rev_id or rc_id) or array of IDs.
+		@param $values New values, as expected by $db->update(), e.g. [ 'rc_ip' => '1.2.3.4', 'rc_something' => '...' ].
+	*/
+	public function queueUpdate( $table, $ids, array $values ) {
+		if ( !isset( $this->dbUpdates[$table] ) ) {
+			$this->dbUpdates[$table] = [];
+		}
+
+		if ( !is_array( $ids ) ) {
+			$ids = [ $ids ];
+		}
+
+		foreach ( $ids as $id ) {
+			$this->dbUpdates[$table][$id] = $values;
+		}
+	}
+
 	/*
 		onRecentChange_save()
 		This hook is temporarily installed when approving the edit.
@@ -133,16 +227,10 @@ class ModerationApproveHook {
 			return true;
 		}
 
-		$dbw = wfGetDB( DB_MASTER );
 		if ( $wgPutIPinRC ) {
-			$dbw->update( 'recentchanges',
-				[
-					'rc_ip' => IP::sanitizeIP( $task['ip'] )
-				],
-				[
-					'rc_id' => $rc->mAttribs['rc_id']
-				],
-				__METHOD__
+			$this->queueUpdate( 'recentchanges',
+				$rc->mAttribs['rc_id'],
+				[ 'rc_ip' => IP::sanitizeIP( $task['ip'] ) ]
 			);
 		}
 
@@ -167,10 +255,9 @@ class ModerationApproveHook {
 			}
 		}
 
-		$dbw->update( 'revision',
-			[ 'rev_timestamp' => $task['timestamp'] ],
-			[ 'rev_id' => $revIdsToModify ],
-			__METHOD__
+		$this->queueUpdate( 'revision',
+			$revIdsToModify,
+			[ 'rev_timestamp' => $task['timestamp'] ]
 		);
 
 		if ( $task['tags'] ) {
@@ -203,6 +290,7 @@ class ModerationApproveHook {
 			$wgHooks['CheckUserInsertForRecentChange'][] = $hook;
 			$wgHooks['RecentChange_save'][] = $hook;
 			$wgHooks['NewRevisionFromEditComplete'][] = $hook;
+			$wgHooks['PageContentSaveComplete'][] = $hook;
 
 			$installed = true;
 		}
