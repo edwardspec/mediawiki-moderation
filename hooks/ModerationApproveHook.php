@@ -72,6 +72,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 
 		foreach ( $this->dbUpdates as $table => $updates ) {
 			$idFieldName = $this->idFieldNames[$table]; /* e.g. "rev_id" */
+			$ids = array_keys( array_values( $updates )[0] ); /* All rev_ids/rc_ids of affected rows */
 
 			/*
 				Calculate $set (SET values for UPDATE query):
@@ -81,6 +82,60 @@ class ModerationApproveHook implements DeferrableUpdate {
 			*/
 			$set = [];
 			foreach ( $updates as $field => $whenThen ) {
+				if ( $table == 'revision' && $field == 'rev_timestamp' ) {
+					/*
+						IMPORTANT: sometimes we DON'T update rev_timestamp
+						to preserve the order of Page History.
+
+						The situation is:
+						we want to set rev_timestamp of revision A to T1,
+						and revision A happened after revision B,
+						and revision B has rev_timestamp=T2, with T2 > T1.
+
+						Then if we were to update rev_timestamp of A,
+						the history (which is sorted by rev_timestamp) would
+						incorrectly show that A precedes B.
+
+						What we do is:
+						for each revision A ($when) we determine rev_timestamp of revision B,
+						and if it's earlier than $then, then we don't update revision A.
+					*/
+					$res = $dbw->select(
+						[
+							'a' => 'revision', /* This revision, one of $ids */
+							'b' => 'revision' /* Previous revision */
+						],
+						[
+							'a.rev_id AS id',
+							'b.rev_timestamp AS prev_timestamp'
+						],
+						[
+							'a.rev_id' => $ids
+						],
+						__METHOD__,
+						[],
+						[
+							'b' => [ 'INNER JOIN', [
+								'b.rev_id=a.rev_parent_id'
+							] ]
+						]
+					);
+					foreach ( $res as $row ) {
+						if ( $row->prev_timestamp > $whenThen[$row->id] ) {
+							/* Skip this revision,
+								because updating its timestamp would be
+								resulting in incorrect order of history. */
+							unset( $whenThen[$row->id] );
+						}
+					}
+				}
+
+				if ( empty( $whenThen ) ) {
+					/* Nothing to do.
+						This can happen when we skip rev_timestamp update (see above) */
+					continue;
+				}
+
 				if ( count( array_count_values( $whenThen ) ) == 1 ) {
 					/* There is only one unique value after THEN,
 						therefore WHEN...THEN is unnecessary */
@@ -103,10 +158,13 @@ class ModerationApproveHook implements DeferrableUpdate {
 				}
 			}
 
-			/* Step 3: do all changes in one UPDATE */
+			if ( empty( $set ) ) {
+				continue; /* Nothing to do */
+			}
+
 			$dbw->update( $table,
 				$set,
-				[ $idFieldName => array_keys( array_values( $updates )[0] ) ],
+				[ $idFieldName => $ids ],
 				__METHOD__
 			);
 		}
