@@ -367,8 +367,8 @@ class ModerationTestApprove extends MediaWikiTestCase
 				'ip' => '127.0.0.14'
 			],
 			'Page 12' => [
-				'timestamp' => '20100101001600',
-				'ip' => '127.0.0.14'
+				'timestamp' => '20100101001200',
+				'ip' => '127.0.0.12'
 			]
 		];
 

@@ -74,39 +74,51 @@ class ModerationApproveHook implements DeferrableUpdate {
 			$idFieldName = $this->idFieldNames[$table]; /* e.g. "rev_id" */
 			$idFieldValues = array_keys( $updates );
 
-			$set = []; /* SET values for UPDATE query */
-			if ( count( $idFieldValues ) == 1 ) {
-				/* Only one row to update. No need for CASE...WHEN.
-					Happens during modaction=approve */
-				foreach ( $updates[$idFieldValues[0]] as $field => $val ) {
+			/* Step 1: calculate $caseValues array:
+				[ 'rc_ip' => [ '105' => '127.0.0.1', '106' => '127.0.0.5', ... ], ... ]
+			*/
+			$caseValues = [];
+			foreach ( $updates as $idFieldValue => $values ) {
+				foreach ( $values as $field => $val ) {
+					if ( !isset( $caseValues[$field] ) ) {
+						$caseValues[$field] = [];
+					}
+
+					$caseValues[$field][$idFieldValue] = $val;
+				}
+			}
+
+			/*
+				Step 2: calculate $set (SET values for UPDATE query):
+					[ 'rc_ip=(CASE rc_id WHEN 105 THEN 127.0.0.1 WHEN 106 THEN 127.0.0.5 END)' ]
+					or
+					[ 'rc_ip' => '127.0.0.8' ]
+			*/
+			$set = [];
+			foreach ( $caseValues as $field => $whenThen ) {
+				if ( count( array_count_values( $whenThen ) ) == 1 ) {
+					/* There is only one unique value after THEN,
+						therefore WHEN...THEN is unnecessary */
+					$val = array_pop( $whenThen );
 					$set[$field] = $val;
 				}
-			}
-			else {
-				/* Multiple rows to update.
-					Happens during modaction=approveall.
-				*/
-				$caseSql = []; /* [ 'rev_timestamp' => 'CASE rev_id WHEN 12345 THEN ... WHEN 12350 THEN ...' */
-				foreach ( $updates as $idFieldValue => $values ) {
-					foreach ( $values as $field => $val ) {
-						if ( !isset( $caseSql[$field] ) ) {
-							$caseSql[$field] = 'CASE ' . $idFieldName . ' ';
-						}
-
-						$caseSql[$field] .=
-							' WHEN ' .
-							$dbw->addQuotes( $idFieldValue ) .
-							' THEN ' .
-							$dbw->addQuotes( $val );
+				else {
+					/* Need WHEN...THEN conditional */
+					$caseSql = '';
+					foreach ( $whenThen as $when => $then ) {
+						$caseSql .=
+						'WHEN ' .
+						$dbw->addQuotes( $when ) .
+						' THEN ' .
+						$dbw->addQuotes( $then ) .
+						' ';
 					}
-				}
 
-				foreach ( $caseSql as $field => $sqlQuery ) {
-					$set[] = $field . '=(' . $sqlQuery . ' END)';
+					$set[] = $field . '=(CASE ' . $idFieldName . ' ' . $caseSql . 'END)';
 				}
 			}
 
-			/* Do all changes in one UPDATE */
+			/* Step 3: do all changes in one UPDATE */
 			$dbw->update( $table,
 				$set,
 				[ $idFieldName => $idFieldValues ],
