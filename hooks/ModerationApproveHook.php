@@ -28,7 +28,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 
 	/**
 		@brief Database updates that will be applied in doUpdate().
-		Format: [ 'recentchanges' => [ rc_id1 => [ 'rc_ip' => ip1, ... ], ... ], 'revision' => ..., ]
+		Format: [ 'recentchanges' => [ 'rc_ip' => [ rc_id1 => '127.0.0.1', rc_id2 => '127.0.0.5', ... ], ... ]
 	*/
 	protected $dbUpdates = [];
 
@@ -72,30 +72,15 @@ class ModerationApproveHook implements DeferrableUpdate {
 
 		foreach ( $this->dbUpdates as $table => $updates ) {
 			$idFieldName = $this->idFieldNames[$table]; /* e.g. "rev_id" */
-			$idFieldValues = array_keys( $updates );
-
-			/* Step 1: calculate $caseValues array:
-				[ 'rc_ip' => [ '105' => '127.0.0.1', '106' => '127.0.0.5', ... ], ... ]
-			*/
-			$caseValues = [];
-			foreach ( $updates as $idFieldValue => $values ) {
-				foreach ( $values as $field => $val ) {
-					if ( !isset( $caseValues[$field] ) ) {
-						$caseValues[$field] = [];
-					}
-
-					$caseValues[$field][$idFieldValue] = $val;
-				}
-			}
 
 			/*
-				Step 2: calculate $set (SET values for UPDATE query):
+				Calculate $set (SET values for UPDATE query):
 					[ 'rc_ip=(CASE rc_id WHEN 105 THEN 127.0.0.1 WHEN 106 THEN 127.0.0.5 END)' ]
 					or
 					[ 'rc_ip' => '127.0.0.8' ]
 			*/
 			$set = [];
-			foreach ( $caseValues as $field => $whenThen ) {
+			foreach ( $updates as $field => $whenThen ) {
 				if ( count( array_count_values( $whenThen ) ) == 1 ) {
 					/* There is only one unique value after THEN,
 						therefore WHEN...THEN is unnecessary */
@@ -121,7 +106,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 			/* Step 3: do all changes in one UPDATE */
 			$dbw->update( $table,
 				$set,
-				[ $idFieldName => $idFieldValues ],
+				[ $idFieldName => array_keys( array_values( $updates )[0] ) ],
 				__METHOD__
 			);
 		}
@@ -224,16 +209,22 @@ class ModerationApproveHook implements DeferrableUpdate {
 		@param $values New values, as expected by $db->update(), e.g. [ 'rc_ip' => '1.2.3.4', 'rc_something' => '...' ].
 	*/
 	public function queueUpdate( $table, $ids, array $values ) {
-		if ( !isset( $this->dbUpdates[$table] ) ) {
-			$this->dbUpdates[$table] = [];
-		}
-
 		if ( !is_array( $ids ) ) {
 			$ids = [ $ids ];
 		}
 
-		foreach ( $ids as $id ) {
-			$this->dbUpdates[$table][$id] = $values;
+		if ( !isset( $this->dbUpdates[$table] ) ) {
+			$this->dbUpdates[$table] = [];
+		}
+
+		foreach ( $values as $field => $value ) {
+			if ( !isset( $this->dbUpdates[$table][$field] ) ) {
+				$this->dbUpdates[$table][$field] = [];
+			}
+
+			foreach ( $ids as $id ) {
+				$this->dbUpdates[$table][$field][$id] = $value;
+			}
 		}
 	}
 
