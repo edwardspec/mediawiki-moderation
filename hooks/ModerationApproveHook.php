@@ -71,32 +71,45 @@ class ModerationApproveHook implements DeferrableUpdate {
 		$dbw->startAtomic( __METHOD__ );
 
 		foreach ( $this->dbUpdates as $table => $updates ) {
-			$idFieldName = $this->idFieldNames[$table];
+			$idFieldName = $this->idFieldNames[$table]; /* e.g. "rev_id" */
+			$idFieldValues = array_keys( $updates );
 
-			$caseSql = []; /* [ 'rev_timestamp' => 'CASE rev_id WHEN 12345 THEN ... WHEN 12350 THEN ...' */
-			foreach ( $updates as $idFieldValue => $values ) {
-				foreach ( $values as $field => $val ) {
-					if ( !isset( $caseSql[$field] ) ) {
-						$caseSql[$field] = 'CASE ' . $idFieldName . ' ';
-					}
-
-					$caseSql[$field] .=
-						' WHEN ' .
-						$dbw->addQuotes( $idFieldValue ) .
-						' THEN ' .
-						$dbw->addQuotes( $val );
+			$set = []; /* SET values for UPDATE query */
+			if ( count( $idFieldValues ) == 1 ) {
+				/* Only one row to update. No need for CASE...WHEN.
+					Happens during modaction=approve */
+				foreach ( $updates[$idFieldValues[0]] as $field => $val ) {
+					$set[$field] = $val;
 				}
 			}
+			else {
+				/* Multiple rows to update.
+					Happens during modaction=approveall.
+				*/
+				$caseSql = []; /* [ 'rev_timestamp' => 'CASE rev_id WHEN 12345 THEN ... WHEN 12350 THEN ...' */
+				foreach ( $updates as $idFieldValue => $values ) {
+					foreach ( $values as $field => $val ) {
+						if ( !isset( $caseSql[$field] ) ) {
+							$caseSql[$field] = 'CASE ' . $idFieldName . ' ';
+						}
 
-			$where = []; /* WHERE conditions for UPDATE query */
-			foreach ( $caseSql as $field => $sqlQuery ) {
-				$where[] = $field . '=(' . $sqlQuery . ' END)';
+						$caseSql[$field] .=
+							' WHEN ' .
+							$dbw->addQuotes( $idFieldValue ) .
+							' THEN ' .
+							$dbw->addQuotes( $val );
+					}
+				}
+
+				foreach ( $caseSql as $field => $sqlQuery ) {
+					$set[] = $field . '=(' . $sqlQuery . ' END)';
+				}
 			}
 
 			/* Do all changes in one UPDATE */
 			$dbw->update( $table,
-				$where,
-				[ $idFieldName => array_keys( $updates ) ],
+				$set,
+				[ $idFieldName => $idFieldValues ],
 				__METHOD__
 			);
 		}

@@ -33,6 +33,13 @@ some new feature (that requires DB update) is disabled because it wasn't done.
 * (feature) Should ApproveHook update timestamp of upload/move logs?
 * (feature) Show "you have N pending edits" link to non-automoderated users,
 so that they would know to which pages to return to continue editing?
+* (testsuite) Many tests repeat the same operations when preparing the starting
+	conditions. Maybe the tests should be decoupled in the following way:
+	test #1 makes the edit AND checks 'moderation' SQL table,
+	test #2 pre-fills SQL table AND checks HTML of Special:Moderation,
+	test #3 pre-fills SQL table, runs modaction, checks SQL table.
+	Because right now the things like "is the Approve link on Special page
+	displayed correctly?" are tested way more times than needed.
 
 Tests needed:
 * API: api.php?action=moderation
