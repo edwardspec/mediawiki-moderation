@@ -58,7 +58,7 @@ class ModerationUploadHooks {
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'moderation',
 			[ 'mod_stash_key' => $file->getFileKey() ],
-			[ 'mod_id' => ModerationEditHooks::$LastInsertId ],
+			[ 'mod_id' => ModerationNewChange::$LastInsertId ],
 			__METHOD__
 		);
 

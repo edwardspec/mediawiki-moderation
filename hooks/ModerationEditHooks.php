@@ -21,7 +21,6 @@
 */
 
 class ModerationEditHooks {
-	public static $LastInsertId = null; /**< mod_id of the last inserted row */
 	public static $NewMergeID = null; /** During modaction=merge, this is mod_id of the pending edit which is currently being merged */
 
 	protected static $section = ''; /**< Number of edited section, if any (populated in onEditFilter) */
@@ -51,9 +50,6 @@ class ModerationEditHooks {
 	*/
 	public static function onPageContentSave( &$page, &$user, &$content, &$summary, $is_minor, $is_watch, $section, &$flags, &$status )
 	{
-		global $wgOut, $wgContLang, $wgModerationNotificationEnable, $wgModerationNotificationNewOnly,
-			   $wgModerationEmail, $wgPasswordSender;
-
 		$title = $page->getTitle();
 		if ( ModerationCanSkip::canSkip( $user, $title->getNamespace() ) ) {
 			return true;
@@ -86,13 +82,12 @@ class ModerationEditHooks {
 		}
 
 		$change = new ModerationNewChange( $title, $user );
-		$fields = $change->edit( $page, $content )
+		$change->edit( $page, $content )
 			->setBot( $flags & EDIT_FORCE_BOT )
 			->setMinor( $is_minor )
 			->setSummary( $summary )
 			->setSection( self::$section, self::$sectionText )
 			->queue();
-		ModerationEditHooks::$LastInsertId = $fields['mod_id'];
 
 		if ( !is_null( self::$watchthis ) ) {
 			/* Watch/Unwatch the page immediately:
@@ -101,38 +96,6 @@ class ModerationEditHooks {
 			$watch = (bool) self::$watchthis;
 			WatchAction::doWatchOrUnwatch( $watch, $title, $user );
 		}
-
-		// Run hook to allow other extensions be notified about pending changes
-		Hooks::run( 'ModerationPending', [
-			$fields, ModerationEditHooks::$LastInsertId
-		] );
-
-		// Notify administrator about pending changes
-		if ( $wgModerationNotificationEnable ) {
-			/*
-				$wgModerationNotificationNewOnly:
-				if false, notify about all edits,
-				if true, notify about new pages.
-			*/
-			if ( !$wgModerationNotificationNewOnly || !$page->exists() ) {
-				$mailer = new UserMailer();
-				$to = new MailAddress( $wgModerationEmail );
-				$from = new MailAddress( $wgPasswordSender );
-				$subject = wfMessage( 'moderation-notification-subject' )->text();
-				$content = wfMessage( 'moderation-notification-content',
-					$page->getTitle()->getBaseText(),
-					$user->getName(),
-					SpecialPage::getTitleFor( 'Moderation' )->getFullURL( [
-						'modaction' => 'show',
-						'modid' => ModerationEditHooks::$LastInsertId
-					] )
-				)->text();
-				$mailer->send( $to, $from, $subject, $content );
-			}
-		}
-
-		/* Enable in-wiki notification "New changes await moderation" for moderators */
-		ModerationNotifyModerator::setPendingTime( $fields['mod_timestamp'] );
 
 		/*
 			We have queued this edit for moderation.
@@ -144,7 +107,8 @@ class ModerationEditHooks {
 			Notification "Your edit was successfully sent to moderation"
 			will be shown by JavaScript.
 		*/
-		$wgOut->redirect( self::getRedirectURL( $title, $wgOut ) );
+		$out = RequestContext::getMain()->getOutput();
+		$out->redirect( self::getRedirectURL( $title, $out ) );
 
 		$status->fatal( 'moderation-edit-queued' );
 		return false;

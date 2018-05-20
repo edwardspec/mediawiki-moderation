@@ -22,6 +22,8 @@
 
 class ModerationNewChange {
 
+	public static $LastInsertId = null; /**< mod_id of the last inserted row */
+
 	const MOD_TYPE_EDIT = 'edit';
 	const MOD_TYPE_MOVE = 'move';
 
@@ -36,6 +38,7 @@ class ModerationNewChange {
 	protected $newTitle = null; /**< Title object (title of the destination when moving the page) */
 
 	private $pendingChange = null; /**< False if no pending change, array( 'mod_id' => ..., 'mod_text' => ... ) otherwise */
+	private $fields = null; /**< All database fields (array), see getFields() */
 
 	protected $title; /**< Title object (page to be edited) */
 	protected $user; /**< User object (author of the edit) */
@@ -146,14 +149,37 @@ class ModerationNewChange {
 	}
 
 	/**
-		@brief Calculate all mod_* fields for database INSERT.
+		@brief Returns all mod_* fields for database INSERT.
 		@returns array (as expected by $dbw->insert())
 	*/
-	protected function getFields() {
+	public function getFields() {
+		$this->calculateFields();
+		return $this->fields;
+	}
+
+	/**
+		@brief Returns one of the fields for database INSERT.
+		@param $fieldName String, e.g. "mod_timestamp".
+		@returns Value (string) or false.
+	*/
+	public function getField( $fieldName ) {
+		$this->calculateFields();
+		return isset( $this->fields[$fieldName] ) ? $this->fields[$fieldName] : false;
+	}
+
+	/**
+		@brief Calculate all mod_* fields for database INSERT.
+		Shouldn't be called outside of getFields()/getField().
+	*/
+	protected function calculateFields() {
+		if ( $this->fields ) {
+			return; /* Already calculated */
+		}
+
 		$request = $this->user->getRequest();
 		$dbr = wfGetDB( DB_SLAVE ); /* Only for $dbr->timestamp(), won't do any SQL queries */
 
-		$fields = [
+		$this->fields = [
 			'mod_timestamp' => $dbr->timestamp(),
 			'mod_user' => $this->user->getId(),
 			'mod_user_text' => $this->user->getName(),
@@ -171,10 +197,10 @@ class ModerationNewChange {
 
 		if ( ModerationVersionCheck::hasModType() ) {
 			/* This may be a non-edit change (e.g. page move) */
-			$fields['mod_type'] = $this->type;
+			$this->fields['mod_type'] = $this->type;
 
 			if ( $this->newTitle ) {
-				$fields += [
+				$this->fields += [
 					'mod_page2_namespace' => $this->newTitle->getNamespace(),
 					'mod_page2_title' => $this->newTitle->getDBKey()
 				];
@@ -183,7 +209,7 @@ class ModerationNewChange {
 
 		if ( $this->wikiPage ) {
 			/* Not relevant to page moves */
-			$fields += [
+			$this->fields += [
 				'mod_cur_id' => $this->wikiPage->getId(),
 				'mod_new' => $this->wikiPage->exists() ? 0 : 1,
 				'mod_last_oldid' => $this->wikiPage->getLatest()
@@ -191,7 +217,7 @@ class ModerationNewChange {
 
 			$oldContent = $this->wikiPage->getContent( Revision::RAW ); // current revision's content
 			if ( $oldContent ) {
-				$fields['mod_old_len'] = $oldContent->getSize();
+				$this->fields['mod_old_len'] = $oldContent->getSize();
 			}
 		}
 
@@ -209,17 +235,17 @@ class ModerationNewChange {
 			] );
 
 			if ( isset( AbuseFilter::$tagsToSet[$afActionID] ) ) {
-				$fields['mod_tags'] = join( "\n", AbuseFilter::$tagsToSet[$afActionID] );
+				$this->fields['mod_tags'] = join( "\n", AbuseFilter::$tagsToSet[$afActionID] );
 			}
 		}
 
 		if ( ModerationBlockCheck::isModerationBlocked( $this->user ) ) {
-			$fields['mod_rejected'] = 1;
-			$fields['mod_rejected_by_user'] = 0;
-			$fields['mod_rejected_by_user_text'] = wfMessage( 'moderation-blocker' )->inContentLanguage()->text();
-			$fields['mod_rejected_auto'] = 1;
+			$this->fields['mod_rejected'] = 1;
+			$this->fields['mod_rejected_by_user'] = 0;
+			$this->fields['mod_rejected_by_user_text'] = wfMessage( 'moderation-blocker' )->inContentLanguage()->text();
+			$this->fields['mod_rejected_auto'] = 1;
 
-			# Note: we don't disable $fields['mod_preloadable'],
+			# Note: we don't disable $this->fields['mod_preloadable'],
 			# so that the spammers won't notice that they are blocked
 			# (they can continue editing this change,
 			# even though the change will be in the Spam folder)
@@ -227,7 +253,7 @@ class ModerationNewChange {
 
 		if ( !$this->newContent ) {
 			/* Non-edit action (e.g. page move), no need to populate mod_text, etc. */
-			return $fields;
+			return;
 		}
 
 		// Check if we need to update existing row (if this edit is by the same user to the same page)
@@ -235,7 +261,7 @@ class ModerationNewChange {
 			$row = $this->getPendingChange();
 			if ( $row ) {
 				#
-				# We must recalculate $fields['mod_text'] here.
+				# We must recalculate $this->fields['mod_text'] here.
 				# Otherwise if the user adds or modifies two (or more) different sections (in consequent edits),
 				# then only modification to the last one will be saved,
 				# because $this->newContent is [old content] PLUS [modified section from the edit].
@@ -248,30 +274,40 @@ class ModerationNewChange {
 			}
 		}
 
-		$fields['mod_text'] = $this->preSaveTransform( $this->newContent );
-		$fields['mod_new_len'] = $this->newContent->getSize();
-
-		return $fields;
+		$this->fields['mod_text'] = $this->preSaveTransform( $this->newContent );
+		$this->fields['mod_new_len'] = $this->newContent->getSize();
 	}
 
 	/**
 		@brief Queue edit for moderation.
-		@returns $fields array.
 	*/
 	public function queue() {
-		$fields = $this->getFields();
+		self::$LastInsertId = ModerationVersionCheck::hasUniqueIndex() ?
+			$this->insert() :
+			$this->insertOld();
 
-		$fields['mod_id'] = ModerationVersionCheck::hasUniqueIndex() ?
-			$this->insert( $fields ) :
-			$this->insertOld( $fields );
-		return $fields;
+		// Run hook to allow other extensions be notified about pending changes
+		Hooks::run( 'ModerationPending', [
+			$this->getFields(),
+			self::$LastInsertId
+		] );
+
+		// Notify administrator about pending changes
+		$this->sendNotificationEmail();
+
+		// Enable in-wiki notification "New changes await moderation" for moderators
+		ModerationNotifyModerator::setPendingTime(
+			$this->getField( 'mod_timestamp' )
+		);
 	}
 
 	/**
-		@brief Insert $fields into the moderation SQL table.
+		@brief Insert this change into the moderation SQL table.
 		@returns mod_id of affected row.
 	*/
-	protected function insert( array $fields ) {
+	protected function insert() {
+		$fields = $this->getFields();
+
 		$dbw = wfGetDB( DB_MASTER );
 		RollbackResistantQuery::upsert( $dbw, [
 			'moderation',
@@ -293,7 +329,7 @@ class ModerationNewChange {
 		@brief Legacy version of insert() for old databases without UNIQUE INDEX.
 		@returns mod_id of affected row.
 	*/
-	protected function insertOld( array $fields ) {
+	protected function insertOld() {
 		$row = $this->getPendingChange();
 		$id = $row ? $row->id : false;
 
@@ -301,7 +337,7 @@ class ModerationNewChange {
 		if ( $id ) {
 			RollbackResistantQuery::update( $dbw, [
 				'moderation',
-				$fields,
+				$this->getFields(),
 				[ 'mod_id' => $id ],
 				__METHOD__
 			] );
@@ -309,12 +345,47 @@ class ModerationNewChange {
 		else {
 			RollbackResistantQuery::insert( $dbw, [
 				'moderation',
-				$fields,
+				$this->getFields(),
 				__METHOD__
 			] );
 			$id = $dbw->insertId();
 		}
 
 		return $id;
+	}
+
+	/**
+		@brief Send email to moderators that new change has appeared.
+	*/
+	public function sendNotificationEmail() {
+		global $wgModerationNotificationEnable,
+			$wgModerationNotificationNewOnly,
+			$wgModerationEmail,
+			$wgPasswordSender;
+
+		if ( !$wgModerationNotificationEnable || !$wgModerationEmail ) {
+			return; /* Disabled */
+		}
+
+		if ( $wgModerationNotificationNewOnly && $this->getField( 'mod_new' ) == 0 ) {
+			/* We only need to notify about new pages,
+				and this is an edit in existing page */
+			return;
+		}
+
+		$mailer = new UserMailer();
+		$to = new MailAddress( $wgModerationEmail );
+		$from = new MailAddress( $wgPasswordSender );
+		$subject = wfMessage( 'moderation-notification-subject' )->text();
+		$content = wfMessage( 'moderation-notification-content',
+			$this->title->getPrefixedText(),
+			$this->user->getName(),
+			SpecialPage::getTitleFor( 'Moderation' )->getFullURL( [
+				'modaction' => 'show',
+				'modid' => self::$LastInsertId
+			] )
+		)->text();
+
+		$mailer->send( $to, $from, $subject, $content );
 	}
 }
