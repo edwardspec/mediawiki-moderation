@@ -380,7 +380,7 @@ class ModerationNewChange {
 		$content = wfMessage( 'moderation-notification-content',
 			$this->title->getPrefixedText(),
 			$this->user->getName(),
-			SpecialPage::getTitleFor( 'Moderation' )->getFullURL( [
+			SpecialPage::getTitleFor( 'Moderation' )->getCanonicalURL( [
 				'modaction' => 'show',
 				'modid' => self::$LastInsertId
 			] )
