@@ -376,7 +376,7 @@ class ModerationNewChange {
 		$mailer = new UserMailer();
 		$to = new MailAddress( $wgModerationEmail );
 		$from = new MailAddress( $wgPasswordSender );
-		$subject = wfMessage( 'moderation-notification-subject' )->text();
+		$subject = wfMessage( 'moderation-notification-subject' )->inContentLanguage()->text();
 		$content = wfMessage( 'moderation-notification-content',
 			$this->title->getPrefixedText(),
 			$this->user->getName(),
@@ -384,7 +384,7 @@ class ModerationNewChange {
 				'modaction' => 'show',
 				'modid' => self::$LastInsertId
 			] )
-		)->text();
+		)->inContentLanguage()->text();
 
 		$mailer->send( $to, $from, $subject, $content );
 	}
