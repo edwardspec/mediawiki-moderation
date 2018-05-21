@@ -31,11 +31,12 @@ class ModerationNewChange {
 	protected $summary = null; /**< Edit summary (string) */
 	protected $section = ''; /**< Index of the edited section (integer) or the string 'new' */
 	protected $sectionText = null; /**< Text of edited section, if any */
-	protected $isMinor = null; /**< True if marked as minor edit, false otherwise */
-	protected $isBot = null; /** True if marked as bot edit, false otherwise */
 	protected $wikiPage = null; /**< WikiPage object (page to be edited) */
 	protected $newContent = null; /**< Content object (new text of the page) */
 	protected $newTitle = null; /**< Title object (title of the destination when moving the page) */
+
+	protected $isMinor = false; /**< True if marked as minor edit, false otherwise */
+	protected $isBot = false; /** True if marked as bot edit, false otherwise */
 
 	private $pendingChange = null; /**< False if no pending change, array( 'mod_id' => ..., 'mod_text' => ... ) otherwise */
 	private $fields = null; /**< All database fields (array), see getFields() */

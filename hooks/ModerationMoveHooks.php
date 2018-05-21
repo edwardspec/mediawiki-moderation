@@ -26,6 +26,12 @@ class ModerationMoveHooks {
 		@brief Intercept attempts to rename pages and queue them for moderation.
 	*/
 	public static function onMovePageCheckPermissions( Title $oldTitle, Title $newTitle, User $user, $reason, Status $status ) {
+		global $wgModerationInterceptMoves;
+		if ( !$wgModerationInterceptMoves ) {
+			/* Disabled, page moves currently bypass moderation */
+			return true;
+		}
+
 		if ( ModerationCanSkip::canSkip(
 			$user,
 			$oldTitle->getNamespace(),
@@ -34,10 +40,17 @@ class ModerationMoveHooks {
 			return true;
 		}
 
+		if ( !$status->isOK() ) {
+			// $user is not allowed to move ($status is already fatal)
+			return true;
+		}
 
-		/* Not yet implemented,
-			page moves currently bypass moderation */
-		return true;
+		$change = new ModerationNewChange( $oldTitle, $user );
+		$fields = $change->move( $newTitle )
+			->setSummary( $reason )
+			->queue();
+
+		$status->fatal( 'moderation-edit-queued' );
+		return false;
 	}
-
 }

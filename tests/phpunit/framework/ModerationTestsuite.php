@@ -302,6 +302,21 @@ class ModerationTestsuite
 	}
 
 	/**
+		@brief Move the page via API.
+		@returns API response
+	*/
+	public function move( $oldTitle, $newTitle, $reason = '', array $extraParams = [] )
+	{
+		return $this->query( [
+			'action' => 'move',
+			'from' => $oldTitle,
+			'to' => $newTitle,
+			'reason' => $reason,
+			'token' => null
+		] + $extraParams );
+	}
+
+	/**
 		@brief Make an edit via API.
 		@warning Several side-effects can't be tested this way,
 			for example HTTP redirect after editing or
