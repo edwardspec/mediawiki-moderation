@@ -32,7 +32,7 @@ class ModerationEntryEdit extends ModerationEntry {
 		$title = $this->getTitle();
 		$model = $title->getContentModel();
 
-		$flags = EDIT_DEFER_UPDATES | EDIT_AUTOSUMMARY;
+		$flags = EDIT_AUTOSUMMARY;
 		if ( $row->bot && $user->isAllowed( 'bot' ) ) {
 			$flags |= EDIT_FORCE_BOT;
 		}
