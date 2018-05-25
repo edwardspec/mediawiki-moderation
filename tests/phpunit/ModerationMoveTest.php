@@ -67,8 +67,12 @@ class ModerationMoveEdit extends MediaWikiTestCase
 			"testMove(): One move was queued for moderation, but number of added entries in Pending folder isn't 1" );
 		$this->assertCount( 0, $t->deleted_entries,
 			"testMove(): Something was deleted from Pending folder during the queueing" );
-		$this->assertEquals( $t->unprivilegedUser->getName(), $t->new_entries[0]->user );
-		$this->assertEquals( $oldTitle, $t->new_entries[0]->title );
+
+		$entry = $t->new_entries[0];
+		$this->assertEquals( $t->unprivilegedUser->getName(), $entry->user );
+		$this->assertTrue( $entry->isMove );
+		$this->assertEquals( $oldTitle, $entry->title );
+		$this->assertEquals( $newTitle, $entry->page2Title );
 
 		/* Ensure that page hasn't been moved yet */
 		$rev = $t->getLastRevision( $oldTitle );
@@ -81,7 +85,7 @@ class ModerationMoveEdit extends MediaWikiTestCase
 		$t->html->loadFromURL( $t->new_entries[0]->approveLink );
 		$this->assertRegExp( '/\(moderation-approved-ok: 1\)/',
 			$t->html->getMainText(),
-			"$caller(): Result page doesn't contain (moderation-approved-ok: 1)" );
+			"testMove(): Result page doesn't contain (moderation-approved-ok: 1)" );
 
 		/* Ensure that page has been moved after approval */
 		$rev = $t->getLastRevision( $newTitle );

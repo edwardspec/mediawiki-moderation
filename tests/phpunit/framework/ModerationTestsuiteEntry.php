@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2016 Edward Chernenko.
+	Copyright (C) 2015-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ class ModerationTestsuiteEntry
 	public $user = null;
 	public $comment = null; /* TODO */
 	public $title = null;
+	public $page2Title = null;
 
 	public $showLink = null;
 	public $previewLink = null;
@@ -48,6 +49,7 @@ class ModerationTestsuiteEntry
 	public $rejected_auto = false;
 
 	public $conflict = false;
+	public $isMove = false;
 
 	public function __construct( DomElement $span )
 	{
@@ -58,11 +60,17 @@ class ModerationTestsuiteEntry
 		foreach ( $span->childNodes as $child )
 		{
 			$text = $child->textContent;
-			if ( strpos( $text, '(moderation-rejected-auto)' ) !== false )
+			if ( strpos( $text, '(moderation-rejected-auto)' ) !== false ) {
 				$this->rejected_auto = true;
+			}
 
-			if ( strpos( $text, '(moderation-rejected-batch)' ) !== false )
+			if ( strpos( $text, '(moderation-rejected-batch)' ) !== false ) {
 				$this->rejected_batch = true;
+			}
+
+			if ( strpos( $text, '(moderation-move: ' ) !== false ) {
+				$this->isMove = true;
+			}
 
 			$matches = null;
 			if ( preg_match( '/\(moderation-whois-link: ([^)]*)\)/', $text, $matches ) )
@@ -140,12 +148,24 @@ class ModerationTestsuiteEntry
 					break;
 
 				default:
-					$this->title = $link->textContent;
+					if ( !$this->title ) {
+						$this->title = $link->textContent;
+					}
+					else {
+						$this->page2Title = $link->textContent;
+					}
 			}
 		}
 
+		$possibleLinks = array_filter( [
+			$this->showLink, // Not shown for page moves
+			$this->blockLink,
+			$this->unblockLink
+		] );
+		$anyLink = array_shift( $possibleLinks );
+
 		$matches = null;
-		preg_match( '/modid=([0-9]+)/', $this->showLink, $matches );
+		preg_match( '/modid=([0-9]+)/', $anyLink, $matches );
 		$this->id = $matches[1];
 	}
 

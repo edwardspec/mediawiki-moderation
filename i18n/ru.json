@@ -54,6 +54,7 @@
 	"moderation-merge-not-automoderated": "Чтобы внести правку вручную, модератор должен быть автомодерируемым.",
 	"moderation-merge-not-needed": "Попробуйте сперва допустить эту правку: возможно, внесение вручную не требуется.",
 	"moderation-missing-stashed-image": "Эту загрузку невозможно допустить: картинка удалена из хранилища (скорее всего, самим пользователем на [[Special:UploadStash]]).",
+	"moderation-move": "$1 переименовано в $2",
 	"moderation": "Модерация",
 	"moderation-new-changes-appeared": "Новые изменения ожидают модерации.",
 	"moderation-no-merge-link-not-automoderated": "Нельзя внести правку вручную (не автомодерируемый)",

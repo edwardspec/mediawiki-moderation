@@ -109,6 +109,12 @@ class SpecialModeration extends QueryPage {
 			if ( $row->rejected_by_user ) {
 				$batch->add( NS_USER, $row->rejected_by_user_text );
 			}
+
+			/* Check NewTitle for page moves.
+				It will probably be a redlink, but we have to be sure. */
+			if ( isset( $row->page2_title ) && $row->page2_title ) {
+				$batch->add( $row->page2_namespace, $row->page2_title );
+			}
 		}
 		$batch->execute();
 
@@ -200,31 +206,49 @@ class SpecialModeration extends QueryPage {
 		$conds = $this->folders_list[$this->folder];
 		$index = 'moderation_folder_' . $this->folder;
 
+		/* FIXME: code duplication with ModerationEntry class.
+			Should probably have ModerationEntryFormatter subclass,
+			which wouldn't implement approve(),
+			but will provide getTitle(), getPage2Title(), isMove(), etc.
+			Note: $fields are slightly different from ModerationEntry::getFields(),
+			e.g. mod_new is needed here and not needed for approve().
+			So getFields() should be redefined in ModerationEntryFormatter.
+		*/
+		$fields = [
+			'mod_id AS id',
+			'mod_timestamp AS timestamp',
+			'mod_user AS user',
+			'mod_user_text AS user_text',
+			'mod_namespace AS namespace',
+			'mod_title AS title',
+			'mod_comment AS comment',
+			'mod_minor AS minor',
+			'mod_bot AS bot',
+			'mod_new AS new',
+			'mod_ip AS ip',
+			'mod_old_len AS old_len',
+			'mod_new_len AS new_len',
+			'mod_rejected AS rejected',
+			'mod_rejected_by_user AS rejected_by_user',
+			'mod_rejected_by_user_text AS rejected_by_user_text',
+			'mod_rejected_batch AS rejected_batch',
+			'mod_rejected_auto AS rejected_auto',
+			'mod_conflict AS conflict',
+			'mod_merged_revid AS merged_revid',
+			'mb_id AS moderation_blocked'
+		];
+
+		if ( ModerationVersionCheck::hasModType() ) {
+			$fields = array_merge( $fields, [
+				'mod_type AS type',
+				'mod_page2_namespace AS page2_namespace',
+				'mod_page2_title AS page2_title'
+			] );
+		}
+
 		return [
 			'tables' => [ 'moderation', 'moderation_block' ],
-			'fields' => [
-				'mod_id AS id',
-				'mod_timestamp AS timestamp',
-				'mod_user AS user',
-				'mod_user_text AS user_text',
-				'mod_namespace AS namespace',
-				'mod_title AS title',
-				'mod_comment AS comment',
-				'mod_minor AS minor',
-				'mod_bot AS bot',
-				'mod_new AS new',
-				'mod_ip AS ip',
-				'mod_old_len AS old_len',
-				'mod_new_len AS new_len',
-				'mod_rejected AS rejected',
-				'mod_rejected_by_user AS rejected_by_user',
-				'mod_rejected_by_user_text AS rejected_by_user_text',
-				'mod_rejected_batch AS rejected_batch',
-				'mod_rejected_auto AS rejected_auto',
-				'mod_conflict AS conflict',
-				'mod_merged_revid AS merged_revid',
-				'mb_id AS moderation_blocked'
-			],
+			'fields' => $fields,
 			'conds' => $conds,
 			'options' => [ 'USE INDEX' => [
 				'moderation' => $index,
@@ -242,6 +266,9 @@ class SpecialModeration extends QueryPage {
 	function formatResult( $skin, $result ) {
 		global $wgModerationPreviewLink;
 
+		/* Is this a page move? ("Page A renamed into B") */
+		$isMove = ( isset( $result->type ) && $result->type == ModerationNewChange::MOD_TYPE_MOVE );
+
 		$len_change = $result->new_len - $result->old_len;
 		if ( $len_change > 0 ) {
 			$len_change = '+' . $len_change;
@@ -251,13 +278,17 @@ class SpecialModeration extends QueryPage {
 		$title = Title::makeTitle( $result->namespace, $result->title );
 
 		$line = '';
-		$line .= '(' . $this->makeModerationLink( 'show', $result->id );
 
-		if ( $wgModerationPreviewLink ) {
-			$line .= ' | ' . $this->makeModerationLink( 'preview', $result->id );
+		if ( !$isMove ) { /* Show/Preview links aren't needed for moves, because they don't change the text */
+			$line .= '(' . $this->makeModerationLink( 'show', $result->id );
+
+			if ( $wgModerationPreviewLink ) {
+				$line .= ' | ' . $this->makeModerationLink( 'preview', $result->id );
+			}
+
+			$line .= ') . . ';
 		}
 
-		$line .= ') . . ';
 		if ( $result->minor ) {
 			$line .= wfMessage( 'minoreditletter' );
 		}
@@ -268,7 +299,23 @@ class SpecialModeration extends QueryPage {
 			$line .= wfMessage( 'newpageletter' );
 		}
 		$line .= ' ';
-		$line .= Linker::link( $title );
+
+		$pageLink = Linker::link( $title );
+		if ( $isMove ) {
+			/* "Page A renamed into B" */
+			$page2Title = Title::makeTitle( $result->page2_namespace, $result->page2_title );
+			$page2Link = Linker::link( $page2Title );
+
+			$line .= wfMessage( 'moderation-move' )->rawParams(
+				$pageLink,
+				$page2Link
+			)->plain();
+		}
+		else {
+			/* Normal edit (or upload) */
+			$line .= $pageLink;
+		}
+
 		$line .= ' ';
 
 		$line .= $this->formatTimestamp( $result->timestamp );
