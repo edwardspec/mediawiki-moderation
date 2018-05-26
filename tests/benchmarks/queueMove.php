@@ -1,0 +1,69 @@
+<?php
+
+/*
+	Extension:Moderation - MediaWiki extension.
+	Copyright (C) 2018 Edward Chernenko.
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+*/
+
+/**
+	@file
+	@brief Benchmark: how fast are moves queued for moderation?
+
+	Usage:
+	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/queueMove.php
+*/
+
+require_once( __DIR__ . '/ModerationBenchmark.php' );
+
+class BenchmarkQueueMove extends ModerationBenchmark {
+
+	protected $testUser = null;
+
+	public function getDefaultLoops() {
+		/* Reduce the default (500): beforeBenchmark() takes too much time */
+		return 150;
+	}
+
+	public function getOldTitle( $i ) {
+		return Title::newFromText( 'Old title ' . $i );
+	}
+
+	public function getNewTitle( $i ) {
+		return Title::newFromText( 'New title ' . $i );
+	}
+
+	public function beforeBenchmark( $numberOfLoops ) {
+		/* Create $numberOfLoops pages to be moved */
+		for ( $i = 0; $i <= $numberOfLoops; $i ++ ) {
+			$this->edit(
+				$this->getOldTitle( $i ),
+				'Whatever',
+				'',
+				$this->getAutomoderatedUser()
+			);
+		}
+	}
+
+	public function doActualWork( $i ) {
+		$mp = new MovePage(
+			$this->getOldTitle( $i ),
+			$this->getNewTitle( $i )
+		);
+		$status = $mp->checkPermissions( $this->getUnprivilegedUser(), 'Reason for moving #' . $i );
+
+		assert( $status->getMessage()->getKey() == 'moderation-edit-queued' );
+	}
+}
+
+$maintClass = 'BenchmarkQueueMove';
+require RUN_MAINTENANCE_IF_MAIN;

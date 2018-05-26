@@ -188,7 +188,9 @@ class ModerationTestsuite
 
 				Therefore we escape the "test DB" jail installed by MediaWikiTestCase.
 			*/
-			MediaWikiTestCase::teardownTestDB();
+			if ( class_exists( 'MediaWikiTestCase' ) ) { /* Won't be defined if called from benchmark scripts */
+				MediaWikiTestCase::teardownTestDB();
+			}
 		}
 
 		$dbw = wfGetDB( DB_MASTER );
