@@ -76,7 +76,13 @@ abstract class ModerationBenchmark extends Maintenance {
 
 		/* Prepare the initial conditions */
 		$loops = $this->getDefaultLoops();
+
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->startAtomic( __METHOD__ );
+
 		$this->beforeBenchmark( $loops );
+
+		$dbw->endAtomic( __METHOD__ );
 
 		/* Run doActualWork() several times */
 		$startTime = microtime( true );
@@ -97,7 +103,7 @@ abstract class ModerationBenchmark extends Maintenance {
 		@brief Edit the page (convenience function to be used by benchmarks).
 		@return Status object.
 	*/
-	public function edit( Title $title, $newText = 'Whatever', $reason = '', User $user = null ) {
+	public function edit( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
 		$page = WikiPage::factory( $title );
 		$content = ContentHandler::makeContent( $newText, null, CONTENT_MODEL_WIKITEXT );
 
@@ -108,10 +114,38 @@ abstract class ModerationBenchmark extends Maintenance {
 
 		return $page->doEditContent(
 			$content,
-			$reason,
+			$summary,
 			$flags,
 			false,
 			$user
 		);
+	}
+
+	/**
+		@brief Edit the page by directly modifying the database. Very fast.
+
+		This is used for initialization of tests.
+		For example, if moveQueue benchmark needs 500 existing pages,
+		it would take forever for doEditContent() to create them all,
+		much longer than the actual benchmark.
+	*/
+	public function fastEdit( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
+		$page = WikiPage::factory( $title );
+
+		$dbw = wfGetDB( DB_MASTER );
+		$page->insertOn( $dbw );
+
+		$revision = new Revision( [
+			'page'       => $page->getId(),
+			'comment'    => $summary,
+			'text'       => $newText,
+			'user'       => $user->getId(),
+			'user_text'  => $user->getName(),
+			'timestamp'  => wfTimestampNow(),
+			'content_model' => CONTENT_MODEL_WIKITEXT
+		] );
+
+		$revision->insertOn( $dbw );
+		$page->updateRevisionOn( $dbw, $revision );
 	}
 }

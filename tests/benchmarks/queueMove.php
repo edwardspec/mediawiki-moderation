@@ -27,13 +27,6 @@ require_once( __DIR__ . '/ModerationBenchmark.php' );
 
 class BenchmarkQueueMove extends ModerationBenchmark {
 
-	protected $testUser = null;
-
-	public function getDefaultLoops() {
-		/* Reduce the default (500): beforeBenchmark() takes too much time */
-		return 150;
-	}
-
 	public function getOldTitle( $i ) {
 		return Title::newFromText( 'Old title ' . $i );
 	}
@@ -45,7 +38,7 @@ class BenchmarkQueueMove extends ModerationBenchmark {
 	public function beforeBenchmark( $numberOfLoops ) {
 		/* Create $numberOfLoops pages to be moved */
 		for ( $i = 0; $i <= $numberOfLoops; $i ++ ) {
-			$this->edit(
+			$this->fastEdit(
 				$this->getOldTitle( $i ),
 				'Whatever',
 				'',
