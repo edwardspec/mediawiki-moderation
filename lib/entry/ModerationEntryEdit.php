@@ -20,7 +20,7 @@
 	@brief Normal edit (modification of page text) that awaits moderation.
 */
 
-class ModerationEntryEdit extends ModerationEntry {
+class ModerationEntryEdit extends ModerationApprovableEntry {
 	/**
 		@brief Approve this upload.
 		@returns Status object.

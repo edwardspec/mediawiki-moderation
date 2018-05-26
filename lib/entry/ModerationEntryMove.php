@@ -20,7 +20,7 @@
 	@brief Page move (proposal to rename the page) that awaits moderation.
 */
 
-class ModerationEntryMove extends ModerationEntry {
+class ModerationEntryMove extends ModerationApprovableEntry {
 	/**
 		@brief Approve this move.
 		@returns Status object.

@@ -20,7 +20,7 @@
 	@brief File upload that awaits moderation.
 */
 
-class ModerationEntryUpload extends ModerationEntry {
+class ModerationEntryUpload extends ModerationApprovableEntry {
 	/**
 		@brief Approve this upload.
 		@returns Status object.

@@ -47,8 +47,8 @@ class ModerationActionShow extends ModerationAction {
 			$out->addWikiMsg( $result['nodiff-reason'] );
 		}
 
-		$approveLink = SpecialModeration::makeModerationLink( 'approve', $this->id );
-		$rejectLink = SpecialModeration::makeModerationLink( 'reject', $this->id );
+		$approveLink = ModerationEntryFormatter::makeModerationLink( 'approve', $this->id );
+		$rejectLink = ModerationEntryFormatter::makeModerationLink( 'reject', $this->id );
 
 		if ( !isset( $result['null-edit'] ) ) {
 			$out->addHTML( $approveLink );

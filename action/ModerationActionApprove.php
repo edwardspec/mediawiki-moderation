@@ -51,7 +51,7 @@ class ModerationActionApprove extends ModerationAction {
 	}
 
 	public function executeApproveOne() {
-		$entry = ModerationEntry::newFromId( $this->id );
+		$entry = ModerationApprovableEntry::newFromId( $this->id );
 		$entry->approve( $this->moderator );
 
 		return [
@@ -67,7 +67,7 @@ class ModerationActionApprove extends ModerationAction {
 
 		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
 		$res = $dbw->select( 'moderation',
-			ModerationEntry::getFields(),
+			ModerationApprovableEntry::getFields(),
 			[
 				'mod_user_text' => $userpage->getText(),
 				'mod_rejected' => 0, # Previously rejected edits are not approved by "Approve all"
@@ -91,7 +91,7 @@ class ModerationActionApprove extends ModerationAction {
 		$failed = [];
 		foreach ( $res as $row ) {
 			try {
-				$entry = ModerationEntry::newFromRow( $row );
+				$entry = ModerationApprovableEntry::newFromRow( $row );
 				$entry->approve( $this->moderator );
 
 				$approved[$row->id] = '';

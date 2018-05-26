@@ -17,10 +17,10 @@
 
 /**
 	@file
-	@brief Parent class for all entry types (edit, upload, move, etc.).
+	@brief Parent class for objects that represent one row in the 'moderation' SQL table.
 */
 
-abstract class ModerationEntry {
+abstract class ModerationEntry implements IModerationEntry {
 	private $row;
 
 	private $user = null; /**< Author of this change (User object) */
@@ -31,6 +31,14 @@ abstract class ModerationEntry {
 	}
 
 	protected function __construct( $row ) {
+		if ( !isset( $row->type ) ) { // !ModerationVersionCheck::hasModType()
+			$row->type = ModerationNewChange::MOD_TYPE_EDIT;
+		}
+
+		if ( !isset( $row->tags ) ) { // !ModerationVersionCheck::areTagsSupported()
+			$row->tags = false;
+		}
+
 		$this->row = $row;
 	}
 
@@ -86,54 +94,13 @@ abstract class ModerationEntry {
 	}
 
 	/**
-		@brief Get the list of fields needed for selecting $row, as expected by newFromRow().
-		@returns array ($fields parameter for $db->select()).
-	*/
-	public static function getFields() {
-		$fields = [
-			'mod_id AS id',
-			'mod_timestamp AS timestamp',
-			'mod_user AS user',
-			'mod_user_text AS user_text',
-			'mod_cur_id AS cur_id',
-			'mod_namespace AS namespace',
-			'mod_title AS title',
-			'mod_comment AS comment',
-			'mod_minor AS minor',
-			'mod_bot AS bot',
-			'mod_last_oldid AS last_oldid',
-			'mod_ip AS ip',
-			'mod_header_xff AS header_xff',
-			'mod_header_ua AS header_ua',
-			'mod_text AS text',
-			'mod_merged_revid AS merged_revid',
-			'mod_rejected AS rejected',
-			'mod_stash_key AS stash_key'
-		];
-
-		if ( ModerationVersionCheck::areTagsSupported() ) {
-			$fields[] = 'mod_tags AS tags';
-		}
-
-		if ( ModerationVersionCheck::hasModType() ) {
-			$fields = array_merge( $fields, [
-				'mod_type AS type',
-				'mod_page2_namespace AS page2_namespace',
-				'mod_page2_title AS page2_title'
-			] );
-		}
-
-		return $fields;
-	}
-
-	/**
 		@brief Load ModerationEntry from the database by mod_id.
 		@throws ModerationError
 	*/
 	public static function newFromId( $id ) {
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
-			self::getFields(),
+			static::getFields(),
 			[ 'mod_id' => $id ],
 			__METHOD__
 		);
@@ -141,7 +108,7 @@ abstract class ModerationEntry {
 			throw new ModerationError( 'moderation-edit-not-found' );
 		}
 
-		return self::newFromRow( $row );
+		return static::newFromRow( $row );
 	}
 
 	/**
@@ -149,116 +116,6 @@ abstract class ModerationEntry {
 		@throws ModerationError
 	*/
 	public static function newFromRow( $row ) {
-		if ( !isset( $row->type ) ) { // !ModerationVersionCheck::hasModType()
-			$row->type = ModerationNewChange::MOD_TYPE_EDIT;
-		}
-
-		if ( !isset( $row->tags ) ) { // !ModerationVersionCheck::areTagsSupported()
-			$row->tags = false;
-		}
-
-		if ( $row->type == ModerationNewChange::MOD_TYPE_MOVE ) {
-			return new ModerationEntryMove( $row );
-		}
-
-		if ( $row->stash_key ) {
-			return new ModerationEntryUpload( $row );
-		}
-
-		return new ModerationEntryEdit( $row );
+		return new static( $row );
 	}
-
-	/**
-		@brief Install hooks which affect postedit behavior of doEditContent().
-	*/
-	protected function installApproveHook() {
-		$row = $this->getRow();
-		$user = $this->getUser();
-
-		ModerationApproveHook::install( $this->getTitle(), $user, $row->type, [
-			# For CheckUser extension to work properly, IP, XFF and UA
-			# should be set to the correct values for the original user
-			# (not from the moderator)
-			'ip' => $row->ip,
-			'xff' => $row->header_xff,
-			'ua' => $row->header_ua,
-			'tags' => $row->tags,
-
-			# Here we set the timestamp of this edit to $row->timestamp
-			# (this is needed because doEditContent() always uses current timestamp).
-			#
-			# NOTE: timestamp in recentchanges table is not updated on purpose:
-			# users would want to see new edits as they appear,
-			# without the edits surprisingly appearing somewhere in the past.
-			'timestamp' => $row->timestamp
-		] );
-	}
-
-	/**
-		@brief Approve this change.
-		@throws ModerationError
-	*/
-	final public function approve( User $moderator ) {
-		$row = $this->getRow();
-
-		/* Can this change be approved? */
-		if ( $row->merged_revid ) {
-			throw new ModerationError( 'moderation-already-merged' );
-		}
-		if ( $row->rejected && $row->timestamp < SpecialModeration::getEarliestReapprovableTimestamp() ) {
-			throw new ModerationError( 'moderation-rejected-long-ago' );
-		}
-
-		# Disable moderation hook (ModerationEditHooks::onPageContentSave),
-		# so that it won't queue this edit again.
-		ModerationCanSkip::enterApproveMode();
-
-		# Install hooks to modify CheckUser database after approval, etc.
-		$this->installApproveHook();
-
-		# Do the actual approval.
-		$status = $this->doApprove( $moderator );
-		if ( !$status->isGood() ) {
-			/* Uniform handling of errors from doEditContent(), etc.:
-				throw the ModerationError exception */
-			throw new ModerationError( $status->getMessage() );
-		}
-
-		# Create post-approval log entry ("successfully approved").
-		$logEntry = new ManualLogEntry( 'moderation', $this->getApproveLogSubtype() );
-		$logEntry->setPerformer( $moderator );
-		$logEntry->setTarget( $this->getTitle() );
-		$logEntry->setParameters( $this->getApproveLogParameters() );
-		$logid = $logEntry->insert();
-		$logEntry->publish( $logid );
-
-		# Approved edits are removed from "moderation" table,
-		# because they already exist in page history, recentchanges etc.
-
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->delete( 'moderation', [ 'mod_id' => $row->id ], __METHOD__ );
-	}
-
-	/**
-		@brief Post-approval log subtype. May be overridden in subclass.
-		@returns String (e.g. "approve" for "moderation/approve" log).
-	*/
-	protected function getApproveLogSubtype() {
-		return 'approve';
-	}
-
-	/**
-		@brief Parameters for post-approval log.
-		@returns array
-	*/
-	protected function getApproveLogParameters() {
-		return [ 'revid' => ModerationApproveHook::getLastRevId() ];
-	}
-
-	/**
-		@brief Approve this change.
-		@returns Status object.
-		@throws ModerationError
-	*/
-	abstract public function doApprove( User $moderator );
 }
