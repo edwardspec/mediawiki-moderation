@@ -209,6 +209,7 @@ class ModerationTestsuite
 		$dbw->delete( 'user_properties', [ '1' ], __METHOD__ );
 		$dbw->delete( 'page', [ '1' ], __METHOD__ );
 		$dbw->delete( 'revision', [ '1' ], __METHOD__ );
+		$dbw->delete( 'ip_changes', [ '1' ], __METHOD__ );
 		$dbw->delete( 'logging', [ '1' ], __METHOD__ );
 		$dbw->delete( 'text', [ '1' ], __METHOD__ );
 		$dbw->delete( 'image', [ '1' ], __METHOD__ );
@@ -219,6 +220,10 @@ class ModerationTestsuite
 		$dbw->delete( 'abuse_filter_action', [ '1' ], __METHOD__ );
 		$dbw->delete( 'change_tag', [ '1' ], __METHOD__ );
 		$dbw->delete( 'tag_summary', [ '1' ], __METHOD__ );
+
+		if ( $dbw->tableExists( 'ip_changes' ) ) {
+			$dbw->delete( 'ip_changes', [ '1' ], __METHOD__ );
+		}
 
 		if ( $dbw->tableExists( 'cu_changes' ) ) {
 			$dbw->delete( 'cu_changes', [ '1' ], __METHOD__ );

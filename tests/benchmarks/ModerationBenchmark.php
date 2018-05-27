@@ -129,18 +129,18 @@ abstract class ModerationBenchmark extends Maintenance {
 		it would take forever for doEditContent() to create them all,
 		much longer than the actual benchmark.
 	*/
-	public function fastEdit( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
-		$page = WikiPage::factory( $title );
-
+	public function fastEdit( Title $title, $newText = 'Whatever', $summary = '' ) {
 		$dbw = wfGetDB( DB_MASTER );
+
+		$page = WikiPage::factory( $title );
 		$page->insertOn( $dbw );
 
 		$revision = new Revision( [
 			'page'       => $page->getId(),
 			'comment'    => $summary,
-			'text'       => $newText,
-			'user'       => $user->getId(),
-			'user_text'  => $user->getName(),
+			'text'       => $newText, # No preSaveTransform or serialization
+			'user'       => 0,
+			'user_text'  => '127.0.0.1',
 			'timestamp'  => wfTimestampNow(),
 			'content_model' => CONTENT_MODEL_WIKITEXT
 		] );

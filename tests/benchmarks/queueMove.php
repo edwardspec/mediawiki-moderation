@@ -38,12 +38,7 @@ class BenchmarkQueueMove extends ModerationBenchmark {
 	public function beforeBenchmark( $numberOfLoops ) {
 		/* Create $numberOfLoops pages to be moved */
 		for ( $i = 0; $i <= $numberOfLoops; $i ++ ) {
-			$this->fastEdit(
-				$this->getOldTitle( $i ),
-				'Whatever',
-				'',
-				$this->getAutomoderatedUser()
-			);
+			$this->fastEdit( $this->getOldTitle( $i ) );
 		}
 	}
 
