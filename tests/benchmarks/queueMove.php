@@ -28,11 +28,11 @@ require_once( __DIR__ . '/ModerationBenchmark.php' );
 class BenchmarkQueueMove extends ModerationBenchmark {
 
 	public function getOldTitle( $i ) {
-		return Title::newFromText( 'Old title ' . $i );
+		return $this->getTestTitle( 'Old title ' . $i );
 	}
 
 	public function getNewTitle( $i ) {
-		return Title::newFromText( 'New title ' . $i );
+		return $this->getTestTitle( 'New title ' . $i );
 	}
 
 	public function beforeBenchmark( $numberOfLoops ) {
@@ -47,7 +47,7 @@ class BenchmarkQueueMove extends ModerationBenchmark {
 			$this->getOldTitle( $i ),
 			$this->getNewTitle( $i )
 		);
-		$status = $mp->checkPermissions( $this->getUnprivilegedUser(), 'Reason for moving #' . $i );
+		$status = $mp->checkPermissions( $this->getUser(), 'Reason for moving #' . $i );
 
 		assert( $status->getMessage()->getKey() == 'moderation-edit-queued' );
 	}

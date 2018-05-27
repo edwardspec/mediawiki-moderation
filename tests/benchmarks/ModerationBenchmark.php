@@ -21,28 +21,40 @@
 */
 
 abstract class ModerationBenchmark extends Maintenance {
-
-	private $testsuite = null; /**< ModerationTestsuite */
+	/**
+		@brief Prefix that is always prepended to all titles, etc.
+		This ensures that two benchmarks won't work with the same pages,
+		causing errors like "benchmark #1 was creating a new page,
+		benchmark #2 was editing existing page,
+		leading to performance of #1 and #2 being different".
+	*/
+	private $uniquePrefix = null;
 
 	/**
-		@brief User object of automoderated account.
+		@brief User object. Always created before the benchmark.
 	*/
-	public function getAutomoderatedUser() {
-		return $this->testsuite->automoderated;
+	private $testUser = null;
+
+	/**
+		@brief Returns User object of test account.
+	*/
+	public function getUser() {
+		return $this->testUser;
 	}
 
 	/**
-		@brief User object of non-automoderated account.
-	*/
-	public function getUnprivilegedUser() {
-		return $this->testsuite->unprivilegedUser;
-	}
+		@brief Returns Title object for testing.
+		@param $suffix Full text of the title, e.g. "Talk:Welsh corgi".
 
-	/**
-		@brief User object of moderator account.
+		During this benchmark, same value is returned for same $suffix,
+		but another benchmark will get a different Title.
 	*/
-	public function getModeratorUser() {
-		return $this->testsuite->moderator;
+	public function getTestTitle( $suffix ) {
+		$nonprefixedTitle = Title::newFromText( $suffix );
+		return Title::makeTitle(
+			$nonprefixedTitle->getNamespace(),
+			$this->uniquePrefix . $nonprefixedTitle->getText()
+		);
 	}
 
 	/**
@@ -69,10 +81,8 @@ abstract class ModerationBenchmark extends Maintenance {
 		@brief Main function: test the performance of doActualWork().
 	*/
 	function execute() {
-		global $wgAutoloadClasses;
-		$wgAutoloadClasses['ModerationTestsuite'] = __DIR__ . "/../phpunit/framework/ModerationTestsuite.php";
-
-		$this->testsuite = new ModerationTestsuite; /* Clean the database, etc. */
+		$this->uniquePrefix = wfTimestampNow() . '_' . rand() . '_';
+		$this->testUser = User::newSystemUser( 'Benchmark User', [ 'steal' => true ] );
 
 		/* Prepare the initial conditions */
 		$loops = $this->getDefaultLoops();

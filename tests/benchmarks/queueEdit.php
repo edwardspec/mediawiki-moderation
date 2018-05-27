@@ -28,7 +28,7 @@ require_once( __DIR__ . '/ModerationBenchmark.php' );
 class BenchmarkQueueEdit extends ModerationBenchmark {
 	public function doActualWork( $i ) {
 		$status = $this->edit(
-			Title::newFromText( 'Test page ' . $i ),
+			$this->getTestTitle( 'Test page ' . $i ),
 			'Test content ' . $i,
 			'Test summary ' . $i
 		);
