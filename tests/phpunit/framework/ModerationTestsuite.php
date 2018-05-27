@@ -202,31 +202,31 @@ class ModerationTestsuite
 		}
 
 		$dbw->begin( __METHOD__ );
-		$dbw->delete( 'moderation', [ '1' ], __METHOD__ );
-		$dbw->delete( 'moderation_block', [ '1' ], __METHOD__ );
-		$dbw->delete( 'user', [ '1' ], __METHOD__ );
-		$dbw->delete( 'user_groups', [ '1' ], __METHOD__ );
-		$dbw->delete( 'user_properties', [ '1' ], __METHOD__ );
-		$dbw->delete( 'page', [ '1' ], __METHOD__ );
-		$dbw->delete( 'revision', [ '1' ], __METHOD__ );
-		$dbw->delete( 'ip_changes', [ '1' ], __METHOD__ );
-		$dbw->delete( 'logging', [ '1' ], __METHOD__ );
-		$dbw->delete( 'text', [ '1' ], __METHOD__ );
-		$dbw->delete( 'image', [ '1' ], __METHOD__ );
-		$dbw->delete( 'uploadstash', [ '1' ], __METHOD__ );
-		$dbw->delete( 'recentchanges', [ '1' ], __METHOD__ );
-		$dbw->delete( 'watchlist', [ '1' ], __METHOD__ );
-		$dbw->delete( 'abuse_filter', [ '1' ], __METHOD__ );
-		$dbw->delete( 'abuse_filter_action', [ '1' ], __METHOD__ );
-		$dbw->delete( 'change_tag', [ '1' ], __METHOD__ );
-		$dbw->delete( 'tag_summary', [ '1' ], __METHOD__ );
+		$dbw->delete( 'moderation', '*', __METHOD__ );
+		$dbw->delete( 'moderation_block', '*', __METHOD__ );
+		$dbw->delete( 'user', '*', __METHOD__ );
+		$dbw->delete( 'user_groups', '*', __METHOD__ );
+		$dbw->delete( 'user_properties', '*', __METHOD__ );
+		$dbw->delete( 'page', '*', __METHOD__ );
+		$dbw->delete( 'revision', '*', __METHOD__ );
+		$dbw->delete( 'ip_changes', '*', __METHOD__ );
+		$dbw->delete( 'logging', '*', __METHOD__ );
+		$dbw->delete( 'text', '*', __METHOD__ );
+		$dbw->delete( 'image', '*', __METHOD__ );
+		$dbw->delete( 'uploadstash', '*', __METHOD__ );
+		$dbw->delete( 'recentchanges', '*', __METHOD__ );
+		$dbw->delete( 'watchlist', '*', __METHOD__ );
+		$dbw->delete( 'abuse_filter', '*', __METHOD__ );
+		$dbw->delete( 'abuse_filter_action', '*', __METHOD__ );
+		$dbw->delete( 'change_tag', '*', __METHOD__ );
+		$dbw->delete( 'tag_summary', '*', __METHOD__ );
 
 		if ( $dbw->tableExists( 'ip_changes' ) ) {
-			$dbw->delete( 'ip_changes', [ '1' ], __METHOD__ );
+			$dbw->delete( 'ip_changes', '*', __METHOD__ );
 		}
 
 		if ( $dbw->tableExists( 'cu_changes' ) ) {
-			$dbw->delete( 'cu_changes', [ '1' ], __METHOD__ );
+			$dbw->delete( 'cu_changes', '*', __METHOD__ );
 		}
 
 		$this->moderator =
@@ -676,7 +676,7 @@ class ModerationTestsuite
 		$dbw = wfGetDB( DB_MASTER );
 		$revisionIds = $dbw->selectFieldValues(
 			'revision', 'rev_id',
-			'1',
+			'',
 			__METHOD__,
 			[
 				'ORDER BY' => 'rev_id DESC',
@@ -688,7 +688,7 @@ class ModerationTestsuite
 		$maxTime = time() + $pollTimeLimitSeconds;
 		do {
 			$rcRowsFound = $dbw->selectRowCount(
-				'recentchanges', '1',
+				'recentchanges', '',
 				[
 					'rc_this_oldid' => $revisionIds
 				],
