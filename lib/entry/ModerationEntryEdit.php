@@ -22,7 +22,7 @@
 
 class ModerationEntryEdit extends ModerationApprovableEntry {
 	/**
-		@brief Approve this upload.
+		@brief Approve this edit.
 		@returns Status object.
 	*/
 	public function doApprove( User $moderator ) {
@@ -101,6 +101,6 @@ class ModerationEntryEdit extends ModerationApprovableEntry {
 			__METHOD__
 		);
 
-		throw new ModerationError( 'moderation-edit-conflict' );
+		return Status::newFatal( 'moderation-edit-conflict' );
 	}
 }

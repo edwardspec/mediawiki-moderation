@@ -24,7 +24,6 @@ class ModerationEntryUpload extends ModerationApprovableEntry {
 	/**
 		@brief Approve this upload.
 		@returns Status object.
-		@throws ModerationError
 	*/
 	public function doApprove( User $moderator ) {
 		$row = $this->getRow();
@@ -38,7 +37,7 @@ class ModerationEntryUpload extends ModerationApprovableEntry {
 		try {
 			$upload->initialize( $row->stash_key, $this->getTitle()->getText() );
 		} catch ( UploadStashFileNotFoundException $e ) {
-			throw new ModerationError( 'moderation-missing-stashed-image' );
+			return Status::newFatal( 'moderation-missing-stashed-image' );
 		}
 
 		return $upload->performUpload( $row->comment, $row->text, 0, $user );

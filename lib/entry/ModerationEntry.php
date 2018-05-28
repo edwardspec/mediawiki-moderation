@@ -26,6 +26,8 @@ abstract class ModerationEntry implements IModerationEntry {
 	private $user = null; /**< Author of this change (User object) */
 	private $title = null; /**< Page affected by this change (Title object) */
 
+	protected static $earliestReapprovableTimestamp = false; /**< Cache used by canReapproveRejected() */
+
 	protected function getRow() {
 		return $this->row;
 	}
@@ -40,6 +42,27 @@ abstract class ModerationEntry implements IModerationEntry {
 		}
 
 		$this->row = $row;
+	}
+
+	/**
+		@brief Returns true if this is a move, false otherwise.
+	*/
+	public function isMove() {
+		return $this->row->type == ModerationNewChange::MOD_TYPE_MOVE;
+	}
+
+	/**
+		@brief Returns true if this edit is recent enough to be reapproved after rejection.
+	*/
+	public function canReapproveRejected() {
+		if ( self::$earliestReapprovableTimestamp === false ) {
+			global $wgModerationTimeToOverrideRejection;
+
+			$ts = new MWTimestamp();
+			$ts->timestamp->modify( '-' . intval( $wgModerationTimeToOverrideRejection ) . ' seconds' );
+			self::$earliestReapprovableTimestamp = $ts->getTimestamp( TS_MW );
+		}
+		return $this->row->timestamp > self::$earliestReapprovableTimestamp;
 	}
 
 	/**

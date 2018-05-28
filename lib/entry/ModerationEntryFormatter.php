@@ -138,20 +138,17 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 		$row = $this->getRow();
 
-		/* Is this a page move? ("Page A renamed into B") */
-		$isMove = ( isset( $row->type ) && $row->type == ModerationNewChange::MOD_TYPE_MOVE );
-
 		$len_change = $row->new_len - $row->old_len;
 		if ( $len_change > 0 ) {
 			$len_change = '+' . $len_change;
 		}
 
 		$class = 'modline';
-		$title = Title::makeTitle( $row->namespace, $row->title );
+		$title = $this->getTitle();
 
 		$line = '';
 
-		if ( !$isMove ) { /* Show/Preview links aren't needed for moves, because they don't change the text */
+		if ( !$this->isMove() ) { /* Show/Preview links aren't needed for moves, because they don't change the text */
 			$line .= '(' . $this->makeModerationLink( 'show', $row->id );
 
 			if ( $wgModerationPreviewLink ) {
@@ -173,10 +170,9 @@ class ModerationEntryFormatter extends ModerationEntry {
 		$line .= ' ';
 
 		$pageLink = Linker::link( $title );
-		if ( $isMove ) {
+		if ( $this->isMove() ) {
 			/* "Page A renamed into B" */
-			$page2Title = Title::makeTitle( $row->page2_namespace, $row->page2_title );
-			$page2Link = Linker::link( $page2Title );
+			$page2Link = Linker::link( $this->getPage2Title() );
 
 			$line .= wfMessage( 'moderation-move' )->rawParams(
 				$pageLink,
@@ -215,7 +211,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 					$line .= wfMessage( 'moderation-no-merge-link-not-automoderated' );
 				}
 			} else {
-				if ( !$row->rejected || $row->timestamp > ModerationApprovableEntry::getEarliestReapprovableTimestamp() ) {
+				if ( !$row->rejected || $this->canReapproveRejected() ) {
 					$line .= $this->makeModerationLink( 'approve', $row->id );
 				}
 

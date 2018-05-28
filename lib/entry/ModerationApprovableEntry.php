@@ -21,8 +21,6 @@
 */
 
 abstract class ModerationApprovableEntry extends ModerationEntry {
-	protected static $earliestTs = false; /**< Cache used by getEarliestReapprovableTimestamp() */
-
 	/**
 		@brief Get the list of fields needed for selecting $row, as expected by newFromRow().
 		@returns array ($fields parameter for $db->select()).
@@ -117,7 +115,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 		if ( $row->merged_revid ) {
 			throw new ModerationError( 'moderation-already-merged' );
 		}
-		if ( $row->rejected && $row->timestamp < self::getEarliestReapprovableTimestamp() ) {
+		if ( $row->rejected && !$this->canReapproveRejected() ) {
 			throw new ModerationError( 'moderation-rejected-long-ago' );
 		}
 
@@ -170,23 +168,6 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	/**
 		@brief Approve this change.
 		@returns Status object.
-		@throws ModerationError
 	*/
 	abstract public function doApprove( User $moderator );
-
-	/**
-		@brief Get the oldest timestamp for the rejected edit which would still allow it to be approved.
-		@returns String (timestamp in MediaWiki format).
-	*/
-	public static function getEarliestReapprovableTimestamp() {
-		if ( self::$earliestTs === false ) {
-			global $wgModerationTimeToOverrideRejection;
-
-			$mw_ts = new MWTimestamp( time() );
-			$mw_ts->timestamp->modify( '-' . intval( $wgModerationTimeToOverrideRejection ) . ' seconds' );
-			self::$earliestTs = $mw_ts->getTimestamp( TS_MW );
-		}
-
-		return self::$earliestTs;
-	}
 }
