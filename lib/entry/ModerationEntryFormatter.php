@@ -232,10 +232,8 @@ class ModerationEntryFormatter extends ModerationEntry {
 			}
 			$line .= ']';
 		} else {
-			$rev = Revision::newFromId( $row->merged_revid );
-
 			$line .= ' [' . Linker::link(
-				$rev ? $rev->getTitle() : $title,
+				$title,
 				wfMessage( 'moderation-merged-link' )->escaped(),
 				[ 'title' => wfMessage( 'tooltip-moderation-merged-link' ) ],
 				[ 'diff' => $row->merged_revid ],
