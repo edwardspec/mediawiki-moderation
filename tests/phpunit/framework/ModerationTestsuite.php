@@ -209,7 +209,6 @@ class ModerationTestsuite
 		$dbw->delete( 'user_properties', '*', __METHOD__ );
 		$dbw->delete( 'page', '*', __METHOD__ );
 		$dbw->delete( 'revision', '*', __METHOD__ );
-		$dbw->delete( 'ip_changes', '*', __METHOD__ );
 		$dbw->delete( 'logging', '*', __METHOD__ );
 		$dbw->delete( 'text', '*', __METHOD__ );
 		$dbw->delete( 'image', '*', __METHOD__ );

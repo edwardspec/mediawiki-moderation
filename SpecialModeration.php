@@ -172,30 +172,20 @@ class SpecialModeration extends QueryPage {
 		$conds = $this->folders_list[$this->folder];
 		$index = 'moderation_folder_' . $this->folder;
 
-		$fields = ModerationEntryFormatter::getFields();
-		$fields[] = 'mb_id AS moderation_blocked';
-
-		return [
-			'tables' => [ 'moderation', 'moderation_block' ],
-			'fields' => $fields,
-			'conds' => $conds,
-			'options' => [ 'USE INDEX' => [
-				'moderation' => $index,
-				'moderation_block' => 'moderation_block_address'
-			] ],
-			'join_conds' => [
-				'moderation_block' => [
-					'LEFT JOIN',
-					[ 'mb_address=mod_user_text' ]
-				]
+		return array_merge_recursive(
+			ModerationEntryFormatter::getQueryInfo(),
+			[
+				'conds' => $conds,
+				'options' => [ 'USE INDEX' => [
+					'moderation' => $index
+				] ]
 			]
-		];
+		);
 	}
 
 	function formatResult( $skin, $row ) {
 		$formatter = ModerationEntryFormatter::newFromRow( $row );
 		$formatter->setContext( $this->getContext() );
-		$formatter->setBlocked( $row->moderation_blocked );
 		return $formatter->getHTML();
 	}
 }

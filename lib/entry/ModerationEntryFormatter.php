@@ -21,15 +21,8 @@
 */
 
 class ModerationEntryFormatter extends ModerationEntry {
-	protected $blocked = null; /**< True if modblocked, false otherwise */
 	protected $context = null; /**< IContextSource */
 
-	/**
-		@brief Notify the formatter whether the author of this change is modblocked.
-	*/
-	public function setBlocked( $isBlocked ) {
-		$this->blocked = $isBlocked;
-	}
 
 	public function getContext() {
 		if ( is_null( $this->context ) ) {
@@ -48,6 +41,27 @@ class ModerationEntryFormatter extends ModerationEntry {
 	*/
 	public function getModerator() {
 		return $this->getContext()->getUser();
+	}
+
+
+	/**
+		@brief Returns QueryInfo for $db->select(), as expected by QueryPage::getQueryInfo().
+	*/
+	public static function getQueryInfo() {
+		return [
+			'tables' => [ 'moderation', 'moderation_block' ],
+			'fields' => self::getFields(),
+			'conds' => [],
+			'options' => [ 'USE INDEX' => [
+				'moderation_block' => 'moderation_block_address'
+			] ],
+			'join_conds' => [
+				'moderation_block' => [
+					'LEFT JOIN',
+					[ 'mb_address=mod_user_text' ]
+				]
+			]
+		];
 	}
 
 	/**
@@ -75,7 +89,8 @@ class ModerationEntryFormatter extends ModerationEntry {
 			'mod_rejected_batch AS rejected_batch',
 			'mod_rejected_auto AS rejected_auto',
 			'mod_conflict AS conflict',
-			'mod_merged_revid AS merged_revid'
+			'mod_merged_revid AS merged_revid',
+			'mb_id AS blocked'
 		];
 
 		if ( ModerationVersionCheck::hasModType() ) {
@@ -208,7 +223,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 		$line .= ' . . [';
 		$line .= $this->makeModerationLink(
-			$this->blocked ? 'unblock' : 'block',
+			$row->blocked ? 'unblock' : 'block',
 			$row->id
 		);
 		$line .= ']';
