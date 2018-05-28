@@ -17,45 +17,53 @@
 
 /**
 	@file
-	@brief Benchmark: how fast is HTML of Special:Moderation generated?
+	@brief Benchmark: how fast is Approve on Special:Moderation?
 
 	Usage:
-	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/renderSpecial.php
+	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/approveEdit.php
 */
 
 require_once( __DIR__ . '/ModerationBenchmark.php' );
 
-class BenchmarkRenderSpecial extends ModerationBenchmark {
+class BenchmarkApproveEdit extends ModerationBenchmark {
+
+	public $ids = []; /* mod_id of all changes to approve */
 
 	/**
 		@brief Default number of loops.
 	*/
 	public function getDefaultLoops() {
-		return 50;
-	}
-
-	/**
-		@brief How many rows to show on Special:Moderation.
-	*/
-	public function getNumberOfEntries() {
-		return 200;
+		return 100;
 	}
 
 	public function beforeBenchmark( $numberOfLoops ) {
 		/* Prepopulate 'moderation' table */
-		for ( $i = 0; $i <= $this->getNumberOfEntries(); $i ++ ) {
+		for ( $i = 0; $i <= $this->getDefaultLoops(); $i ++ ) {
 			$this->fastQueue( $this->getTestTitle( $i ) );
 		}
 
 		$this->getUser()->addGroup( 'moderator' );
+
+		$dbw = wfGetDB( DB_MASTER );
+		$this->ids = $dbw->selectFieldValues(
+			'moderation',
+			'mod_id',
+			'',
+			__METHOD__,
+			[ 'ORDER BY' => 'mod_timestamp DESC' ]
+		);
 	}
 
 	public function doActualWork( $i ) {
-		$this->runSpecialModeration( [
-			'limit' => $this->getNumberOfEntries()
+		$html = $this->runSpecialModeration( [
+			'modaction' => 'approve',
+			'modid' => $this->ids[$i],
+			'token' => $this->getUser()->getEditToken()
 		] );
+
+		assert( strpos( $html, '(moderation-approved-ok: 1)' ) !== false );
 	}
 }
 
-$maintClass = 'BenchmarkRenderSpecial';
+$maintClass = 'BenchmarkApproveEdit';
 require RUN_MAINTENANCE_IF_MAIN;

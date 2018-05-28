@@ -179,4 +179,23 @@ abstract class ModerationBenchmark extends Maintenance {
 		$change = new ModerationNewChange( $title, $user );
 		$change->edit( $page, $content )->setSummary( $summary )->queue();
 	}
+
+	/**
+		@brief Render Special:Moderation with $params.
+		@returns HTML of the result.
+	*/
+	public function runSpecialModeration( array $params, $wasPosted = false ) {
+		$page = SpecialPageFactory::getPage( 'Moderation' );
+
+		$context = new RequestContext;
+		$context->setRequest( new FauxRequest( $params, $wasPosted ) );
+		$context->setLanguage( Language::factory( 'qqx' ) );
+		$context->setTitle( $page->getPageTitle() );
+		$context->setUser( $this->getUser() );
+
+		$page->setContext( $context );
+		$page->execute( '' );
+
+		return $context->getOutput()->getHTML();
+	}
 }
