@@ -23,7 +23,6 @@
 class ModerationEntryFormatter extends ModerationEntry {
 	protected $context = null; /**< IContextSource */
 
-
 	public function getContext() {
 		if ( is_null( $this->context ) ) {
 			$this->context = RequestContext::getMain();
@@ -43,6 +42,33 @@ class ModerationEntryFormatter extends ModerationEntry {
 		return $this->getContext()->getUser();
 	}
 
+	/**
+		@brief Add all titles needed by getHTML() to $batch.
+		This method is for QueryPage::preprocessResults().
+		It optimizes Linker::link() calls by detecting all redlinks in one SQL query.
+	*/
+	public static function addToLinkBatch( $row, LinkBatch $batch ) {
+		/* Check the affected article */
+		$batch->add( $row->namespace, $row->title );
+
+		/* Check userpages - improves performance of Linker::userLink().
+			Not needed for anonymous users,
+			because their userLink() points to Special:Contributions.
+		*/
+		if ( $row->user ) {
+			$batch->add( NS_USER, $row->user_text );
+		}
+
+		if ( $row->rejected_by_user ) {
+			$batch->add( NS_USER, $row->rejected_by_user_text );
+		}
+
+		/* Check NewTitle for page moves.
+			It will probably be a redlink, but we have to be sure. */
+		if ( !empty( $row->page2_title ) ) {
+			$batch->add( $row->page2_namespace, $row->page2_title );
+		}
+	}
 
 	/**
 		@brief Returns QueryInfo for $db->select(), as expected by QueryPage::getQueryInfo().

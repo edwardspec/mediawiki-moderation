@@ -62,25 +62,7 @@ class SpecialModeration extends QueryPage {
 			improves performance of Linker::link() in formatResult() */
 		$batch = new LinkBatch();
 		foreach ( $res as $row ) {
-			$batch->add( $row->namespace, $row->title );
-
-			/* Check userpages too - improves performance of Linker::userLink().
-				Not needed for anonymous users,
-				because their userLink() points to Special:Contributions.
-			*/
-			if ( $row->user ) {
-				$batch->add( NS_USER, $row->user_text );
-			}
-
-			if ( $row->rejected_by_user ) {
-				$batch->add( NS_USER, $row->rejected_by_user_text );
-			}
-
-			/* Check NewTitle for page moves.
-				It will probably be a redlink, but we have to be sure. */
-			if ( isset( $row->page2_title ) && $row->page2_title ) {
-				$batch->add( $row->page2_namespace, $row->page2_title );
-			}
+			ModerationEntryFormatter::addToLinkBatch( $row, $batch );
 		}
 		$batch->execute();
 
