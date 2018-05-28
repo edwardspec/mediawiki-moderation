@@ -81,8 +81,14 @@ abstract class ModerationBenchmark extends Maintenance {
 		@brief Main function: test the performance of doActualWork().
 	*/
 	function execute() {
+		$user = User::newSystemUser( 'Benchmark User', [ 'steal' => true ] );
+		foreach( $user->getGroups() as $existingGroup ) {
+			$user->removeGroup( $existingGroup );
+		}
+		$user->saveSettings();
+
 		$this->uniquePrefix = wfTimestampNow() . '_' . rand() . '_';
-		$this->testUser = User::newSystemUser( 'Benchmark User', [ 'steal' => true ] );
+		$this->testUser = $user;
 
 		/* Prepare the initial conditions */
 		$loops = $this->getDefaultLoops();
@@ -94,11 +100,13 @@ abstract class ModerationBenchmark extends Maintenance {
 
 		$dbw->endAtomic( __METHOD__ );
 
+		$loopsInPercent = ceil( $loops / 100 );
+
 		/* Run doActualWork() several times */
 		$startTime = microtime( true );
-		for ( $i = 1; $i <= $loops; $i ++ ) {
-			if ( $i % 25 == 0 ) {
-				printf( "\r%.3f%%", ( 100 * $i / $loops ) );
+		for ( $i = 0; $i < $loops; $i ++ ) {
+			if ( $i % $loopsInPercent == 0 ) {
+				printf( "\r%.1f%%", ( 100 * $i / $loops ) );
 			}
 
 			$this->doActualWork( $i );
@@ -157,5 +165,18 @@ abstract class ModerationBenchmark extends Maintenance {
 
 		$revision->insertOn( $dbw );
 		$page->updateRevisionOn( $dbw, $revision );
+	}
+
+	/**
+		@brief Queue the page by directly modifying the database. Very fast.
+		This is used for initialization of tests.
+	*/
+	public function fastQueue( Title $title, $newText = 'Whatever', $summary = '' ) {
+		$page = WikiPage::factory( $title );
+		$user = User::newFromName( '127.0.0.1', false );
+		$content = ContentHandler::makeContent( $newText, null, CONTENT_MODEL_WIKITEXT );
+
+		$change = new ModerationNewChange( $title, $user );
+		$change->edit( $page, $content )->setSummary( $summary )->queue();
 	}
 }
