@@ -77,7 +77,7 @@ class ModerationEntryEdit extends ModerationApprovableEntry {
 			Revision::newFromId( $row->last_oldid )->getContent( Revision::RAW ) :
 			ContentHandler::makeContent( '', null, $model );
 
-		$latest_content = Revision::newFromId( $latest )->getContent( Revision::RAW );
+		$latest_content = $page->getContent( Revision::RAW );
 
 		$handler = ContentHandler::getForModelID( $base_content->getModel() );
 		$merged_content = $handler->merge3( $base_content, $new_content, $latest_content );
