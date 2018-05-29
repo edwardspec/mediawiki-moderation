@@ -361,8 +361,7 @@ class ModerationNewChange {
 	public function sendNotificationEmail() {
 		global $wgModerationNotificationEnable,
 			$wgModerationNotificationNewOnly,
-			$wgModerationEmail,
-			$wgPasswordSender;
+			$wgModerationEmail;
 
 		if ( !$wgModerationNotificationEnable || !$wgModerationEmail ) {
 			return; /* Disabled */
@@ -373,6 +372,20 @@ class ModerationNewChange {
 				and this is an edit in existing page */
 			return;
 		}
+
+		/* Sending may be slow, defer it
+			until the user receives HTTP response */
+		DeferredUpdates::addCallableUpdate( [
+			$this,
+			'sendNotificationEmailNow'
+		] );
+	}
+
+	/**
+		@brief Deliver the deferred letter from sendNotificationEmail().
+	*/
+	public function sendNotificationEmailNow() {
+		global $wgModerationEmail, $wgPasswordSender;
 
 		$mailer = new UserMailer();
 		$to = new MailAddress( $wgModerationEmail );
