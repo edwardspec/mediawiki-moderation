@@ -147,18 +147,22 @@ abstract class ModerationBenchmark extends Maintenance {
 		it would take forever for doEditContent() to create them all,
 		much longer than the actual benchmark.
 	*/
-	public function fastEdit( Title $title, $newText = 'Whatever', $summary = '' ) {
+	public function fastEdit( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
 		$dbw = wfGetDB( DB_MASTER );
 
 		$page = WikiPage::factory( $title );
 		$page->insertOn( $dbw );
 
+		if ( !$user ) {
+			$user = User::newFromName( '127.0.0.1', false );
+		}
+
 		$revision = new Revision( [
 			'page'       => $page->getId(),
 			'comment'    => $summary,
 			'text'       => $newText, # No preSaveTransform or serialization
-			'user'       => 0,
-			'user_text'  => '127.0.0.1',
+			'user'       => $user->getId(),
+			'user_text'  => $user->getName(),
 			'timestamp'  => wfTimestampNow(),
 			'content_model' => CONTENT_MODEL_WIKITEXT
 		] );
@@ -170,14 +174,43 @@ abstract class ModerationBenchmark extends Maintenance {
 	/**
 		@brief Queue the page by directly modifying the database. Very fast.
 		This is used for initialization of tests.
-	*/
-	public function fastQueue( Title $title, $newText = 'Whatever', $summary = '' ) {
-		$page = WikiPage::factory( $title );
-		$user = User::newFromName( '127.0.0.1', false );
-		$content = ContentHandler::makeContent( $newText, null, CONTENT_MODEL_WIKITEXT );
 
-		$change = new ModerationNewChange( $title, $user );
-		$change->edit( $page, $content )->setSummary( $summary )->queue();
+		@returns mod_id of the newly inserted row.
+	*/
+	public function fastQueue( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
+		$page = WikiPage::factory( $title );
+		if ( !$user ) {
+			$user = User::newFromName( '127.0.0.1', false );
+		}
+
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->replace( 'moderation',
+			[
+				'mod_preloadable',
+				'mod_type',
+				'mod_namespace',
+				'mod_title',
+				'mod_preload_id'
+			],
+			[
+				'mod_timestamp' => wfTimestampNow(),
+				'mod_user' => $user->getId(),
+				'mod_user_text' => $user->getName(),
+				'mod_namespace' => $title->getNamespace(),
+				'mod_cur_id' => $page->getId(),
+				'mod_title' => $title->getDBKey(),
+				'mod_comment' => $summary,
+				'mod_last_oldid' => $page->getLatest(),
+				'mod_preload_id' => $this->uniquePrefix . '-fake-' . $user->getName(), # Fake
+				'mod_text' => $newText, # No preSaveTransform or serialization
+				'mod_type' => ModerationNewChange::MOD_TYPE_EDIT,
+				'mod_preloadable' => ModerationVersionCheck::preloadableYes(),
+				'mod_ip' => '127.0.0.1'
+			],
+			__METHOD__
+		);
+
+		return $dbw->insertId();
 	}
 
 	/**
