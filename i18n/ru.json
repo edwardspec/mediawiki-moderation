@@ -45,7 +45,7 @@
 	"moderation-folder-pending": "Ожидающие модерации",
 	"moderation-folder-rejected": "Отклонённые",
 	"moderation-folder-spam": "Спам",
-	"moderation-image-queued": "Успех: ваш файл отправлен на модерацию.",
+	"moderation-image-queued": "Успех: ваш файл отправлен на модерацию.<br>Как только его одобрит модератор, файл станет виден всем остальным.",
 	"moderation-log-change": "изменение $1",
 	"moderation-log-diff": "правку $1",
 	"moderation-merge": "Допустить (Исправить конфликт редактирования)",

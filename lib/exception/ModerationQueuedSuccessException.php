@@ -1,0 +1,56 @@
+<?php
+
+/*
+	Extension:Moderation - MediaWiki extension.
+	Copyright (C) 2018 Edward Chernenko.
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+*/
+
+/**
+	@file
+	@brief Displays "Upload successful! Sent for moderation!" on Special:Upload.
+
+	When we return "moderation-edit-queued" Status from upload/move hooks,
+	forms like Special:Upload and Special:MovePage often portray this as
+	some kind of fatal error. For example, MovePage says "Permission error:
+	queued for moderation", which is not user-friendly at all.
+
+	To avoid that, we throw ErrorPageError exception that completely
+	rewrites the response page, saying that Upload/Move were a success,
+	followed by explanation about moderation.
+*/
+
+class ModerationQueuedSuccessException extends ErrorPageError {
+
+	/**
+		@brief Throw this exception if the user is on a special page that needs it.
+	*/
+	public static function throwIfNeeded( $msg, array $params = [] ) {
+		$title = RequestContext::getMain()->getTitle();
+
+		/* Special:Upload treats "moderation-image-queued" as an error,
+			let's display a user-friendly results page instead */
+		if ( $title->isSpecial( 'Upload' ) ) {
+			throw new self( $msg, $params );
+		}
+	}
+
+	public function isLoggable() {
+		/* This is a successful action, not an error,
+			it doesn't belong in the error log */
+		return false;
+	}
+
+	public function __construct( $msg, $params = [] ) {
+		parent::__construct( 'moderation', $msg, $params );
+	}
+}

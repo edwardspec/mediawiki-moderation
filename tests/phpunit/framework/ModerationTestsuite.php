@@ -518,7 +518,11 @@ class ModerationTestsuite
 
 	/**
 		@brief Make an upload via the usual Special:Upload, as real users do.
-		@returns Error code (e.g. '(emptyfile)') or null.
+		@returns [ 'error' => '...', 'successText' => '...' ]
+
+		In the returned array, key 'error' is an error code (e.g. '(emptyfile)')
+		or false (if not an error).
+		Key 'successText' is main HTML (if not an error) or false (if error).
 	*/
 	public function nonApiUpload( $title, $source_filename, $text )
 	{
@@ -545,11 +549,19 @@ class ModerationTestsuite
 			# so we won't remove the braces around it.
 
 			if ( $div->getAttribute( 'class' ) == 'error' ) {
-				return trim( $div->textContent ); /* Error found */
+				/* Error found */
+				return [
+					'error' => trim( $div->textContent ),
+					'successText' => false
+				];
 			}
 		}
 
-		return null; /* No errors */
+		/* No errors */
+		return [
+			'error' => false,
+			'successText' => $html->getMainText()
+		];
 	}
 
 	/**

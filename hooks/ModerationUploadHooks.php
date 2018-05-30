@@ -62,7 +62,13 @@ class ModerationUploadHooks {
 			__METHOD__
 		);
 
-		$error = [ 'moderation-image-queued' ];
+		/* Display user-friendly results page if the upload was caused
+			by Special:Upload (not API, other extension, etc.) */
+		$errorMsg = 'moderation-image-queued';
+		ModerationQueuedSuccessException::throwIfNeeded( $errorMsg );
+
+		// Return machine-readable error if this is NOT Special:Upload.
+		$error = [ $errorMsg ];
 		return true;
 	}
 

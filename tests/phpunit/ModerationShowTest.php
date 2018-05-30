@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2017 Edward Chernenko.
+	Copyright (C) 2015-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -108,7 +108,7 @@ class ModerationTestShow extends MediaWikiTestCase
 		*/
 
 		$t->loginAs( $t->unprivilegedUser );
-		$error = $t->doTestUpload( "Test image 1.png", "image640x50.png",
+		$t->doTestUpload( "Test image 1.png", "image640x50.png",
 			"" # Empty description: check for (moderation-diff-upload-notext)
 		);
 		$t->fetchSpecial();
