@@ -25,7 +25,7 @@
 
 require_once( __DIR__ . '/ModerationBenchmark.php' );
 
-class BenchmarkApproveEdit extends ModerationBenchmark {
+class BenchmarkApproveAll extends ModerationBenchmark {
 
 	public $ids = []; /* mod_id of rows where ApproveAll should be applied */
 
@@ -82,5 +82,5 @@ class BenchmarkApproveEdit extends ModerationBenchmark {
 	}
 }
 
-$maintClass = 'BenchmarkApproveEdit';
+$maintClass = 'BenchmarkApproveAll';
 require RUN_MAINTENANCE_IF_MAIN;
