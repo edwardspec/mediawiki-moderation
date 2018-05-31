@@ -27,6 +27,7 @@ require_once( __DIR__ . '/ModerationTestsuiteEntry.php' );
 require_once( __DIR__ . '/ModerationTestsuiteHTML.php' );
 require_once( __DIR__ . '/ModerationTestsuiteRealHttpEngine.php' );
 require_once( __DIR__ . '/ModerationTestsuiteResponse.php' );
+require_once( __DIR__ . '/ModerationTestsuiteSubmitResult.php' );
 require_once( __DIR__ . '/ModerationTestsuiteInternalInvocationEngine.php' );
 require_once( __DIR__ . '/ModerationTestsuiteInternallyInvokedWiki.php' );
 
@@ -311,7 +312,7 @@ class ModerationTestsuite
 		@brief Move the page via API.
 		@returns API response
 	*/
-	public function move( $oldTitle, $newTitle, $reason = '', array $extraParams = [] )
+	public function apiMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] )
 	{
 		return $this->query( [
 			'action' => 'move',
@@ -321,6 +322,26 @@ class ModerationTestsuite
 			'token' => null
 		] + $extraParams );
 	}
+
+	/**
+		@brief via the usual interface, as real users do.
+		@returns ModerationTestsuiteSubmitResult object.
+	*/
+	public function nonApiMove( $oldTitle, $newTitle, $reason = '' )
+	{
+		$newTitleObj = Title::newFromText( $newTitle );
+
+		$req = $this->httpPost( wfScript( 'index' ), [
+			'title' => 'Special:MovePage',
+			'wpOldTitle' => $oldTitle,
+			'wpNewTitleMain' => $newTitleObj->getText(),
+			'wpNewTitleNs' => $newTitleObj->getNamespace(),
+			'wpMove' => 'Move',
+			'wpReason' => $reason
+		] );
+		return ModerationTestsuiteSubmitResult::newFromResponse( $req, $this );
+	}
+
 
 	/**
 		@brief Make an edit via API.
@@ -518,11 +539,7 @@ class ModerationTestsuite
 
 	/**
 		@brief Make an upload via the usual Special:Upload, as real users do.
-		@returns [ 'error' => '...', 'successText' => '...' ]
-
-		In the returned array, key 'error' is an error code (e.g. '(emptyfile)')
-		or false (if not an error).
-		Key 'successText' is main HTML (if not an error) or false (if error).
+		@returns ModerationTestsuiteSubmitResult object.
 	*/
 	public function nonApiUpload( $title, $source_filename, $text )
 	{
@@ -536,32 +553,7 @@ class ModerationTestsuite
 			'wpUploadDescription' => $text
 		] );
 
-		if ( $req->getResponseHeader( 'Location' ) ) {
-			return null; # No errors
-		}
-
-		/* Find HTML error, if any */
-		$html = $this->html->loadFromReq( $req );
-		$divs = $html->getElementsByTagName( 'div' );
-
-		foreach ( $divs as $div ) {
-			# Note: the message can have parameters,
-			# so we won't remove the braces around it.
-
-			if ( $div->getAttribute( 'class' ) == 'error' ) {
-				/* Error found */
-				return [
-					'error' => trim( $div->textContent ),
-					'successText' => false
-				];
-			}
-		}
-
-		/* No errors */
-		return [
-			'error' => false,
-			'successText' => $html->getMainText()
-		];
+		return ModerationTestsuiteSubmitResult::newFromResponse( $req, $this );
 	}
 
 	/**

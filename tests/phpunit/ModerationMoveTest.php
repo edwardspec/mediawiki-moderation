@@ -28,10 +28,7 @@ require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 class ModerationMoveEdit extends MediaWikiTestCase
 {
 	public function testMove() {
-		global $wgModerationInterceptMoves;
-		if ( !$wgModerationInterceptMoves ) {
-			$this->markTestSkipped( 'Test skipped: $wgModerationInterceptMoves is not enabled on test wiki.' );
-		}
+		$this->skipIfDisabled();
 
 		/* Here we create the page $title and then rename it
 			to $newTitle as non-automoderated user.
@@ -48,17 +45,11 @@ class ModerationMoveEdit extends MediaWikiTestCase
 		$t->doTestEdit( $oldTitle, $text );
 
 		$t->loginAs( $t->unprivilegedUser );
-		$ret = $t->move( $oldTitle, $newTitle, $reasonForMoving );
+		$result = $t->nonApiMove( $oldTitle, $newTitle, $reasonForMoving );
 
-		$this->assertArrayHasKey( 'error', $ret );
-		$this->assertContains( $ret['error']['code'], [
-			'unknownerror', # MediaWiki 1.28 and older
-			'moderation-move-queued' # MediaWiki 1.29+
-		] );
-		if ( $ret['error']['code'] == 'unknownerror' ) {
-			$this->assertRegExp( '/moderation-move-queued/',
-				$ret['error']['info'] );
-		}
+		# Was the move queued for moderation?
+		$this->assertFalse( $result->getError(), "testMove(): Special:MoverPage displayed an error." );
+		$this->assertContains( '(moderation-move-queued)', $result->getSuccessText() );
 
 		/* Check how it looks on Special:Moderation */
 		$t->fetchSpecial();
@@ -100,5 +91,41 @@ class ModerationMoveEdit extends MediaWikiTestCase
 		$this->assertEquals( $t->unprivilegedUser->getName(), $rev['user'] );
 		$this->assertNotEquals( $text, $rev['*'] );
 		$this->assertRegExp( '/^#[^ ]+ \[\[' . preg_quote( $newTitle ) . '\]\]$/', $rev['*'] );
+	}
+
+	public function testApiMove() {
+		$this->skipIfDisabled();
+
+		/* Same as testMove(),
+			but we move via API and check return value of API */
+		$oldTitle = 'About dogs';
+		$newTitle = 'About herding dogs';
+		$text = 'Initial content of page "About dogs".';
+		$reasonForMoving = 'renamed for whatever reason';
+
+		$t = new ModerationTestsuite();
+
+		$t->loginAs( $t->automoderated );
+		$t->doTestEdit( $oldTitle, $text );
+
+		$t->loginAs( $t->unprivilegedUser );
+		$ret = $t->apiMove( $oldTitle, $newTitle, $reasonForMoving );
+
+		$this->assertArrayHasKey( 'error', $ret );
+		$this->assertContains( $ret['error']['code'], [
+			'unknownerror', # MediaWiki 1.28 and older
+			'moderation-move-queued' # MediaWiki 1.29+
+		] );
+		if ( $ret['error']['code'] == 'unknownerror' ) {
+			$this->assertRegExp( '/moderation-move-queued/',
+				$ret['error']['info'] );
+		}
+	}
+
+	public function skipIfDisabled() {
+		global $wgModerationInterceptMoves;
+		if ( !$wgModerationInterceptMoves ) {
+			$this->markTestSkipped( 'Test skipped: $wgModerationInterceptMoves is not enabled on test wiki.' );
+		}
 	}
 }

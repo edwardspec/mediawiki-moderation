@@ -37,8 +37,8 @@ class ModerationTestUpload extends MediaWikiTestCase
 		$t->fetchSpecial();
 
 		# Was the upload queued for moderation?
-		$this->assertFalse( $result['error'], "testUpload(): Special:Upload displayed an error." );
-		$this->assertContains( '(moderation-image-queued)', $result['successText'] );
+		$this->assertFalse( $result->getError(), "testUpload(): Special:Upload displayed an error." );
+		$this->assertContains( '(moderation-image-queued)', $result->getSuccessText() );
 
 		# Is the data on Special:Moderation correct?
 		$entry = $t->new_entries[0];
@@ -87,7 +87,7 @@ class ModerationTestUpload extends MediaWikiTestCase
 		$result = $t->doTestUpload( "1.png", $path );
 		unlink( $path );
 
-		$this->assertEquals( '(emptyfile)', $result['error'] );
+		$this->assertEquals( '(emptyfile)', $result->getError() );
 	}
 
 	/**
@@ -107,7 +107,7 @@ class ModerationTestUpload extends MediaWikiTestCase
 		$t->fetchSpecial();
 
 		# Was the reupload queued for moderation?
-		$this->assertContains( '(moderation-image-queued)', $result['successText'] );
+		$this->assertContains( '(moderation-image-queued)', $result->getSuccessText() );
 
 		# Is the data on Special:Moderation correct?
 		$entry = $t->new_entries[0];
