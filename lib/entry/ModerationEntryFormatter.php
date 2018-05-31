@@ -138,11 +138,6 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 		$row = $this->getRow();
 
-		$len_change = $row->new_len - $row->old_len;
-		if ( $len_change > 0 ) {
-			$len_change = '+' . $len_change;
-		}
-
 		$class = 'modline';
 		$title = $this->getTitle();
 
@@ -189,7 +184,11 @@ class ModerationEntryFormatter extends ModerationEntry {
 		$line .= ModerationFormatTimestamp::format( $row->timestamp, $this->getContext() );
 
 		$line .= ' . . ';
-		$line .= ' (' . $len_change . ')';
+		$line .= ChangesList::showCharacterDifference(
+			$row->old_len,
+			$row->new_len,
+			$this->getContext()
+		);
 		$line .= ' . . ';
 		$line .= Linker::userLink( $row->user, $row->user_text );
 
