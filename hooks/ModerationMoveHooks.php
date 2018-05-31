@@ -50,7 +50,10 @@ class ModerationMoveHooks {
 			->setSummary( $reason )
 			->queue();
 
-		$status->fatal( 'moderation-edit-queued' );
+		$errorMsg = 'moderation-move-queued';
+		ModerationQueuedSuccessException::throwIfNeeded( $errorMsg );
+
+		$status->fatal( $errorMsg );
 		return false;
 	}
 }

@@ -37,9 +37,10 @@ class ModerationQueuedSuccessException extends ErrorPageError {
 	public static function throwIfNeeded( $msg, array $params = [] ) {
 		$title = RequestContext::getMain()->getTitle();
 
-		/* Special:Upload treats "moderation-image-queued" as an error,
-			let's display a user-friendly results page instead */
-		if ( $title->isSpecial( 'Upload' ) ) {
+		/* Special:{Upload,MovePage} treat "moderation-{image,move}-queued"
+			as an error.
+			Let's display a user-friendly results page instead. */
+		if ( $title->isSpecial( 'Upload' ) || $title->isSpecial( 'Movepage' ) ) {
 			throw new self( $msg, $params );
 		}
 	}
