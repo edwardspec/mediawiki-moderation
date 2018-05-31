@@ -32,7 +32,7 @@ class ModerationLogFormatter extends LogFormatter {
 			$link = Linker::linkKnown(
 				$this->entry->getTarget(),
 				wfMessage( 'moderation-log-diff', $revId )->text(),
-				[ 'title' => wfMessage( 'tooltip-moderation-approved-diff' ) ],
+				[ 'title' => wfMessage( 'tooltip-moderation-approved-diff' )->plain() ],
 				[ 'diff' => $revId ]
 			);
 			$params[4] = Message::rawParam( $link );
@@ -42,7 +42,7 @@ class ModerationLogFormatter extends LogFormatter {
 			$link = Linker::linkKnown(
 				SpecialPage::getTitleFor( 'Moderation' ),
 				wfMessage( 'moderation-log-change', $modId )->text(),
-				[ 'title' => wfMessage( 'tooltip-moderation-rejected-change' ) ],
+				[ 'title' => wfMessage( 'tooltip-moderation-rejected-change' )->plain() ],
 				[ 'modaction' => 'show', 'modid' => $modId ]
 			);
 			$params[4] = Message::rawParam( $link );
@@ -56,7 +56,7 @@ class ModerationLogFormatter extends LogFormatter {
 			$link = Linker::linkKnown(
 				SpecialPage::getTitleFor( 'Moderation' ),
 				wfMessage( 'moderation-log-change', $modId )->text(),
-				[ 'title' => wfMessage( 'tooltip-moderation-rejected-change' ) ],
+				[ 'title' => wfMessage( 'tooltip-moderation-rejected-change' )->plain() ],
 				[ 'modaction' => 'show', 'modid' => $modId ]
 			);
 			$params[4] = Message::rawParam( $link );
@@ -64,7 +64,7 @@ class ModerationLogFormatter extends LogFormatter {
 			$link = Linker::linkKnown(
 				$this->entry->getTarget(),
 				wfMessage( 'moderation-log-diff', $revId )->text(),
-				[ 'title' => wfMessage( 'tooltip-moderation-approved-diff' ) ],
+				[ 'title' => wfMessage( 'tooltip-moderation-approved-diff' )->plain() ],
 				[ 'diff' => $revId ]
 			);
 			$params[5] = Message::rawParam( $link );

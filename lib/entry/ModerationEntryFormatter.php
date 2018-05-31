@@ -154,13 +154,13 @@ class ModerationEntryFormatter extends ModerationEntry {
 		}
 
 		if ( $row->minor ) {
-			$line .= wfMessage( 'minoreditletter' );
+			$line .= wfMessage( 'minoreditletter' )->plain();
 		}
 		if ( $row->bot ) {
-			$line .= wfMessage( 'boteditletter' );
+			$line .= wfMessage( 'boteditletter' )->plain();
 		}
 		if ( $row->new ) {
-			$line .= wfMessage( 'newpageletter' );
+			$line .= wfMessage( 'newpageletter' )->plain();
 		}
 		$line .= ' ';
 
@@ -207,7 +207,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 				if ( ModerationCanSkip::canSkip( $this->getModerator(), $row->namespace ) ) {
 					$line .= $this->makeModerationLink( 'merge', $row->id );
 				} else {
-					$line .= wfMessage( 'moderation-no-merge-link-not-automoderated' );
+					$line .= wfMessage( 'moderation-no-merge-link-not-automoderated' )->plain();
 				}
 			} else {
 				if ( !$row->rejected || $this->canReapproveRejected() ) {
@@ -233,8 +233,8 @@ class ModerationEntryFormatter extends ModerationEntry {
 		} else {
 			$line .= ' [' . Linker::link(
 				$title,
-				wfMessage( 'moderation-merged-link' )->escaped(),
-				[ 'title' => wfMessage( 'tooltip-moderation-merged-link' ) ],
+				wfMessage( 'moderation-merged-link' )->plain(),
+				[ 'title' => wfMessage( 'tooltip-moderation-merged-link' )->plain() ],
 				[ 'diff' => $row->merged_revid ],
 				[ 'known', 'noclasses' ]
 			) . ']';
@@ -253,11 +253,11 @@ class ModerationEntryFormatter extends ModerationEntry {
 			if ( $row->rejected_by_user ) {
 				$line .= wfMessage( 'moderation-rejected-by', Linker::userLink( $row->rejected_by_user, $row->rejected_by_user_text ) )->text();
 			} elseif ( $row->rejected_auto ) {
-				$line .= wfMessage( 'moderation-rejected-auto' );
+				$line .= wfMessage( 'moderation-rejected-auto' )->plain();
 			}
 
 			if ( $row->rejected_batch ) {
-				$line .= ' . . ' . wfMessage( 'moderation-rejected-batch' );
+				$line .= ' . . ' . wfMessage( 'moderation-rejected-batch' )->plain();
 			}
 		}
 
@@ -276,7 +276,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 		return Linker::link(
 			SpecialPage::getTitleFor( 'Moderation' ),
-			wfMessage( 'moderation-' . $action )->escaped(),
+			wfMessage( 'moderation-' . $action )->plain(),
 			[ 'title' => wfMessage( 'tooltip-moderation-' . $action )->plain() ],
 			$params,
 			[ 'known', 'noclasses' ]
