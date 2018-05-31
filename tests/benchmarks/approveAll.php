@@ -56,7 +56,7 @@ class BenchmarkApproveAll extends ModerationBenchmark {
 
 			$modid = false;
 			for ( $j = 0; $j < $editsPerUser; $j ++ ) {
-				$modid = $this->fastQueue( $this->getTestTitle( $i + $j * $numberOfUsers ), '', 'Whatever', $user );
+				$modid = $this->fastQueue( $this->getTestTitle( $i + $j * $numberOfUsers ), 'Whatever', '', $user );
 			}
 
 			$this->ids[$i] = $modid; /* Only one mod_id per User */
