@@ -204,7 +204,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 				$class .= ' modconflict';
 
 				// In order to merge, moderator must also be automoderated
-				if ( ModerationCanSkip::canSkip( $this->getModerator(), $row->namespace ) ) {
+				if ( ModerationCanSkip::canEditSkip( $this->getModerator(), $row->namespace ) ) {
 					$line .= $this->makeModerationLink( 'merge', $row->id );
 				} else {
 					$line .= wfMessage( 'moderation-no-merge-link-not-automoderated' )->plain();

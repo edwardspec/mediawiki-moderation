@@ -32,7 +32,7 @@ class ModerationMoveHooks {
 			return true;
 		}
 
-		if ( ModerationCanSkip::canSkip(
+		if ( ModerationCanSkip::canMoveSkip(
 			$user,
 			$oldTitle->getNamespace(),
 			$newTitle->getNamespace()

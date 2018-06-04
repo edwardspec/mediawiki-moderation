@@ -51,7 +51,7 @@ class ModerationEditHooks {
 	public static function onPageContentSave( &$page, &$user, &$content, &$summary, $is_minor, $is_watch, $section, &$flags, &$status )
 	{
 		$title = $page->getTitle();
-		if ( ModerationCanSkip::canSkip( $user, $title->getNamespace() ) ) {
+		if ( ModerationCanSkip::canEditSkip( $user, $title->getNamespace() ) ) {
 			return true;
 		}
 
@@ -140,8 +140,11 @@ class ModerationEditHooks {
 	}
 
 	public static function onBeforePageDisplay( &$out, &$skin ) {
-
-		if ( !ModerationCanSkip::canSkip( $out->getUser(), $out->getTitle()->getNamespace() ) ) {
+		$isAutomoderated = ModerationCanSkip::canEditSkip(
+			$out->getUser(),
+			$out->getTitle()->getNamespace()
+		);
+		if ( !$isAutomoderated ) {
 			$out->addModules( [
 				'ext.moderation.notify',
 				'ext.moderation.notify.desktop'

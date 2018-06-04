@@ -44,7 +44,7 @@ class ModerationActionMerge extends ModerationAction {
 		}
 
 		// In order to merge, moderator must also be automoderated
-		if ( !ModerationCanSkip::canSkip( $this->moderator, $row->namespace ) ) {
+		if ( !ModerationCanSkip::canEditSkip( $this->moderator, $row->namespace ) ) {
 			throw new ModerationError( 'moderation-merge-not-automoderated' );
 		}
 

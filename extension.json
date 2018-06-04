@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.2.51",
+	"version": "1.2.52",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -23,8 +23,9 @@
 		}
 	},
 	"AvailableRights": [
+		"moderation",
 		"skip-moderation",
-		"moderation"
+		"skip-move-moderation"
 	],
 	"SpecialPages": {
 		"Moderation": "SpecialModeration"

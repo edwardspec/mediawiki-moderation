@@ -26,7 +26,7 @@ class ModerationUploadHooks {
 		@brief Intercept image uploads and queue them for moderation.
 	*/
 	public static function onUploadVerifyUpload( $upload, $user, $__unused, $comment, $pageText, &$error ) {
-		if ( ModerationCanSkip::canSkip( $user, NS_FILE ) ) {
+		if ( ModerationCanSkip::canUploadSkip( $user ) ) {
 			return true;
 		}
 
@@ -92,7 +92,7 @@ class ModerationUploadHooks {
 		$context = RequestContext::getMain();
 		$user = $context->getUser();
 
-		if ( ModerationCanSkip::canSkip( $user, NS_FILE ) ) {
+		if ( ModerationCanSkip::canUploadSkip( $user ) ) {
 			return true;
 		}
 
@@ -142,7 +142,7 @@ class ModerationUploadHooks {
 		*/
 		$context = RequestContext::getMain();
 		$exactAction = Action::getActionName( $context );
-		if ( $exactAction == 'revert' && !ModerationCanSkip::canSkip( $user, NS_FILE ) ) {
+		if ( $exactAction == 'revert' && !ModerationCanSkip::canUploadSkip( $user ) ) {
 			$result = 'moderation-revert-not-allowed';
 			return false;
 		}

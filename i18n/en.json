@@ -83,6 +83,7 @@
 	"right-moderation-checkuser": "Can see IPs of editors in the moderation interface",
 	"right-moderation": "Moderate edits",
 	"right-skip-moderation": "Have their edits bypass moderation",
+	"right-skip-move-moderation": "Move pages without moderation",
 	"tooltip-moderation-approveall": "Approve all edits from this user/IP",
 	"tooltip-moderation-approve": "Approve this single edit",
 	"tooltip-moderation-approved-diff": "View the approved edit",
