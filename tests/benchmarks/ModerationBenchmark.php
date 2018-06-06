@@ -49,7 +49,7 @@ abstract class ModerationBenchmark extends Maintenance {
 		During this benchmark, same value is returned for same $suffix,
 		but another benchmark will get a different Title.
 	*/
-	public function getTestTitle( $suffix ) {
+	public function getTestTitle( $suffix = '1' ) {
 		$nonprefixedTitle = Title::newFromText( $suffix );
 		return Title::makeTitle(
 			$nonprefixedTitle->getNamespace(),

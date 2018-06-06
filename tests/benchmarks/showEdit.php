@@ -17,44 +17,44 @@
 
 /**
 	@file
-	@brief Benchmark: how fast is Approve on Special:Moderation?
+	@brief Benchmark: how fast is Show on Special:Moderation?
 
 	Usage:
-	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/approveEdit.php
+	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/showEdit.php
 */
 
 require_once( __DIR__ . '/ModerationBenchmark.php' );
 
-class BenchmarkApproveEdit extends ModerationBenchmark {
+class BenchmarkShowEdit extends ModerationBenchmark {
 
-	public $ids = []; /* mod_id of all changes to approve */
+	public $id; /* mod_id of the change */
+
+	const TEXT_BEFORE = 'Text before';
+	const TEXT_AFTER = 'Newtext after';
 
 	/**
 		@brief Default number of loops.
 	*/
 	public function getDefaultLoops() {
-		return 100;
+		return 3000;
 	}
 
 	public function beforeBenchmark( $numberOfLoops ) {
-		/* Prepopulate 'moderation' table */
-		for ( $i = 0; $i <= $this->getDefaultLoops(); $i ++ ) {
-			$this->ids[] = $this->fastQueue( $this->getTestTitle( $i ) );
-		}
+		$this->fastEdit( $this->getTestTitle(), self::TEXT_BEFORE );
+		$this->id = $this->fastQueue( $this->getTestTitle(), self::TEXT_AFTER );
 
 		$this->getUser()->addGroup( 'moderator' );
 	}
 
 	public function doActualWork( $i ) {
 		$html = $this->runSpecialModeration( [
-			'modaction' => 'approve',
-			'modid' => $this->ids[$i],
-			'token' => $this->getUser()->getEditToken()
+			'modaction' => 'show',
+			'modid' => $this->id
 		] );
 
-		assert( strpos( $html, '(moderation-approved-ok: 1)' ) !== false );
+		assert( strpos( $html, 'Text before</del>' ) !== false );
 	}
 }
 
-$maintClass = 'BenchmarkApproveEdit';
+$maintClass = 'BenchmarkShowEdit';
 require RUN_MAINTENANCE_IF_MAIN;
