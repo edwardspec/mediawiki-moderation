@@ -36,6 +36,9 @@ class ModerationQueuedSuccessException extends ErrorPageError {
 	*/
 	public static function throwIfNeeded( $msg, array $params = [] ) {
 		$title = RequestContext::getMain()->getTitle();
+		if ( !$title ) {
+			return; /* We are in the maintenance script */
+		}
 
 		/* Special:{Upload,MovePage} treat "moderation-{image,move}-queued"
 			as an error.
