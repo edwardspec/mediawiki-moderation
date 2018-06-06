@@ -52,6 +52,13 @@ abstract class ModerationEntry implements IModerationEntry {
 	}
 
 	/**
+		@brief Returns true if this is an upload, false otherwise.
+	*/
+	public function isUpload() {
+		return $this->row->stash_key ? true : false;
+	}
+
+	/**
 		@brief Returns true if this edit is recent enough to be reapproved after rejection.
 	*/
 	public function canReapproveRejected() {
@@ -67,8 +74,9 @@ abstract class ModerationEntry implements IModerationEntry {
 
 	/**
 		@brief Returns author of this change (User object).
+		@param int $flags User::READ_* constant bitfield.
 	*/
-	protected function getUser() {
+	protected function getUser( $flags = 0 ) {
 		if ( is_null( $this->user ) ) {
 			$row = $this->getRow();
 			$user = $row->user ?
@@ -77,7 +85,7 @@ abstract class ModerationEntry implements IModerationEntry {
 
 			/* User could have been recently renamed or deleted.
 				Make sure we have the correct data. */
-			$user->load( User::READ_LATEST );
+			$user->load( $flags );
 			if ( $user->getId() == 0 && $row->user != 0 ) {
 				/* User was deleted,
 					e.g. via [maintenance/removeUnusedAccounts.php] */
@@ -118,10 +126,11 @@ abstract class ModerationEntry implements IModerationEntry {
 
 	/**
 		@brief Load ModerationEntry from the database by mod_id.
+		@param $dbType DB_MASTER or DB_SLAVE.
 		@throws ModerationError
 	*/
-	public static function newFromId( $id ) {
-		$dbw = wfGetDB( DB_MASTER );
+	public static function newFromId( $id, $dbType = DB_MASTER ) {
+		$dbw = wfGetDB( $dbType );
 		$row = $dbw->selectRow( 'moderation',
 			static::getFields(),
 			[ 'mod_id' => $id ],
@@ -131,6 +140,7 @@ abstract class ModerationEntry implements IModerationEntry {
 			throw new ModerationError( 'moderation-edit-not-found' );
 		}
 
+		$row->id = $id;
 		return static::newFromRow( $row );
 	}
 

@@ -78,6 +78,12 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 		return new ModerationEntryEdit( $row );
 	}
 
+	protected function getUser( $flags = 0 ) {
+		/* User could have been recently renamed or deleted.
+			Make sure we have the correct data when approving. */
+		return parent::getUser( User::READ_LATEST );
+	}
+
 	/**
 		@brief Install hooks which affect postedit behavior of doEditContent().
 	*/
