@@ -27,81 +27,121 @@ class ModerationNewChange {
 	const MOD_TYPE_EDIT = 'edit';
 	const MOD_TYPE_MOVE = 'move';
 
-	protected $type = null; /**< One of MOD_TYPE_* values */
-	protected $summary = null; /**< Edit summary (string) */
-	protected $section = ''; /**< Index of the edited section (integer) or the string 'new' */
-	protected $sectionText = null; /**< Text of edited section, if any */
-	protected $wikiPage = null; /**< WikiPage object (page to be edited) */
-	protected $newContent = null; /**< Content object (new text of the page) */
-	protected $newTitle = null; /**< Title object (title of the destination when moving the page) */
-
-	protected $isMinor = false; /**< True if marked as minor edit, false otherwise */
-	protected $isBot = false; /** True if marked as bot edit, false otherwise */
-
-	private $pendingChange = null; /**< False if no pending change, array( 'mod_id' => ..., 'mod_text' => ... ) otherwise */
-	private $fields = null; /**< All database fields (array), see getFields() */
-
 	protected $title; /**< Title object (page to be edited) */
 	protected $user; /**< User object (author of the edit) */
+	protected $fields = []; /**< All database fields (array) */
+
+	private $pendingChange = null; /**< False if no pending change, array( 'mod_id' => ..., 'mod_text' => ... ) otherwise */
 
 	public function __construct( Title $title, User $user ) {
 		$this->title = $title;
 		$this->user = $user;
+
+		$isBlocked = ModerationBlockCheck::isModerationBlocked( $user );
+
+		$request = $user->getRequest();
+		$dbr = wfGetDB( DB_SLAVE ); /* Only for $dbr->timestamp(), won't do any SQL queries */
+
+		/* Prepare known values of $fields */
+		$this->fields = [
+			'mod_timestamp' => $dbr->timestamp(),
+			'mod_user' => $user->getId(),
+			'mod_user_text' => $user->getName(),
+			'mod_cur_id' => 0, # Unknown, set by edit()
+			'mod_namespace' => $title->getNamespace(),
+			'mod_title' => ModerationVersionCheck::getModTitleFor( $title ),
+			'mod_comment' => '', # Unknown, set by setSummary()
+			'mod_minor' => false, # Unknown, set by setMinor()
+			'mod_bot' => false, # Unknown, set by setBot()
+			'mod_new' => false, # Unknown, set by edit()
+			'mod_last_oldid' => 0, # Unknown, set by edit()
+			'mod_ip' => $request->getIP(),
+			'mod_old_len' => 0, # Unknown, set by edit()
+			'mod_new_len' => 0, # Unknown, set by edit()
+			'mod_header_xff' => $request->getHeader( 'X-Forwarded-For' ),
+			'mod_header_ua' => $request->getHeader( 'User-Agent' ),
+			'mod_preload_id' => $this->getPreload()->getId( true ),
+			'mod_rejected' => $isBlocked ? 1 : 0,
+			'mod_rejected_by_user' => 0,
+			'mod_rejected_by_user_text' => $isBlocked ?
+				wfMessage( 'moderation-blocker' )->inContentLanguage()->text() :
+				null,
+			'mod_rejected_batch' => 0,
+			'mod_rejected_auto' => $isBlocked ? 1 : 0,
+			'mod_preloadable' => ModerationVersionCheck::preloadableYes(),
+			'mod_conflict' => 0,
+			'mod_merged_revid' => 0,
+			'mod_text' => '', # Unknown, set by edit()
+			'mod_stash_key' => '', # Never set during queue() - added via UPDATE later
+		];
+
+		/* If update.php hasn't been run for a while,
+			newly added fields might not be present */
+		if ( ModerationVersionCheck::areTagsSupported() ) {
+			$this->fields['mod_tags'] = $this->getChangeTags();
+		}
+
+		if ( ModerationVersionCheck::hasModType() ) {
+			$this->fields['mod_type'] = self::MOD_TYPE_EDIT; # Default, can be changed by move()
+			$this->fields['mod_page2_namespace'] = ''; # Unknown, set by move()
+			$this->fields['mod_page2_title'] = ''; # Unknown, set by move()
+		}
 	}
 
-	public function edit( WikiPage $wikiPage, Content $newContent ) {
-		return $this
-			->setType( self::MOD_TYPE_EDIT )
-			->setWikiPage( $wikiPage )
-			->setNewContent( $newContent );
+	public function edit( WikiPage $wikiPage, Content $newContent, $section, $sectionText ) {
+		$this->fields['mod_cur_id'] = $wikiPage->getId();
+		$this->fields['mod_new'] = $wikiPage->exists() ? 0 : 1;
+		$this->fields['mod_last_oldid'] = $wikiPage->getLatest();
+
+		$oldContent = $wikiPage->getContent( Revision::RAW ); // current revision's content
+		if ( $oldContent ) {
+			$this->fields['mod_old_len'] = $oldContent->getSize();
+		}
+
+		// Check if we need to update existing row (if this edit is by the same user to the same page)
+		if ( $section !== '' ) {
+			$row = $this->getPendingChange();
+			if ( $row ) {
+				#
+				# We must recalculate $this->fields['mod_text'] here.
+				# Otherwise if the user adds or modifies two (or more) different sections (in consequent edits),
+				# then only modification to the last one will be saved,
+				# because $this->newContent is [old content] PLUS [modified section from the edit].
+				#
+				$model = $newContent->getModel();
+				$newContent = $this->makeContent( $row->text, $model )->replaceSection(
+					$section,
+					$this->makeContent( $sectionText, $model ),
+					''
+				);
+			}
+		}
+
+		$this->fields['mod_text'] = $this->preSaveTransform( $newContent );
+		$this->fields['mod_new_len'] = $newContent->getSize();
+
+		return $this;
 	}
 
 	public function move( Title $newTitle ) {
-		return $this
-			->setType( self::MOD_TYPE_MOVE )
-			->setNewTitle( $newTitle );
+		$this->fields['mod_type'] = self::MOD_TYPE_MOVE;
+		$this->fields['mod_page2_namespace'] = $newTitle->getNamespace();
+		$this->fields['mod_page2_title'] = $newTitle->getDBKey();
+		return $this;
 	}
 
 	public function setMinor( $isMinor ) {
-		$this->isMinor = $isMinor;
+		$this->fields['mod_minor'] = (int)$isMinor;
 		return $this;
 	}
 
 	public function setBot( $isBot ) {
-		$this->isBot = $isBot;
+		$this->fields['mod_bot'] = (int)$isBot;
 		return $this;
 	}
 
 	public function setSummary( $summary ) {
-		$this->summary = $summary;
-		return $this;
-	}
-
-	public function setSection( $section, $sectionText ) {
-		$this->section = $section;
-		$this->sectionText = $sectionText;
-		return $this;
-	}
-
-	/*-------------------------------------------------------------------*/
-
-	protected function setWikiPage( WikiPage $wikiPage ) {
-		$this->wikiPage = $wikiPage;
-		return $this;
-	}
-
-	protected function setNewContent( Content $newContent ) {
-		$this->newContent = $newContent;
-		return $this;
-	}
-
-	protected function setNewTitle( Title $newTitle ) {
-		$this->newTitle = $newTitle;
-		return $this;
-	}
-
-	protected function setType( $type ) {
-		$this->type = $type;
+		$this->fields['mod_comment'] = $summary;
 		return $this;
 	}
 
@@ -122,16 +162,38 @@ class ModerationNewChange {
 		)->getNativeData();
 	}
 
+	/**
+		@brief Calculate the value of mod_tags.
+	*/
+	protected function getChangeTags() {
+		if ( !class_exists( 'AbuseFilter' ) || empty( AbuseFilter::$tagsToSet ) ) {
+			return null; /* No tags */
+		}
+
+		/* AbuseFilter wants to assign some tags to this edit.
+			Let's store them (they will be used in modaction=approve).
+		*/
+		$afActionID = join( '-', [
+			$this->title->getPrefixedText(),
+			$this->user->getName(),
+			'edit' /* TODO: does this need special handling for uploads? */
+		] );
+
+		if ( isset( AbuseFilter::$tagsToSet[$afActionID] ) ) {
+			return join( "\n", AbuseFilter::$tagsToSet[$afActionID] );
+		}
+	}
+
 	protected function getPreload() {
-		return ModerationPreload::singleton();
+		$preload = ModerationPreload::singleton();
+		$preload->setUser( $this->user );
+		return $preload;
 	}
 
 	protected function getPendingChange() {
 		if ( is_null( $this->pendingChange ) ) {
-			$preload = $this->getPreload();
-			$preload->setUser( $this->user );
-
-			$this->pendingChange = $preload->loadUnmoderatedEdit( $this->title );
+			$this->pendingChange = $this->getPreload()
+				->loadUnmoderatedEdit( $this->title );
 		}
 
 		return $this->pendingChange;
@@ -141,11 +203,11 @@ class ModerationNewChange {
 		@brief Utility function: construct Content object from $text.
 		@returns Content object.
 	*/
-	protected function makeContent( $text ) {
+	protected function makeContent( $text, $model = null ) {
 		return ContentHandler::makeContent(
 			$text,
 			$this->title,
-			$this->newContent ? $this->newContent->getModel() : null
+			$model
 		);
 	}
 
@@ -154,7 +216,6 @@ class ModerationNewChange {
 		@returns array (as expected by $dbw->insert())
 	*/
 	public function getFields() {
-		$this->calculateFields();
 		return $this->fields;
 	}
 
@@ -164,119 +225,7 @@ class ModerationNewChange {
 		@returns Value (string) or false.
 	*/
 	public function getField( $fieldName ) {
-		$this->calculateFields();
 		return isset( $this->fields[$fieldName] ) ? $this->fields[$fieldName] : false;
-	}
-
-	/**
-		@brief Calculate all mod_* fields for database INSERT.
-		Shouldn't be called outside of getFields()/getField().
-	*/
-	protected function calculateFields() {
-		if ( $this->fields ) {
-			return; /* Already calculated */
-		}
-
-		$request = $this->user->getRequest();
-		$dbr = wfGetDB( DB_SLAVE ); /* Only for $dbr->timestamp(), won't do any SQL queries */
-
-		$this->fields = [
-			'mod_timestamp' => $dbr->timestamp(),
-			'mod_user' => $this->user->getId(),
-			'mod_user_text' => $this->user->getName(),
-			'mod_namespace' => $this->title->getNamespace(),
-			'mod_title' => ModerationVersionCheck::getModTitleFor( $this->title ),
-			'mod_comment' => $this->summary,
-			'mod_minor' => $this->isMinor,
-			'mod_bot' => $this->isBot,
-			'mod_ip' => $request->getIP(),
-			'mod_header_xff' => $request->getHeader( 'X-Forwarded-For' ),
-			'mod_header_ua' => $request->getHeader( 'User-Agent' ),
-			'mod_preload_id' => $this->getPreload()->getId( true ),
-			'mod_preloadable' => ModerationVersionCheck::preloadableYes()
-		];
-
-		if ( ModerationVersionCheck::hasModType() ) {
-			/* This may be a non-edit change (e.g. page move) */
-			$this->fields['mod_type'] = $this->type;
-
-			if ( $this->newTitle ) {
-				$this->fields += [
-					'mod_page2_namespace' => $this->newTitle->getNamespace(),
-					'mod_page2_title' => $this->newTitle->getDBKey()
-				];
-			}
-		}
-
-		if ( $this->wikiPage ) {
-			/* Not relevant to page moves */
-			$this->fields += [
-				'mod_cur_id' => $this->wikiPage->getId(),
-				'mod_new' => $this->wikiPage->exists() ? 0 : 1,
-				'mod_last_oldid' => $this->wikiPage->getLatest()
-			];
-
-			$oldContent = $this->wikiPage->getContent( Revision::RAW ); // current revision's content
-			if ( $oldContent ) {
-				$this->fields['mod_old_len'] = $oldContent->getSize();
-			}
-		}
-
-		if ( class_exists( 'AbuseFilter' )
-			&& !empty( AbuseFilter::$tagsToSet )
-			&& ModerationVersionCheck::areTagsSupported()
-		) {
-			/* AbuseFilter wants to assign some tags to this edit.
-				Let's store them (they will be used in modaction=approve).
-			*/
-			$afActionID = join( '-', [
-				$this->title->getPrefixedText(),
-				$this->user->getName(),
-				'edit' /* TODO: does this need special handling for uploads? */
-			] );
-
-			if ( isset( AbuseFilter::$tagsToSet[$afActionID] ) ) {
-				$this->fields['mod_tags'] = join( "\n", AbuseFilter::$tagsToSet[$afActionID] );
-			}
-		}
-
-		if ( ModerationBlockCheck::isModerationBlocked( $this->user ) ) {
-			$this->fields['mod_rejected'] = 1;
-			$this->fields['mod_rejected_by_user'] = 0;
-			$this->fields['mod_rejected_by_user_text'] = wfMessage( 'moderation-blocker' )->inContentLanguage()->text();
-			$this->fields['mod_rejected_auto'] = 1;
-
-			# Note: we don't disable $this->fields['mod_preloadable'],
-			# so that the spammers won't notice that they are blocked
-			# (they can continue editing this change,
-			# even though the change will be in the Spam folder)
-		}
-
-		if ( !$this->newContent ) {
-			/* Non-edit action (e.g. page move), no need to populate mod_text, etc. */
-			return;
-		}
-
-		// Check if we need to update existing row (if this edit is by the same user to the same page)
-		if ( $this->section !== '' ) {
-			$row = $this->getPendingChange();
-			if ( $row ) {
-				#
-				# We must recalculate $this->fields['mod_text'] here.
-				# Otherwise if the user adds or modifies two (or more) different sections (in consequent edits),
-				# then only modification to the last one will be saved,
-				# because $this->newContent is [old content] PLUS [modified section from the edit].
-				#
-				$this->newContent = $this->makeContent( $row->text )->replaceSection(
-					$this->section,
-					$this->makeContent( $this->sectionText ),
-					''
-				);
-			}
-		}
-
-		$this->fields['mod_text'] = $this->preSaveTransform( $this->newContent );
-		$this->fields['mod_new_len'] = $this->newContent->getSize();
 	}
 
 	/**
@@ -309,17 +258,21 @@ class ModerationNewChange {
 	protected function insert() {
 		$fields = $this->getFields();
 
+		$uniqueFields = [
+			'mod_preloadable',
+			'mod_namespace',
+			'mod_title',
+			'mod_preload_id'
+		];
+		if ( ModerationVersionCheck::hasModType() ) {
+			$uniqueFields[] = 'mod_type';
+		}
+
 		$dbw = wfGetDB( DB_MASTER );
 		RollbackResistantQuery::upsert( $dbw, [
 			'moderation',
 			$fields,
-			[
-				'mod_preloadable',
-				'mod_type',
-				'mod_namespace',
-				'mod_title',
-				'mod_preload_id'
-			],
+			$uniqueFields,
 			$fields,
 			__METHOD__
 		] );

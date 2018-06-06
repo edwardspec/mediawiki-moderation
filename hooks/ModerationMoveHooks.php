@@ -32,16 +32,23 @@ class ModerationMoveHooks {
 			return true;
 		}
 
+		if ( !$status->isOK() ) {
+			// $user is not allowed to move ($status is already fatal)
+			return true;
+		}
+
 		if ( ModerationCanSkip::canMoveSkip(
 			$user,
 			$oldTitle->getNamespace(),
 			$newTitle->getNamespace()
 		) ) {
+			// This user is allowed to bypass moderation
 			return true;
 		}
 
-		if ( !$status->isOK() ) {
-			// $user is not allowed to move ($status is already fatal)
+		if ( !ModerationVersionCheck::hasModType() ) {
+			/* Database schema is outdated (intercepting moves is not supported),
+				administrator must run update.php */
 			return true;
 		}
 

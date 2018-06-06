@@ -82,11 +82,10 @@ class ModerationEditHooks {
 		}
 
 		$change = new ModerationNewChange( $title, $user );
-		$change->edit( $page, $content )
+		$change->edit( $page, $content, self::$section, self::$sectionText )
 			->setBot( $flags & EDIT_FORCE_BOT )
 			->setMinor( $is_minor )
 			->setSummary( $summary )
-			->setSection( self::$section, self::$sectionText )
 			->queue();
 
 		if ( !is_null( self::$watchthis ) ) {
