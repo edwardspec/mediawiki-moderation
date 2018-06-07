@@ -54,7 +54,7 @@ class ModerationQueuedSuccessException extends ErrorPageError {
 		return false;
 	}
 
-	public function __construct( $msg, $params = [] ) {
+	protected function __construct( $msg, array $params ) {
 		parent::__construct( 'moderation', $msg, $params );
 	}
 }
