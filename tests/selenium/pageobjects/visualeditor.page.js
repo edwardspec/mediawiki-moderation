@@ -34,12 +34,24 @@ class VisualEditor extends Page {
 		browser.waitForExist( parSelector );
 
 		/* Try click() several times, because VisualEditor needs to install onclick() handler first */
+		var self = this;
 		browser.waitUntil( function() {
+			if ( self.closeNoticeButton.isVisible() ) {
+				/* Close "Notice" popup, it may prevent us from clicking on parSelector. */
+				self.closeNoticeButton.click();
+				return false;
+			}
+
 			$( parSelector ).click(); /* Trigger (1) selection of this <p>, (2) focusin event */
 			return browser.isExisting( '.ve-ce-surface-focused' );
 		} );
 
 		return $( '.ve-ce-documentNode' );
+	}
+
+	/* Button to close "Notice" popup */
+	get closeNoticeButton() {
+		return $( '.oo-ui-tool-name-notices .oo-ui-icon-close' );
 	}
 
 	/** @brief "Save page" button in the editor */

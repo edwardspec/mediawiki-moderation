@@ -22,14 +22,14 @@ exports.config = merge( wdioConf.config, {
 		{
 			platform: 'macOS 10.13',
 			browserName: 'safari',
-			version: '11.0',
+			version: '11.1',
 			exclude: [
 				// SafariDriver doesn't support sendKeys() to contenteditable,
 				// so we can't test VisualEditor in it
 				'specs/visualeditor.js'
 			]
 		},
-		{ browserName: 'chrome', version: '60.0' }, // 61.0 has odd "Element is not clickable at point" issue when clicking Save in edit.page.js.
+		{ browserName: 'chrome', version: 'latest' },
 		{ browserName: 'firefox', version: 'latest' }
 	],
 
