@@ -57,8 +57,16 @@ exports.config = {
 	],
 	maxInstances: 1,
 	capabilities: [
-		//{ browserName: 'firefox' },
-		{ browserName: 'chrome' },
+		{
+			browserName: 'firefox',
+			"moz:firefoxOptions": {
+				args: ['-headless']
+			}
+		},
+		{
+			browserName: 'chrome',
+			args: ['--headless', '--disable-gpu', '--window-size=1280,800']
+		}
 	],
 	sync: true,
 	logLevel: 'silent',
