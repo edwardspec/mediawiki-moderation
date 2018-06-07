@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2017 Edward Chernenko.
+	Copyright (C) 2014-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ class ModerationLogFormatter extends LogFormatter {
 
 		if ( $type === 'approve' ) {
 			$revId = $entryParams['revid'];
-			$link = Linker::linkKnown(
+			$link = Linker::link(
 				$this->entry->getTarget(),
 				wfMessage( 'moderation-log-diff', $revId )->text(),
 				[ 'title' => wfMessage( 'tooltip-moderation-approved-diff' )->plain() ],
@@ -61,7 +61,7 @@ class ModerationLogFormatter extends LogFormatter {
 			);
 			$params[4] = Message::rawParam( $link );
 
-			$link = Linker::linkKnown(
+			$link = Linker::link(
 				$this->entry->getTarget(),
 				wfMessage( 'moderation-log-diff', $revId )->text(),
 				[ 'title' => wfMessage( 'tooltip-moderation-approved-diff' )->plain() ],
