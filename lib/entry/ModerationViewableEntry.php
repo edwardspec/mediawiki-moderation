@@ -62,6 +62,14 @@ class ModerationViewableEntry extends ModerationEntry {
 			return '';
 		}
 
+		if ( $this->isMove() ) {
+			// "Page A moved into B"
+			return wfMessage( 'movepage-page-moved' )->rawParams(
+				Linker::link( $title ),
+				Linker::link( $this->getPage2Title() )
+			)->parseAsBlock();
+		}
+
 		$model = $title->getContentModel();
 
 		$oldContent = false;

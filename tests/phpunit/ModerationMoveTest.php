@@ -27,25 +27,24 @@ require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 */
 class ModerationMoveEdit extends MediaWikiTestCase
 {
+	public $oldTitle = 'About dogs';
+	public $newTitle = 'About herding dogs';
+	public $text = 'Initial content of page "About dogs".';
+	public $reasonForMoving = 'renamed for whatever reason';
+
 	public function testMove() {
 		$this->skipIfDisabled();
 
 		/* Here we create the page $title and then rename it
-			to $newTitle as non-automoderated user.
+			to $this->newTitle as non-automoderated user.
 			This page move should be intercepted by Moderation. */
-
-		$oldTitle = 'About cats';
-		$newTitle = 'About bengal cats';
-		$text = 'Initial content of page "About cats".';
-		$reasonForMoving = 'This page is only about bengals, ther cats have their own pages.';
-
 		$t = new ModerationTestsuite();
 
 		$t->loginAs( $t->automoderated );
-		$t->doTestEdit( $oldTitle, $text );
+		$t->doTestEdit( $this->oldTitle, $this->text );
 
 		$t->loginAs( $t->unprivilegedUser );
-		$result = $t->nonApiMove( $oldTitle, $newTitle, $reasonForMoving );
+		$result = $t->nonApiMove( $this->oldTitle, $this->newTitle, $this->reasonForMoving );
 
 		# Was the move queued for moderation?
 		$this->assertFalse( $result->getError(), "testMove(): Special:MoverPage displayed an error." );
@@ -62,35 +61,47 @@ class ModerationMoveEdit extends MediaWikiTestCase
 		$entry = $t->new_entries[0];
 		$this->assertEquals( $t->unprivilegedUser->getName(), $entry->user );
 		$this->assertTrue( $entry->isMove );
-		$this->assertEquals( $oldTitle, $entry->title );
-		$this->assertEquals( $newTitle, $entry->page2Title );
+		$this->assertEquals( $this->oldTitle, $entry->title );
+		$this->assertEquals( $this->newTitle, $entry->page2Title );
+
+		$this->assertNotNull( $entry->approveLink, "testMove(): Approve link not found" );
+		$this->assertNotNull( $entry->rejectLink, "testMove(): Reject link not found" );
+		$this->assertNull( $entry->showLink, "testMove(): unexpected Show link found (it's not needed for moves)" );
 
 		/* Ensure that page hasn't been moved yet */
-		$rev = $t->getLastRevision( $oldTitle );
+		$rev = $t->getLastRevision( $this->oldTitle );
 		$this->assertEquals( $t->automoderated->getName(), $rev['user'] );
 
-		$this->assertFalse( $t->getLastRevision( $newTitle ) );
+		$this->assertFalse( $t->getLastRevision( $this->newTitle ) );
+
+		/* Does modaction=show display this move correctly?
+			(there is no Show link on Special:Moderation, but it's present
+			in emails from $wgModerationNotificationEnable)
+		*/
+
+		$showLink = $entry->expectedActionLink( 'show', false );
+		$this->assertContains( '(movepage-page-moved: ' . $this->oldTitle . ', ' . $this->newTitle . ')',
+			$t->html->getMainText( $showLink ) );
 
 		/* Check if we can approve this move */
-
 		$t->html->loadFromURL( $t->new_entries[0]->approveLink );
 		$this->assertRegExp( '/\(moderation-approved-ok: 1\)/',
 			$t->html->getMainText(),
 			"testMove(): Result page doesn't contain (moderation-approved-ok: 1)" );
 
 		/* Ensure that page has been moved after approval */
-		$rev = $t->getLastRevision( $newTitle );
+		$rev = $t->getLastRevision( $this->newTitle );
 		$this->assertNotFalse( $rev );
 
 		$this->assertEquals( $t->unprivilegedUser->getName(), $rev['user'] );
-		$this->assertEquals( $text, $rev['*'] );
+		$this->assertEquals( $this->text, $rev['*'] );
 
-		/* Ensure that $oldTitle contains redirect */
+		/* Ensure that $this->oldTitle contains redirect */
 
-		$rev = $t->getLastRevision( $oldTitle );
+		$rev = $t->getLastRevision( $this->oldTitle );
 		$this->assertEquals( $t->unprivilegedUser->getName(), $rev['user'] );
-		$this->assertNotEquals( $text, $rev['*'] );
-		$this->assertRegExp( '/^#[^ ]+ \[\[' . preg_quote( $newTitle ) . '\]\]$/', $rev['*'] );
+		$this->assertNotEquals( $this->text, $rev['*'] );
+		$this->assertRegExp( '/^#[^ ]+ \[\[' . preg_quote( $this->newTitle ) . '\]\]$/', $rev['*'] );
 	}
 
 	public function testApiMove() {
@@ -98,18 +109,14 @@ class ModerationMoveEdit extends MediaWikiTestCase
 
 		/* Same as testMove(),
 			but we move via API and check return value of API */
-		$oldTitle = 'About dogs';
-		$newTitle = 'About herding dogs';
-		$text = 'Initial content of page "About dogs".';
-		$reasonForMoving = 'renamed for whatever reason';
 
 		$t = new ModerationTestsuite();
 
 		$t->loginAs( $t->automoderated );
-		$t->doTestEdit( $oldTitle, $text );
+		$t->doTestEdit( $this->oldTitle, $this->text );
 
 		$t->loginAs( $t->unprivilegedUser );
-		$ret = $t->apiMove( $oldTitle, $newTitle, $reasonForMoving );
+		$ret = $t->apiMove( $this->oldTitle, $this->newTitle, $this->reasonForMoving );
 
 		$this->assertArrayHasKey( 'error', $ret );
 		$this->assertContains( $ret['error']['code'], [

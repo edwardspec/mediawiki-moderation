@@ -157,16 +157,22 @@ class ModerationTestsuiteEntry
 			}
 		}
 
-		$possibleLinks = array_filter( [
-			$this->showLink, // Not shown for page moves
-			$this->blockLink,
-			$this->unblockLink
-		] );
-		$anyLink = array_shift( $possibleLinks );
-
 		$matches = null;
-		preg_match( '/modid=([0-9]+)/', $anyLink, $matches );
+		preg_match( '/modid=([0-9]+)/', $this->getAnyLink(), $matches );
 		$this->id = $matches[1];
+	}
+
+	/**
+		@brief Get any link, assuming at least one exists.
+	*/
+	public function getAnyLink() {
+		/* Either Block or Unblock link always exists */
+		$url = $this->blockLink ? $this->blockLink : $this->unblockLink;
+		if ( !$url ) {
+			throw MWException( 'getAnyLink(): no links found' );
+		}
+
+		return $url;
 	}
 
 	public static function findById( array $array, $id )
@@ -202,43 +208,32 @@ class ModerationTestsuiteEntry
 		$bl = $this->blockLink;
 		$ul = $this->unblockLink;
 
-		if ( ( $bl && $ul ) || ( !$bl && !$ul ) )
-			return; /* Nothing to do */
-
-		if ( $bl )
+		if ( $bl && !$ul ) {
 			$this->unblockLink = preg_replace( '/modaction=block/', 'modaction=unblock', $bl );
-		else
+		}
+		elseif( $ul && !$bl ) {
 			$this->blockLink = preg_replace( '/modaction=unblock/', 'modaction=block', $ul );
+		}
 	}
 
 	/**
 		@brief Returns the URL of modaction=showimg for this entry.
 	*/
-	public function expectedShowImgLink()
-	{
+	public function expectedShowImgLink() {
 		return $this->expectedActionLink( 'showimg', false );
 	}
 
 	/**
 		@brief Returns the URL of modaction=$action for this entry.
 	*/
-	public function expectedActionLink( $action, $need_token = true )
-	{
-		$sample = null;
-
-		if ( $need_token ) {
-			/* Either block or unblock link always exists */
-			$sample = $this->blockLink ? $this->blockLink : $this->unblockLink;
-		}
-		else {
-			$sample = $this->showLink; /* Show link always exists */
+	public function expectedActionLink( $action, $needsToken = true ) {
+		/* Either block or unblock link always exists */
+		$url = $this->getAnyLink();
+		if ( !$needsToken ) {
+			$url = preg_replace( '/[&?]token=(.*?)(&|$)/', '', $url );
 		}
 
-		if ( !$sample ) {
-			return null;
-		}
-
-		return preg_replace( '/modaction=(block|unblock|show)/', 'modaction=' . $action, $sample );
+		return preg_replace( '/modaction=(block|unblock)/', 'modaction=' . $action, $url );
 	}
 
 	/**
