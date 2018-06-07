@@ -79,4 +79,20 @@ class ModerationLogFormatter extends LogFormatter {
 
 		return $params;
 	}
+
+	/**
+		@brief List of Titles to be fed to LinkBatch (to check their existence).
+	*/
+	public function getPreloadTitles() {
+		if ( $this->entry->getSubtype() == 'reject' ) {
+			/* moderation/reject:
+				userlink [[User:B]] in "A rejected edit N by [User B]" */
+			$params = $this->entry->getParameters();
+			if ( $params['user'] ) { # Not anonymous
+				return [ Title::makeTitle( NS_USER, $params['user_text'] ) ];
+			}
+		}
+
+		return [];
+	}
 }
