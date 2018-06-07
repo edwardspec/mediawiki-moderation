@@ -54,9 +54,16 @@ class MobileFrontend extends Page {
 			were completely initialized (so #/editor/ URL wasn't handled).
 		*/
 
-		this.content.waitForExist();
+		var self = this;
+		browser.waitUntil( function() {
+			return (
+				self.content.isVisible()
+				||
+				self.editAnonymouslyButton.isVisible()
+			);
+		} );
 
-		if ( this.editAnonymouslyButton.isExisting() ) {
+		if ( this.editAnonymouslyButton.isVisible() ) {
 			this.editAnonymouslyButton.click();
 		}
 
