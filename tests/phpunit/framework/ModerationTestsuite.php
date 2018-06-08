@@ -691,7 +691,7 @@ class ModerationTestsuite
 		$maxTime = time() + $pollTimeLimitSeconds;
 		do {
 			$rcRowsFound = $dbw->selectRowCount(
-				'recentchanges', '',
+				'recentchanges', '*',
 				[
 					'rc_this_oldid' => $revisionIds
 				],
