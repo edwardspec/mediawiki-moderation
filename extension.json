@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.2.65",
+	"version": "1.2.66",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -39,6 +39,26 @@
 	],
 	"SpecialPages": {
 		"Moderation": "SpecialModeration"
+	},
+	"ActionFilteredLogs": {
+		"moderation": {
+			"approve": [
+				"approve",
+				"approveall",
+				"approve-move"
+			],
+			"reject": [
+				"reject",
+				"rejectall"
+			],
+			"block": [
+				"block",
+				"unblock"
+			],
+			"merge": [
+				"merge"
+			]
+		}
 	},
 	"APIModules": {
 		"moderation": "ApiModeration"
