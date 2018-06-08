@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2017 Edward Chernenko.
+	Copyright (C) 2015-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,11 +22,12 @@
 
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
-/**
-	@covers ModerationCanSkip
-*/
 class ModerationTestAutomoderated extends MediaWikiTestCase
 {
+	/**
+		@brief Can automoderated users bypass moderation of edits?
+		@covers ModerationCanSkip::canEditSkip
+	*/
 	public function testAutomoderated() {
 		$t = new ModerationTestsuite();
 
@@ -42,6 +43,27 @@ class ModerationTestAutomoderated extends MediaWikiTestCase
 
 		$this->assertCount( 0, $t->new_entries,
 			"testAutomoderated(): Something was added into Pending folder" );
+	}
 
+	/**
+		@brief Can automoderated users bypass moderation of moves?
+		@covers ModerationCanSkip::canMoveSkip
+	*/
+	public function testAutomoderatedMove() {
+		global $wgModerationInterceptMoves;
+		if ( !$wgModerationInterceptMoves ) {
+			$this->markTestSkipped( 'Test skipped: $wgModerationInterceptMoves is not enabled on test wiki.' );
+		}
+
+		$t = new ModerationTestsuite();
+		$title = 'Cat';
+
+		$t->loginAs( $t->automoderated );
+
+		$t->doTestEdit( $title, 'Whatever' );
+		$ret = $t->apiMove( $title, "New $title" );
+
+		$this->assertArrayNotHasKey( 'error', $ret );
+		$this->assertArrayHasKey( 'move', $ret );
 	}
 }
