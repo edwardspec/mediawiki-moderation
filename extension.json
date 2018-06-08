@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.2.62",
+	"version": "1.2.63",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -16,6 +16,15 @@
 		},
 		"checkuser": {
 			"moderation-checkuser": true
+		},
+		"bot": {
+			"skip-moderation": true,
+			"skip-move-moderation": true
+		},
+		"sysop": {
+			"skip-moderation": true,
+			"skip-move-moderation": true,
+			"moderation": true
 		}
 	},
 	"GrantPermissions": {
