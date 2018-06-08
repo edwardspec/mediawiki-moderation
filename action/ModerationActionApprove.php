@@ -66,6 +66,22 @@ class ModerationActionApprove extends ModerationAction {
 		}
 
 		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
+
+		$orderBy = [];
+		if ( ModerationVersionCheck::hasModType() ) {
+			# Page moves are approved last, so that situation
+			# "user A (1) changed page B and (2) renamed B to C"
+			# wouldn't result in newly created redirect B being
+			# edited instead of the page.
+			$orderBy[] = 'mod_type=' . $dbw->addQuotes( ModerationNewChange::MOD_TYPE_MOVE );
+		}
+
+		# Images are approved first.
+		# Otherwise the page can be rendered with the
+		# image redlink, because the image didn't exist
+		# when the edit to this page was approved.
+		$orderBy[] = 'mod_stash_key IS NULL';
+
 		$res = $dbw->select( 'moderation',
 			ModerationApprovableEntry::getFields(),
 			[
@@ -75,11 +91,7 @@ class ModerationActionApprove extends ModerationAction {
 			],
 			__METHOD__,
 			[
-				# Images are approved first.
-				# Otherwise the page can be rendered with the
-				# image redlink, because the image didn't exist
-				# when the edit to this page was approved.
-				'ORDER BY' => 'mod_stash_key IS NULL',
+				'ORDER BY' => $orderBy,
 				'USE INDEX' => 'moderation_approveall'
 			]
 		);
