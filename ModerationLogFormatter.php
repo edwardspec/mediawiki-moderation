@@ -35,7 +35,14 @@ class ModerationLogFormatter extends LogFormatter {
 				[ 'title' => wfMessage( 'tooltip-moderation-approved-diff' )->plain() ],
 				[ 'diff' => $revId ]
 			);
-			$params[4] = Message::rawParam( $link );
+			$params[3] = Message::rawParam( $link );
+		} elseif ( $type === 'approve-move' ) {
+			$title = Title::newFromText( $entryParams['4::target'] );
+			$params[3] = Message::rawParam( Linker::link( $title ) );
+			$params[4] = Message::rawParam( Linker::userLink(
+				$entryParams['user'],
+				$entryParams['user_text']
+			) );
 		} elseif ( $type === 'reject' ) {
 			$modId = $entryParams['modid'];
 
@@ -45,10 +52,10 @@ class ModerationLogFormatter extends LogFormatter {
 				[ 'title' => wfMessage( 'tooltip-moderation-rejected-change' )->plain() ],
 				[ 'modaction' => 'show', 'modid' => $modId ]
 			);
-			$params[4] = Message::rawParam( $link );
+			$params[3] = Message::rawParam( $link );
 
 			$userLink = Linker::userLink( $entryParams['user'], $entryParams['user_text'] );
-			$params[5] = Message::rawParam( $userLink );
+			$params[4] = Message::rawParam( $userLink );
 		} elseif ( $type === 'merge' ) {
 			$revId = $entryParams['revid'];
 			$modId = $entryParams['modid'];
@@ -59,7 +66,7 @@ class ModerationLogFormatter extends LogFormatter {
 				[ 'title' => wfMessage( 'tooltip-moderation-rejected-change' )->plain() ],
 				[ 'modaction' => 'show', 'modid' => $modId ]
 			);
-			$params[4] = Message::rawParam( $link );
+			$params[3] = Message::rawParam( $link );
 
 			$link = Linker::link(
 				$this->entry->getTarget(),
@@ -67,7 +74,7 @@ class ModerationLogFormatter extends LogFormatter {
 				[ 'title' => wfMessage( 'tooltip-moderation-approved-diff' )->plain() ],
 				[ 'diff' => $revId ]
 			);
-			$params[5] = Message::rawParam( $link );
+			$params[4] = Message::rawParam( $link );
 		} elseif ( $type === 'approveall' || $type === 'rejectall' || $type === 'block' || $type === 'unblock' ) {
 			$title = $this->entry->getTarget();
 
@@ -84,15 +91,23 @@ class ModerationLogFormatter extends LogFormatter {
 		@brief List of Titles to be fed to LinkBatch (to check their existence).
 	*/
 	public function getPreloadTitles() {
-		if ( $this->entry->getSubtype() == 'reject' ) {
+		$type = $this->entry->getSubtype();
+		$params = $this->entry->getParameters();
+
+		$titles = [];
+
+		if ( $type === 'reject' ) {
 			/* moderation/reject:
 				userlink [[User:B]] in "A rejected edit N by [User B]" */
-			$params = $this->entry->getParameters();
 			if ( $params['user'] ) { # Not anonymous
-				return [ Title::makeTitle( NS_USER, $params['user_text'] ) ];
+				$titles[] = Title::makeTitle( NS_USER, $params['user_text'] );
 			}
+		} elseif ( $type === 'approve-move' ) {
+			/* moderation/approve-move:
+				link [[Y]] in "A approved moving X to Y" */
+			$titles[] = Title::newFromText( $params['4::target'] );
 		}
 
-		return [];
+		return $titles;
 	}
 }

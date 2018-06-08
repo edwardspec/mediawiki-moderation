@@ -61,4 +61,23 @@ class ModerationEntryMove extends ModerationApprovableEntry {
 			true /* Always create redirect. This may be changed in the future */
 		);
 	}
+
+	/**
+		@brief Post-approval log subtype.
+	*/
+	protected function getApproveLogSubtype() {
+		return 'approve-move';
+	}
+
+	/**
+		@brief Parameters for post-approval log.
+	*/
+	protected function getApproveLogParameters() {
+		$row = $this->getRow();
+		return [
+			'4::target' => $this->getPage2Title()->getPrefixedText(),
+			'user' => $row->user,
+			'user_text' => $row->user_text
+		];
+	}
 }

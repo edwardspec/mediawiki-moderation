@@ -102,6 +102,33 @@ class ModerationMoveEdit extends MediaWikiTestCase
 		$this->assertEquals( $t->unprivilegedUser->getName(), $rev['user'] );
 		$this->assertNotEquals( $this->text, $rev['*'] );
 		$this->assertRegExp( '/^#[^ ]+ \[\[' . preg_quote( $this->newTitle ) . '\]\]$/', $rev['*'] );
+
+		/* Check the log entry */
+		$events = $t->apiLogEntries();
+		$this->assertCount( 1, $events,
+			"testMove(): Number of post-approve log entries isn't 1." );
+		$le = $events[0];
+
+		$this->assertEquals( 'approve-move', $le['action'],
+			"testMove(): Most recent log entry is not 'approve-move'" );
+		$this->assertEquals( $this->oldTitle, $le['title'] );
+		$this->assertEquals( $t->moderator->getName(), $le['user'] );
+		$this->assertEquals( $this->newTitle, $le['params']['target'] );
+		$this->assertEquals( $t->unprivilegedUser->getId(), $le['params']['user'] );
+		$this->assertEquals( $t->unprivilegedUser->getName(), $le['params']['user_text'] );
+
+		$events = $t->nonApiLogEntries( 1 );
+
+		$this->assertEquals( 'approve-move', $events[0]['type'] );
+
+		$this->assertEquals( $t->moderator->getName(),
+			$events[0]['params'][1] );
+		$this->assertEquals( $this->oldTitle,
+			$events[0]['params'][2] );
+		$this->assertEquals( $this->newTitle,
+			$events[0]['params'][3] );
+		$this->assertEquals( $t->unprivilegedUser->getName(),
+			$events[0]['params'][4] );
 	}
 
 	public function testApiMove() {

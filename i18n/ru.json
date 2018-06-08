@@ -14,6 +14,7 @@
 	"grouppage-moderator": "{{ns:project}}:Модерация",
 	"log-description-moderation": "Это журнал действий модераторов.",
 	"logentry-moderation-approve": "$1 {{GENDER:$1|допустил|допустила}} $4 на странице $3",
+	"logentry-moderation-approve-move": "$1 {{GENDER:$1|допустил|допустила}} переименование $3 в $4 от участника $5",
 	"logentry-moderation-approveall": "$1 допустил правки ($4 шт.) участника $3",
 	"logentry-moderation-block": "$1 {{GENDER:$1|добавил|добавил}} участника $3 в список спамеров",
 	"logentry-moderation-merge": "$1 {{GENDER:$1|превратил|превратила}} $4 в $5 на странице $3",
