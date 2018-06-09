@@ -47,23 +47,36 @@ class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 		return ContentHandler::makeContent( $this->getRandomText(), null, CONTENT_MODEL_WIKITEXT );
 	}
 
-	public function testRollbackResistantQuery() {
+	/**
+		@brief Provide datasets for testRollbackResistantQuery() runs.
+	*/
+	public function dataProvider() {
+		global $wgVersion;
+		$is1_31 = version_compare( $wgVersion, '1.31', '>=' );
+
 		/* In MediaWiki, DBO_TRX flag can be enabled or disabled in $wgDBServers.
 			(default: DBO_TRX is enabled in non-CLI mode, disabled in CLI mode).
 			Because behavior of commit( ..., 'flush' ) varies when DBO_TRX is on/off,
 			we need to test both situations.
 		*/
+		$sets = [];
 		foreach ( [ true, false ] as $isTrxAutomatic ) { /* with/without DBO_TRX */
 			foreach ( [ true, false ] as $isExplicitTransaction ) { /* with/without begin() before doEditContent() */
+				if ( $is1_31 && $isTrxAutomatic && $isExplicitTransaction ) {
+					/* In MediaWiki 1.31+, $dbw->begin() is not allowed in DBO_TRX mode */
+					continue;
+				}
+
 				foreach ( [ true, false ] as $isAtomic ) { /* with/without startAtomic() before doEditContent() */
-					$this->subtestRollbackResistantQuery(
+					$sets[] = [
 						$isTrxAutomatic,
 						$isExplicitTransaction,
 						$isAtomic
-					);
+					];
 				}
 			}
 		}
+		return $sets;
 	}
 
 	protected function setTrxFlag( $db, $newTrxFlagValue ) {
@@ -75,14 +88,12 @@ class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 		}
 	}
 
-	protected function subtestRollbackResistantQuery( $isTrxAutomatic, $isExplicitTransaction, $isAtomic )
+	/**
+		@brief Ensure that RollbackResistantQuery is not reverted after MWException.
+		@dataProvider dataProvider
+	*/
+	public function testRollbackResistantQuery( $isTrxAutomatic, $isExplicitTransaction, $isAtomic )
 	{
-		global $wgVersion;
-		if ( version_compare( $wgVersion, '1.31', '>=' ) && $isTrxAutomatic && $isExplicitTransaction ) {
-			/* In MediaWiki 1.31+, $dbw->begin() is not allowed in DBO_TRX mode */
-			return;
-		}
-
 		$t = new ModerationTestsuite();
 		$subtestName = 'testRollbackResistantQuery('
 			. ( $isTrxAutomatic ? 'DBO_TRX' : '~DBO_TRX' )
