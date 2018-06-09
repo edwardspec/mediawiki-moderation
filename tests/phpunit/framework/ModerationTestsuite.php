@@ -39,6 +39,8 @@ class ModerationTestsuite
 	protected $engine; /**< ModerationTestsuiteEngine class */
 	public $html; /**< ModerationTestsuiteHTML class */
 
+	public $lastEdit = []; /**< array, populated by setLastEdit() */
+
 	function __construct() {
 		$this->prepareDbForTests();
 
@@ -314,13 +316,27 @@ class ModerationTestsuite
 	*/
 	public function apiMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] )
 	{
-		return $this->query( [
+		$ret = $this->query( [
 			'action' => 'move',
 			'from' => $oldTitle,
 			'to' => $newTitle,
 			'reason' => $reason,
 			'token' => null
 		] + $extraParams );
+
+		$this->setLastEdit( $oldTitle, $reason, [ 'NewTitle' => $newTitle ] );
+		return $ret;
+	}
+
+	/**
+		@brief Place information about newly made change into lastEdit[] array.
+	*/
+	protected function setLastEdit( $title, $summary, array $extraData = [] ) {
+		$this->lastEdit = $extraData + [
+			'User' => $this->loggedInAs()->getName(),
+			'Title' => $title,
+			'Summary' => $summary
+		];
 	}
 
 	/**
@@ -339,6 +355,8 @@ class ModerationTestsuite
 			'wpMove' => 'Move',
 			'wpReason' => $reason
 		] );
+
+		$this->setLastEdit( $oldTitle, $reason, [ 'NewTitle' => $newTitle ] );
 		return ModerationTestsuiteSubmitResult::newFromResponse( $req, $this );
 	}
 
@@ -426,12 +444,7 @@ class ModerationTestsuite
 
 		/* TODO: check if successful */
 
-		$this->lastEdit = [];
-		$this->lastEdit['User'] = $this->loggedInAs()->getName();
-		$this->lastEdit['Title'] = $title;
-		$this->lastEdit['Text'] = $text;
-		$this->lastEdit['Summary'] = $summary;
-
+		$this->setLastEdit( $title, $summary, [ 'Text' => $text ] );
 		return $ret;
 	}
 
@@ -526,14 +539,15 @@ class ModerationTestsuite
 			$error = $this->nonApiUpload( $title, $source_filename, $text );
 		}
 
-		$this->lastEdit = [];
-		$this->lastEdit['Text'] = $text;
-		$this->lastEdit['User'] = $this->loggedInAs()->getName();
-		$this->lastEdit['Title'] =
-			Title::newFromText( $title, NS_FILE )->getFullText();
-		$this->lastEdit['SHA1'] = sha1_file( $source_filename );
-		$this->lastEdit['Source'] = $source_filename;
-
+		$this->setLastEdit(
+			Title::newFromText( $title, NS_FILE )->getFullText(),
+			'', /* Summary wasn't used */
+			[
+				'Text' => $text,
+				'SHA1' => sha1_file( $source_filename ),
+				'Source' => $source_filename
+			]
+		);
 		return $error;
 	}
 
@@ -678,14 +692,43 @@ class ModerationTestsuite
 		*/
 		$dbw = wfGetDB( DB_MASTER );
 		$revisionIds = $dbw->selectFieldValues(
-			'revision', 'rev_id',
-			'',
+			[
+				'revision',
+
+				# To filter redirects caused by moves,
+				# because they don't appear in RecentChanges
+				'page',
+				'logging'
+			],
+			'rev_id',
+			[
+				'log_id IS NULL' # Not a redirect
+			],
 			__METHOD__,
 			[
 				'ORDER BY' => 'rev_id DESC',
 				'LIMIT' => $numberOfEdits
+			],
+			[
+				'page' => [ 'LEFT JOIN', [
+					'page_id=rev_page',
+
+					# Only newly created redirects
+					'page_is_redirect' => 1,
+					'rev_parent_id' => 0
+				] ],
+				'logging' => [ 'LEFT JOIN', [
+					# Only redirects created by page moves
+					'log_namespace=page_namespace',
+					'log_title=page_title',
+					'log_type' => 'move'
+				] ]
 			]
 		);
+
+		/* FIXME: in MediaWiki 1.27, rc_this_old was NOT set for logs,
+			only rc_logid.
+		*/
 
 		/* Wait for all $revisionIds to appear in recentchanges table */
 		$maxTime = time() + $pollTimeLimitSeconds;
@@ -705,7 +748,7 @@ class ModerationTestsuite
 			usleep( $pollRetryPeriodSeconds * 1000 * 1000 );
 		} while( time() < $maxTime );
 
-		throw MWException( "waitForRecentChangesToAppear(): new $numberOfEdits entries haven't appeared in $pollTimeLimitSeconds seconds." );
+		throw new MWException( "waitForRecentChangesToAppear(): new $numberOfEdits entries haven't appeared in $pollTimeLimitSeconds seconds." );
 	}
 
 	/**
@@ -755,6 +798,54 @@ class ModerationTestsuite
 				'LIMIT' => $limit
 			]
 		);
+	}
+
+	/**
+		@brief Create AbuseFilter rule that will assign tags to all edits.
+		@returns ID of the newly created filter.
+	*/
+	public function addTagAllAbuseFilter( array $tags ) {
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->insert( 'abuse_filter',
+			[
+				'af_pattern' => 'true',
+				'af_user' => 0,
+				'af_user_text' => 'MediaWiki default',
+				'af_timestamp' => wfTimestampNow(),
+				'af_enabled' => 1,
+				'af_comments' => '',
+				'af_public_comments' => 'Assign tags to all edits',
+				'af_hidden' => 0,
+				'af_hit_count' => 0,
+				'af_throttled' => 0,
+				'af_deleted' => 0,
+				'af_actions' => 'tag',
+				'af_global' => 0,
+				'af_group' => 'default'
+			],
+			__METHOD__
+		);
+		$filterId = $dbw->insertId();
+
+		$dbw->insert( 'abuse_filter_action',
+			[
+				'afa_filter' => $filterId,
+				'afa_consequence' => 'tag',
+				'afa_parameters' => join( "\n", $tags )
+			],
+			__METHOD__
+		);
+
+		return $filterId;
+	}
+
+	/**
+		@brief Disable AbuseFilter rule #$filterId.
+	*/
+	public function disableAbuseFilter( $filterId ) {
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->update( 'abuse_filter', [ 'af_enabled' => 0 ], [ 'af_id' => $filterId ], __METHOD__ );
+		$this->purgeTagCache();
 	}
 }
 

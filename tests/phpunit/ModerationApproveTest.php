@@ -448,7 +448,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$rev = $this->tryToApprove( $t, $entry, __FUNCTION__ );
 	}
 
-	private function tryToApprove( $t, $entry, $caller )
+	private function tryToApprove( ModerationTestsuite $t, ModerationTestsuiteEntry $entry, $caller )
 	{
 		$t->html->loadFromURL( $entry->approveLink );
 		$this->assertRegExp( '/\(moderation-approved-ok: 1\)/',

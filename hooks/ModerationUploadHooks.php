@@ -55,9 +55,21 @@ class ModerationUploadHooks {
 			of the moderation table (to indicate that this is an upload,
 			not just editing the text on the image page)
 		*/
+		$fields = [
+			'mod_stash_key' => $file->getFileKey()
+		];
+		if ( ModerationVersionCheck::areTagsSupported() ) {
+			/* Apply AbuseFilter tags, if any */
+			$fields['mod_tags'] = ModerationNewChange::findAbuseFilterTags(
+				$title,
+				$user,
+				'upload'
+			);
+		}
+
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'moderation',
-			[ 'mod_stash_key' => $file->getFileKey() ],
+			$fields,
 			[ 'mod_id' => ModerationNewChange::$LastInsertId ],
 			__METHOD__
 		);

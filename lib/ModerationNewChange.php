@@ -77,10 +77,6 @@ class ModerationNewChange {
 
 		/* If update.php hasn't been run for a while,
 			newly added fields might not be present */
-		if ( ModerationVersionCheck::areTagsSupported() ) {
-			$this->fields['mod_tags'] = $this->getChangeTags();
-		}
-
 		if ( ModerationVersionCheck::hasModType() ) {
 			$this->fields['mod_type'] = self::MOD_TYPE_EDIT; # Default, can be changed by move()
 			$this->fields['mod_page2_namespace'] = ''; # Unknown, set by move()
@@ -119,6 +115,7 @@ class ModerationNewChange {
 
 		$this->fields['mod_text'] = $this->preSaveTransform( $newContent );
 		$this->fields['mod_new_len'] = $newContent->getSize();
+		$this->addChangeTags( 'edit' );
 
 		return $this;
 	}
@@ -127,6 +124,8 @@ class ModerationNewChange {
 		$this->fields['mod_type'] = self::MOD_TYPE_MOVE;
 		$this->fields['mod_page2_namespace'] = $newTitle->getNamespace();
 		$this->fields['mod_page2_title'] = $newTitle->getDBKey();
+		$this->addChangeTags( 'move' );
+
 		return $this;
 	}
 
@@ -163,9 +162,23 @@ class ModerationNewChange {
 	}
 
 	/**
-		@brief Calculate the value of mod_tags.
+		@brief Add AbuseFilter tags to this change, if any.
 	*/
-	protected function getChangeTags() {
+	protected function addChangeTags( $action ) {
+		if ( ModerationVersionCheck::areTagsSupported() ) {
+			$this->fields['mod_tags'] = self::findAbuseFilterTags(
+				$this->title,
+				$this->user,
+				$action
+			);
+		}
+	}
+
+	/**
+		@brief Calculate the value of mod_tags.
+		@param $action AbuseFilter action, e.g. 'edit' or 'delete'.
+	*/
+	public static function findAbuseFilterTags( Title $title, User $user, $action ) {
 		if ( !class_exists( 'AbuseFilter' ) || empty( AbuseFilter::$tagsToSet ) ) {
 			return null; /* No tags */
 		}
@@ -174,9 +187,9 @@ class ModerationNewChange {
 			Let's store them (they will be used in modaction=approve).
 		*/
 		$afActionID = join( '-', [
-			$this->title->getPrefixedText(),
-			$this->user->getName(),
-			'edit' /* TODO: does this need special handling for uploads? */
+			$title->getPrefixedText(),
+			$user->getName(),
+			$action
 		] );
 
 		if ( isset( AbuseFilter::$tagsToSet[$afActionID] ) ) {

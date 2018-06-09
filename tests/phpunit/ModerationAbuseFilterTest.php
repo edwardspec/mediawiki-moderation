@@ -24,47 +24,19 @@ require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 class ModerationTestAbuseFilter extends MediaWikiTestCase
 {
-	public function testAbuseFilterTags() {
-		if ( !ModerationVersionCheck::areTagsSupported() ) {
-			$this->markTestSkipped( 'Test skipped: DB schema is outdated, please run update.php.' );
-		}
+	private $expectedTags = [
+		'Author of edit likes cats',
+		'Author of edit likes dogs'
+	];
 
+	/**
+		@brief Are AbuseFilter tags preserved for edits?
+	*/
+	public function testAFTagsEdit() {
 		$this->skipIfNoAbuseFilter();
+
 		$t = new ModerationTestsuite();
-
-		/* Create AbuseFilter rule that will assign tags to all edits */
-		$filterId = 123;
-		$expectedTags = [ 'Author of edit likes cats', 'Author of edit likes dogs' ];
-
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->insert( 'abuse_filter',
-			[
-				'af_id' => $filterId,
-				'af_pattern' => 'true',
-				'af_user' => 0,
-				'af_user_text' => 'MediaWiki default',
-				'af_timestamp' => wfTimestampNow(),
-				'af_enabled' => 1,
-				'af_comments' => '',
-				'af_public_comments' => 'Assign tags to all edits',
-				'af_hidden' => 0,
-				'af_hit_count' => 0,
-				'af_throttled' => 0,
-				'af_deleted' => 0,
-				'af_actions' => 'tag',
-				'af_global' => 0,
-				'af_group' => 'default'
-			],
-			__METHOD__
-		);
-		$dbw->insert( 'abuse_filter_action',
-			[
-				'afa_filter' => $filterId,
-				'afa_consequence' => 'tag',
-				'afa_parameters' => join( "\n", $expectedTags )
-			],
-			__METHOD__
-		);
+		$filterId = $t->addTagAllAbuseFilter( $this->expectedTags );
 
 		/* Perform the edit as non-automoderated user.
 			Edit will be queued for moderation,
@@ -75,14 +47,67 @@ class ModerationTestAbuseFilter extends MediaWikiTestCase
 		$t->fetchSpecial();
 
 		/* Disable the filter (so that it would no longer add tags to newly made edits). */
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->update( 'abuse_filter', [ 'af_enabled' => 0 ], [ 'af_id' => $filterId ], __METHOD__ );
-		$t->purgeTagCache();
+		$t->disableAbuseFilter( $filterId );
 
 		/* Approve the edit. Make sure that Moderation applies previously stored tags. */
-		$entry = $t->new_entries[0];
-		$t->httpGet( $entry->approveLink );
+		$this->assertTagsAfterApproval( $t, $t->new_entries[0], __FUNCTION__ );
+	}
 
+	/**
+		@brief Are AbuseFilter tags preserved for moves?
+	*/
+	public function testAFTagsMove() {
+		$this->skipIfNoAbuseFilter();
+
+		$t = new ModerationTestsuite();
+		$title = 'Cat';
+
+		$t->loginAs( $t->automoderated );
+		$t->doTestEdit( $title, 'Whatever' );
+
+		$filterId = $t->addTagAllAbuseFilter( $this->expectedTags );
+
+		/* Perform the move as non-automoderated user.
+			Move will be queued for moderation,
+			tags set by AbuseFilter should be remembered by Moderation. */
+
+		$t->loginAs( $t->unprivilegedUser );
+		$t->apiMove( $title, "New $title" );
+		$t->fetchSpecial();
+
+		/* Disable the filter (so that it would no longer add tags to newly made moves). */
+		$t->disableAbuseFilter( $filterId );
+
+		/* Approve the edit. Make sure that Moderation applies previously stored tags. */
+		$this->assertTagsAfterApproval( $t, $t->new_entries[0], __FUNCTION__ );
+	}
+
+	/**
+		@brief Are AbuseFilter tags preserved for uploads?
+	*/
+	public function testAFTagsUpload() {
+		$this->skipIfNoAbuseFilter();
+
+		$t = new ModerationTestsuite();
+		$filterId = $t->addTagAllAbuseFilter( $this->expectedTags );
+
+		/* Perform the edit as non-automoderated user.
+			Edit will be queued for moderation,
+			tags set by AbuseFilter should be remembered by Moderation. */
+
+		$t->loginAs( $t->unprivilegedUser );
+		$t->doTestUpload();
+		$t->fetchSpecial();
+
+		/* Disable the filter (so that it would no longer add tags to newly made edits). */
+		$t->disableAbuseFilter( $filterId );
+
+		/* Approve the edit. Make sure that Moderation applies previously stored tags. */
+		$this->assertTagsAfterApproval( $t, $t->new_entries[0], __FUNCTION__ );
+	}
+
+	private function assertTagsAfterApproval( ModerationTestsuite $t, ModerationTestsuiteEntry $entry, $caller ) {
+		$t->httpGet( $entry->approveLink );
 		$t->waitForRecentChangesToAppear( 1 );
 
 		$ret = $t->query( [
@@ -93,19 +118,23 @@ class ModerationTestAbuseFilter extends MediaWikiTestCase
 		] );
 		$rc = $ret['query']['recentchanges'][0];
 
-		/* Make sure it's a correct edit */
+		/* Make sure it's a correct change */
 		$this->assertEquals( $t->lastEdit['User'], $rc['user'] );
 		$this->assertEquals( $t->lastEdit['Title'], $rc['title'] );
 
-		foreach ( $expectedTags as $tag ) {
+		foreach ( $this->expectedTags as $tag ) {
 			$this->assertContains( $tag, $rc['tags'],
-				"testAbuseFilterTags(): expected tag [$tag] hasn't been assigned to RecentChange"
+				"$caller(): expected tag [$tag] hasn't been assigned to RecentChange"
 			);
 		}
 	}
 
 	public function skipIfNoAbuseFilter() {
 		global $wgSpecialPages;
+
+		if ( !ModerationVersionCheck::areTagsSupported() ) {
+			$this->markTestSkipped( 'Test skipped: DB schema is outdated, please run update.php.' );
+		}
 
 		$dbw = wfGetDB( DB_MASTER );
 		if ( !array_key_exists( 'AbuseFilter', $wgSpecialPages )

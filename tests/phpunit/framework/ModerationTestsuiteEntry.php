@@ -169,7 +169,7 @@ class ModerationTestsuiteEntry
 		/* Either Block or Unblock link always exists */
 		$url = $this->blockLink ? $this->blockLink : $this->unblockLink;
 		if ( !$url ) {
-			throw MWException( 'getAnyLink(): no links found' );
+			throw new MWException( 'getAnyLink(): no links found' );
 		}
 
 		return $url;
