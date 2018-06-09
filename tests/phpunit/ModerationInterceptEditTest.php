@@ -34,18 +34,9 @@ class ModerationTestInterceptEdit extends MediaWikiTestCase
 
 		$t->editViaAPI = true;
 		$ret = $t->doTestEdit();
-
 		$t->fetchSpecial();
 
-		$this->assertArrayHasKey( 'error', $ret );
-		$this->assertContains( $ret['error']['code'], [
-			'unknownerror', # MediaWiki 1.28 and older
-			'moderation-edit-queued' # MediaWiki 1.29+
-		] );
-		if ( $ret['error']['code'] == 'unknownerror' ) {
-			$this->assertRegExp( '/moderation-edit-queued/',
-				$ret['error']['info'] );
-		}
+		$t->assertApiError( 'moderation-edit-queued', $ret, $this );
 
 		$this->assertCount( 1, $t->new_entries,
 			"testInterceptEdit(): One edit was queued for moderation, but number of added entries in Pending folder isn't 1" );

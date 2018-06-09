@@ -57,14 +57,6 @@ class ModerationTestFileRevert extends MediaWikiTestCase
 		] );
 
 		/* File revert shouldn't be allowed (this user is not automoderated) */
-		$this->assertArrayHasKey( 'error', $ret );
-		$this->assertContains( $ret['error']['code'], [
-			'unknownerror', # MediaWiki 1.28 and older
-			'moderation-revert-not-allowed' # MediaWiki 1.29+
-		] );
-		if ( $ret['error']['code'] == 'unknownerror' ) {
-			$this->assertRegExp( '/moderation-revert-not-allowed/',
-				$ret['error']['info'] );
-		}
+		$t->assertApiError( 'moderation-revert-not-allowed', $ret, $this );
 	}
 }

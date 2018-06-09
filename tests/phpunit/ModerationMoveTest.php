@@ -145,15 +145,7 @@ class ModerationMoveEdit extends MediaWikiTestCase
 		$t->loginAs( $t->unprivilegedUser );
 		$ret = $t->apiMove( $this->oldTitle, $this->newTitle, $this->reasonForMoving );
 
-		$this->assertArrayHasKey( 'error', $ret );
-		$this->assertContains( $ret['error']['code'], [
-			'unknownerror', # MediaWiki 1.28 and older
-			'moderation-move-queued' # MediaWiki 1.29+
-		] );
-		if ( $ret['error']['code'] == 'unknownerror' ) {
-			$this->assertRegExp( '/moderation-move-queued/',
-				$ret['error']['info'] );
-		}
+		$this->assertEquals( 'moderation-move-queued', $ret['error']['code'] );
 	}
 
 	public function skipIfDisabled() {

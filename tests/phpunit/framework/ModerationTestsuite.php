@@ -809,6 +809,25 @@ class ModerationTestsuite
 		$dbw->update( 'abuse_filter', [ 'af_enabled' => 0 ], [ 'af_id' => $filterId ], __METHOD__ );
 		$this->purgeTagCache();
 	}
+
+	/**
+		@brief Assert that API response $ret contains error $expectedErrorCode.
+	*/
+	public function assertApiError( $expectedErrorCode, array $ret, MediaWikiTestCase $tcase ) {
+		global $wgVersion;
+
+		$tcase->assertArrayHasKey( 'error', $ret );
+
+		if ( version_compare( $wgVersion, '1.29', '>=' ) ) {
+			# MediaWiki 1.29+
+			$tcase->assertEquals( $expectedErrorCode, $ret['error']['code'] );
+		} else {
+			# MediaWiki 1.28 and older displayed "unknownerror" status code
+			# for some custom hook-returned errors (e.g. from PageContentSave).
+			$tcase->assertEquals( 'unknownerror', $ret['error']['code'] );
+			$tcase->assertContains( $expectedErrorCode, $ret['error']['info'] );
+		}
+	}
 }
 
 
