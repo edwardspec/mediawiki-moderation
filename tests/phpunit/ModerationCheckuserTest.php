@@ -75,7 +75,10 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		$entry = $t->getSampleEntry();
 
 		$t->setUserAgent( $this->moderatorUA );
+
+		$waiter = $t->waitForRecentChangesToAppear();
 		$t->httpGet( $entry->approveLink );
+		$waiter(1);
 
 		$agent = $t->getCUCAgent();
 		$this->assertNotEquals( $this->moderatorUA, $agent,
@@ -107,7 +110,10 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		# contain UserAgent of user who made the edit,
 		# not UserAgent or the moderator who approved it.
 		$t->setUserAgent( $this->moderatorUA );
+
+		$waiter = $t->waitForRecentChangesToAppear();
 		$t->httpGet( $entry->approveAllLink ); # Try modaction=approveall
+		$waiter( $NUMBER_OF_UPLOADS );
 
 		$agents = $t->getCUCAgents( $NUMBER_OF_UPLOADS );
 		$i = $NUMBER_OF_UPLOADS; /* Counting backwards, because getCUCAgents() selects in newest-to-latest order */

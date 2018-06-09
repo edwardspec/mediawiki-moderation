@@ -681,74 +681,41 @@ class ModerationTestsuite
 		This function is needed before testing cu_changes or tags:
 		they are updated in RecentChange_save hook,
 		so they might not yet exist when we return from doTestEdit().
+
+		Usage:
+			$waiter = $t->waitForRecentChangesToAppear();
+			// Do something that should create N recentchanges entries
+			$waiter( N );
 	*/
-	public function waitForRecentChangesToAppear( $numberOfEdits ) {
-		$pollTimeLimitSeconds = 5; /* Polling will fail after these many seconds */
-		$pollRetryPeriodSeconds = 0.2; /* How often to check recentchanges */
-
-		/*
-			Determine rev_id of the last $numberOfEdits.
-			Luckily the update of "revision" table is NOT deferred.
-		*/
+	public function waitForRecentChangesToAppear() {
 		$dbw = wfGetDB( DB_MASTER );
-		$revisionIds = $dbw->selectFieldValues(
-			[
-				'revision',
-
-				# To filter redirects caused by moves,
-				# because they don't appear in RecentChanges
-				'page',
-				'logging'
-			],
-			'rev_id',
-			[
-				'log_id IS NULL' # Not a redirect
-			],
-			__METHOD__,
-			[
-				'ORDER BY' => 'rev_id DESC',
-				'LIMIT' => $numberOfEdits
-			],
-			[
-				'page' => [ 'LEFT JOIN', [
-					'page_id=rev_page',
-
-					# Only newly created redirects
-					'page_is_redirect' => 1,
-					'rev_parent_id' => 0
-				] ],
-				'logging' => [ 'LEFT JOIN', [
-					# Only redirects created by page moves
-					'log_namespace=page_namespace',
-					'log_title=page_title',
-					'log_type' => 'move'
-				] ]
-			]
+		$lastRcId = $dbw->selectField( 'recentchanges', 'rc_id', '', __METHOD__,
+			[ 'ORDER BY' => 'rc_timestamp DESC' ]
 		);
 
-		/* FIXME: in MediaWiki 1.27, rc_this_old was NOT set for logs,
-			only rc_logid.
-		*/
+		return function( $numberOfEdits ) use ( $dbw, $lastRcId ) {
+			$pollTimeLimitSeconds = 5; /* Polling will fail after these many seconds */
+			$pollRetryPeriodSeconds = 0.2; /* How often to check recentchanges */
 
-		/* Wait for all $revisionIds to appear in recentchanges table */
-		$maxTime = time() + $pollTimeLimitSeconds;
-		do {
-			$rcRowsFound = $dbw->selectRowCount(
-				'recentchanges', '*',
-				[
-					'rc_this_oldid' => $revisionIds
-				],
-				__METHOD__
-			);
-			if ( $rcRowsFound >= $numberOfEdits ) {
-				return $revisionIds; /* Success */
-			}
+			/* Wait for all $revisionIds to appear in recentchanges table */
+			$maxTime = time() + $pollTimeLimitSeconds;
+			do {
+				$rcRowsFound = $dbw->selectRowCount(
+					'recentchanges', 'rc_id',
+					[ 'rc_id > ' . $dbw->addQuotes( $lastRcId ) ],
+					__METHOD__,
+					[ 'LIMIT' => $numberOfEdits ]
+				);
+				if ( $rcRowsFound >= $numberOfEdits ) {
+					return; /* Success */
+				}
 
-			/* Continue polling */
-			usleep( $pollRetryPeriodSeconds * 1000 * 1000 );
-		} while( time() < $maxTime );
+				/* Continue polling */
+				usleep( $pollRetryPeriodSeconds * 1000 * 1000 );
+			} while( time() < $maxTime );
 
-		throw new MWException( "waitForRecentChangesToAppear(): new $numberOfEdits entries haven't appeared in $pollTimeLimitSeconds seconds." );
+			throw new MWException( "waitForRecentChangesToAppear(): new $numberOfEdits entries haven't appeared in $pollTimeLimitSeconds seconds." );
+		};
 	}
 
 	/**
@@ -784,14 +751,9 @@ class ModerationTestsuite
 		@returns Array of user-agents.
 	*/
 	public function getCUCAgents( $limit ) {
-		$revisionIds = $this->waitForRecentChangesToAppear( $limit );
-
 		$dbw = wfGetDB( DB_MASTER );
 		return $dbw->selectFieldValues(
-			'cu_changes', 'cuc_agent',
-			[
-				'cuc_this_oldid' => $revisionIds
-			],
+			'cu_changes', 'cuc_agent', '',
 			__METHOD__,
 			[
 				'ORDER BY' => 'cuc_id DESC',
