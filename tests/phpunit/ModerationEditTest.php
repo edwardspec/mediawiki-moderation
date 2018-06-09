@@ -39,15 +39,24 @@ class ModerationTestEdit extends MediaWikiTestCase
 			"testPreSaveTransform(): Signature (~~~~) hasn't been properly substituted." );
 	}
 
-	public function testEditSections() {
+	/**
+		@brief Provide datasets for testEditSections() runs.
+	*/
+	public function dataProviderEditSections() {
 		/* Sections are handled differently in API and non-API editing.
 			Test both situations.
 		*/
-		$this->subtestEditSections( false );
-		$this->subtestEditSections( true );
+		return [
+			'nonApi' => [ false ],
+			'api' => [ true ]
+		];
 	}
 
-	protected function subtestEditSections( $useApi ) {
+	/**
+		@brief Ensure that single sections are edited correctly.
+		@dataProvider dataProviderEditSections
+	*/
+	public function testEditSections( $useApi ) {
 		$t = new ModerationTestsuite();
 		$t->editViaAPI = $useApi;
 
