@@ -95,13 +95,6 @@ class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 	public function testRollbackResistantQuery( $isTrxAutomatic, $isExplicitTransaction, $isAtomic )
 	{
 		$t = new ModerationTestsuite();
-		$subtestName = 'testRollbackResistantQuery('
-			. ( $isTrxAutomatic ? 'DBO_TRX' : '~DBO_TRX' )
-			. ', '
-			. ( $isExplicitTransaction ? 'with explicit begin()' : 'without begin()' )
-			. ', '
-			. ( $isAtomic ? 'with startAtomic()' : 'without startAtomic()' )
-			. ')';
 
 		$dbw = wfGetDB( DB_MASTER );
 		$previousTrxFlagValue = $dbw->getFlag( DBO_TRX ); /* Will be restored after the test */
@@ -144,7 +137,7 @@ class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 		);
 
 		$this->assertEquals( 'moderation-edit-queued', $status->getMessage()->getKey(),
-			"$subtestName: doEditContent doesn't return 'moderation-edit-queued' status" );
+			"testRollbackResistantQuery(): doEditContent doesn't return 'moderation-edit-queued' status" );
 
 		/* Simulate situation when caller of doEditContent() throws an MWException */
 		$e = new MWException();
@@ -160,7 +153,7 @@ class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 			],
 			__METHOD__
 		);
-		$this->assertNotFalse( $wasCreated, "$subtestName: newly added row is not in the 'moderation' table after MWException" );
+		$this->assertNotFalse( $wasCreated, "testRollbackResistantQuery(): newly added row is not in the 'moderation' table after MWException" );
 
 		/* Restore DBO_TRX to its value before the test */
 		$this->setTrxFlag( $dbw, $previousTrxFlagValue );
