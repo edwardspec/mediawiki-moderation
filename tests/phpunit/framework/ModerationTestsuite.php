@@ -343,11 +343,11 @@ class ModerationTestsuite
 		@brief via the usual interface, as real users do.
 		@returns ModerationTestsuiteSubmitResult object.
 	*/
-	public function nonApiMove( $oldTitle, $newTitle, $reason = '' )
+	public function nonApiMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] )
 	{
 		$newTitleObj = Title::newFromText( $newTitle );
 
-		$req = $this->httpPost( wfScript( 'index' ), [
+		$req = $this->httpPost( wfScript( 'index' ), $extraParams + [
 			'title' => 'Special:MovePage',
 			'wpOldTitle' => $oldTitle,
 			'wpNewTitleMain' => $newTitleObj->getText(),

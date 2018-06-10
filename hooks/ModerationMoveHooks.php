@@ -57,6 +57,16 @@ class ModerationMoveHooks {
 			->setSummary( $reason )
 			->queue();
 
+		if ( $user->isLoggedIn() ) {
+			/* Watch/Unwatch $oldTitle/$newTitle immediately:
+				watchlist is the user's own business,
+				no reason to wait for approval of the move */
+			$watch = $user->getRequest()->getCheck( 'wpWatch' );
+
+			WatchAction::doWatchOrUnwatch( $watch, $oldTitle, $user );
+			WatchAction::doWatchOrUnwatch( $watch, $newTitle, $user );
+		}
+
 		$errorMsg = 'moderation-move-queued';
 		ModerationQueuedSuccessException::throwIfNeeded( $errorMsg );
 

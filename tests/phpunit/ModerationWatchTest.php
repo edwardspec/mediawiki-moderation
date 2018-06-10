@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017 Edward Chernenko.
+	Copyright (C) 2017-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -27,15 +27,31 @@ require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 */
 class ModerationTestWatch extends MediaWikiTestCase
 {
-	public function testWatch() {
+	/**
+		@brief Test that checkboxes "Watch this page" work.
+		@testWith	["edit"]
+				["move"]
+	*/
+	public function testWatch( $actionType ) {
 		$t = new ModerationTestsuite();
 
 		$title = 'Some page';
+		$newTitle = 'Some page 2';
 
-		$t->loginAs( $t->unprivilegedUser );
-		$t->nonApiEdit( $title, 'Some text', 'Some summary', [
-			'wpWatchthis' => 1
-		] );
+		if ( $actionType == 'edit' ) {
+			$t->loginAs( $t->unprivilegedUser );
+			$t->nonApiEdit( $title, 'Some text', 'Some summary', [
+				'wpWatchthis' => 1
+			] );
+		} elseif ( $actionType == 'move' ) {
+			$t->loginAs( $t->automoderated );
+			$t->doTestEdit( $title, 'Some text' );
+
+			$t->loginAs( $t->unprivilegedUser );
+			$t->nonApiMove( $title, $newTitle, 'Some summary', [
+				'wpWatch' => 1
+			] );
+		}
 
 		/* Verify that $title was added to watchlist immediately,
 			even though the edit was intercepted by Moderation */
@@ -43,20 +59,31 @@ class ModerationTestWatch extends MediaWikiTestCase
 			'action' => 'query',
 			'list' => 'watchlistraw',
 			'wrnamespace' => NS_MAIN,
-			'wrfromtitle' => $title,
-			'wrlimit' => 1
+			'wrlimit' => ( $actionType == 'move' ) ? 2 : 1
 		] );
 
 		$wl = $ret['watchlistraw'];
 		$this->assertNotEmpty( $wl,
 			"testWatch(): One page was watched, watchlist is empty" );
-		$this->assertEquals( $title, $wl[0]['title'],
-			"testWatch(): Page edited with wpWatchthis=1 is not in watchlist" );
+
+		$watchedTitles = array_map( function( $item ) { return $item['title']; }, $wl );
+		$expectedWatchedTitles = [ $title ];
+		if ( $actionType == 'move' ) {
+			$expectedWatchedTitles[] = [ $newTitle ];
+		}
+
+		$this->assertEquals( sort( $expectedWatchedTitles ), sort( $watchedTitles ),
+			"testWatch(): Page edited with \"Watch this page\" is not in watchlist" );
 
 		/*
 			Uncheck the "Watch this page" checkbox and edit the same page.
 		*/
-		$t->nonApiEdit( $title, 'Some text2', 'Some summary2' );
+		if ( $actionType == 'edit' ) {
+			$t->nonApiEdit( $title, 'Some text2', 'Some summary2' );
+		} elseif ( $actionType == 'move' ) {
+			$t->nonApiMove( $title, $newTitle, 'Some summary2' );
+		}
+
 		$ret = $t->query( [
 			'action' => 'query',
 			'list' => 'watchlistraw'
