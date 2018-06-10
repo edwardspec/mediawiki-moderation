@@ -1,10 +1,6 @@
 TODO:
 
-High-prio:
-* (1.31) Fully support MobileFrontend/VisualEditor in upcoming MediaWiki 1.31.
-
 Medium-prio:
-* (feature) Intercept renaming of pages.
 * (testsuite) Provide ~100% automated test coverage of all functionality.
 * (compat) Support PostgreSQL.
 
@@ -47,5 +43,4 @@ some new feature (that requires DB update) is disabled because it wasn't done.
 	Look at how nice and fast [tests/benchmarks/*.php] are in comparison.
 
 Tests needed:
-* API: api.php?action=moderation
 * PageForms plugin (preload, "continue editing" link in postedit notification)
