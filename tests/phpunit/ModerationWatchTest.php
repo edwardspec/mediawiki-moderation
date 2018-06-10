@@ -28,19 +28,26 @@ require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 class ModerationTestWatch extends MediaWikiTestCase
 {
 	/**
+
 		@brief Test that checkboxes "Watch this page" work.
 		@testWith	["edit"]
+				["upload"]
 				["move"]
 	*/
 	public function testWatch( $actionType ) {
 		$t = new ModerationTestsuite();
 
-		$title = 'Some page';
+		$title = 'Some page' . ( ( $actionType == 'upload' ) ? '.png' : '' );
 		$newTitle = 'Some page 2';
 
 		if ( $actionType == 'edit' ) {
 			$t->loginAs( $t->unprivilegedUser );
 			$t->nonApiEdit( $title, 'Some text', 'Some summary', [
+				'wpWatchthis' => 1
+			] );
+		} elseif ( $actionType == 'upload' ) {
+			$t->loginAs( $t->unprivilegedUser );
+			$t->doTestUpload( $title, "image100x100.png", null, [
 				'wpWatchthis' => 1
 			] );
 		} elseif ( $actionType == 'move' ) {
@@ -58,7 +65,6 @@ class ModerationTestWatch extends MediaWikiTestCase
 		$ret = $t->query( [
 			'action' => 'query',
 			'list' => 'watchlistraw',
-			'wrnamespace' => NS_MAIN,
 			'wrlimit' => ( $actionType == 'move' ) ? 2 : 1
 		] );
 
@@ -80,6 +86,8 @@ class ModerationTestWatch extends MediaWikiTestCase
 		*/
 		if ( $actionType == 'edit' ) {
 			$t->nonApiEdit( $title, 'Some text2', 'Some summary2' );
+		} elseif ( $actionType == 'upload' ) {
+			$t->doTestUpload( $title, "image100x100.png" );
 		} elseif ( $actionType == 'move' ) {
 			$t->nonApiMove( $title, $newTitle, 'Some summary2' );
 		}

@@ -74,6 +74,14 @@ class ModerationUploadHooks {
 			__METHOD__
 		);
 
+		if ( $user->isLoggedIn() ) {
+			/* Watch/Unwatch this file immediately:
+				watchlist is the user's own business,
+				no reason to wait for approval of the upload */
+			$watch = $user->getRequest()->getBool( 'wpWatchthis' );
+			WatchAction::doWatchOrUnwatch( $watch, $title, $user );
+		}
+
 		/* Display user-friendly results page if the upload was caused
 			by Special:Upload (not API, other extension, etc.) */
 		$errorMsg = 'moderation-image-queued';

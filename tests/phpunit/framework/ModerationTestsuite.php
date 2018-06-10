@@ -512,7 +512,7 @@ class ModerationTestsuite
 		@returns MediaWiki error message code (e.g. "(emptyfile)").
 		@retval null Upload succeeded (no errors found).
 	*/
-	public function doTestUpload( $title = null, $source_filename = null, $text = null )
+	public function doTestUpload( $title = null, $source_filename = null, $text = null, array $extraParams = [] )
 	{
 		if ( !$title ) {
 			$title = $this->generateRandomTitle() . '.png';
@@ -533,10 +533,10 @@ class ModerationTestsuite
 		$source_filename = realpath( $source_filename );
 
 		if ( $this->uploadViaAPI ) {
-			$error = $this->apiUpload( $title, $source_filename, $text );
+			$error = $this->apiUpload( $title, $source_filename, $text, $extraParams );
 		}
 		else {
-			$error = $this->nonApiUpload( $title, $source_filename, $text );
+			$error = $this->nonApiUpload( $title, $source_filename, $text, $extraParams );
 		}
 
 		$this->setLastEdit(
@@ -555,9 +555,9 @@ class ModerationTestsuite
 		@brief Make an upload via the usual Special:Upload, as real users do.
 		@returns ModerationTestsuiteSubmitResult object.
 	*/
-	public function nonApiUpload( $title, $source_filename, $text )
+	public function nonApiUpload( $title, $source_filename, $text, array $extraParams = [] )
 	{
-		$req = $this->httpPost( wfScript( 'index' ), [
+		$req = $this->httpPost( wfScript( 'index' ), $extraParams + [
 			'title' => 'Special:Upload',
 			'wpUploadFile' => curl_file_create( $source_filename ),
 			'wpDestFile' => $title,
