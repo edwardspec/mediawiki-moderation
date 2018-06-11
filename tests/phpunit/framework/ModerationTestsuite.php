@@ -30,7 +30,6 @@ require_once( __DIR__ . '/ModerationTestsuiteResponse.php' );
 require_once( __DIR__ . '/ModerationTestsuiteSubmitResult.php' );
 require_once( __DIR__ . '/ModerationTestsuiteInternalInvocationEngine.php' );
 require_once( __DIR__ . '/ModerationTestsuiteInternallyInvokedWiki.php' );
-require_once( __DIR__ . "/../decoupled/10_queue/IModerationQueueTestSet.php" );
 
 class ModerationTestsuite
 {
