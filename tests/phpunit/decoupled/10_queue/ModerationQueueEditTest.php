@@ -151,7 +151,7 @@ class ModerationQueueEditTestSet implements IModerationQueueTestSet {
 			'mod_ip' => '127.0.0.1',
 			'mod_old_len' => 0,
 			'mod_new_len' => strlen( $this->text ), /* FIXME: do preSaveTransform */
-			// 'mod_header_xff' => '0', /* FIXME: inconsistency: false stored as '0' and '' in different versions of MediaWiki */
+			'mod_header_xff' => null,
 			'mod_header_ua' => $this->userAgent,
 			'mod_preload_id' => (
 				$this->getUser()->isLoggedIn() ?
