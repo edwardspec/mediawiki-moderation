@@ -259,7 +259,7 @@
 			For example, after the row is approved, it can no longer be rejected. */
 		toggleLinks( $affectedRows, false, getDisabledActions( action ) );
 
-		api.postWithToken( 'edit', q )
+		api.postWithToken( 'csrf', q )
 			.done( function( ret ) {
 				handleSuccess( $affectedRows, q, ret );
 			} )

@@ -104,11 +104,11 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 	public function getEditToken( $updateCache = false ) {
 		if ( $updateCache || !$this->editToken ) {
 			$ret = $this->query( [
-				'action' => 'tokens',
-				'type' => 'edit'
+				'action' => 'query',
+				'meta' => 'tokens',
+				'type' => 'csrf'
 			] );
-
-			$this->editToken = $ret['tokens']['edittoken'];
+			$this->editToken = $ret['query']['tokens']['csrftoken'];
 		}
 
 		return $this->editToken;
