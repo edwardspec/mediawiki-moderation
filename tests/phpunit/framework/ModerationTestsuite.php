@@ -30,6 +30,7 @@ require_once( __DIR__ . '/ModerationTestsuiteResponse.php' );
 require_once( __DIR__ . '/ModerationTestsuiteSubmitResult.php' );
 require_once( __DIR__ . '/ModerationTestsuiteInternalInvocationEngine.php' );
 require_once( __DIR__ . '/ModerationTestsuiteInternallyInvokedWiki.php' );
+require_once( __DIR__ . "/../decoupled/queue/IModerationQueueTestSet.php" );
 
 class ModerationTestsuite
 {
@@ -291,6 +292,10 @@ class ModerationTestsuite
 	{
 		if ( $this->currentUser && $user->getId() == $this->currentUser->getId() ) {
 			return; /* Nothing to do, already logged in */
+		}
+
+		if ( $user->isAnon() ) {
+			$this->logout();
 		}
 
 		$this->engine->loginAs( $user );
