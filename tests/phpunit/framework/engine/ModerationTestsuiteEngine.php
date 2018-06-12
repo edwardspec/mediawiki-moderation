@@ -34,10 +34,23 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 		@brief Create engine object.
 	*/
 	public static function factory() {
-		if ( getenv( 'MODERATION_TEST_INTERNAL' ) ) {
-			return new ModerationTestsuiteInternalInvocationEngine;
+		switch (  getenv( 'MODERATION_TEST_ENGINE' ) ) {
+			case 'internal':
+				/* Warning: incomplete (incorrect handling of sessions,
+					compatibility issues with different versions of MediaWiki,
+					etc.).
+					Not calling wfDeprecate() because PHPUnit considers it a test failure.
+
+					Don't use for real tests,
+					only use for further development of this engine.
+				*/
+				return new ModerationTestsuiteInternalInvocationEngine;
+
+			case 'realcgi':
+				return new ModerationTestsuiteRealCGIEngine;
 		}
 
+		/* Default */
 		return new ModerationTestsuiteRealHttpEngine;
 	}
 

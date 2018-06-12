@@ -26,9 +26,12 @@ require_once( __DIR__ . '/ModerationTestsuiteHTML.php' );
 require_once( __DIR__ . '/ModerationTestsuiteResponse.php' );
 require_once( __DIR__ . '/ModerationTestsuiteSubmitResult.php' );
 
+/* FIXME: this can really use some autoloading, as only one engine is needed at a time */
 require_once( __DIR__ . '/engine/IModerationTestsuiteEngine.php' );
 require_once( __DIR__ . '/engine/ModerationTestsuiteEngine.php' );
 require_once( __DIR__ . '/engine/realhttp/ModerationTestsuiteRealHttpEngine.php' );
+require_once( __DIR__ . '/engine/realcgi/ModerationTestsuiteRealCGIEngine.php' );
+require_once( __DIR__ . '/engine/realcgi/ModerationTestsuiteCGIHttpRequest.php' );
 require_once( __DIR__ . '/engine/internal/ModerationTestsuiteInternalInvocationEngine.php' );
 require_once( __DIR__ . '/engine/internal/ModerationTestsuiteInternallyInvokedWiki.php' );
 

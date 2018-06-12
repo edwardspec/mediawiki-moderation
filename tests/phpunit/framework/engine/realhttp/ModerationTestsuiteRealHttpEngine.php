@@ -22,6 +22,8 @@
 
 class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 
+	const HTTP_REQUEST_CLASS = 'MWHttpRequest';
+
 	protected $api; /**< ModerationTestsuiteAPI object */
 
 	protected $apiUrl;
@@ -73,7 +75,9 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 	}
 
 	public function executeHttpRequest( $url, $method = 'GET', array $postData = [] ) {
-		$req = MWHttpRequest::factory( $url, [
+		$requestClass = static::HTTP_REQUEST_CLASS;
+
+		$req = $requestClass::factory( $url, [
 			'method' => $method
 		] );
 		$req->setUserAgent( $this->getUserAgent() );
