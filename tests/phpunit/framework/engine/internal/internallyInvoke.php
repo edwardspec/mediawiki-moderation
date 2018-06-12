@@ -30,7 +30,7 @@ class InternallyInvoke extends Maintenance {
 		/* Trick to load all Testsuite classes without listing them
 			in the extension.json (which is used in production) */
 		global $wgAutoloadClasses;
-		$wgAutoloadClasses['ModerationTestsuiteInternallyInvokedWiki'] = __DIR__ . "/ModerationTestsuite.php";
+		$wgAutoloadClasses['ModerationTestsuiteInternallyInvokedWiki'] = __DIR__ . "/../../ModerationTestsuite.php";
 
 		$inputFilename = $this->getArg( 0 );
 		$outputFilename = $this->getArg( 1 );

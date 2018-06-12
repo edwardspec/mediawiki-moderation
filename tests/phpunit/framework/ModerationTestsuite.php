@@ -21,15 +21,16 @@
 */
 
 require_once( __DIR__ . '/ModerationTestsuiteApiMain.php' );
-require_once( __DIR__ . '/IModerationTestsuiteEngine.php' );
-require_once( __DIR__ . '/ModerationTestsuiteEngine.php' );
 require_once( __DIR__ . '/ModerationTestsuiteEntry.php' );
 require_once( __DIR__ . '/ModerationTestsuiteHTML.php' );
-require_once( __DIR__ . '/ModerationTestsuiteRealHttpEngine.php' );
 require_once( __DIR__ . '/ModerationTestsuiteResponse.php' );
 require_once( __DIR__ . '/ModerationTestsuiteSubmitResult.php' );
-require_once( __DIR__ . '/ModerationTestsuiteInternalInvocationEngine.php' );
-require_once( __DIR__ . '/ModerationTestsuiteInternallyInvokedWiki.php' );
+
+require_once( __DIR__ . '/engine/IModerationTestsuiteEngine.php' );
+require_once( __DIR__ . '/engine/ModerationTestsuiteEngine.php' );
+require_once( __DIR__ . '/engine/realhttp/ModerationTestsuiteRealHttpEngine.php' );
+require_once( __DIR__ . '/engine/internal/ModerationTestsuiteInternalInvocationEngine.php' );
+require_once( __DIR__ . '/engine/internal/ModerationTestsuiteInternallyInvokedWiki.php' );
 
 class ModerationTestsuite
 {
