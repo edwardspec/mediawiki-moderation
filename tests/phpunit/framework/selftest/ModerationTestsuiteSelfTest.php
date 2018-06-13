@@ -27,6 +27,13 @@ require_once( __DIR__ . "/../ModerationTestsuite.php" );
 
 class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 {
+	public static function setUpBeforeClass() {
+		parent::setUpBeforeClass();
+
+		$engineClass = get_class( ModerationTestsuiteEngine::factory() );
+		echo __CLASS__ . ": using $engineClass.\n";
+	}
+
 	/**
 		@covers ModerationTestsuiteEngine::executeHttpRequest
 		@dataProvider methodDataProvider
