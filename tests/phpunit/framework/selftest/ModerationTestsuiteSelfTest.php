@@ -29,26 +29,48 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 {
 	/**
 		@covers ModerationTestsuiteEngine::executeHttpRequest
+		@dataProvider methodDataProvider
 	*/
-	public function testEngineNonApi() {
+	public function testEngineNonApi( $method ) {
 		$t = new ModerationTestsuite();
-		$title = 'Test page 1';
 
-		$req = $t->httpPost( wfScript( 'index' ), [
-			'action' => 'edit',
-			'title' => $title
-		] );
+		$url = wfScript( 'index' );
+		$data = [
+			'title' => 'Test page 1',
+			'action' => 'edit'
+		];
 
-		$this->assertEquals( 200, $req->getStatus() );
+		if ( $method == 'POST' ) {
+			$req = $t->httpPost( $url, $data );
+		}
+		else {
+			$req = $t->httpGet( wfAppendQuery( $url, $data ) );
+		}
+
+		$this->assertEquals( 200, $req->getStatus(),
+			'Incorrect HTTP response code.' );
 
 		$html = $t->html->loadFromReq( $req );
 
 		/* Ensure that this is indeed an edit form */
 		$this->assertStringStartsWith(
-			wfMessage( 'creating', $title )->text(),
+			wfMessage( 'creating' )
+				->params( str_replace( '_', ' ', $data['title'] ) )
+				->text(),
 			$html->getTitle()
 		);
-		$this->assertNotNull( $html->getElementById( 'wpSave' ), 'testEngineNonApi(): "Save" button not found.' );
+		$this->assertNotNull( $html->getElementById( 'wpSave' ),
+			'testEngineNonApi(): "Save" button not found.' );
+	}
+
+	/**
+		@brief Provide datasets for testEngineNonApi() runs.
+	*/
+	public function methodDataProvider() {
+		return [
+			[ 'POST' ],
+			[ 'GET' ]
+		];
 	}
 
 }

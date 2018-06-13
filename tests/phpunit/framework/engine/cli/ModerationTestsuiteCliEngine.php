@@ -36,13 +36,13 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 		);
 	}
 
-	protected function cliExecute( $url, array $data, $isPosted, array $extraHttpHeaders = [] ) {
+	protected function cliExecute( $url, array $postData, $isPosted, array $extraHttpHeaders = [] ) {
 		global $wgServerName, $IP;
 		$url = wfExpandURL( $url, PROTO_CANONICAL );
 
-		/* Handle CURL uploads in $data */
+		/* Handle CURL uploads in $postData */
 		$files = [];
-		foreach ( $data as $key => $val ) {
+		foreach ( $postData as $key => $val ) {
 			if ( $val instanceof CURLFile ) {
 				/* Create a temporary copy of this file,
 					so that the original file won't be deleted after the upload */
@@ -50,7 +50,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 				copy( $val->getFilename(), $tmpFilename );
 
 				$files[$key] = $tmpFilename;
-				unset( $data[$key] ); // CURLFile is not serializable
+				unset( $postData[$key] ); // CURLFile is not serializable
 			}
 		}
 
@@ -58,7 +58,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 		$descriptor = [
 			'_COOKIE' => $_COOKIE,
 			'_GET' => [],
-			'_POST' => $data,
+			'_POST' => $postData,
 			'files' => $files,
 			'httpHeaders' => $extraHttpHeaders + [
 				'Host' => $wgServerName
