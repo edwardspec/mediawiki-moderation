@@ -35,6 +35,7 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 	}
 
 	/**
+		@brief Ensures that API response is correct.
 		@covers ModerationTestsuiteEngine::query
 	*/
 	public function testEngineApi() {
@@ -44,16 +45,19 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 			'meta' => 'siteinfo'
 		];
 
-		$req = $t->httpPost( wfScript( 'api' ), $data );
-		$this->assertEquals( 200, $req->getStatus(),
-			'Incorrect HTTP response code from API.' );
+		$ret = $t->query( $data );
 
-		$this->assertNotEmpty( $req->getContent(),
-			'Emptry API response.' );
+		$this->assertNotEmpty( $ret, 'Emptry API response.' );
+		$this->assertArrayHasKey( 'query', $ret );
+		$this->assertArrayHasKey( 'general', $ret['query'] );
+		$this->assertArrayHasKey( 'sitename', $ret['query']['general'] );
+
+		global $wgSitename;
+		$this->assertEquals( $wgSitename, $ret['query']['general']['sitename'] );
 	}
 
-
 	/**
+		@brief Ensures that non-API HTTP response is correct.
 		@covers ModerationTestsuiteEngine::executeHttpRequest
 		@dataProvider methodDataProvider
 	*/
