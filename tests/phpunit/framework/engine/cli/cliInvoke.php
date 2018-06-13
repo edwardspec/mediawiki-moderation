@@ -67,9 +67,22 @@ define( 'MW_CONFIG_FILE', __DIR__ . '/InvokedWikiSettings.php' );
 /*--------------------------------------------------------------*/
 ob_start();
 
-include( $wgModerationTestsuiteCliDescriptor['isApi' ] ? 'api.php' : 'index.php' );
+include( $wgModerationTestsuiteCliDescriptor[ 'isApi' ] ? 'api.php' : 'index.php' );
 
 $capturedContent = ob_get_clean();
+
+if ( $wgModerationTestsuiteCliDescriptor[ 'isApi' ] ) {
+	/* FIXME: when $wgRequest is FauxRequest, ApiMain assumes "internal mode"
+		and doesn't print successful results (only errors).
+
+		See ModerationTestsuiteApiMain class (workaround used in InternalInvocation engine).
+		We need a similar solution here, though it may be more difficult,
+		because we aren't the ones who created the ApiMain object.
+
+		(InternalInvocationEngine interfered with MediaWiki a lot,
+		while CliEngine just includes "api.php" and doesn't have this kind of control)
+	*/
+}
 
 /*--------------------------------------------------------------*/
 $result = [

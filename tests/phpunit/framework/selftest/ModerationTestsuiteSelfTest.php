@@ -35,6 +35,25 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 	}
 
 	/**
+		@covers ModerationTestsuiteEngine::query
+	*/
+	public function testEngineApi() {
+		$t = new ModerationTestsuite();
+		$data = [
+			'action' => 'query',
+			'meta' => 'siteinfo'
+		];
+
+		$req = $t->httpPost( wfScript( 'api' ), $data );
+		$this->assertEquals( 200, $req->getStatus(),
+			'Incorrect HTTP response code from API.' );
+
+		$this->assertNotEmpty( $req->getContent(),
+			'Emptry API response.' );
+	}
+
+
+	/**
 		@covers ModerationTestsuiteEngine::executeHttpRequest
 		@dataProvider methodDataProvider
 	*/
