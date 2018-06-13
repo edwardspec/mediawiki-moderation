@@ -29,9 +29,19 @@ require_once( __DIR__ . '/ModerationTestsuiteSubmitResult.php' );
 /* FIXME: this can really use some autoloading, as only one engine is needed at a time */
 require_once( __DIR__ . '/engine/IModerationTestsuiteEngine.php' );
 require_once( __DIR__ . '/engine/ModerationTestsuiteEngine.php' );
+
+/* Completely working Engine, used for pre-commit testing */
 require_once( __DIR__ . '/engine/realhttp/ModerationTestsuiteRealHttpEngine.php' );
+
+/* Experimental */
+require_once( __DIR__ . '/engine/cli/ModerationTestsuiteCliEngine.php' );
+
+/* Proof of concept Engine, will probably be abandoned */
 require_once( __DIR__ . '/engine/realcgi/ModerationTestsuiteRealCGIEngine.php' );
 require_once( __DIR__ . '/engine/realcgi/ModerationTestsuiteCGIHttpRequest.php' );
+
+/* Not yet ready (issues with SessionManager),
+	less useful than RealHttp (interferes too much with MediaWiki during the test) */
 require_once( __DIR__ . '/engine/internal/ModerationTestsuiteInternalInvocationEngine.php' );
 require_once( __DIR__ . '/engine/internal/ModerationTestsuiteInternallyInvokedWiki.php' );
 

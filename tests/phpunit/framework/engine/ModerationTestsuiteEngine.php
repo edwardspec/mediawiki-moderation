@@ -47,7 +47,12 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 				return new ModerationTestsuiteInternalInvocationEngine;
 
 			case 'realcgi':
+				/* Warning: incomplete (doesn't support POST requests),
+					will probably be removed in favor of CliEngine. */
 				return new ModerationTestsuiteRealCGIEngine;
+
+			case 'cli':
+				return new ModerationTestsuiteCliEngine;
 		}
 
 		/* Default */
