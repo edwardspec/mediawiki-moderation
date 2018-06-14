@@ -251,7 +251,10 @@ class ModerationEntryFormatter extends ModerationEntry {
 			$line .= ' . . ';
 
 			if ( $row->rejected_by_user ) {
-				$line .= wfMessage( 'moderation-rejected-by', Linker::userLink( $row->rejected_by_user, $row->rejected_by_user_text ) )->text();
+				$line .= wfMessage( 'moderation-rejected-by',
+					Linker::userLink( $row->rejected_by_user, $row->rejected_by_user_text ),
+					$row->rejected_by_user_text // plain username for {{gender:}} syntax
+				)->text();
 			} elseif ( $row->rejected_auto ) {
 				$line .= wfMessage( 'moderation-rejected-auto' )->plain();
 			}
