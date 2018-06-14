@@ -55,16 +55,20 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 
 	public function loginAs( User $user ) {
 		# Step 1. Get the token.
-		$q = [
-			'action' => 'login',
-			'lgname' => $user->getName(),
-			'lgpassword' => ModerationTestsuite::TEST_PASSWORD
-		];
-		$ret = $this->query( $q );
+		$ret = $this->query( [
+			'action' => 'query',
+			'meta' => 'tokens',
+			'type' => 'login'
+		] );
+		$loginToken = $ret['query']['tokens']['logintoken'];
 
 		# Step 2. Actual login.
-		$q['lgtoken'] = $ret['login']['token'];
-		$ret = $this->query( $q );
+		$ret = $this->query( [
+			'action' => 'login',
+			'lgname' => $user->getName(),
+			'lgpassword' => ModerationTestsuite::TEST_PASSWORD,
+			'lgtoken' => $loginToken
+		] );
 
 		if ( $ret['login']['result'] == 'Success' ) {
 			$this->getEditToken( true ); # It's different for a logged-in user
