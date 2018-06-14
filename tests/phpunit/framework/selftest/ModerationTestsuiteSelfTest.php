@@ -27,25 +27,16 @@ require_once( __DIR__ . "/../ModerationTestsuite.php" );
 
 class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 {
-	public static function setUpBeforeClass() {
-		parent::setUpBeforeClass();
-
-		$engineClass = get_class( ModerationTestsuiteEngine::factory() );
-		echo __CLASS__ . ": using $engineClass.\n";
-	}
-
 	/**
 		@brief Ensures that API response is correct.
 		@covers ModerationTestsuiteEngine::query
+		@dataProvider engineDataProvider
 	*/
-	public function xtestEngineApi() {
-		$t = new ModerationTestsuite();
-		$data = [
+	public function testEngineApi( ModerationTestsuiteEngine $engine ) {
+		$ret = $engine->query( [
 			'action' => 'query',
 			'meta' => 'siteinfo'
-		];
-
-		$ret = $t->query( $data );
+		] );
 
 		$this->assertNotEmpty( $ret, 'Emptry API response.' );
 		$this->assertArrayHasKey( 'query', $ret );
@@ -58,36 +49,38 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 
 	/**
 		@brief Ensures that login works (and/or login cookies are remembered).
-		@covers ModerationTestsuiteEngine::query
+		@covers ModerationTestsuiteEngine::loginAs
+		@dataProvider engineDataProvider
 	*/
-	public function testEngineApiLogin() {
-		$t = new ModerationTestsuite();
+	public function testEngineApiLogin( ModerationTestsuiteEngine $engine ) {
+		# Create test user.
+		$t = new ModerationTestsuite;
+		$user = $t->unprivilegedUser;
 
-		$t->loginAs( $t->unprivilegedUser );
+		# Try to login.
+		$engine->loginAs( $user );
 
-		$ret = $t->query( [
+		# Check information about current user.
+		$ret = $engine->query( [
 			'action' => 'query',
 			'meta' => 'userinfo'
 		] );
-
 		$this->assertArrayHasKey( 'query', $ret );
 		$this->assertArrayHasKey( 'userinfo', $ret['query'] );
 
 		$this->assertArrayNotHasKey( 'anon', $ret['query']['userinfo'],
 			"User is still anonymous after loginAs()" );
 
-		$this->assertEquals( $t->unprivilegedUser->getName(),
+		$this->assertEquals( $user->getName(),
 			$ret['query']['userinfo']['name'] );
 	}
 
 	/**
 		@brief Ensures that non-API HTTP response is correct.
 		@covers ModerationTestsuiteEngine::executeHttpRequest
-		@dataProvider methodDataProvider
+		@dataProvider engineAndMethodDataProvider
 	*/
-	public function xtestEngineNonApi( $method ) {
-		$t = new ModerationTestsuite();
-
+	public function testEngineNonApi( ModerationTestsuiteEngine $engine, $method ) {
 		$url = wfScript( 'index' );
 		$data = [
 			'title' => 'Test page 1',
@@ -95,16 +88,17 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 		];
 
 		if ( $method == 'POST' ) {
-			$req = $t->httpPost( $url, $data );
+			$req = $engine->httpPost( $url, $data );
 		}
 		else {
-			$req = $t->httpGet( wfAppendQuery( $url, $data ) );
+			$req = $engine->httpGet( wfAppendQuery( $url, $data ) );
 		}
 
 		$this->assertEquals( 200, $req->getStatus(),
 			'Incorrect HTTP response code.' );
 
-		$html = $t->html->loadFromReq( $req );
+		$html = new ModerationTestsuiteHTML( $engine );
+		$html->loadFromReq( $req );
 
 		/* Ensure that this is indeed an edit form */
 		$this->assertStringStartsWith(
@@ -118,13 +112,51 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Provide datasets for testEngineNonApi() runs.
+		@brief Provide ModerationTestsuiteEngine objects for tests.
+	*/
+	public function engineDataProvider() {
+		return [
+			[ new ModerationTestsuiteCliEngine ],
+			[ new ModerationTestsuiteRealHttpEngine ],
+			// [ new ModerationTestsuiteRealCGIEngine ],
+			// [ new ModerationTestsuiteRealHttpEngine ],
+			// [ new ModerationTestsuiteInternalInvocationEngine ]
+		];
+	}
+
+	/**
+		@brief Provide $method datasets for testEngineNonApi() runs.
 	*/
 	public function methodDataProvider() {
 		return [
 			[ 'POST' ],
 			[ 'GET' ]
 		];
+	}
+
+	/**
+		@brief Provide [ $engine, $method ] datasets for testEngineNonApi() runs.
+	*/
+	public function engineAndMethodDataProvider() {
+		return $this->multiplyProviders( 'engineDataProvider', 'methodDataProvider' );
+	}
+
+	/**
+		@brief Provides dataset where some parameters are provided by $provider1, some by $provider2.
+		@param $provider1 Name of DataProvider method, e.g. 'engineDataProvider'.
+		@param $provider2 Name of DataProvider method, e.g. 'methodDataProvider'.
+	*/
+	public function multiplyProviders( $provider1, $provider2 ) {
+		$sets1 = call_user_func( [ $this, $provider1 ] );
+		$sets2 = call_user_func( [ $this, $provider2 ] );
+
+		$sets = [];
+		foreach ( $sets1 as $params1 ) {
+			foreach ( $sets2 as $params2 ) {
+				$sets[] = array_merge( $params1, $params2 );
+			}
+		}
+		return $sets;
 	}
 
 }
