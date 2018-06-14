@@ -64,13 +64,14 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 
 		# Step 2. Actual login.
 		$ret = $this->query( [
-			'action' => 'login',
-			'lgname' => $user->getName(),
-			'lgpassword' => ModerationTestsuite::TEST_PASSWORD,
-			'lgtoken' => $loginToken
+			'action' => 'clientlogin',
+			'username' => $user->getName(),
+			'password' => ModerationTestsuite::TEST_PASSWORD,
+			'loginreturnurl' => 'http://localhost/not.really.used',
+			'logintoken' => $loginToken
 		] );
 
-		if ( $ret['login']['result'] == 'Success' ) {
+		if ( $ret['clientlogin']['status'] == 'PASS' ) {
 			$this->getEditToken( true ); # It's different for a logged-in user
 			return true;
 		}
