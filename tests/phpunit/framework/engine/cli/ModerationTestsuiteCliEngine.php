@@ -18,9 +18,19 @@
 /**
 	@file
 	@brief Testsuite engine that runs index.php/api.php in PHP CLI.
+
+	For now, we subclass from RealHttpEngine, because we want doQuery()
+	to be based on executeHttpRequest(), same as in RealHttpEngine.
 */
 
 class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
+
+	protected $cookies = []; /* array( 'name' => 'value' ) */
+
+	public function logout() {
+		parent::logout();
+		$this->cookies = [];
+	}
 
 	public function executeHttpRequest( $url, $method = 'GET', array $postData = [] ) {
 		$result = $this->cliExecute(
@@ -56,7 +66,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 
 		# Descriptor is the information to be passed to [cliInvoke.php].
 		$descriptor = [
-			'_COOKIE' => $_COOKIE,
+			'_COOKIE' => $this->cookies,
 			'_GET' => [],
 			'_POST' => $postData,
 			'files' => $files,
@@ -141,6 +151,16 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 		unlink( $inputFilename );
 		unlink( $outputFilename );
 
+		/* Remember the newly set cookies */
+		if ( !isset( $result['FauxResponse'] ) ) {
+			throw new ModerationTestsuiteCliError( "no FauxResponse from $env[REQUEST_METHOD] [$url]" );
+		}
+
+		$response = $result['FauxResponse'];
+		$this->cookies = array_map( function( $info ) {
+			return $info['value'];
+		}, $response->getCookies() );
+
 		return $result;
 	}
 
@@ -162,3 +182,5 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 		return [ $scriptName, $pathInfo ];
 	}
 }
+
+class ModerationTestsuiteCliError extends ModerationTestsuiteException {};

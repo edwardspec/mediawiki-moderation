@@ -19,6 +19,7 @@ function efModerationTestsuiteSetup() {
 	);
 	$request->setRequestURL( $_SERVER['REQUEST_URI'] );
 	$request->setHeaders( $wgModerationTestsuiteCliDescriptor['httpHeaders'] );
+	$request->setCookies( $_COOKIE, '' );
 
 	/* Use $request as the global WebRequest object */
 	RequestContext::getMain()->setRequest( $request );
