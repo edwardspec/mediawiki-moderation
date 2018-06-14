@@ -23,7 +23,7 @@
 require_once( __DIR__ . "/../../framework/ModerationTestsuite.php" );
 
 /**
-	@covers ModerationNewChanges
+	@covers ModerationNewChange
 */
 class ModerationQueueTest extends MediaWikiTestCase
 {
