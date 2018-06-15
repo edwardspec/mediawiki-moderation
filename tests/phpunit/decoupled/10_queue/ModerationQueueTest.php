@@ -54,6 +54,7 @@ class ModerationQueueTest extends MediaWikiTestCase
 			[ [ 'userAgent' => 'UserAgent for Testing/1.0' ] ],
 			[ [ 'userAgent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1' ] ],
 			[ [ 'filename' => 'image100x100.png' ] ],
+			[ [ 'filename' => 'image100x100.png', 'viaApi' => true ] ],
 			// [ [ 'title' => 'Test page 1', 'newTitle' => 'Test page 2' ] ]
 		];
 	}
@@ -71,6 +72,7 @@ class ModerationQueueTestSet {
 	protected $userAgent = ModerationTestsuite::DEFAULT_USER_AGENT;
 	protected $filename = null; /**< string. Only used for uploads. */
 	protected $anonymously = false; /**< If true, the edit will be anonymous. ($user will be ignored) */
+	protected $viaApi = false; /**< If true, edits are made via API. If false, they are made via the user interface. */
 
 	/**
 		@brief Run this TestSet from input of dataProvider.
@@ -117,6 +119,7 @@ class ModerationQueueTestSet {
 				case 'userAgent':
 				case 'filename':
 				case 'anonymously':
+				case 'viaApi':
 					$this->$key = $value;
 					break;
 
@@ -150,18 +153,26 @@ class ModerationQueueTestSet {
 
 		if ( $this->filename ) {
 			/* Upload */
+			$t->uploadViaAPI = $this->viaApi;
 			$result = $t->doTestUpload(
-				$this->title->getFullText(),
+				$this->title->getText(), /* Without "File:" namespace prefix */
 				$this->filename,
 				$this->text
 			);
 
-			$testcase->assertFalse( $result->getError(), __METHOD__ . "(): Special:Upload displayed an error." );
-			$testcase->assertContains( '(moderation-image-queued)', $result->getSuccessText() );
+			if ( $this->viaApi ) {
+				$testcase->assertEquals( '(moderation-image-queued)', $result );
+			}
+			else {
+				$testcase->assertFalse( $result->getError(), __METHOD__ . "(): Special:Upload displayed an error." );
+				$testcase->assertContains( '(moderation-image-queued)', $result->getSuccessText() );
+			}
 		}
 		elseif ( $this->newTitle ) {
 			/* Create the page first, or there will be nothing to move */
 			throw new Exception( 'Not yet implemented. Need to reuse fastEdit() from ModerationBenchmark.' );
+
+			/* TODO: follow $this->viaApi setting */
 
 			$ret = $t->apiMove(
 				$this->title->getFullText(),
@@ -172,6 +183,7 @@ class ModerationQueueTestSet {
 		}
 		else {
 			/* Normal edit */
+			$t->editViaAPI = $this->viaApi;
 			$t->doTestEdit(
 				$this->title->getFullText(),
 				$this->text,
@@ -186,6 +198,27 @@ class ModerationQueueTestSet {
 		@returns [ 'mod_user' => ..., 'mod_namespace' => ..., ... ]
 	*/
 	protected function getExpectedRow() {
+		$text = $this->text;
+
+		if ( $this->filename && !$this->viaApi && ModerationTestsuite::mwVersionCompare( '1.31', '>=' ) ) {
+			/* In MediaWiki 1.31+,
+				Special:Upload prepends InitialText with "== Summary ==" header */
+			$headerText = '== ' . wfMessage( 'filedesc' )->inContentLanguage()->text() . ' ==';
+			$text = "$headerText\n$text";
+		}
+
+		$summary = $this->summary;
+		if ( $this->filename ) {
+			if ( $this->viaApi ) {
+				/* API has different parameters for 'text' and 'summary' */
+				$summary = '';
+			}
+			else {
+				/* Special:Upload copies text into summary */
+				$summary = $this->text;
+			}
+		}
+
 		return [
 			'mod_id' => new ModerationTestSetRegex( '/^[0-9]+$/' ),
 			'mod_timestamp' => new ModerationTestSetRegex( '/^[0-9]{14}$/' ),
@@ -194,14 +227,14 @@ class ModerationQueueTestSet {
 			'mod_cur_id' => 0,
 			'mod_namespace' => $this->title->getNamespace(),
 			'mod_title' => $this->title->getDBKey(),
-			'mod_comment' => $this->filename ? $this->text : $this->summary,
+			'mod_comment' => $summary,
 			'mod_minor' => 0,
 			'mod_bot' => 0,
 			'mod_new' => 1,
 			'mod_last_oldid' => 0,
 			'mod_ip' => '127.0.0.1',
 			'mod_old_len' => 0,
-			'mod_new_len' => strlen( $this->text ), /* FIXME: do preSaveTransform */
+			'mod_new_len' => strlen( $text ), /* FIXME: do preSaveTransform */
 			'mod_header_xff' => null,
 			'mod_header_ua' => $this->userAgent,
 			'mod_preload_id' => (
@@ -217,7 +250,7 @@ class ModerationQueueTestSet {
 			'mod_preloadable' => 0,
 			'mod_conflict' => 0,
 			'mod_merged_revid' => 0,
-			'mod_text' => $this->text, /* FIXME: do preSaveTransform */
+			'mod_text' => $text, /* FIXME: do preSaveTransform */
 			'mod_stash_key' => $this->filename ? new ModerationTestSetRegex( '/^[0-9a-z\.]+$/i' ) : '',
 			'mod_tags' => null,
 			'mod_type' => $this->newTitle ? 'move' : 'edit',

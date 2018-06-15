@@ -190,8 +190,7 @@ class ModerationTestsuite
 	*/
 	private function prepareDbForTests()
 	{
-		global $wgVersion;
-		if ( version_compare( $wgVersion, '1.28', '>=' ) ) {
+		if ( $this->mwVersionCompare( '1.28', '>=' ) ) {
 			/*
 				This is a workaround for the following problem:
 				https://gerrit.wikimedia.org/r/328718
@@ -599,7 +598,8 @@ class ModerationTestsuite
 			'filename' => $title,
 			'text' => $text,
 			'token' => null,
-			'file' => curl_file_create( $source_filename )
+			'file' => curl_file_create( $source_filename ),
+			'ignorewarnings' => 1
 		] );
 
 		if ( isset( $ret['error']['code'] ) ) {
@@ -832,11 +832,9 @@ class ModerationTestsuite
 		@brief Assert that API response $ret contains error $expectedErrorCode.
 	*/
 	public function assertApiError( $expectedErrorCode, array $ret, MediaWikiTestCase $tcase ) {
-		global $wgVersion;
-
 		$tcase->assertArrayHasKey( 'error', $ret );
 
-		if ( version_compare( $wgVersion, '1.29', '>=' ) ) {
+		if ( $this->mwVersionCompare( '1.29', '>=' ) ) {
 			# MediaWiki 1.29+
 			$tcase->assertEquals( $expectedErrorCode, $ret['error']['code'] );
 		} else {
@@ -845,6 +843,14 @@ class ModerationTestsuite
 			$tcase->assertEquals( 'unknownerror', $ret['error']['code'] );
 			$tcase->assertContains( $expectedErrorCode, $ret['error']['info'] );
 		}
+	}
+
+	/**
+		@brief Call version_compare on $wgVersion.
+	*/
+	public static function mwVersionCompare( $compareWith, $operator ) {
+		global $wgVersion;
+		return version_compare( $wgVersion, $compareWith, $operator );
 	}
 }
 
