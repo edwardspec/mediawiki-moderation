@@ -113,8 +113,9 @@ class ModerationNewChange {
 			}
 		}
 
-		$this->fields['mod_text'] = $this->preSaveTransform( $newContent );
-		$this->fields['mod_new_len'] = $newContent->getSize();
+		$pstContent = $this->preSaveTransform( $newContent );
+		$this->fields['mod_text'] = $pstContent->getNativeData();
+		$this->fields['mod_new_len'] = $pstContent->getSize();
 		$this->addChangeTags( 'edit' );
 
 		return $this;
@@ -148,7 +149,7 @@ class ModerationNewChange {
 
 	/**
 		@brief Replace things like "~~~~" in $content.
-		@returns Text after transformation (string).
+		@returns Content object.
 	*/
 	protected function preSaveTransform( Content $content ) {
 		global $wgContLang;
@@ -158,7 +159,7 @@ class ModerationNewChange {
 			$this->title,
 			$this->user,
 			$popts
-		)->getNativeData();
+		);
 	}
 
 	/**
