@@ -15,6 +15,8 @@
 	GNU General Public License for more details.
 */
 
+require_once( __DIR__ . '/../common/ModerationTestUtil.php' );
+
 /**
 	@file
 	@brief Parent class for benchmark scripts.
@@ -148,27 +150,7 @@ abstract class ModerationBenchmark extends Maintenance {
 		much longer than the actual benchmark.
 	*/
 	public function fastEdit( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
-		$dbw = wfGetDB( DB_MASTER );
-
-		$page = WikiPage::factory( $title );
-		$page->insertOn( $dbw );
-
-		if ( !$user ) {
-			$user = User::newFromName( '127.0.0.1', false );
-		}
-
-		$revision = new Revision( [
-			'page'       => $page->getId(),
-			'comment'    => $summary,
-			'text'       => $newText, # No preSaveTransform or serialization
-			'user'       => $user->getId(),
-			'user_text'  => $user->getName(),
-			'timestamp'  => wfTimestampNow(),
-			'content_model' => CONTENT_MODEL_WIKITEXT
-		] );
-
-		$revision->insertOn( $dbw );
-		$page->updateRevisionOn( $dbw, $revision );
+		ModerationTestUtil::fastEdit( $title, $newText, $summary, $user );
 	}
 
 	/**

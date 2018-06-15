@@ -56,7 +56,9 @@ class ModerationQueueTest extends MediaWikiTestCase
 			[ [ 'filename' => 'image100x100.png' ] ],
 			[ [ 'filename' => 'image100x100.png', 'viaApi' => true ] ],
 			[ [ 'filename' => 'image100x100.png', 'text' => 'Before ~~~~ After', 'needPst' => true ] ],
-			// [ [ 'title' => 'Test page 1', 'newTitle' => 'Test page 2' ] ]
+			[ [ 'existing' => true ] ],
+			[ [ 'existing' => true, 'filename' => 'image100x100.png' ] ],
+			//[ [ 'title' => 'Test page 1', 'newTitle' => 'Test page 2' ] ]
 		];
 	}
 }
@@ -75,6 +77,8 @@ class ModerationQueueTestSet {
 	protected $anonymously = false; /**< If true, the edit will be anonymous. ($user will be ignored) */
 	protected $viaApi = false; /**< If true, edits are made via API. If false, they are made via the user interface. */
 	protected $needPst = false; /**< If true, text is expected to be altered by PreSaveTransform (e.g. contains "~~~~"). */
+	protected $existing = false; /*< If true, existing page will be edited. If false, new page will be created. */
+	protected $oldText = ''; /**< Text of existing article (if any). */
 
 	/**
 		@brief Run this TestSet from input of dataProvider.
@@ -124,6 +128,7 @@ class ModerationQueueTestSet {
 				case 'anonymously':
 				case 'viaApi':
 				case 'needPst':
+				case 'existing':
 					$this->$key = $value;
 					break;
 
@@ -148,6 +153,12 @@ class ModerationQueueTestSet {
 		if ( $this->filename && $this->viaApi && ModerationTestsuite::mwVersionCompare( '1.28', '<' ) ) {
 			$testcase->markTestSkipped( 'Test skipped: MediaWiki 1.27 doesn\'t support upload via API.' );
 		}
+
+		/* Shouldn't contain PreSaveTransform-affected text, e.g. "~~~~" */
+		$this->oldText = wfTimestampNow() . '_' . rand() . '_OldText';
+		if ( $this->oldText == $this->text ) {
+			$this->oldText .= '+'; // Ensure that $oldText is different from $text
+		}
 	}
 
 	/**
@@ -156,6 +167,22 @@ class ModerationQueueTestSet {
 	protected function performEdit( MediaWikiTestCase $testcase ) {
 		$t = new ModerationTestsuite();
 		$t->setUserAgent( $this->userAgent );
+
+		if ( $this->existing || $this->newTitle ) {
+			if ( $this->filename ) {
+				$moderatorUser = User::newFromName( 'User 1' );
+				$t->loginAs( $moderatorUser );
+				$t->apiUpload( $this->title->getText(), $this->filename, $this->oldText );
+			}
+			else {
+				ModerationTestUtil::fastEdit(
+					$this->title,
+					$this->oldText,
+					'',
+					$this->user
+				);
+			}
+		}
 
 		$t->loginAs( $this->user );
 
@@ -177,9 +204,6 @@ class ModerationQueueTestSet {
 			}
 		}
 		elseif ( $this->newTitle ) {
-			/* Create the page first, or there will be nothing to move */
-			throw new Exception( 'Not yet implemented. Need to reuse fastEdit() from ModerationBenchmark.' );
-
 			/* TODO: follow $this->viaApi setting */
 
 			$ret = $t->apiMove(
@@ -245,16 +269,16 @@ class ModerationQueueTestSet {
 			'mod_timestamp' => new ModerationTestSetRegex( '/^[0-9]{14}$/' ),
 			'mod_user' => $this->user->getId(),
 			'mod_user_text' => $this->user->getName(),
-			'mod_cur_id' => 0,
+			'mod_cur_id' => $this->existing ? $this->title->getArticleId() : 0,
 			'mod_namespace' => $this->title->getNamespace(),
 			'mod_title' => $this->title->getDBKey(),
 			'mod_comment' => $expectedSummary,
 			'mod_minor' => 0,
 			'mod_bot' => 0,
-			'mod_new' => 1,
-			'mod_last_oldid' => 0,
+			'mod_new' => $this->existing ? 0 : 1,
+			'mod_last_oldid' => $this->existing ? $this->title->getLatestRevID( Title::GAID_FOR_UPDATE ) : 0,
 			'mod_ip' => '127.0.0.1',
-			'mod_old_len' => 0,
+			'mod_old_len' => $this->existing ? strlen( $this->oldText ) : 0,
 			'mod_new_len' => strlen( $expectedText ),
 			'mod_header_xff' => null,
 			'mod_header_ua' => $this->userAgent,

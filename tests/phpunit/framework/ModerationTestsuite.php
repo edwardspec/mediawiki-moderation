@@ -20,6 +20,8 @@
 	@brief Automated testsuite of Extension:Moderation.
 */
 
+require_once( __DIR__ . '/../../common/ModerationTestUtil.php' );
+
 require_once( __DIR__ . '/ModerationTestsuiteEntry.php' );
 require_once( __DIR__ . '/ModerationTestsuiteHTML.php' );
 require_once( __DIR__ . '/ModerationTestsuiteResponse.php' );
@@ -529,7 +531,7 @@ class ModerationTestsuite
 		@returns MediaWiki error message code (e.g. "(emptyfile)").
 		@retval null Upload succeeded (no errors found).
 	*/
-	public function doTestUpload( $title = null, $source_filename = null, $text = null, array $extraParams = [] )
+	public function doTestUpload( $title = null, $srcFilename = null, $text = null, array $extraParams = [] )
 	{
 		if ( !$title ) {
 			$title = $this->generateRandomTitle() . '.png';
@@ -539,44 +541,51 @@ class ModerationTestsuite
 			$text = $this->generateRandomText();
 		}
 
-		if ( !$source_filename ) {
-			$source_filename = "image100x100.png";
-		}
-
-		if ( substr( $source_filename, 0, 1 ) != '/' ) {
-			$source_filename = __DIR__ . "/../../resources/" . $source_filename;
-		}
-
-		$source_filename = realpath( $source_filename );
-
 		if ( $this->uploadViaAPI ) {
-			$error = $this->apiUpload( $title, $source_filename, $text, $extraParams );
+			$error = $this->apiUpload( $title, $srcFilename, $text, $extraParams );
 		}
 		else {
-			$error = $this->nonApiUpload( $title, $source_filename, $text, $extraParams );
+			$error = $this->nonApiUpload( $title, $srcFilename, $text, $extraParams );
 		}
 
+		$srcFilename = $this->findSourceFilename( $srcFilename );
 		$this->setLastEdit(
 			Title::newFromText( $title, NS_FILE )->getFullText(),
 			'', /* Summary wasn't used */
 			[
 				'Text' => $text,
-				'SHA1' => sha1_file( $source_filename ),
-				'Source' => $source_filename
+				'SHA1' => sha1_file( $srcFilename ),
+				'Source' => $srcFilename
 			]
 		);
 		return $error;
 	}
 
 	/**
+		@brief Resolve $srcFilename into an absolute path.
+		Used in tests: '1.png' is found at [tests/resources/1.png].
+	*/
+	public function findSourceFilename( $srcFilename ) {
+		if ( !$srcFilename ) {
+			$srcFilename = "image100x100.png";
+		}
+
+		if ( substr( $srcFilename, 0, 1 ) != '/' ) {
+			$srcFilename = __DIR__ . "/../../resources/" . $srcFilename;
+		}
+
+		return realpath( $srcFilename );
+	}
+
+	/**
 		@brief Make an upload via the usual Special:Upload, as real users do.
 		@returns ModerationTestsuiteSubmitResult object.
 	*/
-	public function nonApiUpload( $title, $source_filename, $text, array $extraParams = [] )
+	public function nonApiUpload( $title, $srcFilename, $text, array $extraParams = [] )
 	{
 		$req = $this->httpPost( wfScript( 'index' ), $extraParams + [
 			'title' => 'Special:Upload',
-			'wpUploadFile' => curl_file_create( $source_filename ),
+			'wpUploadFile' => curl_file_create( $this->findSourceFilename( $srcFilename ) ),
 			'wpDestFile' => $title,
 			'wpIgnoreWarning' => '1',
 			'wpEditToken' => $this->getEditToken(),
@@ -591,14 +600,14 @@ class ModerationTestsuite
 		@brief Make an upload via API.
 		@returns Error code (e.g. '(emptyfile)') or null.
 	*/
-	public function apiUpload( $title, $source_filename, $text )
+	public function apiUpload( $title, $srcFilename, $text )
 	{
 		$ret = $this->query( [
 			'action' => 'upload',
 			'filename' => $title,
 			'text' => $text,
 			'token' => null,
-			'file' => curl_file_create( $source_filename ),
+			'file' => curl_file_create( $this->findSourceFilename( $srcFilename ) ),
 			'ignorewarnings' => 1
 		] );
 
