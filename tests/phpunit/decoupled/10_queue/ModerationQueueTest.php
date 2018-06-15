@@ -79,9 +79,10 @@ class ModerationQueueTestSet {
 	/**
 		@brief Run this TestSet from input of dataProvider.
 		@param $options Parameters of test, e.g. [ 'user' => 'Bear expert', 'title' => 'Black bears' ].
+		@param $testcase Current PHPUnitTestCase object. Used for calling assert*() methods.
 	*/
 	public static function run( array $options, MediaWikiTestCase $testcase ) {
-		$set = new self( $options );
+		$set = new self( $options, $testcase );
 		$set->performEdit( $testcase );
 
 		$dbw = wfGetDB( DB_MASTER );
@@ -101,7 +102,7 @@ class ModerationQueueTestSet {
 	/**
 		@brief Construct TestSet from input of dataProvider.
 	*/
-	protected function __construct( array $options ) {
+	protected function __construct( array $options, MediaWikiTestCase $testcase ) {
 		foreach ( $options as $key => $value ) {
 			switch ( $key ) {
 				case 'user':
@@ -142,6 +143,10 @@ class ModerationQueueTestSet {
 		if ( !$this->title ) {
 			$pageName = $this->filename ? 'File:Test image 1.png' : 'Test page 1';
 			$this->title = Title::newFromText( $pageName );
+		}
+
+		if ( $this->filename && $this->viaApi && ModerationTestsuite::mwVersionCompare( '1.28', '<' ) ) {
+			$testcase->markTestSkipped( 'Test skipped: MediaWiki 1.27 doesn\'t support upload via API.' );
 		}
 	}
 
@@ -226,7 +231,7 @@ class ModerationQueueTestSet {
 				/* Special:Upload copies text into summary */
 				$expectedSummary = $this->text;
 
-				if (  ModerationTestsuite::mwVersionCompare( '1.31', '>=' ) ) {
+				if ( ModerationTestsuite::mwVersionCompare( '1.31', '>=' ) ) {
 					/* In MediaWiki 1.31+,
 						Special:Upload prepends InitialText with "== Summary ==" header */
 					$headerText = '== ' . wfMessage( 'filedesc' )->inContentLanguage()->text() . ' ==';
