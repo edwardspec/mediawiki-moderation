@@ -47,8 +47,8 @@ class ModerationQueueTest extends MediaWikiTestCase
 			[ [ 'title' => 'Title_with_underscores' ] ],
 			[ [ 'title' => 'Project:Title_in_another_namespace' ] ],
 			[ [ 'text' => 'Interesting text 1' ] ],
-			[ [ 'text' => 'Another very interesting text 2' ] ],
 			[ [ 'text' => 'Wikitext with [[links]] and {{templates}} and something' ] ],
+			[ [ 'text' => 'Text before signature ~~~~ Text after signature', 'needPst' => true ] ],
 			[ [ 'summary' => 'Summary 1' ] ],
 			[ [ 'summary' => 'Summary 2' ] ],
 			[ [ 'userAgent' => 'UserAgent for Testing/1.0' ] ],
@@ -73,6 +73,7 @@ class ModerationQueueTestSet {
 	protected $filename = null; /**< string. Only used for uploads. */
 	protected $anonymously = false; /**< If true, the edit will be anonymous. ($user will be ignored) */
 	protected $viaApi = false; /**< If true, edits are made via API. If false, they are made via the user interface. */
+	protected $needPst = false; /**< If true, text is expected to be altered by PreSaveTransform (e.g. contains "~~~~"). */
 
 	/**
 		@brief Run this TestSet from input of dataProvider.
@@ -120,6 +121,7 @@ class ModerationQueueTestSet {
 				case 'filename':
 				case 'anonymously':
 				case 'viaApi':
+				case 'needPst':
 					$this->$key = $value;
 					break;
 
@@ -219,6 +221,16 @@ class ModerationQueueTestSet {
 			}
 		}
 
+		$expectedContent = ContentHandler::makeContent( $text, null, CONTENT_MODEL_WIKITEXT );
+		if ( $this->needPst ) {
+			global $wgContLang;
+			$expectedContent = $expectedContent->preSaveTransform(
+				$this->title,
+				$this->user,
+				ParserOptions::newFromUserAndLang( $this->user, $wgContLang )
+			);
+		}
+
 		return [
 			'mod_id' => new ModerationTestSetRegex( '/^[0-9]+$/' ),
 			'mod_timestamp' => new ModerationTestSetRegex( '/^[0-9]{14}$/' ),
@@ -234,7 +246,7 @@ class ModerationQueueTestSet {
 			'mod_last_oldid' => 0,
 			'mod_ip' => '127.0.0.1',
 			'mod_old_len' => 0,
-			'mod_new_len' => strlen( $text ), /* FIXME: do preSaveTransform */
+			'mod_new_len' => $expectedContent->getSize(),
 			'mod_header_xff' => null,
 			'mod_header_ua' => $this->userAgent,
 			'mod_preload_id' => (
@@ -250,7 +262,7 @@ class ModerationQueueTestSet {
 			'mod_preloadable' => 0,
 			'mod_conflict' => 0,
 			'mod_merged_revid' => 0,
-			'mod_text' => $text, /* FIXME: do preSaveTransform */
+			'mod_text' => $expectedContent->getNativeData(),
 			'mod_stash_key' => $this->filename ? new ModerationTestSetRegex( '/^[0-9a-z\.]+$/i' ) : '',
 			'mod_tags' => null,
 			'mod_type' => $this->newTitle ? 'move' : 'edit',
