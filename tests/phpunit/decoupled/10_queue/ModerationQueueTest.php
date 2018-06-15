@@ -55,6 +55,7 @@ class ModerationQueueTest extends MediaWikiTestCase
 			[ [ 'userAgent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1' ] ],
 			[ [ 'filename' => 'image100x100.png' ] ],
 			[ [ 'filename' => 'image100x100.png', 'viaApi' => true ] ],
+			[ [ 'filename' => 'image100x100.png', 'text' => 'Before ~~~~ After', 'needPst' => true ] ],
 			// [ [ 'title' => 'Test page 1', 'newTitle' => 'Test page 2' ] ]
 		];
 	}
@@ -200,35 +201,38 @@ class ModerationQueueTestSet {
 		@returns [ 'mod_user' => ..., 'mod_namespace' => ..., ... ]
 	*/
 	protected function getExpectedRow() {
-		$text = $this->text;
-
-		if ( $this->filename && !$this->viaApi && ModerationTestsuite::mwVersionCompare( '1.31', '>=' ) ) {
-			/* In MediaWiki 1.31+,
-				Special:Upload prepends InitialText with "== Summary ==" header */
-			$headerText = '== ' . wfMessage( 'filedesc' )->inContentLanguage()->text() . ' ==';
-			$text = "$headerText\n$text";
-		}
-
-		$summary = $this->summary;
-		if ( $this->filename ) {
-			if ( $this->viaApi ) {
-				/* API has different parameters for 'text' and 'summary' */
-				$summary = '';
-			}
-			else {
-				/* Special:Upload copies text into summary */
-				$summary = $this->text;
-			}
-		}
-
-		$expectedContent = ContentHandler::makeContent( $text, null, CONTENT_MODEL_WIKITEXT );
+		$expectedContent = ContentHandler::makeContent( $this->text, null, CONTENT_MODEL_WIKITEXT );
 		if ( $this->needPst ) {
+			/* Not done for all tests to make tests faster.
+				DataSet must explicitly indicate that its text needs PreSaveTransform.
+			*/
 			global $wgContLang;
 			$expectedContent = $expectedContent->preSaveTransform(
 				$this->title,
 				$this->user,
 				ParserOptions::newFromUserAndLang( $this->user, $wgContLang )
 			);
+		}
+
+		$expectedText = $expectedContent->getNativeData();
+
+		$expectedSummary = $this->summary;
+		if ( $this->filename ) {
+			if ( $this->viaApi ) {
+				/* API has different parameters for 'text' and 'summary' */
+				$expectedSummary = '';
+			}
+			else {
+				/* Special:Upload copies text into summary */
+				$expectedSummary = $this->text;
+
+				if (  ModerationTestsuite::mwVersionCompare( '1.31', '>=' ) ) {
+					/* In MediaWiki 1.31+,
+						Special:Upload prepends InitialText with "== Summary ==" header */
+					$headerText = '== ' . wfMessage( 'filedesc' )->inContentLanguage()->text() . ' ==';
+					$expectedText = "$headerText\n$expectedText";
+				}
+			}
 		}
 
 		return [
@@ -239,14 +243,14 @@ class ModerationQueueTestSet {
 			'mod_cur_id' => 0,
 			'mod_namespace' => $this->title->getNamespace(),
 			'mod_title' => $this->title->getDBKey(),
-			'mod_comment' => $summary,
+			'mod_comment' => $expectedSummary,
 			'mod_minor' => 0,
 			'mod_bot' => 0,
 			'mod_new' => 1,
 			'mod_last_oldid' => 0,
 			'mod_ip' => '127.0.0.1',
 			'mod_old_len' => 0,
-			'mod_new_len' => $expectedContent->getSize(),
+			'mod_new_len' => strlen( $expectedText ),
 			'mod_header_xff' => null,
 			'mod_header_ua' => $this->userAgent,
 			'mod_preload_id' => (
@@ -262,7 +266,7 @@ class ModerationQueueTestSet {
 			'mod_preloadable' => 0,
 			'mod_conflict' => 0,
 			'mod_merged_revid' => 0,
-			'mod_text' => $expectedContent->getNativeData(),
+			'mod_text' => $expectedText,
 			'mod_stash_key' => $this->filename ? new ModerationTestSetRegex( '/^[0-9a-z\.]+$/i' ) : '',
 			'mod_tags' => null,
 			'mod_type' => $this->newTitle ? 'move' : 'edit',
