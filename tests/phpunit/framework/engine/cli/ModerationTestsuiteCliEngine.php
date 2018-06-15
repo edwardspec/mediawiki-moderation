@@ -159,7 +159,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 		$response = $result['FauxResponse'];
 		$this->cookies = array_map( function( $info ) {
 			return $info['value'];
-		}, $response->getCookies() );
+		}, $response->getCookies() ) + $this->cookies;
 
 		return $result;
 	}

@@ -40,6 +40,19 @@ function efModerationTestsuiteSetup() {
 
 		return true;
 	};
+
+	/*
+		HACK: call session_id() on ID from the session cookie (if such cookie exists).
+		FIXME: detemine why exactly didn't SessionManager do this automatically.
+	*/
+	$wgHooks['SetupAfterCache'][] = function() {
+		/* Earliest hook where $wgCookiePrefix (needed by getCookie())
+			is available (when not set in LocalSettings.php)  */
+		$id = RequestContext::getMain()->getRequest()->getCookie( '_session' );
+		if ( $id ) {
+			session_id( $id );
+		}
+	};
 }
 
 efModerationTestsuiteSetup();
