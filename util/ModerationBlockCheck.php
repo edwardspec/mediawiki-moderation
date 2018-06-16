@@ -21,59 +21,14 @@
 */
 
 class ModerationBlockCheck {
-	/**
-		@brief Value of getBlockId() that means "not blocked".
-		@note Not "false", because this result must also be cacheable.
-	*/
-	const NOT_BLOCKED = '';
-
 	/** @brief Returns true if $user is blacklisted, false otherwise. */
 	public static function isModerationBlocked( User $user ) {
-		return ( self::getBlockId( $user ) != self::NOT_BLOCKED );
-	}
-
-	/**
-		@brief Clear the cache of isModerationBlocked().
-		This is used after successful modaction=block/unblock on $user.
-	*/
-	public static function invalidateCache( User $user ) {
-		$cache = wfGetMainCache();
-		$cache->delete( self::getCacheKey( $user ) );
-	}
-
-	/**
-		@brief Returns mb_id of the moderation block of $user, if any.
-		@retval NOT_BLOCKED $user is NOT blocked.
-	*/
-	protected static function getBlockId( User $user ) {
-		$cache = wfGetMainCache();
-		$cacheKey = self::getCacheKey( $user );
-
-		$result = $cache->get( $cacheKey );
-		if ( $result === false ) { /* Not found in the cache */
-			$result = self::getBlockIdUncached( $user );
-			$cache->set( $cacheKey, $result, 86400 ); /* 24 hours */
-		}
-
-		return $result;
-	}
-
-	/** @brief Uncached version of getBlockId(). Shouldn't be used outside of getBlockId() */
-	protected static function getBlockIdUncached( User $user ) {
 		$dbw = wfGetDB( DB_MASTER ); # Need actual data
-		$id = $dbw->selectField( 'moderation_block',
+		$blocked = $dbw->selectField( 'moderation_block',
 			'mb_id',
 			[ 'mb_address' => $user->getName() ],
 			__METHOD__
 		);
-		return $id ? $id : self::NOT_BLOCKED;
-
+		return (bool)$blocked;
 	}
-
-	/** @brief Returns memcached key used by getBlockId() */
-	protected static function getCacheKey( User $user ) {
-		return wfMemcKey( 'moderation-blockid', $user->getId() );
-	}
-
-
 }

@@ -70,8 +70,6 @@ class ModerationActionBlock extends ModerationAction {
 
 		$nrows = $dbw->affectedRows();
 		if ( $nrows > 0 ) {
-			ModerationBlockCheck::invalidateCache( User::newFromId( $row->user ) );
-
 			$logEntry->setPerformer( $this->moderator );
 			$logEntry->setTarget( Title::makeTitle( NS_USER, $row->user_text ) );
 			$logid = $logEntry->insert();

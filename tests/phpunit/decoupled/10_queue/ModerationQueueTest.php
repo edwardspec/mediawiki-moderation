@@ -61,8 +61,9 @@ class ModerationQueueTest extends MediaWikiTestCase
 			[ [ 'title' => 'Old title', 'newTitle' => 'New title with spaces' ] ],
 			[ [ 'title' => 'Old title', 'newTitle' => 'New_title_with_underscores', 'summary' => 'New title is cooler' ] ],
 			[ [ 'title' => 'Title 1', 'newTitle' => 'Title 2', 'viaApi' => true ] ],
-			//[ [ 'modblocked' => true ] ],
-			//[ [ 'modblocked' => true, 'anonymously' => true ] ],
+			[ [ 'modblocked' => true ] ],
+			[ [ 'modblocked' => true, 'anonymously' => true ] ],
+			[ [ 'modblocked' => true, 'viaApi' => true ] ],
 		];
 	}
 }
@@ -173,11 +174,6 @@ class ModerationQueueTestSet {
 	protected function performEdit( MediaWikiTestCase $testcase ) {
 		$t = new ModerationTestsuite();
 		$t->setUserAgent( $this->userAgent );
-
-		/* FIXME: this won't work, because MediaWikiTestCase sets $wgMainCacheType=DB_NONE
-			before running tests, and we need to invalidate the real cache.
-		*/
-		ModerationBlockCheck::invalidateCache( $this->user );
 
 		if ( $this->existing || $this->newTitle ) {
 			if ( $this->filename ) {
