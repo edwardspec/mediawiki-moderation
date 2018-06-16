@@ -61,6 +61,8 @@ class ModerationQueueTest extends MediaWikiTestCase
 			[ [ 'title' => 'Old title', 'newTitle' => 'New title with spaces' ] ],
 			[ [ 'title' => 'Old title', 'newTitle' => 'New_title_with_underscores', 'summary' => 'New title is cooler' ] ],
 			[ [ 'title' => 'Title 1', 'newTitle' => 'Title 2', 'viaApi' => true ] ],
+			//[ [ 'modblocked' => true ] ],
+			//[ [ 'modblocked' => true, 'anonymously' => true ] ],
 		];
 	}
 }
@@ -81,6 +83,7 @@ class ModerationQueueTestSet {
 	protected $needPst = false; /**< If true, text is expected to be altered by PreSaveTransform (e.g. contains "~~~~"). */
 	protected $existing = false; /*< If true, existing page will be edited. If false, new page will be created. */
 	protected $oldText = ''; /**< Text of existing article (if any). */
+	protected $modblocked = false; /**< If true, user will be modblocked before the edit. */
 
 	/**
 		@brief Run this TestSet from input of dataProvider.
@@ -131,6 +134,7 @@ class ModerationQueueTestSet {
 				case 'viaApi':
 				case 'needPst':
 				case 'existing':
+				case 'modblocked':
 					$this->$key = $value;
 					break;
 
@@ -170,6 +174,11 @@ class ModerationQueueTestSet {
 		$t = new ModerationTestsuite();
 		$t->setUserAgent( $this->userAgent );
 
+		/* FIXME: this won't work, because MediaWikiTestCase sets $wgMainCacheType=DB_NONE
+			before running tests, and we need to invalidate the real cache.
+		*/
+		ModerationBlockCheck::invalidateCache( $this->user );
+
 		if ( $this->existing || $this->newTitle ) {
 			if ( $this->filename ) {
 				$moderatorUser = User::newFromName( 'User 1' );
@@ -187,6 +196,21 @@ class ModerationQueueTestSet {
 		}
 
 		$t->loginAs( $this->user );
+
+		if ( $this->modblocked ) {
+			/* Apply ModerationBlock to $this->user */
+			$dbw = wfGetDB( DB_MASTER );
+			$dbw->insert( 'moderation_block',
+				[
+					'mb_address' => $this->user->getName(),
+					'mb_user' => $this->user->getId(),
+					'mb_by' => 0,
+					'mb_by_text' => 'Some moderator',
+					'mb_timestamp' => $dbw->timestamp()
+				],
+				__METHOD__
+			);
+		}
 
 		if ( $this->filename ) {
 			/* Upload */
@@ -295,11 +319,11 @@ class ModerationQueueTestSet {
 					'[' . $this->user->getName() :
 					new ModerationTestSetRegex( '/^\][0-9a-f]+$/' )
 			),
-			'mod_rejected' => 0,
+			'mod_rejected' => $this->modblocked ? 1 : 0,
 			'mod_rejected_by_user' => 0,
-			'mod_rejected_by_user_text' => null,
+			'mod_rejected_by_user_text' => $this->modblocked ? wfMessage( 'moderation-blocker' )->inContentLanguage()->text() : null,
 			'mod_rejected_batch' => 0,
-			'mod_rejected_auto' => 0,
+			'mod_rejected_auto' => $this->modblocked ? 1 : 0,
 			'mod_preloadable' => 0,
 			'mod_conflict' => 0,
 			'mod_merged_revid' => 0,
