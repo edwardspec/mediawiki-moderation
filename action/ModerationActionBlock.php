@@ -58,7 +58,7 @@ class ModerationActionBlock extends ModerationAction {
 					'mb_user' => $row->user,
 					'mb_by' => $this->moderator->getId(),
 					'mb_by_text' => $this->moderator->getName(),
-					'mb_timestamp' => $dbw->timestamp( wfTimestampNow() )
+					'mb_timestamp' => $dbw->timestamp()
 				],
 				__METHOD__
 			);
