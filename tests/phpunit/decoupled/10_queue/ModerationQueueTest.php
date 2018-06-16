@@ -58,7 +58,8 @@ class ModerationQueueTest extends MediaWikiTestCase
 			[ [ 'filename' => 'image100x100.png', 'text' => 'Before ~~~~ After', 'needPst' => true ] ],
 			[ [ 'existing' => true ] ],
 			[ [ 'existing' => true, 'filename' => 'image100x100.png' ] ],
-			//[ [ 'title' => 'Test page 1', 'newTitle' => 'Test page 2' ] ]
+			[ [ 'title' => 'Old title', 'newTitle' => 'New title with spaces' ] ],
+			[ [ 'title' => 'Old title', 'newTitle' => 'New_title_with_underscores' ] ]
 		];
 	}
 }
@@ -275,11 +276,11 @@ class ModerationQueueTestSet {
 			'mod_comment' => $expectedSummary,
 			'mod_minor' => 0,
 			'mod_bot' => 0,
-			'mod_new' => $this->existing ? 0 : 1,
+			'mod_new' => ( $this->existing || $this->newTitle ) ? 0 : 1,
 			'mod_last_oldid' => $this->existing ? $this->title->getLatestRevID( Title::GAID_FOR_UPDATE ) : 0,
 			'mod_ip' => '127.0.0.1',
 			'mod_old_len' => $this->existing ? strlen( $this->oldText ) : 0,
-			'mod_new_len' => strlen( $expectedText ),
+			'mod_new_len' => $this->newTitle ? 0 : strlen( $expectedText ),
 			'mod_header_xff' => null,
 			'mod_header_ua' => $this->userAgent,
 			'mod_preload_id' => (
@@ -295,12 +296,12 @@ class ModerationQueueTestSet {
 			'mod_preloadable' => 0,
 			'mod_conflict' => 0,
 			'mod_merged_revid' => 0,
-			'mod_text' => $expectedText,
+			'mod_text' => $this->newTitle ? '' : $expectedText,
 			'mod_stash_key' => $this->filename ? new ModerationTestSetRegex( '/^[0-9a-z\.]+$/i' ) : '',
 			'mod_tags' => null,
 			'mod_type' => $this->newTitle ? 'move' : 'edit',
 			'mod_page2_namespace' => $this->newTitle ? $this->newTitle->getNamespace() : 0,
-			'mod_page2_title' => $this->newTitle ? $this->newTitle->getText() : '',
+			'mod_page2_title' => $this->newTitle ? $this->newTitle->getDbKey() : '',
 		];
 	}
 }
