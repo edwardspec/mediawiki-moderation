@@ -143,9 +143,9 @@ class ModerationMoveEdit extends MediaWikiTestCase
 		$t->doTestEdit( $this->oldTitle, $this->text );
 
 		$t->loginAs( $t->unprivilegedUser );
-		$ret = $t->apiMove( $this->oldTitle, $this->newTitle, $this->reasonForMoving );
+		$error = $t->apiMove( $this->oldTitle, $this->newTitle, $this->reasonForMoving );
 
-		$this->assertEquals( 'moderation-move-queued', $ret['error']['code'] );
+		$this->assertEquals( '(moderation-move-queued)', $error );
 	}
 
 	public function skipIfDisabled() {

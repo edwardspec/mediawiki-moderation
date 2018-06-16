@@ -61,9 +61,8 @@ class ModerationTestAutomoderated extends MediaWikiTestCase
 		$t->loginAs( $t->automoderated );
 
 		$t->doTestEdit( $title, 'Whatever' );
-		$ret = $t->apiMove( $title, "New $title" );
+		$error = $t->apiMove( $title, "New $title" );
 
-		$this->assertArrayNotHasKey( 'error', $ret );
-		$this->assertArrayHasKey( 'move', $ret );
+		$this->assertNull( $error, "testAutomoderatedMove(): apiMove() returned an error" );
 	}
 }

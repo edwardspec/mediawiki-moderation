@@ -59,7 +59,8 @@ class ModerationQueueTest extends MediaWikiTestCase
 			[ [ 'existing' => true ] ],
 			[ [ 'existing' => true, 'filename' => 'image100x100.png' ] ],
 			[ [ 'title' => 'Old title', 'newTitle' => 'New title with spaces' ] ],
-			[ [ 'title' => 'Old title', 'newTitle' => 'New_title_with_underscores' ] ]
+			[ [ 'title' => 'Old title', 'newTitle' => 'New_title_with_underscores', 'summary' => 'New title is cooler' ] ],
+			[ [ 'title' => 'Title 1', 'newTitle' => 'Title 2', 'viaApi' => true ] ],
 		];
 	}
 }
@@ -205,14 +206,20 @@ class ModerationQueueTestSet {
 			}
 		}
 		elseif ( $this->newTitle ) {
-			/* TODO: follow $this->viaApi setting */
-
-			$ret = $t->apiMove(
+			$t->moveViaAPI = $this->viaApi;
+			$result = $t->doTestMove(
 				$this->title->getFullText(),
 				$this->newTitle->getFullText(),
 				$this->summary
 			);
-			$testcase->assertEquals( 'moderation-move-queued', $ret['error']['code'] );
+
+			if ( $this->viaApi ) {
+				$testcase->assertEquals( '(moderation-move-queued)', $result );
+			}
+			else {
+				$testcase->assertFalse( $result->getError(), __METHOD__ . "(): Special:MovePage displayed an error." );
+				$testcase->assertContains( '(moderation-move-queued)', $result->getSuccessText() );
+			}
 		}
 		else {
 			/* Normal edit */
@@ -301,7 +308,7 @@ class ModerationQueueTestSet {
 			'mod_tags' => null,
 			'mod_type' => $this->newTitle ? 'move' : 'edit',
 			'mod_page2_namespace' => $this->newTitle ? $this->newTitle->getNamespace() : 0,
-			'mod_page2_title' => $this->newTitle ? $this->newTitle->getDbKey() : '',
+			'mod_page2_title' => $this->newTitle ? $this->newTitle->getDBKey() : '',
 		];
 	}
 }

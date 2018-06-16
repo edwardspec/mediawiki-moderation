@@ -331,10 +331,9 @@ class ModerationTestsuite
 
 	/**
 		@brief Move the page via API.
-		@returns API response
+		@returns Error code (e.g. '(moderation-move-queued)') or null.
 	*/
-	public function apiMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] )
-	{
+	public function apiMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] ) {
 		$ret = $this->query( [
 			'action' => 'move',
 			'from' => $oldTitle,
@@ -344,7 +343,23 @@ class ModerationTestsuite
 		] + $extraParams );
 
 		$this->setLastEdit( $oldTitle, $reason, [ 'NewTitle' => $newTitle ] );
-		return $ret;
+
+		if ( isset( $ret['error']['code'] ) ) {
+			return '(' . $ret['error']['code'] . ')';
+		}
+
+		return null; /* No errors */
+	}
+
+	/**
+		@brief Perform a test move.
+		@see apiMove
+		@see nonApiMove
+	*/
+	public function doTestMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] )
+	{
+		$method = $this->moveViaAPI ? 'apiMove': 'nonApiMove';
+		return $this->$method( $oldTitle, $newTitle, $reason, $extraParams );
 	}
 
 	/**
@@ -367,11 +382,13 @@ class ModerationTestsuite
 		$newTitleObj = Title::newFromText( $newTitle );
 
 		$req = $this->httpPost( wfScript( 'index' ), $extraParams + [
+			'action' => 'submit',
 			'title' => 'Special:MovePage',
 			'wpOldTitle' => $oldTitle,
 			'wpNewTitleMain' => $newTitleObj->getText(),
 			'wpNewTitleNs' => $newTitleObj->getNamespace(),
 			'wpMove' => 'Move',
+			'wpEditToken' => $this->getEditToken(),
 			'wpReason' => $reason
 		] );
 
@@ -400,6 +417,7 @@ class ModerationTestsuite
 
 	public $editViaAPI = false;
 	public $uploadViaAPI = false;
+	public $moveViaAPI = false;
 
 	/**
 		@brief Make an edit via the usual interface, as real users do.
