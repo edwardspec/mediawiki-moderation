@@ -97,7 +97,7 @@ class ModerationUploadHooks {
 	*/
 	public static function haveUploadVerifyUpload() {
 		global $wgVersion;
-		return version_compare( $wgVersion, '1.28', '>=' );
+		return version_compare( $wgVersion, '1.28.0', '>=' );
 	}
 
 	/**

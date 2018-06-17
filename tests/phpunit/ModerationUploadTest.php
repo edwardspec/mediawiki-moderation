@@ -190,7 +190,7 @@ class ModerationTestUpload extends MediaWikiTestCase
 
 	public function testApiUpload() {
 		global $wgVersion;
-		if ( version_compare( $wgVersion, '1.28', '<' ) ) {
+		if ( version_compare( $wgVersion, '1.28.0', '<' ) ) {
 			$this->markTestSkipped( 'Test skipped: MediaWiki 1.27 doesn\'t support upload via API.' );
 		}
 
@@ -222,7 +222,7 @@ class ModerationTestUpload extends MediaWikiTestCase
 	*/
 	public function testNoApiUploadBefore1_28() {
 		global $wgVersion;
-		if ( version_compare( $wgVersion, '1.28', '>=' ) ) {
+		if ( version_compare( $wgVersion, '1.28.0', '>=' ) ) {
 			$this->markTestSkipped( 'Test skipped: only applicable to MediaWiki 1.27.' );
 		}
 

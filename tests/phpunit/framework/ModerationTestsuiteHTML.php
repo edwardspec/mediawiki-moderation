@@ -61,7 +61,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 			}
 
 			if (
-				ModerationTestsuite::mwVersionCompare( '1.28', '<=' ) &&
+				ModerationTestsuite::mwVersionCompare( '1.28.0', '<=' ) &&
 				$error->code == self::XML_ERR_TAG_NAME_MISMATCH &&
 				( strpos( $error->message, ': input' ) !== false )
 			) {

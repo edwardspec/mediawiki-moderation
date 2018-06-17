@@ -52,7 +52,7 @@ class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 	*/
 	public function dataProvider() {
 		global $wgVersion;
-		$is1_31 = version_compare( $wgVersion, '1.31', '>=' );
+		$is1_31 = version_compare( $wgVersion, '1.31.0', '>=' );
 
 		/* In MediaWiki, DBO_TRX flag can be enabled or disabled in $wgDBServers.
 			(default: DBO_TRX is enabled in non-CLI mode, disabled in CLI mode).

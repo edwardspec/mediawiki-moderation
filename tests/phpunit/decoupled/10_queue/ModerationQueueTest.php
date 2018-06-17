@@ -164,7 +164,7 @@ class ModerationQueueTestSet {
 			$this->title = Title::newFromText( $pageName );
 		}
 
-		if ( $this->filename && $this->viaApi && ModerationTestsuite::mwVersionCompare( '1.28', '<' ) ) {
+		if ( $this->filename && $this->viaApi && ModerationTestsuite::mwVersionCompare( '1.28.0', '<' ) ) {
 			$testcase->markTestSkipped( 'Test skipped: MediaWiki 1.27 doesn\'t support upload via API.' );
 		}
 
@@ -294,7 +294,7 @@ class ModerationQueueTestSet {
 				/* Special:Upload copies text into summary */
 				$expectedSummary = $this->text;
 
-				if ( ModerationTestsuite::mwVersionCompare( '1.31', '>=' ) ) {
+				if ( ModerationTestsuite::mwVersionCompare( '1.31.0', '>=' ) ) {
 					/* In MediaWiki 1.31+,
 						Special:Upload prepends InitialText with "== Summary ==" header */
 					$headerText = '== ' . wfMessage( 'filedesc' )->inContentLanguage()->text() . ' ==';

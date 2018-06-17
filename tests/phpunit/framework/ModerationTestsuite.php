@@ -201,7 +201,7 @@ class ModerationTestsuite
 	*/
 	private function prepareDbForTests()
 	{
-		if ( $this->mwVersionCompare( '1.28', '>=' ) ) {
+		if ( $this->mwVersionCompare( '1.28.0', '>=' ) ) {
 			/*
 				This is a workaround for the following problem:
 				https://gerrit.wikimedia.org/r/328718
@@ -870,7 +870,7 @@ class ModerationTestsuite
 	public function assertApiError( $expectedErrorCode, array $ret, MediaWikiTestCase $tcase ) {
 		$tcase->assertArrayHasKey( 'error', $ret );
 
-		if ( $this->mwVersionCompare( '1.29', '>=' ) ) {
+		if ( $this->mwVersionCompare( '1.29.0', '>=' ) ) {
 			# MediaWiki 1.29+
 			$tcase->assertEquals( $expectedErrorCode, $ret['error']['code'] );
 		} else {
