@@ -1,5 +1,52 @@
 List of changes between releases of Extension:Moderation.
 
+== Moderation 1.3.0 ==
+
+Note: please run update.php (there are changes to DB schema).
+
+Features:
+* Support MediaWiki 1.31.
+* Page moves are now intercepted by Moderation.
+* Special:Log/moderation can now be filtered by subtype.
+* Made "Watch this file" checkbox work even if upload was intercepted.
+
+Bugfixes:
+* Special:Moderation will no longer have duplicated rows.
+* Approve won't restore the timestamp of approved edit if the page already
+has newer revisions (to avoid incorrect order of History).
+* Post-queue notification email is now sent in the language of the wiki.
+* Links in notification email now use canonical URLs.
+* Redlinks are now correctly displayed on Special:Log/moderation.
+* mod_new_len is no longer calculated before PreSaveTransform.
+
+UI changes:
+* Special:Upload now shows user-friendly "Success! Uploaded!" message
+(not styled as an error) when the upload is queued for moderation.
+* Special:Moderation now highlights large changes (>500 bytes).
+* modaction=show no longer shows Approve link for null edits.
+
+Warnings fixed:
+* Replaced deprecated SpecialPage::getTitle()
+* JavaScript: replaced deprecated postWithToken('edit', ...)
+
+Refactoring, performance optimizations:
+* Reduced the number of SQL queries during ApproveAll.
+* Faster rendering of Merged folder of Special:Moderation.
+* Faster rendering of Special:Log/moderation: used LinkBatch.
+* Major refactoring of code that queues new edits (ModerationNewChange class).
+* Major refactoring of "approve change" logic (subclasses of ModerationEntry).
+* Refactoring of SpecialModeration::formatResult (ModerationEntryFormatter).
+* Refactoring of diff generation logic (ModerationViewableEntry).
+* Removed unneeded checks around doWatchOrUnwatch().
+* Removed more legacy code for MediaWiki 1.23-1.26.
+* Notification emails are now delayed via DeferredUpdates.
+
+Configuration:
+* Added skip-move-moderation right (allows to bypass moderation of page moves).
+* Default: sysops and bots can bypass moderation.
+* Default: sysops can use Special:Moderation.
+* Default: sysops can add/remove "automoderated" group.
+
 == Moderation 1.2.0 ==
 
 Note: this version requires MediaWiki 1.27+. MediaWiki 1.23 is no longer supported.
