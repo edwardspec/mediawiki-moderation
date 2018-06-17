@@ -21,11 +21,10 @@
 */
 
 interface IModerationTestsuiteEngine {
-	public function setUserAgent( $ua );
-
 	public function query( array $apiQuery );
 	public function executeHttpRequest( $url, $method = 'GET', array $postData = [] );
 
+	public function setHeader( $name, $value );
 	public function ignoreHttpError( $code );
 	public function stopIgnoringHttpError( $code );
 

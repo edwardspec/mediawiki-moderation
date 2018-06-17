@@ -64,6 +64,9 @@ class ModerationQueueTest extends MediaWikiTestCase
 			[ [ 'modblocked' => true ] ],
 			[ [ 'modblocked' => true, 'anonymously' => true ] ],
 			[ [ 'modblocked' => true, 'viaApi' => true ] ],
+			[ [ 'xff' => '127.1.2.3', 'viaApi' => true ] ],
+			[ [ 'xff' => '203.0.113.195, 70.41.3.18, 150.172.238.178' ] ],
+			[ [ 'xff' => '2001:db8:85a3:8d3:1319:8a2e:370:7348' ] ],
 		];
 	}
 }
@@ -78,6 +81,7 @@ class ModerationQueueTestSet {
 	protected $text = 'Hello, World!';
 	protected $summary = 'Edit by the Moderation Testsuite';
 	protected $userAgent = ModerationTestsuite::DEFAULT_USER_AGENT;
+	protected $xff = null; /**< X-Forwarded-For header */
 	protected $filename = null; /**< string. Only used for uploads. */
 	protected $anonymously = false; /**< If true, the edit will be anonymous. ($user will be ignored) */
 	protected $viaApi = false; /**< If true, edits are made via API. If false, they are made via the user interface. */
@@ -130,6 +134,7 @@ class ModerationQueueTestSet {
 				case 'text':
 				case 'summary':
 				case 'userAgent':
+				case 'xff':
 				case 'filename':
 				case 'anonymously':
 				case 'viaApi':
@@ -174,6 +179,10 @@ class ModerationQueueTestSet {
 	protected function performEdit( MediaWikiTestCase $testcase ) {
 		$t = new ModerationTestsuite();
 		$t->setUserAgent( $this->userAgent );
+
+		if ( $this->xff ) {
+			$t->setHeader( 'X-Forwarded-For', $this->xff );
+		}
 
 		if ( $this->existing || $this->newTitle ) {
 			if ( $this->filename ) {
@@ -308,7 +317,7 @@ class ModerationQueueTestSet {
 			'mod_ip' => '127.0.0.1',
 			'mod_old_len' => $this->existing ? strlen( $this->oldText ) : 0,
 			'mod_new_len' => $this->newTitle ? 0 : strlen( $expectedText ),
-			'mod_header_xff' => null,
+			'mod_header_xff' => $this->xff ?: null,
 			'mod_header_ua' => $this->userAgent,
 			'mod_preload_id' => (
 				$this->user->isLoggedIn() ?

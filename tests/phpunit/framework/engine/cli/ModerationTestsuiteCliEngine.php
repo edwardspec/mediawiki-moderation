@@ -37,7 +37,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 			$url,
 			$postData,
 			( $method == 'POST' ),
-			[ 'User-Agent' => $this->getUserAgent() ]
+			$this->getRequestHeaders()
 		);
 
 		return ModerationTestsuiteResponse::newFromFauxResponse(

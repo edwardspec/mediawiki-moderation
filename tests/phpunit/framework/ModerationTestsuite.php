@@ -75,11 +75,20 @@ class ModerationTestsuite
 	public function httpPost( $url, array $postData = [] ) {
 		return $this->engine->httpPost( $url, $postData );
 	}
-	public function setUserAgent( $ua ) {
-		$this->engine->setUserAgent( $ua );
-	}
 	public function getEditToken() {
 		return $this->engine->getEditToken();
+	}
+
+	/** @brief Add an arbitrary HTTP header to all outgoing requests. */
+	public function setHeader( $name, $value ) {
+		$this->engine->setHeader( $name, $value );
+	}
+
+	/**
+		@brief Set User-Agent header for all outgoing requests.
+	*/
+	public function setUserAgent( $ua ) {
+		$this->setHeader( 'User-Agent', $ua );
 	}
 
 	/**

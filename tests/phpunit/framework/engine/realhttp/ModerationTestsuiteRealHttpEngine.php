@@ -85,7 +85,9 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 		$req = $requestClass::factory( $url, [
 			'method' => $method
 		] );
-		$req->setUserAgent( $this->getUserAgent() );
+		foreach ( $this->getRequestHeaders() as $name => $value ) {
+			$req->setHeader( $name, $value );
+		}
 		$req->setCookieJar( $this->getCookieJar() );
 		$req->setData( $postData );
 

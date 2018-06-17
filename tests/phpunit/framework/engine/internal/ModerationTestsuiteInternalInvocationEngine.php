@@ -73,7 +73,7 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 			wfScript( 'api' ),
 			$apiQuery,
 			true, /* $isPosted */
-			[ 'User-Agent' => $this->getUserAgent() ]
+			$this->getRequestHeaders()
 		);
 		return $wiki->execute();
 	}
@@ -83,7 +83,7 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 			$url,
 			$postData,
 			( $method == 'POST' ),
-			[ 'User-Agent' => $this->getUserAgent() ]
+			$this->getRequestHeaders()
 		);
 		$result = $wiki->execute();
 

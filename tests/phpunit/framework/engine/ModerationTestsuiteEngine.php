@@ -26,9 +26,8 @@
 
 abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
-	protected $ignoredHttpErrors = [];
-
-	private $userAgent = ''; /**< User-agent string. Used during requests. */
+	protected $ignoredHttpErrors = []; /**< Array of HTTP codes, e.g. [ 302, 404 ] */
+	protected $reqHeaders = []; /**< Array of HTTP headers to add to all requests, e.g. [ 'User-Agent' => '...' ] */
 
 	/**
 		@brief Create engine object.
@@ -59,14 +58,14 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 		return new ModerationTestsuiteRealHttpEngine;
 	}
 
-	/** @brief Set user-agent string, e.g. "Mozilla/5.0" */
-	public function setUserAgent( $ua ) {
-		$this->userAgent = $ua;
+	/** @brief Add an arbitrary HTTP header to all outgoing requests. */
+	public function setHeader( $name, $value ) {
+		$this->reqHeaders[$name] = $value;
 	}
 
-	/** @brief Returns user-agent string. */
-	public function getUserAgent() {
-		return $this->userAgent;
+	/** @brief Returns array of all HTTP headers. */
+	protected function getRequestHeaders() {
+		return $this->reqHeaders;
 	}
 
 	/**
