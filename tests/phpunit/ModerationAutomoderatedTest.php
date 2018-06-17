@@ -50,11 +50,6 @@ class ModerationTestAutomoderated extends MediaWikiTestCase
 		@covers ModerationCanSkip::canMoveSkip
 	*/
 	public function testAutomoderatedMove() {
-		global $wgModerationInterceptMoves;
-		if ( !$wgModerationInterceptMoves ) {
-			$this->markTestSkipped( 'Test skipped: $wgModerationInterceptMoves is not enabled on test wiki.' );
-		}
-
 		$t = new ModerationTestsuite();
 		$title = 'Cat';
 

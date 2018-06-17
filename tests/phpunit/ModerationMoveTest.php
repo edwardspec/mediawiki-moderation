@@ -33,8 +33,6 @@ class ModerationMoveEdit extends MediaWikiTestCase
 	public $reasonForMoving = 'renamed for whatever reason';
 
 	public function testMove() {
-		$this->skipIfDisabled();
-
 		/* Here we create the page $title and then rename it
 			to $this->newTitle as non-automoderated user.
 			This page move should be intercepted by Moderation. */
@@ -132,8 +130,6 @@ class ModerationMoveEdit extends MediaWikiTestCase
 	}
 
 	public function testApiMove() {
-		$this->skipIfDisabled();
-
 		/* Same as testMove(),
 			but we move via API and check return value of API */
 
@@ -157,8 +153,6 @@ class ModerationMoveEdit extends MediaWikiTestCase
 		At this point we shouldn't attempt to queue the move for moderation.
 	*/
 	public function testNoPrematureMoveInShowForm() {
-		$this->skipIfDisabled();
-
 		$t = new ModerationTestsuite();
 
 		$t->loginAs( $t->automoderated );
@@ -180,12 +174,5 @@ class ModerationMoveEdit extends MediaWikiTestCase
 		$submitButton = $html->getSubmitButton();
 		$this->assertNotNull( $submitButton );
 		$this->assertEquals( '(movepagebtn)', $submitButton->textContent );
-	}
-
-	public function skipIfDisabled() {
-		global $wgModerationInterceptMoves;
-		if ( !$wgModerationInterceptMoves ) {
-			$this->markTestSkipped( 'Test skipped: $wgModerationInterceptMoves is not enabled on test wiki.' );
-		}
 	}
 }

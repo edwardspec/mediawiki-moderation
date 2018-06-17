@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.2.78",
+	"version": "1.2.79",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -327,10 +327,7 @@
 		"ModerationOnlyInNamespaces": [],
 
 		"@doc12": "If set to an array of namespace numbers (e.g. NS_MAIN, NS_FILE), non-automoderated users can bypass moderation in these namespaces. Default (empty array): moderation can't be bypassed anywhere.",
-		"ModerationIgnoredInNamespaces": [],
-
-		"@doc13": "Internal (DON'T ENABLE IN PRODUCTION): if true, page moves are intercepted.",
-		"ModerationInterceptMoves": false
+		"ModerationIgnoredInNamespaces": []
 	},
 	"manifest_version": 1
 }

@@ -40,9 +40,6 @@ class BenchmarkQueueMove extends ModerationBenchmark {
 		for ( $i = 0; $i <= $numberOfLoops; $i ++ ) {
 			$this->fastEdit( $this->getOldTitle( $i ) );
 		}
-
-		global $wgModerationInterceptMoves;
-		$wgModerationInterceptMoves = true;
 	}
 
 	public function doActualWork( $i ) {

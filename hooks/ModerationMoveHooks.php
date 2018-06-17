@@ -26,12 +26,6 @@ class ModerationMoveHooks {
 		@brief Intercept attempts to rename pages and queue them for moderation.
 	*/
 	public static function onMovePageCheckPermissions( Title $oldTitle, Title $newTitle, User $user, $reason, Status $status ) {
-		global $wgModerationInterceptMoves;
-		if ( !$wgModerationInterceptMoves ) {
-			/* Disabled, page moves currently bypass moderation */
-			return true;
-		}
-
 		if ( !$status->isOK() ) {
 			// $user is not allowed to move ($status is already fatal)
 			return true;
