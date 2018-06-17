@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.2.79",
+	"version": "1.2.80",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -26,6 +26,16 @@
 			"skip-move-moderation": true,
 			"moderation": true
 		}
+	},
+	"AddGroups": {
+		"sysop": [
+			"automoderated"
+		]
+	},
+	"RemoveGroups": {
+		"sysop": [
+			"automoderated"
+		]
 	},
 	"GrantPermissions": {
 		"basic": {
