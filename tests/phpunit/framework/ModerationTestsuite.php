@@ -592,7 +592,7 @@ class ModerationTestsuite
 		@brief Resolve $srcFilename into an absolute path.
 		Used in tests: '1.png' is found at [tests/resources/1.png].
 	*/
-	public function findSourceFilename( $srcFilename ) {
+	public static function findSourceFilename( $srcFilename ) {
 		if ( !$srcFilename ) {
 			$srcFilename = "image100x100.png";
 		}

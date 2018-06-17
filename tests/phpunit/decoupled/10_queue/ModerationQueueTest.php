@@ -111,6 +111,8 @@ class ModerationQueueTestSet {
 				$testcase->assertEquals( $val, $row->$key, "Field $key doesn't match expected" );
 			}
 		}
+
+		$set->checkUpload( $row->mod_stash_key, $testcase );
 	}
 
 	/**
@@ -339,6 +341,26 @@ class ModerationQueueTestSet {
 			'mod_page2_namespace' => $this->newTitle ? $this->newTitle->getNamespace() : 0,
 			'mod_page2_title' => $this->newTitle ? $this->newTitle->getDBKey() : '',
 		];
+	}
+
+	/**
+		@brief Assert the state of UploadStash after the test.
+		@param $stashKey Value of mod_stash_key (as found in the database after the test).
+	*/
+	protected function checkUpload( $stashKey, MediaWikiTestCase $testcase ) {
+		if ( !$this->filename ) {
+			return; // Not an upload, nothing to do
+		}
+
+		/* Check that UploadStash contains the newly uploaded file */
+		$srcPath = ModerationTestsuite::findSourceFilename( $this->filename );
+		$expectedContents = file_get_contents( $srcPath );
+
+		$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash( $this->user );
+		$file = $stash->getFile( $stashKey );
+		$contents = file_get_contents( $file->getLocalRefPath() );
+
+		$testcase->assertEquals( $expectedContents, $contents, "Stashed file is different from uploaded file" );
 	}
 }
 
