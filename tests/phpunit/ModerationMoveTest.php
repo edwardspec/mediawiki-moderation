@@ -47,7 +47,7 @@ class ModerationMoveEdit extends MediaWikiTestCase
 		$result = $t->nonApiMove( $this->oldTitle, $this->newTitle, $this->reasonForMoving );
 
 		# Was the move queued for moderation?
-		$this->assertFalse( $result->getError(), "testMove(): Special:MoverPage displayed an error." );
+		$this->assertFalse( $result->getError(), "testMove(): Special:MovePage displayed an error." );
 		$this->assertContains( '(moderation-move-queued)', $result->getSuccessText() );
 
 		/* Check how it looks on Special:Moderation */
@@ -146,6 +146,40 @@ class ModerationMoveEdit extends MediaWikiTestCase
 		$error = $t->apiMove( $this->oldTitle, $this->newTitle, $this->reasonForMoving );
 
 		$this->assertEquals( '(moderation-move-queued)', $error );
+	}
+
+	/**
+		@brief Ensures that Special:MovePage won't queue the move before submit.
+
+		Hook MovePageCheckPermissions (where we queue the move) is called
+		not only on submit, but also in MovePageForm::showForm, i.e. before submit.
+
+		At this point we shouldn't attempt to queue the move for moderation.
+	*/
+	public function testNoPrematureMoveInShowForm() {
+		$this->skipIfDisabled();
+
+		$t = new ModerationTestsuite();
+
+		$t->loginAs( $t->automoderated );
+		$t->doTestEdit( $this->oldTitle, $this->text );
+
+		$t->loginAs( $t->unprivilegedUser );
+
+		/* Don't submit the form, just open it with pre-set "wpNewTitle",
+			like in "revert" links on [[Special:Log/move]] */
+		$req = $t->httpGet( SpecialPage::getTitleFor( 'Movepage' )->getFullURL( [
+			'wpOldTitle' => $this->oldTitle,
+			'wpNewTitle' => $this->newTitle
+		] ) );
+		$html = $t->html->loadFromReq( $req );
+
+		$this->assertNotContains( '(moderation-move-queued)', $html->getMainText(),
+			"testNoPrematureMoveInShowForm(): Special:MovePage has queued the move before Submit was clicked" );
+
+		$submitButton = $html->getSubmitButton();
+		$this->assertNotNull( $submitButton );
+		$this->assertEquals( '(movepagebtn)', $submitButton->textContent );
 	}
 
 	public function skipIfDisabled() {

@@ -52,6 +52,15 @@ class ModerationMoveHooks {
 			return true;
 		}
 
+		$globalTitle = RequestContext::getMain()->getTitle();
+		if ( $globalTitle && $globalTitle->isSpecial( 'Movepage' ) && !$user->getRequest()->wasPosted() ) {
+			/* Special:MovePage can call MovePageCheckPermissions hook
+				while still in showForm(), before the actual Submit.
+				At this point we don't need to queue the move yet.
+			*/
+			return true;
+		}
+
 		$change = new ModerationNewChange( $oldTitle, $user );
 		$fields = $change->move( $newTitle )
 			->setSummary( $reason )

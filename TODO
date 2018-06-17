@@ -44,6 +44,3 @@ some new feature (that requires DB update) is disabled because it wasn't done.
 
 Tests needed:
 * PageForms plugin (preload, "continue editing" link in postedit notification)
-
-FIXME: hook onMovePageCheckPermissions may be called from MovePageForm::showForm(),
-	i.e. before the form is submitted. Move shouldn't be queued at this point.

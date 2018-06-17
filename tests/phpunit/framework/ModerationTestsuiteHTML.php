@@ -24,6 +24,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 	/** @brief Libxml error code for "unknown tag", see http://www.xmlsoft.org/html/libxml-xmlerror.html */
 	const XML_HTML_UNKNOWN_TAG = 801;
+	const XML_ERR_TAG_NAME_MISMATCH = 76;
 
 	protected $engine; # ModerationTestsuiteEngine object
 
@@ -59,7 +60,16 @@ class ModerationTestsuiteHTML extends DOMDocument {
 				continue;
 			}
 
-			print "LibXML error: " . $error->message . "\n";
+			if (
+				ModerationTestsuite::mwVersionCompare( '1.28', '<=' ) &&
+				$error->code == self::XML_ERR_TAG_NAME_MISMATCH &&
+				( strpos( $error->message, ': input' ) !== false )
+			) {
+				/* Ignore: "Unexpected end tag : input" in MediaWiki 1.27-1.28 */
+				continue;
+			}
+
+			print "LibXML error: " . trim( $error->message ) . "\n";
 		}
 
 		libxml_clear_errors();
@@ -134,6 +144,14 @@ class ModerationTestsuiteHTML extends DOMDocument {
 		}
 
 		return $elem->textContent;
+	}
+
+	/**
+		@brief  Returns the text of the notice "You have new messages".
+	*/
+	public function getSubmitButton( $url = null ) {
+		$this->loadFromURL( $url );
+		return $this->getElementByXPath( '//*[@id="mw-content-text"]//*[@type="submit"]' );
 	}
 
 	/**
