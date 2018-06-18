@@ -242,10 +242,13 @@ class ModerationTestsuite
 		$dbw->delete( 'uploadstash', '*', __METHOD__ );
 		$dbw->delete( 'recentchanges', '*', __METHOD__ );
 		$dbw->delete( 'watchlist', '*', __METHOD__ );
-		$dbw->delete( 'abuse_filter', '*', __METHOD__ );
-		$dbw->delete( 'abuse_filter_action', '*', __METHOD__ );
 		$dbw->delete( 'change_tag', '*', __METHOD__ );
 		$dbw->delete( 'tag_summary', '*', __METHOD__ );
+
+		if ( $dbw->tableExists( 'abuse_filter' ) ) {
+			$dbw->delete( 'abuse_filter', '*', __METHOD__ );
+			$dbw->delete( 'abuse_filter_action', '*', __METHOD__ );
+		}
 
 		if ( $dbw->tableExists( 'ip_changes' ) ) {
 			$dbw->delete( 'ip_changes', '*', __METHOD__ );
