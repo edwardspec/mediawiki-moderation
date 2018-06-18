@@ -18,6 +18,7 @@
 /**
 	@file
 	@brief Tests the ModerationTestsuite itself.
+	@group Utility
 
 	Used for debugging subclasses of ModerationTestsuiteEngine.
 */
