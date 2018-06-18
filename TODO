@@ -15,9 +15,6 @@ Low-prio:
 * (interface) Perform the actions like Approve via Ajax (without leaving Special:Moderation).
 	Partially implemented ($wgModerationUseAjax), but we need some feedback
 	from users on UX (is it convenient to use or not?)
-* (testsuite) Troubleshoot session-related issues in "Internal invocation" mode.
-	Currently preload-related tests don't succeed in this mode,
-	because PHP session is not properly preserved before/after pcntl_fork().
 * (feature) Special page to list users blocked via "Mark as spammer".
 * (feature) modaction=promote for quickly assigning "automoderated" flag.
 * (testsuite) Investigate some tests being flaky under PHP-FPM (but not mod_php).
@@ -27,6 +24,13 @@ Low-prio:
 * (feature) Show "you have N pending edits" link to non-automoderated users
 	("shopping cart" style), so that they would know to which pages
 	to return to continue editing.
+
+Testsuite issues:
+* CliEngine: HTTPFileStreamer outputs headers NOT via $wgRequest->response(),
+	so it's not possible to test its response code/headers in CliEngine.
+* CliEngine: FileRepo::streamFileWithStatus() breaks out of ob_start(),
+	which prevents CliEngine from capturing the output
+	(TODO: fix by redirecting output of cliInvoke.php script).
 
 Background-prio (may not be needed):
 * (meta) Display notification "Please run update.php" on Special:Moderation if
