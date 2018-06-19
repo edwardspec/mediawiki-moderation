@@ -119,8 +119,6 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 		return [
 			[ new ModerationTestsuiteCliEngine ],
 			[ new ModerationTestsuiteRealHttpEngine ],
-			// [ new ModerationTestsuiteRealCGIEngine ],
-			// [ new ModerationTestsuiteRealHttpEngine ],
 			// [ new ModerationTestsuiteInternalInvocationEngine ]
 		];
 	}
