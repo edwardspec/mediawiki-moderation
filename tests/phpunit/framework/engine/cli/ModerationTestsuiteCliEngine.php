@@ -137,8 +137,10 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 			$outputFilename
 		);
 
+		$limits = [ 'memory' => -1, 'filesize' => -1, 'time' => -1, 'walltime' => -1 ];
+
 		$retval = false;
-		$unexpectedOutput = wfShellExecWithStderr( $cmd, $retval, $env, [ 'memory' => -1 ] );
+		$unexpectedOutput = wfShellExecWithStderr( $cmd, $retval, $env, $limits );
 
 		if ( $unexpectedOutput ) {
 			/* Allow PHPUnit to complain about this */

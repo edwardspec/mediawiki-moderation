@@ -26,8 +26,6 @@ Low-prio:
 	to return to continue editing.
 
 Testsuite issues:
-* CliEngine: HTTPFileStreamer outputs headers NOT via $wgRequest->response(),
-	so it's not possible to test its response code/headers in CliEngine.
 * CliEngine: FileRepo::streamFileWithStatus() breaks out of ob_start(),
 	which prevents CliEngine from capturing the output
 	(TODO: fix by redirecting output of cliInvoke.php script).

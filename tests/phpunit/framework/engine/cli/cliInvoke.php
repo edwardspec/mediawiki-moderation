@@ -64,6 +64,11 @@ foreach ( $wgModerationTestsuiteCliDescriptor['files'] as $uploadKey => $tmpFile
 */
 define( 'MW_CONFIG_FILE', __DIR__ . '/InvokedWikiSettings.php' );
 
+# Turn off display_errors (enabled by DevelopmentSettings.php),
+# we don't need PHP errors to be mixed with the response.
+ini_set( 'display_errors', 0 );
+ini_set( 'log_errors', 1 );
+
 /*--------------------------------------------------------------*/
 ob_start();
 

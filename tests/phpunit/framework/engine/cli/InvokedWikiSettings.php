@@ -25,6 +25,24 @@ function efModerationTestsuiteSetup() {
 	RequestContext::getMain()->setRequest( $request );
 	$wgRequest = $request;
 
+	/* Some code in MediaWiki core, e.g. HTTPFileStreamer, calls header()
+		directly (not via $wgRequest->response), but this function
+		is a no-op in CLI mode, so the headers would be silently lost.
+
+		As a workaround (because we need to test those headers),
+		we support 'uopz' PHP extension that can redefine a builtin.
+
+		FIXME: this is terribly slow. Tests should opt-in to using this.
+		(currently only testShowUpload() and testMissingStashedImage()
+		would want to use it).
+	*/
+	if ( function_exists( 'uopz_set_return' ) ) {
+		uopz_set_return( 'header', function( $string, $replace = true, $http_response_code = null ) {
+			$response = RequestContext::getMain()->getRequest()->response();
+			$response->header( $string, $replace, $http_response_code );
+		}, true );
+	}
+
 	/*
 		Install hook to replace ApiMain class
 			with ModerationTestsuiteCliApiMain (subclass of ApiMain)
