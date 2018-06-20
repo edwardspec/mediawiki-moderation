@@ -43,7 +43,7 @@ class ModerationTestsuiteInternallyInvokedWiki {
 				/* Create a temporary copy of this file,
 					so that the original file won't be deleted after the upload */
 				$tmpFilename = tempnam( sys_get_temp_dir(), 'testsuite.upload' )
-					. basename( $val->getFilename();
+					. basename( $val->getFilename() );
 				copy( $val->getFilename(), $tmpFilename );
 
 				$this->files[$key] = $tmpFilename;
