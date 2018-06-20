@@ -19,13 +19,10 @@
 	@file
 	@brief Helper script to run MediaWiki as a command line script.
 
-	NOTE: this runs before Setup.php, configuration is unknown,
+	@see ModerationTestsuiteCliEngine::cliExecute()
+	@note this runs before Setup.php, configuration is unknown,
 	and we can't use any of the MediaWiki classes.
 	We just populate $_GET, $_POST, etc. and include "index.php".
-
-	@usage
-		$wiki = new ModerationTestsuiteCliInvokedWiki( ... );
-		$wiki->execute();
 */
 
 $inputFilename = $argv[1];
@@ -68,6 +65,8 @@ define( 'MW_CONFIG_FILE', __DIR__ . '/InvokedWikiSettings.php' );
 # we don't need PHP errors to be mixed with the response.
 ini_set( 'display_errors', 0 );
 ini_set( 'log_errors', 1 );
+
+require_once( __DIR__ . '/MockAutoLoader.php' ); # Intercepts header() calls
 
 /*--------------------------------------------------------------*/
 ob_start();

@@ -1,7 +1,32 @@
 <?php
 
+/*
+	Extension:Moderation - MediaWiki extension.
+	Copyright (C) 2018 Edward Chernenko.
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+*/
+
+/**
+	@file
+	@brief Replacement of LocalSettings.php loaded by [cliInvoke.php].
+*/
+
 # Load the usual LocalSettings.php
 require_once "$IP/LocalSettings.php";
+
+function efModerationTestsuiteMockedHeader( $string, $replace = true, $http_response_code = null ) {
+	$response = RequestContext::getMain()->getRequest()->response();
+	$response->header( $string, $replace, $http_response_code );
+}
 
 function efModerationTestsuiteSetup() {
 	global $wgModerationTestsuiteCliDescriptor, $wgRequest, $wgHooks, $wgAutoloadClasses;
@@ -29,19 +54,12 @@ function efModerationTestsuiteSetup() {
 		directly (not via $wgRequest->response), but this function
 		is a no-op in CLI mode, so the headers would be silently lost.
 
-		As a workaround (because we need to test those headers),
-		we support 'uopz' PHP extension that can redefine a builtin.
-
-		FIXME: this is terribly slow. Tests should opt-in to using this.
-		(currently only testShowUpload() and testMissingStashedImage()
-		would want to use it).
+		We need to test these headers, so we use the following workaround:
+		[MockAutoLoader.php] replaces header() calls with our function.
 	*/
-	if ( function_exists( 'uopz_set_return' ) ) {
-		uopz_set_return( 'header', function( $string, $replace = true, $http_response_code = null ) {
-			$response = RequestContext::getMain()->getRequest()->response();
-			$response->header( $string, $replace, $http_response_code );
-		}, true );
-	}
+	ModerationTestsuiteMockAutoLoader::replaceFunction( 'header',
+		'efModerationTestsuiteMockedHeader'
+	);
 
 	/*
 		Install hook to replace ApiMain class
@@ -74,4 +92,3 @@ function efModerationTestsuiteSetup() {
 }
 
 efModerationTestsuiteSetup();
-
