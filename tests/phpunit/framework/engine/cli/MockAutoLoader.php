@@ -22,36 +22,71 @@
 
 class ModerationTestsuiteMockAutoLoader {
 
+	const NOMOCK_CACHE_FILENAME = '.NOMOCK_CACHE.mocked.php';
+
+	protected static $instance = null; /**< Singleton instance */
+
 	/**
 		@brief Array of function rewrites. Populated by replaceFunction() calls.
 		[ 'oldFunctionName1' => 'newFunctionName1', ... ]
 	*/
-	protected static $replacements = [];
+	protected $replacements = [];
 
 	/**
 		@brief Array of classnames which already have been mocked.
-		[ 'WebRequest', 'FauxRequest', ... ]
+		[ 'WebRequest' => true, 'FauxRequest' => true, ... ]
 	*/
-	private static $alreadyMockedClasses = [];
+	private $alreadyMockedClasses = [];
 
+	protected function __construct() {
+		/* Populate nomock cache (list of classes that don't need mocking) */
+		$nomockClasses = [];
+		if ( file_exists( self::NOMOCK_CACHE_FILENAME ) ) {
+			$nomockClasses = explode( "\n",
+				file_get_contents( self::NOMOCK_CACHE_FILENAME ) );
+		}
+
+		$this->alreadyMockedClasses = array_fill_keys( $nomockClasses, true );
+	}
+
+	/**
+		@brief Cache the fact that $className doesn't need mocking.
+	*/
+	protected function cacheThatNoMockIsNeeded( $className ) {
+		$fp = fopen( self::NOMOCK_CACHE_FILENAME, 'a' );
+		fwrite( $fp, $className . "\n" );
+		fclose( $fp );
+	}
+
+	/**
+	 * Returns a singleton instance of ModerationTestsuiteMockAutoLoader
+	 * @return ModerationTestsuiteMockAutoLoader
+	 */
+	public static function singleton() {
+		if ( is_null( self::$instance ) ) {
+			self::$instance = new self;
+		}
+
+		return self::$instance;
+	}
 
 	/**
 		@brief Replace all calls to function A with calls to function B.
 	*/
 	static public function replaceFunction( $oldFunctionName, $newFunctionName ) {
-		self::$replacements[$oldFunctionName] = $newFunctionName;
+		self::singleton()->replacements[$oldFunctionName] = $newFunctionName;
 	}
 
 	/**
 		@brief Autoload the mock-modified file instead of the original file.
 	*/
-	static function autoload( $className ) {
+	public function autoload( $className ) {
 		global $wgAutoloadClasses, $wgAutoloadLocalClasses;
 
-		if ( isset( self::$alreadyMockedClasses[$className] ) ) {
+		if ( isset( $this->alreadyMockedClasses[$className] ) ) {
 			return; /* Already mocked. Will be loaded by AutoLoader from MediaWiki. */
 		}
-		self::$alreadyMockedClasses[$className] = true;
+		$this->alreadyMockedClasses[$className] = true;
 
 		# First, we ask MediaWiki to find the PHP file for us.
 		$classMap = array_merge(
@@ -66,30 +101,16 @@ class ModerationTestsuiteMockAutoLoader {
 		$origFilename = $classMap[$className];
 		$newFilename = preg_replace( '/([^\/]+)\.php$/', '.$1.mocked.php', $origFilename );
 
-		/* Note: cache classes themselves are not available during early autoload */
-		global $wgFullyInitialised;
-		$cache = $wgFullyInitialised ? wfGetMainCache() : null;
-		if ( $cache ) {
-			$cacheKey = $cache->makeKey( 'mockautoloader-nomock', $className );
-			if ( $cache->get( $cacheKey ) ) {
-				wfDebugLog( 'moderation', "Skipped mocking of $className" );
-				return; /* This class doesn't need mocks (already checked) */
-			}
-		}
-
 		if ( !file_exists( $newFilename ) ||
 			filemtime( $newFilename ) < filemtime( $origFilename )
 		) {
 			$oldText = file_get_contents( $origFilename );
-			$newText = self::rewriteFile( $oldText );
+			$newText = $this->rewriteFile( $oldText );
 
 			if ( $newText == $oldText ) {
 				// Cache this fact, so that each run of [cliInvoke.php]
 				// wouldn't have to recheck this.
-				if ( $cache ) {
-					$cache->set( $cacheKey, 1 );
-				}
-
+				$this->cacheThatNoMockIsNeeded( $className );
 				return; /* No changes, can use the original file */
 			}
 
@@ -110,8 +131,8 @@ class ModerationTestsuiteMockAutoLoader {
 		@param $text Original PHP source code (string).
 		@returns Modified source code (string).
 	*/
-	static protected function rewriteFile( $text ) {
-		$functionNameRegex = join( '|', array_map( 'preg_quote', array_keys( self::$replacements ) ) );
+	protected function rewriteFile( $text ) {
+		$functionNameRegex = join( '|', array_map( 'preg_quote', array_keys( $this->replacements ) ) );
 		if ( !$functionNameRegex ) {
 			return $text; /* replaceFunction() was never used */
 		}
@@ -126,11 +147,12 @@ class ModerationTestsuiteMockAutoLoader {
 
 			return preg_replace(
 				'/(\s)' . preg_quote( $functionName ) . '/',
-				'$1' . self::$replacements[$functionName],
+				'$1' . $this->replacements[$functionName],
 				$line
 			);
 		}, $text );
 	}
 }
 
-spl_autoload_register( [ 'ModerationTestsuiteMockAutoLoader', 'autoload' ] );
+spl_autoload_register( [ ModerationTestsuiteMockAutoLoader::singleton(), 'autoload' ] );
+
