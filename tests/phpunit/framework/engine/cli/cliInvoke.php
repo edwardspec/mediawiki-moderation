@@ -26,9 +26,9 @@
 */
 
 $inputFilename = $argv[1];
-$outputFilename = $argv[2];
+$resultFilename = $argv[2];
 
-if ( !$inputFilename || !$outputFilename ) {
+if ( !$inputFilename || !$resultFilename ) {
 	throw new MWException( "cliInvoke.php: input/output files must be specified." );
 	exit( 1 );
 }
@@ -68,14 +68,22 @@ ini_set( 'log_errors', 1 );
 
 require_once( __DIR__ . '/MockAutoLoader.php' ); # Intercepts header() calls
 
-/*--------------------------------------------------------------*/
-ob_start();
+// Redirect STDOUT into the file
+$stdoutFilename = tempnam( sys_get_temp_dir(), 'testsuite.stdout' );
+fclose( STDOUT );
+$STDOUT = fopen( $stdoutFilename, 'a' );
 
+/*--------------------------------------------------------------*/
 include( $wgModerationTestsuiteCliDescriptor[ 'isApi' ] ? 'api.php' : 'index.php' );
-
-$capturedContent = ob_get_clean();
-
 /*--------------------------------------------------------------*/
+
+// Capture all output
+while ( ob_get_status() ) {
+	ob_end_flush();
+}
+fclose( $STDOUT );
+$capturedContent = file_get_contents( $stdoutFilename );
+
 $result = [
 	'FauxResponse' => RequestContext::getMain()->getRequest()->response(),
 	'capturedContent' => $capturedContent
@@ -83,4 +91,4 @@ $result = [
 
 /*--------------------------------------------------------------*/
 
-file_put_contents( $outputFilename, serialize( $result ) );
+file_put_contents( $resultFilename, serialize( $result ) );
