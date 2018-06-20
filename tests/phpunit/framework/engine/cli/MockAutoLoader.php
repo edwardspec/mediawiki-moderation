@@ -66,6 +66,17 @@ class ModerationTestsuiteMockAutoLoader {
 		$origFilename = $classMap[$className];
 		$newFilename = preg_replace( '/([^\/]+)\.php$/', '.$1.mocked.php', $origFilename );
 
+		/* Note: cache classes themselves are not available during early autoload */
+		global $wgFullyInitialised;
+		$cache = $wgFullyInitialised ? wfGetMainCache() : null;
+		if ( $cache ) {
+			$cacheKey = $cache->makeKey( 'mockautoloader-nomock', $className );
+			if ( $cache->get( $cacheKey ) ) {
+				wfDebugLog( 'moderation', "Skipped mocking of $className" );
+				return; /* This class doesn't need mocks (already checked) */
+			}
+		}
+
 		if ( !file_exists( $newFilename ) ||
 			filemtime( $newFilename ) < filemtime( $origFilename )
 		) {
@@ -73,8 +84,11 @@ class ModerationTestsuiteMockAutoLoader {
 			$newText = self::rewriteFile( $oldText );
 
 			if ( $newText == $oldText ) {
-				// TODO: cache this fact, so that each run
-				// of [cliInvoke.php] wouldn't have to recheck this
+				// Cache this fact, so that each run of [cliInvoke.php]
+				// wouldn't have to recheck this.
+				if ( $cache ) {
+					$cache->set( $cacheKey, 1 );
+				}
 
 				return; /* No changes, can use the original file */
 			}
