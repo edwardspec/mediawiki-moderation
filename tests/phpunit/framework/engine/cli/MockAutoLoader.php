@@ -66,14 +66,21 @@ class ModerationTestsuiteMockAutoLoader {
 		$origFilename = $classMap[$className];
 		$newFilename = preg_replace( '/([^\/]+)\.php$/', '.$1.mocked.php', $origFilename );
 
-		$oldText = file_get_contents( $origFilename );
-		$newText = self::rewriteFile( $oldText );
+		if ( !file_exists( $newFilename ) ||
+			filemtime( $newFilename ) < filemtime( $origFilename )
+		) {
+			$oldText = file_get_contents( $origFilename );
+			$newText = self::rewriteFile( $oldText );
 
-		if ( $newText == $oldText ) {
-			return; /* No changes, can use the original file */
+			if ( $newText == $oldText ) {
+				// TODO: cache this fact, so that each run
+				// of [cliInvoke.php] wouldn't have to recheck this
+
+				return; /* No changes, can use the original file */
+			}
+
+			file_put_contents( $newFilename, $newText );
 		}
-
-		file_put_contents( $newFilename, $newText );
 
 		# Third, we let MediaWiki know that $newFilename should be loaded for $className
 		if ( isset( $wgAutoloadLocalClasses[$className] ) ) {
