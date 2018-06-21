@@ -91,5 +91,20 @@
 	"right-moderation-checkuser": "{{doc-right|moderation-checkuser}}\nAllows to see IPs of registered users on Special:Moderation.",
 	"right-moderation": "{{doc-right|moderation-moderation}}\nAllows to use Special:Moderation.",
 	"right-skip-moderation": "{{doc-right|skip-moderation}}\nAllows to bypass moderation when saving an edit.",
-	"right-skip-move-moderation": "{{doc-right|skip-move-moderation}}\nAllows to bypass moderation when renaming a page."
+	"right-skip-move-moderation": "{{doc-right|skip-move-moderation}}\nAllows to bypass moderation when renaming a page.",
+	"tooltip-moderation-approveall": "Tooltip for ApproveAll link on Special:Moderation.",
+	"tooltip-moderation-approve": "Tooltip for Approve link on Special:Moderation.",
+	"tooltip-moderation-approved-diff": "Tooltip for diff link in \"edit was approved\" log entries on Special:Log/moderation.",
+	"tooltip-moderation-block": "Tooltip for \"Mark as spammer\" link on Special:Moderation.",
+	"tooltip-moderation-folder-merged": "Tooltip for Merged folder on Special:Moderation.",
+	"tooltip-moderation-folder-pending": "Tooltip for Pending folder on Special:Moderation.",
+	"tooltip-moderation-folder-rejected": "Tooltip for Rejected folder on Special:Moderation.",
+	"tooltip-moderation-folder-spam": "Tooltip for Spam folder on Special:Moderation.",
+	"tooltip-moderation-merged-link": "Tooltip for diff link in Merged folder of Special:Moderation.",
+	"tooltip-moderation-merge": "Tooltip for Merge link on Special:Moderation.",
+	"tooltip-moderation-rejectall": "Tooltip for RejectAll link on Special:Moderation.",
+	"tooltip-moderation-rejected-change": "Tooltip for diff link in \"edit was rejected\" log entries on Special:Log/moderation.",
+	"tooltip-moderation-reject": "Tooltip for Reject link on Special:Moderation.",
+	"tooltip-moderation-show": "Tooltip for diff link on Special:Moderation.",
+	"tooltip-moderation-unblock": "Tooltip for \"Delete user from list of spammers\" link on Special:Moderation."
 }
