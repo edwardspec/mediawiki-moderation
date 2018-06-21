@@ -87,7 +87,6 @@
 	"moderation-unblock": "Text of button to delete this user from the list of spammers. (on Special:Moderation)",
 	"moderation-unblock-ok": "Success message after user is successfully deleted from the list of spammers. Parameters: $1 - plaintext name of user.",
 	"moderation-unknown-modaction": "Rare error message when URL has incorrect modaction= parameter.",
-	"moderation-whois-link": "[NO NEED TO TRANSLATE] Link to WHOIS information about the IP address. Parameters: $1 - address, e.g. 127.0.0.1.",
 	"right-moderation-checkuser": "{{doc-right|moderation-checkuser}}\nAllows to see IPs of registered users on Special:Moderation.",
 	"right-moderation": "{{doc-right|moderation-moderation}}\nAllows to use Special:Moderation.",
 	"right-skip-moderation": "{{doc-right|skip-moderation}}\nAllows to bypass moderation when saving an edit.",
