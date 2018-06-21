@@ -1,0 +1,54 @@
+dist: trusty
+sudo: false
+language: php
+
+git:
+  depth: 1
+
+notifications:
+  email: false
+
+services:
+  - mysql
+  - memcached
+
+env:
+  global:
+    - DBTYPE=mysql
+    - DBUSER=root
+
+matrix:
+  include:
+    - env: branch=REL1_31
+      php: 7.2
+    - env: branch=REL1_27
+      php: 7.1
+    - env: branch=REL1_27
+      php: 5.6
+
+cache:
+  directories:
+    - buildcache
+
+before_script:
+  - phpenv config-rm xdebug.ini
+  - phpenv config-add tests/travis/phpconf/php.ini
+  - bash -ex ./tests/travis/build_mediawiki.sh "$branch"
+  - rsync -a --exclude buildcache --exclude mediawiki --exclude .git --exclude node_modules * mediawiki/extensions/Moderation/
+  - cd mediawiki
+  - >
+      php maintenance/install.php traviswiki admin
+      --pass travis
+      --dbtype "$DBTYPE"
+      --dbname traviswiki
+      --dbuser "$DBUSER"
+      --dbpass ""
+      --scriptpath "/w"
+  - echo -en "\n\nrequire_once __DIR__ . '/includes/DevelopmentSettings.php';\n" >> ./LocalSettings.php
+  - echo -en "\n\nrequire_once __DIR__ . '/extensions/AWS/tests/travis/ModerationSettings.php';\n" >> ./LocalSettings.php
+  - php -l ./LocalSettings.php
+  - php maintenance/update.php --quick
+  - sed -i 's/if ( !self::$dbSetup || $this->needsDB() )/if ( 0 )/' tests/phpunit/MediaWikiTestCase.php
+
+script:
+  - MODERATION_TEST_ENGINE=cli php tests/phpunit/phpunit.php extensions/Moderation/
