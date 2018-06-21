@@ -25,11 +25,20 @@
 
 class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 
-	protected $cookies = []; /* array( 'name' => 'value' ) */
+	protected $cookies = []; /**< array( 'name' => 'value' ) */
+	protected $config = []; /**< $wg* variables from setMwConfig(). array( 'name' => 'value' ) */
 
 	public function logout() {
 		parent::logout();
 		$this->cookies = [];
+	}
+
+	/**
+		@brief Sets MediaWiki global variable.
+		@param $name Name of variable without the "$wg" prefix.
+	*/
+	public function setMwConfig( $name, $value ) {
+		$this->config[$name] = $value;
 	}
 
 	public function executeHttpRequest( $url, $method = 'GET', array $postData = [] ) {
@@ -73,7 +82,8 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 			'files' => $files,
 			'httpHeaders' => $extraHttpHeaders + [
 				'Host' => $wgServerName
-			]
+			],
+			'config' => $this->config
 		];
 
 		/* We must parse $url here,

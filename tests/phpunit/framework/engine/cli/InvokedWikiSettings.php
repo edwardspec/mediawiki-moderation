@@ -50,6 +50,11 @@ function efModerationTestsuiteSetup() {
 	RequestContext::getMain()->setRequest( $request );
 	$wgRequest = $request;
 
+	/* Apply variables requested by ModerationTestsuiteCliEngine::setMwConfig() */
+	foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
+		$GLOBALS["wg$name"] = $value;
+	}
+
 	/* Some code in MediaWiki core, e.g. HTTPFileStreamer, calls header()
 		directly (not via $wgRequest->response), but this function
 		is a no-op in CLI mode, so the headers would be silently lost.

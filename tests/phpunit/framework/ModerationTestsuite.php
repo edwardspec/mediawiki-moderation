@@ -75,6 +75,15 @@ class ModerationTestsuite
 		return $this->engine->getEditToken();
 	}
 
+	/**
+		@brief Sets MediaWiki global variable. Not supported by RealHttpEngine.
+		@param $name Name of variable without the "$wg" prefix.
+		@throws PHPUnit_Framework_SkippedTestError TestsuiteEngine doesn't support this method.
+	*/
+	public function setMwConfig( $name, $value ) {
+		$this->engine->setMwConfig( $name, $value );
+	}
+
 	/** @brief Add an arbitrary HTTP header to all outgoing requests. */
 	public function setHeader( $name, $value ) {
 		$this->engine->setHeader( $name, $value );

@@ -162,4 +162,19 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 		return User::newFromName( $username, false );
 	}
+
+	/**
+		@brief Sets MediaWiki global variable.
+		@param $name Name of variable without the "$wg" prefix.
+		@throws PHPUnit_Framework_SkippedTestError
+	*/
+	public function setMwConfig( $name, $value ) {
+		/* Implementation depends on the engine.
+			RealHttpEngine can't implement this at all.
+		*/
+		throw new PHPUnit_Framework_SkippedTestError(
+			'Test skipped: ' . get_class( $this ) . ' doesn\'t support setMwConfig()' );
+	}
 }
+
+
