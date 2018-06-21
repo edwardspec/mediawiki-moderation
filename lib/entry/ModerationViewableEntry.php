@@ -155,7 +155,7 @@ class ModerationViewableEntry extends ModerationEntry {
 		if ( !$this->isImage() ) {
 			# Not an image, so no thumbnail is needed.
 			# Just print a filename.
-			return $title->getFullText();
+			return $this->getTitle()->getFullText();
 		}
 
 		return Xml::element( 'img', [
