@@ -34,7 +34,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 	public function loadFromURL( $url ) {
 		if ( !$url ) {
-			return;
+			return null;
 		}
 
 		$this->engine->ignoreHttpError( 404 );
@@ -167,10 +167,9 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 	/**
 		@brief Fetch the edit form and return the text in #wpTextbox1.
-		@param title The page to be opened for editing.
+		@param $title The page to be opened for editing.
 	*/
-	public function getPreloadedText( $title )
-	{
+	public function getPreloadedText( $title ) {
 		$url = wfAppendQuery( wfScript( 'index' ), [
 			'title' => $title,
 			'action' => 'edit'

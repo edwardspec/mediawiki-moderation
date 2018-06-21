@@ -20,8 +20,6 @@
 	@brief Testsuite engine that simulates HTTP requests via internal invocation of MediaWiki.
 */
 
-use MediaWiki\Session\SessionManager;
-
 class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEngine {
 
 	public function __construct() {
