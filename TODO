@@ -46,4 +46,3 @@ some new feature (that requires DB update) is disabled because it wasn't done.
 
 Tests needed:
 * PageForms plugin (preload, "continue editing" link in postedit notification)
-* modaction=show for non-image upload (e.g. OGG file).

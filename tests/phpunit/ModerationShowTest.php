@@ -230,6 +230,48 @@ class ModerationTestShow extends MediaWikiTestCase
 			"testShowUpload(): File was uploaded with description, but (moderation-diff-upload-notext) is shown" );
 	}
 
+	/**
+		@brief Ensures that non-image uploads (e.g. OGG files) are shown correctly.
+		@covers ModerationActionShowImage
+		@requires extension curl
+		@note Only cURL version of MWHttpRequest supports uploads.
+	*/
+	public function testShowUploadNonImage() {
+		$t = new ModerationTestsuite();
+
+		/* Allow OGG files (music, i.e. not images) to be uploaded */
+		global $wgFileExtensions;
+		$t->setMwConfig( 'FileExtensions', array_merge( $wgFileExtensions, [ 'ogg' ] ) );
+
+		$t->loginAs( $t->unprivilegedUser );
+		$t->doTestUpload( "Test sound 1.ogg", "sound.ogg" );
+		$t->fetchSpecial();
+
+		# Check modaction=show for this upload
+		$entry = $t->new_entries[0];
+		$t->html->loadFromURL( $entry->showLink );
+		$link = $t->html->getElementByXPath( '//a[contains(@href,"modaction=showimg")]' );
+
+		$this->assertNotNull( $link,
+			"testShowUploadNonImage(): no link to download the file" );
+		$this->assertEquals( $t->lastEdit['Title'], $link->textContent,
+			"testShowUploadNonImage(): text of download link doesn't match expected" );
+
+		$href = $link->getAttribute( 'href' );
+		$this->assertEquals( $entry->expectedShowImgLink(), $href,
+			"testShowUploadNonImage(): URL of download link doesn't match expected" );
+
+		# Check the downloaded file
+		$req = $t->httpGet( $href );
+
+		$this->assertEquals( 'application/ogg', $req->getResponseHeader( 'Content-Type' ),
+			"testShowUploadNonImage(): Wrong Content-Type header from modaction=showimg" );
+		$this->assertEquals( $t->lastEdit['SHA1'], sha1( $req->getContent() ),
+			"testShowUploadNonImage(): Checksum of file downloaded via modaction=showimg doesn't match the checksum of original file" );
+		$this->assertEquals( "inline;filename*=UTF-8''Test_sound_1.ogg", $req->getResponseHeader( 'Content-Disposition' ),
+			"testShowUploadNonImage: Wrong Content-Disposition header from modaction=showimg" );
+	}
+
 	private function getImageSizeFromString( $content ) {
 		$path = tempnam( sys_get_temp_dir(), 'modtest_thumb' );
 		file_put_contents( $path, $content );
