@@ -198,7 +198,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 			$text = wfMessage( 'moderation-whois-link-text' )->plain();
 
 			$link = Linker::makeExternalLink( $url, $text );
-			$line .= Xml::tags( 'sup', [ 'class' => 'whois' ], "[$link]" );
+			$line .= Xml::tags( 'sup', [ 'class' => 'whois plainlinks' ], "[$link]" );
 		}
 
 		$line .= ' ' . Linker::commentBlock( $row->comment, $title );
