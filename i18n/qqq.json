@@ -75,7 +75,7 @@
 	"moderation-rejectall": "Text of button to reject ALL changes by ONE user. (on Special:Moderation)",
 	"moderation-rejected-auto": "Note on Special:Moderation that this edit was rejected automatically (due to its author being marked as spammer).",
 	"moderation-rejected-batch": "Note on Special:Moderation that this edit was rejected via RejectAll.",
-	"moderation-rejected-by": "Note on Special:Moderation mentioning the moderator who rejected this edit. Parameters: $1 - link to moderator.",
+	"moderation-rejected-by": "Note on Special:Moderation mentioning the moderator who rejected this edit. Parameters: $1 - link to moderator, $2 - plaintext name of moderator (for GENDER).",
 	"moderation-rejected-long-ago": "Error message when trying to Approve edit which was rejected too long ago.",
 	"moderation-rejected-ok": "Success message after Reject/RejectAll.\nParameters: $1 - number of rejected edits.",
 	"moderation-reject": "Text of button to reject ONE change. (on Special:Moderation)",

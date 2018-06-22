@@ -75,7 +75,7 @@
 	"moderation-rejectall": "Reject all",
 	"moderation-rejected-auto": "Rejected automatically",
 	"moderation-rejected-batch": "Rejected via the \"Reject all\" button",
-	"moderation-rejected-by": "Rejected by $1",
+	"moderation-rejected-by": "{{GENDER:$2|Rejected}} by $1",
 	"moderation-rejected-long-ago": "This edit was rejected long ago, it can no longer be approved.",
 	"moderation-rejected-ok": "Rejected $1 {{plural:$1|edit|edits}}.",
 	"moderation-reject": "Reject",
