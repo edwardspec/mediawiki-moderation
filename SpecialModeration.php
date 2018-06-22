@@ -112,7 +112,7 @@ class SpecialModeration extends QueryPage {
 
 		if ( !$this->getRequest()->getVal( 'modaction' ) ) {
 			/* Show the list of pending edits */
-			$out->addModules( 'ext.moderation.special' );
+			$out->addModuleStyles( 'ext.moderation.special.css' );
 			$out->addWikiMsg( 'moderation-text' );
 
 			if ( $wgModerationUseAjax ) {
