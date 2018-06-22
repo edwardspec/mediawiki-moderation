@@ -71,12 +71,6 @@ class ModerationTestsuiteEntry
 			if ( strpos( $text, '(moderation-move: ' ) !== false ) {
 				$this->isMove = true;
 			}
-
-			$matches = null;
-			if ( preg_match( '/\(moderation-whois-link: ([^)]*)\)/', $text, $matches ) )
-			{
-				$this->ip = $matches[1];
-			}
 		}
 
 		$links = $span->getElementsByTagName( 'a' );
@@ -106,8 +100,7 @@ class ModerationTestsuiteEntry
 			}
 
 			$href = $link->getAttribute( 'href' );
-			switch( $link->nodeValue )
-			{
+			switch ( $link->nodeValue ) {
 				case '(moderation-show)':
 					$this->showLink = $href;
 					break;
@@ -145,6 +138,13 @@ class ModerationTestsuiteEntry
 
 				case '(moderation-unblock)':
 					$this->unblockLink = $href;
+					break;
+
+				case '(moderation-whois-link-text)':
+					$matches = null;
+					if ( preg_match( '/\(moderation-whois-link-url: ([^)]*)\)/', $href, $matches ) ) {
+						$this->ip = $matches[1];
+					}
 					break;
 
 				default:

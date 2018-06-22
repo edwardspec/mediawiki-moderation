@@ -24,6 +24,7 @@ Low-prio:
 * (feature) Show "you have N pending edits" link to non-automoderated users
 	("shopping cart" style), so that they would know to which pages
 	to return to continue editing.
+* (UI) Always show whois links for anonymous users (not only to checkusers).
 
 Testsuite issues:
 * CliEngine: FileRepo::streamFileWithStatus() breaks out of ob_start(),

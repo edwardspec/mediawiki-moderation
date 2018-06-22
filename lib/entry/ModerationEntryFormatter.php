@@ -193,7 +193,12 @@ class ModerationEntryFormatter extends ModerationEntry {
 		$line .= Linker::userLink( $row->user, $row->user_text );
 
 		if ( $this->getModerator()->isAllowed( 'moderation-checkuser' ) ) {
-			$line .= wfMessage( 'moderation-whois-link', $row->ip )->parse(); # NOTE: no space before is on purpose, this link can be in <sup></sup> tags
+			/* Add Whois link to this IP */
+			$url = wfMessage( 'moderation-whois-link-url', $row->ip )->plain();
+			$text = wfMessage( 'moderation-whois-link-text' )->plain();
+
+			$link = Linker::makeExternalLink( $url, $text );
+			$line .= Xml::tags( 'sup', [ 'class' => 'whois' ], "[$link]" );
 		}
 
 		$line .= ' ' . Linker::commentBlock( $row->comment, $title );
