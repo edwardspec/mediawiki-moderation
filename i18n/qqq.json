@@ -56,7 +56,7 @@
 	"moderation-image-queued": "Success message shown to non-automoderated user after the upload. Informs the user about moderation.",
 	"moderation-merge": "Text of button to manually Approve the change with edit conflict. (on Special:Moderation)",
 	"moderation-merge-comment": "Standard edit summary when moderator resolves an edit conflict. Parameters: $1 - plaintext name of the original author of the edit.",
-	"moderation-merged-diff": "Text of diff link in Merged folder of Special:Moderation.",
+	"moderation-merged-link": "Text of diff link in Merged folder of Special:Moderation.",
 	"moderation-merge-not-automoderated": "Rare error message when moderation can't Merge the change, because he himself is not automoderated.",
 	"moderation-merge-not-needed": "Error message when moderator tries to Merge the change which doesn't have an edit conflict.",
 	"moderation-missing-stashed-image": "Rare error message when upload can't be approved, because the image was somehow deleted (original uploader can do this on Special:UploadStash).",
