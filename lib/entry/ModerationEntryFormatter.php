@@ -192,8 +192,8 @@ class ModerationEntryFormatter extends ModerationEntry {
 		$line .= ' . . ';
 		$line .= Linker::userLink( $row->user, $row->user_text );
 
-		if ( $this->getModerator()->isAllowed( 'moderation-checkuser' ) ) {
-			/* Add Whois link to this IP */
+		if ( $row->user_text == $row->ip || $this->getModerator()->isAllowed( 'moderation-checkuser' ) ) {
+			/* Add Whois link to this IP. */
 			$url = wfMessage( 'moderation-whois-link-url', $row->ip )->plain();
 			$text = wfMessage( 'moderation-whois-link-text' )->plain();
 

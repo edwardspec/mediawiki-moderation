@@ -30,6 +30,9 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 	public $moderatorUA = 'UserAgent of Moderator/1.0';
 	public $userUA = 'UserAgent of UnprivilegedUser/1.0';
 
+	/**
+		@brief Verifies that checkusers can see Whois link for registered users, but non-checkusers can't.
+	*/
 	public function testModerationCheckuser() {
 		$t = new ModerationTestsuite();
 		$entry = $t->getSampleEntry();
@@ -47,6 +50,24 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 			"testModerationCheckuser(): IP wasn't shown to checkuser on Special:Moderation" );
 		$this->assertEquals( "127.0.0.1", $entry->ip,
 			"testModerationCheckuser(): incorrect IP on Special:Moderation" );
+	}
+
+	/**
+		@brief Verifies that anyone can see Whois link for anonymous users.
+	*/
+	public function testAnonymousWhoisLink() {
+		$t = new ModerationTestsuite();
+
+		$t->logout();
+		$t->doTestEdit();
+		$t->fetchSpecial();
+
+		$entry = $t->new_entries[0];
+
+		$this->assertNotNull( $entry->ip,
+			"testAnonymousWhoisLink(): Whois link not shown for anonymous user" );
+		$this->assertEquals( "127.0.0.1", $entry->ip,
+			"testAnonymousWhoisLink(): incorrect Whois link for anonymous user" );
 	}
 
 	public function skipIfNoCheckuser() {
