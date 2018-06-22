@@ -74,7 +74,8 @@ class ModerationQueueTest extends MediaWikiTestCase
 /**
 	@brief Represents one TestSet for testQueue().
 */
-class ModerationQueueTestSet {
+class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
+
 	protected $user = null; /**< User object */
 	protected $title = null; /**< Title object */
 	protected $newTitle = null; /**< Title object. Only used for moves. */
@@ -91,34 +92,9 @@ class ModerationQueueTestSet {
 	protected $modblocked = false; /**< If true, user will be modblocked before the edit. */
 
 	/**
-		@brief Run this TestSet from input of dataProvider.
-		@param $options Parameters of test, e.g. [ 'user' => 'Bear expert', 'title' => 'Black bears' ].
-		@param $testcase Current PHPUnitTestCase object. Used for calling assert*() methods.
+		@brief Initialize this TestSet from the input of dataProvider.
 	*/
-	public static function run( array $options, MediaWikiTestCase $testcase ) {
-		$set = new self( $options, $testcase );
-		$set->performEdit( $testcase );
-
-		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( 'moderation', '*', '', __METHOD__ );
-
-		$expectedRow = $set->getExpectedRow();
-		foreach ( $expectedRow as $key => $val ) {
-			if ( $val instanceof ModerationTestSetRegex ) {
-				$testcase->assertRegExp( $val->regex, $row->$key, "Field $key doesn't match regex" );
-			}
-			else {
-				$testcase->assertEquals( $val, $row->$key, "Field $key doesn't match expected" );
-			}
-		}
-
-		$set->checkUpload( $row->mod_stash_key, $testcase );
-	}
-
-	/**
-		@brief Construct TestSet from input of dataProvider.
-	*/
-	protected function __construct( array $options, MediaWikiTestCase $testcase ) {
+	protected function applyOptions( array $options ) {
 		foreach ( $options as $key => $value ) {
 			switch ( $key ) {
 				case 'user':
@@ -165,7 +141,8 @@ class ModerationQueueTestSet {
 		}
 
 		if ( $this->filename && $this->viaApi && ModerationTestsuite::mwVersionCompare( '1.28.0', '<' ) ) {
-			$testcase->markTestSkipped( 'Test skipped: MediaWiki 1.27 doesn\'t support upload via API.' );
+			$this->getTestcase()->markTestSkipped(
+				'Test skipped: MediaWiki 1.27 doesn\'t support upload via API.' );
 		}
 
 		/* Shouldn't contain PreSaveTransform-affected text, e.g. "~~~~" */
@@ -176,10 +153,32 @@ class ModerationQueueTestSet {
 	}
 
 	/**
-		@brief Execute the TestSet, making the edit with requested parameters.
+		@brief Assert the state of the database after the edit.
 	*/
-	protected function performEdit( MediaWikiTestCase $testcase ) {
-		$t = new ModerationTestsuite();
+	protected function assertResults( MediaWikiTestCase $testcase ) {
+		$dbw = wfGetDB( DB_MASTER );
+		$row = $dbw->selectRow( 'moderation', '*', '', __METHOD__ );
+
+		$expectedRow = $this->getExpectedRow();
+		foreach ( $expectedRow as $key => $val ) {
+			if ( $val instanceof ModerationTestSetRegex ) {
+				$testcase->assertRegExp( $val->regex, $row->$key, "Field $key doesn't match regex" );
+			}
+			else {
+				$testcase->assertEquals( $val, $row->$key, "Field $key doesn't match expected" );
+			}
+		}
+
+		$this->checkUpload( $row->mod_stash_key );
+	}
+
+	/**
+		@brief Execute the TestSet, making an edit/upload/move with requested parameters.
+	*/
+	protected function makeChanges() {
+		$testcase = $this->getTestcase();
+
+		$t = $this->getTestsuite();
 		$t->setUserAgent( $this->userAgent );
 
 		if ( $this->xff ) {
@@ -347,7 +346,7 @@ class ModerationQueueTestSet {
 		@brief Assert the state of UploadStash after the test.
 		@param $stashKey Value of mod_stash_key (as found in the database after the test).
 	*/
-	protected function checkUpload( $stashKey, MediaWikiTestCase $testcase ) {
+	protected function checkUpload( $stashKey ) {
 		if ( !$this->filename ) {
 			return; // Not an upload, nothing to do
 		}
@@ -360,7 +359,8 @@ class ModerationQueueTestSet {
 		$file = $stash->getFile( $stashKey );
 		$contents = file_get_contents( $file->getLocalRefPath() );
 
-		$testcase->assertEquals( $expectedContents, $contents, "Stashed file is different from uploaded file" );
+		$this->getTestcase()->assertEquals( $expectedContents, $contents,
+			"Stashed file is different from uploaded file" );
 	}
 }
 
@@ -374,4 +374,3 @@ class ModerationTestSetRegex {
 		$this->regex = $regex;
 	}
 }
-
