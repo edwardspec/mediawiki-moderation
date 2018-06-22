@@ -52,4 +52,23 @@ class ModerationTestUtil {
 		$revision->insertOn( $dbw );
 		$page->updateRevisionOn( $dbw, $revision );
 	}
+
+	/**
+		@brief Render Special:Moderation with $params.
+		@returns HTML of the result.
+	*/
+	public static function runSpecialModeration( User $user, array $params, $wasPosted = false ) {
+		$page = SpecialPageFactory::getPage( 'Moderation' );
+
+		$context = new RequestContext;
+		$context->setRequest( new FauxRequest( $params, $wasPosted ) );
+		$context->setLanguage( Language::factory( 'qqx' ) );
+		$context->setTitle( $page->getPageTitle() );
+		$context->setUser( $user );
+
+		$page->setContext( $context );
+		$page->execute( '' );
+
+		return $context->getOutput()->getHTML();
+	}
 }

@@ -200,17 +200,10 @@ abstract class ModerationBenchmark extends Maintenance {
 		@returns HTML of the result.
 	*/
 	public function runSpecialModeration( array $params, $wasPosted = false ) {
-		$page = SpecialPageFactory::getPage( 'Moderation' );
-
-		$context = new RequestContext;
-		$context->setRequest( new FauxRequest( $params, $wasPosted ) );
-		$context->setLanguage( Language::factory( 'qqx' ) );
-		$context->setTitle( $page->getPageTitle() );
-		$context->setUser( $this->getUser() );
-
-		$page->setContext( $context );
-		$page->execute( '' );
-
-		return $context->getOutput()->getHTML();
+		ModerationTestUtil::runSpecialModeration(
+			$this->getUser(),
+			$params,
+			$wasPosted
+		);
 	}
 }
