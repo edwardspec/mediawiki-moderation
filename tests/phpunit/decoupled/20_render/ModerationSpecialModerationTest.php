@@ -50,6 +50,9 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 			[ [ 'mod_merged_revid' => 12345, 'expectedFolder' => 'merged' ] ],
 			[ [ 'isCheckuser' => 1, 'mod_ip' => '127.0.0.2' ] ],
 			[ [ 'isCheckuser' => 1, 'mod_user' => 0, 'mod_user_text' => '127.0.0.3' ] ],
+			[ [ 'mod_type' => 'move' ] ],
+			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_MAIN, 'mod_page2_title' => 'NewTitle_in_Main_namespace' ] ],
+			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_PROJECT, 'mod_page2_title' => 'NewTitle_in_Project_namespace' ] ],
 		];
 	}
 }
@@ -135,6 +138,26 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
+		@brief Returns pagename (string) of the page mentioned in $this->fields.
+	*/
+	protected function getExpectedTitle( $nsField = 'mod_namespace', $titleField = 'mod_title' ) {
+		return Title::makeTitle(
+			$this->fields[$nsField],
+			$this->fields[$titleField]
+		)->getFullText();
+	}
+
+	/**
+		@brief Returns pagename (string) of the second page mentioned in $this->fields.
+	*/
+	protected function getExpectedPage2Title() {
+		return $this->getExpectedTitle(
+			'mod_page2_namespace',
+			'mod_page2_title'
+		);
+	}
+
+	/**
 		@brief Assert the state of the database after the edit.
 	*/
 	protected function assertResults( MediaWikiTestCase $testcase ) {
@@ -148,30 +171,53 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		$testcase->assertCount( 1, $t->new_entries,
 			"Incorrect number of entries on Special:Moderation."
 		);
-
-		/* Now we compare $fields (expected results)
-			with $entry (parsed HTML of Special:Moderation) */
 		$entry = $t->new_entries[0];
-		$fields = $this->fields;
 
-		$expectedTitle = Title::makeTitle(
-			$fields['mod_namespace'],
-			$fields['mod_title']
-		)->getFullText();
+		/* Verify that other Folders of Special:Moderation are empty */
+		$this->assertOtherFoldersAreEmpty();
 
-		$testcase->assertEquals( $expectedTitle, $entry->title,
+		/* Now we compare $this->fields (expected results)
+			with $entry (parsed HTML of Special:Moderation) */
+
+		$testcase->assertEquals( $this->getExpectedTitle(), $entry->title,
 			"Special:Moderation: Title of the edited page doesn't match expected" );
-
-		$testcase->assertEquals( $fields['mod_user_text'], $entry->user,
+		$testcase->assertEquals( $this->fields['mod_user_text'], $entry->user,
 			"Special:Moderation: Username of the author doesn't match expected" );
 
-		if ( $fields['mod_user'] == 0 ) {
-			$testcase->assertEquals( $fields['mod_user_text'], $entry->ip,
+		$this->assertWhoisLink( $entry );
+		$this->assertMoveEntry( $entry );
+	}
+
+	/**
+		@brief Assert that all folders (except expectedFolder) are empty.
+	*/
+	protected function assertOtherFoldersAreEmpty() {
+		$knownFolders = [ 'DEFAULT', 'rejected', 'spam', 'merged' ];
+		$t = $this->getTestsuite();
+
+		foreach ( $knownFolders as $folder ) {
+			if ( $folder != $this->expectedFolder ) {
+				$t->fetchSpecial( $folder );
+				$this->getTestcase()->assertEmpty( $t->new_entries,
+					"Unexpected entry found in folder \"$folder\" of Special:Moderation (this folder should be empty)."
+				);
+			}
+		}
+	}
+
+	/**
+		@brief Assert that Whois link is always shown for anonymous users,
+		and only to checkusers for registered users.
+	*/
+	protected function assertWhoisLink( ModerationTestsuiteEntry $entry ) {
+		$testcase = $this->getTestcase();
+		if ( $this->fields['mod_user'] == 0 ) {
+			$testcase->assertEquals( $this->fields['mod_user_text'], $entry->ip,
 				"Special:Moderation: incorrect Whois link for anonymous user." );
 		}
 		else {
 			if ( $this->isCheckuser ) {
-				$testcase->assertEquals( $fields['mod_ip'], $entry->ip,
+				$testcase->assertEquals( $this->fields['mod_ip'], $entry->ip,
 					"Special:Moderation (viewed by checkuser): incorrect Whois link for registered user." );
 			}
 			else {
@@ -179,18 +225,23 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 					"Special:Moderation: Whois link shown to non-checkuser." );
 			}
 		}
+	}
 
-		/* Verify that other Folders of Special:Moderation are empty */
-		$knownFolders = [ 'DEFAULT', 'rejected', 'spam', 'merged' ];
-		foreach ( $knownFolders as $folder ) {
-			if ( $folder != $this->expectedFolder ) {
-				$t->fetchSpecial( $folder );
-				$testcase->assertEmpty( $t->new_entries,
-					"Unexpected entry found in folder \"$folder\" of Special:Moderation (this folder should be empty)."
-				);
-			}
+	/**
+		@brief Check that the formatting of "suggested move" entry is correct.
+	*/
+	protected function assertMoveEntry( ModerationTestsuiteEntry $entry ) {
+		$testcase = $this->getTestcase();
+
+		if ( $this->fields['mod_type'] == 'move' ) {
+			$testcase->assertTrue( $entry->isMove,
+				"Special:Moderation: incorrect formatting of the move entry." );
+
+			$testcase->assertEquals( $this->getExpectedPage2Title(), $entry->page2Title,
+				"Special:Moderation: New Title of suggested move doesn't match expected" );
 		}
 	}
+
 
 	/**
 		@brief Execute the TestSet, making an edit/upload/move with requested parameters.
