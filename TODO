@@ -46,4 +46,4 @@ some new feature (that requires DB update) is disabled because it wasn't done.
 	Look at how nice and fast [tests/benchmarks/*.php] are in comparison.
 
 Tests needed:
-* PageForms plugin (preload, "continue editing" link in postedit notification)
+* PageForms plugin ("continue editing" link in postedit notification)

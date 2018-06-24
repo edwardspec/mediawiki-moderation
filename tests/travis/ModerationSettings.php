@@ -32,6 +32,10 @@ wfLoadExtensions( [
 	'CheckUser'
 ] );
 
+if ( version_compare( $wgVersion, '1.30.0', '>=' ) ) {
+	wfLoadExtension( 'PageForms' );
+}
+
 # The following extensions are tested by Selenium testsuite,
 # they are not needed for PHPUnit testsuite to run.
 # wfLoadExtension( 'MobileFrontend' );

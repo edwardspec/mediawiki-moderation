@@ -160,10 +160,19 @@ class ModerationTestsuiteHTML extends DOMDocument {
 		@returns DOMElement
 	*/
 	public function getElementByXPath( $selector ) {
-		$xpath = new DomXpath( $this );
-		return $xpath->query( $selector )->item( 0 );
+		$result = getElementsByXPath( $selector );
+		return $result->item( 0 );
 	}
 
+	/**
+		@brief Find all DOM elements matching the XPath selector.
+		E.g. $t->html->getElementsByXPath( '//a[@class="new"]' )
+		@returns DOMNodeList
+	*/
+	public function getElementsByXPath( $selector ) {
+		$xpath = new DomXpath( $this );
+		return $xpath->query( $selector );
+	}
 
 	/**
 		@brief Fetch the edit form and return the text in #wpTextbox1.
