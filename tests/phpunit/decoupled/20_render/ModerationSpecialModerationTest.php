@@ -44,7 +44,10 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 			[ [ 'mod_namespace' => NS_MAIN, 'mod_title' => 'Page_in_main_namespace' ] ],
 			[ [ 'mod_namespace' => NS_PROJECT, 'mod_title' => 'Page_in_Project_namespace' ] ],
 			[ [ 'mod_user' => 0, 'mod_user_text' => '127.0.0.1' ] ],
-			[ [ 'mod_user' => 123, 'mod_user_text' => 'Some registered user' ] ]
+			[ [ 'mod_user' => 12345, 'mod_user_text' => 'Some registered user' ] ],
+			[ [ 'mod_rejected' => 1, 'expectedFolder' => 'rejected' ] ],
+			[ [ 'mod_rejected' => 1, 'mod_rejected_auto' => 1, 'expectedFolder' => 'spam' ] ],
+			[ [ 'mod_merged_revid' => 12345, 'expectedFolder' => 'merged' ] ]
 		];
 	}
 }
@@ -55,6 +58,7 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 
 	protected $fields; /**< mod_* fields of one row in the 'moderation' SQL table */
+	protected $expectedFolder = 'DEFAULT'; /**< Folder of Special:Moderation where this entry should appear */
 
 	/**
 		@brief Initialize this TestSet from the input of dataProvider.
@@ -62,11 +66,17 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	protected function applyOptions( array $options ) {
 		$this->fields = $this->getDefaultFields();
 		foreach ( $options as $key => $value ) {
-			if ( strpos( $key, 'mod_' ) !== 0 ) {
-				throw new Exception( "Incorrect key {$key}: expected \"mod_\" prefix." );
-			}
+			switch ( $key ) {
+				case 'expectedFolder':
+					$this->$key = $value;
+					break;
 
-			$this->fields[$key] = $value;
+				default:
+					if ( strpos( $key, 'mod_' ) !== 0 ) {
+						throw new Exception( "Incorrect key \"{$key}\": expected \"mod_\" prefix." );
+					}
+					$this->fields[$key] = $value;
+			}
 		}
 	}
 
@@ -119,7 +129,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	protected function assertResults( MediaWikiTestCase $testcase ) {
 		$t = $this->getTestsuite();
 
-		$t->fetchSpecial();
+		$t->fetchSpecial( $this->expectedFolder );
 		$testcase->assertCount( 1, $t->new_entries,
 			"Incorrect number of entries on Special:Moderation."
 		);
@@ -140,6 +150,17 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 
 		$testcase->assertEquals( $fields['mod_user_text'], $entry->user,
 			"Special:Moderation: Username of the author doesn't match expected" );
+
+		/* Verify that other Folders of Special:Moderation are empty */
+		$knownFolders = [ 'DEFAULT', 'rejected', 'spam', 'merged' ];
+		foreach ( $knownFolders as $folder ) {
+			if ( $folder != $this->expectedFolder ) {
+				$t->fetchSpecial( $folder );
+				$testcase->assertEmpty( $t->new_entries,
+					"Unexpected entry found in folder \"$folder\" of Special:Moderation (this folder should be empty)."
+				);
+			}
+		}
 	}
 
 	/**
