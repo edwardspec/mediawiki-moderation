@@ -160,7 +160,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 		@returns DOMElement
 	*/
 	public function getElementByXPath( $selector ) {
-		$result = getElementsByXPath( $selector );
+		$result = $this->getElementsByXPath( $selector );
 		return $result->item( 0 );
 	}
 
