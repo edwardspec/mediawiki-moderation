@@ -47,7 +47,9 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 			[ [ 'mod_user' => 12345, 'mod_user_text' => 'Some registered user' ] ],
 			[ [ 'mod_rejected' => 1, 'expectedFolder' => 'rejected' ] ],
 			[ [ 'mod_rejected' => 1, 'mod_rejected_auto' => 1, 'expectedFolder' => 'spam' ] ],
-			[ [ 'mod_merged_revid' => 12345, 'expectedFolder' => 'merged' ] ]
+			[ [ 'mod_merged_revid' => 12345, 'expectedFolder' => 'merged' ] ],
+			[ [ 'isCheckuser' => 1, 'mod_ip' => '127.0.0.2' ] ],
+			[ [ 'isCheckuser' => 1, 'mod_user' => 0, 'mod_user_text' => '127.0.0.3' ] ],
 		];
 	}
 }
@@ -59,6 +61,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 
 	protected $fields; /**< mod_* fields of one row in the 'moderation' SQL table */
 	protected $expectedFolder = 'DEFAULT'; /**< Folder of Special:Moderation where this entry should appear */
+	protected $isCheckuser = false; /**< If true, moderator who visits Special:Moderation will be a checkuser. */
 
 	/**
 		@brief Initialize this TestSet from the input of dataProvider.
@@ -68,6 +71,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		foreach ( $options as $key => $value ) {
 			switch ( $key ) {
 				case 'expectedFolder':
+				case 'isCheckuser':
 					$this->$key = $value;
 					break;
 
@@ -77,6 +81,13 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 					}
 					$this->fields[$key] = $value;
 			}
+		}
+
+		/* Anonymous users have mod_user_text=mod_ip, so we don't want mod_ip in $options
+			(for better readability of dataProvider and to avoid typos).
+		*/
+		if ( $this->fields['mod_user'] == 0 ) {
+			$this->fields['mod_ip'] = $this->fields['mod_user_text'];
 		}
 	}
 
@@ -100,7 +111,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 			'mod_bot' => 0,
 			'mod_new' => 0,
 			'mod_last_oldid' => 0,
-			'mod_ip' => '127.0.0.1',
+			'mod_ip' => '127.1.2.3',
 			'mod_old_len' => 0,
 			'mod_new_len' => 0,
 			'mod_header_xff' => null,
@@ -129,6 +140,10 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	protected function assertResults( MediaWikiTestCase $testcase ) {
 		$t = $this->getTestsuite();
 
+		if ( $this->isCheckuser ) {
+			$t->loginAs( $t->moderatorAndCheckuser );
+		}
+
 		$t->fetchSpecial( $this->expectedFolder );
 		$testcase->assertCount( 1, $t->new_entries,
 			"Incorrect number of entries on Special:Moderation."
@@ -147,9 +162,23 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		$testcase->assertEquals( $expectedTitle, $entry->title,
 			"Special:Moderation: Title of the edited page doesn't match expected" );
 
-
 		$testcase->assertEquals( $fields['mod_user_text'], $entry->user,
 			"Special:Moderation: Username of the author doesn't match expected" );
+
+		if ( $fields['mod_user'] == 0 ) {
+			$testcase->assertEquals( $fields['mod_user_text'], $entry->ip,
+				"Special:Moderation: incorrect Whois link for anonymous user." );
+		}
+		else {
+			if ( $this->isCheckuser ) {
+				$testcase->assertEquals( $fields['mod_ip'], $entry->ip,
+					"Special:Moderation (viewed by checkuser): incorrect Whois link for registered user." );
+			}
+			else {
+				$testcase->assertNull( $entry->ip,
+					"Special:Moderation: Whois link shown to non-checkuser." );
+			}
+		}
 
 		/* Verify that other Folders of Special:Moderation are empty */
 		$knownFolders = [ 'DEFAULT', 'rejected', 'spam', 'merged' ];

@@ -315,9 +315,11 @@ class ModerationTestsuite
 			return false;
 		}
 
-		$userId = $this->currentUser->getId();
-		return ( $userId == $this->moderator->getId() ) ||
-			( $userId == $this->moderatorButNotAutomoderated->getId() );
+		return in_array( $this->currentUser->getId(), [
+			$this->moderator->getId(),
+			$this->moderatorButNotAutomoderated->getId(),
+			$this->moderatorAndCheckuser->getId()
+		] );
 	}
 
 	public function loginAs( User $user )
