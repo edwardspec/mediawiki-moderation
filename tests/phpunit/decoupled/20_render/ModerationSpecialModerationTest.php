@@ -54,7 +54,9 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_PROJECT, 'mod_page2_title' => 'NewTitle_in_Project_namespace' ] ],
 			[ [ 'mod_conflict' => 1 ] ],
 			[ [ 'previewLinkEnabled' => true ] ],
-			[ [ 'previewLinkEnabled' => true, 'mod_type' => 'move', 'mod_page2_namespace' => NS_MAIN, 'mod_page2_title' => 'Whatever' ] ]
+			[ [ 'previewLinkEnabled' => true, 'mod_type' => 'move', 'mod_page2_namespace' => NS_MAIN, 'mod_page2_title' => 'Whatever' ] ],
+			[ [ 'modblocked' => true ] ],
+			[ [ 'modblocked' => true, 'mod_user' => 0, 'mod_user_text' => '127.0.0.1' ] ],
 		];
 	}
 }
@@ -68,6 +70,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	protected $expectedFolder = 'DEFAULT'; /**< Folder of Special:Moderation where this entry should appear */
 	protected $isCheckuser = false; /**< If true, moderator who visits Special:Moderation will be a checkuser. */
 	protected $previewLinkEnabled = false; /**< If true, $wgModerationPreviewLink will be enabled. */
+	protected $modblocked = false; /**< If true, user will be modblocked. */
 
 	/**
 		@brief Initialize this TestSet from the input of dataProvider.
@@ -79,6 +82,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 				case 'expectedFolder':
 				case 'isCheckuser':
 				case 'previewLinkEnabled':
+				case 'modblocked':
 					$this->$key = $value;
 					break;
 
@@ -323,7 +327,12 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 			}
 		}
 
-		$expectedLinks['block'] = true; // TODO: unblock test
+		if ( $this->modblocked ) {
+			$expectedLinks['unblock'] = true;
+		}
+		else {
+			$expectedLinks['block'] = true;
+		}
 
 		foreach ( $expectedLinks as $action => $isExpected ) {
 			$url = $entry->getActionLink( $action );
@@ -411,5 +420,19 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		);
 
 		$this->fields['mod_id'] = $dbw->insertId();
+
+		if ( $this->modblocked ) {
+			/* Apply ModerationBlock to author of this change */
+			$dbw->insert( 'moderation_block',
+				[
+					'mb_address' => $this->fields['mod_user_text'],
+					'mb_user' => $this->fields['mod_user'],
+					'mb_by' => 0,
+					'mb_by_text' => 'Some moderator',
+					'mb_timestamp' => $dbw->timestamp()
+				],
+				__METHOD__
+			);
+		}
 	}
 }
