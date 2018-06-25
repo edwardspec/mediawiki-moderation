@@ -468,7 +468,7 @@ class ModerationTestsuite
 		return $this->httpPost( wfScript( 'index' ), $params );
 	}
 
-	public function doTestEdit( $title = null, $text = null, $summary = null, $section = '' )
+	public function doTestEdit( $title = null, $text = null, $summary = null, $section = '', $extraParams = [] )
 	{
 		if ( !$title ) {
 			$title = $this->generateRandomTitle();
@@ -485,7 +485,6 @@ class ModerationTestsuite
 		# TODO: ensure that page $title doesn't already contain $text
 		# (to avoid extremely rare test failures due to random collisions)
 
-		$extraParams = [];
 		if ( $this->editViaAPI ) {
 			if ( $section !== '' ) {
 				$extraParams['section'] = $section;

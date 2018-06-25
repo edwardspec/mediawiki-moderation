@@ -67,6 +67,14 @@ class ModerationQueueTest extends MediaWikiTestCase
 			[ [ 'xff' => '127.1.2.3', 'viaApi' => true ] ],
 			[ [ 'xff' => '203.0.113.195, 70.41.3.18, 150.172.238.178' ] ],
 			[ [ 'xff' => '2001:db8:85a3:8d3:1319:8a2e:370:7348' ] ],
+			[ [ 'watch' => true ] ],
+			[ [ 'unwatch' => true ] ],
+			[ [ 'watch' => true, 'filename' => 'image100x100.png' ] ],
+			[ [ 'unwatch' => true, 'filename' => 'image100x100.png' ] ],
+			[ [ 'watch' => true, 'newTitle' => 'Title #2' ] ],
+			[ [ 'unwatch' => true, 'newTitle' => 'Title #2' ] ],
+			[ [ 'watch' => true, 'anonymously' => true ] ],
+			[ [ 'unwatch' => true, 'anonymously' => true ] ]
 		];
 	}
 }
@@ -90,6 +98,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	protected $existing = false; /*< If true, existing page will be edited. If false, new page will be created. */
 	protected $oldText = ''; /**< Text of existing article (if any). */
 	protected $modblocked = false; /**< If true, user will be modblocked before the edit. */
+	protected $watch = null; /**< If true/false, defines the state of "Watch this page" checkbox. */
 
 	/**
 		@brief Initialize this TestSet from the input of dataProvider.
@@ -107,6 +116,11 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 
 				case 'newTitle':
 					$this->newTitle = Title::newFromText( $value );
+					break;
+
+				case 'watch':
+				case 'unwatch':
+					$this->watch = ( $key == 'watch' );
 					break;
 
 				case 'text':
@@ -170,6 +184,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 		}
 
 		$this->checkUpload( $row->mod_stash_key );
+		$this->checkWatchlist( $this->watch );
 	}
 
 	/**
@@ -218,13 +233,25 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			);
 		}
 
+		if ( $this->watch === false ) {
+			/* Unwatch test requested, add $this->title into the Watchlist */
+			WatchAction::doWatch( $this->title, $this->user );
+		}
+
+		$extraParams = [];
+		if ( $this->watch === true ) {
+			$watchField = $this->newTitle ? 'wpWatch' : 'wpWatchthis';
+			$extraParams[$watchField] = 1;
+		}
+
 		if ( $this->filename ) {
 			/* Upload */
 			$t->uploadViaAPI = $this->viaApi;
 			$result = $t->doTestUpload(
 				$this->title->getText(), /* Without "File:" namespace prefix */
 				$this->filename,
-				$this->text
+				$this->text,
+				$extraParams
 			);
 
 			if ( $this->viaApi ) {
@@ -240,7 +267,8 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			$result = $t->doTestMove(
 				$this->title->getFullText(),
 				$this->newTitle->getFullText(),
-				$this->summary
+				$this->summary,
+				$extraParams
 			);
 
 			if ( $this->viaApi ) {
@@ -257,7 +285,9 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			$t->doTestEdit(
 				$this->title->getFullText(),
 				$this->text,
-				$this->summary
+				$this->summary,
+				'',
+				$extraParams
 			);
 		}
 	}
@@ -361,6 +391,51 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 
 		$this->getTestcase()->assertEquals( $expectedContents, $contents,
 			"Stashed file is different from uploaded file" );
+	}
+
+	/**
+		@brief Assert the state of Watchlist after the test.
+	*/
+	protected function checkWatchlist( $expected ) {
+		if ( $expected === null ) {
+			return; // Watch/Unwatch test not requested
+		}
+
+		if ( $this->user->isAnon() ) {
+			$expected = false; /* Anonymous users don't have a watchlist */
+		}
+
+		$this->assertWatched( $expected, $this->title );
+		if ( $this->newTitle ) {
+			$this->assertWatched( $expected, $this->newTitle );
+		}
+	}
+
+	/**
+		@brief Assert that $title is watched/unwatched.
+		@param $expectedState True if $title should be watched, false if not.
+	*/
+	protected function assertWatched( $expectedState, Title $title ) {
+		// Note: $user->isWatched() can't be used,
+		// because it would return cached results.
+		if ( method_exists( 'WatchedItemStore', 'getDefaultInstance' ) ) {
+			/* MediaWiki 1.27 */
+			$watchedItemStore = WatchedItemStore::getDefaultInstance();
+		}
+		else {
+			/* MediaWiki 1.28+ */
+			$watchedItemStore = MediaWiki\MediaWikiServices::getInstance()->getWatchedItemStore();
+		}
+
+		$isWatched = (bool)$watchedItemStore->loadWatchedItem( $this->user, $title );
+		if ( $expectedState ) {
+			$this->getTestcase()->assertTrue( $isWatched,
+				"Page edited with \"Watch this page\" is not in watchlist" );
+		}
+		else {
+			$this->getTestcase()->assertFalse( $isWatched,
+				"Page edited without \"Watch this page\" was not deleted from the watchlist" );
+		}
 	}
 }
 
