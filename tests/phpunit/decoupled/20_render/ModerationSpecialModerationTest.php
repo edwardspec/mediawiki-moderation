@@ -325,14 +325,78 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		}
 
 		foreach ( $expectedLinks as $linkName => $isExpected ) {
-			$link = $entry->$linkName;
+			$url = $entry->$linkName;
 
 			if ( $isExpected ) {
-				$testcase->assertNotNull( $link,
+				$testcase->assertNotNull( $url,
 					"Special:Moderation: expected link [$linkName] is not shown." );
+
+				// approveAllLink => approveall, rejectLink => reject
+				$expectedAction = strtolower( str_replace( 'Link', '', $linkName ) );
+
+				/* Parse the $url and check the presence
+					of needed query string parameters */
+				$bits = wfParseUrl( wfExpandUrl( $url ) );
+				$query = wfCgiToArray( $bits['query'] );
+
+				$expectedNumberOfKeys = null;
+
+				if ( $linkName == 'mergedDiffLink' ) {
+					$expectedNumberOfKeys = 2;
+					foreach ( [ 'title', 'diff' ] as $expectedKey ) {
+						$testcase->assertArrayHasKey( $expectedKey, $query,
+							"QueryString of [$linkName]: no '$expectedKey' key" );
+					}
+
+					$testcase->assertEquals(
+						strtr( $this->getExpectedTitle(), ' ', '_' ),
+						$query['title'],
+						"QueryString of [$linkName]: incorrect value of 'title'"
+					);
+					$testcase->assertEquals(
+						$this->fields['mod_merged_revid'],
+						$query['diff'],
+						"QueryString of [$linkName]: incorrect value of 'diff'"
+					);
+				}
+				else {
+					foreach ( [ 'title', 'modaction', 'modid' ] as $expectedKey ) {
+						$testcase->assertArrayHasKey( $expectedKey, $query,
+							"QueryString of [$linkName]: no '$expectedKey' key" );
+					}
+
+					$testcase->assertEquals(
+						SpecialPage::getTitleFor( 'Moderation' )->getFullText(),
+						$query['title'],
+						"QueryString of [$linkName]: incorrect value of 'title'"
+					);
+					$testcase->assertEquals( $expectedAction, $query['modaction'],
+						"QueryString of [$linkName]: incorrect value of 'modaction'"
+					);
+					$testcase->assertEquals( $this->fields['mod_id'], $query['modid'],
+						"QueryString of [$linkName]: incorrect value of 'modid'"
+					);
+
+					if ( $expectedAction == 'show' || $expectedAction == 'preview' ) {
+						$expectedNumberOfKeys = 3;
+						$testcase->assertArrayNotHasKey( 'token', $query,
+							"QueryString of [$linkName]: unexpected token found in readonly link." );
+					}
+					else {
+						$expectedNumberOfKeys = 4;
+						$testcase->assertArrayHasKey( 'token', $query,
+							"QueryString of [$linkName]: no CSRF token in non-readonly link." );
+						$testcase->assertRegExp( '/[+0-9a-f]+/', $query['token'],
+							"QueryString of [$linkName]: incorrect format of CSRF token." );
+
+					}
+				}
+
+				$testcase->assertCount( $expectedNumberOfKeys, $query,
+					"QueryString of [$linkName]: found more parameters that expected" );
 			}
 			else {
-				$testcase->assertNull( $link,
+				$testcase->assertNull( $url,
 					"Special:Moderation: found unexpected [$linkName] (it shouldn't be here)." );
 			}
 		}
