@@ -53,6 +53,7 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 			[ [ 'mod_type' => 'move' ] ],
 			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_MAIN, 'mod_page2_title' => 'NewTitle_in_Main_namespace' ] ],
 			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_PROJECT, 'mod_page2_title' => 'NewTitle_in_Project_namespace' ] ],
+			[ [ 'mod_conflict' => 1 ] ]
 		];
 	}
 }
@@ -186,6 +187,15 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 
 		$this->assertWhoisLink( $entry );
 		$this->assertMoveEntry( $entry );
+
+		if ( $this->fields['mod_conflict'] ) {
+			$testcase->assertTrue( $entry->conflict,
+				'Edit conflict not displayed on Special:Moderation' );
+		}
+		else {
+			$testcase->assertFalse( $entry->conflict,
+				'Entry on Special:Moderation was incorrectly marked as edit conflict' );
+		}
 	}
 
 	/**
