@@ -53,7 +53,8 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 			[ [ 'mod_type' => 'move' ] ],
 			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_MAIN, 'mod_page2_title' => 'NewTitle_in_Main_namespace' ] ],
 			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_PROJECT, 'mod_page2_title' => 'NewTitle_in_Project_namespace' ] ],
-			[ [ 'mod_conflict' => 1 ] ]
+			[ [ 'mod_conflict' => 1 ] ],
+			[ [ 'previewLinkEnabled' => true ] ]
 		];
 	}
 }
@@ -66,6 +67,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	protected $fields; /**< mod_* fields of one row in the 'moderation' SQL table */
 	protected $expectedFolder = 'DEFAULT'; /**< Folder of Special:Moderation where this entry should appear */
 	protected $isCheckuser = false; /**< If true, moderator who visits Special:Moderation will be a checkuser. */
+	protected $previewLinkEnabled = false; /**< If true, $wgModerationPreviewLink will be enabled. */
 
 	/**
 		@brief Initialize this TestSet from the input of dataProvider.
@@ -76,6 +78,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 			switch ( $key ) {
 				case 'expectedFolder':
 				case 'isCheckuser':
+				case 'previewLinkEnabled':
 					$this->$key = $value;
 					break;
 
@@ -168,6 +171,10 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 			$t->loginAs( $t->moderatorAndCheckuser );
 		}
 
+		if ( $this->previewLinkEnabled ) {
+			$t->setMwConfig( 'ModerationPreviewLink', true );
+		}
+
 		$t->fetchSpecial( $this->expectedFolder );
 		$testcase->assertCount( 1, $t->new_entries,
 			"Incorrect number of entries on Special:Moderation."
@@ -183,6 +190,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		$this->assertWhoisLink( $entry );
 		$this->assertMoveEntry( $entry );
 		$this->assertConflictStatus( $entry );
+		$this->assertActionLinks( $entry );
 	}
 
 	/**
@@ -259,6 +267,76 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	*/
 	protected function assertMoveEntry( ModerationTestsuiteEntry $entry ) {
 		$testcase = $this->getTestcase();
+
+		if ( $this->fields['mod_type'] == 'move' ) {
+			$testcase->assertTrue( $entry->isMove,
+				"Special:Moderation: incorrect formatting of the move entry." );
+
+			$testcase->assertEquals( $this->getExpectedPage2Title(), $entry->page2Title,
+				"Special:Moderation: New Title of suggested move doesn't match expected" );
+		}
+	}
+
+	/**
+		@brief Verify that only the needed action links are shown.
+	*/
+	protected function assertActionLinks( ModerationTestsuiteEntry $entry ) {
+		$testcase = $this->getTestcase();
+
+		$expectedLinks = array_fill_keys( [
+			// Fields of $entry
+			'showLink', 'previewLink', 'approveLink', 'approveAllLink',
+			'rejectLink', 'rejectAllLink', 'blockLink', 'unblockLink',
+			'mergeLink', 'mergedDiffLink'
+		], false );
+
+		switch ( $this->expectedFolder ) {
+			case 'rejected':
+			case 'spam':
+				$expectedLinks['approveLink'] = true;
+				break;
+
+			case 'merged':
+				$expectedLinks['mergedDiffLink'] = true;
+				break;
+
+			default:
+				$expectedLinks = [
+					'approveLink' => true,
+					'approveAllLink' => true,
+					'rejectLink' => true,
+					'rejectAllLink' => true
+				] + $expectedLinks;
+		}
+
+		if ( $this->fields['mod_conflict'] && $this->expectedFolder != 'merged' ) {
+			$expectedLinks['mergeLink'] = true;
+			$expectedLinks['approveLink'] = false;
+			$expectedLinks['approveAllLink'] = false;
+		}
+
+		if ( $this->fields['mod_type'] != 'move' ) {
+			$expectedLinks['showLink'] = true;
+		}
+
+		$expectedLinks['blockLink'] = true; // TODO: unblockLink test
+
+		if ( $this->previewLinkEnabled ) {
+			$expectedLinks['previewLink'] = true;
+		}
+
+		foreach ( $expectedLinks as $linkName => $isExpected ) {
+			$link = $entry->$linkName;
+
+			if ( $isExpected ) {
+				$testcase->assertNotNull( $link,
+					"Special:Moderation: expected link [$linkName] is not shown." );
+			}
+			else {
+				$testcase->assertNull( $link,
+					"Special:Moderation: found unexpected [$linkName] (it shouldn't be here)." );
+			}
+		}
 
 		if ( $this->fields['mod_type'] == 'move' ) {
 			$testcase->assertTrue( $entry->isMove,
