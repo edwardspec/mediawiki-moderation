@@ -57,6 +57,7 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_MAIN, 'mod_page2_title' => 'NewTitle_in_Main_namespace' ] ],
 			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_PROJECT, 'mod_page2_title' => 'NewTitle_in_Project_namespace' ] ],
 			[ [ 'mod_conflict' => 1 ] ],
+			[ [ 'mod_conflict' => 1, 'notAutomoderated' => true ] ],
 			[ [ 'previewLinkEnabled' => true ] ],
 			[ [ 'previewLinkEnabled' => true, 'mod_type' => 'move' ] ],
 			[ [ 'modblocked' => true ] ],
@@ -99,6 +100,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	protected $previewLinkEnabled = false; /**< If true, $wgModerationPreviewLink will be enabled. */
 	protected $modblocked = false; /**< If true, user will be modblocked. */
 	protected $expectNotReapprovable = false; /**< If true, Approve link should be absent, because the entry was rejected too long ago. */
+	protected $notAutomoderated = false; /**< If true, moderator will NOT be automoderated. */
 
 	/**
 		@brief Initialize this TestSet from the input of dataProvider.
@@ -112,6 +114,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 				case 'previewLinkEnabled':
 				case 'modblocked':
 				case 'expectNotReapprovable':
+				case 'notAutomoderated':
 					$this->$key = $value;
 					break;
 
@@ -217,6 +220,9 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 
 		if ( $this->isCheckuser ) {
 			$t->loginAs( $t->moderatorAndCheckuser );
+		}
+		elseif ( $this->notAutomoderated ) {
+			$t->loginAs( $t->moderatorButNotAutomoderated );
 		}
 
 		if ( $this->previewLinkEnabled ) {
@@ -410,9 +416,16 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		}
 
 		if ( $this->fields['mod_conflict'] && $this->expectedFolder != 'merged' ) {
-			$expectedLinks['merge'] = true;
 			$expectedLinks['approve'] = false;
 			$expectedLinks['approveall'] = false;
+
+			if ( $this->notAutomoderated ) {
+				$testcase->assertTrue( $entry->noMergeNotAutomoderated,
+					"Special:Moderation: non-automoderated moderator doesn't see \"Can't merge\" message" );
+			}
+			else {
+				$expectedLinks['merge'] = true;
+			}
 		}
 
 		if ( $this->fields['mod_type'] != 'move' ) {

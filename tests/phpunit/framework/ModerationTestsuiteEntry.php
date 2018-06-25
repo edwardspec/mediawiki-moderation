@@ -58,6 +58,8 @@ class ModerationTestsuiteEntry
 	public $time = null; /**< Time of the timestamp, e.g. '08:30' */
 	public $datetime = null; /**< Full human-readable timestamp, e.g. '12:20, 22 June 2018' */
 
+	public $noMergeNotAutomoderated = false;
+
 	public function __construct( DomElement $span )
 	{
 		if ( strpos( $span->getAttribute( 'class' ), 'modconflict' ) !== false ) {
@@ -89,6 +91,10 @@ class ModerationTestsuiteEntry
 
 			if ( strpos( $text, '(newpageletter)' ) !== false ) {
 				$this->new = true;
+			}
+
+			if ( strpos( $text, '(moderation-no-merge-link-not-automoderated)' ) !== false ) {
+				$this->noMergeNotAutomoderated = true;
 			}
 
 			$matches = null;
