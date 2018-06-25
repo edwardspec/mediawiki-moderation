@@ -51,6 +51,10 @@ class ModerationTestsuiteEntry
 	public $conflict = false;
 	public $isMove = false;
 
+	public $minor = false;
+	public $bot = false;
+	public $new = false;
+
 	public function __construct( DomElement $span )
 	{
 		if ( strpos( $span->getAttribute( 'class' ), 'modconflict' ) !== false ) {
@@ -70,6 +74,18 @@ class ModerationTestsuiteEntry
 
 			if ( strpos( $text, '(moderation-move: ' ) !== false ) {
 				$this->isMove = true;
+			}
+
+			if ( strpos( $text, '(minoreditletter)' ) !== false ) {
+				$this->minor = true;
+			}
+
+			if ( strpos( $text, '(boteditletter)' ) !== false ) {
+				$this->bot = true;
+			}
+
+			if ( strpos( $text, '(newpageletter)' ) !== false ) {
+				$this->new = true;
 			}
 		}
 

@@ -57,6 +57,9 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 			[ [ 'previewLinkEnabled' => true, 'mod_type' => 'move', 'mod_page2_namespace' => NS_MAIN, 'mod_page2_title' => 'Whatever' ] ],
 			[ [ 'modblocked' => true ] ],
 			[ [ 'modblocked' => true, 'mod_user' => 0, 'mod_user_text' => '127.0.0.1' ] ],
+			[ [ 'mod_minor' => 1 ] ],
+			[ [ 'mod_bot' => 1 ] ],
+			[ [ 'mod_new' => 1 ] ],
 		];
 	}
 }
@@ -191,6 +194,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		/* Now we compare $this->fields (expected results)
 			with $entry (parsed HTML of Special:Moderation) */
 		$this->assertBasicInfo( $entry );
+		$this->assertFlags( $entry );
 		$this->assertWhoisLink( $entry );
 		$this->assertMoveEntry( $entry );
 		$this->assertConflictStatus( $entry );
@@ -209,6 +213,25 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 			"Special:Moderation: Title of the edited page doesn't match expected" );
 		$testcase->assertEquals( $this->fields['mod_user_text'], $entry->user,
 			"Special:Moderation: Username of the author doesn't match expected" );
+	}
+
+	/**
+		@brief Check whether minor/bot/newpage edits are properly marked.
+	*/
+	protected function assertFlags( ModerationTestsuiteEntry $entry ) {
+		$expectedFlags = [
+			'is minor edit' => (bool)$this->fields['mod_minor'],
+			'is bot edit' => (bool)$this->fields['mod_bot'],
+			'is creation of new page' => (bool)$this->fields['mod_new'],
+		];
+		$shownFlags = [
+			'is minor edit' => $entry->minor,
+			'is bot edit' => $entry->bot,
+			'is creation of new page' => $entry->new
+		];
+
+		$this->getTestcase()->assertEquals( $expectedFlags, $shownFlags,
+			"Special:Moderation: Incorrect entry flags." );
 	}
 
 	/**
