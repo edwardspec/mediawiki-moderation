@@ -54,12 +54,14 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_PROJECT, 'mod_page2_title' => 'NewTitle_in_Project_namespace' ] ],
 			[ [ 'mod_conflict' => 1 ] ],
 			[ [ 'previewLinkEnabled' => true ] ],
-			[ [ 'previewLinkEnabled' => true, 'mod_type' => 'move', 'mod_page2_namespace' => NS_MAIN, 'mod_page2_title' => 'Whatever' ] ],
+			[ [ 'previewLinkEnabled' => true, 'mod_type' => 'move' ] ],
 			[ [ 'modblocked' => true ] ],
 			[ [ 'modblocked' => true, 'mod_user' => 0, 'mod_user_text' => '127.0.0.1' ] ],
 			[ [ 'mod_minor' => 1 ] ],
 			[ [ 'mod_bot' => 1 ] ],
 			[ [ 'mod_new' => 1 ] ],
+			[ [ 'mod_timestamp' => '-2 days' ] ],
+			[ [ 'mod_timestamp' => '-2 days', 'mod_type' => 'move' ] ]
 		];
 	}
 }
@@ -103,6 +105,21 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		if ( $this->fields['mod_user'] == 0 ) {
 			$this->fields['mod_ip'] = $this->fields['mod_user_text'];
 		}
+
+		/* Remove default mod_page2_* fields if we are not testing the move. */
+		if ( $this->fields['mod_type'] != 'move' ) {
+			$this->fields['mod_page2_namespace'] = 0;
+			$this->fields['mod_page2_title'] = '';
+		}
+
+		// Support tests like 'mod_timestamp' => '-5 days'
+		if ( preg_match( '/^[+\-]/', $this->fields['mod_timestamp'] ) ) {
+			$modify = $this->fields['mod_timestamp'];
+
+			$ts = new MWTimestamp();
+			$ts->timestamp->modify( $modify );
+			$this->fields['mod_timestamp'] = $ts->getTimestamp( TS_MW );
+		}
 	}
 
 	/**
@@ -144,7 +161,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 			'mod_tags' => null,
 			'mod_type' => 'edit',
 			'mod_page2_namespace' => 0,
-			'mod_page2_title' => ''
+			'mod_page2_title' => 'Test page 2'
 		];
 	}
 
@@ -194,6 +211,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		/* Now we compare $this->fields (expected results)
 			with $entry (parsed HTML of Special:Moderation) */
 		$this->assertBasicInfo( $entry );
+		$this->assertTimestamp( $entry );
 		$this->assertFlags( $entry );
 		$this->assertWhoisLink( $entry );
 		$this->assertMoveEntry( $entry );
@@ -213,6 +231,35 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 			"Special:Moderation: Title of the edited page doesn't match expected" );
 		$testcase->assertEquals( $this->fields['mod_user_text'], $entry->user,
 			"Special:Moderation: Username of the author doesn't match expected" );
+	}
+
+	/**
+		@brief Check whether timestamp of $entry is correct.
+		@covers ModerationFormatTimestamp
+	*/
+	protected function assertTimestamp( ModerationTestsuiteEntry $entry ) {
+		$testcase = $this->getTestcase();
+		$timestamp = $this->fields['mod_timestamp'];
+
+		// When mod_timestamp is today, only time is shown.
+		// Otherwise both time and date are shown.
+		$expectTimeOnly = ( substr( $timestamp, 0, 8 ) ==
+			substr( wfTimestampNow(), 0, 8 ) );
+
+		/* FIXME: avoid test failures when test begins at 23:59,
+			but the next day starts before assertTimestamp(). */
+
+		$user = $this->getTestsuite()->moderator;
+		$lang = Language::factory( $user->getOption( 'language' ) );
+
+		$expectedTime = $lang->userTime( $timestamp, $user );
+		$expectedDatetime = $expectTimeOnly ? $expectedTime :
+			$lang->userTimeAndDate( $timestamp, $user );
+
+		$testcase->assertEquals( $expectedTime, $entry->time,
+			"Special:Moderation: time of the change doesn't match expected" );
+		$testcase->assertEquals( $expectedDatetime, $entry->datetime,
+			"Special:Moderation: datetime of the change doesn't match expected" );
 	}
 
 	/**

@@ -55,6 +55,9 @@ class ModerationTestsuiteEntry
 	public $bot = false;
 	public $new = false;
 
+	public $time = null; /**< Time of the timestamp, e.g. '08:30' */
+	public $datetime = null; /**< Full human-readable timestamp, e.g. '12:20, 22 June 2018' */
+
 	public function __construct( DomElement $span )
 	{
 		if ( strpos( $span->getAttribute( 'class' ), 'modconflict' ) !== false ) {
@@ -86,6 +89,12 @@ class ModerationTestsuiteEntry
 
 			if ( strpos( $text, '(newpageletter)' ) !== false ) {
 				$this->new = true;
+			}
+
+			$matches = null;
+			if ( preg_match( '/([0-9]{2}:[0-9]{2})[^.]*/', $text, $matches ) ) {
+				$this->time = $matches[1];
+				$this->datetime = trim( $matches[0] );
 			}
 		}
 
