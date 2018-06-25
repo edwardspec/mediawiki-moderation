@@ -179,14 +179,31 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 
 		/* Now we compare $this->fields (expected results)
 			with $entry (parsed HTML of Special:Moderation) */
+		$this->assertBasicInfo( $entry );
+		$this->assertWhoisLink( $entry );
+		$this->assertMoveEntry( $entry );
+		$this->assertConflictStatus( $entry );
+	}
 
+	/**
+		@brief Check whether user, title and ID of $entry are correct.
+	*/
+	protected function assertBasicInfo( ModerationTestsuiteEntry $entry ) {
+		$testcase = $this->getTestcase();
+
+		$testcase->assertEquals( $this->fields['mod_id'], $entry->id,
+			"Special:Moderation: ID of the change doesn't match expected" );
 		$testcase->assertEquals( $this->getExpectedTitle(), $entry->title,
 			"Special:Moderation: Title of the edited page doesn't match expected" );
 		$testcase->assertEquals( $this->fields['mod_user_text'], $entry->user,
 			"Special:Moderation: Username of the author doesn't match expected" );
+	}
 
-		$this->assertWhoisLink( $entry );
-		$this->assertMoveEntry( $entry );
+	/**
+		@brief Check whether the change is marked as edit conflict.
+	*/
+	protected function assertConflictStatus( ModerationTestsuiteEntry $entry ) {
+		$testcase = $this->getTestcase();
 
 		if ( $this->fields['mod_conflict'] ) {
 			$testcase->assertTrue( $entry->conflict,
@@ -263,5 +280,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		$this->getTestcase()->assertEquals( 1, $dbw->affectedRows(),
 			"Failed to insert a row into the 'moderation' SQL table."
 		);
+
+		$this->fields['mod_id'] = $dbw->insertId();
 	}
 }
