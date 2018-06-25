@@ -147,6 +147,14 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 			$ts->timestamp->modify( $modify );
 			$this->fields['mod_timestamp'] = $ts->getTimestamp( TS_MW );
 		}
+
+		// Avoid timestamps like 23:59, because they can be tested
+		// on 0:00 of the next day, while assertTimestamp() has checks
+		// that depend on "was the edit today or not?".
+		$this->fields['mod_timestamp'] = preg_replace(
+			'/(?<=235)[0-9]/', '0', // Replace with 23:50
+			$this->fields['mod_timestamp']
+		);
 	}
 
 	/**
@@ -275,9 +283,6 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		// Otherwise both time and date are shown.
 		$expectTimeOnly = ( substr( $timestamp, 0, 8 ) ==
 			substr( wfTimestampNow(), 0, 8 ) );
-
-		/* FIXME: avoid test failures when test begins at 23:59,
-			but the next day starts before assertTimestamp(). */
 
 		$user = $this->getTestsuite()->moderator;
 		$lang = Language::factory( $user->getOption( 'language' ) );
