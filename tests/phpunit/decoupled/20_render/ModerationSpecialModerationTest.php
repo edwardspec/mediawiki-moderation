@@ -50,7 +50,6 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 			[ [ 'mod_merged_revid' => 12345, 'expectedFolder' => 'merged' ] ],
 			[ [ 'isCheckuser' => 1, 'mod_ip' => '127.0.0.2' ] ],
 			[ [ 'isCheckuser' => 1, 'mod_user' => 0, 'mod_user_text' => '127.0.0.3' ] ],
-			[ [ 'mod_type' => 'move' ] ],
 			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_MAIN, 'mod_page2_title' => 'NewTitle_in_Main_namespace' ] ],
 			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_PROJECT, 'mod_page2_title' => 'NewTitle_in_Project_namespace' ] ],
 			[ [ 'mod_conflict' => 1 ] ],
@@ -336,14 +335,6 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 				$testcase->assertNull( $link,
 					"Special:Moderation: found unexpected [$linkName] (it shouldn't be here)." );
 			}
-		}
-
-		if ( $this->fields['mod_type'] == 'move' ) {
-			$testcase->assertTrue( $entry->isMove,
-				"Special:Moderation: incorrect formatting of the move entry." );
-
-			$testcase->assertEquals( $this->getExpectedPage2Title(), $entry->page2Title,
-				"Special:Moderation: New Title of suggested move doesn't match expected" );
 		}
 	}
 
