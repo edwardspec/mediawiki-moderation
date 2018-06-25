@@ -53,7 +53,8 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_MAIN, 'mod_page2_title' => 'NewTitle_in_Main_namespace' ] ],
 			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_PROJECT, 'mod_page2_title' => 'NewTitle_in_Project_namespace' ] ],
 			[ [ 'mod_conflict' => 1 ] ],
-			[ [ 'previewLinkEnabled' => true ] ]
+			[ [ 'previewLinkEnabled' => true ] ],
+			[ [ 'previewLinkEnabled' => true, 'mod_type' => 'move', 'mod_page2_namespace' => NS_MAIN, 'mod_page2_title' => 'Whatever' ] ]
 		];
 	}
 }
@@ -284,122 +285,117 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 
 		$expectedLinks = array_fill_keys( [
 			// Fields of $entry
-			'showLink', 'previewLink', 'approveLink', 'approveAllLink',
-			'rejectLink', 'rejectAllLink', 'blockLink', 'unblockLink',
-			'mergeLink', 'mergedDiffLink'
+			'show', 'preview', 'approve', 'approveall',
+			'reject', 'rejectall', 'block', 'unblock',
+			'merge', 'mergedDiff'
 		], false );
 
 		switch ( $this->expectedFolder ) {
 			case 'rejected':
 			case 'spam':
-				$expectedLinks['approveLink'] = true;
+				$expectedLinks['approve'] = true;
 				break;
 
 			case 'merged':
-				$expectedLinks['mergedDiffLink'] = true;
+				$expectedLinks['mergedDiff'] = true;
 				break;
 
 			default:
 				$expectedLinks = [
-					'approveLink' => true,
-					'approveAllLink' => true,
-					'rejectLink' => true,
-					'rejectAllLink' => true
+					'approve' => true,
+					'approveall' => true,
+					'reject' => true,
+					'rejectall' => true
 				] + $expectedLinks;
 		}
 
 		if ( $this->fields['mod_conflict'] && $this->expectedFolder != 'merged' ) {
-			$expectedLinks['mergeLink'] = true;
-			$expectedLinks['approveLink'] = false;
-			$expectedLinks['approveAllLink'] = false;
+			$expectedLinks['merge'] = true;
+			$expectedLinks['approve'] = false;
+			$expectedLinks['approveall'] = false;
 		}
 
 		if ( $this->fields['mod_type'] != 'move' ) {
-			$expectedLinks['showLink'] = true;
+			$expectedLinks['show'] = true;
+
+			if ( $this->previewLinkEnabled ) {
+				$expectedLinks['preview'] = true;
+			}
 		}
 
-		$expectedLinks['blockLink'] = true; // TODO: unblockLink test
+		$expectedLinks['block'] = true; // TODO: unblock test
 
-		if ( $this->previewLinkEnabled ) {
-			$expectedLinks['previewLink'] = true;
-		}
-
-		foreach ( $expectedLinks as $linkName => $isExpected ) {
-			$url = $entry->$linkName;
+		foreach ( $expectedLinks as $action => $isExpected ) {
+			$url = $entry->getActionLink( $action );
 
 			if ( $isExpected ) {
 				$testcase->assertNotNull( $url,
-					"Special:Moderation: expected link [$linkName] is not shown." );
-
-				// approveAllLink => approveall, rejectLink => reject
-				$expectedAction = strtolower( str_replace( 'Link', '', $linkName ) );
-
-				/* Parse the $url and check the presence
-					of needed query string parameters */
-				$bits = wfParseUrl( wfExpandUrl( $url ) );
-				$query = wfCgiToArray( $bits['query'] );
-
-				$expectedNumberOfKeys = null;
-
-				if ( $linkName == 'mergedDiffLink' ) {
-					$expectedNumberOfKeys = 2;
-					foreach ( [ 'title', 'diff' ] as $expectedKey ) {
-						$testcase->assertArrayHasKey( $expectedKey, $query,
-							"QueryString of [$linkName]: no '$expectedKey' key" );
-					}
-
-					$testcase->assertEquals(
-						strtr( $this->getExpectedTitle(), ' ', '_' ),
-						$query['title'],
-						"QueryString of [$linkName]: incorrect value of 'title'"
-					);
-					$testcase->assertEquals(
-						$this->fields['mod_merged_revid'],
-						$query['diff'],
-						"QueryString of [$linkName]: incorrect value of 'diff'"
-					);
-				}
-				else {
-					foreach ( [ 'title', 'modaction', 'modid' ] as $expectedKey ) {
-						$testcase->assertArrayHasKey( $expectedKey, $query,
-							"QueryString of [$linkName]: no '$expectedKey' key" );
-					}
-
-					$testcase->assertEquals(
-						SpecialPage::getTitleFor( 'Moderation' )->getFullText(),
-						$query['title'],
-						"QueryString of [$linkName]: incorrect value of 'title'"
-					);
-					$testcase->assertEquals( $expectedAction, $query['modaction'],
-						"QueryString of [$linkName]: incorrect value of 'modaction'"
-					);
-					$testcase->assertEquals( $this->fields['mod_id'], $query['modid'],
-						"QueryString of [$linkName]: incorrect value of 'modid'"
-					);
-
-					if ( $expectedAction == 'show' || $expectedAction == 'preview' ) {
-						$expectedNumberOfKeys = 3;
-						$testcase->assertArrayNotHasKey( 'token', $query,
-							"QueryString of [$linkName]: unexpected token found in readonly link." );
-					}
-					else {
-						$expectedNumberOfKeys = 4;
-						$testcase->assertArrayHasKey( 'token', $query,
-							"QueryString of [$linkName]: no CSRF token in non-readonly link." );
-						$testcase->assertRegExp( '/[+0-9a-f]+/', $query['token'],
-							"QueryString of [$linkName]: incorrect format of CSRF token." );
-
-					}
-				}
-
-				$testcase->assertCount( $expectedNumberOfKeys, $query,
-					"QueryString of [$linkName]: found more parameters that expected" );
+					"Special:Moderation: expected link [$action] is not shown." );
+				$this->assertActionLinkURL( $action, $url );
 			}
 			else {
 				$testcase->assertNull( $url,
-					"Special:Moderation: found unexpected [$linkName] (it shouldn't be here)." );
+					"Special:Moderation: found unexpected [$action] link (it shouldn't be here)." );
 			}
 		}
+	}
+
+	/**
+		@brief Check whether the URL of action link is correct.
+		@param $action Name of modaction (e.g. 'rejectall') or 'mergedDiff'.
+	*/
+	protected function assertActionLinkURL( $action, $url ) {
+		/* Parse the $url and check the presence
+		of needed query string parameters */
+		$bits = wfParseUrl( wfExpandUrl( $url ) );
+		$query = wfCgiToArray( $bits['query'] );
+
+		if ( $action == 'mergedDiff' ) {
+			$this->assertQueryString( $url, [
+				'title' => strtr( $this->getExpectedTitle(), ' ', '_' ),
+				'diff' => $this->fields['mod_merged_revid']
+			] );
+		}
+		else {
+			$expectedQuery = [
+				'title' => SpecialPage::getTitleFor( 'Moderation' )->getFullText(),
+				'modaction' => $action,
+				'modid' => $this->fields['mod_id']
+			];
+			if ( $action != 'show' && $action != 'preview' ) {
+				$expectedQuery['token'] = null;
+			}
+
+			$this->assertQueryString( $url, $expectedQuery );
+		}
+	}
+
+	/**
+		@brief Parse $url and assert the presence of needed QueryString parameters.
+		@param $expectedQuery array( key1 => value1, ... )
+	*/
+	protected function assertQueryString( $url, array $expectedQuery ) {
+		$testcase = $this->getTestcase();
+
+		$bits = wfParseUrl( wfExpandUrl( $url ) );
+		$query = wfCgiToArray( $bits['query'] );
+
+		foreach ( $expectedQuery as $key => $value ) {
+			$testcase->assertArrayHasKey( $key, $query,
+				"QueryString of [$url]: no '$key' key" );
+
+			if ( $key == 'token' && $value === null ) {
+				$testcase->assertRegExp( '/[+0-9a-f]+/', $query['token'],
+					"QueryString of [$url]: incorrect format of CSRF token." );
+			}
+			else {
+				$testcase->assertEquals( $expectedQuery[$key], $query[$key],
+					"QueryString of [$url]: incorrect value of '$key'" );
+			}
+		}
+
+		$testcase->assertCount( count( $expectedQuery ), $query,
+			"QueryString of [$url]: found more parameters than expected" );
 	}
 
 

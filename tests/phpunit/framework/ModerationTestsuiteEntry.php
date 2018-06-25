@@ -175,6 +175,37 @@ class ModerationTestsuiteEntry
 		return $url;
 	}
 
+	/**
+		@brief Get URL of the link $action.
+		@param $action Name of modaction (e.g. 'rejectall') or 'mergedDiff'.
+	*/
+	public function getActionLink( $modaction ) {
+		switch ( $modaction ) {
+			case 'show':
+				return $this->showLink;
+			case 'preview':
+				return $this->previewLink;
+			case 'approve':
+				return $this->approveLink;
+			case 'approveall':
+				return $this->approveAllLink;
+			case 'reject':
+				return $this->rejectLink;
+			case 'rejectall':
+				return $this->rejectAllLink;
+			case 'block':
+				return $this->blockLink;
+			case 'unblock':
+				return $this->unblockLink;
+			case 'merge':
+				return $this->mergeLink;
+			case 'mergedDiff':
+				return $this->mergedDiffLink;
+		}
+
+		throw new Exception( __METHOD__ . ": unknown modaction='$modaction'" );
+	}
+
 	public static function findById( array $array, $id )
 	{
 		foreach ( $array as $e )
