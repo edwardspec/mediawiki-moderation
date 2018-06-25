@@ -39,6 +39,10 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 		@brief Provide datasets for testRenderSpecial() runs.
 	*/
 	public function dataProvider() {
+		global $wgModerationTimeToOverrideRejection;
+		$longAgo =  '-' . ( $wgModerationTimeToOverrideRejection + 1 ) . ' seconds';
+		$notLongAgoEnough = '-' . ( $wgModerationTimeToOverrideRejection - 3600 ) . ' seconds';
+
 		return [
 			[ [] ],
 			[ [ 'mod_namespace' => NS_MAIN, 'mod_title' => 'Page_in_main_namespace' ] ],
@@ -61,7 +65,25 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 			[ [ 'mod_bot' => 1 ] ],
 			[ [ 'mod_new' => 1 ] ],
 			[ [ 'mod_timestamp' => '-2 days' ] ],
-			[ [ 'mod_timestamp' => '-2 days', 'mod_type' => 'move' ] ]
+			[ [ 'mod_timestamp' => '-2 days', 'mod_type' => 'move' ] ],
+			[ [
+				'expectNotReapprovable' => true,
+				'expectedFolder' => 'rejected',
+				'mod_rejected' => 1,
+				'mod_timestamp' => $longAgo
+			] ],
+			[ [
+				'expectNotReapprovable' => true,
+				'expectedFolder' => 'spam',
+				'mod_rejected' => 1,
+				'mod_rejected_auto' => 1,
+				'mod_timestamp' => $longAgo
+			] ],
+			[ [
+				'expectedFolder' => 'rejected',
+				'mod_rejected' => 1,
+				'mod_timestamp' => $notLongAgoEnough
+			] ]
 		];
 	}
 }
@@ -76,6 +98,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	protected $isCheckuser = false; /**< If true, moderator who visits Special:Moderation will be a checkuser. */
 	protected $previewLinkEnabled = false; /**< If true, $wgModerationPreviewLink will be enabled. */
 	protected $modblocked = false; /**< If true, user will be modblocked. */
+	protected $expectNotReapprovable = false; /**< If true, Approve link should be absent, because the entry was rejected too long ago. */
 
 	/**
 		@brief Initialize this TestSet from the input of dataProvider.
@@ -88,6 +111,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 				case 'isCheckuser':
 				case 'previewLinkEnabled':
 				case 'modblocked':
+				case 'expectNotReapprovable':
 					$this->$key = $value;
 					break;
 
@@ -201,7 +225,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 
 		$t->fetchSpecial( $this->expectedFolder );
 		$testcase->assertCount( 1, $t->new_entries,
-			"Incorrect number of entries on Special:Moderation."
+			"Incorrect number of entries on Special:Moderation (folder " . $this->expectedFolder . ")."
 		);
 		$entry = $t->new_entries[0];
 
@@ -367,7 +391,9 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		switch ( $this->expectedFolder ) {
 			case 'rejected':
 			case 'spam':
-				$expectedLinks['approve'] = true;
+				if ( !$this->expectNotReapprovable ) {
+					$expectedLinks['approve'] = true;
+				}
 				break;
 
 			case 'merged':
