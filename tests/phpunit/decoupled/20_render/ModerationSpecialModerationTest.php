@@ -67,7 +67,7 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 			[ [ 'mod_bot' => 1 ] ],
 			[ [ 'mod_new' => 1 ] ],
 			[ [ 'mod_timestamp' => '-2 days' ] ],
-			[ [ 'mod_timestamp' => '-2 days', 'mod_type' => 'move' ] ],,
+			[ [ 'mod_timestamp' => '-2 days', 'mod_type' => 'move' ] ],
 			[ [ 'mod_old_len' => 100, 'mod_new_len' => 101 + $wgRCChangedSizeThreshold ] ],
 			[ [ 'mod_old_len' => 100, 'mod_new_len' => 99 + $wgRCChangedSizeThreshold ] ],
 			[ [ 'mod_old_len' => 100 + $wgRCChangedSizeThreshold, 'mod_new_len' => 99 ] ],
