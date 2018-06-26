@@ -39,7 +39,8 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 		@brief Provide datasets for testRenderSpecial() runs.
 	*/
 	public function dataProvider() {
-		global $wgModerationTimeToOverrideRejection;
+		global $wgModerationTimeToOverrideRejection, $wgRCChangedSizeThreshold;
+
 		$longAgo =  '-' . ( $wgModerationTimeToOverrideRejection + 1 ) . ' seconds';
 		$notLongAgoEnough = '-' . ( $wgModerationTimeToOverrideRejection - 3600 ) . ' seconds';
 
@@ -66,7 +67,11 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 			[ [ 'mod_bot' => 1 ] ],
 			[ [ 'mod_new' => 1 ] ],
 			[ [ 'mod_timestamp' => '-2 days' ] ],
-			[ [ 'mod_timestamp' => '-2 days', 'mod_type' => 'move' ] ],
+			[ [ 'mod_timestamp' => '-2 days', 'mod_type' => 'move' ] ],,
+			[ [ 'mod_old_len' => 100, 'mod_new_len' => 101 + $wgRCChangedSizeThreshold ] ],
+			[ [ 'mod_old_len' => 100, 'mod_new_len' => 99 + $wgRCChangedSizeThreshold ] ],
+			[ [ 'mod_old_len' => 100 + $wgRCChangedSizeThreshold, 'mod_new_len' => 99 ] ],
+			[ [ 'mod_old_len' => 100 + $wgRCChangedSizeThreshold, 'mod_new_len' => 101 ] ],
 			[ [
 				'expectNotReapprovable' => true,
 				'expectedFolder' => 'rejected',
@@ -85,6 +90,8 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 				'mod_rejected' => 1,
 				'mod_timestamp' => $notLongAgoEnough
 			] ]
+
+			/* TODO: mod_comment */
 		];
 	}
 }
@@ -251,6 +258,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		$this->assertBasicInfo( $entry );
 		$this->assertTimestamp( $entry );
 		$this->assertFlags( $entry );
+		$this->assertLengthChange( $entry );
 		$this->assertWhoisLink( $entry );
 		$this->assertMoveEntry( $entry );
 		$this->assertConflictStatus( $entry );
@@ -315,6 +323,24 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 
 		$this->getTestcase()->assertEquals( $expectedFlags, $shownFlags,
 			"Special:Moderation: Incorrect entry flags." );
+	}
+
+	/**
+		@brief Check whether the difference between len_old/len_new is properly shown.
+	*/
+	protected function assertLengthChange( ModerationTestsuiteEntry $entry ) {
+		global $wgRCChangedSizeThreshold;
+
+		$expectedChange = $this->fields['mod_new_len'] - $this->fields['mod_old_len'];
+
+		$this->getTestcase()->assertEquals( [
+			'change in length' => $expectedChange,
+			'is length change hightlighted?' =>
+				( abs( $expectedChange ) >= $wgRCChangedSizeThreshold )
+		], [
+			'change in length' => $entry->charChange,
+			'is length change hightlighted?' => $entry->charChangeBold
+		] );
 	}
 
 	/**

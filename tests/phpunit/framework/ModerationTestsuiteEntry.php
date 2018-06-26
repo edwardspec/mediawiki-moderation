@@ -60,6 +60,9 @@ class ModerationTestsuiteEntry
 
 	public $noMergeNotAutomoderated = false;
 
+	public $charChange = null; /**< Difference betwen old_len and new_len, e.g. "-25" or "+600" */
+	public $charChangeBold = false; /**< True if the character change is highlighted (due to being large) */
+
 	public function __construct( DomElement $span )
 	{
 		if ( strpos( $span->getAttribute( 'class' ), 'modconflict' ) !== false ) {
@@ -101,6 +104,12 @@ class ModerationTestsuiteEntry
 			if ( preg_match( '/([0-9]{2}:[0-9]{2})[^.]*/', $text, $matches ) ) {
 				$this->time = $matches[1];
 				$this->datetime = trim( $matches[0] );
+			}
+
+			$matches = null;
+			if ( preg_match( '/\(rc-change-size: ([\-0-9,]+)\)/', $text, $matches ) ) {
+				$this->charChange = str_replace( ',', '', $matches[1] );
+				$this->charChangeBold = ( $child->tagName != 'span' );
 			}
 		}
 
