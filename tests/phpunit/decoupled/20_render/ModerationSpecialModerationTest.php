@@ -288,6 +288,8 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		$testcase->assertEquals( $this->fields['mod_user_text'], $entry->user,
 			"Special:Moderation: Username of the author doesn't match expected" );
 
+		LinkCache::singleton()->clear();
+
 		$expectedComment = Linker::formatComment(
 			$this->fields['mod_comment'],
 			$this->getExpectedTitleObj()
