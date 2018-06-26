@@ -28,9 +28,9 @@ class ModerationTestsuiteEntry
 {
 	public $id = null;
 	public $user = null;
-	public $comment = null; /* TODO */
 	public $title = null;
 	public $page2Title = null;
+	public $commentHtml = null;
 
 	public $showLink = null;
 	public $previewLink = null;
@@ -110,6 +110,20 @@ class ModerationTestsuiteEntry
 			if ( preg_match( '/\(rc-change-size: ([\-0-9,]+)\)/', $text, $matches ) ) {
 				$this->charChange = str_replace( ',', '', $matches[1] );
 				$this->charChangeBold = ( $child->tagName != 'span' );
+			}
+
+			if ( !( $child instanceof DOMText ) && $child->getAttribute( 'class' ) == 'comment' ) {
+				$this->commentHtml = '';
+				foreach ( $child->childNodes as $grandchild ) {
+					$this->commentHtml .=
+						$grandchild->ownerDocument->saveXML( $grandchild );
+				}
+
+				$this->commentHtml = preg_replace(
+					[ '/^\(parentheses: /', '/\)$/' ],
+					[],
+					$this->commentHtml
+				);
 			}
 		}
 

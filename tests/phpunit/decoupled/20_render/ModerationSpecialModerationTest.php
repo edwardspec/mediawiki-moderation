@@ -50,6 +50,10 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 			[ [ 'mod_namespace' => NS_PROJECT, 'mod_title' => 'Page_in_Project_namespace' ] ],
 			[ [ 'mod_user' => 0, 'mod_user_text' => '127.0.0.1' ] ],
 			[ [ 'mod_user' => 12345, 'mod_user_text' => 'Some registered user' ] ],
+			[ [ 'mod_comment' => 'Hello, World!' ] ],
+			[ [ 'mod_comment' => 'Hello, [[World]]!' ] ],
+			[ [ 'mod_comment' => '<i>HTML</i> will be <b>escaped' ] ], // no </b> on purpose
+			[ [ 'mod_comment' => '/* Section 1 */ edited this section' ] ],
 			[ [ 'mod_rejected' => 1, 'expectedFolder' => 'rejected' ] ],
 			[ [ 'mod_rejected' => 1, 'mod_rejected_auto' => 1, 'expectedFolder' => 'spam' ] ],
 			[ [ 'mod_merged_revid' => 12345, 'expectedFolder' => 'merged' ] ],
@@ -90,8 +94,6 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 				'mod_rejected' => 1,
 				'mod_timestamp' => $notLongAgoEnough
 			] ]
-
-			/* TODO: mod_comment */
 		];
 	}
 }
@@ -208,13 +210,20 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Returns pagename (string) of the page mentioned in $this->fields.
+		@brief Returns Title object of the page mentioned in $this->fields.
 	*/
-	protected function getExpectedTitle( $nsField = 'mod_namespace', $titleField = 'mod_title' ) {
+	protected function getExpectedTitleObj( $nsField = 'mod_namespace', $titleField = 'mod_title' ) {
 		return Title::makeTitle(
 			$this->fields[$nsField],
 			$this->fields[$titleField]
-		)->getFullText();
+		);
+	}
+
+	/**
+		@brief Returns pagename (string) of the page mentioned in $this->fields.
+	*/
+	protected function getExpectedTitle( $nsField = 'mod_namespace', $titleField = 'mod_title' ) {
+		return $this->getExpectedTitleObj( $nsField, $titleField )->getFullText();
 	}
 
 	/**
@@ -267,7 +276,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Check whether user, title and ID of $entry are correct.
+		@brief Check whether user, title, comment and ID of $entry are correct.
 	*/
 	protected function assertBasicInfo( ModerationTestsuiteEntry $entry ) {
 		$testcase = $this->getTestcase();
@@ -278,6 +287,13 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 			"Special:Moderation: Title of the edited page doesn't match expected" );
 		$testcase->assertEquals( $this->fields['mod_user_text'], $entry->user,
 			"Special:Moderation: Username of the author doesn't match expected" );
+
+		$expectedComment = Linker::formatComment(
+			$this->fields['mod_comment'],
+			$this->getExpectedTitleObj()
+		);
+		$testcase->assertEquals( $expectedComment, $entry->commentHtml,
+			"Special:Moderation: Edit summary doesn't match expected" );
 	}
 
 	/**
