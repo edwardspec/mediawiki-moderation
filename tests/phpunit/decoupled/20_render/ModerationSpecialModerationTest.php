@@ -255,6 +255,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		$this->assertMoveEntry( $entry );
 		$this->assertConflictStatus( $entry );
 		$this->assertActionLinks( $entry );
+		$this->assertRejectedBy( $entry );
 	}
 
 	/**
@@ -521,6 +522,25 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 			"QueryString of [$url]: found more parameters than expected" );
 	}
 
+	/**
+		@brief Check information about who and how rejected this edit.
+	*/
+	protected function assertRejectedBy( ModerationTestsuiteEntry $entry ) {
+		$testcase = $this->getTestcase();
+
+		$testcase->assertEquals(
+			$this->fields['mod_rejected_by_user_text'],
+			$entry->rejected_by_user,
+			"Special:Moderation: incorrect name of moderator who rejected the edit" );
+
+		$testcase->assertEquals( [
+			'rejected via RejectAll' => (bool)$this->fields['mod_rejected_batch'],
+			'rejected automatically' => (bool)$this->fields['mod_rejected_auto']
+		], [
+			'rejected via RejectAll' => $entry->rejected_batch,
+			'rejected automatically' => $entry->rejected_auto
+		] );
+	}
 
 	/**
 		@brief Execute the TestSet, making an edit/upload/move with requested parameters.
