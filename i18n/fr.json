@@ -41,7 +41,7 @@
 	"moderation-diff-header-after": "Après",
 	"moderation-diff-header-before": "Avant",
 	"moderation-diff-no-changes": "Aucun changement au texte de la page (modification nulle).",
-	"moderation-diff-reupload": "C’est un rechargement d’image (cela ne modifiera pas le texte de la page).",
+	"moderation-diff-reupload": "Ceci est un nouveau téléversement de l’image (sans modifier le texte de la page).",
 	"moderation-diff-upload-notext": "Cette image a été téléversée sans description.",
 	"moderation-edit-conflict": "Conflit de modification (nécessite une fusion manuelle).",
 	"moderation-editing-your-version": "Vous êtes en train de modifier votre version de cet article. Il attend actuellement une modération.<br>Une fois approuvé, il sera visible des autres utilisateurs.",

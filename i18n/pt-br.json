@@ -74,7 +74,7 @@
 	"moderation-rejectall": "Rejeitar todas",
 	"moderation-rejected-auto": "Rejeitada automaticamente",
 	"moderation-rejected-batch": "Rejeitada com o botão \"Rejeitar todas\"",
-	"moderation-rejected-by": "Rejeitada por $1",
+	"moderation-rejected-by": "{{GENDER:$2|Rejeitada}} por $1",
 	"moderation-rejected-long-ago": "Esta edição foi rejeitada há muito, já não pode ser aprovada.",
 	"moderation-rejected-ok": "Rejeitou $1 {{plural:$1|edição|edições}}.",
 	"moderation-reject": "Rejeitar",

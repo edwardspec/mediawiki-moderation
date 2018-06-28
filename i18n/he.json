@@ -7,7 +7,7 @@
 	"action-moderation": "לנהל עריכות",
 	"group-automoderated": "משתמשים מנוהלים אוטומטית",
 	"group-automoderated-member": "{{GENDER:$1|משתמש מנוהל|משתמשת מנוהלת}} אוטומטית",
-	"group-moderator-member": "{{GENDER:$1|מהנל|מנהלת}}",
+	"group-moderator-member": "{{GENDER:$1|מנהל|מנהלת}}",
 	"group-moderator": "מנהלים",
 	"grouppage-automoderated": "{{ns:project}}:ניהול",
 	"grouppage-moderator": "{{ns:project}}:ניהול",
