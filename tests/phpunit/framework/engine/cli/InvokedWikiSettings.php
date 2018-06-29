@@ -23,6 +23,15 @@
 # Load the usual LocalSettings.php
 require_once "$IP/LocalSettings.php";
 
+/* Apply variables requested by ModerationTestsuiteCliEngine::setMwConfig() */
+foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
+	$GLOBALS["wg$name"] = $value;
+
+	if ( $name == 'DBPrefix' ) {
+		CloneDatabase::changePrefix( $value );
+	}
+}
+
 function efModerationTestsuiteMockedHeader( $string, $replace = true, $http_response_code = null ) {
 	$response = RequestContext::getMain()->getRequest()->response();
 	$response->header( $string, $replace, $http_response_code );
@@ -49,11 +58,6 @@ function efModerationTestsuiteSetup() {
 	/* Use $request as the global WebRequest object */
 	RequestContext::getMain()->setRequest( $request );
 	$wgRequest = $request;
-
-	/* Apply variables requested by ModerationTestsuiteCliEngine::setMwConfig() */
-	foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
-		$GLOBALS["wg$name"] = $value;
-	}
 
 	/* Some code in MediaWiki core, e.g. HTTPFileStreamer, calls header()
 		directly (not via $wgRequest->response), but this function

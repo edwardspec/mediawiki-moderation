@@ -194,6 +194,21 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 
 		return [ $scriptName, $pathInfo ];
 	}
+
+	/**
+		@brief Run subrequests in the DB sandbox imposed by MediaWikiTestCase.
+	*/
+	public function escapeDbSandbox() {
+		if ( isset( PHPUnitMaintClass::$additionalOptions['use-normal-tables'] ) ) {
+			$dbw = wfGetDB( DB_MASTER );
+			$this->setMwConfig( 'DBPrefix', $dbw->tablePrefix() );
+		}
+		else {
+			// If temporary tables were used, then cliInvoked script can't access them.
+			// Fallback to "break out of the sandbox" workaround.
+			parent::escapeDbSandbox();
+		}
+	}
 }
 
 class ModerationTestsuiteCliError extends ModerationTestsuiteException {};

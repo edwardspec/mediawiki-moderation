@@ -55,9 +55,9 @@ class ModerationTestsuite
 	public $lastEdit = []; /**< array, populated by setLastEdit() */
 
 	function __construct() {
-		$this->prepareDbForTests();
-
 		$this->engine = ModerationTestsuiteEngine::factory();
+
+		$this->prepareDbForTests();
 
 		$this->html = new ModerationTestsuiteHTML( $this->engine );
 		$this->setUserAgent( self::DEFAULT_USER_AGENT );
@@ -222,7 +222,7 @@ class ModerationTestsuite
 				Therefore we escape the "test DB" jail installed by MediaWikiTestCase.
 			*/
 			if ( class_exists( 'MediaWikiTestCase' ) ) { /* Won't be defined if called from benchmark scripts */
-				MediaWikiTestCase::teardownTestDB();
+				$this->engine->escapeDbSandbox();
 			}
 		}
 

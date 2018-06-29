@@ -175,6 +175,19 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 		throw new PHPUnit_Framework_SkippedTestError(
 			'Test skipped: ' . get_class( $this ) . ' doesn\'t support setMwConfig()' );
 	}
+
+	/**
+		@brief Handle the fact that MediaWikiTestCase tries to isolate us from the real database.
+
+		MediaWiki 1.28+ started to agressively isolate tests from the real database,
+		which means that executed HTTP requests must also be in the sandbox.
+
+		RealHttp engine can't instruct the HTTP server to use another database prefix
+		(which is how the sandbox is selected instead of the real database),
+		so its only choice is to break out of the sandbox.
+		Engine like CliEngine can handle this properly (by actually using the sandbox).
+	*/
+	public function escapeDbSandbox() {
+		MediaWikiTestCase::teardownTestDB();
+	}
 }
-
-
