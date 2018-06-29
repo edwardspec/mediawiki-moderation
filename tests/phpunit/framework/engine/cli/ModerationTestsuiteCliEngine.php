@@ -164,11 +164,14 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 		unlink( $inputFilename );
 		unlink( $outputFilename );
 
-		/* Remember the newly set cookies */
 		if ( !isset( $result['FauxResponse'] ) ) {
-			throw new ModerationTestsuiteCliError( "no FauxResponse from $env[REQUEST_METHOD] [$url]" );
+			throw new ModerationTestsuiteCliError(
+				"no FauxResponse from $env[REQUEST_METHOD] [$url], postData=[" .
+				wfArrayToCgi( $descriptor['_POST'] ) . ']'
+			);
 		}
 
+		/* Remember the newly set cookies */
 		$response = $result['FauxResponse'];
 		$this->cookies = array_map( function( $info ) {
 			return $info['value'];
