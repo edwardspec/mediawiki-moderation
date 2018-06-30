@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.3.7",
+	"version": "1.3.8",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -95,69 +95,48 @@
 		"ModerationAlias": "Moderation.alias.php"
 	},
 	"AutoloadClasses": {
-		"SpecialModeration": "SpecialModeration.php",
 		"ApiModeration": "api/ApiModeration.php",
 		"ApiQueryModerationPreload": "api/ApiQueryModerationPreload.php",
 		"IModerationEntry": "lib/entry/IModerationEntry.php",
-		"ModerationLogFormatter": "ModerationLogFormatter.php",
-		"ModerationSpecialUpload": "ModerationSpecialUpload.php",
+		"ModerationAction": "action/ModerationAction.php",
+		"ModerationActionApprove": "action/ModerationActionApprove.php",
+		"ModerationActionBlock": "action/ModerationActionBlock.php",
+		"ModerationActionMerge": "action/ModerationActionMerge.php",
+		"ModerationActionPreview": "action/ModerationActionPreview.php",
+		"ModerationActionReject": "action/ModerationActionReject.php",
+		"ModerationActionShow": "action/ModerationActionShow.php",
+		"ModerationActionShowImage": "action/ModerationActionShowImage.php",
 		"ModerationAjaxHook": "util/ModerationAjaxHook.php",
-		"ModerationBlockCheck": "util/ModerationBlockCheck.php",
-		"ModerationCanSkip": "util/ModerationCanSkip.php",
-		"ModerationNewChange": "lib/ModerationNewChange.php",
 		"ModerationApiHooks": "hooks/ModerationApiHooks.php",
 		"ModerationApprovableEntry": "lib/entry/ModerationApprovableEntry.php",
 		"ModerationApproveHook": "hooks/ModerationApproveHook.php",
-		"ModerationPageForms": "plugins/ModerationPageForms.php",
-		"ModerationPlugins": "plugins/ModerationPlugins.php",
-		"ModerationPreload": "hooks/ModerationPreload.php",
+		"ModerationBlockCheck": "util/ModerationBlockCheck.php",
+		"ModerationCanSkip": "util/ModerationCanSkip.php",
 		"ModerationEditHooks": "hooks/ModerationEditHooks.php",
-		"ModerationEntry": "lib/entry/ModerationEntry.php",
 		"ModerationEntryEdit": "lib/entry/ModerationEntryEdit.php",
 		"ModerationEntryFormatter": "lib/entry/ModerationEntryFormatter.php",
+		"ModerationEntry": "lib/entry/ModerationEntry.php",
 		"ModerationEntryMove": "lib/entry/ModerationEntryMove.php",
 		"ModerationEntryUpload": "lib/entry/ModerationEntryUpload.php",
 		"ModerationError": "lib/exception/ModerationError.php",
 		"ModerationFormatTimestamp": "util/ModerationFormatTimestamp.php",
-		"ModerationNotifyModerator": "hooks/ModerationNotifyModerator.php",
+		"ModerationLogFormatter": "ModerationLogFormatter.php",
 		"ModerationMoveHooks": "hooks/ModerationMoveHooks.php",
+		"ModerationNewChange": "lib/ModerationNewChange.php",
+		"ModerationNotifyModerator": "hooks/ModerationNotifyModerator.php",
+		"ModerationPageForms": "plugins/ModerationPageForms.php",
+		"ModerationPlugins": "plugins/ModerationPlugins.php",
+		"ModerationPreload": "hooks/ModerationPreload.php",
 		"ModerationQueuedSuccessException": "lib/exception/ModerationQueuedSuccessException.php",
-		"ModerationUploadHooks": "hooks/ModerationUploadHooks.php",
+		"ModerationSpecialUpload": "ModerationSpecialUpload.php",
 		"ModerationUpdater": "hooks/ModerationUpdater.php",
+		"ModerationUploadHooks": "hooks/ModerationUploadHooks.php",
 		"ModerationVersionCheck": "util/ModerationVersionCheck.php",
 		"ModerationViewableEntry": "lib/entry/ModerationViewableEntry.php",
-		"ModerationAction": "action/ModerationAction.php",
-		"ModerationActionShow": "action/ModerationActionShow.php",
-		"ModerationActionShowImage": "action/ModerationActionShowImage.php",
-		"ModerationActionBlock": "action/ModerationActionBlock.php",
-		"ModerationActionApprove": "action/ModerationActionApprove.php",
-		"ModerationActionReject": "action/ModerationActionReject.php",
-		"ModerationActionMerge": "action/ModerationActionMerge.php",
-		"ModerationActionPreview": "action/ModerationActionPreview.php",
-		"RollbackResistantQuery": "util/RollbackResistantQuery.php"
+		"RollbackResistantQuery": "util/RollbackResistantQuery.php",
+		"SpecialModeration": "SpecialModeration.php"
 	},
 	"ResourceModules": {
-		"ext.moderation.special.css": {
-			"position": "bottom",
-			"styles": "ext.moderation.special.css"
-		},
-		"ext.moderation.special.ajax": {
-			"position": "bottom",
-			"scripts": "ext.moderation.special.ajax.js",
-			"styles": "ext.moderation.special.ajax.css",
-			"dependencies": [
-				"mediawiki.api",
-				"mediawiki.Uri"
-			],
-			"messages": [
-				"moderation-block",
-				"moderation-unblock"
-			]
-		},
-		"ext.moderation.edit": {
-			"position": "bottom",
-			"styles": "ext.moderation.edit.css"
-		},
 		"ext.moderation.ajaxhook": {
 			"position": "bottom",
 			"scripts": "ext.moderation.ajaxhook.js",
@@ -166,20 +145,9 @@
 				"mobile"
 			]
 		},
-		"ext.moderation.ve": {
-			"position": "top",
-			"scripts": [
-				"visualeditor/ajaxhook.ve.js",
-				"visualeditor/preload.ve.js"
-			],
-			"targets": [
-				"desktop"
-			],
-			"dependencies": [
-				"mediawiki.api",
-				"ext.visualEditor.targetLoader",
-				"ext.moderation.ajaxhook"
-			]
+		"ext.moderation.edit": {
+			"position": "bottom",
+			"styles": "ext.moderation.edit.css"
 		},
 		"ext.moderation.mf": {
 			"position": "bottom",
@@ -234,6 +202,38 @@
 			"targets": [
 				"desktop"
 			]
+		},
+		"ext.moderation.special.ajax": {
+			"position": "bottom",
+			"scripts": "ext.moderation.special.ajax.js",
+			"styles": "ext.moderation.special.ajax.css",
+			"dependencies": [
+				"mediawiki.api",
+				"mediawiki.Uri"
+			],
+			"messages": [
+				"moderation-block",
+				"moderation-unblock"
+			]
+		},
+		"ext.moderation.special.css": {
+			"position": "bottom",
+			"styles": "ext.moderation.special.css"
+		},
+		"ext.moderation.ve": {
+			"position": "top",
+			"scripts": [
+				"visualeditor/ajaxhook.ve.js",
+				"visualeditor/preload.ve.js"
+			],
+			"targets": [
+				"desktop"
+			],
+			"dependencies": [
+				"mediawiki.api",
+				"ext.visualEditor.targetLoader",
+				"ext.moderation.ajaxhook"
+			]
 		}
 	},
 	"ResourceFileModulePaths": {
@@ -241,9 +241,6 @@
 		"remoteExtPath": "Moderation/modules"
 	},
 	"Hooks": {
-		"LocalUserCreated": [
-			"ModerationPreload::onLocalUserCreated"
-		],
 		"AlternateEdit": [
 			"ModerationPreload::onAlternateEdit"
 		],
@@ -268,41 +265,44 @@
 		"EditFormPreloadText": [
 			"ModerationPreload::onEditFormPreloadText"
 		],
+		"EditPage::showEditForm:fields": [
+			"ModerationEditHooks::PrepareEditForm"
+		],
 		"GetNewMessagesAlert": [
 			"ModerationNotifyModerator::onGetNewMessagesAlert"
 		],
-		"ListDefinedTags": [
-			"ModerationEditHooks::onListDefinedTags"
+		"getUserPermissionsErrors": [
+			"ModerationUploadHooks::ongetUserPermissionsErrors"
 		],
 		"LoadExtensionSchemaUpdates": [
 			"ModerationUpdater::onLoadExtensionSchemaUpdates"
 		],
+		"ListDefinedTags": [
+			"ModerationEditHooks::onListDefinedTags"
+		],
+		"LocalUserCreated": [
+			"ModerationPreload::onLocalUserCreated"
+		],
 		"MovePageCheckPermissions": [
 			"ModerationMoveHooks::onMovePageCheckPermissions"
-		],
-		"PageContentSaveComplete": [
-			"ModerationEditHooks::onPageContentSaveComplete"
 		],
 		"PageContentSave": [
 			"ModerationEditHooks::onPageContentSave"
 		],
-		"PageForms::EditFormPreloadText": [
-			"ModerationPageForms::preloadText"
+		"PageContentSaveComplete": [
+			"ModerationEditHooks::onPageContentSaveComplete"
 		],
 		"PageForms::EditFormInitialText": [
 			"ModerationPageForms::preloadText"
 		],
-		"EditPage::showEditForm:fields": [
-			"ModerationEditHooks::PrepareEditForm"
+		"PageForms::EditFormPreloadText": [
+			"ModerationPageForms::preloadText"
 		],
 		"UploadVerifyFile": [
 			"ModerationUploadHooks::onUploadVerifyFile"
 		],
 		"UploadVerifyUpload": [
 			"ModerationUploadHooks::onUploadVerifyUpload"
-		],
-		"getUserPermissionsErrors": [
-			"ModerationUploadHooks::ongetUserPermissionsErrors"
 		]
 	},
 	"config": {
