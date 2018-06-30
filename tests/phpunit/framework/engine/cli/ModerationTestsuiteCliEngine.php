@@ -207,7 +207,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 		@brief Run subrequests in the DB sandbox imposed by MediaWikiTestCase.
 	*/
 	public function escapeDbSandbox() {
-		if ( isset( PHPUnitMaintClass::$additionalOptions['use-normal-tables'] ) ) {
+		if ( !empty( PHPUnitMaintClass::$additionalOptions['use-normal-tables'] ) ) {
 			$dbw = wfGetDB( DB_MASTER );
 			$this->setMwConfig( 'DBPrefix', $dbw->tablePrefix() );
 
