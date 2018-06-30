@@ -73,9 +73,20 @@ $stdoutFilename = tempnam( sys_get_temp_dir(), 'testsuite.stdout' );
 fclose( STDOUT );
 $STDOUT = fopen( $stdoutFilename, 'a' );
 
+$exceptionText = '';
+
+try {
+
 /*--------------------------------------------------------------*/
 include( $wgModerationTestsuiteCliDescriptor[ 'isApi' ] ? 'api.php' : 'index.php' );
 /*--------------------------------------------------------------*/
+
+}
+catch ( Exception $e ) {
+	ob_start();
+	MWExceptionHandler::handleException( $e );
+	$exceptionText = ob_get_flush();
+}
 
 // Capture all output
 while ( ob_get_status() ) {
@@ -86,7 +97,8 @@ $capturedContent = file_get_contents( $stdoutFilename );
 
 $result = [
 	'FauxResponse' => RequestContext::getMain()->getRequest()->response(),
-	'capturedContent' => $capturedContent
+	'capturedContent' => $capturedContent,
+	'exceptionText' => $exceptionText
 ];
 
 /*--------------------------------------------------------------*/

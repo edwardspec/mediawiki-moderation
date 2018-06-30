@@ -164,11 +164,16 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 		unlink( $inputFilename );
 		unlink( $outputFilename );
 
+		$errorContext = "from $env[REQUEST_METHOD] [$url], postData=[" .
+			wfArrayToCgi( $descriptor['_POST'] ) . ']';
+
+		if ( $result['exceptionText'] ) {
+			throw new ModerationTestsuiteCliError( "Exception $errorContext: \n==== EXCEPTION START ====\n\n" .
+				$result['exceptionText'] . "\n==== EXCEPTION END ====\n" );
+		}
+
 		if ( !isset( $result['FauxResponse'] ) ) {
-			throw new ModerationTestsuiteCliError(
-				"no FauxResponse from $env[REQUEST_METHOD] [$url], postData=[" .
-				wfArrayToCgi( $descriptor['_POST'] ) . ']'
-			);
+			throw new ModerationTestsuiteCliError( "no FauxResponse $errorContext" );
 		}
 
 		/* Remember the newly set cookies */
