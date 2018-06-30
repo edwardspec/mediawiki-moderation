@@ -178,10 +178,12 @@ class ModerationEditHooks {
 			return true;
 		}
 
+		$revid = $revision->getId();
+
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'moderation',
 			[
-				'mod_merged_revid' => $revision->getId(),
+				'mod_merged_revid' => $revid,
 				ModerationVersionCheck::setPreloadableToNo()
 			],
 			[
@@ -205,6 +207,11 @@ class ModerationEditHooks {
 			/* Clear the cache of "Most recent mod_timestamp of pending edit"
 				- could have changed */
 			ModerationNotifyModerator::invalidatePendingTime();
+
+			/* Tag this edit as "manually merged" */
+			DeferredUpdates::addCallableUpdate( function () use ( $revid ) {
+				ChangeTags::addTags( 'moderation-merged', null, $revid, null );
+			} );
 		}
 
 		return true;
@@ -223,6 +230,14 @@ class ModerationEditHooks {
 		$out->addHTML( Html::hidden( 'wpMergeID', $mergeID ) );
 		$out->addHTML( Html::hidden( 'wpIgnoreBlankSummary', '1' ) );
 
+		return true;
+	}
+
+	/**
+		@brief Registers 'moderation-merged' ChangeTag.
+	*/
+	public static function onListDefinedTags( &$tags ) {
+		$tags[] = 'moderation-merged';
 		return true;
 	}
 }

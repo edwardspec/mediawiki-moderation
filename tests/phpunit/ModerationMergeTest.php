@@ -181,6 +181,9 @@ class ModerationTestMerge extends MediaWikiTestCase
 		$this->assertArrayHasKey( 'diff', $params );
 		$this->assertEquals( $rev['revid'], $params['diff'],
 			"testMerge(): diff parameter doesn't match revid of the last revision on the page we edited" );
+
+		$this->assertContains( 'moderation-merged', $rev['tags'],
+			"testMerge(): edit wasn't tagged with 'moderation-merged' tag." );
 	}
 
 	/**

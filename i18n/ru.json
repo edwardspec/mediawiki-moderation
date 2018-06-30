@@ -91,6 +91,8 @@
 	"right-moderation": "модерация правок",
 	"right-skip-moderation": "редактирование в обход модерации",
 	"right-skip-move-moderation": "переименование страниц в обход модерации",
+	"tag-moderation-merged": "внесена правка другого участника",
+	"tag-moderation-merged-description": "Правка другого участника (модератор лишь разрешил конфликт редактирования).",
 	"tooltip-moderation-approveall": "Допустить все правки данного участника",
 	"tooltip-moderation-approve": "Допустить эту правку",
 	"tooltip-moderation-approved-diff": "Просмотреть допущенную правку",
