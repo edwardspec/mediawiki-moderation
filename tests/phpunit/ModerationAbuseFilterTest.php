@@ -33,9 +33,9 @@ class ModerationTestAbuseFilter extends MediaWikiTestCase
 		@brief Are AbuseFilter tags preserved for edits?
 	*/
 	public function testAFTagsEdit() {
+		$t = new ModerationTestsuite();
 		$this->skipIfNoAbuseFilter();
 
-		$t = new ModerationTestsuite();
 		$filterId = $t->addTagAllAbuseFilter( $this->expectedTags );
 
 		/* Perform the edit as non-automoderated user.
@@ -57,9 +57,9 @@ class ModerationTestAbuseFilter extends MediaWikiTestCase
 		@brief Are AbuseFilter tags preserved for moves?
 	*/
 	public function testAFTagsMove() {
+		$t = new ModerationTestsuite();
 		$this->skipIfNoAbuseFilter();
 
-		$t = new ModerationTestsuite();
 		$title = 'Cat';
 
 		$t->loginAs( $t->automoderated );
@@ -86,9 +86,9 @@ class ModerationTestAbuseFilter extends MediaWikiTestCase
 		@brief Are AbuseFilter tags preserved for uploads?
 	*/
 	public function testAFTagsUpload() {
+		$t = new ModerationTestsuite();
 		$this->skipIfNoAbuseFilter();
 
-		$t = new ModerationTestsuite();
 		$filterId = $t->addTagAllAbuseFilter( $this->expectedTags );
 
 		/* Perform the edit as non-automoderated user.
