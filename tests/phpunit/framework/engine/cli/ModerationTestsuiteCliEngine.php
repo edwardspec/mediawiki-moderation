@@ -210,6 +210,11 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 		if ( isset( PHPUnitMaintClass::$additionalOptions['use-normal-tables'] ) ) {
 			$dbw = wfGetDB( DB_MASTER );
 			$this->setMwConfig( 'DBPrefix', $dbw->tablePrefix() );
+
+			// Ensure that cloned 'page_props' table contains the
+			// version number of Moderation during the last update.php,
+			// otherwise Moderation will assume that DB schema is outdated.
+			ModerationVersionCheck::markDbAsUpdated();
 		}
 		else {
 			// If temporary tables were used, then cliInvoked script can't access them.
