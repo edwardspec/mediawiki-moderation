@@ -50,4 +50,7 @@ before_script:
   - php maintenance/update.php --quick
 
 script:
-  - MODERATION_TEST_ENGINE=cli php tests/phpunit/phpunit.php --use-normal-tables extensions/Moderation/
+# First run the smallest test without --reuse-db, so that the cloned database tables are created,
+# then run the remaining testsuite with --reuse-db to save time.
+  - MODERATION_TEST_ENGINE=cli php tests/phpunit/phpunit.php --use-normal-tables extensions/Moderation/tests/phpunit/ModerationPermissionsTest.php
+  - MODERATION_TEST_ENGINE=cli php tests/phpunit/phpunit.php --use-normal-tables --reuse-db extensions/Moderation/
