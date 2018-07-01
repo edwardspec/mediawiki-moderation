@@ -107,25 +107,15 @@ class ModerationTestAbuseFilter extends MediaWikiTestCase
 	}
 
 	private function assertTagsAfterApproval( ModerationTestsuite $t, ModerationTestsuiteEntry $entry, $caller ) {
-
-		$waiter = $t->waitForRecentChangesToAppear();
+		$waiter = $t->waitForRecentChangesToAppear(); // Tags are also added in DeferredUpdates
 		$t->httpGet( $entry->approveLink );
 		$waiter( 1 );
 
-		$ret = $t->query( [
-			'action' => 'query',
-			'list' => 'recentchanges',
-			'rclimit' => 1,
-			'rcprop' => 'tags|user|title'
-		] );
-		$rc = $ret['query']['recentchanges'][0];
-
-		/* Make sure it's a correct change */
-		$this->assertEquals( $t->lastEdit['User'], $rc['user'] );
-		$this->assertEquals( $t->lastEdit['Title'], $rc['title'] );
+		$title = isset( $t->lastEdit['NewTitle'] ) ? $t->lastEdit['NewTitle'] : $t->lastEdit['Title'];
+		$rev = $t->getLastRevision( $title );
 
 		foreach ( $this->expectedTags as $tag ) {
-			$this->assertContains( $tag, $rc['tags'],
+			$this->assertContains( $tag, $rev['tags'],
 				"$caller(): expected tag [$tag] hasn't been assigned to RecentChange"
 			);
 		}
