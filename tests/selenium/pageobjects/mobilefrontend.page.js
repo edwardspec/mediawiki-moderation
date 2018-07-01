@@ -54,20 +54,26 @@ class MobileFrontend extends Page {
 			were completely initialized (so #/editor/ URL wasn't handled).
 		*/
 
-		var self = this;
-		browser.waitUntil( function() {
-			return (
-				self.content.isVisible()
-				||
-				self.editAnonymouslyButton.isVisible()
-			);
+		/* When re-rendering the page without reload,
+			MobileFrontend will sometimes create 2 editor-overlays
+			(one recently added and one stale/invisible).
+			This makes tests very flaky,
+			so we delete all overlays except the last one.
+		*/
+		$( '.editor-overlay' ).waitForVisible();
+		browser.execute( function () {
+			$( '.editor-overlay' ).slice( 0, -1 ).remove();
 		} );
 
-		if ( this.editAnonymouslyButton.isVisible() ) {
-			this.editAnonymouslyButton.click();
-		}
+		var self = this;
+		browser.waitUntil( function() {
+			if ( self.editAnonymouslyButton.isVisible() ) {
+				self.editAnonymouslyButton.click();
+				return false;
+			}
 
-		this.content.waitForVisible();
+			return self.content.isVisible();
+		} );
 	}
 
 	/**
