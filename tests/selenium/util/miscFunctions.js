@@ -5,6 +5,8 @@
 
 'use strict';
 
+var nodeUrl = require( 'url' );
+
 /**
 	@brief Runs from after() section of wdio.conf.js.
 */
@@ -50,5 +52,29 @@ module.exports.install = function( browser ) {
 		} catch( e ) {}
 
 		return ret;
+	};
+
+	/** @brief Select $link by selector. Adds $link.query field to the returned $link */
+	browser.getLink = function( selector ) {
+		var $link = $( selector );
+
+		Object.defineProperty( $link, 'query', {
+			get: function() {
+				var url = nodeUrl.parse( $link.getAttribute( 'href' ), true, true ),
+					query = url.query;
+
+				if ( !query.title ) {
+					/* URL like "/wiki/Cat?action=edit" */
+					var title = url.pathname.split( '/' ).pop();
+					if ( title != 'index.php' ) {
+						query.title = title;
+					}
+				}
+
+				return query;
+			}
+		} );
+
+		return $link;
 	};
 };

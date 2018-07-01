@@ -5,8 +5,6 @@
 
 'use strict';
 
-const nodeUrl = require( 'url' );
-
 class Page {
 	constructor() {
 		this.title = 'My Page';
@@ -56,32 +54,6 @@ class Page {
 		return browser.execute( function() {
 			return mw.user.getId() !== 0;
 		} ).value;
-	}
-
-	/**
-		@brief Select $link by selector. Adds $link.query field to the returned $link.
-	*/
-	getLink( selector ) {
-		var $link = $( selector );
-
-		Object.defineProperty( $link, 'query', {
-			get: function() {
-				var url = nodeUrl.parse( $link.getAttribute( 'href' ), true, true ),
-					query = url.query;
-
-				if ( !query.title ) {
-					/* URL like "/wiki/Cat?action=edit" */
-					var title = url.pathname.split( '/' ).pop();
-					if ( title != 'index.php' ) {
-						query.title = title;
-					}
-				}
-
-				return query;
-			}
-		} );
-
-		return $link;
 	}
 
 	/**
