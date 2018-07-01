@@ -365,16 +365,11 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		@brief Check whether the change is marked as edit conflict.
 	*/
 	protected function assertConflictStatus( ModerationTestsuiteEntry $entry ) {
-		$testcase = $this->getTestcase();
-
-		if ( $this->fields['mod_conflict'] ) {
-			$testcase->assertTrue( $entry->conflict,
-				'Edit conflict not displayed on Special:Moderation' );
-		}
-		else {
-			$testcase->assertFalse( $entry->conflict,
-				'Entry on Special:Moderation was incorrectly marked as edit conflict' );
-		}
+		$this->getTestcase()->assertEquals( [
+			'shown as edit conflict?' => $this->fields['mod_conflict']
+		], [
+			'shown as edit conflict?' => $entry->conflict
+		] );
 	}
 
 	/**
@@ -543,27 +538,23 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		@param $expectedQuery array( key1 => value1, ... )
 	*/
 	protected function assertQueryString( $url, array $expectedQuery ) {
-		$testcase = $this->getTestcase();
-
 		$bits = wfParseUrl( wfExpandUrl( $url ) );
 		$query = wfCgiToArray( $bits['query'] );
 
-		foreach ( $expectedQuery as $key => $value ) {
-			$testcase->assertArrayHasKey( $key, $query,
-				"QueryString of [$url]: no '$key' key" );
-
-			if ( $key == 'token' && $value === null ) {
-				$testcase->assertRegExp( '/[+0-9a-f]+/', $query['token'],
-					"QueryString of [$url]: incorrect format of CSRF token." );
-			}
-			else {
-				$testcase->assertEquals( $expectedQuery[$key], $query[$key],
-					"QueryString of [$url]: incorrect value of '$key'" );
-			}
+		if ( array_key_exists( 'token', $expectedQuery ) &&
+			$expectedQuery['token'] === null
+		) {
+			$this->getTestcase()->assertRegExp( '/[+0-9a-f]+/', $query['token'],
+				"QueryString of [$url]: incorrect format of CSRF token." );
+			$expectedQuery['token'] = $query['token'];
 		}
 
-		$testcase->assertCount( count( $expectedQuery ), $query,
-			"QueryString of [$url]: found more parameters than expected" );
+		asort( $query );
+		asort( $expectedQuery );
+
+		$this->getTestcase()->assertEquals( $expectedQuery, $query,
+			"QueryString of [$url] doesn't match expected"
+		);
 	}
 
 	/**
