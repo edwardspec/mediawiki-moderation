@@ -8,6 +8,11 @@ git:
 notifications:
   email: false
 
+branches:
+  except:
+  - selenium # Don't run PHPUnit testsuite on the branch for developing Selenium tests
+  - REL1_23
+
 services:
   - mysql
   - memcached
