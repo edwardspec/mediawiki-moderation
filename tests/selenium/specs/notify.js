@@ -6,13 +6,16 @@ const expect = require( 'chai' ).expect,
 	PostEdit = require( '../pageobjects/postedit.page' ),
 	CreateAccountPage = require( '../pageobjects/createaccount.page' ),
 	UserLoginPage = require( '../pageobjects/userlogin.page' ),
-	LogoutPage = require( '../pageobjects/logout.page' );
+	LogoutPage = require( '../pageobjects/logout.page' ),
+	Api = require( 'wdio-mediawiki/Api' );
 
 /*
 	Title of MediaWiki page which should be edited during this test.
 */
 var PageName = 'Test' + Math.random(),
 	ExistingPageName = 'ExistingPage' + Math.random(),
+	UserName = 'TestUser' + Math.random(),
+	UserPassword = '123456',
 	subtests = [
 		'desktop',
 		'MobileFrontend'
@@ -46,13 +49,12 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 
 	before( function() {
 		/* Pre-create the article ExistingPageName */
-		UserLoginPage.loginAsModerator();
-		EditPage.edit( ExistingPageName, 'Initial content: something ' + Math.random() );
-		LogoutPage.logout(); /* Logout */
+		return Api.edit( ExistingPageName, 'Initial content: something ' + Math.random() )
+			.then( function() { return Api.createAccount( UserName, UserPassword ); } );
+	} );
 
-		/* Make sure we are logged in */
-		CreateAccountPage.createAccount( 'TestUser' + Math.random(), '123456' );
-
+	before( function() {
+		UserLoginPage.login( UserName, UserPassword );
 		doTestEdit( PageName );
 		PostEdit.init();
 	} );

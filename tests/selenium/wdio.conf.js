@@ -1,9 +1,9 @@
 exports.config = {
-	/* Custom variables specific to Moderation:
-		name/password of MediaWiki user who is both moderator AND automoderated.
+	/*
+	 * NOTE: this MediaWiki user must be BOTH moderator AND automoderated.
 	*/
-	moderatorUser: process.env.MEDIAWIKI_MODERATOR_USER || 'User 1',
-	moderatorPassword: process.env.MEDIAWIKI_MODERATOR_PASSWORD || '123456',
+	username: process.env.MEDIAWIKI_USER || 'User 1',
+	password: process.env.MEDIAWIKI_PASSWORD || '123456',
 
 	before: function() {
 		/* Always open Special:BlankPage before tests */

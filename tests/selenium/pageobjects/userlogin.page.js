@@ -20,13 +20,5 @@ class UserLoginPage extends Page {
 		this.password.setValue( password );
 		this.submitAndWait( this.loginButton );
 	}
-
-	loginAsModerator() {
-		this.login(
-			browser.options.moderatorUser,
-			browser.options.moderatorPassword
-		);
-	}
-
 }
 module.exports = new UserLoginPage();
