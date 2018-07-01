@@ -10,7 +10,7 @@
 
 const expect = require( 'chai' ).expect,
 	MobileFrontend = require( '../../pageobjects/mobilefrontend.page' ),
-	BlankPage = require( '../../pageobjects/blank.page' );
+	BlankPage = require( 'wdio-mediawiki/BlankPage' );
 
 var PageName = 'Test' + Math.random();
 
