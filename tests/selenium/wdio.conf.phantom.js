@@ -1,21 +1,17 @@
 'use strict';
 
-var merge = require( 'deepmerge' ),
-	wdioConf = require( './wdio.conf' );
+var conf = require( './wdio.conf' ).config;
 
 // Overwrite default settings
-exports.config = merge( wdioConf.config, {
-	maxInstances: 1,
+conf.maxInstances = 1;
+conf.capabilities = [ {
+	browserName: 'phantomjs',
+	exclude: [
+		// Unclear whether VisualEditor itself works under PhantomJS.
+		// Not supported yet.
+		'specs/visualeditor.js'
+	]
+} ];
+conf.services = [ 'phantomjs' ];
 
-	capabilities: [
-		{
-			browserName: 'phantomjs',
-			exclude: [
-				// Unclear whether VisualEditor itself works
-				// under PhantomJS. Not supported yet.
-				'specs/visualeditor.js'
-			]},
-	],
-
-	services: ['phantomjs']
-} );
+exports.config = conf;
