@@ -90,6 +90,8 @@
 	"right-moderation": "Bearbeitungen moderieren",
 	"right-skip-moderation": "Moderation von Bearbeitungen umgehen",
 	"right-skip-move-moderation": "Seiten ohne Moderation verschieben",
+	"tag-moderation-merged": "Bearbeitung eines anderen Benutzers zusammengeführt",
+	"tag-moderation-merged-description": "Bearbeitung eines anderen Benutzers (der Moderator hat soeben einen Konflikt in der Bearbeitung gelöst).",
 	"tooltip-moderation-approveall": "Alle Bearbeitungen von diesem Benutzer/dieser IP-Adresse bestätigen",
 	"tooltip-moderation-approve": "Diese einzelne Bearbeitung bestätigen",
 	"tooltip-moderation-approved-diff": "Die bestätigte Bearbeitung ansehen",

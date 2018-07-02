@@ -30,7 +30,10 @@
 	"moderation-reject": "Απόρριψη",
 	"moderation-show": "διαφορά",
 	"right-moderation": "Συντονισμός επεξεργασιών",
+	"tag-moderation-merged": "συγχωνευμένη επεξεργασία άλλου χρήστη",
 	"tooltip-moderation-approve": "Έγκριησ της απλής επεξεργασίας",
+	"tooltip-moderation-approved-diff": "Προβολή της εγκεκριμένης επεξεργασίας",
+	"tooltip-moderation-merged-link": "Προβολή της συγχωνευμένης επεξεργασίας",
 	"tooltip-moderation-reject": "Απόρριψη αυτής της απλής επεξεργασίας",
 	"tooltip-moderation-show": "Προβολή των προτεινόμενων επεξεργασιών"
 }

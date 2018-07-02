@@ -90,6 +90,8 @@
 	"right-moderation": "ניהול עריכות",
 	"right-skip-moderation": "עקיפת מערכת הניהול עבור עריכות המשתמש",
 	"right-skip-move-moderation": "העברת דפים ללא צורך במערכת הניהול",
+	"tag-moderation-merged": "מיזוג עריכה של משתמש אחר",
+	"tag-moderation-merged-description": "עריכה של משתמש אחר (המנהל רק פתר התנגשות עריכה).",
 	"tooltip-moderation-approveall": "אישור כל העריכות של המשתמש הזה או של כתובת ה־IP הזו",
 	"tooltip-moderation-approve": "אישור עריכה זו בלבד",
 	"tooltip-moderation-approved-diff": "צפייה בעריכה שאושרה",
