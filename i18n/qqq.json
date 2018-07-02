@@ -1,7 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"Edward Chernenko"
+			"Edward Chernenko",
+			"Robby"
 		]
 	},
 	"action-moderation": "{{doc-action|moderation}}",
@@ -79,7 +80,7 @@
 	"moderation-rejected-ok": "Success message after Reject/RejectAll.\nParameters: $1 - number of rejected edits.",
 	"moderation-reject": "Text of button to reject ONE change. (on Special:Moderation)",
 	"moderation-revert-not-allowed": "Permissions error when non-automoderated user tries to revert an image to previous version.",
-	"moderation-show": "Text of button to see the diff of the pending change. (on Special:Moderation)",
+	"moderation-show": "Text of button to see the diff of the pending change. (on Special:Moderation)\n{{Identical|Diff}}",
 	"moderation-suggest-signup": "Post-edit recommendation to register (to be able to skip moderation in the future).",
 	"moderation-text": "Text of top of Special:Moderation. Explains the purpose of this page.",
 	"moderation-unblock-fail": "Error message when user couldn't be removed from the list of spammer (probably already removed). Parameters: $1 - plaintext name of user.",
@@ -91,7 +92,7 @@
 	"right-skip-moderation": "{{doc-right|skip-moderation}}\nAllows to bypass moderation when saving an edit.",
 	"right-skip-move-moderation": "{{doc-right|skip-move-moderation}}\nAllows to bypass moderation when renaming a page.",
 	"tag-moderation-merged": "Change tag for non-moderator's edit made from moderator's account (because moderator had to resolve an edit conflict).\n{{Related|tag-moderation-merged-description}}",
-	"tag-moderation-merged-description": "Description for \"moderation-merged\" change tag.\n{{Related|tag-moderation-merged}}",
+	"tag-moderation-merged-description": "Description for \"moderation-merged\" change tag.\n\n'''Note''': \"just\" means \"only\", not \"recently\".",
 	"tooltip-moderation-approveall": "Tooltip for ApproveAll link on Special:Moderation.",
 	"tooltip-moderation-approve": "Tooltip for Approve link on Special:Moderation.",
 	"tooltip-moderation-approved-diff": "Tooltip for diff link in \"edit was approved\" log entries on Special:Log/moderation.",

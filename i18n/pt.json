@@ -90,6 +90,8 @@
 	"right-moderation": "Moderar edições",
 	"right-skip-moderation": "Ter as suas edições não sujeitas a moderação",
 	"right-skip-move-moderation": "Mover páginas sem moderação",
+	"tag-moderation-merged": "edição fundida de outro utilizador",
+	"tag-moderation-merged-description": "Uma edição de outro utilizador (o moderador só resolveu um conflito que existia entre edições).",
 	"tooltip-moderation-approveall": "Aprovar todas as edições deste utilizador ou IP",
 	"tooltip-moderation-approve": "Aprovar só esta edição",
 	"tooltip-moderation-approved-diff": "Ver a edição aprovada",

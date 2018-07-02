@@ -90,6 +90,8 @@
 	"right-moderation": "Модерација на уредувања",
 	"right-skip-moderation": "Уредувањата да заобиколуваат модерација",
 	"right-skip-move-moderation": "Преместување на страници без модерација",
+	"tag-moderation-merged": "споено уредување на друг корисник",
+	"tag-moderation-merged-description": "Уредување на друг корисник (модераторот штотуку реши спротиставеност во него).",
 	"tooltip-moderation-approveall": "Одобри ги сите уредувања на овој корисник/IP",
 	"tooltip-moderation-approve": "Одобри го ова поединечно уредување",
 	"tooltip-moderation-approved-diff": "Прегледај го одобреното уредување",
