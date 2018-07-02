@@ -95,9 +95,11 @@ module.exports.install = function( browser ) {
 
 	/** @brief Returns correct cookie domain (required by PhantomJS) */
 	browser.getCookieDomain = function() {
-		return browser.options.baseUrl
-			.replace( 'http://', '' )
-			.split('/')[0]
-			.replace( /^[^.]+\./, '.' );
+		var host = nodeUrl.parse( browser.options.baseUrl ).hostname;
+		if ( host.match( /\.[0-9]+$/ ) /*&& browser.desiredCapabilities.browserName == 'phantomjs' */ ) {
+			throw new Error( "getCookieDomain(): baseUrl is an IP address, cookies won't work with PhantomJS (it requires a valid CookieDomain)" );
+		}
+
+		return '.' + host; // example.com -> .example.com
 	};
 };
