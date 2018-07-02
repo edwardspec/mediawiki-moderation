@@ -77,4 +77,27 @@ module.exports.install = function( browser ) {
 
 		return $link;
 	};
+
+	/**
+		@brief Enable mobile skin (from Extension:MobileFrontend) for further requests.
+		@note This preference is saved as a cookie. If the cookies are deleted, skin will revert to desktop.
+	*/
+	browser.switchToMobileSkin = function() {
+		browser.setCookie( {
+			name: 'mf_useformat',
+			value: 'true',
+
+			/* domain/path are required by PhantomJS */
+			domain: browser.getCookieDomain(),
+			path: '/'
+		} );
+	};
+
+	/** @brief Returns correct cookie domain (required by PhantomJS) */
+	browser.getCookieDomain = function() {
+		return browser.options.baseUrl
+			.replace( 'http://', '' )
+			.split('/')[0]
+			.replace( /^[^.]+\./, '.' );
+	};
 };

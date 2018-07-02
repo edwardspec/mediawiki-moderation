@@ -41,7 +41,7 @@ class MobileFrontend extends Page {
 		@brief Open MobileFrontend editor for article "name".
 	*/
 	open( name, section = 0 ) {
-		this.switchToMobileSkin();
+		browser.switchToMobileSkin();
 
 		/* Make sure that post-edit redirect of MobileFrontend will take us to the article.
 			Also a workaround against https://github.com/mozilla/geckodriver/issues/790 */

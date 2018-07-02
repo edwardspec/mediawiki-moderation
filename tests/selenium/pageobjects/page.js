@@ -13,14 +13,6 @@ class Page {
 		browser.url( '/wiki/' + path );
 	}
 
-	/**
-		@brief Enable mobile skin (from Extension:MobileFrontend) for further requests.
-		@note This preference is saved as a cookie. If the cookies are deleted, skin will revert to desktop.
-	*/
-	switchToMobileSkin() {
-		browser.setCookie( { name: 'mf_useformat', value: 'true' } );
-	}
-
 	getWhenExists( selector ) {
 		browser.waitForExist( selector );
 		return $( selector );
