@@ -1,37 +1,11 @@
 'use strict';
 
 var merge = require( 'deepmerge' ),
-	wdioConf = require( './wdio.conf' );
+	conf = require( './wdio.conf' ).config;
 
 // Overwrite default settings
-exports.config = merge( wdioConf.config, {
-
-	maxInstances: 5,
-
-	capabilities: [
-		{
-			platform: 'Windows 10',
-			browserName: 'MicrosoftEdge',
-			version: '14.14393'
-		},
-		{
-			platform: 'Windows 8.1',
-			browserName: 'internet explorer',
-			version: '11.0'
-		},
-		{
-			platform: 'macOS 10.13',
-			browserName: 'safari',
-			version: '11.1',
-			exclude: [
-				// SafariDriver doesn't support sendKeys() to contenteditable,
-				// so we can't test VisualEditor in it
-				'specs/visualeditor.js'
-			]
-		},
-		{ browserName: 'chrome', version: 'latest' },
-		{ browserName: 'firefox', version: 'latest' }
-	],
+conf = merge( conf, {
+	maxInstances: 1,
 
 	services: [ 'sauce' ],
 	user: process.env.SAUCE_USERNAME || '',
@@ -42,5 +16,31 @@ exports.config = merge( wdioConf.config, {
 	mochaOpts: {
 		timeout: 180000
 	}
-
 } );
+
+conf.capabilities = [
+	{
+		platform: 'Windows 10',
+		browserName: 'MicrosoftEdge',
+		version: '14.14393'
+	},
+	{
+		platform: 'Windows 8.1',
+		browserName: 'internet explorer',
+		version: '11.0'
+	},
+	{
+		platform: 'macOS 10.13',
+		browserName: 'safari',
+		version: '11.1',
+		exclude: [
+			// SafariDriver doesn't support sendKeys() to contenteditable,
+			// so we can't test VisualEditor in it
+			'specs/visualeditor.js'
+		]
+	},
+	{ browserName: 'chrome', version: 'latest' },
+	{ browserName: 'firefox', version: 'latest' }
+];
+
+exports.config = conf;
