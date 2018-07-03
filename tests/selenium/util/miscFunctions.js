@@ -83,23 +83,6 @@ module.exports.install = function( browser ) {
 		@note This preference is saved as a cookie. If the cookies are deleted, skin will revert to desktop.
 	*/
 	browser.switchToMobileSkin = function() {
-		browser.setCookie( {
-			name: 'mf_useformat',
-			value: 'true',
-
-			/* domain/path are required by PhantomJS */
-			domain: browser.getCookieDomain(),
-			path: '/'
-		} );
-	};
-
-	/** @brief Returns correct cookie domain (required by PhantomJS) */
-	browser.getCookieDomain = function() {
-		var host = nodeUrl.parse( browser.options.baseUrl ).hostname;
-		if ( host.match( /\.[0-9]+$/ ) /*&& browser.desiredCapabilities.browserName == 'phantomjs' */ ) {
-			throw new Error( "getCookieDomain(): baseUrl is an IP address, cookies won't work with PhantomJS (it requires a valid CookieDomain)" );
-		}
-
-		return '.' + host; // example.com -> .example.com
+		browser.setCookie( { name: 'mf_useformat', value: 'true' } );
 	};
 };
