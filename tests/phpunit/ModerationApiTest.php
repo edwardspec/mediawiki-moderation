@@ -37,6 +37,7 @@ class ModerationTestApi extends MediaWikiTestCase
 				[ "rejectall", { "moderation": { "rejected-count":1 } } ]
 				[ "block", { "moderation": {"action": "block", "username": "{{AUTHOR}}", "success": "" } } ]
 				[ "unblock", { "moderation": {"action": "unblock", "username": "{{AUTHOR}}" } } ]
+				[ "show", { "moderation": { "diff-html": "{{DIFF}}", "title": "{{TITLE}}" } } ]
 	*/
 	public function testModerationApi( $action, array $expectedResult ) {
 		/* Prepare a fake moderation entry */
@@ -46,8 +47,8 @@ class ModerationTestApi extends MediaWikiTestCase
 		/* Replace {{ID}} and {{AUTHOR}} in $expectedResult */
 		$expectedResult = FormatJson::decode(
 			str_replace(
-				[ '{{ID}}', '{{AUTHOR}}' ],
-				[ $entry->id, $entry->user ],
+				[ '{{ID}}', '{{AUTHOR}}', '{{TITLE}}' ],
+				[ $entry->id, $entry->user, $entry->title ],
 				FormatJson::encode( $expectedResult )
 			),
 			true
@@ -59,6 +60,13 @@ class ModerationTestApi extends MediaWikiTestCase
 			'modaction' => $action,
 			'token' => null
 		] );
+
+		if ( $action == 'show' && isset( $ret['moderation']['diff-html'] ) ) {
+			/* Correctness of diff is already checked in ModerationShowTest,
+				we don't want to duplicate the same check.
+			*/
+			$ret['moderation']['diff-html'] = '{{DIFF}}';
+		}
 
 		$this->assertEquals( $ret, $expectedResult );
 	}
