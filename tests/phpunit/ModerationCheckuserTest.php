@@ -39,6 +39,8 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 
 		$this->assertNull( $entry->ip,
 			"testModerationCheckuser(): IP was shown to non-checkuser on Special:Moderation" );
+		$this->assertNull( $this->getIpFromApi( $t ),
+			"testModerationCheckuser(): API exposed IP to non-checkuser" );
 
 		$t->moderator = $t->moderatorAndCheckuser;
 
@@ -50,6 +52,28 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 			"testModerationCheckuser(): IP wasn't shown to checkuser on Special:Moderation" );
 		$this->assertEquals( "127.0.0.1", $entry->ip,
 			"testModerationCheckuser(): incorrect IP on Special:Moderation" );
+
+		$ip = $this->getIpFromApi( $t );
+		$this->assertNotNull( $ip,
+			"testModerationCheckuser(): API didn't show IP to checkuser" );
+		$this->assertEquals( "127.0.0.1", $ip,
+			"testModerationCheckuser(): incorrect IP shown via API" );
+	}
+
+	/**
+		@brief Returns mod_ip of the last edit, as provided to the current user by QueryPage API.
+		@retval null IP is not in the API response.
+	*/
+	protected function getIpFromApi( ModerationTestsuite $t ) {
+		$ret = $t->query( [
+			'action' => 'query',
+			'list' => 'querypage',
+			'qppage' => 'Moderation',
+			'qplimit' => 1
+		] );
+
+		$row = $ret['query']['querypage']['results'][0]['databaseResult'];
+		return isset( $row['ip'] ) ? $row['ip'] : null;
 	}
 
 	/**

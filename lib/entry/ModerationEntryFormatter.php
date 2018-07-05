@@ -106,7 +106,6 @@ class ModerationEntryFormatter extends ModerationEntry {
 			'mod_minor AS minor',
 			'mod_bot AS bot',
 			'mod_new AS new',
-			'mod_ip AS ip',
 			'mod_old_len AS old_len',
 			'mod_new_len AS new_len',
 			'mod_rejected AS rejected',
@@ -118,6 +117,10 @@ class ModerationEntryFormatter extends ModerationEntry {
 			'mod_merged_revid AS merged_revid',
 			'mb_id AS blocked'
 		];
+
+		if ( RequestContext::getMain()->getUser()->isAllowed( 'moderation-checkuser' ) ) {
+			$fields[] = 'mod_ip AS ip';
+		}
 
 		if ( ModerationVersionCheck::hasModType() ) {
 			$fields = array_merge( $fields, [
@@ -192,9 +195,17 @@ class ModerationEntryFormatter extends ModerationEntry {
 		$line .= ' . . ';
 		$line .= Linker::userLink( $row->user, $row->user_text );
 
-		if ( $row->user_text == $row->ip || $this->getModerator()->isAllowed( 'moderation-checkuser' ) ) {
+		$ip = null;
+		if ( isset( $row->ip ) ) {
+			$ip = $row->ip;
+		}
+		elseif ( $row->user == 0 && IP::isValid( $row->user_text ) ) {
+			$ip = $row->user_text;
+		}
+
+		if ( $ip ) {
 			/* Add Whois link to this IP. */
-			$url = wfMessage( 'moderation-whois-link-url', $row->ip )->plain();
+			$url = wfMessage( 'moderation-whois-link-url', $ip )->plain();
 			$text = wfMessage( 'moderation-whois-link-text' )->plain();
 
 			$link = Linker::makeExternalLink( $url, $text );

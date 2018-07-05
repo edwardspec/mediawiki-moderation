@@ -129,4 +129,12 @@ class ModerationApiHooks {
 		/* Let ApiEdit handle the rest */
 		return true;
 	}
+
+	/**
+		@brief Adds qppage=Moderation to api.php?action=query&list=querypage.
+	*/
+	public static function onwgQueryPages( &$wgQueryPages ) {
+		$wgQueryPages[] = [ SpecialModeration::class, 'Moderation' ];
+		return true;
+	}
 }
