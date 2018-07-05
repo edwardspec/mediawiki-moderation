@@ -8,6 +8,11 @@ const Page = require( './page' );
 
 class PostEdit extends Page {
 	get notification() { return $( '.postedit, .mw-notification' ); }
+
+	get isMobile() {
+		return !( browser.isExisting( '.postedit' ) );
+	}
+
 	get pendingIcon() { return $( '#pending-review' ); }
 	get editLink() { return browser.getLink( 'a=your version of this page' ); }
 	get signupLink() { return browser.getLink( 'a=sign up' ); }
@@ -22,7 +27,17 @@ class PostEdit extends Page {
 
 	/** @brief Wait for postedit notification to appear */
 	init() {
-		this.notification.waitForExist();
+		this.notification.waitForVisible();
+
+		if ( this.isMobile ) {
+			/* Mobile version has a rolling animation which may become isVisible()
+				before some of its contents (leading to flaky tests when
+				checking signupLink.isVisible, etc.).
+				Thus we must wait for CSS class which is added after the animation.
+			*/
+			browser.waitForExist( '.mw-notification-visible' );
+		}
+
 		this.inittime = new Date().getTime(); /* Used in waitUsualFadeTime() */
 	}
 
