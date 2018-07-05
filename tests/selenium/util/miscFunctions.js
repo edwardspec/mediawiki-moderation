@@ -5,7 +5,10 @@
 
 'use strict';
 
-var nodeUrl = require( 'url' );
+var nodeUrl = require( 'url' ),
+	request = require( 'request' ),
+	MWBot = require( 'mwbot' );
+
 
 /**
 	@brief Runs from after() section of wdio.conf.js.
@@ -52,6 +55,50 @@ module.exports.install = function( browser ) {
 		} catch( e ) {}
 
 		return ret;
+	};
+
+	/**
+		@brief Creates new account and logins into it via API.
+		@returns Promise
+	*/
+	browser.loginIntoNewAccount = function() {
+		var username = 'Test User ' + Date.now() + ' ' + Math.random(),
+			password = '123456';
+
+		/* Because API is executed directly by the test (not in the browser
+			controlled by Selenium), we need to obtain the login cookies
+			from API and feed them to the browser.
+		*/
+		var cookieJar = request.jar();
+		var bot = new MWBot( {
+			apiUrl: `${browser.options.baseUrl}/api.php`,
+			verbose: true
+		}, { jar: cookieJar } );
+
+		return bot.getCreateaccountToken().then( function () {
+			// Create the new account. Note: this does NOT login.
+			return bot.request( {
+				action: 'createaccount',
+				createreturnurl: browser.options.baseUrl,
+				createtoken: bot.createaccountToken,
+				username: username,
+				password: password,
+				retype: password
+			} );
+		} ).then( function () {
+			return bot.login( {
+				username: username,
+				password: password
+			} );
+		} ).then( function ( ret ) {
+			for ( var cookie of cookieJar._jar.toJSON().cookies ) {
+				// Feed these cookies to Selenium-controlled browser
+				browser.setCookie( {
+					name: cookie.key,
+					value: cookie.value
+				} );
+			}
+		} );
 	};
 
 	/** @brief Select $link by selector. Adds $link.query field to the returned $link */

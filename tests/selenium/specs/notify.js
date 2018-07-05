@@ -4,8 +4,6 @@ const expect = require( 'chai' ).expect,
 	EditPage = require( '../pageobjects/edit.page' ),
 	MobileFrontend = require( '../pageobjects/mobilefrontend.page' ),
 	PostEdit = require( '../pageobjects/postedit.page' ),
-	CreateAccountPage = require( '../pageobjects/createaccount.page' ),
-	UserLoginPage = require( '../pageobjects/userlogin.page' ),
 	LogoutPage = require( '../pageobjects/logout.page' ),
 	Api = require( 'wdio-mediawiki/Api' );
 
@@ -14,8 +12,6 @@ const expect = require( 'chai' ).expect,
 */
 var PageName = 'Test' + Math.random(),
 	ExistingPageName = 'ExistingPage' + Math.random(),
-	UserName = 'TestUser' + Math.random(),
-	UserPassword = '123456',
 	subtests = [
 		'desktop',
 		'MobileFrontend'
@@ -49,12 +45,12 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 
 	before( function() {
 		/* Pre-create the article ExistingPageName */
-		return Api.edit( ExistingPageName, 'Initial content: something ' + Math.random() )
-			.then( function() { return Api.createAccount( UserName, UserPassword ); } );
+		return Api.edit( ExistingPageName, 'Initial content: something ' + Math.random() ).then( function() {
+			return browser.loginIntoNewAccount();
+		} );
 	} );
 
 	before( function() {
-		UserLoginPage.login( UserName, UserPassword );
 		doTestEdit( PageName );
 		PostEdit.init();
 	} );
@@ -96,7 +92,6 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 	} );
 
 	it ( 'shouldn\'t contain "sign up" link if the user is logged in', function() {
-
 		expect( PostEdit.signupLink.isVisible(), 'signupLink.isVisible' ).to.be.false;
 	} );
 
