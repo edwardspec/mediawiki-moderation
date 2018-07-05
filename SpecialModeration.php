@@ -160,7 +160,8 @@ class SpecialModeration extends QueryPage {
 				'conds' => $conds,
 				'options' => [ 'USE INDEX' => [
 					'moderation' => $index
-				] ]
+				] ],
+				'fields' => [ 'mod_id AS value' ] // Expected by ApiQueryQueryPage
 			]
 		);
 	}
