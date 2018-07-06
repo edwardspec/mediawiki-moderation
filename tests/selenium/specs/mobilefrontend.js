@@ -3,7 +3,8 @@
 const expect = require( 'chai' ).expect,
 	MobileFrontend = require( '../pageobjects/mobilefrontend.page' ),
 	PostEdit = require( '../pageobjects/postedit.page' ),
-	CreateAccountPage = require( '../pageobjects/createaccount.page' );
+	CreateAccountPage = require( '../pageobjects/createaccount.page' ),
+	BlankPage = require( 'wdio-mediawiki/BlankPage' );
 
 /*
 	Title of MediaWiki page which should be edited during this test.
@@ -34,7 +35,7 @@ describe( 'MobileFrontend', function () {
 	} );
 
 	it( 'should show pending edit when opening the edit form', function () {
-		browser.refresh(); /* Make sure old MobileFrontend form isn't still in the DOM */
+		BlankPage.open(); /* Make sure old MobileFrontend form isn't still in the DOM */
 		MobileFrontend.open( PageName, 0 );
 
 		MobileFrontend.content.waitForValue();
@@ -57,8 +58,8 @@ describe( 'MobileFrontend', function () {
 		/* Prepare the page with several sections */
 		MobileFrontend.edit( PageName, 0, Sections.join( "\n\n" ) );
 
-		PostEdit.init(); /* Make sure the page has loaded before we go doing refresh() and MobileFrontend.open() */
-		browser.refresh(); /* Make sure old MobileFrontend form isn't still in the DOM */
+		PostEdit.init(); /* Wait for the page to be loaded before we go with MobileFrontend.open() */
+		BlankPage.open(); /* Make sure old MobileFrontend form isn't still in the DOM */
 
 		/* Test preloading of a single section into MobileFrontend */
 		for ( var sectionIdx = 0; sectionIdx < Sections.length; sectionIdx ++ ) {
