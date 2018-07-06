@@ -91,13 +91,17 @@ module.exports.install = function( browser ) {
 				password: password
 			} );
 		} ).then( function ( ret ) {
+			var setCookiePromises = [];
+
 			for ( var cookie of cookieJar._jar.toJSON().cookies ) {
 				// Feed these cookies to Selenium-controlled browser
-				browser.setCookie( {
+				setCookiePromises.push( browser.setCookie( {
 					name: cookie.key,
 					value: cookie.value
-				} );
+				} ) );
 			}
+
+			return Promise.all( setCookiePromises );
 		} );
 	};
 
