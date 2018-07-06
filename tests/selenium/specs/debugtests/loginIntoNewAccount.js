@@ -6,7 +6,7 @@ const expect = require( 'chai' ).expect,
 describe( 'Utility function browser.loginIntoNewAccount()', function () {
 
 	before( function() {
-		return browser.loginIntoNewAccount();
+		browser.loginIntoNewAccount();
 	} );
 
 	it( 'should add login cookies to the Selenium-controlled browser', function () {

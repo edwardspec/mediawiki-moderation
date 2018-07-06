@@ -75,30 +75,27 @@ module.exports.install = function( browser ) {
 			verbose: true
 		}, { jar: cookieJar } );
 
-		return bot.getCreateaccountToken().then( function () {
-			// Create the new account. Note: this does NOT login.
-			return bot.request( {
+		browser.call( () => bot.getCreateaccountToken()
+			.then( () => bot.request( {
+				// Create the new account. Note: this alone does NOT login.
 				action: 'createaccount',
 				createreturnurl: browser.options.baseUrl,
 				createtoken: bot.createaccountToken,
 				username: username,
 				password: password,
 				retype: password
-			} );
-		} ).then( function () {
-			return bot.login( {
+			} ).then( () => bot.login( {
 				username: username,
 				password: password
+			} ) ) ) );
+
+		for ( var cookie of cookieJar._jar.toJSON().cookies ) {
+			// Feed these login cookies to Selenium-controlled browser
+			browser.setCookie( {
+				name: cookie.key,
+				value: cookie.value
 			} );
-		} ).then( function ( ret ) {
-			return Promise.all( cookieJar._jar.toJSON().cookies.map( function( cookie ) {
-				// Feed these cookies to Selenium-controlled browser
-				return browser.setCookie( {
-					name: cookie.key,
-					value: cookie.value
-				} );
-			} ) );
-		} );
+		}
 	};
 
 	/** @brief Select $link by selector. Adds $link.query field to the returned $link */

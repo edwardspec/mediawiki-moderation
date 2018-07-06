@@ -45,12 +45,11 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 
 	before( function() {
 		/* Pre-create the article ExistingPageName */
-		return Api.edit( ExistingPageName, 'Initial content: something ' + Math.random() ).then( function() {
-			return browser.loginIntoNewAccount();
-		} );
+		return Api.edit( ExistingPageName, 'Initial content: something ' + Math.random() );
 	} );
 
 	before( function() {
+		browser.loginIntoNewAccount();
 		doTestEdit( PageName );
 		PostEdit.init();
 	} );
