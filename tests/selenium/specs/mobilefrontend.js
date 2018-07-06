@@ -8,13 +8,13 @@ const expect = require( 'chai' ).expect,
 /*
 	Title of MediaWiki page which should be edited during this test.
 */
-var PageName = 'Test' + Math.random(),
-	Content = Date.now() + ' ' + Math.random(),
-	Summary = 'funny change #' + Math.random(),
+var PageName = 'Test ' + browser.getTestString(),
+	Content = browser.getTestString(),
+	Summary = 'funny change #' + browser.getTestString(),
 	Sections = [
-		'Beginning of the article ' + Date.now(),
-		"== Header 1 ==\n" + Math.random(),
-		"== Header 2 ==\n" + Math.random()
+		'Beginning of the article ' + browser.getTestString(),
+		"== Header 1 ==\n" + browser.getTestString(),
+		"== Header 2 ==\n" + browser.getTestString()
 	];
 
 describe( 'MobileFrontend', function () {

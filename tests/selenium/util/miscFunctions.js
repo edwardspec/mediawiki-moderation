@@ -58,6 +58,13 @@ module.exports.install = function( browser ) {
 	};
 
 	/**
+		@brief Returns random string which is unlikely to be the same in two different tests.
+	*/
+	browser.getTestString = function () {
+		return Date.now() + ' ' + Math.random();
+	};
+
+	/**
 		@brief Creates new account and logins into it via API.
 		@returns Promise
 	*/

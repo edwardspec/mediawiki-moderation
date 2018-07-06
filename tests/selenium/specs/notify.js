@@ -10,20 +10,20 @@ const expect = require( 'chai' ).expect,
 /*
 	Title of MediaWiki page which should be edited during this test.
 */
-var PageName = 'Test' + Math.random(),
-	ExistingPageName = 'ExistingPage' + Math.random(),
+var PageName = 'Test ' + browser.getTestString(),
+	ExistingPageName = 'ExistingPage ' + browser.getTestString(),
 	subtests = [
 		[ 'desktop', function ( title ) {
 			EditPage.edit(
 				title,
-				Date.now() + ' ' + Math.random() + "\n"
+				browser.getTestString()
 			);
 		} ],
 		[ 'MobileFrontend', function ( title ) {
 			MobileFrontend.edit(
 				title,
 				0,
-				Date.now() + ' ' + Math.random() + "\n"
+				browser.getTestString()
 			);
 		} ]
 	];
@@ -32,7 +32,7 @@ describe( 'Postedit notification', function () {
 
 	before( function() {
 		/* Pre-create the article ExistingPageName */
-		return Api.edit( ExistingPageName, 'Initial content: something ' + Math.random() );
+		return Api.edit( ExistingPageName, 'Initial content ' + browser.getTestString() );
 	} );
 
 	/* Run the same tests for desktop and mobile view */
@@ -77,7 +77,7 @@ describe( 'Postedit notification', function () {
 		expect( PostEdit.editLink.isVisible(), 'editLink.isVisible' ).to.be.true;
 
 		expect( PostEdit.editLink.query.title, 'editLink.query.title' )
-			.to.equal( PageName );
+			.to.equal( PageName.replace( / /g, '_' ) );
 		expect( PostEdit.editLink.query.action, 'editLink.query.action' )
 			.to.equal( 'edit' );
 	} );

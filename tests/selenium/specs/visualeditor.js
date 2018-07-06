@@ -10,9 +10,9 @@ const expect = require( 'chai' ).expect,
 /*
 	Title of MediaWiki page which should be edited during this test.
 */
-var PageName = 'Test' + Math.random(),
-	Content = Date.now() + ' ' + Math.random(),
-	Summary = 'funny change #' + Math.random();
+var PageName = 'Test ' + browser.getTestString(),
+	Content = browser.getTestString(),
+	Summary = 'funny change #' + browser.getTestString();
 
 describe( 'VisualEditor', function () {
 
