@@ -52,7 +52,10 @@ class BenchmarkApproveEdit extends ModerationBenchmark {
 			'token' => $this->getUser()->getEditToken()
 		] );
 
-		assert( strpos( $html, '(moderation-approved-ok: 1)' ) !== false );
+		Wikimedia\Assert\Assert::postcondition(
+			( strpos( $html, '(moderation-approved-ok: 1)' ) !== false ),
+			'Approve failed'
+		);
 	}
 }
 

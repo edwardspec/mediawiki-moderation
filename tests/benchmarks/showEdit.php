@@ -52,7 +52,10 @@ class BenchmarkShowEdit extends ModerationBenchmark {
 			'modid' => $this->id
 		] );
 
-		assert( strpos( $html, 'Text before</del>' ) !== false );
+		Wikimedia\Assert\Assert::postcondition(
+			( strpos( $html, 'Text before</del>' ) !== false ),
+			'Unexpected output from modaction=show'
+		);
 	}
 }
 

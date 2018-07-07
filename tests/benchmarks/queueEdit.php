@@ -33,7 +33,10 @@ class BenchmarkQueueEdit extends ModerationBenchmark {
 			'Test summary ' . $i
 		);
 
-		assert( $status->getMessage()->getKey() == 'moderation-edit-queued' );
+		Wikimedia\Assert\Assert::postcondition(
+			( $status->getMessage()->getKey() == 'moderation-edit-queued' ),
+			'Edit not queued'
+		);
 	}
 }
 

@@ -49,7 +49,10 @@ class BenchmarkQueueMove extends ModerationBenchmark {
 		);
 		$status = $mp->checkPermissions( $this->getUser(), 'Reason for moving #' . $i );
 
-		assert( $status->getMessage()->getKey() == 'moderation-move-queued' );
+		Wikimedia\Assert\Assert::postcondition(
+			( $status->getMessage()->getKey() == 'moderation-move-queued' ),
+			'Move not queued'
+		);
 	}
 }
 

@@ -78,7 +78,10 @@ class BenchmarkApproveAll extends ModerationBenchmark {
 
 		DeferredUpdates::doUpdates( 'run' );
 
-		assert( strpos( $html, '(moderation-approved-ok: ' . $this->getEditsPerUser() . ')' ) !== false );
+		Wikimedia\Assert\Assert::postcondition(
+			( strpos( $html, '(moderation-approved-ok: ' . $this->getEditsPerUser() . ')' ) !== false ),
+			'ApproveAll failed'
+		);
 	}
 }
 
