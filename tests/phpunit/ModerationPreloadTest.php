@@ -68,7 +68,8 @@ class ModerationPreloadTest extends MediaWikiTestCase {
 		$username = 'FinallyLoggedIn';
 		$user = $t->createAccount( $username );
 		if ( !$user ) {
-			$this->markTestIncomplete( 'testAnonymousPreload(): Failed to create account, most likely captcha is enabled.' );
+			$this->markTestIncomplete( 'testAnonymousPreload(): Failed to create account, ".
+				"most likely the captcha is enabled.' );
 		};
 
 		$t->loginAs( $user );
@@ -171,6 +172,7 @@ class ModerationPreloadTest extends MediaWikiTestCase {
 		$this->assertNotNull( $elem,
 			"$caller(): #mw-editing-your-version not found" );
 		$this->assertEquals( '(moderation-editing-your-version)', $elem->textContent,
-			"$caller(): #mw-editing-your-version doesn't contain (moderation-editing-your-version) message" );
+			"$caller(): #mw-editing-your-version doesn't contain " .
+			"(moderation-editing-your-version) message" );
 	}
 }

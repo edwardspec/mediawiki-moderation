@@ -31,7 +31,8 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
  */
 class ModerationRollbackResistantQueryTest extends MediaWikiTestCase {
 	public function getRandomTitle() {
-		return Title::newFromText( 'RandomPage_' . wfTimestampNow() . '_' . MWCryptRand::generateHex( 32 ) );
+		$pageName = 'RandomPage_' . wfTimestampNow() . '_' . MWCryptRand::generateHex( 32 );
+		return Title::newFromText( $pageName );
 	}
 
 	public function getRandomPage() {
@@ -59,14 +60,19 @@ class ModerationRollbackResistantQueryTest extends MediaWikiTestCase {
 			we need to test both situations.
 		*/
 		$sets = [];
-		foreach ( [ true, false ] as $isTrxAutomatic ) { /* with/without DBO_TRX */
-			foreach ( [ true, false ] as $isExplicitTransaction ) { /* with/without begin() before doEditContent() */
+
+		// with/without DBO_TRX
+		foreach ( [ true, false ] as $isTrxAutomatic ) {
+
+			// with/without begin() before doEditContent()
+			foreach ( [ true, false ] as $isExplicitTransaction ) {
 				if ( $is1_31 && $isTrxAutomatic && $isExplicitTransaction ) {
-					/* In MediaWiki 1.31+, $dbw->begin() is not allowed in DBO_TRX mode */
+					// In MediaWiki 1.31+, $dbw->begin() is not allowed in DBO_TRX mode
 					continue;
 				}
 
-				foreach ( [ true, false ] as $isAtomic ) { /* with/without startAtomic() before doEditContent() */
+				// with/without startAtomic() before doEditContent()
+				foreach ( [ true, false ] as $isAtomic ) {
 					$sets[] = [
 						$isTrxAutomatic,
 						$isExplicitTransaction,
@@ -150,7 +156,9 @@ class ModerationRollbackResistantQueryTest extends MediaWikiTestCase {
 			],
 			__METHOD__
 		);
-		$this->assertNotFalse( $wasCreated, "testRollbackResistantQuery(): newly added row is not in the 'moderation' table after MWException" );
+		$this->assertNotFalse( $wasCreated,
+			"testRollbackResistantQuery(): newly added row is not in the 'moderation' table " .
+			"after MWException" );
 
 		/* Restore DBO_TRX to its value before the test */
 		$this->setTrxFlag( $dbw, $previousTrxFlagValue );

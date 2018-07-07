@@ -40,7 +40,8 @@ function efModerationTestsuiteMockedHeader( $string, $replace = true, $http_resp
 function efModerationTestsuiteSetup() {
 	global $wgModerationTestsuiteCliDescriptor, $wgRequest, $wgHooks, $wgAutoloadClasses;
 
-	$wgAutoloadClasses['ModerationTestsuiteCliApiMain'] = __DIR__ . '/ModerationTestsuiteCliApiMain.php';
+	$wgAutoloadClasses['ModerationTestsuiteCliApiMain'] =
+		__DIR__ . '/ModerationTestsuiteCliApiMain.php';
 
 	/*
 		Override $wgRequest. It must be a FauxRequest

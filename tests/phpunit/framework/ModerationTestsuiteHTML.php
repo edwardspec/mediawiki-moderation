@@ -22,11 +22,17 @@
 
 class ModerationTestsuiteHTML extends DOMDocument {
 
-	/** @brief Libxml error code for "unknown tag", see http://www.xmlsoft.org/html/libxml-xmlerror.html */
+	/**
+	 * @const Libxml error code for "unknown tag"
+	 * @see http://www.xmlsoft.org/html/libxml-xmlerror.html
+	 */
 	const XML_HTML_UNKNOWN_TAG = 801;
+
+	/** @const Libxml error code for "tag name mismatch" */
 	const XML_ERR_TAG_NAME_MISMATCH = 76;
 
-	protected $engine; # ModerationTestsuiteEngine object
+	/** @var ModerationTestsuiteEngine */
+	protected $engine;
 
 	function __construct( ModerationTestsuiteEngine $engine ) {
 		$this->engine = $engine;

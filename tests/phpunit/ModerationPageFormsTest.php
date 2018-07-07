@@ -69,7 +69,8 @@ class ModerationPageFormsTest extends MediaWikiTestCase {
 		] ) );
 		$inputs = $html->getElementsByXPath( '//form[@id="pfForm"]//textarea' );
 		$this->assertCount( count( $sections ), $inputs,
-			'testPageFormsPreload(): this test is outdated (haven\'t found expected fields on Special:EditForm)'
+			'testPageFormsPreload(): this test is outdated (haven\'t found expected ' .
+			'fields on Special:EditForm)'
 		);
 
 		$idx = 0;

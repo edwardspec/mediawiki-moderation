@@ -56,7 +56,12 @@ class BenchmarkApproveAll extends ModerationBenchmark {
 
 			$modid = false;
 			for ( $j = 0; $j < $editsPerUser; $j ++ ) {
-				$modid = $this->fastQueue( $this->getTestTitle( $i + $j * $numberOfUsers ), 'Whatever', '', $user );
+				$modid = $this->fastQueue(
+					$this->getTestTitle( $i + $j * $numberOfUsers ),
+					'Whatever',
+					'',
+					$user
+				);
 			}
 
 			$this->ids[$i] = $modid; /* Only one mod_id per User */
@@ -66,16 +71,18 @@ class BenchmarkApproveAll extends ModerationBenchmark {
 	}
 
 	public function doActualWork( $i ) {
+		// Prevent DeferredUpdates::tryOpportunisticExecute() from running updates immediately
 		global $wgCommandLineMode;
+		$wgCommandLineMode = false;
 
-		$wgCommandLineMode = false; /* Prevent DeferredUpdates::tryOpportunisticExecute() from running updates immediately */
 		$html = $this->runSpecialModeration( [
 			'modaction' => 'approveall',
 			'modid' => $this->ids[$i],
 			'token' => $this->getUser()->getEditToken()
 		] );
-		$wgCommandLineMode = true;
 
+		// Run the DeferredUpdates
+		$wgCommandLineMode = true;
 		DeferredUpdates::doUpdates( 'run' );
 
 		Wikimedia\Assert\Assert::postcondition(

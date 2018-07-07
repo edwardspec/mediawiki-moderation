@@ -41,7 +41,8 @@ class ModerationPreviewTest extends MediaWikiTestCase {
 
 		$entry = $t->new_entries[0];
 		$this->assertNull( $entry->previewLink,
-			"testPreview(): Preview link was mistakenly shown (this link must be hidden in default configuration)" );
+			"testPreview(): Preview link was mistakenly shown " .
+			"(this link must be hidden in default configuration)" );
 
 		$url = $entry->expectedActionLink( 'preview', false );
 		$title = $t->html->getTitle( $url );

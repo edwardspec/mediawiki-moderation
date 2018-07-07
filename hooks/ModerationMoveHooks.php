@@ -25,7 +25,13 @@ class ModerationMoveHooks {
 	/**
 	 * @brief Intercept attempts to rename pages and queue them for moderation.
 	 */
-	public static function onMovePageCheckPermissions( Title $oldTitle, Title $newTitle, User $user, $reason, Status $status ) {
+	public static function onMovePageCheckPermissions(
+		Title $oldTitle,
+		Title $newTitle,
+		User $user,
+		$reason,
+		Status $status
+	) {
 		if ( !$status->isOK() ) {
 			// $user is not allowed to move ($status is already fatal)
 			return true;
@@ -47,7 +53,9 @@ class ModerationMoveHooks {
 		}
 
 		$globalTitle = RequestContext::getMain()->getTitle();
-		if ( $globalTitle && $globalTitle->isSpecial( 'Movepage' ) && !$user->getRequest()->wasPosted() ) {
+		if ( $globalTitle && $globalTitle->isSpecial( 'Movepage' ) &&
+			!$user->getRequest()->wasPosted()
+		) {
 			/* Special:MovePage can call MovePageCheckPermissions hook
 				while still in showForm(), before the actual Submit.
 				At this point we don't need to queue the move yet.

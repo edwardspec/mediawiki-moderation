@@ -43,7 +43,8 @@ class ModerationApproveTest extends MediaWikiTestCase {
 		$this->assertCount( 0, $t->new_entries,
 			"testApprove(): Something was added into Pending folder during modaction=approve" );
 		$this->assertCount( 1, $t->deleted_entries,
-			"testApprove(): One edit was approved, but number of deleted entries in Pending folder isn't 1" );
+			"testApprove(): One edit was approved, but number of deleted entries ".
+			"in Pending folder isn't 1" );
 		$this->assertEquals( $entry->id, $t->deleted_entries[0]->id );
 		$this->assertEquals( $t->lastEdit['User'], $t->deleted_entries[0]->user );
 		$this->assertEquals( $t->lastEdit['Title'], $t->deleted_entries[0]->title );
@@ -102,7 +103,8 @@ class ModerationApproveTest extends MediaWikiTestCase {
 		$this->assertCount( 0, $t->new_entries,
 			"testApproveAll(): Something was added into Pending folder during modaction=approveall" );
 		$this->assertCount( $t->TEST_EDITS_COUNT, $t->deleted_entries,
-			"testApproveAll(): Several edits were approved, but number of deleted entries in Pending folder doesn't match" );
+			"testApproveAll(): Several edits were approved, but number of deleted entries " .
+			"in Pending folder doesn't match" );
 
 		foreach ( $entries as $entry ) {
 			$rev = $t->getLastRevision( $entry->title );
@@ -115,7 +117,8 @@ class ModerationApproveTest extends MediaWikiTestCase {
 
 		$events = $t->apiLogEntries();
 		$this->assertCount( 1 + $t->TEST_EDITS_COUNT, $events,
-			"testApproveAll(): Number of log entries doesn't match the number of approved edits PLUS ONE (log entry for ApproveAll itself)." );
+			"testApproveAll(): Number of log entries doesn't match the number of " .
+			"approved edits PLUS ONE (log entry for ApproveAll itself)." );
 
 		# Per design, 'approveall' entry MUST be the most recent.
 		$le = array_shift( $events );
@@ -163,9 +166,11 @@ class ModerationApproveTest extends MediaWikiTestCase {
 		$t->fetchSpecial( 'rejected' );
 
 		$this->assertCount( 0, $t->new_entries,
-			"testApproveAllNotRejected(): Something was added into Rejected folder during modaction=approveall" );
+			"testApproveAllNotRejected(): Something was added into Rejected folder " .
+			"during modaction=approveall" );
 		$this->assertCount( 0, $t->deleted_entries,
-			"testApproveAllNotRejected(): Something was deleted from Rejected folder during modaction=approveall" );
+			"testApproveAllNotRejected(): Something was deleted from Rejected folder " .
+			"during modaction=approveall" );
 	}
 
 	public function testApproveRejected() {
@@ -188,7 +193,8 @@ class ModerationApproveTest extends MediaWikiTestCase {
 		$this->assertCount( 0, $t->new_entries,
 			"testApproveRejected(): Something was added into Rejected folder during modaction=approve" );
 		$this->assertCount( 1, $t->deleted_entries,
-			"testApproveRejected(): One rejected edit was approved, but number of deleted entries in Rejected folder isn't 1" );
+			"testApproveRejected(): One rejected edit was approved, " .
+			"but number of deleted entries in Rejected folder isn't 1" );
 		$this->assertEquals( $entry->id, $t->deleted_entries[0]->id );
 		$this->assertEquals( $t->lastEdit['User'], $t->deleted_entries[0]->user );
 		$this->assertEquals( $t->lastEdit['Title'], $t->deleted_entries[0]->title );
@@ -221,7 +227,8 @@ class ModerationApproveTest extends MediaWikiTestCase {
 
 		$entry = $t->new_entries[0];
 		$this->assertNull( $entry->approveLink,
-			"testApproveNotExpiredRejected(): Approve link found for edit that was rejected more than $wgModerationTimeToOverrideRejection seconds ago" );
+			"testApproveNotExpiredRejected(): Approve link found for edit that was rejected " .
+			"more than $wgModerationTimeToOverrideRejection seconds ago" );
 
 		# Ensure that usual approve URL doesn't work:
 		$error = $t->html->getModerationError( $entry->expectedActionLink( 'approve' ) );
@@ -239,7 +246,8 @@ class ModerationApproveTest extends MediaWikiTestCase {
 
 		$entry = $t->new_entries[0];
 		$this->assertNotNull( $entry->approveLink,
-			"testApproveNotExpiredRejected(): Approve link is missing for edit that was rejected less than $wgModerationTimeToOverrideRejection seconds ago" );
+			"testApproveNotExpiredRejected(): Approve link is missing for edit that was " .
+			"rejected less than $wgModerationTimeToOverrideRejection seconds ago" );
 
 		$this->tryToApprove( $t, $entry, __FUNCTION__ );
 	}
@@ -266,9 +274,11 @@ class ModerationApproveTest extends MediaWikiTestCase {
 
 		$entry = $t->new_entries[0];
 		$this->assertCount( 1, $t->new_entries,
-			"testModeratorNotAutomoderated(): One edit was queued for moderation, but number of added entries in Pending folder isn't 1" );
+			"testModeratorNotAutomoderated(): One edit was queued for moderation, " .
+			"but number of added entries in Pending folder isn't 1" );
 		$this->assertCount( 0, $t->deleted_entries,
-			"testModeratorNotAutomoderated(): Something was deleted from Pending folder during the queueing" );
+			"testModeratorNotAutomoderated(): Something was deleted from Pending folder " .
+			"during the queueing" );
 		$this->assertEquals( $t->lastEdit['User'], $entry->user );
 		$this->assertEquals( $t->lastEdit['Title'], $entry->title );
 
@@ -285,9 +295,11 @@ class ModerationApproveTest extends MediaWikiTestCase {
 
 		$t->fetchSpecial();
 		$this->assertCount( 0, $t->new_entries,
-			"testModeratorNotAutomoderated(): Something was added into Pending folder during modaction=approveall" );
+			"testModeratorNotAutomoderated(): Something was added into Pending folder " .
+			"during modaction=approveall" );
 		$this->assertCount( $t->TEST_EDITS_COUNT, $t->deleted_entries,
-			"testModeratorNotAutomoderated(): Several edits were approved, but number of deleted entries in Pending folder doesn't match" );
+			"testModeratorNotAutomoderated(): Several edits were approved, but number of " .
+			"deleted entries in Pending folder doesn't match" );
 	}
 
 	public function testApproveTimestamp() {
@@ -338,7 +350,8 @@ class ModerationApproveTest extends MediaWikiTestCase {
 		$actual = $ts_actual->getTimestamp( TS_UNIX );
 
 		$this->assertLessThan( $ACCEPTABLE_DIFFERENCE, abs( $expected - $actual ),
-			"testApproveTimestamp(): timestamp of approved edit in RecentChanges is too different from the time of approval" );
+			"testApproveTimestamp(): timestamp of approved edit in RecentChanges is " .
+			"too different from the time of approval" );
 	}
 
 	public function testApproveAllTimestamp() {

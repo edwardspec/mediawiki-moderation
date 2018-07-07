@@ -34,7 +34,8 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 				SessionManager is a singleton and has already been created,
 				and it provides no methods to change the storage.
 			*/
-			throw new Exception( 'Moderation Testsuite: please set $wgSessionCacheType to CACHE_DB in LocalSettings.php.' );
+			throw new Exception( 'Moderation Testsuite: please set $wgSessionCacheType ' .
+				'to CACHE_DB in LocalSettings.php.' );
 		}
 	}
 

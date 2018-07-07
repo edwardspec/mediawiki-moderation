@@ -29,8 +29,8 @@ class ModerationApproveHook implements DeferrableUpdate {
 
 	/**
 	 * @var array Database updates that will be applied in doUpdate().
-	 * Format: [ 'recentchanges' => [ 'rc_ip' => [ rc_id1 => '127.0.0.1', rc_id2 => '127.0.0.5', ... ], ... ]
-	*/
+	 * Format: [ 'recentchanges' => [ 'rc_ip' => [ rc_id1 => '127.0.0.1',  ... ], ... ], ... ]
+	 */
 	protected $dbUpdates = [];
 
 	/** @var array List of _id fields in tables mentioned in $dbUpdates. */
@@ -267,7 +267,8 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @brief Schedule post-approval UPDATE SQL query.
 	 * @param string $table Name of table, e.g. 'revision'.
 	 * @param int|array $ids One or several IDs (e.g. rev_id or rc_id).
-	 * @param array $values New values, as expected by $db->update, e.g. [ 'rc_ip' => '1.2.3.4', 'rc_something' => '...' ].
+	 * @param array $values New values, as expected by $db->update,
+	 * e.g. [ 'rc_ip' => '1.2.3.4', 'rc_something' => '...' ].
 	 */
 	public function queueUpdate( $table, $ids, array $values ) {
 		if ( !is_array( $ids ) ) {

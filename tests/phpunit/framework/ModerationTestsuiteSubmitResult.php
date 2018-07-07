@@ -44,7 +44,10 @@ class ModerationTestsuiteSubmitResult {
 	/**
 	 * @brief Create ModerationTestsuiteSubmitResult object from $req.
 	 */
-	public static function newFromResponse( ModerationTestsuiteResponse $req, ModerationTestsuite $t ) {
+	public static function newFromResponse(
+		ModerationTestsuiteResponse $req,
+		ModerationTestsuite $t
+	) {
 		if ( $req->getResponseHeader( 'Location' ) ) {
 			return null; # No errors
 		}

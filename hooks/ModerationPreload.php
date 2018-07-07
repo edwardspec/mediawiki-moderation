@@ -223,7 +223,8 @@ class ModerationPreload {
 
 		$out = RequestContext::getMain()->getOutput();
 		$out->addModules( 'ext.moderation.edit' );
-		$out->wrapWikiMsg( '<div id="mw-editing-your-version">$1</div>', [ 'moderation-editing-your-version' ] );
+		$out->wrapWikiMsg( '<div id="mw-editing-your-version">$1</div>',
+			[ 'moderation-editing-your-version' ] );
 
 		$text = $row->text;
 		if ( $editPage ) {

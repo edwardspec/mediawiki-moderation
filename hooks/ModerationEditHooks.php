@@ -55,7 +55,10 @@ class ModerationEditHooks {
 		onPageContentSave()
 		Intercept normal edits and queue them for moderation.
 	*/
-	public static function onPageContentSave( &$page, &$user, &$content, &$summary, $is_minor, $is_watch, $section, &$flags, &$status ) {
+	public static function onPageContentSave(
+		&$page, &$user, &$content, &$summary, $is_minor,
+		$is_watch, $section, &$flags, &$status
+	) {
 		$title = $page->getTitle();
 		if ( ModerationCanSkip::canEditSkip( $user, $title->getNamespace() ) ) {
 			return true;
@@ -166,7 +169,10 @@ class ModerationEditHooks {
 		If this is a merged edit, then 'wpMergeID' is the ID of moderation entry.
 		Here we mark this entry as merged.
 	*/
-	public static function onPageContentSaveComplete( $page, $user, $content, $summary, $is_minor, $is_watch, $section, $flags, $revision, $status, $baseRevId ) {
+	public static function onPageContentSaveComplete(
+		$page, $user, $content, $summary, $is_minor, $is_watch,
+		$section, $flags, $revision, $status, $baseRevId
+	) {
 		global $wgRequest;
 
 		if ( !$revision ) { # Double edit - nothing to do on the second time

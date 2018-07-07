@@ -75,7 +75,12 @@ class ModerationLogFormatter extends LogFormatter {
 				[ 'diff' => $revId ]
 			);
 			$params[4] = Message::rawParam( $link );
-		} elseif ( $type === 'approveall' || $type === 'rejectall' || $type === 'block' || $type === 'unblock' ) {
+		} elseif (
+			$type === 'approveall' ||
+			$type === 'rejectall' ||
+			$type === 'block' ||
+			$type === 'unblock'
+		) {
 			$title = $this->entry->getTarget();
 
 			$userId = User::idFromName( $title->getText() );

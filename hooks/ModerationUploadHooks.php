@@ -25,7 +25,9 @@ class ModerationUploadHooks {
 	/**
 	 * @brief Intercept image uploads and queue them for moderation.
 	 */
-	public static function onUploadVerifyUpload( $upload, $user, $__unused, $comment, $pageText, &$error ) {
+	public static function onUploadVerifyUpload( $upload, $user, $__unused,
+		$comment, $pageText, &$error
+	) {
 		if ( ModerationCanSkip::canUploadSkip( $user ) ) {
 			return true;
 		}
@@ -48,7 +50,10 @@ class ModerationUploadHooks {
 			$title->getLatestRevID(),
 			$user
 		);
-		RequestContext::getMain()->getOutput()->redirect( '' ); # Disable redirection after doEditContent()
+
+		// Disable redirection after doEditContent()
+		// TODO: is this still needed?
+		RequestContext::getMain()->getOutput()->redirect( '' );
 
 		/*
 			Step 3. Populate mod_stash_key field in newly inserted row

@@ -147,7 +147,8 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 		$line = '';
 
-		if ( !$this->isMove() ) { /* Show/Preview links aren't needed for moves, because they don't change the text */
+		// Show/Preview links. Not needed for moves, because they don't change the text.
+		if ( !$this->isMove() ) {
 			$line .= '(' . $this->makeModerationLink( 'show', $row->id );
 
 			if ( $wgModerationPreviewLink ) {

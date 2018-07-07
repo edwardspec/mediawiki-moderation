@@ -26,7 +26,12 @@ class ModerationNotifyModerator {
 		onGetNewMessagesAlert()
 		Show in-wiki notification "new edits are pending moderation" to moderators.
 	*/
-	public static function onGetNewMessagesAlert( &$newMessagesAlert, array $newtalks, User $user, OutputPage $out ) {
+	public static function onGetNewMessagesAlert(
+		&$newMessagesAlert,
+		array $newtalks,
+		User $user,
+		OutputPage $out
+	) {
 		if ( $newtalks ) {
 			return true; /* Don't suppress "You have new messages" notification, it's more important */
 		}
@@ -82,7 +87,8 @@ class ModerationNotifyModerator {
 				$result = 0;
 			}
 
-			$cache->set( $cacheKey, $result, 86400 ); /* 24 hours, can be explicitly renewed by setPendingTime() */
+			// 24 hours, but can be explicitly renewed by setPendingTime()
+			$cache->set( $cacheKey, $result, 86400 );
 		}
 
 		return $result;

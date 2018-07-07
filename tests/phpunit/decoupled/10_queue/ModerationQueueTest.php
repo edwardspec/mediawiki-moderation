@@ -51,14 +51,17 @@ class ModerationQueueTest extends MediaWikiTestCase {
 			[ [ 'summary' => 'Summary 1' ] ],
 			[ [ 'summary' => 'Summary 2' ] ],
 			[ [ 'userAgent' => 'UserAgent for Testing/1.0' ] ],
-			[ [ 'userAgent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1' ] ],
+			[ [ 'userAgent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) ' .
+				'AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 ' .
+				'Mobile/14E304 Safari/602.1' ] ],
 			[ [ 'filename' => 'image100x100.png' ] ],
 			[ [ 'filename' => 'image100x100.png', 'viaApi' => true ] ],
 			[ [ 'filename' => 'image100x100.png', 'text' => 'Before ~~~ After', 'needPst' => true ] ],
 			[ [ 'existing' => true ] ],
 			[ [ 'existing' => true, 'filename' => 'image100x100.png' ] ],
 			[ [ 'title' => 'Old title', 'newTitle' => 'New title with spaces' ] ],
-			[ [ 'title' => 'Old title', 'newTitle' => 'New_title_with_underscores', 'summary' => 'New title is cooler' ] ],
+			[ [ 'title' => 'Old title', 'newTitle' => 'New_title_with_underscores',
+				'summary' => 'New title is cooler' ] ],
 			[ [ 'title' => 'Title 1', 'newTitle' => 'Title 2', 'viaApi' => true ] ],
 			[ [ 'modblocked' => true ] ],
 			[ [ 'modblocked' => true, 'anonymously' => true ] ],
@@ -182,7 +185,9 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			$this->title = Title::newFromText( $pageName );
 		}
 
-		if ( $this->filename && $this->viaApi && ModerationTestsuite::mwVersionCompare( '1.28.0', '<' ) ) {
+		if ( $this->filename && $this->viaApi &&
+			ModerationTestsuite::mwVersionCompare( '1.28.0', '<' )
+		) {
 			$this->getTestcase()->markTestSkipped(
 				'Test skipped: MediaWiki 1.27 doesn\'t support upload via API.' );
 		}
@@ -283,7 +288,8 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			if ( $this->viaApi ) {
 				$testcase->assertEquals( '(moderation-image-queued)', $result );
 			} else {
-				$testcase->assertFalse( $result->getError(), __METHOD__ . "(): Special:Upload displayed an error." );
+				$testcase->assertFalse( $result->getError(),
+					__METHOD__ . "(): Special:Upload displayed an error." );
 				$testcase->assertContains( '(moderation-image-queued)', $result->getSuccessText() );
 			}
 		} elseif ( $this->newTitle ) {
@@ -298,7 +304,8 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			if ( $this->viaApi ) {
 				$testcase->assertEquals( '(moderation-move-queued)', $result );
 			} else {
-				$testcase->assertFalse( $result->getError(), __METHOD__ . "(): Special:MovePage displayed an error." );
+				$testcase->assertFalse( $result->getError(),
+					__METHOD__ . "(): Special:MovePage displayed an error." );
 				$testcase->assertContains( '(moderation-move-queued)', $result->getSuccessText() );
 			}
 		} else {
@@ -378,7 +385,8 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			),
 			'mod_rejected' => $this->modblocked ? 1 : 0,
 			'mod_rejected_by_user' => 0,
-			'mod_rejected_by_user_text' => $this->modblocked ? wfMessage( 'moderation-blocker' )->inContentLanguage()->text() : null,
+			'mod_rejected_by_user_text' => $this->modblocked ?
+				wfMessage( 'moderation-blocker' )->inContentLanguage()->text() : null,
 			'mod_rejected_batch' => 0,
 			'mod_rejected_auto' => $this->modblocked ? 1 : 0,
 			'mod_preloadable' => 0,

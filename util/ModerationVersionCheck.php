@@ -27,7 +27,10 @@ class ModerationVersionCheck {
 		return self::wasDbUpdatedAfter( '1.1.29' );
 	}
 
-	/** @brief Returns false if mod_title contains spaces (obsolete behavior), true if underscores (correct behavior) */
+	/**
+	 * @retval false mod_title contains spaces (obsolete behavior)
+	 * @retval true mod_title contains underscores (correct behavior)
+	 */
 	public static function usesDbKeyAsTitle() {
 		return self::wasDbUpdatedAfter( '1.1.31' );
 	}
@@ -38,8 +41,8 @@ class ModerationVersionCheck {
 	}
 
 	/**
-	 * @brief Returns false if mod_preloadable is 0 or 1 (obsolete behavior),
-	 * true if unique for rejected edits (correct behavior)
+	 * @retval false Field mod_preloadable is 0 or 1 (obsolete behavior)
+	 * @retval true Field mod_preloadable is unique for rejected edits (correct behavior)
 	 */
 	public static function hasUniqueIndex() {
 		return self::wasDbUpdatedAfter( '1.2.9' );
@@ -47,7 +50,7 @@ class ModerationVersionCheck {
 
 	/**
 	 * @brief Calculate mod_title for $title.
-	 * Backward compatible with old Moderation databases that used spaces instead of underscores.
+	 * Backward compatible with old Moderation databases that used spaces, not underscores.
 	 */
 	public static function getModTitleFor( Title $title ) {
 		if ( self::usesDbKeyAsTitle() ) {
@@ -134,7 +137,10 @@ class ModerationVersionCheck {
 		return $result;
 	}
 
-	/** @brief Uncached version of getDbUpdatedVersion(). Shouldn't be used outside of getDbUpdatedVersion() */
+	/**
+	 * @brief Uncached version of getDbUpdatedVersion().
+	 * @note Shouldn't be used outside of getDbUpdatedVersion()
+	 */
 	protected static function getDbUpdatedVersionUncached() {
 		$dbr = wfGetDB( DB_REPLICA );
 		$version = $dbr->selectField( 'page_props', 'pp_value', self::$where, __METHOD__ );
@@ -166,7 +172,8 @@ class ModerationVersionCheck {
 	}
 
 	/**
-	 * @brief Called from update.php. Remembers current version for further calls to wasDbUpdatedAfter().
+	 * @brief Remember the current version of Moderation for use in wasDbUpdatedAfter().
+	 * Called from update.php.
 	 */
 	public static function markDbAsUpdated() {
 		$fields = self::$where + [ 'pp_value' => self::getVersionOfModeration() ];
@@ -174,8 +181,9 @@ class ModerationVersionCheck {
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->replace( 'page_props', [ 'pp_page', 'pp_propname' ], $fields, __METHOD__ );
 
-		/* Invalidate cache of wasDbUpdatedAfter() */
+		/* Invalidate cache of wasDbUpdatedAfter()
+			Note: won't affect CACHE_ACCEL, update.php has no access to it */
 		$cache = wfGetMainCache();
-		$cache->delete( self::getCacheKey() ); /* Note: won't affect CACHE_ACCEL, update.php has no access to it */
+		$cache->delete( self::getCacheKey() );
 	}
 }

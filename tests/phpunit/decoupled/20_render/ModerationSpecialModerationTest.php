@@ -58,8 +58,10 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase {
 			[ [ 'mod_merged_revid' => 12345, 'expectedFolder' => 'merged' ] ],
 			[ [ 'isCheckuser' => 1, 'mod_ip' => '127.0.0.2' ] ],
 			[ [ 'isCheckuser' => 1, 'mod_user' => 0, 'mod_user_text' => '127.0.0.3' ] ],
-			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_MAIN, 'mod_page2_title' => 'NewTitle_in_Main_namespace' ] ],
-			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_PROJECT, 'mod_page2_title' => 'NewTitle_in_Project_namespace' ] ],
+			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_MAIN,
+				'mod_page2_title' => 'NewTitle_in_Main_namespace' ] ],
+			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_PROJECT,
+				'mod_page2_title' => 'NewTitle_in_Project_namespace' ] ],
 			[ [ 'mod_conflict' => 1 ] ],
 			[ [ 'mod_conflict' => 1, 'notAutomoderated' => true ] ],
 			[ [ 'previewLinkEnabled' => true ] ],
@@ -395,7 +397,8 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 			if ( $folder != $this->expectedFolder ) {
 				$t->fetchSpecial( $folder );
 				$this->getTestcase()->assertEmpty( $t->new_entries,
-					"Unexpected entry found in folder \"$folder\" of Special:Moderation (this folder should be empty)."
+					"Unexpected entry found in folder \"$folder\" of Special:Moderation " .
+					"(this folder should be empty)."
 				);
 			}
 		}

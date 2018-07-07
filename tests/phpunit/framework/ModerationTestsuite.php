@@ -217,7 +217,7 @@ class ModerationTestsuite {
 
 				Therefore we escape the "test DB" jail installed by MediaWikiTestCase.
 			*/
-			if ( class_exists( 'MediaWikiTestCase' ) ) { /* Won't be defined if called from benchmark scripts */
+			if ( class_exists( 'MediaWikiTestCase' ) ) { // Not in benchmark scripts
 				$this->engine->escapeDbSandbox();
 			}
 		}
@@ -459,7 +459,13 @@ class ModerationTestsuite {
 		return $this->httpPost( wfScript( 'index' ), $params );
 	}
 
-	public function doTestEdit( $title = null, $text = null, $summary = null, $section = '', $extraParams = [] ) {
+	public function doTestEdit(
+		$title = null,
+		$text = null,
+		$summary = null,
+		$section = '',
+		$extraParams = []
+	) {
 		if ( !$title ) {
 			$title = $this->generateRandomTitle();
 		}
@@ -552,7 +558,12 @@ class ModerationTestsuite {
 	 * @return MediaWiki error message code (e.g. "(emptyfile)").
 	 * @retval null Upload succeeded (no errors found).
 	 */
-	public function doTestUpload( $title = null, $srcFilename = null, $text = null, array $extraParams = [] ) {
+	public function doTestUpload(
+		$title = null,
+		$srcFilename = null,
+		$text = null,
+		array $extraParams = []
+	) {
 		if ( !$title ) {
 			$title = $this->generateRandomTitle() . '.png';
 		}
@@ -744,7 +755,9 @@ class ModerationTestsuite {
 				usleep( $pollRetryPeriodSeconds * 1000 * 1000 );
 			} while ( time() < $maxTime );
 
-			throw new MWException( "waitForRecentChangesToAppear(): new $numberOfEdits entries haven't appeared in $pollTimeLimitSeconds seconds." );
+			throw new MWException(
+				"waitForRecentChangesToAppear(): new $numberOfEdits entries haven't " .
+				"appeared in $pollTimeLimitSeconds seconds." );
 		};
 	}
 

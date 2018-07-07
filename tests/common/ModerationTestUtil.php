@@ -29,7 +29,12 @@ class ModerationTestUtil {
 	 * it would take forever for doEditContent() to create them all,
 	 * much longer than the actual benchmark.
 	 */
-	public static function fastEdit( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
+	public static function fastEdit(
+		Title $title,
+		$newText = 'Whatever',
+		$summary = '',
+		User $user = null
+	) {
 		$dbw = wfGetDB( DB_MASTER );
 
 		$page = WikiPage::factory( $title );

@@ -30,7 +30,8 @@ class ModerationActionBlock extends ModerationAction {
 			moderation-unblock-ok
 		*/
 		$out->addWikiMsg(
-			'moderation-' . ( $result['action'] == 'unblock' ? 'un' : '' ) . 'block-' . ( $result['success'] ? 'ok' : 'fail' ),
+			'moderation-' . ( $result['action'] == 'unblock' ? 'un' : '' ) .
+				'block-' . ( $result['success'] ? 'ok' : 'fail' ),
 			$result['username']
 		);
 	}

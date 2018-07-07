@@ -35,8 +35,10 @@ class ModerationMergeTest extends MediaWikiTestCase {
 	*/
 
 	private $page = 'Test page 1';
-	private $text0 = "Normal line 1\nNot very interesting line 2\nNot very interesting line 3\nNormal line 4\n";
-	private $text1 = "Normal line 1\nJust made line 2 more interesting\nNot very interesting line 3\nNormal line 4\n";
+	private $text0 = "Normal line 1\nNot very interesting line 2\n" .
+		"Not very interesting line 3\nNormal line 4\n";
+	private $text1 = "Normal line 1\nJust made line 2 more interesting\n" .
+		"Not very interesting line 3\nNormal line 4\n";
 	private $text2 = "Normal line 1\nNormal line 4\n";
 	private $text3 = "Normal line 1\nJust made line 2 more interesting\nNormal line 4\n";
 
@@ -66,9 +68,11 @@ class ModerationMergeTest extends MediaWikiTestCase {
 		$t->fetchSpecial();
 
 		$this->assertCount( 0, $t->new_entries,
-			"testMerge(): Something was added into Pending folder when modaction=approve detected edit conflict" );
+			"testMerge(): Something was added into Pending folder when modaction=approve " .
+			"detected edit conflict" );
 		$this->assertCount( 0, $t->deleted_entries,
-			"testMerge(): Something was deleted from Pending folder when modaction=approve detected edit conflict" );
+			"testMerge(): Something was deleted from Pending folder when modaction=approve " .
+			"detected edit conflict" );
 
 		$t->assumeFolderIsEmpty();
 		$t->fetchSpecial();
@@ -266,9 +270,11 @@ class ModerationMergeTest extends MediaWikiTestCase {
 		$t->fetchSpecial();
 
 		$this->assertCount( 1, $t->new_entries,
-			"testApproveAllConflicts(): Nothing left in Pending folder after modaction=approveall, even though there was an edit conflict" );
+			"testApproveAllConflicts(): Nothing left in Pending folder after " .
+			"modaction=approveall, even though there was an edit conflict" );
 		$this->assertTrue( $t->new_entries[0]->conflict,
-			"testApproveAllConflicts(): Edit with detected conflict is not marked with class='modconflict'" );
+			"testApproveAllConflicts(): Edit with detected conflict is not marked " .
+			"with class='modconflict'" );
 	}
 
 	public function testRejectConflict() {
@@ -287,17 +293,20 @@ class ModerationMergeTest extends MediaWikiTestCase {
 		$this->assertCount( 0, $t->new_entries,
 			"testRejectConflict(): Something was added into Pending folder during modaction=reject" );
 		$this->assertCount( 1, $t->deleted_entries,
-			"testRejectConflict(): One edit was rejected, but number of deleted entries in Pending folder isn't 1" );
+			"testRejectConflict(): One edit was rejected, but number of deleted entries " .
+			"in Pending folder isn't 1" );
 
 		$t->fetchSpecial( 'rejected' );
 		$this->assertCount( 1, $t->new_entries,
-			"testRejectConflict(): One edit was rejected, but number of new entries in Rejected folder isn't 1" );
+			"testRejectConflict(): One edit was rejected, but number of new entries " .
+			"in Rejected folder isn't 1" );
 		$this->assertCount( 0, $t->deleted_entries,
 			"testRejectConflict(): Something was deleted from Rejected folder during modaction=reject" );
 
 		$entry = $t->new_entries[0];
 		$this->assertTrue( $entry->conflict,
-			"testRejectConflict(): Rejected edit with detected conflict is not marked with class='modconflict'" );
+			"testRejectConflict(): Rejected edit with detected conflict is not marked " .
+			"with class='modconflict'" );
 		$this->assertNotNull( $entry->mergeLink,
 			"testRejectConflict(): Merge link not found for rejected edit with detected conflict" );
 	}

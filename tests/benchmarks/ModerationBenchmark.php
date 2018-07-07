@@ -129,7 +129,8 @@ abstract class ModerationBenchmark extends Maintenance {
 		$endTime = microtime( true );
 
 		/* Performance report */
-		printf( "\r%s: did %d iterations in %.3f seconds\n", get_class( $this ), $loops, ( $endTime - $startTime ) );
+		printf( "\r%s: did %d iterations in %.3f seconds\n",
+			get_class( $this ), $loops, ( $endTime - $startTime ) );
 	}
 
 	/**
@@ -172,7 +173,12 @@ abstract class ModerationBenchmark extends Maintenance {
 	 *
 	 * @return mod_id of the newly inserted row.
 	 */
-	public function fastQueue( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
+	public function fastQueue(
+		Title $title,
+		$newText = 'Whatever',
+		$summary = '',
+		User $user = null
+	) {
 		$page = WikiPage::factory( $title );
 		if ( !$user ) {
 			$user = User::newFromName( '127.0.0.1', false );

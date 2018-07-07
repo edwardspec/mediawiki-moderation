@@ -42,7 +42,7 @@ abstract class ModerationTestsuiteTestSet {
 
 	/**
 	 * @brief Run this TestSet from input of dataProvider.
-	 * @param array $options Parameters of test, e.g. [ 'user' => 'Bear expert', 'title' => 'Black bears' ].
+	 * @param array $options Parameters of test, e.g. [ 'user' => '...', 'title' => '...' ].
 	 * @param MediaWikiTestCase $testcase
 	 */
 	final public static function run( array $options, MediaWikiTestCase $testcase ) {

@@ -51,7 +51,8 @@ class ModerationMoveTest extends MediaWikiTestCase {
 		$t->fetchSpecial();
 
 		$this->assertCount( 1, $t->new_entries,
-			"testMove(): One move was queued for moderation, but number of added entries in Pending folder isn't 1" );
+			"testMove(): One move was queued for moderation, but number of added entries " .
+			"in Pending folder isn't 1" );
 		$this->assertCount( 0, $t->deleted_entries,
 			"testMove(): Something was deleted from Pending folder during the queueing" );
 
@@ -63,7 +64,8 @@ class ModerationMoveTest extends MediaWikiTestCase {
 
 		$this->assertNotNull( $entry->approveLink, "testMove(): Approve link not found" );
 		$this->assertNotNull( $entry->rejectLink, "testMove(): Reject link not found" );
-		$this->assertNull( $entry->showLink, "testMove(): unexpected Show link found (it's not needed for moves)" );
+		$this->assertNull( $entry->showLink,
+			"testMove(): unexpected Show link found (it's not needed for moves)" );
 
 		/* Ensure that page hasn't been moved yet */
 		$rev = $t->getLastRevision( $this->oldTitle );
@@ -168,7 +170,8 @@ class ModerationMoveTest extends MediaWikiTestCase {
 		$html = $t->html->loadFromReq( $req );
 
 		$this->assertNotContains( '(moderation-move-queued)', $html->getMainText(),
-			"testNoPrematureMoveInShowForm(): Special:MovePage has queued the move before Submit was clicked" );
+			"testNoPrematureMoveInShowForm(): Special:MovePage has queued the move " .
+			"before Submit was clicked" );
 
 		$submitButton = $html->getSubmitButton();
 		$this->assertNotNull( $submitButton );

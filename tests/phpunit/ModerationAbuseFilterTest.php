@@ -105,7 +105,11 @@ class ModerationAbuseFilterTest extends MediaWikiTestCase {
 		$this->assertTagsAfterApproval( $t, $t->new_entries[0], __FUNCTION__ );
 	}
 
-	private function assertTagsAfterApproval( ModerationTestsuite $t, ModerationTestsuiteEntry $entry, $caller ) {
+	private function assertTagsAfterApproval(
+		ModerationTestsuite $t,
+		ModerationTestsuiteEntry $entry,
+		$caller
+	) {
 		$waiter = $t->waitForRecentChangesToAppear();
 		$t->httpGet( $entry->approveLink );
 		$waiter( 1 );

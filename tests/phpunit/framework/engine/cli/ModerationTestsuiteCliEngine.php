@@ -94,7 +94,8 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 			and therefore won't know things like $wgServer or wfParseUrl() */
 		$bits = wfParseUrl( $url );
 		if ( $bits['host'] !== $wgServerName ) {
-			throw new Exception( "CliInvokedWiki can only access the wiki itself ($wgServerName), not another host (${bits['host']})" );
+			throw new Exception( "CliEngine can only access the wiki itself " .
+				"($wgServerName), not another host (${bits['host']})" );
 		}
 
 		if ( isset( $bits['query'] ) ) {
@@ -171,8 +172,11 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 			wfArrayToCgi( $descriptor['_POST'] ) . ']';
 
 		if ( $result['exceptionText'] ) {
-			throw new ModerationTestsuiteCliError( "Exception $errorContext: \n==== EXCEPTION START ====\n\n" .
-				$result['exceptionText'] . "\n==== EXCEPTION END ====\n" );
+			throw new ModerationTestsuiteCliError( "Exception $errorContext: \n" .
+				"==== EXCEPTION START ====\n\n" .
+				$result['exceptionText'] .
+				"\n==== EXCEPTION END ====\n"
+			);
 		}
 
 		if ( !isset( $result['FauxResponse'] ) ) {

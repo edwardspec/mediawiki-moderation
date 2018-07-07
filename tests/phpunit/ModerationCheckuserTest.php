@@ -30,7 +30,8 @@ class ModerationCheckuserTest extends MediaWikiTestCase {
 	public $userUA = 'UserAgent of UnprivilegedUser/1.0';
 
 	/**
-	 * @brief Verifies that checkusers can see Whois link for registered users, but non-checkusers can't.
+	 * @brief Verifies that checkusers can see Whois link for registered users,
+	 * but non-checkusers can't.
 	 */
 	public function testModerationCheckuser() {
 		$t = new ModerationTestsuite();
@@ -127,7 +128,8 @@ class ModerationCheckuserTest extends MediaWikiTestCase {
 		$this->assertNotEquals( $this->moderatorUA, $agent,
 			"testApproveEditPrevervesUA(): UserAgent in checkuser tables matches moderator's UserAgent" );
 		$this->assertEquals( $this->userUA, $agent,
-			"testApproveEditPrevervesUA(): UserAgent in checkuser tables doesn't match UserAgent of user who made the edit" );
+			"testApproveEditPrevervesUA(): UserAgent in checkuser tables " .
+			"doesn't match UserAgent of user who made the edit" );
 	}
 
 	/**
@@ -158,13 +160,15 @@ class ModerationCheckuserTest extends MediaWikiTestCase {
 		$t->httpGet( $entry->approveAllLink ); # Try modaction=approveall
 		$waiter( $NUMBER_OF_UPLOADS );
 
-		$agents = $t->getCUCAgents( $NUMBER_OF_UPLOADS );
-		$i = $NUMBER_OF_UPLOADS; /* Counting backwards, because getCUCAgents() selects in newest-to-latest order */
-		foreach ( $agents as $agent ) {
+		/* Counting backwards, because getCUCAgents() selects in newest-to-latest order */
+		$i = $NUMBER_OF_UPLOADS;
+		foreach ( $t->getCUCAgents( $NUMBER_OF_UPLOADS ) as $agent ) {
 			$this->assertNotEquals( $this->moderatorUA, $agent,
-				"testApproveAllUploadPrevervesUA(): Upload #$i: UserAgent in checkuser tables matches moderator's UserAgent" );
+				"testApproveAllUploadPrevervesUA(): Upload #$i: UserAgent in checkuser " .
+				"tables matches moderator's UserAgent" );
 			$this->assertEquals( $this->userUA . '#' . $i, $agent,
-				"testApproveAllUploadPrevervesUA(): Upload #$i: UserAgent in checkuser tables doesn't match UserAgent of user who made the upload" );
+				"testApproveAllUploadPrevervesUA(): Upload #$i: UserAgent in checkuser " .
+				"tables doesn't match UserAgent of user who made the upload" );
 
 			$i --;
 		}

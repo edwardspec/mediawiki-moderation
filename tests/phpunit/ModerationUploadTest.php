@@ -42,7 +42,8 @@ class ModerationUploadTest extends MediaWikiTestCase {
 		# Is the data on Special:Moderation correct?
 		$entry = $t->new_entries[0];
 		$this->assertCount( 1, $t->new_entries,
-			"testUpload(): One upload was queued for moderation, but number of added entries in Pending folder isn't 1" );
+			"testUpload(): One upload was queued for moderation, but number of " .
+			"added entries in Pending folder isn't 1" );
 		$this->assertCount( 0, $t->deleted_entries,
 			"testUpload(): Something was deleted from Pending folder during the queueing" );
 		$this->assertEquals( $t->lastEdit['User'], $entry->user );
@@ -111,7 +112,8 @@ class ModerationUploadTest extends MediaWikiTestCase {
 		# Is the data on Special:Moderation correct?
 		$entry = $t->new_entries[0];
 		$this->assertCount( 1, $t->new_entries,
-			"testReupload(): One upload was queued for moderation, but number of added entries in Pending folder isn't 1" );
+			"testReupload(): One upload was queued for moderation, but number of " .
+			"added entries in Pending folder isn't 1" );
 		$this->assertCount( 0, $t->deleted_entries,
 			"testReupload(): Something was deleted from Pending folder during the queueing" );
 		$this->assertEquals( $t->lastEdit['User'], $entry->user );
@@ -181,7 +183,8 @@ class ModerationUploadTest extends MediaWikiTestCase {
 		$this->assertEquals( $rev2['revid'], $rev1['parentid'],
 			"testReupload(): parentid of new revision doesn't match revid of the previous revision" );
 		$this->assertNotEquals( $t->moderator->getName(), $rev1['user'],
-			"testReupload(): Image reupload was attributed to the moderator who approved it (instead of the user who made the reupload)" );
+			"testReupload(): Image reupload was attributed to the moderator who " .
+			"approved it (instead of the user who made the reupload)" );
 		$this->assertEquals( $t->lastEdit['User'], $rev1['user'],
 			"testReupload(): Image reupload wasn't attributed to the user who made it" );
 	}
@@ -208,7 +211,8 @@ class ModerationUploadTest extends MediaWikiTestCase {
 		# Is the data on Special:Moderation correct?
 		$entry = $t->new_entries[0];
 		$this->assertCount( 1, $t->new_entries,
-			"testApiUpload(): One upload was queued for moderation, but number of added entries in Pending folder isn't 1" );
+			"testApiUpload(): One upload was queued for moderation, but number of " .
+			"added entries in Pending folder isn't 1" );
 		$this->assertCount( 0, $t->deleted_entries,
 			"testApiUpload(): Something was deleted from Pending folder during the queueing" );
 		$this->assertEquals( $t->lastEdit['User'], $entry->user );

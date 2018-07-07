@@ -98,34 +98,37 @@ class RollbackResistantQuery {
 	 * @brief Install hooks that can detect a database rollback.
 	 */
 	protected function initialize() {
-		if ( !self::$initialized ) {
-			self::$initialized = true;
+		if ( self::$initialized ) {
+			return;
+		}
 
-			$query = $this;
+		self::$initialized = true;
+		$query = $this;
 
-			/* MediaWiki 1.28+ calls TransactionListener callback after rollback() */
-			if ( defined( 'Database::TRIGGER_ROLLBACK' ) ) {
-				$this->dbw->setTransactionListener( 'moderation-on-rollback', function ( $trigger ) use ( $query ) {
+		/* MediaWiki 1.28+ calls TransactionListener callback after rollback() */
+		if ( defined( 'Database::TRIGGER_ROLLBACK' ) ) {
+			$this->dbw->setTransactionListener( 'moderation-on-rollback',
+				function ( $trigger ) use ( $query ) {
 					if ( $trigger == Database::TRIGGER_ROLLBACK ) {
 						$query->onRollback();
 					}
-				}, __METHOD__ );
-			} else {
-				/* MediaWiki 1.27 doesn't call any callbacks after rollback(),
-					but we can at least detect MWException - what usually causes the rolback
-					in MWExceptionHandler::handleException() */
+				},
+				__METHOD__
+			);
+		} else {
+			/* MediaWiki 1.27 doesn't call any callbacks after rollback(),
+				but we can at least detect MWException - what usually causes the rolback
+				in MWExceptionHandler::handleException() */
 
-				Hooks::register( 'LogException', function ( $e, $suppressed ) use ( $query ) {
-					if (
-						!( $e instanceof DBError ) && /* DBError likely means that rollback failed */
-						!( $e instanceof JobQueueError ) /* Non-fatal error in JobQueue, doesn't cause rollback */
-					) {
-						$query->onRollback();
-					}
-
+			Hooks::register( 'LogException', function ( $e, $suppressed ) use ( $query ) {
+				if (
+					!( $e instanceof DBError ) && // DBError likely means that rollback failed
+					!( $e instanceof JobQueueError ) // Non-fatal error in JobQueue, doesn't cause rollback
+				) {
+					$query->onRollback();
+				}
 					return true;
-				} );
-			}
+			} );
 		}
 	}
 

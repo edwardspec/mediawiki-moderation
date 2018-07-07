@@ -49,7 +49,12 @@ class ModerationPageForms {
 	 * @brief ModerationContinueEditingLink hook.
 	 * Here we point "continue editing" link to FormEdit after using FormEdit.
 	 */
-	public function onModerationContinueEditingLink( &$returnto, array &$returntoquery, Title $title, IContextSource $context ) {
+	public function onModerationContinueEditingLink(
+		&$returnto,
+		array &$returntoquery,
+		Title $title,
+		IContextSource $context
+	) {
 		$request = $context->getRequest();
 
 		// Are we editing via ?action=formedit?

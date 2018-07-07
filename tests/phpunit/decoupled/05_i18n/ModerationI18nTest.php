@@ -28,7 +28,8 @@ class ModerationI18nTest extends MediaWikiTestCase {
 	public function testLanguageFile( $path ) {
 		$status = FormatJson::parse( file_get_contents( $path ) );
 		$this->assertTrue( $status->isGood(),
-			'testLanguageFile(): ' . realpath( $path ) . ' is not a valid JSON: [' . $status->getMessage()->getKey() . ']' );
+			'testLanguageFile(): ' . realpath( $path ) .
+			' is not a valid JSON: [' . $status->getMessage()->getKey() . ']' );
 	}
 
 	/**

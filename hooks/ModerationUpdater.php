@@ -26,24 +26,32 @@ class ModerationUpdater {
 		$dbw = $updater->getDB();
 
 		/* Main database schema */
-		$updater->addExtensionTable( 'moderation', "$base/../sql/patch-moderation.sql" );
-		$updater->addExtensionTable( 'moderation_block', "$base/../sql/patch-moderation_block.sql" );
+		$updater->addExtensionTable( 'moderation',
+			"$base/../sql/patch-moderation.sql" );
+		$updater->addExtensionTable( 'moderation_block',
+			"$base/../sql/patch-moderation_block.sql" );
 
 		/* DB changes needed when updating Moderation from its previous version */
 
 		// ... to Moderation 1.1.29
-		$updater->addExtensionField( 'moderation', 'mod_tags', "$base/../sql/patch-moderation-mod_tags.sql" );
+		$updater->addExtensionField( 'moderation', 'mod_tags',
+			"$base/../sql/patch-moderation-mod_tags.sql" );
 
 		// ... to Moderation 1.1.31
-		$updater->modifyExtensionField( 'moderation', 'mod_title', "$base/../sql/patch-fix-titledbkey.sql" );
+		$updater->modifyExtensionField( 'moderation', 'mod_title',
+			"$base/../sql/patch-fix-titledbkey.sql" );
 
 		// ... to Moderation 1.2.9
-		if ( $dbw->tableExists( 'moderation' ) && !$dbw->indexUnique( 'moderation', 'moderation_load' ) ) {
-			$updater->addExtensionUpdate( [ 'applyPatch', "$base/../sql/patch-make-preload-unique.sql", true ] );
+		if ( $dbw->tableExists( 'moderation' ) &&
+			!$dbw->indexUnique( 'moderation', 'moderation_load' )
+		) {
+			$updater->addExtensionUpdate( [ 'applyPatch',
+				"$base/../sql/patch-make-preload-unique.sql", true ] );
 		}
 
 		// ... to Moderation 1.2.17
-		$updater->addExtensionField( 'moderation', 'mod_type', "$base/../sql/patch-moderation-mod_type.sql" );
+		$updater->addExtensionField( 'moderation', 'mod_type',
+			"$base/../sql/patch-moderation-mod_type.sql" );
 
 		ModerationVersionCheck::markDbAsUpdated();
 		return true;

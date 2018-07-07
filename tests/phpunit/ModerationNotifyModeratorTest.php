@@ -60,7 +60,8 @@ class ModerationNotifyModeratorTest extends MediaWikiTestCase {
 		/* ... and not shown to this moderator after Special:Moderation has already been visited */
 		$this->assertNull(
 			$t->html->getNewMessagesNotice( $randomPageUrl ),
-			"testNotifyModerator(): Notification still shown after Special:Moderation has already been visited"
+			"testNotifyModerator(): Notification still shown after Special:Moderation has " .
+			"already been visited"
 		);
 
 		/* ... but still shown to another moderator */

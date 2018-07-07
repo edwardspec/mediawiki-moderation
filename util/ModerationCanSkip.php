@@ -123,7 +123,10 @@ class ModerationCanSkip {
 			return true; /* This namespace is NOT moderated, e.g. Sandbox:Something */
 		}
 
-		if ( $wgModerationOnlyInNamespaces && !in_array( $namespaceNumber, $wgModerationOnlyInNamespaces ) ) {
+		if ( $wgModerationOnlyInNamespaces && !in_array(
+			$namespaceNumber,
+			$wgModerationOnlyInNamespaces
+		) ) {
 			return true; /* This namespace is NOT moderated */
 		}
 

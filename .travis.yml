@@ -61,4 +61,4 @@ script:
   - MODERATION_TEST_ENGINE=cli php tests/phpunit/phpunit.php --use-normal-tables --reuse-db extensions/Moderation/
 
 after_script:
-  - ./vendor/bin/phpcs -ps --exclude='Generic.Files.LineLength' extensions/Moderation/
+  - ./vendor/bin/phpcs -ps extensions/Moderation/
