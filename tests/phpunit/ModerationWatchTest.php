@@ -27,12 +27,9 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
  */
 class ModerationWatchTest extends MediaWikiTestCase {
 	/**
-
 	 * @brief Test that checkboxes "Watch this page" work.
-	 * @testWith	["edit"]
-				["upload"]
-				["move"]
-	*/
+	 * @dataProvider dataProviderWatch
+	 */
 	public function testWatch( $actionType ) {
 		$t = new ModerationTestsuite();
 
@@ -99,5 +96,16 @@ class ModerationWatchTest extends MediaWikiTestCase {
 		] );
 		$this->assertEmpty( $ret['watchlistraw'],
 			"testWatch(): All pages were unwatched, but watchlist is not empty" );
+	}
+
+	/**
+	 * @brief Provide datasets for testWatch() runs.
+	 */
+	public function dataProviderWatch() {
+		return [
+			[ 'edit' ],
+			[ 'upload' ],
+			[ 'move' ]
+		];
 	}
 }

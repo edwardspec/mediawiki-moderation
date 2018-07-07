@@ -30,13 +30,7 @@ class ModerationApiTest extends MediaWikiTestCase {
 	/**
 	 * @brief Checks return value of api.php?action=moderation&modaction=...
 	 * @note Consequences of actions are checked by other tests (e.g. ModerationApproveTest).
-	 * @testWith	[ "approve", { "moderation": { "approved": [ "{{ID}}" ] } } ]
-				[ "approveall", { "moderation": { "approved": { "{{ID}}": "" }, "failed": [] } } ]
-				[ "reject", { "moderation": { "rejected-count":1 } } ]
-				[ "rejectall", { "moderation": { "rejected-count":1 } } ]
-				[ "block", { "moderation": {"action": "block", "username": "{{AUTHOR}}", "success": "" } } ]
-				[ "unblock", { "moderation": {"action": "unblock", "username": "{{AUTHOR}}" } } ]
-				[ "show", { "moderation": { "diff-html": "{{DIFF}}", "title": "{{TITLE}}" } } ]
+	 * @dataProvider dataProviderModerationApi
 	*/
 	public function testModerationApi( $action, array $expectedResult ) {
 		/* Prepare a fake moderation entry */
@@ -67,6 +61,40 @@ class ModerationApiTest extends MediaWikiTestCase {
 			$ret['moderation']['diff-html'] = '{{DIFF}}';
 		}
 
-		$this->assertEquals( $ret, $expectedResult );
+		$this->assertEquals( [ 'moderation' => $expectedResult ], $ret );
+	}
+
+	/**
+	 * @brief Provide datasets for testModerationApi() runs.
+	 */
+	public function dataProviderModerationApi() {
+		return [
+			[ "approve", [
+				"approved" => [ "{{ID}}" ]
+			] ],
+			[ "approveall", [
+				"approved" => [ "{{ID}}" => "" ],
+				"failed" => []
+			] ],
+			[ "reject", [
+				"rejected-count" => 1
+			] ],
+			[ "rejectall", [
+				"rejected-count" => 1
+			] ],
+			[ "block", [
+				"action" => "block",
+				"username" => "{{AUTHOR}}",
+				"success" => ""
+			] ],
+			[ "unblock", [
+				"action" => "unblock",
+				"username" => "{{AUTHOR}}"
+			] ],
+			[ "show", [
+				"diff-html" => "{{DIFF}}",
+				"title" => "{{TITLE}}"
+			] ]
+		];
 	}
 }
