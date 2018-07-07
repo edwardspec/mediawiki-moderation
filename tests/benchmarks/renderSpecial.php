@@ -43,9 +43,11 @@ class BenchmarkRenderSpecial extends ModerationBenchmark {
 
 	public function beforeBenchmark( $numberOfLoops ) {
 		/* Prepopulate 'moderation' table */
+// phpcs:disable Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed
 		for ( $i = 0; $i <= $this->getNumberOfEntries(); $i ++ ) {
 			$this->fastQueue( $this->getTestTitle( $i ) );
 		}
+// phpcs:enable
 
 		$this->getUser()->addGroup( 'moderator' );
 	}

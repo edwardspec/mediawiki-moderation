@@ -37,12 +37,12 @@ class BenchmarkApproveEdit extends ModerationBenchmark {
 	}
 
 	public function beforeBenchmark( $numberOfLoops ) {
-		/* Prepopulate 'moderation' table */
-		for ( $i = 0; $i <= $this->getDefaultLoops(); $i ++ ) {
-			$this->ids[] = $this->fastQueue( $this->getTestTitle( $i ) );
-		}
-
 		$this->getUser()->addGroup( 'moderator' );
+	}
+
+	public function beforeBenchmarkPrepareLoop( $i ) {
+		/* Prepopulate 'moderation' table */
+		$this->ids[] = $this->fastQueue( $this->getTestTitle( $i ) );
 	}
 
 	public function doActualWork( $i ) {

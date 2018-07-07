@@ -65,9 +65,18 @@ abstract class ModerationBenchmark extends Maintenance {
 	abstract public function doActualWork( $iterationNumber );
 
 	/**
-	 * @brief Initialize everything before the tests.
+	 * @brief Initialize everything before the tests. Called once.
 	 */
 	public function beforeBenchmark( $numberOfLoops ) {
+		/* Nothing to do.
+			Will be redefined by benchmarks if they need this. */
+	}
+
+	/**
+	 * @brief Same as beforeBenchmark, but is called getDefaultLoops() times.
+	 * @param $iterationNumber Number of the loop (integer starting with 0).
+	 */
+	public function beforeBenchmarkPrepareLoop( $iterationNumber ) {
 		/* Nothing to do.
 			Will be redefined by benchmarks if they need this. */
 	}
@@ -99,6 +108,9 @@ abstract class ModerationBenchmark extends Maintenance {
 		$dbw->startAtomic( __METHOD__ );
 
 		$this->beforeBenchmark( $loops );
+		for ( $i = 0; $i <= $loops; $i ++ ) {
+			$this->beforeBenchmarkPrepareLoop( $i );
+		}
 
 		$dbw->endAtomic( __METHOD__ );
 
