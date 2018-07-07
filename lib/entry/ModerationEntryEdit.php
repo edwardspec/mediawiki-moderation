@@ -16,15 +16,15 @@
 */
 
 /**
-	@file
-	@brief Normal edit (modification of page text) that awaits moderation.
-*/
+ * @file
+ * @brief Normal edit (modification of page text) that awaits moderation.
+ */
 
 class ModerationEntryEdit extends ModerationApprovableEntry {
 	/**
-		@brief Approve this edit.
-		@returns Status object.
-	*/
+	 * @brief Approve this edit.
+	 * @return Status object.
+	 */
 	public function doApprove( User $moderator ) {
 		$row = $this->getRow();
 

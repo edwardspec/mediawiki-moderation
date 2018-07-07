@@ -16,27 +16,26 @@
 */
 
 /**
-	@file
-	@brief Checks SQL table 'moderation' after the edit.
-*/
+ * @file
+ * @brief Checks SQL table 'moderation' after the edit.
+ */
 
-require_once( __DIR__ . "/../../framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 
 /**
-	@covers ModerationNewChange
-*/
-class ModerationQueueTest extends MediaWikiTestCase
-{
+ * @covers ModerationNewChange
+ */
+class ModerationQueueTest extends MediaWikiTestCase {
 	/**
-		@dataProvider dataProvider
-	*/
+	 * @dataProvider dataProvider
+	 */
 	public function testQueue( array $options ) {
 		ModerationQueueTestSet::run( $options, $this );
 	}
 
 	/**
-		@brief Provide datasets for testQueueEdit() runs.
-	*/
+	 * @brief Provide datasets for testQueueEdit() runs.
+	 */
 	public function dataProvider() {
 		return [
 			[ [ 'anonymously' => true ] ],
@@ -52,14 +51,17 @@ class ModerationQueueTest extends MediaWikiTestCase
 			[ [ 'summary' => 'Summary 1' ] ],
 			[ [ 'summary' => 'Summary 2' ] ],
 			[ [ 'userAgent' => 'UserAgent for Testing/1.0' ] ],
-			[ [ 'userAgent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1' ] ],
+			[ [ 'userAgent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) ' .
+				'AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 ' .
+				'Mobile/14E304 Safari/602.1' ] ],
 			[ [ 'filename' => 'image100x100.png' ] ],
 			[ [ 'filename' => 'image100x100.png', 'viaApi' => true ] ],
 			[ [ 'filename' => 'image100x100.png', 'text' => 'Before ~~~ After', 'needPst' => true ] ],
 			[ [ 'existing' => true ] ],
 			[ [ 'existing' => true, 'filename' => 'image100x100.png' ] ],
 			[ [ 'title' => 'Old title', 'newTitle' => 'New title with spaces' ] ],
-			[ [ 'title' => 'Old title', 'newTitle' => 'New_title_with_underscores', 'summary' => 'New title is cooler' ] ],
+			[ [ 'title' => 'Old title', 'newTitle' => 'New_title_with_underscores',
+				'summary' => 'New title is cooler' ] ],
 			[ [ 'title' => 'Title 1', 'newTitle' => 'Title 2', 'viaApi' => true ] ],
 			[ [ 'modblocked' => true ] ],
 			[ [ 'modblocked' => true, 'anonymously' => true ] ],
@@ -80,29 +82,59 @@ class ModerationQueueTest extends MediaWikiTestCase
 }
 
 /**
-	@brief Represents one TestSet for testQueue().
-*/
+ * @brief Represents one TestSet for testQueue().
+ */
 class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 
-	protected $user = null; /**< User object */
-	protected $title = null; /**< Title object */
-	protected $newTitle = null; /**< Title object. Only used for moves. */
+	/** @var User */
+	protected $user = null;
+
+	/** @var Title */
+	protected $title = null;
+
+	/** @var Title Second title, only used for moves. */
+	protected $newTitle = null;
+
+	/** @var string */
 	protected $text = 'Hello, World!';
+
+	/** @var string */
 	protected $summary = 'Edit by the Moderation Testsuite';
+
+	/** @var string */
 	protected $userAgent = ModerationTestsuite::DEFAULT_USER_AGENT;
-	protected $xff = null; /**< X-Forwarded-For header */
-	protected $filename = null; /**< string. Only used for uploads. */
-	protected $anonymously = false; /**< If true, the edit will be anonymous. ($user will be ignored) */
-	protected $viaApi = false; /**< If true, edits are made via API. If false, they are made via the user interface. */
-	protected $needPst = false; /**< If true, text is expected to be altered by PreSaveTransform (e.g. contains "~~~~"). */
-	protected $existing = false; /*< If true, existing page will be edited. If false, new page will be created. */
-	protected $oldText = ''; /**< Text of existing article (if any). */
-	protected $modblocked = false; /**< If true, user will be modblocked before the edit. */
-	protected $watch = null; /**< If true/false, defines the state of "Watch this page" checkbox. */
+
+	/** @var string X-Forwarded-For header */
+	protected $xff = null;
+
+	/** @var string Source filename, only used for uploads. */
+	protected $filename = null;
+
+	/** @var bool If true, the edit will be anonymous. ($user will be ignored) */
+	protected $anonymously = false;
+
+	/** @var bool If true, edits are made via API, if false, via the user interface. */
+	protected $viaApi = false;
+
+	/** @var bool If true, text is expected to be altered by PreSaveTransform
+		(e.g. contains "~~~~"). */
+	protected $needPst = false;
+
+	/** @var bool If true, existing page will be edited. If false, new page will be created. */
+	protected $existing = false;
+
+	/** @var string Text of existing article (if any) */
+	protected $oldText = '';
+
+	/** @var bool If true, user will be modblocked before the edit */
+	protected $modblocked = false;
+
+	/** @var bool|null If true/false, defines the state of "Watch this page" checkbox. */
+	protected $watch = null;
 
 	/**
-		@brief Initialize this TestSet from the input of dataProvider.
-	*/
+	 * @brief Initialize this TestSet from the input of dataProvider.
+	 */
 	protected function applyOptions( array $options ) {
 		foreach ( $options as $key => $value ) {
 			switch ( $key ) {
@@ -144,8 +176,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 		/* Default options */
 		if ( $this->anonymously ) {
 			$this->user = User::newFromName( '127.0.0.1', false );
-		}
-		elseif ( !$this->user ) {
+		} elseif ( !$this->user ) {
 			$this->user = User::newFromName( 'User 5' );
 		}
 
@@ -154,7 +185,9 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			$this->title = Title::newFromText( $pageName );
 		}
 
-		if ( $this->filename && $this->viaApi && ModerationTestsuite::mwVersionCompare( '1.28.0', '<' ) ) {
+		if ( $this->filename && $this->viaApi &&
+			ModerationTestsuite::mwVersionCompare( '1.28.0', '<' )
+		) {
 			$this->getTestcase()->markTestSkipped(
 				'Test skipped: MediaWiki 1.27 doesn\'t support upload via API.' );
 		}
@@ -167,8 +200,8 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Assert the state of the database after the edit.
-	*/
+	 * @brief Assert the state of the database after the edit.
+	 */
 	protected function assertResults( MediaWikiTestCase $testcase ) {
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation', '*', '', __METHOD__ );
@@ -177,8 +210,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 		foreach ( $expectedRow as $key => $val ) {
 			if ( $val instanceof ModerationTestSetRegex ) {
 				$testcase->assertRegExp( $val->regex, $row->$key, "Field $key doesn't match regex" );
-			}
-			else {
+			} else {
 				$testcase->assertEquals( $val, $row->$key, "Field $key doesn't match expected" );
 			}
 		}
@@ -188,8 +220,8 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Execute the TestSet, making an edit/upload/move with requested parameters.
-	*/
+	 * @brief Execute the TestSet, making an edit/upload/move with requested parameters.
+	 */
 	protected function makeChanges() {
 		$testcase = $this->getTestcase();
 
@@ -205,8 +237,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 				$moderatorUser = User::newFromName( 'User 1' );
 				$t->loginAs( $moderatorUser );
 				$t->apiUpload( $this->title->getText(), $this->filename, $this->oldText );
-			}
-			else {
+			} else {
 				ModerationTestUtil::fastEdit(
 					$this->title,
 					$this->oldText,
@@ -256,13 +287,12 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 
 			if ( $this->viaApi ) {
 				$testcase->assertEquals( '(moderation-image-queued)', $result );
-			}
-			else {
-				$testcase->assertFalse( $result->getError(), __METHOD__ . "(): Special:Upload displayed an error." );
+			} else {
+				$testcase->assertFalse( $result->getError(),
+					__METHOD__ . "(): Special:Upload displayed an error." );
 				$testcase->assertContains( '(moderation-image-queued)', $result->getSuccessText() );
 			}
-		}
-		elseif ( $this->newTitle ) {
+		} elseif ( $this->newTitle ) {
 			$t->moveViaAPI = $this->viaApi;
 			$result = $t->doTestMove(
 				$this->title->getFullText(),
@@ -273,13 +303,12 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 
 			if ( $this->viaApi ) {
 				$testcase->assertEquals( '(moderation-move-queued)', $result );
-			}
-			else {
-				$testcase->assertFalse( $result->getError(), __METHOD__ . "(): Special:MovePage displayed an error." );
+			} else {
+				$testcase->assertFalse( $result->getError(),
+					__METHOD__ . "(): Special:MovePage displayed an error." );
 				$testcase->assertContains( '(moderation-move-queued)', $result->getSuccessText() );
 			}
-		}
-		else {
+		} else {
 			/* Normal edit */
 			$t->editViaAPI = $this->viaApi;
 			$t->doTestEdit(
@@ -293,10 +322,10 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Returns array of expected post-edit values of all mod_* fields in the database.
-		@note Values like "/value/" are treated as regular expressions.
-		@returns [ 'mod_user' => ..., 'mod_namespace' => ..., ... ]
-	*/
+	 * @brief Returns array of expected post-edit values of all mod_* fields in the database.
+	 * @note Values like "/value/" are treated as regular expressions.
+	 * @returns [ 'mod_user' => ..., 'mod_namespace' => ..., ... ]
+	 */
 	protected function getExpectedRow() {
 		$expectedContent = ContentHandler::makeContent( $this->text, null, CONTENT_MODEL_WIKITEXT );
 		if ( $this->needPst ) {
@@ -318,8 +347,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			if ( $this->viaApi ) {
 				/* API has different parameters for 'text' and 'summary' */
 				$expectedSummary = '';
-			}
-			else {
+			} else {
 				/* Special:Upload copies text into summary */
 				$expectedSummary = $this->text;
 
@@ -357,7 +385,8 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			),
 			'mod_rejected' => $this->modblocked ? 1 : 0,
 			'mod_rejected_by_user' => 0,
-			'mod_rejected_by_user_text' => $this->modblocked ? wfMessage( 'moderation-blocker' )->inContentLanguage()->text() : null,
+			'mod_rejected_by_user_text' => $this->modblocked ?
+				wfMessage( 'moderation-blocker' )->inContentLanguage()->text() : null,
 			'mod_rejected_batch' => 0,
 			'mod_rejected_auto' => $this->modblocked ? 1 : 0,
 			'mod_preloadable' => 0,
@@ -373,9 +402,9 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Assert the state of UploadStash after the test.
-		@param $stashKey Value of mod_stash_key (as found in the database after the test).
-	*/
+	 * @brief Assert the state of UploadStash after the test.
+	 * @param $stashKey Value of mod_stash_key (as found in the database after the test).
+	 */
 	protected function checkUpload( $stashKey ) {
 		if ( !$this->filename ) {
 			return; // Not an upload, nothing to do
@@ -394,8 +423,8 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Assert the state of Watchlist after the test.
-	*/
+	 * @brief Assert the state of Watchlist after the test.
+	 */
 	protected function checkWatchlist( $expected ) {
 		if ( $expected === null ) {
 			return; // Watch/Unwatch test not requested
@@ -412,17 +441,16 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Assert that $title is watched/unwatched.
-		@param $expectedState True if $title should be watched, false if not.
-	*/
+	 * @brief Assert that $title is watched/unwatched.
+	 * @param $expectedState True if $title should be watched, false if not.
+	 */
 	protected function assertWatched( $expectedState, Title $title ) {
 		// Note: $user->isWatched() can't be used,
 		// because it would return cached results.
 		if ( method_exists( 'WatchedItemStore', 'getDefaultInstance' ) ) {
 			/* MediaWiki 1.27 */
 			$watchedItemStore = WatchedItemStore::getDefaultInstance();
-		}
-		else {
+		} else {
 			/* MediaWiki 1.28+ */
 			$watchedItemStore = MediaWiki\MediaWikiServices::getInstance()->getWatchedItemStore();
 		}
@@ -431,8 +459,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 		if ( $expectedState ) {
 			$this->getTestcase()->assertTrue( $isWatched,
 				"Page edited with \"Watch this page\" is not in watchlist" );
-		}
-		else {
+		} else {
 			$this->getTestcase()->assertFalse( $isWatched,
 				"Page edited without \"Watch this page\" was not deleted from the watchlist" );
 		}
@@ -440,8 +467,8 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 }
 
 /**
-	@brief Regular expression returned by getExpectedRow() instead of a constant field value.
-*/
+ * @brief Regular expression returned by getExpectedRow() instead of a constant field value.
+ */
 class ModerationTestSetRegex {
 	public $regex;
 

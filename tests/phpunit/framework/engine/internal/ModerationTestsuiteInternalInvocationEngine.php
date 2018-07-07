@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Testsuite engine that simulates HTTP requests via internal invocation of MediaWiki.
-*/
+ * @file
+ * @brief Testsuite engine that simulates HTTP requests via internal invocation of MediaWiki.
+ */
 
 class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEngine {
 
@@ -34,7 +34,8 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 				SessionManager is a singleton and has already been created,
 				and it provides no methods to change the storage.
 			*/
-			throw new Exception( 'Moderation Testsuite: please set $wgSessionCacheType to CACHE_DB in LocalSettings.php.' );
+			throw new Exception( 'Moderation Testsuite: please set $wgSessionCacheType ' .
+				'to CACHE_DB in LocalSettings.php.' );
 		}
 	}
 
@@ -50,7 +51,7 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 		$this->getSession()->setUser( $user );
 		$user->setCookies( null, null, true );
 
-		$_COOKIE = array_map( function( $info ) {
+		$_COOKIE = array_map( function ( $info ) {
 			return $info['value'];
 		}, $user->getRequest()->response()->getCookies() );
 
@@ -62,10 +63,10 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 	}
 
 	/**
-		@brief Perform API request and return the resulting structure.
-		@note If $apiQuery contains 'token' => 'null', then 'token'
+	 * @brief Perform API request and return the resulting structure.
+	 * @note If $apiQuery contains 'token' => 'null', then 'token'
 			will be set to the current value of $editToken.
-	*/
+	 */
 	protected function doQuery( array $apiQuery ) {
 		$wiki = new ModerationTestsuiteInternallyInvokedWiki(
 			wfScript( 'api' ),

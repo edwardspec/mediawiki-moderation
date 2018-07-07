@@ -15,42 +15,42 @@
 	GNU General Public License for more details.
 */
 
-require_once( __DIR__ . '/../common/ModerationTestUtil.php' );
+require_once __DIR__ . '/../common/ModerationTestUtil.php';
 
 /**
-	@file
-	@brief Parent class for benchmark scripts.
-*/
+ * @file
+ * @brief Parent class for benchmark scripts.
+ */
 
 abstract class ModerationBenchmark extends Maintenance {
 	/**
-		@brief Prefix that is always prepended to all titles, etc.
-		This ensures that two benchmarks won't work with the same pages,
-		causing errors like "benchmark #1 was creating a new page,
-		benchmark #2 was editing existing page,
-		leading to performance of #1 and #2 being different".
-	*/
+	 * @brief Prefix that is always prepended to all titles, etc.
+	 * 	This ensures that two benchmarks won't work with the same pages,
+	 *	causing errors like "benchmark #1 was creating a new page,
+	 *	benchmark #2 was editing existing page,
+	 *	leading to performance of #1 and #2 being different".
+	 */
 	private $uniquePrefix = null;
 
 	/**
-		@brief User object. Always created before the benchmark.
-	*/
+	 * @brief User object. Always created before the benchmark.
+	 */
 	private $testUser = null;
 
 	/**
-		@brief Returns User object of test account.
-	*/
+	 * @brief Returns User object of test account.
+	 */
 	public function getUser() {
 		return $this->testUser;
 	}
 
 	/**
-		@brief Returns Title object for testing.
-		@param $suffix Full text of the title, e.g. "Talk:Welsh corgi".
-
-		During this benchmark, same value is returned for same $suffix,
-		but another benchmark will get a different Title.
-	*/
+	 * @brief Returns Title object for testing.
+	 * @param string $suffix Full text of the title, e.g. "Talk:Welsh corgi".
+	 *
+	 * During this benchmark, same value is returned for same $suffix,
+	 * but another benchmark will get a different Title.
+	 */
 	public function getTestTitle( $suffix = '1' ) {
 		$nonprefixedTitle = Title::newFromText( $suffix );
 		return Title::makeTitle(
@@ -60,31 +60,41 @@ abstract class ModerationBenchmark extends Maintenance {
 	}
 
 	/**
-		@brief This function will be benchmarked by execute().
-	*/
+	 * @brief This function will be benchmarked by execute().
+	 */
 	abstract public function doActualWork( $iterationNumber );
 
 	/**
-		@brief Initialize everything before the tests.
-	*/
+	 * @brief Initialize everything before the tests. Called once.
+	 * @param int $numberOfLoops
+	 */
 	public function beforeBenchmark( $numberOfLoops ) {
 		/* Nothing to do.
 			Will be redefined by benchmarks if they need this. */
 	}
 
 	/**
-		@brief Default number of loops.
-	*/
+	 * @brief Same as beforeBenchmark, but is called getDefaultLoops() times.
+	 * @param int $iterationNumber Number of the loop (integer starting with 0).
+	 */
+	public function beforeBenchmarkPrepareLoop( $iterationNumber ) {
+		/* Nothing to do.
+			Will be redefined by benchmarks if they need this. */
+	}
+
+	/**
+	 * @brief Default number of loops.
+	 */
 	public function getDefaultLoops() {
 		return 500;
 	}
 
 	/**
-		@brief Main function: test the performance of doActualWork().
-	*/
+	 * @brief Main function: test the performance of doActualWork().
+	 */
 	function execute() {
 		$user = User::newSystemUser( 'Benchmark User', [ 'steal' => true ] );
-		foreach( $user->getGroups() as $existingGroup ) {
+		foreach ( $user->getGroups() as $existingGroup ) {
 			$user->removeGroup( $existingGroup );
 		}
 		$user->saveSettings();
@@ -99,6 +109,9 @@ abstract class ModerationBenchmark extends Maintenance {
 		$dbw->startAtomic( __METHOD__ );
 
 		$this->beforeBenchmark( $loops );
+		for ( $i = 0; $i <= $loops; $i ++ ) {
+			$this->beforeBenchmarkPrepareLoop( $i );
+		}
 
 		$dbw->endAtomic( __METHOD__ );
 
@@ -116,13 +129,14 @@ abstract class ModerationBenchmark extends Maintenance {
 		$endTime = microtime( true );
 
 		/* Performance report */
-		printf( "\r%s: did %d iterations in %.3f seconds\n", get_class( $this ), $loops, ( $endTime - $startTime ) );
+		printf( "\r%s: did %d iterations in %.3f seconds\n",
+			get_class( $this ), $loops, ( $endTime - $startTime ) );
 	}
 
 	/**
-		@brief Edit the page (convenience function to be used by benchmarks).
-		@return Status object.
-	*/
+	 * @brief Edit the page (convenience function to be used by benchmarks).
+	 * @return Status object.
+	 */
 	public function edit( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
 		$page = WikiPage::factory( $title );
 		$content = ContentHandler::makeContent( $newText, null, CONTENT_MODEL_WIKITEXT );
@@ -142,24 +156,29 @@ abstract class ModerationBenchmark extends Maintenance {
 	}
 
 	/**
-		@brief Edit the page by directly modifying the database. Very fast.
-
-		This is used for initialization of tests.
-		For example, if moveQueue benchmark needs 500 existing pages,
-		it would take forever for doEditContent() to create them all,
-		much longer than the actual benchmark.
-	*/
+	 * @brief Edit the page by directly modifying the database. Very fast.
+	 *
+	 * This is used for initialization of tests.
+	 * For example, if moveQueue benchmark needs 500 existing pages,
+	 * it would take forever for doEditContent() to create them all,
+	 * much longer than the actual benchmark.
+	 */
 	public function fastEdit( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
 		ModerationTestUtil::fastEdit( $title, $newText, $summary, $user );
 	}
 
 	/**
-		@brief Queue the page by directly modifying the database. Very fast.
-		This is used for initialization of tests.
-
-		@returns mod_id of the newly inserted row.
-	*/
-	public function fastQueue( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
+	 * @brief Queue the page by directly modifying the database. Very fast.
+	 * This is used for initialization of tests.
+	 *
+	 * @return mod_id of the newly inserted row.
+	 */
+	public function fastQueue(
+		Title $title,
+		$newText = 'Whatever',
+		$summary = '',
+		User $user = null
+	) {
 		$page = WikiPage::factory( $title );
 		if ( !$user ) {
 			$user = User::newFromName( '127.0.0.1', false );
@@ -196,11 +215,11 @@ abstract class ModerationBenchmark extends Maintenance {
 	}
 
 	/**
-		@brief Render Special:Moderation with $params.
-		@returns HTML of the result.
-	*/
+	 * @brief Render Special:Moderation with $params.
+	 * @return HTML of the result.
+	 */
 	public function runSpecialModeration( array $params, $wasPosted = false ) {
-		ModerationTestUtil::runSpecialModeration(
+		return ModerationTestUtil::runSpecialModeration(
 			$this->getUser(),
 			$params,
 			$wasPosted

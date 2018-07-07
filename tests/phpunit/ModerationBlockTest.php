@@ -16,17 +16,16 @@
 */
 
 /**
-	@file
-	@brief Verifies that modaction=(un)block works as expected.
-*/
+ * @file
+ * @brief Verifies that modaction=(un)block works as expected.
+ */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
-	@covers ModerationActionBlock
-*/
-class ModerationTestBlock extends MediaWikiTestCase
-{
+ * @covers ModerationActionBlock
+ */
+class ModerationBlockTest extends MediaWikiTestCase {
 	public function testBlock() {
 		$t = new ModerationTestsuite();
 		$entry = $t->getSampleEntry( 'Test page 1' );
@@ -53,7 +52,8 @@ class ModerationTestBlock extends MediaWikiTestCase
 
 		$t->fetchSpecial( 'spam' );
 		$this->assertCount( 1, $t->new_entries,
-			"testBlock(): One edit from spammer was queued for moderation, but number of added entries in Spam folder isn't 1" );
+			"testBlock(): One edit from spammer was queued for moderation, " .
+			"but number of added entries in Spam folder isn't 1" );
 		$this->assertCount( 0, $t->deleted_entries,
 			"testBlock(): Something was deleted from Spam folder during the queueing" );
 
@@ -115,9 +115,11 @@ class ModerationTestBlock extends MediaWikiTestCase
 		$t->fetchSpecial();
 
 		$this->assertCount( 1, $t->new_entries,
-			"testBlock(): One edit from non-spammer was queued for moderation, but number of added entries in Pending folder isn't 1" );
+			"testBlock(): One edit from non-spammer was queued for moderation, " .
+			"but number of added entries in Pending folder isn't 1" );
 		$this->assertCount( 0, $t->deleted_entries,
-			"testBlock(): Something was deleted from Pending folder when queueing an edit from non-spammer" );
+			"testBlock(): Something was deleted from Pending folder " .
+			"when queueing an edit from non-spammer" );
 
 		$entry = $t->new_entries[0];
 		$this->assertEquals( $t->lastEdit['User'], $entry->user );

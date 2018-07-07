@@ -16,8 +16,8 @@
 */
 
 /**
-	@file
-	@brief API to preload edits which are pending moderation.
+ * @file
+ * @brief API to preload edits which are pending moderation.
 
 	This can be used by API-based JavaScript editors,
 	for example Extension:VisualEditor or Extension:MobileFrontend.
@@ -43,10 +43,9 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 
 		/* Load text which is currently awaiting moderation */
 		$row = ModerationPreload::singleton()->loadUnmoderatedEdit( $title );
-		if( !$row ) {
+		if ( !$row ) {
 			$r['missing'] = ''; /* There is no pending edit */
-		}
-		else {
+		} else {
 			$wikitext = $row->text;
 
 			if ( isset( $params['section'] ) ) {
@@ -61,11 +60,9 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 
 			if ( $params['mode'] == 'wikitext' ) {
 				$r['wikitext'] = $wikitext;
-			}
-			elseif ( $params['mode'] == 'parsed' ) {
+			} elseif ( $params['mode'] == 'parsed' ) {
 				$r['parsed'] = $this->parse( $title, $wikitext );
 			}
-
 
 			$r['comment'] = $row->comment;
 		}
@@ -74,9 +71,9 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 	}
 
 	/**
-		@brief Parse $wikitext and return the results.
-		@returns array with keys 'text', 'categorieshtml', 'displaytitle'
-	*/
+	 * @brief Parse $wikitext and return the results.
+	 * @return array with keys 'text', 'categorieshtml', 'displaytitle'
+	 */
 	protected function parse( Title $title, $wikitext ) {
 		$apiParams = [
 			'action' => 'parse',

@@ -16,14 +16,14 @@
 */
 
 /**
-	@file
-	@brief Benchmark: how fast are edits queued for moderation?
+ * @file
+ * @brief Benchmark: how fast are edits queued for moderation?
 
 	Usage:
 	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/queueEdit.php
 */
 
-require_once( __DIR__ . '/ModerationBenchmark.php' );
+require_once __DIR__ . '/ModerationBenchmark.php';
 
 class BenchmarkQueueEdit extends ModerationBenchmark {
 	public function doActualWork( $i ) {
@@ -33,7 +33,10 @@ class BenchmarkQueueEdit extends ModerationBenchmark {
 			'Test summary ' . $i
 		);
 
-		assert( $status->getMessage()->getKey() == 'moderation-edit-queued' );
+		Wikimedia\Assert\Assert::postcondition(
+			( $status->getMessage()->getKey() == 'moderation-edit-queued' ),
+			'Edit not queued'
+		);
 	}
 }
 

@@ -16,36 +16,38 @@
 */
 
 /**
-	@file
-	@brief Benchmark: how fast is HTML of Special:Moderation generated?
+ * @file
+ * @brief Benchmark: how fast is HTML of Special:Moderation generated?
 
 	Usage:
 	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/renderSpecial.php
 */
 
-require_once( __DIR__ . '/ModerationBenchmark.php' );
+require_once __DIR__ . '/ModerationBenchmark.php';
 
 class BenchmarkRenderSpecial extends ModerationBenchmark {
 
 	/**
-		@brief Default number of loops.
-	*/
+	 * @brief Default number of loops.
+	 */
 	public function getDefaultLoops() {
 		return 50;
 	}
 
 	/**
-		@brief How many rows to show on Special:Moderation.
-	*/
+	 * @brief How many rows to show on Special:Moderation.
+	 */
 	public function getNumberOfEntries() {
 		return 200;
 	}
 
 	public function beforeBenchmark( $numberOfLoops ) {
 		/* Prepopulate 'moderation' table */
+// phpcs:disable Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed
 		for ( $i = 0; $i <= $this->getNumberOfEntries(); $i ++ ) {
 			$this->fastQueue( $this->getTestTitle( $i ) );
 		}
+// phpcs:enable
 
 		$this->getUser()->addGroup( 'moderator' );
 	}

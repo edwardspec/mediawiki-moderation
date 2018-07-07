@@ -16,23 +16,23 @@
 */
 
 /**
-	@file
-	@brief Ensures that checkuser-related functionality works correctly.
-*/
+ * @file
+ * @brief Ensures that checkuser-related functionality works correctly.
+ */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
-	@covers ModerationApproveHook
-*/
-class ModerationTestCheckuser extends MediaWikiTestCase
-{
+ * @covers ModerationApproveHook
+ */
+class ModerationCheckuserTest extends MediaWikiTestCase {
 	public $moderatorUA = 'UserAgent of Moderator/1.0';
 	public $userUA = 'UserAgent of UnprivilegedUser/1.0';
 
 	/**
-		@brief Verifies that checkusers can see Whois link for registered users, but non-checkusers can't.
-	*/
+	 * @brief Verifies that checkusers can see Whois link for registered users,
+	 * but non-checkusers can't.
+	 */
 	public function testModerationCheckuser() {
 		$t = new ModerationTestsuite();
 		$entry = $t->getSampleEntry();
@@ -61,9 +61,9 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Returns mod_ip of the last edit, as provided to the current user by QueryPage API.
-		@retval null IP is not in the API response.
-	*/
+	 * @brief Returns mod_ip of the last edit, as provided to the current user by QueryPage API.
+	 * @retval null IP is not in the API response.
+	 */
 	protected function getIpFromApi( ModerationTestsuite $t ) {
 		$ret = $t->query( [
 			'action' => 'query',
@@ -77,8 +77,8 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Verifies that anyone can see Whois link for anonymous users.
-	*/
+	 * @brief Verifies that anyone can see Whois link for anonymous users.
+	 */
 	public function testAnonymousWhoisLink() {
 		$t = new ModerationTestsuite();
 
@@ -99,15 +99,14 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 
 		$dbw = wfGetDB( DB_MASTER );
 		if ( !array_key_exists( 'CheckUser', $wgSpecialPages )
-			|| !$dbw->tableExists( 'cu_changes' ) )
-		{
+			|| !$dbw->tableExists( 'cu_changes' ) ) {
 			$this->markTestSkipped( 'Test skipped: CheckUser extension must be installed to run it.' );
 		}
 	}
 
 	/**
-		@brief Ensure that modaction=approve preserves user-agent of edits.
-	*/
+	 * @brief Ensure that modaction=approve preserves user-agent of edits.
+	 */
 	public function testApproveEditPrevervesUA() {
 		$this->skipIfNoCheckuser();
 		$t = new ModerationTestsuite();
@@ -123,19 +122,20 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 
 		$waiter = $t->waitForRecentChangesToAppear();
 		$t->httpGet( $entry->approveLink );
-		$waiter(1);
+		$waiter( 1 );
 
 		$agent = $t->getCUCAgent();
 		$this->assertNotEquals( $this->moderatorUA, $agent,
 			"testApproveEditPrevervesUA(): UserAgent in checkuser tables matches moderator's UserAgent" );
 		$this->assertEquals( $this->userUA, $agent,
-			"testApproveEditPrevervesUA(): UserAgent in checkuser tables doesn't match UserAgent of user who made the edit" );
+			"testApproveEditPrevervesUA(): UserAgent in checkuser tables " .
+			"doesn't match UserAgent of user who made the edit" );
 	}
 
 	/**
-		@brief Ensure that modaction=approveall preserves user-agent of uploads.
-		@covers ModerationApproveHook::getTask()
-	*/
+	 * @brief Ensure that modaction=approveall preserves user-agent of uploads.
+	 * @covers ModerationApproveHook::getTask()
+	 */
 	public function testApproveAllUploadPrevervesUA() {
 		$this->skipIfNoCheckuser();
 		$t = new ModerationTestsuite();
@@ -160,13 +160,15 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 		$t->httpGet( $entry->approveAllLink ); # Try modaction=approveall
 		$waiter( $NUMBER_OF_UPLOADS );
 
-		$agents = $t->getCUCAgents( $NUMBER_OF_UPLOADS );
-		$i = $NUMBER_OF_UPLOADS; /* Counting backwards, because getCUCAgents() selects in newest-to-latest order */
-		foreach ( $agents as $agent ) {
+		/* Counting backwards, because getCUCAgents() selects in newest-to-latest order */
+		$i = $NUMBER_OF_UPLOADS;
+		foreach ( $t->getCUCAgents( $NUMBER_OF_UPLOADS ) as $agent ) {
 			$this->assertNotEquals( $this->moderatorUA, $agent,
-				"testApproveAllUploadPrevervesUA(): Upload #$i: UserAgent in checkuser tables matches moderator's UserAgent" );
+				"testApproveAllUploadPrevervesUA(): Upload #$i: UserAgent in checkuser " .
+				"tables matches moderator's UserAgent" );
 			$this->assertEquals( $this->userUA . '#' . $i, $agent,
-				"testApproveAllUploadPrevervesUA(): Upload #$i: UserAgent in checkuser tables doesn't match UserAgent of user who made the upload" );
+				"testApproveAllUploadPrevervesUA(): Upload #$i: UserAgent in checkuser " .
+				"tables doesn't match UserAgent of user who made the upload" );
 
 			$i --;
 		}

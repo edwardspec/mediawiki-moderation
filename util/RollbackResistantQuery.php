@@ -16,61 +16,69 @@
 */
 
 /**
-	@file
-	@brief Performs database query that is not rolled back by MWException.
-*/
+ * @file
+ * @brief Performs database query that is not rolled back by MWException.
+ */
 
 class RollbackResistantQuery {
 
-	protected static $initialized = false; /**< Becomes true after initialize() */
-	protected static $performedQueries = []; /**< array of all created RollbackResistantQuery objects */
+	/** @var bool Becomes true after initialize() */
+	protected static $initialized = false;
 
-	protected $dbw; /**< IDatabase */
-	protected $methodName; /**< Database method, e.g. 'insert' or 'update' */
-	protected $args; /**< Array of parameters to be passed to $dbw->insert(), etc. */
+	/** @var array All created RollbackResistantQuery objects */
+	protected static $performedQueries = [];
+
+	/** @var IDatabase */
+	protected $dbw;
+
+	/** @var string Database method, e.g. 'insert' or 'update' */
+	protected $methodName;
+
+	/** @var array Arguments to be passed to Database::insert(), etc. */
+	protected $args;
 
 	/**
-		@brief Perform $dbw->insert() that won't be undone by $dbw->rollback().
-		@param $dbw Database object.
-		@param $args Arguments of $dbw->insert() call.
-	*/
+	 * @brief Perform Database::insert() that won't be undone by Database::rollback().
+	 * @param IDatabase $dbw Database object.
+	 * @param array $args Arguments of Database::insert call.
+	 */
 	public static function insert( IDatabase $dbw, array $args ) {
 		new self( 'insert', $dbw, $args );
 	}
 
 	/**
-		@brief Perform $dbw->update() that won't be undone by $dbw->rollback().
-		@param $dbw Database object.
-		@param $args Arguments of $dbw->update() call.
-	*/
+	 * @brief Perform Database::update() that won't be undone by Database::rollback().
+	 * @param IDatabase $dbw Database object.
+	 * @param array $args Arguments of Database::update call.
+	 */
 	public static function update( IDatabase $dbw, array $args ) {
 		new self( 'update', $dbw, $args );
 	}
 
 	/**
-		@brief Perform $dbw->replace() that won't be undone by $dbw->rollback().
-		@param $dbw Database object.
-		@param $args Arguments of $dbw->replace() call.
-	*/
+	 * @brief Perform Database::replace() that won't be undone by Database::rollback().
+	 * @param IDatabase $dbw Database object.
+	 * @param array $args Arguments of Database::replace call.
+	 */
 	public static function replace( IDatabase $dbw, array $args ) {
 		new self( 'replace', $dbw, $args );
 	}
 
 	/**
-		@brief Perform $dbw->upsert() that won't be undone by $dbw->rollback().
-		@param $dbw Database object.
-		@param $args Arguments of $dbw->upsert() call.
-	*/
+	 * @brief Perform Database::upsert() that won't be undone by Database::rollback().
+	 * @param IDatabase $dbw Database object.
+	 * @param array $args Arguments of Database::upsert call.
+	 */
 	public static function upsert( IDatabase $dbw, array $args ) {
 		new self( 'upsert', $dbw, $args );
 	}
 
 	/**
-		@brief Create and immediately execute a new query.
-		@param $methodName String, e.g. 'insert', 'update' or 'replace'.
-		@param $dbw Database object.
-		@param $args Arguments of $dbw->update() call.
-	*/
+	 * @brief Create and immediately execute a new query.
+	 * @param string $methodName One of the following: 'insert', 'update' or 'replace'.
+	 * @param IDatabase $dbw Database object.
+	 * @param array $args Arguments of the method.
+	 */
 	protected function __construct( $methodName, IDatabase $dbw, array $args ) {
 		$this->dbw = $dbw;
 		$this->methodName = $methodName;
@@ -87,44 +95,46 @@ class RollbackResistantQuery {
 	}
 
 	/**
-		@brief Install hooks that can detect a database rollback.
-	*/
+	 * @brief Install hooks that can detect a database rollback.
+	 */
 	protected function initialize() {
-		if ( !self::$initialized ) {
-			self::$initialized = true;
+		if ( self::$initialized ) {
+			return;
+		}
 
-			$query = $this;
+		self::$initialized = true;
+		$query = $this;
 
-			/* MediaWiki 1.28+ calls TransactionListener callback after rollback() */
-			if ( defined( 'Database::TRIGGER_ROLLBACK' ) ) {
-				$this->dbw->setTransactionListener( 'moderation-on-rollback', function( $trigger ) use ( $query ) {
+		/* MediaWiki 1.28+ calls TransactionListener callback after rollback() */
+		if ( defined( 'Database::TRIGGER_ROLLBACK' ) ) {
+			$this->dbw->setTransactionListener( 'moderation-on-rollback',
+				function ( $trigger ) use ( $query ) {
 					if ( $trigger == Database::TRIGGER_ROLLBACK ) {
 						$query->onRollback();
 					}
-				}, __METHOD__ );
-			}
-			else {
-				/* MediaWiki 1.27 doesn't call any callbacks after rollback(),
-					but we can at least detect MWException - what usually causes the rolback
-					in MWExceptionHandler::handleException() */
+				},
+				__METHOD__
+			);
+		} else {
+			/* MediaWiki 1.27 doesn't call any callbacks after rollback(),
+				but we can at least detect MWException - what usually causes the rolback
+				in MWExceptionHandler::handleException() */
 
-				Hooks::register( 'LogException', function( $e, $suppressed ) use ( $query ) {
-					if (
-						!( $e instanceof DBError ) && /* DBError likely means that rollback failed */
-						!( $e instanceof JobQueueError ) /* Non-fatal error in JobQueue, doesn't cause rollback */
-					) {
-						$query->onRollback();
-					}
-
+			Hooks::register( 'LogException', function ( $e, $suppressed ) use ( $query ) {
+				if (
+					!( $e instanceof DBError ) && // DBError likely means that rollback failed
+					!( $e instanceof JobQueueError ) // Non-fatal error in JobQueue, doesn't cause rollback
+				) {
+					$query->onRollback();
+				}
 					return true;
-				} );
-			}
+			} );
 		}
 	}
 
 	/**
-		@brief Re-run all $performedQueries. Called after the database rollback.
-	*/
+	 * @brief Re-run all $performedQueries. Called after the database rollback.
+	 */
 	protected function onRollback() {
 		foreach ( self::$performedQueries as $query ) {
 			$query->executeNow();
@@ -134,8 +144,8 @@ class RollbackResistantQuery {
 	}
 
 	/**
-		@brief Run the scheduled query immediately.
-	*/
+	 * @brief Run the scheduled query immediately.
+	 */
 	protected function executeNow() {
 		call_user_func_array(
 			[ $this->dbw, $this->methodName ],

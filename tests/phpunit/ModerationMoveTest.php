@@ -16,17 +16,16 @@
 */
 
 /**
-	@file
-	@brief Ensures that moves are intercepted by Extension:Moderation.
-*/
+ * @file
+ * @brief Ensures that moves are intercepted by Extension:Moderation.
+ */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
-	@covers ModerationMoveHooks
-*/
-class ModerationMoveTest extends MediaWikiTestCase
-{
+ * @covers ModerationMoveHooks
+ */
+class ModerationMoveTest extends MediaWikiTestCase {
 	public $oldTitle = 'About dogs';
 	public $newTitle = 'About herding dogs';
 	public $text = 'Initial content of page "About dogs".';
@@ -52,7 +51,8 @@ class ModerationMoveTest extends MediaWikiTestCase
 		$t->fetchSpecial();
 
 		$this->assertCount( 1, $t->new_entries,
-			"testMove(): One move was queued for moderation, but number of added entries in Pending folder isn't 1" );
+			"testMove(): One move was queued for moderation, but number of added entries " .
+			"in Pending folder isn't 1" );
 		$this->assertCount( 0, $t->deleted_entries,
 			"testMove(): Something was deleted from Pending folder during the queueing" );
 
@@ -64,7 +64,8 @@ class ModerationMoveTest extends MediaWikiTestCase
 
 		$this->assertNotNull( $entry->approveLink, "testMove(): Approve link not found" );
 		$this->assertNotNull( $entry->rejectLink, "testMove(): Reject link not found" );
-		$this->assertNull( $entry->showLink, "testMove(): unexpected Show link found (it's not needed for moves)" );
+		$this->assertNull( $entry->showLink,
+			"testMove(): unexpected Show link found (it's not needed for moves)" );
 
 		/* Ensure that page hasn't been moved yet */
 		$rev = $t->getLastRevision( $this->oldTitle );
@@ -145,7 +146,7 @@ class ModerationMoveTest extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Ensures that Special:MovePage won't queue the move before submit.
+	 * @brief Ensures that Special:MovePage won't queue the move before submit.
 
 		Hook MovePageCheckPermissions (where we queue the move) is called
 		not only on submit, but also in MovePageForm::showForm, i.e. before submit.
@@ -169,7 +170,8 @@ class ModerationMoveTest extends MediaWikiTestCase
 		$html = $t->html->loadFromReq( $req );
 
 		$this->assertNotContains( '(moderation-move-queued)', $html->getMainText(),
-			"testNoPrematureMoveInShowForm(): Special:MovePage has queued the move before Submit was clicked" );
+			"testNoPrematureMoveInShowForm(): Special:MovePage has queued the move " .
+			"before Submit was clicked" );
 
 		$submitButton = $html->getSubmitButton();
 		$this->assertNotNull( $submitButton );

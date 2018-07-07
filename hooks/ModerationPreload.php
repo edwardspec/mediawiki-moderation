@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Hooks/methods to preload edits which are pending moderation.
-*/
+ * @file
+ * @brief Hooks/methods to preload edits which are pending moderation.
+ */
 
 /*
 	Calculating 'mod_preload_id':
@@ -28,12 +28,16 @@
 	Note: ']' and '[' are used because they aren't allowed in usernames.
 */
 
-
 class ModerationPreload {
 
-	protected static $singleton = null; /**< Singleton instance */
-	protected $editPage = null; /**< EditPage object, passed by onAlternateEdit() to onEditFormPreloadText() */
-	private $user = null; /**< User object. If not set, $wgUser will be used. */
+	/** @var ModerationPreload Singleton instance */
+	protected static $instance = null;
+
+	/** @var EditPage Editor object passed from onAlternateEdit() to onEditFormPreloadText() */
+	protected $editPage = null;
+
+	/** @var User|null Current user. If not set, $wgUser will be used. */
+	private $user = null;
 
 	protected function __construct() {
 	}
@@ -43,25 +47,25 @@ class ModerationPreload {
 	 * @return ModerationPreload
 	 */
 	public static function singleton() {
-		if ( is_null( self::$singleton ) ) {
-			self::$singleton = new self;
+		if ( is_null( self::$instance ) ) {
+			self::$instance = new self;
 		}
 
-		return self::$singleton;
+		return self::$instance;
 	}
 
 	/**
-		@brief Get the request.
-		@returns WebRequest object.
-	*/
+	 * @brief Get the request.
+	 * @return WebRequest object.
+	 */
 	protected function getRequest() {
 		return RequestContext::getMain()->getRequest();
 	}
 
 	/**
-		@brief Get the user.
-		@returns User object.
-	*/
+	 * @brief Get the user.
+	 * @return User object.
+	 */
 	protected function getUser() {
 		if ( $this->user ) {
 			return $this->user;
@@ -71,18 +75,18 @@ class ModerationPreload {
 	}
 
 	/**
-		@brief Override the current user: preload for $user instead.
-	*/
+	 * @brief Override the current user: preload for $user instead.
+	 */
 	public function setUser( User $user ) {
 		$this->user = $user;
 	}
 
 	/**
-		@brief Calculate value of mod_preload_id for the current user.
-		@param $create If true, new preload ID will be generated for first-time anonymous editors.
-		@returns Preload ID (string).
-		@retval false Current user is anonymous AND hasn't edited before AND $create is false.
-	*/
+	 * @brief Calculate value of mod_preload_id for the current user.
+	 * @param bool $create If true, new preload ID will be generated for first-time anonymous editors.
+	 * @return Preload ID (string).
+	 * @retval false Current user is anonymous AND hasn't edited before AND $create is false.
+	 */
 	public function getId( $create = false ) {
 		$user = $this->getUser();
 		if ( $user->isLoggedIn() ) {
@@ -93,8 +97,8 @@ class ModerationPreload {
 	}
 
 	/**
-		@brief Calculate mod_preload_id for anonymous user.
-	*/
+	 * @brief Calculate mod_preload_id for anonymous user.
+	 */
 	protected function getAnonId( $create ) {
 		$anonToken = $this->getRequest()->getSessionData( 'anon_id' );
 		if ( !$anonToken ) {
@@ -112,9 +116,9 @@ class ModerationPreload {
 	}
 
 	/**
-		@brief Forget the fact that this user edited anonymously.
+	 * @brief Forget the fact that this user edited anonymously.
 		Used in LocalUserCreated hook, when user becomes registered and no longer needs anonymous preload.
-	*/
+	 */
 	protected function forgetAnonId() {
 		$this->getRequest()->setSessionData( 'anon_id', '' );
 	}
@@ -162,10 +166,10 @@ class ModerationPreload {
 	}
 
 	/**
-		@brief Check if there is a pending-moderation edit of this user
+	 * @brief Check if there is a pending-moderation edit of this user
 		to this page, and if such edit exists, then load its text and
 		edit comment.
-	*/
+	 */
 	public function loadUnmoderatedEdit( $title ) {
 		$id = $this->getId();
 		if ( !$id ) { # This visitor never saved any edits
@@ -219,7 +223,8 @@ class ModerationPreload {
 
 		$out = RequestContext::getMain()->getOutput();
 		$out->addModules( 'ext.moderation.edit' );
-		$out->wrapWikiMsg( '<div id="mw-editing-your-version">$1</div>', [ 'moderation-editing-your-version' ] );
+		$out->wrapWikiMsg( '<div id="mw-editing-your-version">$1</div>',
+			[ 'moderation-editing-your-version' ] );
 
 		$text = $row->text;
 		if ( $editPage ) {
@@ -240,8 +245,7 @@ class ModerationPreload {
 		onAlternateEdit()
 		Remember EditPage object, which will then be used in onEditFormPreloadText.
 	*/
-	public static function onAlternateEdit( $editPage )
-	{
+	public static function onAlternateEdit( $editPage ) {
 		self::singleton()->editPage = $editPage;
 
 		return true;

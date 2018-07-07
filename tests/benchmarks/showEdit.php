@@ -16,14 +16,14 @@
 */
 
 /**
-	@file
-	@brief Benchmark: how fast is Show on Special:Moderation?
+ * @file
+ * @brief Benchmark: how fast is Show on Special:Moderation?
 
 	Usage:
 	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/showEdit.php
 */
 
-require_once( __DIR__ . '/ModerationBenchmark.php' );
+require_once __DIR__ . '/ModerationBenchmark.php';
 
 class BenchmarkShowEdit extends ModerationBenchmark {
 
@@ -33,8 +33,8 @@ class BenchmarkShowEdit extends ModerationBenchmark {
 	const TEXT_AFTER = 'Newtext after';
 
 	/**
-		@brief Default number of loops.
-	*/
+	 * @brief Default number of loops.
+	 */
 	public function getDefaultLoops() {
 		return 3000;
 	}
@@ -52,7 +52,10 @@ class BenchmarkShowEdit extends ModerationBenchmark {
 			'modid' => $this->id
 		] );
 
-		assert( strpos( $html, 'Text before</del>' ) !== false );
+		Wikimedia\Assert\Assert::postcondition(
+			( strpos( $html, 'Text before</del>' ) !== false ),
+			'Unexpected output from modaction=show'
+		);
 	}
 }
 

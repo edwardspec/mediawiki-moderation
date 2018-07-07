@@ -16,14 +16,17 @@
 */
 
 /**
-	@file
-	@brief Return value of non-API methods like $t->nonApiUpload().
-*/
+ * @file
+ * @brief Return value of non-API methods like $t->nonApiUpload().
+ */
 
 class ModerationTestsuiteSubmitResult {
 
-	protected $error; /**< string if error exists, false otherwise */
-	protected $successText; /**< string if not an error, false otherwise */
+	/** @var string|false */
+	protected $error;
+
+	/** @var string|false */
+	protected $successText;
 
 	protected function __construct( $error, $successText ) {
 		$this->error = $error;
@@ -39,9 +42,12 @@ class ModerationTestsuiteSubmitResult {
 	}
 
 	/**
-		@brief Create ModerationTestsuiteSubmitResult object from $req.
-	*/
-	public static function newFromResponse( ModerationTestsuiteResponse $req, ModerationTestsuite $t ) {
+	 * @brief Create ModerationTestsuiteSubmitResult object from $req.
+	 */
+	public static function newFromResponse(
+		ModerationTestsuiteResponse $req,
+		ModerationTestsuite $t
+	) {
 		if ( $req->getResponseHeader( 'Location' ) ) {
 			return null; # No errors
 		}
@@ -71,4 +77,3 @@ class ModerationTestsuiteSubmitResult {
 		return $this->successText;
 	}
 }
-

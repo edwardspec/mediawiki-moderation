@@ -16,24 +16,20 @@
 */
 
 /**
-	@file
-	@brief Verifies that "Watch this page" checkbox is respected when editing.
-*/
+ * @file
+ * @brief Verifies that "Watch this page" checkbox is respected when editing.
+ */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
-	@covers ModerationActionApprove
-*/
-class ModerationTestWatch extends MediaWikiTestCase
-{
+ * @covers ModerationActionApprove
+ */
+class ModerationWatchTest extends MediaWikiTestCase {
 	/**
-
-		@brief Test that checkboxes "Watch this page" work.
-		@testWith	["edit"]
-				["upload"]
-				["move"]
-	*/
+	 * @brief Test that checkboxes "Watch this page" work.
+	 * @dataProvider dataProviderWatch
+	 */
 	public function testWatch( $actionType ) {
 		$t = new ModerationTestsuite();
 
@@ -72,7 +68,9 @@ class ModerationTestWatch extends MediaWikiTestCase
 		$this->assertNotEmpty( $wl,
 			"testWatch(): One page was watched, watchlist is empty" );
 
-		$watchedTitles = array_map( function( $item ) { return $item['title']; }, $wl );
+		$watchedTitles = array_map( function ( $item ) {
+			return $item['title'];
+		}, $wl );
 		$expectedWatchedTitles = [ $title ];
 		if ( $actionType == 'move' ) {
 			$expectedWatchedTitles[] = [ $newTitle ];
@@ -98,5 +96,16 @@ class ModerationTestWatch extends MediaWikiTestCase
 		] );
 		$this->assertEmpty( $ret['watchlistraw'],
 			"testWatch(): All pages were unwatched, but watchlist is not empty" );
+	}
+
+	/**
+	 * @brief Provide datasets for testWatch() runs.
+	 */
+	public function dataProviderWatch() {
+		return [
+			[ 'edit' ],
+			[ 'upload' ],
+			[ 'move' ]
+		];
 	}
 }

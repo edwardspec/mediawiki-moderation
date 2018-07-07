@@ -16,12 +16,13 @@
 */
 
 /**
-	@file
-	@brief Formatter for displaying entry on Special:Moderation.
-*/
+ * @file
+ * @brief Formatter for displaying entry on Special:Moderation.
+ */
 
 class ModerationEntryFormatter extends ModerationEntry {
-	protected $context = null; /**< IContextSource */
+	/** @var IContextSource */
+	protected $context = null;
 
 	public function getContext() {
 		if ( is_null( $this->context ) ) {
@@ -36,17 +37,17 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	/**
-		@brief Returns User object of moderator.
-	*/
+	 * @brief Returns User object of moderator.
+	 */
 	public function getModerator() {
 		return $this->getContext()->getUser();
 	}
 
 	/**
-		@brief Add all titles needed by getHTML() to $batch.
+	 * @brief Add all titles needed by getHTML() to $batch.
 		This method is for QueryPage::preprocessResults().
 		It optimizes Linker::link() calls by detecting all redlinks in one SQL query.
-	*/
+	 */
 	public static function addToLinkBatch( $row, LinkBatch $batch ) {
 		/* Check the affected article */
 		$batch->add( $row->namespace, $row->title );
@@ -71,8 +72,8 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	/**
-		@brief Returns QueryInfo for $db->select(), as expected by QueryPage::getQueryInfo().
-	*/
+	 * @brief Returns QueryInfo for $db->select(), as expected by QueryPage::getQueryInfo().
+	 */
 	public static function getQueryInfo() {
 		return [
 			'tables' => [ 'moderation', 'moderation_block' ],
@@ -91,9 +92,9 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	/**
-		@brief Get the list of fields needed for selecting $row, as expected by newFromRow().
-		@returns array ($fields parameter for $db->select()).
-	*/
+	 * @brief Get the list of fields needed for selecting $row, as expected by newFromRow().
+	 * @return array ($fields parameter for $db->select()).
+	 */
 	public static function getFields() {
 		$fields = [
 			'mod_id AS id',
@@ -134,8 +135,8 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	/**
-		@brief Returns HTML of formatted line for Special:Moderation.
-	*/
+	 * @brief Returns HTML of formatted line for Special:Moderation.
+	 */
 	public function getHTML() {
 		global $wgModerationPreviewLink;
 
@@ -146,7 +147,8 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 		$line = '';
 
-		if ( !$this->isMove() ) { /* Show/Preview links aren't needed for moves, because they don't change the text */
+		// Show/Preview links. Not needed for moves, because they don't change the text.
+		if ( !$this->isMove() ) {
 			$line .= '(' . $this->makeModerationLink( 'show', $row->id );
 
 			if ( $wgModerationPreviewLink ) {
@@ -176,8 +178,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 				$pageLink,
 				$page2Link
 			)->plain();
-		}
-		else {
+		} else {
 			/* Normal edit (or upload) */
 			$line .= $pageLink;
 		}
@@ -198,8 +199,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 		$ip = null;
 		if ( isset( $row->ip ) ) {
 			$ip = $row->ip;
-		}
-		elseif ( $row->user == 0 && IP::isValid( $row->user_text ) ) {
+		} elseif ( $row->user == 0 && IP::isValid( $row->user_text ) ) {
 			$ip = $row->user_text;
 		}
 

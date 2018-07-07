@@ -16,20 +16,25 @@
 */
 
 /**
-	@file
-	@brief Utility functions used in both benchmark and PHPUnit Testsuite.
-*/
+ * @file
+ * @brief Utility functions used in both benchmark and PHPUnit Testsuite.
+ */
 
 class ModerationTestUtil {
 	/**
-		@brief Edit the page by directly modifying the database. Very fast.
-
-		This is used for initialization of tests.
-		For example, if moveQueue benchmark needs 500 existing pages,
-		it would take forever for doEditContent() to create them all,
-		much longer than the actual benchmark.
-	*/
-	public static function fastEdit( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
+	 * @brief Edit the page by directly modifying the database. Very fast.
+	 *
+	 * This is used for initialization of tests.
+	 * For example, if moveQueue benchmark needs 500 existing pages,
+	 * it would take forever for doEditContent() to create them all,
+	 * much longer than the actual benchmark.
+	 */
+	public static function fastEdit(
+		Title $title,
+		$newText = 'Whatever',
+		$summary = '',
+		User $user = null
+	) {
 		$dbw = wfGetDB( DB_MASTER );
 
 		$page = WikiPage::factory( $title );
@@ -54,9 +59,9 @@ class ModerationTestUtil {
 	}
 
 	/**
-		@brief Render Special:Moderation with $params.
-		@returns HTML of the result.
-	*/
+	 * @brief Render Special:Moderation with $params.
+	 * @return HTML of the result.
+	 */
 	public static function runSpecialModeration( User $user, array $params, $wasPosted = false ) {
 		$page = SpecialPageFactory::getPage( 'Moderation' );
 

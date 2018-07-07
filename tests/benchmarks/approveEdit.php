@@ -16,33 +16,33 @@
 */
 
 /**
-	@file
-	@brief Benchmark: how fast is Approve on Special:Moderation?
+ * @file
+ * @brief Benchmark: how fast is Approve on Special:Moderation?
 
 	Usage:
 	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/approveEdit.php
 */
 
-require_once( __DIR__ . '/ModerationBenchmark.php' );
+require_once __DIR__ . '/ModerationBenchmark.php';
 
 class BenchmarkApproveEdit extends ModerationBenchmark {
 
 	public $ids = []; /* mod_id of all changes to approve */
 
 	/**
-		@brief Default number of loops.
-	*/
+	 * @brief Default number of loops.
+	 */
 	public function getDefaultLoops() {
 		return 100;
 	}
 
 	public function beforeBenchmark( $numberOfLoops ) {
-		/* Prepopulate 'moderation' table */
-		for ( $i = 0; $i <= $this->getDefaultLoops(); $i ++ ) {
-			$this->ids[] = $this->fastQueue( $this->getTestTitle( $i ) );
-		}
-
 		$this->getUser()->addGroup( 'moderator' );
+	}
+
+	public function beforeBenchmarkPrepareLoop( $i ) {
+		/* Prepopulate 'moderation' table */
+		$this->ids[] = $this->fastQueue( $this->getTestTitle( $i ) );
 	}
 
 	public function doActualWork( $i ) {
@@ -52,7 +52,10 @@ class BenchmarkApproveEdit extends ModerationBenchmark {
 			'token' => $this->getUser()->getEditToken()
 		] );
 
-		assert( strpos( $html, '(moderation-approved-ok: 1)' ) !== false );
+		Wikimedia\Assert\Assert::postcondition(
+			( strpos( $html, '(moderation-approved-ok: 1)' ) !== false ),
+			'Approve failed'
+		);
 	}
 }
 

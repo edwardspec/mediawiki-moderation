@@ -16,17 +16,16 @@
 */
 
 /**
-	@file
-	@brief Ensures that edits are intercepted by Extension:Moderation.
-*/
+ * @file
+ * @brief Ensures that edits are intercepted by Extension:Moderation.
+ */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
-	@covers ModerationEditHooks
-*/
-class ModerationTestInterceptEdit extends MediaWikiTestCase
-{
+ * @covers ModerationEditHooks
+ */
+class ModerationInterceptEditTest extends MediaWikiTestCase {
 	public function testInterceptEdit() {
 		$t = new ModerationTestsuite();
 
@@ -39,7 +38,8 @@ class ModerationTestInterceptEdit extends MediaWikiTestCase
 		$t->assertApiError( 'moderation-edit-queued', $ret, $this );
 
 		$this->assertCount( 1, $t->new_entries,
-			"testInterceptEdit(): One edit was queued for moderation, but number of added entries in Pending folder isn't 1" );
+			"testInterceptEdit(): One edit was queued for moderation, " .
+			"but number of added entries in Pending folder isn't 1" );
 		$this->assertCount( 0, $t->deleted_entries,
 			"testInterceptEdit(): Something was deleted from Pending folder during the queueing" );
 		$this->assertEquals( $t->lastEdit['User'], $t->new_entries[0]->user );
@@ -88,7 +88,8 @@ class ModerationTestInterceptEdit extends MediaWikiTestCase
 
 		# Usual checks on whether the edit not via API was intercepted.
 		$this->assertCount( 1, $t->new_entries,
-			"testPostEditRedirect(): One edit was queued for moderation, but number of added entries in Pending folder isn't 1" );
+			"testPostEditRedirect(): One edit was queued for moderation, " .
+			"but number of added entries in Pending folder isn't 1" );
 		$this->assertCount( 0, $t->deleted_entries,
 			"testPostEditRedirect(): Something was deleted from Pending folder during the queueing" );
 		$this->assertEquals( $t->lastEdit['User'], $t->new_entries[0]->user );

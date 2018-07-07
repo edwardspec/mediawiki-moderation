@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Replacement of LocalSettings.php loaded by [cliInvoke.php].
-*/
+ * @file
+ * @brief Replacement of LocalSettings.php loaded by [cliInvoke.php].
+ */
 
 # Load the usual LocalSettings.php
 require_once "$IP/LocalSettings.php";
@@ -40,18 +40,21 @@ function efModerationTestsuiteMockedHeader( $string, $replace = true, $http_resp
 function efModerationTestsuiteSetup() {
 	global $wgModerationTestsuiteCliDescriptor, $wgRequest, $wgHooks, $wgAutoloadClasses;
 
-	$wgAutoloadClasses['ModerationTestsuiteCliApiMain'] = __DIR__ . '/ModerationTestsuiteCliApiMain.php';
+	$wgAutoloadClasses['ModerationTestsuiteCliApiMain'] =
+		__DIR__ . '/ModerationTestsuiteCliApiMain.php';
 
 	/*
 		Override $wgRequest. It must be a FauxRequest
 		(because you can't extract response headers from WebResponse,
 		only from FauxResponse)
 	*/
+// phpcs:disable MediaWiki.Usage.SuperGlobalsUsage.SuperGlobals
 	$request = new FauxRequest(
 		$_POST + $_GET, // $data
 		( $_SERVER['REQUEST_METHOD'] == 'POST' ) // $wasPosted
 	);
 	$request->setRequestURL( $_SERVER['REQUEST_URI'] );
+// phpcs:enable
 	$request->setHeaders( $wgModerationTestsuiteCliDescriptor['httpHeaders'] );
 	$request->setCookies( $_COOKIE, '' );
 
@@ -75,7 +78,7 @@ function efModerationTestsuiteSetup() {
 			with ModerationTestsuiteCliApiMain (subclass of ApiMain)
 			that always prints the result, even in "internal mode".
 	*/
-	$wgHooks['ApiBeforeMain'][] = function( ApiMain &$apiMain ) {
+	$wgHooks['ApiBeforeMain'][] = function ( ApiMain &$apiMain ) {
 		global $wgEnableWriteAPI;
 
 		$apiMain = new ModerationTestsuiteCliApiMain(
@@ -90,7 +93,7 @@ function efModerationTestsuiteSetup() {
 		HACK: call session_id() on ID from the session cookie (if such cookie exists).
 		FIXME: detemine why exactly didn't SessionManager do this automatically.
 	*/
-	$wgHooks['SetupAfterCache'][] = function() {
+	$wgHooks['SetupAfterCache'][] = function () {
 		/* Earliest hook where $wgCookiePrefix (needed by getCookie())
 			is available (when not set in LocalSettings.php)  */
 		$id = RequestContext::getMain()->getRequest()->getCookie( '_session' );

@@ -16,20 +16,20 @@
 */
 
 /**
-	@file
-	@brief Handles exceptions thrown by actions on Special:Moderation.
-*/
+ * @file
+ * @brief Handles exceptions thrown by actions on Special:Moderation.
+ */
 
 class ModerationError extends ErrorPageError {
 
-	public $status; /**< Error details (Status object) */
+	/** @var Status Error details */
+	public $status;
 
 	public function __construct( $message ) {
 		if ( $message instanceof Status ) {
 			$this->status = $message;
 			$message = $this->status->getMessage();
-		}
-		else {
+		} else {
 			$this->status = Status::newFatal( $message );
 		}
 

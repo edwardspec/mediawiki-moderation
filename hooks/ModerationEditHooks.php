@@ -16,24 +16,31 @@
 */
 
 /**
-	@file
-	@brief Hooks related to normal edits.
-*/
+ * @file
+ * @brief Hooks related to normal edits.
+ */
 
 class ModerationEditHooks {
-	public static $NewMergeID = null; /** During modaction=merge, this is mod_id of the pending edit which is currently being merged */
+	/**
+	 * @var int
+	 * mod_id of the pending edit which is currently being merged (during modaction=merge)
+	 */
+	public static $NewMergeID = null;
 
-	protected static $section = ''; /**< Number of edited section, if any (populated in onEditFilter) */
-	protected static $sectionText = null; /**< Text of edited section, if any (populated in onEditFilter) */
+	/** @var int|string Number of edited section, if any (populated in onEditFilter) */
+	protected static $section = '';
 
-	protected static $watchthis = null; /**< Checkbox "Watch this page", if found (populated in onEditFilter) */
+	/** @var string Text of edited section, if any (populated in onEditFilter) */
+	protected static $sectionText = null;
+
+	/** @var bool|null Checkbox "Watch this page", if found (populated in onEditFilter) */
+	protected static $watchthis = null;
 
 	/*
 		onEditFilter()
 		Save sections-related information, which will then be used in onPageContentSave.
 	*/
-	public static function onEditFilter( $editor, $text, $section, &$error, $summary )
-	{
+	public static function onEditFilter( $editor, $text, $section, &$error, $summary ) {
 		if ( $section != '' ) {
 			self::$section = $section;
 			self::$sectionText = $text;
@@ -48,8 +55,10 @@ class ModerationEditHooks {
 		onPageContentSave()
 		Intercept normal edits and queue them for moderation.
 	*/
-	public static function onPageContentSave( &$page, &$user, &$content, &$summary, $is_minor, $is_watch, $section, &$flags, &$status )
-	{
+	public static function onPageContentSave(
+		&$page, &$user, &$content, &$summary, $is_minor,
+		$is_watch, $section, &$flags, &$status
+	) {
 		$title = $page->getTitle();
 		if ( ModerationCanSkip::canEditSkip( $user, $title->getNamespace() ) ) {
 			return true;
@@ -92,7 +101,7 @@ class ModerationEditHooks {
 			/* Watch/Unwatch the page immediately:
 				watchlist is the user's own business,
 				no reason to wait for approval of the edit */
-			$watch = (bool) self::$watchthis;
+			$watch = (bool)self::$watchthis;
 			WatchAction::doWatchOrUnwatch( $watch, $title, $user );
 		}
 
@@ -114,10 +123,10 @@ class ModerationEditHooks {
 	}
 
 	/**
-		@brief Returns the URL to where the user is redirected after successful edit.
-		@param $title Title of the article that was edited.
-		@param $context Any object that contains current context.
-	*/
+	 * @brief Returns the URL to where the user is redirected after successful edit.
+	 * @param Title $title Article that was edited.
+	 * @param IContextSource $context Any object that contains current context.
+	 */
 	protected static function getRedirectURL( Title $title, IContextSource $context ) {
 		$query = [ 'modqueued' => 1 ];
 
@@ -160,8 +169,10 @@ class ModerationEditHooks {
 		If this is a merged edit, then 'wpMergeID' is the ID of moderation entry.
 		Here we mark this entry as merged.
 	*/
-	public static function onPageContentSaveComplete( $page, $user, $content, $summary, $is_minor, $is_watch, $section, $flags, $revision, $status, $baseRevId )
-	{
+	public static function onPageContentSaveComplete(
+		$page, $user, $content, $summary, $is_minor, $is_watch,
+		$section, $flags, $revision, $status, $baseRevId
+	) {
 		global $wgRequest;
 
 		if ( !$revision ) { # Double edit - nothing to do on the second time
@@ -218,7 +229,7 @@ class ModerationEditHooks {
 	}
 
 	public static function PrepareEditForm( $editpage, $out ) {
-		$mergeID = ModerationEditHooks::$NewMergeID;
+		$mergeID = self::$NewMergeID;
 		if ( !$mergeID ) {
 			$mergeID = $out->getRequest()->getVal( 'wpMergeID' );
 		}
@@ -234,8 +245,8 @@ class ModerationEditHooks {
 	}
 
 	/**
-		@brief Registers 'moderation-merged' ChangeTag.
-	*/
+	 * @brief Registers 'moderation-merged' ChangeTag.
+	 */
 	public static function onListDefinedTags( &$tags ) {
 		$tags[] = 'moderation-merged';
 		return true;

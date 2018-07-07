@@ -16,13 +16,13 @@
 */
 
 /**
-	@file
-	@brief Aliases of [[Special:Moderation]] in other languages.
-*/
+ * @file
+ * @brief Aliases of [[Special:Moderation]] in other languages.
+ */
 
 $specialPageAliases = [];
 
- /** English
+/** English
  * @author Edward Chernenko
  */
 $specialPageAliases['en'] = [

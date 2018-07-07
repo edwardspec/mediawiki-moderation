@@ -16,20 +16,21 @@
 */
 
 /**
-	@file
-	@brief Hooks related to edits/uploads via API.
-*/
+ * @file
+ * @brief Hooks related to edits/uploads via API.
+ */
 
 class ModerationApiHooks {
 
 	/**
-		onApiCheckCanExecute()
-		Disable upload API for non-automoderated user in MediaWiki 1.27
-		(this feature is only supported in MediaWiki 1.28+).
-
-		Also disable ApiFileRevert (this API doesn't run any pre-upload
-		hooks, thus allowing to bypass moderation).
-	*/
+	 * @brief onApiCheckCanExecute() hook
+	 *
+	 * Disable upload API for non-automoderated user in MediaWiki 1.27
+	 * (this feature is only supported in MediaWiki 1.28+).
+	 *
+	 * Also disable ApiFileRevert (this API doesn't run any pre-upload
+	 * hooks, thus allowing to bypass moderation).
+	 */
 	public static function onApiCheckCanExecute( $module, $user, &$message ) {
 		if ( ModerationCanSkip::canUploadSkip( $user ) ) {
 			return true; /* No need to limit automoderated users */
@@ -84,8 +85,7 @@ class ModerationApiHooks {
 		if ( $section ) {
 			if ( $section == 'new' ) {
 				$content = ContentHandler::makeContent( '', $title );
-			}
-			else {
+			} else {
 				$content = $oldContent->getSection( $section );
 				if ( !$content ) {
 					$main->dieUsage( "There is no section {$section}.", 'nosuchsection' );
@@ -131,8 +131,8 @@ class ModerationApiHooks {
 	}
 
 	/**
-		@brief Adds qppage=Moderation to api.php?action=query&list=querypage.
-	*/
+	 * @brief Adds qppage=Moderation to api.php?action=query&list=querypage.
+	 */
 	public static function onwgQueryPages( &$wgQueryPages ) {
 		$wgQueryPages[] = [ SpecialModeration::class, 'Moderation' ];
 		return true;

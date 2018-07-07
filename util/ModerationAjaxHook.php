@@ -16,8 +16,8 @@
 */
 
 /**
-	@file
-	@brief Adds ajaxhook-related JavaScript modules when they are needed.
+ * @file
+ * @brief Adds ajaxhook-related JavaScript modules when they are needed.
 
 	Default behavior: automatically check for presence of extension.
 	For example, if Extension:VisualEditor is detected,
@@ -35,32 +35,32 @@
 class ModerationAjaxHook {
 
 	/**
-		@brief Depending on $configName being true/false/"guess", return true/false/$default.
-		@return boolean
-	*/
-	static protected function need( $configName, $default ) {
+	 * @brief Depending on $configName being true/false/"guess", return true/false/$default.
+	 * @return bool
+	 */
+	protected static function need( $configName, $default ) {
 		$config = RequestContext::getMain()->getConfig();
 		$val = $config->get( $configName );
 		return ( is_bool( $val ) ? $val : $default );
 	}
 
 	/** @brief Convenience method: returns true if in Mobile skin, false otherwise */
-	static protected function isMobile() {
+	protected static function isMobile() {
 		return ( class_exists( 'MobileContext' ) &&
-			MobileContext::singleton()->shouldDisplayMobileView());
+			MobileContext::singleton()->shouldDisplayMobileView() );
 	}
 
 	/**
-		@brief Guess whether VisualEditor needs to be supported
-		@returns boolean
-	*/
-	static protected function guessVE() {
+	 * @brief Guess whether VisualEditor needs to be supported
+	 * @return bool
+	 */
+	protected static function guessVE() {
 		return ( class_exists( 'ApiVisualEditorEdit' ) && !self::isMobile() );
 	}
 
 	/**
-		@brief Add needed modules to $out.
-	*/
+	 * @brief Add needed modules to $out.
+	 */
 	public static function add( OutputPage &$out ) {
 		$modules = [];
 

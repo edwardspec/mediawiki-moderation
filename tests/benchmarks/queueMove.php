@@ -16,14 +16,14 @@
 */
 
 /**
-	@file
-	@brief Benchmark: how fast are moves queued for moderation?
+ * @file
+ * @brief Benchmark: how fast are moves queued for moderation?
 
 	Usage:
 	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/queueMove.php
 */
 
-require_once( __DIR__ . '/ModerationBenchmark.php' );
+require_once __DIR__ . '/ModerationBenchmark.php';
 
 class BenchmarkQueueMove extends ModerationBenchmark {
 
@@ -49,7 +49,10 @@ class BenchmarkQueueMove extends ModerationBenchmark {
 		);
 		$status = $mp->checkPermissions( $this->getUser(), 'Reason for moving #' . $i );
 
-		assert( $status->getMessage()->getKey() == 'moderation-move-queued' );
+		Wikimedia\Assert\Assert::postcondition(
+			( $status->getMessage()->getKey() == 'moderation-move-queued' ),
+			'Move not queued'
+		);
 	}
 }
 

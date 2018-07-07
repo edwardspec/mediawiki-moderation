@@ -16,18 +16,23 @@
 */
 
 /**
-	@file
-	@brief HTTP response to be analyzed by tests. Made from MWHttpRequest or OutputPage.
-
-	This class mimics the methods of MWHttpRequest, even if it was created
-	from OutputPage (as the result of internal invocation).
-*/
+ * @file
+ * @brief HTTP response to be analyzed by tests. Made from MWHttpRequest or OutputPage.
+ *
+ * This class mimics the methods of MWHttpRequest, even if it was created
+ * from OutputPage (as the result of internal invocation).
+ */
 
 class ModerationTestsuiteResponse {
 
-	protected $content; /**< Response text */
-	protected $httpCode; /**< HTTP return code, e.g. 200 */
-	protected $getHeaderMethod; /**< callable, implementation-specific method used by getResponseHeader() */
+	/** @var string Response text */
+	protected $content;
+
+	/** @var int HTTP return code, e.g. 200 */
+	protected $httpCode;
+
+	/** @var callable Implementation-specific callaback used by getResponseHeader() */
+	protected $getHeaderMethod;
 
 	protected function __construct( $content, $httpCode, callable $getHeaderMethod ) {
 		$this->content = $content;
@@ -36,9 +41,9 @@ class ModerationTestsuiteResponse {
 	}
 
 	/**
-		@brief Create response from real MWHttpRequest.
-		@returns ModerationTestsuiteResponse object.
-	*/
+	 * @brief Create response from real MWHttpRequest.
+	 * @return ModerationTestsuiteResponse object.
+	 */
 	public static function newFromMWHttpRequest( MWHttpRequest $httpRequest ) {
 		return new self(
 			$httpRequest->getContent(),
@@ -48,18 +53,17 @@ class ModerationTestsuiteResponse {
 	}
 
 	/**
-		@brief Create response after internal invocation.
-		@param $mwResponse FauxResponse object after $mediaWiki->run().
-		@param $capturedContent Text printed by $mediaWiki->run(), as captured by ob_start()/ob_get_clean().
-		@returns ModerationTestsuiteResponse object.
-	*/
+	 * @brief Create response after internal invocation.
+	 * @param FauxResponse $mwResponse Response object after $mediaWiki->run
+	 * @param string $capturedContent Text printed by $mediaWiki->run
+	 * @return ModerationTestsuiteResponse object.
+	 */
 	public static function newFromFauxResponse( FauxResponse $mwResponse, $capturedContent ) {
 		$httpCode = $mwResponse->getStatusCode();
 		if ( !$httpCode ) { /* WebResponse doesn't set code for successful requests */
 			if ( $mwResponse->getHeader( 'Location' ) ) {
 				$httpCode = 302; /* Successful redirect */
-			}
-			else {
+			} else {
 				$httpCode = 200; /* Successful non-redirect */
 			}
 		}
@@ -87,4 +91,3 @@ class ModerationTestsuiteResponse {
 		return ( $this->httpCode >= 300 && $this->httpCode <= 303 );
 	}
 }
-

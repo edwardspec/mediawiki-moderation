@@ -16,17 +16,16 @@
 */
 
 /**
-	@file
-	@brief Verifies that modaction=show works as expected.
-*/
+ * @file
+ * @brief Verifies that modaction=show works as expected.
+ */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
-	@covers ModerationActionShow
-*/
-class ModerationTestShow extends MediaWikiTestCase
-{
+ * @covers ModerationActionShow
+ */
+class ModerationShowTest extends MediaWikiTestCase {
 	public function testShow() {
 		$t = new ModerationTestsuite();
 
@@ -58,43 +57,43 @@ class ModerationTestShow extends MediaWikiTestCase
 		$context_lines = [];
 
 		$table_cells = $t->html->getElementsByTagName( 'td' );
-		foreach ( $table_cells as $td )
-		{
+		foreach ( $table_cells as $td ) {
 			$class = $td->getAttribute( 'class' );
 			$text = $td->textContent;
 
 			if ( $class == 'diff-addedline' ) {
 				$added_lines[] = $text;
-			}
-			else if ( $class == 'diff-deletedline' ) {
+			} elseif ( $class == 'diff-deletedline' ) {
 				$deleted_lines[] = $text;
-			}
-			else if ( $class == 'diff-context' ) {
+			} elseif ( $class == 'diff-context' ) {
 				$context_lines[] = $text;
 			}
 		}
 
 		# Each context line is shown twice: in Before and After columns
 		$this->assertCount( 4, $context_lines,
-			"testShow(): Two lines were unchanged, but number of context lines on the difference page is not 4" );
+			"testShow(): Two lines were unchanged, but number of context lines " .
+			"on the difference page is not 4" );
 		$this->assertEquals( 'First string', $context_lines[0] );
 		$this->assertEquals( 'First string', $context_lines[1] );
 		$this->assertEquals( 'Third string', $context_lines[2] );
 		$this->assertEquals( 'Third string', $context_lines[3] );
 
 		$this->assertCount( 1, $added_lines,
-			"testShow(): One line was modified, but number of added lines on the difference page is not 1" );
+			"testShow(): One line was modified, but number of added lines " .
+			"on the difference page is not 1" );
 		$this->assertCount( 1, $deleted_lines,
-			"testShow(): One line was modified, but number of deleted lines on the difference page is not 1" );
+			"testShow(): One line was modified, but number of deleted lines " .
+			"on the difference page is not 1" );
 		$this->assertEquals( 'Another second string', $added_lines[0] );
 		$this->assertEquals( 'Second string', $deleted_lines[0] );
 	}
 
 	/**
-		@covers ModerationActionShowImage
-		@requires extension curl
-		@note Only cURL version of MWHttpRequest supports uploads.
-	*/
+	 * @covers ModerationActionShowImage
+	 * @requires extension curl
+	 * @note Only cURL version of MWHttpRequest supports uploads.
+	 */
 	public function testShowUpload() {
 		$t = new ModerationTestsuite();
 
@@ -124,7 +123,8 @@ class ModerationTestShow extends MediaWikiTestCase
 
 		$this->assertRegExp( '/\(moderation-diff-upload-notext\)/',
 			$t->html->getMainText(),
-			"testShowUpload(): File was uploaded without description, but (moderation-diff-upload-notext) is not shown" );
+			"testShowUpload(): File was uploaded without description, " .
+			"but (moderation-diff-upload-notext) is not shown" );
 
 		# Is the image thumbnail displayed on the difference page?
 
@@ -132,11 +132,9 @@ class ModerationTestShow extends MediaWikiTestCase
 
 		$thumb = null;
 		$src = null;
-		foreach ( $images as $img )
-		{
+		foreach ( $images as $img ) {
 			$src = $img->getAttribute( 'src' );
-			if ( strpos( $src, 'modaction=showimg' ) !== false )
-			{
+			if ( strpos( $src, 'modaction=showimg' ) !== false ) {
 				$thumb = $img;
 				break;
 			}
@@ -170,8 +168,10 @@ class ModerationTestShow extends MediaWikiTestCase
 			"testShowUpload(): Wrong Content-Type header from modaction=showimg" );
 
 		$this->assertEquals( $t->lastEdit['SHA1'], sha1( $req->getContent() ),
-			"testShowUpload(): Checksum of image downloaded via modaction=showimg doesn't match the checksum of original image" );
-		$this->assertEquals( "inline;filename*=UTF-8''Test_image_1.png", $req->getResponseHeader( 'Content-Disposition' ),
+			"testShowUpload(): Checksum of image downloaded via modaction=showimg " .
+			"doesn't match the checksum of original image" );
+		$this->assertEquals( "inline;filename*=UTF-8''Test_image_1.png",
+			$req->getResponseHeader( 'Content-Disposition' ),
 			"testShowUpload(640x50): Wrong Content-Disposition header from modaction=showimg" );
 
 		# Check the thumbnail
@@ -220,22 +220,25 @@ class ModerationTestShow extends MediaWikiTestCase
 			"testShowUpload(100x100): Wrong Content-Disposition header from modaction=showimg&thumb=1" );
 
 		$this->assertEquals( $original_width, $width,
-			"testShowUpload(): Original image is smaller than THUMB_WIDTH, but thumbnail width doesn't match the original width" );
+			"testShowUpload(): Original image is smaller than THUMB_WIDTH, " .
+			"but thumbnail width doesn't match the original width" );
 		$this->assertEquals( $original_height, $height,
-			"testShowUpload(): Original image is smaller than THUMB_WIDTH, but thumbnail height doesn't match the original height" );
+			"testShowUpload(): Original image is smaller than THUMB_WIDTH, " .
+			"but thumbnail height doesn't match the original height" );
 
 		# Ensure absence of (moderation-diff-upload-notext)
 		$this->assertNotRegExp( '/\(moderation-diff-upload-notext\)/',
 			$t->html->getMainText( $t->new_entries[0]->showLink ),
-			"testShowUpload(): File was uploaded with description, but (moderation-diff-upload-notext) is shown" );
+			"testShowUpload(): File was uploaded with description, " .
+			"but (moderation-diff-upload-notext) is shown" );
 	}
 
 	/**
-		@brief Ensures that non-image uploads (e.g. OGG files) are shown correctly.
-		@covers ModerationActionShowImage
-		@requires extension curl
-		@note Only cURL version of MWHttpRequest supports uploads.
-	*/
+	 * @brief Ensures that non-image uploads (e.g. OGG files) are shown correctly.
+	 * @covers ModerationActionShowImage
+	 * @requires extension curl
+	 * @note Only cURL version of MWHttpRequest supports uploads.
+	 */
 	public function testShowUploadNonImage() {
 		$t = new ModerationTestsuite();
 
@@ -267,8 +270,10 @@ class ModerationTestShow extends MediaWikiTestCase
 		$this->assertEquals( 'application/ogg', $req->getResponseHeader( 'Content-Type' ),
 			"testShowUploadNonImage(): Wrong Content-Type header from modaction=showimg" );
 		$this->assertEquals( $t->lastEdit['SHA1'], sha1( $req->getContent() ),
-			"testShowUploadNonImage(): Checksum of file downloaded via modaction=showimg doesn't match the checksum of original file" );
-		$this->assertEquals( "inline;filename*=UTF-8''Test_sound_1.ogg", $req->getResponseHeader( 'Content-Disposition' ),
+			"testShowUploadNonImage(): Checksum of file downloaded via modaction=showimg " .
+			"doesn't match the checksum of original file" );
+		$this->assertEquals( "inline;filename*=UTF-8''Test_sound_1.ogg",
+			$req->getResponseHeader( 'Content-Disposition' ),
 			"testShowUploadNonImage: Wrong Content-Disposition header from modaction=showimg" );
 	}
 

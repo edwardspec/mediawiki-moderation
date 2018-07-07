@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Implements modaction=showimg on [[Special:Moderation]].
-*/
+ * @file
+ * @brief Implements modaction=showimg on [[Special:Moderation]].
+ */
 
 class ModerationActionShowImage extends ModerationAction {
 
@@ -39,8 +39,7 @@ class ModerationActionShowImage extends ModerationAction {
 			// Send 404 Not Found
 			if ( method_exists( 'StreamFile', 'send404Message' ) ) { /* MediaWiki 1.28+ */
 				StreamFile::send404Message( '' );
-			}
-			else { /* MediaWiki 1.27 */
+			} else { /* MediaWiki 1.27 */
 				StreamFile::prepareForStream( null, null, null, true );
 			}
 
@@ -56,7 +55,7 @@ class ModerationActionShowImage extends ModerationAction {
 	}
 
 	public function execute() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$row = $dbr->selectRow( 'moderation',
 			[
 				'mod_user AS user',

@@ -16,15 +16,15 @@
 */
 
 /**
-	@file
-	@brief Formatter for displaying entry in modaction=show.
-*/
+ * @file
+ * @brief Formatter for displaying entry in modaction=show.
+ */
 
 class ModerationViewableEntry extends ModerationEntry {
 	/**
-		@brief Get the list of fields needed for selecting $row, as expected by newFromRow().
-		@returns array ($fields parameter for $db->select()).
-	*/
+	 * @brief Get the list of fields needed for selecting $row, as expected by newFromRow().
+	 * @return array ($fields parameter for $db->select()).
+	 */
 	public static function getFields() {
 		$fields = [
 			'mod_user AS user',
@@ -49,9 +49,9 @@ class ModerationViewableEntry extends ModerationEntry {
 	}
 
 	/**
-		@brief Returns HTML of the diff.
-		@param $context Any object that contains current context.
-	*/
+	 * @brief Returns HTML of the diff.
+	 * @param IContextSource $context Any object that contains current context.
+	 */
 	public function getDiffHTML( IContextSource $context ) {
 		$row = $this->getRow();
 		$title = $this->getTitle();
@@ -106,8 +106,8 @@ class ModerationViewableEntry extends ModerationEntry {
 	}
 
 	/**
-		@brief Returns false if this file is not an image (e.g. OGG file), true otherwise.
-	*/
+	 * @brief Returns false if this file is not an image (e.g. OGG file), true otherwise.
+	 */
 	protected function isImage() {
 		$row = $this->getRow();
 
@@ -125,9 +125,9 @@ class ModerationViewableEntry extends ModerationEntry {
 	}
 
 	/**
-		@brief Returns URL of modaction=showimg for this upload.
-		@param $isThumb True for thumbnail, false for full-sized image.
-	*/
+	 * @brief Returns URL of modaction=showimg for this upload.
+	 * @param bool $isThumb True for thumbnail, false for full-sized image.
+	 */
 	public function getImageURL( $isThumb = false ) {
 		$row = $this->getRow();
 
@@ -144,8 +144,8 @@ class ModerationViewableEntry extends ModerationEntry {
 	}
 
 	/**
-		@brief Returns HTML of the image thumbnail.
-	*/
+	 * @brief Returns HTML of the image thumbnail.
+	 */
 	public function getImageThumbHTML() {
 		$row = $this->getRow();
 		if ( !$row->stash_key ) {

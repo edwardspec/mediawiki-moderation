@@ -16,17 +16,16 @@
 */
 
 /**
-	@file
-	@brief Verifies that moderators see "New changes await moderation" notice.
-*/
+ * @file
+ * @brief Verifies that moderators see "New changes await moderation" notice.
+ */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
-	@covers ModerationNotifyModerator
-*/
-class ModerationTestNotifyModerator extends MediaWikiTestCase
-{
+ * @covers ModerationNotifyModerator
+ */
+class ModerationNotifyModeratorTest extends MediaWikiTestCase {
 	public function testNotifyModerator() {
 		$t = new ModerationTestsuite();
 		$randomPageUrl = Title::newFromText( 'Can_Be_Any_Page' )->getFullURL();
@@ -61,7 +60,8 @@ class ModerationTestNotifyModerator extends MediaWikiTestCase
 		/* ... and not shown to this moderator after Special:Moderation has already been visited */
 		$this->assertNull(
 			$t->html->getNewMessagesNotice( $randomPageUrl ),
-			"testNotifyModerator(): Notification still shown after Special:Moderation has already been visited"
+			"testNotifyModerator(): Notification still shown after Special:Moderation has " .
+			"already been visited"
 		);
 
 		/* ... but still shown to another moderator */

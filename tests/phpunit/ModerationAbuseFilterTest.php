@@ -16,22 +16,21 @@
 */
 
 /**
-	@file
-	@brief Verifies that AbuseFilter-assigned tags are preserved by Moderation.
-*/
+ * @file
+ * @brief Verifies that AbuseFilter-assigned tags are preserved by Moderation.
+ */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
-class ModerationTestAbuseFilter extends MediaWikiTestCase
-{
+class ModerationAbuseFilterTest extends MediaWikiTestCase {
 	private $expectedTags = [
 		'Author of edit likes cats',
 		'Author of edit likes dogs'
 	];
 
 	/**
-		@brief Are AbuseFilter tags preserved for edits?
-	*/
+	 * @brief Are AbuseFilter tags preserved for edits?
+	 */
 	public function testAFTagsEdit() {
 		$t = new ModerationTestsuite();
 		$this->skipIfNoAbuseFilter();
@@ -54,8 +53,8 @@ class ModerationTestAbuseFilter extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Are AbuseFilter tags preserved for moves?
-	*/
+	 * @brief Are AbuseFilter tags preserved for moves?
+	 */
 	public function testAFTagsMove() {
 		$t = new ModerationTestsuite();
 		$this->skipIfNoAbuseFilter();
@@ -83,8 +82,8 @@ class ModerationTestAbuseFilter extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Are AbuseFilter tags preserved for uploads?
-	*/
+	 * @brief Are AbuseFilter tags preserved for uploads?
+	 */
 	public function testAFTagsUpload() {
 		$t = new ModerationTestsuite();
 		$this->skipIfNoAbuseFilter();
@@ -106,8 +105,11 @@ class ModerationTestAbuseFilter extends MediaWikiTestCase
 		$this->assertTagsAfterApproval( $t, $t->new_entries[0], __FUNCTION__ );
 	}
 
-	private function assertTagsAfterApproval( ModerationTestsuite $t, ModerationTestsuiteEntry $entry, $caller ) {
-
+	private function assertTagsAfterApproval(
+		ModerationTestsuite $t,
+		ModerationTestsuiteEntry $entry,
+		$caller
+	) {
 		$waiter = $t->waitForRecentChangesToAppear();
 		$t->httpGet( $entry->approveLink );
 		$waiter( 1 );
@@ -140,10 +142,8 @@ class ModerationTestAbuseFilter extends MediaWikiTestCase
 
 		$dbw = wfGetDB( DB_MASTER );
 		if ( !array_key_exists( 'AbuseFilter', $wgSpecialPages )
-			|| !$dbw->tableExists( 'abuse_filter' ) )
-		{
+			|| !$dbw->tableExists( 'abuse_filter' ) ) {
 			$this->markTestSkipped( 'Test skipped: AbuseFilter extension must be installed to run it.' );
 		}
 	}
 }
-

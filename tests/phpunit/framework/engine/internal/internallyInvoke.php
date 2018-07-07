@@ -16,10 +16,10 @@
 */
 
 /**
-	@file
-	@brief Helper script to run MediaWiki as a command line script.
+ * @file
+ * @brief Helper script to run MediaWiki as a command line script.
 
-	@usage
+ * @usage
 		$wiki = new ModerationTestsuiteInternallyInvokedWiki( ... );
 		$wiki->execute();
 */
@@ -30,7 +30,8 @@ class InternallyInvoke extends Maintenance {
 		/* Trick to load all Testsuite classes without listing them
 			in the extension.json (which is used in production) */
 		global $wgAutoloadClasses;
-		$wgAutoloadClasses['ModerationTestsuiteInternallyInvokedWiki'] = __DIR__ . "/../../ModerationTestsuite.php";
+		$wgAutoloadClasses['ModerationTestsuiteInternallyInvokedWiki'] =
+			__DIR__ . "/../../ModerationTestsuite.php";
 
 		$inputFilename = $this->getArg( 0 );
 		$outputFilename = $this->getArg( 1 );

@@ -16,41 +16,46 @@
 */
 
 /**
-	@file
-	@brief Checks if the user is allowed to skip moderation.
-*/
+ * @file
+ * @brief Checks if the user is allowed to skip moderation.
+ */
 
 class ModerationCanSkip {
-	protected static $inApprove = false; /**< Flag used in enterApproveMode() */
+	/** @var bool Flag used in enterApproveMode() */
+	protected static $inApprove = false;
 
 	/**
-		@brief Enters "approve mode", making all further calls of canSkip() return true.
-		This is used in ModerationActionApprove, so that newly approved edit
-		wouldn't be stopped by Moderation again.
-	*/
+	 * @brief Enters "approve mode", making all further calls of canSkip() return true.
+	 * This is used in modaction=approve, so that newly approved edit
+	 * wouldn't be stopped by Moderation again.
+	 */
 	public static function enterApproveMode() {
 		self::$inApprove = true;
 	}
 
 	/**
-		@brief Check if edits by $user can bypass moderation in namespace $namespaceNumber.
-	*/
+	 * @brief Check if edits by $user can bypass moderation in namespace $namespaceNumber.
+	 * @param User $user
+	 * @param int $namespaceNumber
+	 */
 	public static function canEditSkip( User $user, $namespaceNumber ) {
 		return self::canSkip( $user, 'skip-moderation', [ $namespaceNumber ] );
 	}
 
 	/**
-		@brief Check if uploads by $user can bypass moderation.
-	*/
+	 * @brief Check if uploads by $user can bypass moderation.
+	 * @param User $user
+	 */
 	public static function canUploadSkip( User $user ) {
 		return self::canEditSkip( $user, NS_FILE );
 	}
 
 	/**
-		@brief Check if moves by $user can bypass moderation.
-		@param $fromNamespace Namespace of the old title.
-		@param $toNamespace Namespace of the new title.
-	*/
+	 * @brief Check if moves by $user can bypass moderation.
+	 * @param User $user
+	 * @param int $fromNamespace Namespace of the old title.
+	 * @param int $toNamespace Namespace of the new title.
+	 */
 	public static function canMoveSkip( User $user, $fromNamespace, $toNamespace ) {
 		return self::canSkip( $user, 'skip-move-moderation', [
 			$fromNamespace,
@@ -61,10 +66,11 @@ class ModerationCanSkip {
 	/*-------------------------------------------------------------------*/
 
 	/**
-		@brief Returns true if $user can skip moderation, false otherwise.
-		@param $permission Name of the user's right that allows to bypass moderation.
-		@param $affectedNamespaces Array of namespace numbers of all affected pages.
-	*/
+	 * @brief Returns true if $user can skip moderation, false otherwise.
+	 * @param User $user
+	 * @param string $permission Name of the user's right that allows to bypass moderation.
+	 * @param array $affectedNamespaces Array of namespace numbers of all affected pages.
+	 */
 	protected static function canSkip( User $user, $permission, array $affectedNamespaces ) {
 		global $wgModerationEnable;
 		if ( !$wgModerationEnable || self::$inApprove ) {
@@ -91,14 +97,14 @@ class ModerationCanSkip {
 	}
 
 	/**
-		@brief Check if moderation can be skipped in all $namespaces.
-		@param $namespaces Array of namespace numbers.
-		@retval true All $namespaces are non-moderated.
-		@retval false At least one of $namespaces in moderated.
-	*/
+	 * @brief Check if moderation can be skipped in all $namespaces.
+	 * @param array $namespaces Array of namespace numbers.
+	 * @retval true All $namespaces are non-moderated.
+	 * @retval false At least one of $namespaces in moderated.
+	 */
 	protected static function canSkipInAllNamespaces( array $namespaces ) {
 		foreach ( array_unique( $namespaces ) as $ns ) {
-			if ( !self::canSkipInNamespace( $ns ) ){
+			if ( !self::canSkipInNamespace( $ns ) ) {
 				return false;
 			}
 		}
@@ -107,8 +113,8 @@ class ModerationCanSkip {
 	}
 
 	/**
-		@brief Check if moderation can be skipped in namespace $namespaceNumber.
-	*/
+	 * @brief Check if moderation can be skipped in namespace $namespaceNumber.
+	 */
 	protected static function canSkipInNamespace( $namespaceNumber ) {
 		global $wgModerationOnlyInNamespaces,
 			$wgModerationIgnoredInNamespaces;
@@ -117,7 +123,10 @@ class ModerationCanSkip {
 			return true; /* This namespace is NOT moderated, e.g. Sandbox:Something */
 		}
 
-		if ( $wgModerationOnlyInNamespaces && !in_array( $namespaceNumber, $wgModerationOnlyInNamespaces ) ) {
+		if ( $wgModerationOnlyInNamespaces && !in_array(
+			$namespaceNumber,
+			$wgModerationOnlyInNamespaces
+		) ) {
 			return true; /* This namespace is NOT moderated */
 		}
 

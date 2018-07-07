@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Checks if the user is blacklisted.
-*/
+ * @file
+ * @brief Checks if the user is blacklisted.
+ */
 
 class ModerationBlockCheck {
 	/** @brief Returns true if $user is blacklisted, false otherwise. */

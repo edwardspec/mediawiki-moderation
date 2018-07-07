@@ -16,8 +16,8 @@
 */
 
 /**
-	@file
-	@brief Testsuite engine that runs index.php/api.php in PHP CLI.
+ * @file
+ * @brief Testsuite engine that runs index.php/api.php in PHP CLI.
 
 	For now, we subclass from RealHttpEngine, because we want doQuery()
 	to be based on executeHttpRequest(), same as in RealHttpEngine.
@@ -25,8 +25,11 @@
 
 class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 
-	protected $cookies = []; /**< array( 'name' => 'value' ) */
-	protected $config = []; /**< $wg* variables from setMwConfig(). array( 'name' => 'value' ) */
+	/** @var array [ 'name' => 'value' ] */
+	protected $cookies = [];
+
+	/** @var array [ 'name' => 'value' ] - $wg* variables from setMwConfig() */
+	protected $config = [];
 
 	public function logout() {
 		parent::logout();
@@ -34,9 +37,9 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 	}
 
 	/**
-		@brief Sets MediaWiki global variable.
-		@param $name Name of variable without the "$wg" prefix.
-	*/
+	 * @brief Sets MediaWiki global variable.
+	 * @param string $name Name of variable without the $wg prefix.
+	 */
 	public function setMwConfig( $name, $value ) {
 		$this->config[$name] = $value;
 	}
@@ -91,7 +94,8 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 			and therefore won't know things like $wgServer or wfParseUrl() */
 		$bits = wfParseUrl( $url );
 		if ( $bits['host'] !== $wgServerName ) {
-			throw new Exception( "CliInvokedWiki can only access the wiki itself ($wgServerName), not another host (${bits['host']})" );
+			throw new Exception( "CliEngine can only access the wiki itself " .
+				"($wgServerName), not another host (${bits['host']})" );
 		}
 
 		if ( isset( $bits['query'] ) ) {
@@ -103,7 +107,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 		$descriptor['isApi'] = ( $scriptName == wfScript( 'api' ) );
 
 		$documentRoot = str_replace( dirname( wfScript() ), '', $IP );
- 		$scriptFilename = realpath( $IP . '/' . basename( $scriptName ) );
+		$scriptFilename = realpath( $IP . '/' . basename( $scriptName ) );
 
 		/* Prepare the environment for calling cliInvoke.php.
 			To be sure we have everything,
@@ -168,8 +172,11 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 			wfArrayToCgi( $descriptor['_POST'] ) . ']';
 
 		if ( $result['exceptionText'] ) {
-			throw new ModerationTestsuiteCliError( "Exception $errorContext: \n==== EXCEPTION START ====\n\n" .
-				$result['exceptionText'] . "\n==== EXCEPTION END ====\n" );
+			throw new ModerationTestsuiteCliError( "Exception $errorContext: \n" .
+				"==== EXCEPTION START ====\n\n" .
+				$result['exceptionText'] .
+				"\n==== EXCEPTION END ====\n"
+			);
 		}
 
 		if ( !isset( $result['FauxResponse'] ) ) {
@@ -178,7 +185,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 
 		/* Remember the newly set cookies */
 		$response = $result['FauxResponse'];
-		$this->cookies = array_map( function( $info ) {
+		$this->cookies = array_map( function ( $info ) {
 			return $info['value'];
 		}, $response->getCookies() ) + $this->cookies;
 
@@ -195,8 +202,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 				whole $relPath is treated as PATH_INFO */
 			$scriptName = wfScript( 'index' );
 			$pathInfo = $relPath;
-		}
-		else {
+		} else {
 			$pathInfo = substr( $relPath, strlen( $scriptName ) );
 		}
 
@@ -204,8 +210,8 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 	}
 
 	/**
-		@brief Run subrequests in the DB sandbox imposed by MediaWikiTestCase.
-	*/
+	 * @brief Run subrequests in the DB sandbox imposed by MediaWikiTestCase.
+	 */
 	public function escapeDbSandbox() {
 		if ( !empty( PHPUnitMaintClass::$additionalOptions['use-normal-tables'] ) ) {
 			$dbw = wfGetDB( DB_MASTER );
@@ -215,8 +221,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 			// version number of Moderation during the last update.php,
 			// otherwise Moderation will assume that DB schema is outdated.
 			ModerationVersionCheck::markDbAsUpdated();
-		}
-		else {
+		} else {
 			// If temporary tables were used, then cliInvoked script can't access them.
 			// Fallback to "break out of the sandbox" workaround.
 			parent::escapeDbSandbox();
@@ -224,4 +229,5 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 	}
 }
 
-class ModerationTestsuiteCliError extends ModerationTestsuiteException {};
+class ModerationTestsuiteCliError extends ModerationTestsuiteException {
+};

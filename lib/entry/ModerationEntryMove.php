@@ -16,15 +16,15 @@
 */
 
 /**
-	@file
-	@brief Page move (proposal to rename the page) that awaits moderation.
-*/
+ * @file
+ * @brief Page move (proposal to rename the page) that awaits moderation.
+ */
 
 class ModerationEntryMove extends ModerationApprovableEntry {
 	/**
-		@brief Approve this move.
-		@returns Status object.
-	*/
+	 * @brief Approve this move.
+	 * @return Status object.
+	 */
 	public function doApprove( User $moderator ) {
 		$row = $this->getRow();
 		$reason = $row->comment;
@@ -63,15 +63,15 @@ class ModerationEntryMove extends ModerationApprovableEntry {
 	}
 
 	/**
-		@brief Post-approval log subtype.
-	*/
+	 * @brief Post-approval log subtype.
+	 */
 	protected function getApproveLogSubtype() {
 		return 'approve-move';
 	}
 
 	/**
-		@brief Parameters for post-approval log.
-	*/
+	 * @brief Parameters for post-approval log.
+	 */
 	protected function getApproveLogParameters() {
 		$row = $this->getRow();
 		return [

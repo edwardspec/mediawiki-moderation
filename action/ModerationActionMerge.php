@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Implements modaction=merge on [[Special:Moderation]].
-*/
+ * @file
+ * @brief Implements modaction=merge on [[Special:Moderation]].
+ */
 
 class ModerationActionMerge extends ModerationAction {
 

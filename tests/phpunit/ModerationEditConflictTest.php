@@ -16,16 +16,15 @@
 */
 
 /**
-	@file
-	@brief Verifies that edit conficts are resolved by modaction=approve.
+ * @file
+ * @brief Verifies that edit conficts are resolved by modaction=approve.
 
 	Note: unresolvable edit conflicts are tested by ModerationMergeTest.
 */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
-class ModerationTestEditConflict extends MediaWikiTestCase
-{
+class ModerationEditConflictTest extends MediaWikiTestCase {
 	public function testResolvableEditConflict() {
 		/*
 			Ensure that resolvable edit conflicts are automatically
@@ -53,7 +52,6 @@ class ModerationTestEditConflict extends MediaWikiTestCase
 		$this->assertEquals( $expectedText, $rev['*'],
 			"testResolvableEditConflict(): Unexpected text after approving both edits"
 		);
-
 	}
 
 }

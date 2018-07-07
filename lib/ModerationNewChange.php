@@ -16,22 +16,29 @@
 */
 
 /**
-	@file
-	@brief Methods to manage "moderation" SQL table.
-*/
+ * @file
+ * @brief Methods to manage "moderation" SQL table.
+ */
 
 class ModerationNewChange {
 
-	public static $LastInsertId = null; /**< mod_id of the last inserted row */
+	/** @var int|null mod_id of the last inserted row */
+	public static $LastInsertId = null;
 
 	const MOD_TYPE_EDIT = 'edit';
 	const MOD_TYPE_MOVE = 'move';
 
-	protected $title; /**< Title object (page to be edited) */
-	protected $user; /**< User object (author of the edit) */
-	protected $fields = []; /**< All database fields (array) */
+	/** @var Title Page to be edited */
+	protected $title;
 
-	private $pendingChange = null; /**< False if no pending change, array( 'mod_id' => ..., 'mod_text' => ... ) otherwise */
+	/** @var User Author of the edit */
+	protected $user;
+
+	/** @var array All mod_* database fields */
+	protected $fields = [];
+
+	/** @var array|false [ 'mod_id' => ..., 'mod_text' => ... ] */
+	private $pendingChange = null;
 
 	public function __construct( Title $title, User $user ) {
 		$this->title = $title;
@@ -40,7 +47,7 @@ class ModerationNewChange {
 		$isBlocked = ModerationBlockCheck::isModerationBlocked( $user );
 
 		$request = $user->getRequest();
-		$dbr = wfGetDB( DB_SLAVE ); /* Only for $dbr->timestamp(), won't do any SQL queries */
+		$dbr = wfGetDB( DB_REPLICA ); /* Only for $dbr->timestamp(), won't do any SQL queries */
 
 		/* Prepare known values of $fields */
 		$this->fields = [
@@ -148,9 +155,9 @@ class ModerationNewChange {
 	/*-------------------------------------------------------------------*/
 
 	/**
-		@brief Replace things like "~~~~" in $content.
-		@returns Content object.
-	*/
+	 * @brief Replace things like "~~~~" in $content.
+	 * @return Content object.
+	 */
 	protected function preSaveTransform( Content $content ) {
 		global $wgContLang;
 		$popts = ParserOptions::newFromUserAndLang( $this->user, $wgContLang );
@@ -163,8 +170,8 @@ class ModerationNewChange {
 	}
 
 	/**
-		@brief Add AbuseFilter tags to this change, if any.
-	*/
+	 * @brief Add AbuseFilter tags to this change, if any.
+	 */
 	protected function addChangeTags( $action ) {
 		if ( ModerationVersionCheck::areTagsSupported() ) {
 			$this->fields['mod_tags'] = self::findAbuseFilterTags(
@@ -176,9 +183,11 @@ class ModerationNewChange {
 	}
 
 	/**
-		@brief Calculate the value of mod_tags.
-		@param $action AbuseFilter action, e.g. 'edit' or 'delete'.
-	*/
+	 * @brief Calculate the value of mod_tags.
+	 * @param Title $title
+	 * @param User $user
+	 * @param string $action AbuseFilter action, e.g. 'edit' or 'delete'.
+	 */
 	public static function findAbuseFilterTags( Title $title, User $user, $action ) {
 		if ( !class_exists( 'AbuseFilter' ) || empty( AbuseFilter::$tagsToSet ) ) {
 			return null; /* No tags */
@@ -187,14 +196,14 @@ class ModerationNewChange {
 		/* AbuseFilter wants to assign some tags to this edit.
 			Let's store them (they will be used in modaction=approve).
 		*/
-		$afActionID = join( '-', [
+		$afActionID = implode( '-', [
 			$title->getPrefixedText(),
 			$user->getName(),
 			$action
 		] );
 
 		if ( isset( AbuseFilter::$tagsToSet[$afActionID] ) ) {
-			return join( "\n", AbuseFilter::$tagsToSet[$afActionID] );
+			return implode( "\n", AbuseFilter::$tagsToSet[$afActionID] );
 		}
 	}
 
@@ -214,9 +223,9 @@ class ModerationNewChange {
 	}
 
 	/**
-		@brief Utility function: construct Content object from $text.
-		@returns Content object.
-	*/
+	 * @brief Utility function: construct Content object from $text.
+	 * @return Content object.
+	 */
 	protected function makeContent( $text, $model = null ) {
 		return ContentHandler::makeContent(
 			$text,
@@ -226,25 +235,25 @@ class ModerationNewChange {
 	}
 
 	/**
-		@brief Returns all mod_* fields for database INSERT.
-		@returns array (as expected by $dbw->insert())
-	*/
+	 * @brief Returns all mod_* fields for database INSERT.
+	 * @return array (as expected by $dbw->insert())
+	 */
 	public function getFields() {
 		return $this->fields;
 	}
 
 	/**
-		@brief Returns one of the fields for database INSERT.
-		@param $fieldName String, e.g. "mod_timestamp".
-		@returns Value (string) or false.
-	*/
+	 * @brief Returns one of the fields for database INSERT.
+	 * @param string $fieldName Field, e.g. "mod_timestamp".
+	 * @return string|false
+	 */
 	public function getField( $fieldName ) {
 		return isset( $this->fields[$fieldName] ) ? $this->fields[$fieldName] : false;
 	}
 
 	/**
-		@brief Queue edit for moderation.
-	*/
+	 * @brief Queue edit for moderation.
+	 */
 	public function queue() {
 		self::$LastInsertId = ModerationVersionCheck::hasUniqueIndex() ?
 			$this->insert() :
@@ -266,9 +275,9 @@ class ModerationNewChange {
 	}
 
 	/**
-		@brief Insert this change into the moderation SQL table.
-		@returns mod_id of affected row.
-	*/
+	 * @brief Insert this change into the moderation SQL table.
+	 * @return mod_id of affected row.
+	 */
 	protected function insert() {
 		$fields = $this->getFields();
 
@@ -294,9 +303,9 @@ class ModerationNewChange {
 	}
 
 	/**
-		@brief Legacy version of insert() for old databases without UNIQUE INDEX.
-		@returns mod_id of affected row.
-	*/
+	 * @brief Legacy version of insert() for old databases without UNIQUE INDEX.
+	 * @return mod_id of affected row.
+	 */
 	protected function insertOld() {
 		$row = $this->getPendingChange();
 		$id = $row ? $row->id : false;
@@ -309,8 +318,7 @@ class ModerationNewChange {
 				[ 'mod_id' => $id ],
 				__METHOD__
 			] );
-		}
-		else {
+		} else {
 			RollbackResistantQuery::insert( $dbw, [
 				'moderation',
 				$this->getFields(),
@@ -323,8 +331,8 @@ class ModerationNewChange {
 	}
 
 	/**
-		@brief Send email to moderators that new change has appeared.
-	*/
+	 * @brief Send email to moderators that new change has appeared.
+	 */
 	public function sendNotificationEmail() {
 		global $wgModerationNotificationEnable,
 			$wgModerationNotificationNewOnly,
@@ -349,8 +357,8 @@ class ModerationNewChange {
 	}
 
 	/**
-		@brief Deliver the deferred letter from sendNotificationEmail().
-	*/
+	 * @brief Deliver the deferred letter from sendNotificationEmail().
+	 */
 	public function sendNotificationEmailNow() {
 		global $wgModerationEmail, $wgPasswordSender;
 

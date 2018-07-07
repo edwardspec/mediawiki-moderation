@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Additional LocalSettings.php for Travis testing of Extension:Moderation.
-*/
+ * @file
+ * @brief Additional LocalSettings.php for Travis testing of Extension:Moderation.
+ */
 
 $wgEnableUploads = true; # For upload-related tests
 wfLoadSkin( 'Vector' ); # Skin prints the notice which is tested by ModerationNotifyModeratorTest

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017 Edward Chernenko.
+	Copyright (C) 2017-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -16,15 +16,13 @@
 */
 
 /**
-	@file
-	@brief Testsuite engine that sends real HTTP requests via the network, as users do.
-*/
+ * @file
+ * @brief Testsuite engine that sends real HTTP requests via the network, as users do.
+ */
 
 class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 
 	const HTTP_REQUEST_CLASS = 'MWHttpRequest';
-
-	protected $api; /**< ModerationTestsuiteAPI object */
 
 	protected $apiUrl;
 	protected $editToken = false;
@@ -44,10 +42,10 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 	}
 
 	/**
-		@brief Perform API request and return the resulting structure.
-		@note If $apiQuery contains 'token' => 'null', then 'token'
+	 * @brief Perform API request and return the resulting structure.
+	 * @note If $apiQuery contains 'token' => 'null', then 'token'
 			will be set to the current value of $editToken.
-	*/
+	 */
 	protected function doQuery( array $apiQuery ) {
 		$req = $this->httpPost( $this->apiUrl, $apiQuery );
 		return FormatJson::decode( $req->getContent(), true );

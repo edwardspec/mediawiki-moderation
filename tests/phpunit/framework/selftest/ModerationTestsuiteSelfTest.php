@@ -16,23 +16,23 @@
 */
 
 /**
-	@file
-	@brief Tests the ModerationTestsuite itself.
-	@group Utility
-
-	Used for debugging subclasses of ModerationTestsuiteEngine.
+ * @file
+ * @brief Tests the ModerationTestsuite itself.
+ *
+ * Used for debugging subclasses of ModerationTestsuiteEngine.
 */
 
-require_once( __DIR__ . "/../ModerationTestsuite.php" );
+require_once __DIR__ . "/../ModerationTestsuite.php";
 
-
-class ModerationTestsuiteSelfTest extends MediaWikiTestCase
-{
+/**
+ * @group Utility
+ */
+class ModerationTestsuiteSelfTest extends MediaWikiTestCase {
 	/**
-		@brief Ensures that API response is correct.
-		@covers ModerationTestsuiteEngine::query
-		@dataProvider engineDataProvider
-	*/
+	 * @brief Ensures that API response is correct.
+	 * @covers ModerationTestsuiteEngine::query
+	 * @dataProvider engineDataProvider
+	 */
 	public function testEngineApi( ModerationTestsuiteEngine $engine ) {
 		$ret = $engine->query( [
 			'action' => 'query',
@@ -49,10 +49,10 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Ensures that login works (and/or login cookies are remembered).
-		@covers ModerationTestsuiteEngine::loginAs
-		@dataProvider engineDataProvider
-	*/
+	 * @brief Ensures that login works (and/or login cookies are remembered).
+	 * @covers ModerationTestsuiteEngine::loginAs
+	 * @dataProvider engineDataProvider
+	 */
 	public function testEngineApiLogin( ModerationTestsuiteEngine $engine ) {
 		# Create test user.
 		$t = new ModerationTestsuite;
@@ -77,10 +77,10 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Ensures that non-API HTTP response is correct.
-		@covers ModerationTestsuiteEngine::executeHttpRequest
-		@dataProvider engineAndMethodDataProvider
-	*/
+	 * @brief Ensures that non-API HTTP response is correct.
+	 * @covers ModerationTestsuiteEngine::executeHttpRequest
+	 * @dataProvider engineAndMethodDataProvider
+	 */
 	public function testEngineNonApi( ModerationTestsuiteEngine $engine, $method ) {
 		$url = wfScript( 'index' );
 		$data = [
@@ -90,8 +90,7 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 
 		if ( $method == 'POST' ) {
 			$req = $engine->httpPost( $url, $data );
-		}
-		else {
+		} else {
 			$req = $engine->httpGet( wfAppendQuery( $url, $data ) );
 		}
 
@@ -113,8 +112,8 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Provide ModerationTestsuiteEngine objects for tests.
-	*/
+	 * @brief Provide ModerationTestsuiteEngine objects for tests.
+	 */
 	public function engineDataProvider() {
 		return [
 			[ new ModerationTestsuiteCliEngine ],
@@ -124,8 +123,8 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Provide $method datasets for testEngineNonApi() runs.
-	*/
+	 * @brief Provide $method datasets for testEngineNonApi() runs.
+	 */
 	public function methodDataProvider() {
 		return [
 			[ 'POST' ],
@@ -134,17 +133,17 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Provide [ $engine, $method ] datasets for testEngineNonApi() runs.
-	*/
+	 * @brief Provide [ $engine, $method ] datasets for testEngineNonApi() runs.
+	 */
 	public function engineAndMethodDataProvider() {
 		return $this->multiplyProviders( 'engineDataProvider', 'methodDataProvider' );
 	}
 
 	/**
-		@brief Provides dataset where some parameters are provided by $provider1, some by $provider2.
-		@param $provider1 Name of DataProvider method, e.g. 'engineDataProvider'.
-		@param $provider2 Name of DataProvider method, e.g. 'methodDataProvider'.
-	*/
+	 * @brief Provides dataset where some parameters are provided by $provider1, some by $provider2.
+	 * @param $provider1 Name of DataProvider method, e.g. 'engineDataProvider'.
+	 * @param $provider2 Name of DataProvider method, e.g. 'methodDataProvider'.
+	 */
 	public function multiplyProviders( $provider1, $provider2 ) {
 		$sets1 = call_user_func( [ $this, $provider1 ] );
 		$sets2 = call_user_func( [ $this, $provider2 ] );
@@ -159,4 +158,3 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 	}
 
 }
-

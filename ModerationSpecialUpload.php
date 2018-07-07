@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Proxy class for SpecialUpload.
-*/
+ * @file
+ * @brief Proxy class for SpecialUpload.
+ */
 
 /*
 	This class is only needed to gain access to the

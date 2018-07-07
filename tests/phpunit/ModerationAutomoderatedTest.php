@@ -16,18 +16,17 @@
 */
 
 /**
-	@file
-	@brief Ensures that automoderated users can bypass moderation.
-*/
+ * @file
+ * @brief Ensures that automoderated users can bypass moderation.
+ */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
-class ModerationTestAutomoderated extends MediaWikiTestCase
-{
+class ModerationAutomoderatedTest extends MediaWikiTestCase {
 	/**
-		@brief Can automoderated users bypass moderation of edits?
-		@covers ModerationCanSkip::canEditSkip
-	*/
+	 * @brief Can automoderated users bypass moderation of edits?
+	 * @covers ModerationCanSkip::canEditSkip
+	 */
 	public function testAutomoderated() {
 		$t = new ModerationTestsuite();
 
@@ -46,9 +45,9 @@ class ModerationTestAutomoderated extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Can automoderated users bypass moderation of moves?
-		@covers ModerationCanSkip::canMoveSkip
-	*/
+	 * @brief Can automoderated users bypass moderation of moves?
+	 * @covers ModerationCanSkip::canMoveSkip
+	 */
 	public function testAutomoderatedMove() {
 		$t = new ModerationTestsuite();
 		$title = 'Cat';

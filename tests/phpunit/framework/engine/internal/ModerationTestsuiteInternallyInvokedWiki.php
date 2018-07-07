@@ -16,19 +16,28 @@
 */
 
 /**
-	@file
-	@brief Helper class to run MediaWiki as a command line script.
-*/
-
+ * @file
+ * @brief Helper class to run MediaWiki as a command line script.
+ */
 
 class ModerationTestsuiteInternallyInvokedWiki {
 
 	public $url;
-	public $data; /**< array */
-	public $isPosted; /**< True - POST request, false - GET request */
-	public $extraHttpHeaders; /**< array */
-	public $files; /**< array( requestParamName1 => filename1, ... )  */
-	public $cookies; /**< array */
+
+	/** @var array */
+	public $data;
+
+	/** @var bool True - POST request, false - GET request */
+	public $isPosted;
+
+	/** @var array */
+	public $extraHttpHeaders;
+
+	/** @var array [ requestParamName1 => filename1, ... ] */
+	public $files;
+
+	/** @var array */
+	public $cookies;
 
 	public function __construct( $url, array $data, $isPosted, array $extraHttpHeaders = [] ) {
 		$this->cookies = $_COOKIE;
@@ -70,15 +79,15 @@ class ModerationTestsuiteInternallyInvokedWiki {
 	}
 
 	/**
-		@brief True if this is API request, false otherwise.
-	*/
+	 * @brief True if this is API request, false otherwise.
+	 */
 	protected function isApi() {
 		return ( $this->url == wfScript( 'api' ) );
 	}
 
 	/**
-		@brief Create RequestContext for use in invokeFromScript().
-	*/
+	 * @brief Create RequestContext for use in invokeFromScript().
+	 */
 	protected function makeRequestContext() {
 		$url = wfExpandUrl( $this->url, PROTO_CANONICAL );
 
@@ -86,13 +95,13 @@ class ModerationTestsuiteInternallyInvokedWiki {
 		$_FILES = [];
 		foreach ( $this->data as $key => $val ) {
 			if ( $val instanceof CURLFile ) {
-				$_FILES[$key] = array(
+				$_FILES[$key] = [
 					'name' => 'whatever', # Not used anywhere
 					'type' => $val->getMimeType(),
 					'tmp_name' => $val->getFilename(),
 					'size' => filesize( $val->getFilename() ),
 					'error' => 0
-				);
+				];
 				unset( $this->data[$key] );
 			}
 		}
@@ -106,7 +115,7 @@ class ModerationTestsuiteInternallyInvokedWiki {
 			"" /* No prefix needed (keys of $this->cookies already have the prefix) */
 		);
 
-		foreach( $this->extraHttpHeaders as $name => $val ) {
+		foreach ( $this->extraHttpHeaders as $name => $val ) {
 			$request->setHeader( $name, $val );
 		}
 
@@ -166,9 +175,9 @@ class ModerationTestsuiteInternallyInvokedWiki {
 	}
 
 	/**
-		@brief Execute the request. Called internally from the proc_open()ed script.
-		@returns array
-	*/
+	 * @brief Execute the request. Called internally from the proc_open()ed script.
+	 * @return array
+	 */
 	public function invokeFromScript() {
 		$context = $this->makeRequestContext();
 
@@ -177,8 +186,7 @@ class ModerationTestsuiteInternallyInvokedWiki {
 
 		if ( $this->isApi() ) {
 			ModerationTestsuiteApiMain::invoke( $context );
-		}
-		else { /* Non-API request */
+		} else { /* Non-API request */
 			$mediaWiki = new MediaWiki( $context );
 			$mediaWiki->run();
 		}
@@ -198,8 +206,8 @@ class ModerationTestsuiteInternallyInvokedWiki {
 	}
 
 	/**
-		@brief Execute the request. Called from ModerationTestsuiteEngine.
-	*/
+	 * @brief Execute the request. Called from ModerationTestsuiteEngine.
+	 */
 	public function execute() {
 		global $IP;
 

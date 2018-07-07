@@ -16,29 +16,29 @@
 */
 
 /**
-	@file
-	@brief Benchmark: how fast is ApproveAll on Special:Moderation?
+ * @file
+ * @brief Benchmark: how fast is ApproveAll on Special:Moderation?
 
 	Usage:
 	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/approveAll.php
 */
 
-require_once( __DIR__ . '/ModerationBenchmark.php' );
+require_once __DIR__ . '/ModerationBenchmark.php';
 
 class BenchmarkApproveAll extends ModerationBenchmark {
 
 	public $ids = []; /* mod_id of rows where ApproveAll should be applied */
 
 	/**
-		@brief Default number of loops.
-	*/
+	 * @brief Default number of loops.
+	 */
 	public function getDefaultLoops() {
 		return 10;
 	}
 
 	/**
-		@brief How many rows to approve with one approveall.
-	*/
+	 * @brief How many rows to approve with one approveall.
+	 */
 	public function getEditsPerUser() {
 		return 10;
 	}
@@ -56,7 +56,12 @@ class BenchmarkApproveAll extends ModerationBenchmark {
 
 			$modid = false;
 			for ( $j = 0; $j < $editsPerUser; $j ++ ) {
-				$modid = $this->fastQueue( $this->getTestTitle( $i + $j * $numberOfUsers ), 'Whatever', '', $user );
+				$modid = $this->fastQueue(
+					$this->getTestTitle( $i + $j * $numberOfUsers ),
+					'Whatever',
+					'',
+					$user
+				);
 			}
 
 			$this->ids[$i] = $modid; /* Only one mod_id per User */
@@ -66,19 +71,24 @@ class BenchmarkApproveAll extends ModerationBenchmark {
 	}
 
 	public function doActualWork( $i ) {
+		// Prevent DeferredUpdates::tryOpportunisticExecute() from running updates immediately
 		global $wgCommandLineMode;
+		$wgCommandLineMode = false;
 
-		$wgCommandLineMode = false; /* Prevent DeferredUpdates::tryOpportunisticExecute() from running updates immediately */
 		$html = $this->runSpecialModeration( [
 			'modaction' => 'approveall',
 			'modid' => $this->ids[$i],
 			'token' => $this->getUser()->getEditToken()
 		] );
-		$wgCommandLineMode = true;
 
+		// Run the DeferredUpdates
+		$wgCommandLineMode = true;
 		DeferredUpdates::doUpdates( 'run' );
 
-		assert( strpos( $html, '(moderation-approved-ok: ' . $this->getEditsPerUser() . ')' ) !== false );
+		Wikimedia\Assert\Assert::postcondition(
+			( strpos( $html, '(moderation-approved-ok: ' . $this->getEditsPerUser() . ')' ) !== false ),
+			'ApproveAll failed'
+		);
 	}
 }
 

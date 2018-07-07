@@ -16,32 +16,31 @@
 */
 
 /**
-	@file
-	@brief Checks how HTML of Special:Moderation is rendered from the 'moderation' SQL table.
-*/
+ * @file
+ * @brief Checks how HTML of Special:Moderation is rendered from the 'moderation' SQL table.
+ */
 
-require_once( __DIR__ . "/../../framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 
 /**
-	@covers ModerationEntryFormatter
-	@covers SpecialModeration
-*/
-class ModerationSpecialModerationTest extends MediaWikiTestCase
-{
+ * @covers ModerationEntryFormatter
+ * @covers SpecialModeration
+ */
+class ModerationSpecialModerationTest extends MediaWikiTestCase {
 	/**
-		@dataProvider dataProvider
-	*/
+	 * @dataProvider dataProvider
+	 */
 	public function testRenderSpecial( array $options ) {
 		ModerationRenderTestSet::run( $options, $this );
 	}
 
 	/**
-		@brief Provide datasets for testRenderSpecial() runs.
-	*/
+	 * @brief Provide datasets for testRenderSpecial() runs.
+	 */
 	public function dataProvider() {
 		global $wgModerationTimeToOverrideRejection, $wgRCChangedSizeThreshold;
 
-		$longAgo =  '-' . ( $wgModerationTimeToOverrideRejection + 1 ) . ' seconds';
+		$longAgo = '-' . ( $wgModerationTimeToOverrideRejection + 1 ) . ' seconds';
 		$notLongAgoEnough = '-' . ( $wgModerationTimeToOverrideRejection - 3600 ) . ' seconds';
 
 		return [
@@ -59,8 +58,10 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 			[ [ 'mod_merged_revid' => 12345, 'expectedFolder' => 'merged' ] ],
 			[ [ 'isCheckuser' => 1, 'mod_ip' => '127.0.0.2' ] ],
 			[ [ 'isCheckuser' => 1, 'mod_user' => 0, 'mod_user_text' => '127.0.0.3' ] ],
-			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_MAIN, 'mod_page2_title' => 'NewTitle_in_Main_namespace' ] ],
-			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_PROJECT, 'mod_page2_title' => 'NewTitle_in_Project_namespace' ] ],
+			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_MAIN,
+				'mod_page2_title' => 'NewTitle_in_Main_namespace' ] ],
+			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_PROJECT,
+				'mod_page2_title' => 'NewTitle_in_Project_namespace' ] ],
 			[ [ 'mod_conflict' => 1 ] ],
 			[ [ 'mod_conflict' => 1, 'notAutomoderated' => true ] ],
 			[ [ 'previewLinkEnabled' => true ] ],
@@ -99,21 +100,35 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 }
 
 /**
-	@brief Represents one TestSet for testRenderSpecial().
-*/
+ * @brief Represents one TestSet for testRenderSpecial().
+ */
 class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 
-	protected $fields; /**< mod_* fields of one row in the 'moderation' SQL table */
-	protected $expectedFolder = 'DEFAULT'; /**< Folder of Special:Moderation where this entry should appear */
-	protected $isCheckuser = false; /**< If true, moderator who visits Special:Moderation will be a checkuser. */
-	protected $previewLinkEnabled = false; /**< If true, $wgModerationPreviewLink will be enabled. */
-	protected $modblocked = false; /**< If true, user will be modblocked. */
-	protected $expectNotReapprovable = false; /**< If true, Approve link should be absent, because the entry was rejected too long ago. */
-	protected $notAutomoderated = false; /**< If true, moderator will NOT be automoderated. */
+	/** @var array All mod_* fields of one row in the 'moderation' SQL table */
+	protected $fields;
+
+	/** @var string Folder of Special:Moderation where this entry should appear */
+	protected $expectedFolder = 'DEFAULT';
+
+	/** @var bool If true, moderator who visits Special:Moderation will be a checkuser. */
+	protected $isCheckuser = false;
+
+	/** @var bool If true, $wgModerationPreviewLink will be enabled. */
+	protected $previewLinkEnabled = false;
+
+	/** @var bool If true, user will be modblocked. */
+	protected $modblocked = false;
+
+	/** @var bool If true, Approve link should be absent,
+		because the entry was rejected too long ago. */
+	protected $expectNotReapprovable = false;
+
+	/** @var bool If true, moderator will NOT be automoderated. */
+	protected $notAutomoderated = false;
 
 	/**
-		@brief Initialize this TestSet from the input of dataProvider.
-	*/
+	 * @brief Initialize this TestSet from the input of dataProvider.
+	 */
 	protected function applyOptions( array $options ) {
 		$this->fields = $this->getDefaultFields();
 		foreach ( $options as $key => $value ) {
@@ -167,7 +182,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Returns default value for $fields.
+	 * @brief Returns default value for $fields.
 		This represents situation when dataProvider provides an empty array.
 	*/
 	protected function getDefaultFields() {
@@ -210,8 +225,8 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Returns Title object of the page mentioned in $this->fields.
-	*/
+	 * @brief Returns Title object of the page mentioned in $this->fields.
+	 */
 	protected function getExpectedTitleObj( $nsField = 'mod_namespace', $titleField = 'mod_title' ) {
 		return Title::makeTitle(
 			$this->fields[$nsField],
@@ -220,15 +235,15 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Returns pagename (string) of the page mentioned in $this->fields.
-	*/
+	 * @brief Returns pagename (string) of the page mentioned in $this->fields.
+	 */
 	protected function getExpectedTitle( $nsField = 'mod_namespace', $titleField = 'mod_title' ) {
 		return $this->getExpectedTitleObj( $nsField, $titleField )->getFullText();
 	}
 
 	/**
-		@brief Returns pagename (string) of the second page mentioned in $this->fields.
-	*/
+	 * @brief Returns pagename (string) of the second page mentioned in $this->fields.
+	 */
 	protected function getExpectedPage2Title() {
 		return $this->getExpectedTitle(
 			'mod_page2_namespace',
@@ -237,15 +252,14 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Assert the state of the database after the edit.
-	*/
+	 * @brief Assert the state of the database after the edit.
+	 */
 	protected function assertResults( MediaWikiTestCase $testcase ) {
 		$t = $this->getTestsuite();
 
 		if ( $this->isCheckuser ) {
 			$t->loginAs( $t->moderatorAndCheckuser );
-		}
-		elseif ( $this->notAutomoderated ) {
+		} elseif ( $this->notAutomoderated ) {
 			$t->loginAs( $t->moderatorButNotAutomoderated );
 		}
 
@@ -276,8 +290,8 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Check whether user, title, comment and ID of $entry are correct.
-	*/
+	 * @brief Check whether user, title, comment and ID of $entry are correct.
+	 */
 	protected function assertBasicInfo( ModerationTestsuiteEntry $entry ) {
 		$testcase = $this->getTestcase();
 
@@ -299,9 +313,9 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Check whether timestamp of $entry is correct.
-		@covers ModerationFormatTimestamp
-	*/
+	 * @brief Check whether timestamp of $entry is correct.
+	 * @covers ModerationFormatTimestamp
+	 */
 	protected function assertTimestamp( ModerationTestsuiteEntry $entry ) {
 		$testcase = $this->getTestcase();
 		$timestamp = $this->fields['mod_timestamp'];
@@ -325,8 +339,8 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Check whether minor/bot/newpage edits are properly marked.
-	*/
+	 * @brief Check whether minor/bot/newpage edits are properly marked.
+	 */
 	protected function assertFlags( ModerationTestsuiteEntry $entry ) {
 		$expectedFlags = [
 			'is minor edit' => (bool)$this->fields['mod_minor'],
@@ -344,8 +358,8 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Check whether the difference between len_old/len_new is properly shown.
-	*/
+	 * @brief Check whether the difference between len_old/len_new is properly shown.
+	 */
 	protected function assertLengthChange( ModerationTestsuiteEntry $entry ) {
 		global $wgRCChangedSizeThreshold;
 
@@ -362,8 +376,8 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Check whether the change is marked as edit conflict.
-	*/
+	 * @brief Check whether the change is marked as edit conflict.
+	 */
 	protected function assertConflictStatus( ModerationTestsuiteEntry $entry ) {
 		$this->getTestcase()->assertEquals( [
 			'shown as edit conflict?' => $this->fields['mod_conflict']
@@ -373,8 +387,8 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Assert that all folders (except expectedFolder) are empty.
-	*/
+	 * @brief Assert that all folders (except expectedFolder) are empty.
+	 */
 	protected function assertOtherFoldersAreEmpty() {
 		$knownFolders = [ 'DEFAULT', 'rejected', 'spam', 'merged' ];
 		$t = $this->getTestsuite();
@@ -383,14 +397,15 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 			if ( $folder != $this->expectedFolder ) {
 				$t->fetchSpecial( $folder );
 				$this->getTestcase()->assertEmpty( $t->new_entries,
-					"Unexpected entry found in folder \"$folder\" of Special:Moderation (this folder should be empty)."
+					"Unexpected entry found in folder \"$folder\" of Special:Moderation " .
+					"(this folder should be empty)."
 				);
 			}
 		}
 	}
 
 	/**
-		@brief Assert that Whois link is always shown for anonymous users,
+	 * @brief Assert that Whois link is always shown for anonymous users,
 		and only to checkusers for registered users.
 	*/
 	protected function assertWhoisLink( ModerationTestsuiteEntry $entry ) {
@@ -398,13 +413,11 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		if ( $this->fields['mod_user'] == 0 ) {
 			$testcase->assertEquals( $this->fields['mod_user_text'], $entry->ip,
 				"Special:Moderation: incorrect Whois link for anonymous user." );
-		}
-		else {
+		} else {
 			if ( $this->isCheckuser ) {
 				$testcase->assertEquals( $this->fields['mod_ip'], $entry->ip,
 					"Special:Moderation (viewed by checkuser): incorrect Whois link for registered user." );
-			}
-			else {
+			} else {
 				$testcase->assertNull( $entry->ip,
 					"Special:Moderation: Whois link shown to non-checkuser." );
 			}
@@ -412,8 +425,8 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Check that the formatting of "suggested move" entry is correct.
-	*/
+	 * @brief Check that the formatting of "suggested move" entry is correct.
+	 */
 	protected function assertMoveEntry( ModerationTestsuiteEntry $entry ) {
 		$testcase = $this->getTestcase();
 
@@ -427,8 +440,8 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Verify that only the needed action links are shown.
-	*/
+	 * @brief Verify that only the needed action links are shown.
+	 */
 	protected function assertActionLinks( ModerationTestsuiteEntry $entry ) {
 		$testcase = $this->getTestcase();
 
@@ -467,8 +480,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 			if ( $this->notAutomoderated ) {
 				$testcase->assertTrue( $entry->noMergeNotAutomoderated,
 					"Special:Moderation: non-automoderated moderator doesn't see \"Can't merge\" message" );
-			}
-			else {
+			} else {
 				$expectedLinks['merge'] = true;
 			}
 		}
@@ -483,8 +495,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 
 		if ( $this->modblocked ) {
 			$expectedLinks['unblock'] = true;
-		}
-		else {
+		} else {
 			$expectedLinks['block'] = true;
 		}
 
@@ -495,8 +506,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 				$testcase->assertNotNull( $url,
 					"Special:Moderation: expected link [$action] is not shown." );
 				$this->assertActionLinkURL( $action, $url );
-			}
-			else {
+			} else {
 				$testcase->assertNull( $url,
 					"Special:Moderation: found unexpected [$action] link (it shouldn't be here)." );
 			}
@@ -504,9 +514,9 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Check whether the URL of action link is correct.
-		@param $action Name of modaction (e.g. 'rejectall') or 'mergedDiff'.
-	*/
+	 * @brief Check whether the URL of action link is correct.
+	 * @param $action Name of modaction (e.g. 'rejectall') or 'mergedDiff'.
+	 */
 	protected function assertActionLinkURL( $action, $url ) {
 		/* Parse the $url and check the presence
 		of needed query string parameters */
@@ -518,8 +528,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 				'title' => strtr( $this->getExpectedTitle(), ' ', '_' ),
 				'diff' => $this->fields['mod_merged_revid']
 			] );
-		}
-		else {
+		} else {
 			$expectedQuery = [
 				'title' => SpecialPage::getTitleFor( 'Moderation' )->getFullText(),
 				'modaction' => $action,
@@ -534,9 +543,9 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Parse $url and assert the presence of needed QueryString parameters.
-		@param $expectedQuery array( key1 => value1, ... )
-	*/
+	 * @brief Parse $url and assert the presence of needed QueryString parameters.
+	 * @param $expectedQuery array( key1 => value1, ... )
+	 */
 	protected function assertQueryString( $url, array $expectedQuery ) {
 		$bits = wfParseUrl( wfExpandUrl( $url ) );
 		$query = wfCgiToArray( $bits['query'] );
@@ -558,8 +567,8 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Check information about who and how rejected this edit.
-	*/
+	 * @brief Check information about who and how rejected this edit.
+	 */
 	protected function assertRejectedBy( ModerationTestsuiteEntry $entry ) {
 		$testcase = $this->getTestcase();
 
@@ -578,8 +587,8 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Execute the TestSet, making an edit/upload/move with requested parameters.
-	*/
+	 * @brief Execute the TestSet, making an edit/upload/move with requested parameters.
+	 */
 	protected function makeChanges() {
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->insert( 'moderation', $this->fields, __METHOD__ );

@@ -16,17 +16,16 @@
 */
 
 /**
-	@file
-	@brief Verifies that modaction=preview works as expected.
-*/
+ * @file
+ * @brief Verifies that modaction=preview works as expected.
+ */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
-	@covers ModerationActionPreview
-*/
-class ModerationTestPreview extends MediaWikiTestCase
-{
+ * @covers ModerationActionPreview
+ */
+class ModerationPreviewTest extends MediaWikiTestCase {
 	public function testPreview() {
 		$t = new ModerationTestsuite();
 
@@ -42,7 +41,8 @@ class ModerationTestPreview extends MediaWikiTestCase
 
 		$entry = $t->new_entries[0];
 		$this->assertNull( $entry->previewLink,
-			"testPreview(): Preview link was mistakenly shown (this link must be hidden in default configuration)" );
+			"testPreview(): Preview link was mistakenly shown " .
+			"(this link must be hidden in default configuration)" );
 
 		$url = $entry->expectedActionLink( 'preview', false );
 		$title = $t->html->getTitle( $url );

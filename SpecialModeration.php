@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Implements [[Special:Moderation]].
-*/
+ * @file
+ * @brief Implements [[Special:Moderation]].
+ */
 
 class SpecialModeration extends QueryPage {
 	public $folder; // Currently selected folder (when viewing the moderation table)
@@ -93,7 +93,7 @@ class SpecialModeration extends QueryPage {
 
 		return Xml::tags( 'div',
 			[ 'class' => 'mw-moderation-folders' ],
-			join( ' | ', $folderLinks )
+			implode( ' | ', $folderLinks )
 		);
 	}
 
