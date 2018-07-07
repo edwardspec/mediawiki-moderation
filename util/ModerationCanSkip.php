@@ -27,7 +27,7 @@ class ModerationCanSkip {
 	 * @brief Enters "approve mode", making all further calls of canSkip() return true.
 		This is used in ModerationActionApprove, so that newly approved edit
 		wouldn't be stopped by Moderation again.
-	*/
+	 */
 	public static function enterApproveMode() {
 		self::$inApprove = true;
 	}
@@ -98,7 +98,7 @@ class ModerationCanSkip {
 	 */
 	protected static function canSkipInAllNamespaces( array $namespaces ) {
 		foreach ( array_unique( $namespaces ) as $ns ) {
-			if ( !self::canSkipInNamespace( $ns ) ){
+			if ( !self::canSkipInNamespace( $ns ) ) {
 				return false;
 			}
 		}

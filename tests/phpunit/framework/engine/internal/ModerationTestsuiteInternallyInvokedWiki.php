@@ -20,7 +20,6 @@
  * @brief Helper class to run MediaWiki as a command line script.
  */
 
-
 class ModerationTestsuiteInternallyInvokedWiki {
 
 	public $url;
@@ -86,13 +85,13 @@ class ModerationTestsuiteInternallyInvokedWiki {
 		$_FILES = [];
 		foreach ( $this->data as $key => $val ) {
 			if ( $val instanceof CURLFile ) {
-				$_FILES[$key] = array(
+				$_FILES[$key] = [
 					'name' => 'whatever', # Not used anywhere
 					'type' => $val->getMimeType(),
 					'tmp_name' => $val->getFilename(),
 					'size' => filesize( $val->getFilename() ),
 					'error' => 0
-				);
+				];
 				unset( $this->data[$key] );
 			}
 		}
@@ -106,7 +105,7 @@ class ModerationTestsuiteInternallyInvokedWiki {
 			"" /* No prefix needed (keys of $this->cookies already have the prefix) */
 		);
 
-		foreach( $this->extraHttpHeaders as $name => $val ) {
+		foreach ( $this->extraHttpHeaders as $name => $val ) {
 			$request->setHeader( $name, $val );
 		}
 
@@ -167,7 +166,7 @@ class ModerationTestsuiteInternallyInvokedWiki {
 
 	/**
 	 * @brief Execute the request. Called internally from the proc_open()ed script.
-	 * @returns array
+	 * @return array
 	 */
 	public function invokeFromScript() {
 		$context = $this->makeRequestContext();
@@ -177,8 +176,7 @@ class ModerationTestsuiteInternallyInvokedWiki {
 
 		if ( $this->isApi() ) {
 			ModerationTestsuiteApiMain::invoke( $context );
-		}
-		else { /* Non-API request */
+		} else { /* Non-API request */
 			$mediaWiki = new MediaWiki( $context );
 			$mediaWiki->run();
 		}

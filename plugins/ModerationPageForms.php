@@ -28,11 +28,11 @@ class ModerationPageForms {
 
 	/**
 	 * @brief Preload text of pending edit into the form of Special:FormEdit.
-
-		This is used by two hooks:
-		PageForms::EditFormPreloadText (when creating new page)
-		PageForms::EditFormInitialText (when editing existing page)
-	*/
+	 *
+	 * This is used by two hooks:
+	 * PageForms::EditFormPreloadText (when creating new page)
+	 * PageForms::EditFormInitialText (when editing existing page)
+	 */
 	public static function preloadText( &$preloadContent, $targetTitle, $formTitle ) {
 		if ( !$targetTitle ) {
 			// We are on [[Special:FormEdit/A]], where A is the name of form.
@@ -47,8 +47,8 @@ class ModerationPageForms {
 
 	/**
 	 * @brief ModerationContinueEditingLink hook.
-		Here we point "continue editing" link to FormEdit after using FormEdit.
-	*/
+	 * Here we point "continue editing" link to FormEdit after using FormEdit.
+	 */
 	public function onModerationContinueEditingLink( &$returnto, array &$returntoquery, Title $title, IContextSource $context ) {
 		$request = $context->getRequest();
 
@@ -56,8 +56,7 @@ class ModerationPageForms {
 		$action = Action::getActionName( $context );
 		if ( $action == 'formedit' ) {
 			$returntoquery = [ 'action' => 'formedit' ];
-		}
-		else {
+		} else {
 			// Are we editing via Special:FormEdit?
 			$specialTitle = Title::newFromText( $request->getVal( 'title' ) );
 			if ( $specialTitle && $specialTitle->isSpecial( 'FormEdit' ) ) {

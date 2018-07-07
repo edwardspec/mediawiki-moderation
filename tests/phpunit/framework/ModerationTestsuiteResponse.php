@@ -37,7 +37,7 @@ class ModerationTestsuiteResponse {
 
 	/**
 	 * @brief Create response from real MWHttpRequest.
-	 * @returns ModerationTestsuiteResponse object.
+	 * @return ModerationTestsuiteResponse object.
 	 */
 	public static function newFromMWHttpRequest( MWHttpRequest $httpRequest ) {
 		return new self(
@@ -49,17 +49,16 @@ class ModerationTestsuiteResponse {
 
 	/**
 	 * @brief Create response after internal invocation.
-	 * @param $mwResponse FauxResponse object after $mediaWiki->run().
-	 * @param $capturedContent Text printed by $mediaWiki->run(), as captured by ob_start()/ob_get_clean().
-	 * @returns ModerationTestsuiteResponse object.
+	 * @param mwResponse FauxResponse object after $mediaWiki->run
+	 * @param capturedContent Text printed by $mediaWiki->run as captured by ob_start()/ob_get_clean().
+	 * @return ModerationTestsuiteResponse object.
 	 */
 	public static function newFromFauxResponse( FauxResponse $mwResponse, $capturedContent ) {
 		$httpCode = $mwResponse->getStatusCode();
 		if ( !$httpCode ) { /* WebResponse doesn't set code for successful requests */
 			if ( $mwResponse->getHeader( 'Location' ) ) {
 				$httpCode = 302; /* Successful redirect */
-			}
-			else {
+			} else {
 				$httpCode = 200; /* Successful non-redirect */
 			}
 		}
@@ -87,4 +86,3 @@ class ModerationTestsuiteResponse {
 		return ( $this->httpCode >= 300 && $this->httpCode <= 303 );
 	}
 }
-

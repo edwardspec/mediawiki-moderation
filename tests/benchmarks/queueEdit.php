@@ -23,7 +23,7 @@
 	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/queueEdit.php
 */
 
-require_once( __DIR__ . '/ModerationBenchmark.php' );
+require_once __DIR__ . '/ModerationBenchmark.php';
 
 class BenchmarkQueueEdit extends ModerationBenchmark {
 	public function doActualWork( $i ) {

@@ -20,13 +20,12 @@
  * @brief Verifies that modaction=(un)block works as expected.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationActionBlock
  */
-class ModerationTestBlock extends MediaWikiTestCase
-{
+class ModerationTestBlock extends MediaWikiTestCase {
 	public function testBlock() {
 		$t = new ModerationTestsuite();
 		$entry = $t->getSampleEntry( 'Test page 1' );

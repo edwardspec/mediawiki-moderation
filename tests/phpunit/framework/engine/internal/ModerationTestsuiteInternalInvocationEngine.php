@@ -50,7 +50,7 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 		$this->getSession()->setUser( $user );
 		$user->setCookies( null, null, true );
 
-		$_COOKIE = array_map( function( $info ) {
+		$_COOKIE = array_map( function ( $info ) {
 			return $info['value'];
 		}, $user->getRequest()->response()->getCookies() );
 
@@ -65,7 +65,7 @@ class ModerationTestsuiteInternalInvocationEngine extends ModerationTestsuiteEng
 	 * @brief Perform API request and return the resulting structure.
 	 * @note If $apiQuery contains 'token' => 'null', then 'token'
 			will be set to the current value of $editToken.
-	*/
+	 */
 	protected function doQuery( array $apiQuery ) {
 		$wiki = new ModerationTestsuiteInternallyInvokedWiki(
 			wfScript( 'api' ),

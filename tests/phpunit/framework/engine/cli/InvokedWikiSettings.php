@@ -75,7 +75,7 @@ function efModerationTestsuiteSetup() {
 			with ModerationTestsuiteCliApiMain (subclass of ApiMain)
 			that always prints the result, even in "internal mode".
 	*/
-	$wgHooks['ApiBeforeMain'][] = function( ApiMain &$apiMain ) {
+	$wgHooks['ApiBeforeMain'][] = function ( ApiMain &$apiMain ) {
 		global $wgEnableWriteAPI;
 
 		$apiMain = new ModerationTestsuiteCliApiMain(
@@ -90,7 +90,7 @@ function efModerationTestsuiteSetup() {
 		HACK: call session_id() on ID from the session cookie (if such cookie exists).
 		FIXME: detemine why exactly didn't SessionManager do this automatically.
 	*/
-	$wgHooks['SetupAfterCache'][] = function() {
+	$wgHooks['SetupAfterCache'][] = function () {
 		/* Earliest hook where $wgCookiePrefix (needed by getCookie())
 			is available (when not set in LocalSettings.php)  */
 		$id = RequestContext::getMain()->getRequest()->getCookie( '_session' );

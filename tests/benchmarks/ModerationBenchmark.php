@@ -15,7 +15,7 @@
 	GNU General Public License for more details.
 */
 
-require_once( __DIR__ . '/../common/ModerationTestUtil.php' );
+require_once __DIR__ . '/../common/ModerationTestUtil.php';
 
 /**
  * @file
@@ -25,11 +25,11 @@ require_once( __DIR__ . '/../common/ModerationTestUtil.php' );
 abstract class ModerationBenchmark extends Maintenance {
 	/**
 	 * @brief Prefix that is always prepended to all titles, etc.
-		This ensures that two benchmarks won't work with the same pages,
-		causing errors like "benchmark #1 was creating a new page,
-		benchmark #2 was editing existing page,
-		leading to performance of #1 and #2 being different".
-	*/
+	 * 	This ensures that two benchmarks won't work with the same pages,
+	 *	causing errors like "benchmark #1 was creating a new page,
+	 *	benchmark #2 was editing existing page,
+	 *	leading to performance of #1 and #2 being different".
+	 */
 	private $uniquePrefix = null;
 
 	/**
@@ -47,10 +47,10 @@ abstract class ModerationBenchmark extends Maintenance {
 	/**
 	 * @brief Returns Title object for testing.
 	 * @param $suffix Full text of the title, e.g. "Talk:Welsh corgi".
-
-		During this benchmark, same value is returned for same $suffix,
-		but another benchmark will get a different Title.
-	*/
+	 *
+	 * During this benchmark, same value is returned for same $suffix,
+	 * but another benchmark will get a different Title.
+	 */
 	public function getTestTitle( $suffix = '1' ) {
 		$nonprefixedTitle = Title::newFromText( $suffix );
 		return Title::makeTitle(
@@ -84,7 +84,7 @@ abstract class ModerationBenchmark extends Maintenance {
 	 */
 	function execute() {
 		$user = User::newSystemUser( 'Benchmark User', [ 'steal' => true ] );
-		foreach( $user->getGroups() as $existingGroup ) {
+		foreach ( $user->getGroups() as $existingGroup ) {
 			$user->removeGroup( $existingGroup );
 		}
 		$user->saveSettings();
@@ -143,21 +143,21 @@ abstract class ModerationBenchmark extends Maintenance {
 
 	/**
 	 * @brief Edit the page by directly modifying the database. Very fast.
-
-		This is used for initialization of tests.
-		For example, if moveQueue benchmark needs 500 existing pages,
-		it would take forever for doEditContent() to create them all,
-		much longer than the actual benchmark.
-	*/
+	 *
+	 * This is used for initialization of tests.
+	 * For example, if moveQueue benchmark needs 500 existing pages,
+	 * it would take forever for doEditContent() to create them all,
+	 * much longer than the actual benchmark.
+	 */
 	public function fastEdit( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
 		ModerationTestUtil::fastEdit( $title, $newText, $summary, $user );
 	}
 
 	/**
 	 * @brief Queue the page by directly modifying the database. Very fast.
-		This is used for initialization of tests.
-
-	 * @returns mod_id of the newly inserted row.
+	 * This is used for initialization of tests.
+	 *
+	 * @return mod_id of the newly inserted row.
 	 */
 	public function fastQueue( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
 		$page = WikiPage::factory( $title );

@@ -20,13 +20,12 @@
  * @brief Ensures that checkuser-related functionality works correctly.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationApproveHook
  */
-class ModerationTestCheckuser extends MediaWikiTestCase
-{
+class ModerationTestCheckuser extends MediaWikiTestCase {
 	public $moderatorUA = 'UserAgent of Moderator/1.0';
 	public $userUA = 'UserAgent of UnprivilegedUser/1.0';
 
@@ -99,8 +98,7 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 
 		$dbw = wfGetDB( DB_MASTER );
 		if ( !array_key_exists( 'CheckUser', $wgSpecialPages )
-			|| !$dbw->tableExists( 'cu_changes' ) )
-		{
+			|| !$dbw->tableExists( 'cu_changes' ) ) {
 			$this->markTestSkipped( 'Test skipped: CheckUser extension must be installed to run it.' );
 		}
 	}
@@ -123,7 +121,7 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 
 		$waiter = $t->waitForRecentChangesToAppear();
 		$t->httpGet( $entry->approveLink );
-		$waiter(1);
+		$waiter( 1 );
 
 		$agent = $t->getCUCAgent();
 		$this->assertNotEquals( $this->moderatorUA, $agent,

@@ -20,13 +20,12 @@
  * @brief Verifies that modactions work via api.php?action=moderation.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
  * @covers ApiModeration
  */
-class ModerationTestApi extends MediaWikiTestCase
-{
+class ModerationTestApi extends MediaWikiTestCase {
 
 	/**
 	 * @brief Checks return value of api.php?action=moderation&modaction=...

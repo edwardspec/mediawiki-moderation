@@ -23,7 +23,7 @@
 	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/renderSpecial.php
 */
 
-require_once( __DIR__ . '/ModerationBenchmark.php' );
+require_once __DIR__ . '/ModerationBenchmark.php';
 
 class BenchmarkRenderSpecial extends ModerationBenchmark {
 

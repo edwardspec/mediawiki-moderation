@@ -93,7 +93,7 @@ class SpecialModeration extends QueryPage {
 
 		return Xml::tags( 'div',
 			[ 'class' => 'mw-moderation-folders' ],
-			join( ' | ', $folderLinks )
+			implode( ' | ', $folderLinks )
 		);
 	}
 

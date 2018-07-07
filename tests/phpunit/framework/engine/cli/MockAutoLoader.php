@@ -73,7 +73,7 @@ class ModerationTestsuiteMockAutoLoader {
 	/**
 	 * @brief Replace all calls to function A with calls to function B.
 	 */
-	static public function replaceFunction( $oldFunctionName, $newFunctionName ) {
+	public static function replaceFunction( $oldFunctionName, $newFunctionName ) {
 		self::singleton()->replacements[$oldFunctionName] = $newFunctionName;
 	}
 
@@ -129,10 +129,10 @@ class ModerationTestsuiteMockAutoLoader {
 	/**
 	 * @brief Rewrite the PHP code, replacing the calls to intercepted functions with mocks.
 	 * @param $text Original PHP source code (string).
-	 * @returns Modified source code (string).
+	 * @return Modified source code (string).
 	 */
 	protected function rewriteFile( $text ) {
-		$functionNameRegex = join( '|', array_map( 'preg_quote', array_keys( $this->replacements ) ) );
+		$functionNameRegex = implode( '|', array_map( 'preg_quote', array_keys( $this->replacements ) ) );
 		if ( !$functionNameRegex ) {
 			return $text; /* replaceFunction() was never used */
 		}
@@ -155,4 +155,3 @@ class ModerationTestsuiteMockAutoLoader {
 }
 
 spl_autoload_register( [ ModerationTestsuiteMockAutoLoader::singleton(), 'autoload' ] );
-

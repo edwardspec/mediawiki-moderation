@@ -102,8 +102,8 @@ class ModerationUploadHooks {
 
 	/**
 	 * @brief Polyfill to call onUploadVerifyUpload in MediaWiki 1.27.
-		Not needed in MediaWiki 1.28+.
-	*/
+	 * Not needed in MediaWiki 1.28+.
+	 */
 	public static function onUploadVerifyFile( $upload, $mime, &$status ) {
 		if ( self::haveUploadVerifyUpload() ) {
 			return true;  /* Will be handled in UploadVerifyUpload hook (MediaWiki 1.28+) */

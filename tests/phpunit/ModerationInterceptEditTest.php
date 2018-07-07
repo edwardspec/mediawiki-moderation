@@ -20,13 +20,12 @@
  * @brief Ensures that edits are intercepted by Extension:Moderation.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationEditHooks
  */
-class ModerationTestInterceptEdit extends MediaWikiTestCase
-{
+class ModerationTestInterceptEdit extends MediaWikiTestCase {
 	public function testInterceptEdit() {
 		$t = new ModerationTestsuite();
 

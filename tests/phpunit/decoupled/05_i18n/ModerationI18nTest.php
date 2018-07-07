@@ -20,8 +20,7 @@
  * @brief Checks i18n/*.json files for syntax errors.
  */
 
-class ModerationI18nTest extends MediaWikiTestCase
-{
+class ModerationI18nTest extends MediaWikiTestCase {
 	/**
 	 * @brief Ensures that $path is a valid JSON file.
 	 * @dataProvider dataProvider
@@ -36,7 +35,7 @@ class ModerationI18nTest extends MediaWikiTestCase
 	 * @brief Provide datasets for testLanguageFile() runs.
 	 */
 	public function dataProvider() {
-		return array_map( function( $path ) {
+		return array_map( function ( $path ) {
 			return [ $path ];
 		}, glob( __DIR__ . '/../../../..{,/api}/i18n/*.json', GLOB_BRACE ) );
 	}

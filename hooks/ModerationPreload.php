@@ -28,7 +28,6 @@
 	Note: ']' and '[' are used because they aren't allowed in usernames.
 */
 
-
 class ModerationPreload {
 
 	protected static $singleton = null; /**< Singleton instance */
@@ -52,7 +51,7 @@ class ModerationPreload {
 
 	/**
 	 * @brief Get the request.
-	 * @returns WebRequest object.
+	 * @return WebRequest object.
 	 */
 	protected function getRequest() {
 		return RequestContext::getMain()->getRequest();
@@ -60,7 +59,7 @@ class ModerationPreload {
 
 	/**
 	 * @brief Get the user.
-	 * @returns User object.
+	 * @return User object.
 	 */
 	protected function getUser() {
 		if ( $this->user ) {
@@ -80,7 +79,7 @@ class ModerationPreload {
 	/**
 	 * @brief Calculate value of mod_preload_id for the current user.
 	 * @param $create If true, new preload ID will be generated for first-time anonymous editors.
-	 * @returns Preload ID (string).
+	 * @return Preload ID (string).
 	 * @retval false Current user is anonymous AND hasn't edited before AND $create is false.
 	 */
 	public function getId( $create = false ) {
@@ -114,7 +113,7 @@ class ModerationPreload {
 	/**
 	 * @brief Forget the fact that this user edited anonymously.
 		Used in LocalUserCreated hook, when user becomes registered and no longer needs anonymous preload.
-	*/
+	 */
 	protected function forgetAnonId() {
 		$this->getRequest()->setSessionData( 'anon_id', '' );
 	}
@@ -165,7 +164,7 @@ class ModerationPreload {
 	 * @brief Check if there is a pending-moderation edit of this user
 		to this page, and if such edit exists, then load its text and
 		edit comment.
-	*/
+	 */
 	public function loadUnmoderatedEdit( $title ) {
 		$id = $this->getId();
 		if ( !$id ) { # This visitor never saved any edits
@@ -240,8 +239,7 @@ class ModerationPreload {
 		onAlternateEdit()
 		Remember EditPage object, which will then be used in onEditFormPreloadText.
 	*/
-	public static function onAlternateEdit( $editPage )
-	{
+	public static function onAlternateEdit( $editPage ) {
 		self::singleton()->editPage = $editPage;
 
 		return true;

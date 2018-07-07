@@ -27,7 +27,6 @@ abstract class ModerationAction extends ContextSource {
 	public $moderator;
 
 	protected function __construct( IContextSource $context ) {
-
 		$this->setContext( $context );
 
 		$this->moderator = $this->getUser();
@@ -39,7 +38,7 @@ abstract class ModerationAction extends ContextSource {
 
 	final public function run() {
 		if ( $this->requiresWrite() ) {
-			if( wfReadOnly() ) {
+			if ( wfReadOnly() ) {
 				throw new ReadOnlyError;
 			}
 
@@ -84,7 +83,7 @@ abstract class ModerationAction extends ContextSource {
 
 	/**
 	 * @brief Utility function. Get userpage of user who made this edit.
-	 * @returns Title object or false.
+	 * @return Title object or false.
 	 */
 	protected function getUserpageOfPerformer() {
 		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
@@ -96,8 +95,7 @@ abstract class ModerationAction extends ContextSource {
 	}
 
 	/** @brief Construct new ModerationAction */
-	public static function factory( IContextSource $context )
-	{
+	public static function factory( IContextSource $context ) {
 		$action = $context->getRequest()->getVal( 'modaction' );
 		switch ( $action ) {
 			case 'showimg':

@@ -28,8 +28,7 @@ class ModerationError extends ErrorPageError {
 		if ( $message instanceof Status ) {
 			$this->status = $message;
 			$message = $this->status->getMessage();
-		}
-		else {
+		} else {
 			$this->status = Status::newFatal( $message );
 		}
 

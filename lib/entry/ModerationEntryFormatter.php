@@ -21,7 +21,7 @@
  */
 
 class ModerationEntryFormatter extends ModerationEntry {
-	protected $context = null; /**< IContextSource */
+	protected $context = null; /** < IContextSource */
 
 	public function getContext() {
 		if ( is_null( $this->context ) ) {
@@ -46,7 +46,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 	 * @brief Add all titles needed by getHTML() to $batch.
 		This method is for QueryPage::preprocessResults().
 		It optimizes Linker::link() calls by detecting all redlinks in one SQL query.
-	*/
+	 */
 	public static function addToLinkBatch( $row, LinkBatch $batch ) {
 		/* Check the affected article */
 		$batch->add( $row->namespace, $row->title );
@@ -92,7 +92,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 	/**
 	 * @brief Get the list of fields needed for selecting $row, as expected by newFromRow().
-	 * @returns array ($fields parameter for $db->select()).
+	 * @return array ($fields parameter for $db->select()).
 	 */
 	public static function getFields() {
 		$fields = [
@@ -176,8 +176,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 				$pageLink,
 				$page2Link
 			)->plain();
-		}
-		else {
+		} else {
 			/* Normal edit (or upload) */
 			$line .= $pageLink;
 		}
@@ -198,8 +197,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 		$ip = null;
 		if ( isset( $row->ip ) ) {
 			$ip = $row->ip;
-		}
-		elseif ( $row->user == 0 && IP::isValid( $row->user_text ) ) {
+		} elseif ( $row->user == 0 && IP::isValid( $row->user_text ) ) {
 			$ip = $row->user_text;
 		}
 

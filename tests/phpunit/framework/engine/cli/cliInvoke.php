@@ -44,13 +44,13 @@ foreach ( [ '_GET', '_POST', '_COOKIE' ] as $var ) {
 foreach ( $wgModerationTestsuiteCliDescriptor['files'] as $uploadKey => $tmpFilename ) {
 	$curlFile = new CURLFile( $tmpFilename );
 
-	$_FILES[$uploadKey] = array(
+	$_FILES[$uploadKey] = [
 		'name' => 'whatever', # Not used anywhere
 		'type' => $curlFile->getMimeType(),
 		'tmp_name' => $curlFile->getFilename(),
 		'size' => filesize( $curlFile->getFilename() ),
 		'error' => 0
-	);
+	];
 }
 
 /* The point of [InvokedWikiSettings.php] is override $wgRequest
@@ -66,7 +66,7 @@ define( 'MW_CONFIG_FILE', __DIR__ . '/InvokedWikiSettings.php' );
 ini_set( 'display_errors', 0 );
 ini_set( 'log_errors', 1 );
 
-require_once( __DIR__ . '/MockAutoLoader.php' ); # Intercepts header() calls
+require_once __DIR__ . '/MockAutoLoader.php'; # Intercepts header() calls
 
 // Redirect STDOUT into the file
 $stdoutFilename = tempnam( sys_get_temp_dir(), 'testsuite.stdout' );
@@ -78,7 +78,7 @@ $exceptionText = '';
 try {
 
 /*--------------------------------------------------------------*/
-include( $wgModerationTestsuiteCliDescriptor[ 'isApi' ] ? 'api.php' : 'index.php' );
+include $wgModerationTestsuiteCliDescriptor[ 'isApi' ] ? 'api.php' : 'index.php';
 /*--------------------------------------------------------------*/
 
 }

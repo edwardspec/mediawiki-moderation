@@ -20,14 +20,13 @@
  * @brief Checks how HTML of Special:Moderation is rendered from the 'moderation' SQL table.
  */
 
-require_once( __DIR__ . "/../../framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationEntryFormatter
  * @covers SpecialModeration
  */
-class ModerationSpecialModerationTest extends MediaWikiTestCase
-{
+class ModerationSpecialModerationTest extends MediaWikiTestCase {
 	/**
 	 * @dataProvider dataProvider
 	 */
@@ -41,7 +40,7 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase
 	public function dataProvider() {
 		global $wgModerationTimeToOverrideRejection, $wgRCChangedSizeThreshold;
 
-		$longAgo =  '-' . ( $wgModerationTimeToOverrideRejection + 1 ) . ' seconds';
+		$longAgo = '-' . ( $wgModerationTimeToOverrideRejection + 1 ) . ' seconds';
 		$notLongAgoEnough = '-' . ( $wgModerationTimeToOverrideRejection - 3600 ) . ' seconds';
 
 		return [
@@ -244,8 +243,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 
 		if ( $this->isCheckuser ) {
 			$t->loginAs( $t->moderatorAndCheckuser );
-		}
-		elseif ( $this->notAutomoderated ) {
+		} elseif ( $this->notAutomoderated ) {
 			$t->loginAs( $t->moderatorButNotAutomoderated );
 		}
 
@@ -398,13 +396,11 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 		if ( $this->fields['mod_user'] == 0 ) {
 			$testcase->assertEquals( $this->fields['mod_user_text'], $entry->ip,
 				"Special:Moderation: incorrect Whois link for anonymous user." );
-		}
-		else {
+		} else {
 			if ( $this->isCheckuser ) {
 				$testcase->assertEquals( $this->fields['mod_ip'], $entry->ip,
 					"Special:Moderation (viewed by checkuser): incorrect Whois link for registered user." );
-			}
-			else {
+			} else {
 				$testcase->assertNull( $entry->ip,
 					"Special:Moderation: Whois link shown to non-checkuser." );
 			}
@@ -467,8 +463,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 			if ( $this->notAutomoderated ) {
 				$testcase->assertTrue( $entry->noMergeNotAutomoderated,
 					"Special:Moderation: non-automoderated moderator doesn't see \"Can't merge\" message" );
-			}
-			else {
+			} else {
 				$expectedLinks['merge'] = true;
 			}
 		}
@@ -483,8 +478,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 
 		if ( $this->modblocked ) {
 			$expectedLinks['unblock'] = true;
-		}
-		else {
+		} else {
 			$expectedLinks['block'] = true;
 		}
 
@@ -495,8 +489,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 				$testcase->assertNotNull( $url,
 					"Special:Moderation: expected link [$action] is not shown." );
 				$this->assertActionLinkURL( $action, $url );
-			}
-			else {
+			} else {
 				$testcase->assertNull( $url,
 					"Special:Moderation: found unexpected [$action] link (it shouldn't be here)." );
 			}
@@ -518,8 +511,7 @@ class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 				'title' => strtr( $this->getExpectedTitle(), ' ', '_' ),
 				'diff' => $this->fields['mod_merged_revid']
 			] );
-		}
-		else {
+		} else {
 			$expectedQuery = [
 				'title' => SpecialPage::getTitleFor( 'Moderation' )->getFullText(),
 				'modaction' => $action,

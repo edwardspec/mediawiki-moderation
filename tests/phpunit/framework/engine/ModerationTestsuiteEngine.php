@@ -33,7 +33,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 * @brief Create engine object.
 	 */
 	public static function factory() {
-		switch (  getenv( 'MODERATION_TEST_ENGINE' ) ) {
+		switch ( getenv( 'MODERATION_TEST_ENGINE' ) ) {
 			case 'internal':
 				/* Warning: incomplete (incorrect handling of sessions,
 					compatibility issues with different versions of MediaWiki,
@@ -65,7 +65,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 	/**
 	 * @brief Perform GET request.
-	 * @returns ModerationTestsuiteResponse object.
+	 * @return ModerationTestsuiteResponse object.
 	 */
 	public function httpGet( $url ) {
 		return $this->executeHttpRequest( $url, 'GET', [] );
@@ -73,7 +73,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 	/**
 	 * @brief Perform POST request.
-	 * @returns ModerationTestsuiteResponse object.
+	 * @return ModerationTestsuiteResponse object.
 	 */
 	public function httpPost( $url, array $postData = [] ) {
 		return $this->executeHttpRequest( $url, 'POST', $postData );
@@ -115,7 +115,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 * @brief Perform API request and return the resulting structure.
 	 * @note If $apiQuery contains 'token' => 'null', then 'token'
 			will be set to the current value of $editToken.
-	*/
+	 */
 	final public function query( array $apiQuery ) {
 		$apiQuery['format'] = 'json';
 		if ( array_key_exists( 'token', $apiQuery )
@@ -165,7 +165,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 	/**
 	 * @brief Sets MediaWiki global variable.
-	 * @param $name Name of variable without the "$wg" prefix.
+	 * @param name Name of variable without the " $wg prefix.
 	 * @throws PHPUnit_Framework_SkippedTestError
 	 */
 	public function setMwConfig( $name, $value ) {
@@ -186,7 +186,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 		(which is how the sandbox is selected instead of the real database),
 		so its only choice is to break out of the sandbox.
 		Engine like CliEngine can handle this properly (by actually using the sandbox).
-	*/
+	 */
 	public function escapeDbSandbox() {
 		MediaWikiTestCase::teardownTestDB();
 	}

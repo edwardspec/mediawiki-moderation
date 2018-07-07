@@ -24,12 +24,12 @@ class ModerationTestsuiteApiMain extends ApiMain {
 
 	/**
 	 * @brief Run API via internal invocation with proper error handling.
-	 * @returns array (parsed JSON of the response).
+	 * @return array (parsed JSON of the response).
 
 	 * @note This function runs ApiResult through the ApiFormatter,
 		so its return value will be exactly the same
 		as if api.php was called NOT via internal invocation.
-	*/
+	 */
 	public static function invoke( IContextSource $context ) {
 		$api = new self( $context, true );
 		return $api->doInternalInvocation();

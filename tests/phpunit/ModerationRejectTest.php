@@ -20,13 +20,12 @@
  * @brief Verifies that modaction=reject(all) works as expected.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationActionReject
  */
-class ModerationTestReject extends MediaWikiTestCase
-{
+class ModerationTestReject extends MediaWikiTestCase {
 	public function testReject() {
 		$t = new ModerationTestsuite();
 
@@ -135,8 +134,7 @@ class ModerationTestReject extends MediaWikiTestCase
 		$this->assertCount( $t->TEST_EDITS_COUNT, $t->deleted_entries,
 			"testRejectAll(): Several edits were rejected, but number of deleted entries in Pending folder doesn't match" );
 
-		foreach ( $entries as $entry )
-		{
+		foreach ( $entries as $entry ) {
 			$de = ModerationTestsuiteEntry::findById( $t->deleted_entries, $entry->id );
 			$this->assertNotNull( $de );
 
@@ -150,8 +148,7 @@ class ModerationTestReject extends MediaWikiTestCase
 		$this->assertCount( 0, $t->deleted_entries,
 			"testRejectAll(): Something was deleted from Rejected folder during modaction=rejectall" );
 
-		foreach ( $entries as $entry )
-		{
+		foreach ( $entries as $entry ) {
 			$de = ModerationTestsuiteEntry::findById( $t->new_entries, $entry->id );
 			$this->assertNotNull( $de );
 

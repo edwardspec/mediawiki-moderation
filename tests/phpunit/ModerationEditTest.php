@@ -20,10 +20,9 @@
  * @brief Verifies that editing works as usual.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
-class ModerationTestEdit extends MediaWikiTestCase
-{
+class ModerationTestEdit extends MediaWikiTestCase {
 	public function testPreSaveTransform() {
 		$t = new ModerationTestsuite();
 
@@ -67,7 +66,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 			"== Third section ==\nText in third section\n\n"
 		];
 		$title = 'Test page 1';
-		$text = join( '', $sections );
+		$text = implode( '', $sections );
 
 		$t->loginAs( $t->automoderated );
 		$t->doTestEdit( $title, $text );
@@ -86,7 +85,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 
 		$t->fetchSpecial();
 
-		$expectedText = join( '', $sections );
+		$expectedText = implode( '', $sections );
 
 		$this->assertEquals( $expectedText, $t->new_entries[0]->getDbText(),
 			"testEditSections(): Resulting text doesn't match expected" );
@@ -104,7 +103,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$sections[2] = "When editing this section, the user removed <nowiki>== This ==</nowiki>\n\n";
 		$t->doTestEdit( $title, $sections[2], null, 2 );
 
-		$expectedText = join( '', $sections );
+		$expectedText = implode( '', $sections );
 		$this->assertEquals( $expectedText, $t->new_entries[0]->getDbText(),
 			"testEditSections(): When section header is deleted, resulting text doesn't match expected " );
 	}
@@ -118,7 +117,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 			"Text in zero section",
 			"== First section ==\nText in first section",
 		];
-		$origText = join( "\n\n", $sections );
+		$origText = implode( "\n\n", $sections );
 
 		# First, create a preloadable edit
 		$t->loginAs( $t->unprivilegedUser );
@@ -142,7 +141,6 @@ class ModerationTestEdit extends MediaWikiTestCase
 	}
 
 	public function testApiEditAppend() {
-
 		# Does api.php?action=edit&{append,prepend}text=[...] work properly?
 		$t = new ModerationTestsuite();
 
@@ -151,7 +149,7 @@ class ModerationTestEdit extends MediaWikiTestCase
 		$todoAppend = [ "D", "E" ];
 
 		$title = 'Test page 1';
-		$expectedText = join( '', array_merge(
+		$expectedText = implode( '', array_merge(
 			array_reverse( $todoPrepend ),
 			[ $todoText ],
 			$todoAppend

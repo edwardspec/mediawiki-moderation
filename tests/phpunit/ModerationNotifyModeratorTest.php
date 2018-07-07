@@ -20,13 +20,12 @@
  * @brief Verifies that moderators see "New changes await moderation" notice.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationNotifyModerator
  */
-class ModerationTestNotifyModerator extends MediaWikiTestCase
-{
+class ModerationTestNotifyModerator extends MediaWikiTestCase {
 	public function testNotifyModerator() {
 		$t = new ModerationTestsuite();
 		$randomPageUrl = Title::newFromText( 'Can_Be_Any_Page' )->getFullURL();

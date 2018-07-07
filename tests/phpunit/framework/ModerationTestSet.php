@@ -31,8 +31,8 @@ abstract class ModerationTestsuiteTestSet {
 
 	/**
 	 * @brief Returns current PHPUnitTestCase object.
-		Used for calling assert*() methods.
-	*/
+	 * Used for calling assert*() methods.
+	 */
 	protected function getTestcase() {
 		return $this->testcase;
 	}

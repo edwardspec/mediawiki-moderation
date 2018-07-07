@@ -20,10 +20,9 @@
  * @brief Verifies that AbuseFilter-assigned tags are preserved by Moderation.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
-class ModerationTestAbuseFilter extends MediaWikiTestCase
-{
+class ModerationTestAbuseFilter extends MediaWikiTestCase {
 	private $expectedTags = [
 		'Author of edit likes cats',
 		'Author of edit likes dogs'
@@ -107,7 +106,6 @@ class ModerationTestAbuseFilter extends MediaWikiTestCase
 	}
 
 	private function assertTagsAfterApproval( ModerationTestsuite $t, ModerationTestsuiteEntry $entry, $caller ) {
-
 		$waiter = $t->waitForRecentChangesToAppear();
 		$t->httpGet( $entry->approveLink );
 		$waiter( 1 );
@@ -140,10 +138,8 @@ class ModerationTestAbuseFilter extends MediaWikiTestCase
 
 		$dbw = wfGetDB( DB_MASTER );
 		if ( !array_key_exists( 'AbuseFilter', $wgSpecialPages )
-			|| !$dbw->tableExists( 'abuse_filter' ) )
-		{
+			|| !$dbw->tableExists( 'abuse_filter' ) ) {
 			$this->markTestSkipped( 'Test skipped: AbuseFilter extension must be installed to run it.' );
 		}
 	}
 }
-

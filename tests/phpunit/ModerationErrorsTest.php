@@ -20,13 +20,12 @@
  * @brief Ensure that known error conditions cause exceptions.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationError
  */
-class ModerationTestErrors extends MediaWikiTestCase
-{
+class ModerationTestErrors extends MediaWikiTestCase {
 	public function testUnknownAction() {
 		$t = new ModerationTestsuite();
 		$t->loginAs( $t->moderator );

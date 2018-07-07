@@ -23,7 +23,7 @@
 	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/approveEdit.php
 */
 
-require_once( __DIR__ . '/ModerationBenchmark.php' );
+require_once __DIR__ . '/ModerationBenchmark.php';
 
 class BenchmarkApproveEdit extends ModerationBenchmark {
 

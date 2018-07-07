@@ -20,13 +20,12 @@
  * @brief Verifies that modaction=approve(all) works as expected.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationActionApprove
  */
-class ModerationTestApprove extends MediaWikiTestCase
-{
+class ModerationTestApprove extends MediaWikiTestCase {
 	public function testApprove() {
 		$t = new ModerationTestsuite();
 
@@ -105,8 +104,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$this->assertCount( $t->TEST_EDITS_COUNT, $t->deleted_entries,
 			"testApproveAll(): Several edits were approved, but number of deleted entries in Pending folder doesn't match" );
 
-		foreach ( $entries as $entry )
-		{
+		foreach ( $entries as $entry ) {
 			$rev = $t->getLastRevision( $entry->title );
 			$this->assertEquals( $t->unprivilegedUser->getName(), $rev['user'] );
 		}
@@ -126,8 +124,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$this->assertEquals( $t->moderator->getName(), $le['user'] );
 		$this->assertEquals( $t->unprivilegedUser->getUserPage(), $le['title'] );
 
-		foreach ( $events as $le )
-		{
+		foreach ( $events as $le ) {
 			$this->assertEquals( 'approve', $le['action'] );
 			$this->assertEquals( $t->moderator->getName(), $le['user'] );
 		}
@@ -157,8 +154,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$approveAllLink = $t->new_entries[0]->approveAllLink;
 
 		# Odd edits are rejected, even edits are approved.
-		for ( $i = 1; $i < $t->TEST_EDITS_COUNT; $i += 2 )
-		{
+		for ( $i = 1; $i < $t->TEST_EDITS_COUNT; $i += 2 ) {
 			$t->httpGet( $t->new_entries[$i]->rejectLink );
 		}
 
@@ -440,8 +436,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 		$rev = $this->tryToApprove( $t, $entry, __FUNCTION__ );
 	}
 
-	private function tryToApprove( ModerationTestsuite $t, ModerationTestsuiteEntry $entry, $caller )
-	{
+	private function tryToApprove( ModerationTestsuite $t, ModerationTestsuiteEntry $entry, $caller ) {
 		$t->html->loadFromURL( $entry->approveLink );
 		$this->assertRegExp( '/\(moderation-approved-ok: 1\)/',
 			$t->html->getMainText(),

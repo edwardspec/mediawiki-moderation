@@ -20,13 +20,12 @@
  * @brief Ensures that moves are intercepted by Extension:Moderation.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationMoveHooks
  */
-class ModerationMoveTest extends MediaWikiTestCase
-{
+class ModerationMoveTest extends MediaWikiTestCase {
 	public $oldTitle = 'About dogs';
 	public $newTitle = 'About herding dogs';
 	public $text = 'Initial content of page "About dogs".';

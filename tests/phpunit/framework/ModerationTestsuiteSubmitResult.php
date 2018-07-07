@@ -71,4 +71,3 @@ class ModerationTestsuiteSubmitResult {
 		return $this->successText;
 	}
 }
-

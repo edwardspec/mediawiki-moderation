@@ -23,11 +23,9 @@
 	Used for debugging subclasses of ModerationTestsuiteEngine.
 */
 
-require_once( __DIR__ . "/../ModerationTestsuite.php" );
+require_once __DIR__ . "/../ModerationTestsuite.php";
 
-
-class ModerationTestsuiteSelfTest extends MediaWikiTestCase
-{
+class ModerationTestsuiteSelfTest extends MediaWikiTestCase {
 	/**
 	 * @brief Ensures that API response is correct.
 	 * @covers ModerationTestsuiteEngine::query
@@ -90,8 +88,7 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 
 		if ( $method == 'POST' ) {
 			$req = $engine->httpPost( $url, $data );
-		}
-		else {
+		} else {
 			$req = $engine->httpGet( wfAppendQuery( $url, $data ) );
 		}
 
@@ -159,4 +156,3 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase
 	}
 
 }
-

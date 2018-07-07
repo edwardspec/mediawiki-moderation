@@ -34,16 +34,15 @@ class ModerationActionShow extends ModerationAction {
 		$out->addModuleStyles( 'mediawiki.action.history.diff' );
 		$out->setPageTitle( wfMessage( 'difference-title', $result['title'] ) );
 
-		if ( isset ( $result['image-thumb-html'] ) ) {
+		if ( isset( $result['image-thumb-html'] ) ) {
 			$out->addHTML( Xml::tags( 'a', [
 				'href' => $result['image-url'],
 			], $result['image-thumb-html'] ) );
 		}
 
-		if ( isset ( $result['diff-html'] ) ) {
+		if ( isset( $result['diff-html'] ) ) {
 			$out->addHTML( $result['diff-html'] );
-		}
-		else {
+		} else {
 			$out->addWikiMsg( $result['nodiff-reason'] );
 		}
 
@@ -60,7 +59,7 @@ class ModerationActionShow extends ModerationAction {
 	public function execute() {
 		$result = [];
 
-		$entry = ModerationViewableEntry::newFromId( $this->id, DB_SLAVE );
+		$entry = ModerationViewableEntry::newFromId( $this->id, DB_REPLICA );
 		$title = $entry->getTitle();
 
 		if ( $entry->isUpload() ) {
@@ -71,14 +70,12 @@ class ModerationActionShow extends ModerationAction {
 		$diff = $entry->getDiffHTML( $this->getContext() );
 		if ( $diff ) {
 			$result['diff-html'] = $diff;
-		}
-		else {
+		} else {
 			if ( $entry->isUpload() ) {
 				$result['nodiff-reason'] = $title->exists() ?
 					'moderation-diff-reupload' :
 					'moderation-diff-upload-notext';
-			}
-			else {
+			} else {
 				$result['nodiff-reason'] = 'moderation-diff-no-changes';
 				$result['null-edit'] = '';
 			}

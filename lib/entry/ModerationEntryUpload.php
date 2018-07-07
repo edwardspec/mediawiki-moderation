@@ -23,7 +23,7 @@
 class ModerationEntryUpload extends ModerationApprovableEntry {
 	/**
 	 * @brief Approve this upload.
-	 * @returns Status object.
+	 * @return Status object.
 	 */
 	public function doApprove( User $moderator ) {
 		$row = $this->getRow();

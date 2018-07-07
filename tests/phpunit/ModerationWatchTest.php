@@ -20,13 +20,12 @@
  * @brief Verifies that "Watch this page" checkbox is respected when editing.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationActionApprove
  */
-class ModerationTestWatch extends MediaWikiTestCase
-{
+class ModerationTestWatch extends MediaWikiTestCase {
 	/**
 
 	 * @brief Test that checkboxes "Watch this page" work.
@@ -72,7 +71,9 @@ class ModerationTestWatch extends MediaWikiTestCase
 		$this->assertNotEmpty( $wl,
 			"testWatch(): One page was watched, watchlist is empty" );
 
-		$watchedTitles = array_map( function( $item ) { return $item['title']; }, $wl );
+		$watchedTitles = array_map( function ( $item ) {
+			return $item['title'];
+		}, $wl );
 		$expectedWatchedTitles = [ $title ];
 		if ( $actionType == 'move' ) {
 			$expectedWatchedTitles[] = [ $newTitle ];

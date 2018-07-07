@@ -23,7 +23,7 @@
 abstract class ModerationApprovableEntry extends ModerationEntry {
 	/**
 	 * @brief Get the list of fields needed for selecting $row, as expected by newFromRow().
-	 * @returns array ($fields parameter for $db->select()).
+	 * @return array ($fields parameter for $db->select()).
 	 */
 	public static function getFields() {
 		$fields = [
@@ -157,7 +157,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 
 	/**
 	 * @brief Post-approval log subtype. May be overridden in subclass.
-	 * @returns String (e.g. "approve" for "moderation/approve" log).
+	 * @return String (e.g. "approve" for "moderation/approve" log).
 	 */
 	protected function getApproveLogSubtype() {
 		return 'approve';
@@ -165,7 +165,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 
 	/**
 	 * @brief Parameters for post-approval log.
-	 * @returns array
+	 * @return array
 	 */
 	protected function getApproveLogParameters() {
 		return [ 'revid' => ModerationApproveHook::getLastRevId() ];

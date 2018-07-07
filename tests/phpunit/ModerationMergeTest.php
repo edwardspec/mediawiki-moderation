@@ -20,13 +20,12 @@
  * @brief Verifies that modaction=merge works as expected.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationActionMerge
  */
-class ModerationTestMerge extends MediaWikiTestCase
-{
+class ModerationTestMerge extends MediaWikiTestCase {
 	/*
 		This is how we create edit conflict:
 		1) The page has 4 lines of text,

@@ -26,7 +26,7 @@
 class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 
 	protected $cookies = []; /**< array( 'name' => 'value' ) */
-	protected $config = []; /**< $wg* variables from setMwConfig(). array( 'name' => 'value' ) */
+	protected $config = []; /** < $wg* variables from setMwConfig(). array( 'name' => 'value' ) */
 
 	public function logout() {
 		parent::logout();
@@ -35,7 +35,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 
 	/**
 	 * @brief Sets MediaWiki global variable.
-	 * @param $name Name of variable without the "$wg" prefix.
+	 * @param name Name of variable without the $wg prefix.
 	 */
 	public function setMwConfig( $name, $value ) {
 		$this->config[$name] = $value;
@@ -103,7 +103,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 		$descriptor['isApi'] = ( $scriptName == wfScript( 'api' ) );
 
 		$documentRoot = str_replace( dirname( wfScript() ), '', $IP );
- 		$scriptFilename = realpath( $IP . '/' . basename( $scriptName ) );
+		$scriptFilename = realpath( $IP . '/' . basename( $scriptName ) );
 
 		/* Prepare the environment for calling cliInvoke.php.
 			To be sure we have everything,
@@ -178,7 +178,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 
 		/* Remember the newly set cookies */
 		$response = $result['FauxResponse'];
-		$this->cookies = array_map( function( $info ) {
+		$this->cookies = array_map( function ( $info ) {
 			return $info['value'];
 		}, $response->getCookies() ) + $this->cookies;
 
@@ -195,8 +195,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 				whole $relPath is treated as PATH_INFO */
 			$scriptName = wfScript( 'index' );
 			$pathInfo = $relPath;
-		}
-		else {
+		} else {
 			$pathInfo = substr( $relPath, strlen( $scriptName ) );
 		}
 
@@ -215,8 +214,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 			// version number of Moderation during the last update.php,
 			// otherwise Moderation will assume that DB schema is outdated.
 			ModerationVersionCheck::markDbAsUpdated();
-		}
-		else {
+		} else {
 			// If temporary tables were used, then cliInvoked script can't access them.
 			// Fallback to "break out of the sandbox" workaround.
 			parent::escapeDbSandbox();
@@ -224,4 +222,5 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 	}
 }
 
-class ModerationTestsuiteCliError extends ModerationTestsuiteException {};
+class ModerationTestsuiteCliError extends ModerationTestsuiteException {
+};

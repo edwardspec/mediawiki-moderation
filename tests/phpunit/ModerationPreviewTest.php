@@ -20,13 +20,12 @@
  * @brief Verifies that modaction=preview works as expected.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationActionPreview
  */
-class ModerationTestPreview extends MediaWikiTestCase
-{
+class ModerationTestPreview extends MediaWikiTestCase {
 	public function testPreview() {
 		$t = new ModerationTestsuite();
 

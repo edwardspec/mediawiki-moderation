@@ -20,10 +20,9 @@
  * @brief Ensures that automoderated users can bypass moderation.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
-class ModerationTestAutomoderated extends MediaWikiTestCase
-{
+class ModerationTestAutomoderated extends MediaWikiTestCase {
 	/**
 	 * @brief Can automoderated users bypass moderation of edits?
 	 * @covers ModerationCanSkip::canEditSkip

@@ -22,10 +22,9 @@
 	Note: unresolvable edit conflicts are tested by ModerationMergeTest.
 */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
-class ModerationTestEditConflict extends MediaWikiTestCase
-{
+class ModerationTestEditConflict extends MediaWikiTestCase {
 	public function testResolvableEditConflict() {
 		/*
 			Ensure that resolvable edit conflicts are automatically
@@ -53,7 +52,6 @@ class ModerationTestEditConflict extends MediaWikiTestCase
 		$this->assertEquals( $expectedText, $rev['*'],
 			"testResolvableEditConflict(): Unexpected text after approving both edits"
 		);
-
 	}
 
 }

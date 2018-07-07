@@ -20,13 +20,12 @@
  * @brief Checks SQL table 'moderation' after the edit.
  */
 
-require_once( __DIR__ . "/../../framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationNewChange
  */
-class ModerationQueueTest extends MediaWikiTestCase
-{
+class ModerationQueueTest extends MediaWikiTestCase {
 	/**
 	 * @dataProvider dataProvider
 	 */
@@ -144,8 +143,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 		/* Default options */
 		if ( $this->anonymously ) {
 			$this->user = User::newFromName( '127.0.0.1', false );
-		}
-		elseif ( !$this->user ) {
+		} elseif ( !$this->user ) {
 			$this->user = User::newFromName( 'User 5' );
 		}
 
@@ -177,8 +175,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 		foreach ( $expectedRow as $key => $val ) {
 			if ( $val instanceof ModerationTestSetRegex ) {
 				$testcase->assertRegExp( $val->regex, $row->$key, "Field $key doesn't match regex" );
-			}
-			else {
+			} else {
 				$testcase->assertEquals( $val, $row->$key, "Field $key doesn't match expected" );
 			}
 		}
@@ -205,8 +202,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 				$moderatorUser = User::newFromName( 'User 1' );
 				$t->loginAs( $moderatorUser );
 				$t->apiUpload( $this->title->getText(), $this->filename, $this->oldText );
-			}
-			else {
+			} else {
 				ModerationTestUtil::fastEdit(
 					$this->title,
 					$this->oldText,
@@ -256,13 +252,11 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 
 			if ( $this->viaApi ) {
 				$testcase->assertEquals( '(moderation-image-queued)', $result );
-			}
-			else {
+			} else {
 				$testcase->assertFalse( $result->getError(), __METHOD__ . "(): Special:Upload displayed an error." );
 				$testcase->assertContains( '(moderation-image-queued)', $result->getSuccessText() );
 			}
-		}
-		elseif ( $this->newTitle ) {
+		} elseif ( $this->newTitle ) {
 			$t->moveViaAPI = $this->viaApi;
 			$result = $t->doTestMove(
 				$this->title->getFullText(),
@@ -273,13 +267,11 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 
 			if ( $this->viaApi ) {
 				$testcase->assertEquals( '(moderation-move-queued)', $result );
-			}
-			else {
+			} else {
 				$testcase->assertFalse( $result->getError(), __METHOD__ . "(): Special:MovePage displayed an error." );
 				$testcase->assertContains( '(moderation-move-queued)', $result->getSuccessText() );
 			}
-		}
-		else {
+		} else {
 			/* Normal edit */
 			$t->editViaAPI = $this->viaApi;
 			$t->doTestEdit(
@@ -318,8 +310,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			if ( $this->viaApi ) {
 				/* API has different parameters for 'text' and 'summary' */
 				$expectedSummary = '';
-			}
-			else {
+			} else {
 				/* Special:Upload copies text into summary */
 				$expectedSummary = $this->text;
 
@@ -421,8 +412,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 		if ( method_exists( 'WatchedItemStore', 'getDefaultInstance' ) ) {
 			/* MediaWiki 1.27 */
 			$watchedItemStore = WatchedItemStore::getDefaultInstance();
-		}
-		else {
+		} else {
 			/* MediaWiki 1.28+ */
 			$watchedItemStore = MediaWiki\MediaWikiServices::getInstance()->getWatchedItemStore();
 		}
@@ -431,8 +421,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 		if ( $expectedState ) {
 			$this->getTestcase()->assertTrue( $isWatched,
 				"Page edited with \"Watch this page\" is not in watchlist" );
-		}
-		else {
+		} else {
 			$this->getTestcase()->assertFalse( $isWatched,
 				"Page edited without \"Watch this page\" was not deleted from the watchlist" );
 		}

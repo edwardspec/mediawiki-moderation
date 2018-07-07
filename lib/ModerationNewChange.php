@@ -40,7 +40,7 @@ class ModerationNewChange {
 		$isBlocked = ModerationBlockCheck::isModerationBlocked( $user );
 
 		$request = $user->getRequest();
-		$dbr = wfGetDB( DB_SLAVE ); /* Only for $dbr->timestamp(), won't do any SQL queries */
+		$dbr = wfGetDB( DB_REPLICA ); /* Only for $dbr->timestamp(), won't do any SQL queries */
 
 		/* Prepare known values of $fields */
 		$this->fields = [
@@ -149,7 +149,7 @@ class ModerationNewChange {
 
 	/**
 	 * @brief Replace things like "~~~~" in $content.
-	 * @returns Content object.
+	 * @return Content object.
 	 */
 	protected function preSaveTransform( Content $content ) {
 		global $wgContLang;
@@ -187,14 +187,14 @@ class ModerationNewChange {
 		/* AbuseFilter wants to assign some tags to this edit.
 			Let's store them (they will be used in modaction=approve).
 		*/
-		$afActionID = join( '-', [
+		$afActionID = implode( '-', [
 			$title->getPrefixedText(),
 			$user->getName(),
 			$action
 		] );
 
 		if ( isset( AbuseFilter::$tagsToSet[$afActionID] ) ) {
-			return join( "\n", AbuseFilter::$tagsToSet[$afActionID] );
+			return implode( "\n", AbuseFilter::$tagsToSet[$afActionID] );
 		}
 	}
 
@@ -215,7 +215,7 @@ class ModerationNewChange {
 
 	/**
 	 * @brief Utility function: construct Content object from $text.
-	 * @returns Content object.
+	 * @return Content object.
 	 */
 	protected function makeContent( $text, $model = null ) {
 		return ContentHandler::makeContent(
@@ -227,7 +227,7 @@ class ModerationNewChange {
 
 	/**
 	 * @brief Returns all mod_* fields for database INSERT.
-	 * @returns array (as expected by $dbw->insert())
+	 * @return array (as expected by $dbw->insert())
 	 */
 	public function getFields() {
 		return $this->fields;
@@ -236,7 +236,7 @@ class ModerationNewChange {
 	/**
 	 * @brief Returns one of the fields for database INSERT.
 	 * @param $fieldName String, e.g. "mod_timestamp".
-	 * @returns Value (string) or false.
+	 * @return Value (string) or false.
 	 */
 	public function getField( $fieldName ) {
 		return isset( $this->fields[$fieldName] ) ? $this->fields[$fieldName] : false;
@@ -267,7 +267,7 @@ class ModerationNewChange {
 
 	/**
 	 * @brief Insert this change into the moderation SQL table.
-	 * @returns mod_id of affected row.
+	 * @return mod_id of affected row.
 	 */
 	protected function insert() {
 		$fields = $this->getFields();
@@ -295,7 +295,7 @@ class ModerationNewChange {
 
 	/**
 	 * @brief Legacy version of insert() for old databases without UNIQUE INDEX.
-	 * @returns mod_id of affected row.
+	 * @return mod_id of affected row.
 	 */
 	protected function insertOld() {
 		$row = $this->getPendingChange();
@@ -309,8 +309,7 @@ class ModerationNewChange {
 				[ 'mod_id' => $id ],
 				__METHOD__
 			] );
-		}
-		else {
+		} else {
 			RollbackResistantQuery::insert( $dbw, [
 				'moderation',
 				$this->getFields(),

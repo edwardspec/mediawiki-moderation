@@ -24,8 +24,7 @@
  * @class ModerationTestsuiteEntry
  * @brief Represents one line on [[Special:Moderation]]
  */
-class ModerationTestsuiteEntry
-{
+class ModerationTestsuiteEntry {
 	public $id = null;
 	public $user = null;
 	public $title = null;
@@ -63,14 +62,12 @@ class ModerationTestsuiteEntry
 	public $charChange = null; /**< Difference betwen old_len and new_len, e.g. "-25" or "+600" */
 	public $charChangeBold = false; /**< True if the character change is highlighted (due to being large) */
 
-	public function __construct( DomElement $span )
-	{
+	public function __construct( DomElement $span ) {
 		if ( strpos( $span->getAttribute( 'class' ), 'modconflict' ) !== false ) {
 			$this->conflict = true;
 		}
 
-		foreach ( $span->childNodes as $child )
-		{
+		foreach ( $span->childNodes as $child ) {
 			$text = $child->textContent;
 			if ( strpos( $text, '(moderation-rejected-auto)' ) !== false ) {
 				$this->rejected_auto = true;
@@ -128,10 +125,8 @@ class ModerationTestsuiteEntry
 		}
 
 		$links = $span->getElementsByTagName( 'a' );
-		foreach ( $links as $link )
-		{
-			if ( strpos( $link->getAttribute( 'class' ), 'mw-userlink' ) !== false )
-			{
+		foreach ( $links as $link ) {
+			if ( strpos( $link->getAttribute( 'class' ), 'mw-userlink' ) !== false ) {
 				$text = $link->textContent;
 
 				# This is
@@ -141,12 +136,9 @@ class ModerationTestsuiteEntry
 				# the presence of 'moderation-rejected-by'.
 
 				if ( strpos( $link->previousSibling->textContent,
-					"moderation-rejected-by" ) !== false )
-				{
+					"moderation-rejected-by" ) !== false ) {
 					$this->rejected_by_user = $text;
-				}
-				else
-				{
+				} else {
 					$this->user = $text;
 				}
 
@@ -204,8 +196,7 @@ class ModerationTestsuiteEntry
 				default:
 					if ( !$this->title ) {
 						$this->title = $link->textContent;
-					}
-					else {
+					} else {
 						$this->page2Title = $link->textContent;
 					}
 			}
@@ -260,24 +251,20 @@ class ModerationTestsuiteEntry
 		throw new Exception( __METHOD__ . ": unknown modaction='$modaction'" );
 	}
 
-	public static function findById( array $array, $id )
-	{
-		foreach ( $array as $e )
-		{
+	public static function findById( array $array, $id ) {
+		foreach ( $array as $e ) {
 			if ( $e->id == $id )
 				return $e;
 		}
 		return null;
 	}
 
-	public static function findByUser( array $array, $user )
-	{
+	public static function findByUser( array $array, $user ) {
 		if ( get_class( $user ) == 'User' )
 			$user = $user->getName();
 
 		$entries = [];
-		foreach ( $array as $entry )
-		{
+		foreach ( $array as $entry ) {
 			if ( $entry->user == $user )
 				$entries[] = $entry;
 		}
@@ -287,16 +274,14 @@ class ModerationTestsuiteEntry
 	/**
 	 * @brief Populates both $e->blockLink and $e->unblockLink,
 			even though only one link exists on Special:Moderation
-	*/
-	public function fakeBlockLink()
-	{
+	 */
+	public function fakeBlockLink() {
 		$bl = $this->blockLink;
 		$ul = $this->unblockLink;
 
 		if ( $bl && !$ul ) {
 			$this->unblockLink = preg_replace( '/modaction=block/', 'modaction=unblock', $bl );
-		}
-		elseif( $ul && !$bl ) {
+		} elseif ( $ul && !$bl ) {
 			$this->blockLink = preg_replace( '/modaction=unblock/', 'modaction=block', $ul );
 		}
 	}
@@ -344,7 +329,7 @@ class ModerationTestsuiteEntry
 
 	/**
 	 * @brief Modified this entry in the database.
-	 * @param $updates List of updates, as expected by $dbw->update().
+	 * @param updates List of updates, as expected by $dbw->update
 	 */
 	public function updateDbRow( array $updates ) {
 		$dbw = wfGetDB( DB_MASTER );

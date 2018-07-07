@@ -20,13 +20,12 @@
  * @brief Verifies that modaction=show works as expected.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationActionShow
  */
-class ModerationTestShow extends MediaWikiTestCase
-{
+class ModerationTestShow extends MediaWikiTestCase {
 	public function testShow() {
 		$t = new ModerationTestsuite();
 
@@ -58,18 +57,15 @@ class ModerationTestShow extends MediaWikiTestCase
 		$context_lines = [];
 
 		$table_cells = $t->html->getElementsByTagName( 'td' );
-		foreach ( $table_cells as $td )
-		{
+		foreach ( $table_cells as $td ) {
 			$class = $td->getAttribute( 'class' );
 			$text = $td->textContent;
 
 			if ( $class == 'diff-addedline' ) {
 				$added_lines[] = $text;
-			}
-			else if ( $class == 'diff-deletedline' ) {
+			} elseif ( $class == 'diff-deletedline' ) {
 				$deleted_lines[] = $text;
-			}
-			else if ( $class == 'diff-context' ) {
+			} elseif ( $class == 'diff-context' ) {
 				$context_lines[] = $text;
 			}
 		}
@@ -132,11 +128,9 @@ class ModerationTestShow extends MediaWikiTestCase
 
 		$thumb = null;
 		$src = null;
-		foreach ( $images as $img )
-		{
+		foreach ( $images as $img ) {
 			$src = $img->getAttribute( 'src' );
-			if ( strpos( $src, 'modaction=showimg' ) !== false )
-			{
+			if ( strpos( $src, 'modaction=showimg' ) !== false ) {
 				$thumb = $img;
 				break;
 			}

@@ -37,15 +37,18 @@ class ModerationVersionCheck {
 		return self::wasDbUpdatedAfter( '1.2.17' );
 	}
 
-	/** @brief Returns false if mod_preloadable is 0 or 1 (obsolete behavior),
-		true if unique for rejected edits (correct behavior) */
+	/**
+         * @brief Returns false if mod_preloadable is 0 or 1 (obsolete behavior),
+	 * true if unique for rejected edits (correct behavior)
+	 */
 	public static function hasUniqueIndex() {
 		return self::wasDbUpdatedAfter( '1.2.9' );
 	}
 
-	/** @brief Calculate mod_title for $title.
-		Backward compatible with old Moderation databases that used spaces instead of underscores.
-	*/
+	/**
+	 * @brief Calculate mod_title for $title.
+	 * Backward compatible with old Moderation databases that used spaces instead of underscores.
+	 */
 	public static function getModTitleFor( Title $title ) {
 		if ( self::usesDbKeyAsTitle() ) {
 			return $title->getDBKey();
@@ -69,7 +72,7 @@ class ModerationVersionCheck {
 
 	/**
 	 * @brief Determines how to mark edit as NOT preloadable in SQL UPDATE.
-	 * @returns One element of $fields parameter for $db->update().
+	 * @return One element of $fields parameter for $db->update().
 	 */
 	public static function setPreloadableToNo() {
 		if ( self::hasUniqueIndex() ) {
@@ -101,7 +104,7 @@ class ModerationVersionCheck {
 	/**
 	 * @brief Check if update.php was called after $versionOfModeration was installed.
 	 * @param $versionOfModeration Version of Extension:Moderation, as listed in extension.json.
-	 * @returns True if update.php was called, false otherwise.
+	 * @return True if update.php was called, false otherwise.
 	 */
 	protected static function wasDbUpdatedAfter( $versionOfModeration ) {
 		return version_compare( $versionOfModeration, self::getDbUpdatedVersion(), '<=' );
@@ -131,7 +134,7 @@ class ModerationVersionCheck {
 
 	/** @brief Uncached version of getDbUpdatedVersion(). Shouldn't be used outside of getDbUpdatedVersion() */
 	protected static function getDbUpdatedVersionUncached() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$version = $dbr->selectField( 'page_props', 'pp_value', self::$where, __METHOD__ );
 
 		if ( !$version ) {

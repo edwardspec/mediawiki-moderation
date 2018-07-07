@@ -20,11 +20,9 @@
  * @brief Verifies that moderation tokens are required.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
-
-class ModerationTestTokens extends MediaWikiTestCase
-{
+class ModerationTestTokens extends MediaWikiTestCase {
 	public function testTokens() {
 		$t = new ModerationTestsuite();
 
@@ -43,8 +41,7 @@ class ModerationTestTokens extends MediaWikiTestCase
 			$entry->blockLink,
 			$entry->unblockLink
 		];
-		foreach ( $links as $url )
-		{
+		foreach ( $links as $url ) {
 			$this->assertRegExp( '/\(sessionfailure-title\)/', $t->noTokenTitle( $url ) );
 
 			/* Double-check that nothing happened */

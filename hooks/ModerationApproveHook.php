@@ -141,8 +141,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 						therefore WHEN...THEN is unnecessary */
 					$val = array_pop( $whenThen );
 					$set[$field] = $val;
-				}
-				else {
+				} else {
 					/* Need WHEN...THEN conditional */
 					$caseSql = '';
 					foreach ( $whenThen as $when => $then ) {
@@ -182,7 +181,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	/**
 	 * @brief NewRevisionFromEditComplete hook.
 		Here we determine $lastRevId.
-	*/
+	 */
 	public function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
 		/* Remember ID of this revision for getLastRevId() */
 		self::$lastRevId = $rev->getId();
@@ -194,7 +193,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param $type mod_type of this change.
 	 */
 	protected static function getTaskKey( Title $title, $username, $type ) {
-		return join( '[', /* Symbol "[" is not allowed in both titles and usernames */
+		return implode( '[', /* Symbol "[" is not allowed in both titles and usernames */
 			[
 				$username,
 				$title->getNamespace(),
@@ -207,7 +206,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	/**
 	 * @brief Find the task regarding edit by $username on $title.
 	 * @param $type One of ModerationNewChange::MOD_TYPE_* values.
-	 * @returns [ 'ip' => ..., 'xff' => ..., 'ua' => ..., ... ]
+	 * @return [ 'ip' => ..., 'xff' => ..., 'ua' => ..., ... ]
 	 */
 	public function getTask( Title $title, $username, $type ) {
 		$key = self::getTaskKey( $title, $username, $type );
@@ -264,7 +263,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @brief Schedule post-approval UPDATE SQL query.
 	 * @param $table Name of table, e.g. 'revision'.
 	 * @param $ids ID (integer, e.g. rev_id or rc_id) or array of IDs.
-	 * @param $values New values, as expected by $db->update(), e.g. [ 'rc_ip' => '1.2.3.4', 'rc_something' => '...' ].
+	 * @param values New values, as expected by $db->update e.g. [ 'rc_ip' => '1.2.3.4', 'rc_something' => '...' ].
 	 */
 	public function queueUpdate( $table, $ids, array $values ) {
 		if ( !is_array( $ids ) ) {

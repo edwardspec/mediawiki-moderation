@@ -20,13 +20,12 @@
  * @brief Checks that user can continue editing their version of the page.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationPreload
  */
-class ModerationTestPreload extends MediaWikiTestCase
-{
+class ModerationTestPreload extends MediaWikiTestCase {
 	/** @covers ModerationPreload::onEditFormPreloadText */
 	public function testPreloadNewPage() {
 		$t = new ModerationTestsuite();
@@ -154,8 +153,7 @@ class ModerationTestPreload extends MediaWikiTestCase
 		$this->assertEquals( $extraSectionText, $ret['query']['moderationpreload']['wikitext'] );
 	}
 
-	private function tryToPreload( ModerationTestsuite $t, $caller )
-	{
+	private function tryToPreload( ModerationTestsuite $t, $caller ) {
 		$this->assertEquals(
 			$t->lastEdit['Text'],
 			$t->html->getPreloadedText( $t->lastEdit['Title'] ),
@@ -174,7 +172,5 @@ class ModerationTestPreload extends MediaWikiTestCase
 			"$caller(): #mw-editing-your-version not found" );
 		$this->assertEquals( '(moderation-editing-your-version)', $elem->textContent,
 			"$caller(): #mw-editing-your-version doesn't contain (moderation-editing-your-version) message" );
-
-
 	}
 }

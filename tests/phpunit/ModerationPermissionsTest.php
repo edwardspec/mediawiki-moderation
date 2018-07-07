@@ -20,10 +20,9 @@
  * @brief Ensures that only moderators can use Special:Moderation.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
-class ModerationTestPermissions extends MediaWikiTestCase
-{
+class ModerationTestPermissions extends MediaWikiTestCase {
 	public function testPermissions() {
 		$t = new ModerationTestsuite();
 

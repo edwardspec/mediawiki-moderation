@@ -23,12 +23,12 @@
 class ModerationTestUtil {
 	/**
 	 * @brief Edit the page by directly modifying the database. Very fast.
-
-		This is used for initialization of tests.
-		For example, if moveQueue benchmark needs 500 existing pages,
-		it would take forever for doEditContent() to create them all,
-		much longer than the actual benchmark.
-	*/
+	 *
+	 * This is used for initialization of tests.
+	 * For example, if moveQueue benchmark needs 500 existing pages,
+	 * it would take forever for doEditContent() to create them all,
+	 * much longer than the actual benchmark.
+	 */
 	public static function fastEdit( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
 		$dbw = wfGetDB( DB_MASTER );
 
@@ -55,7 +55,7 @@ class ModerationTestUtil {
 
 	/**
 	 * @brief Render Special:Moderation with $params.
-	 * @returns HTML of the result.
+	 * @return HTML of the result.
 	 */
 	public static function runSpecialModeration( User $user, array $params, $wasPosted = false ) {
 		$page = SpecialPageFactory::getPage( 'Moderation' );

@@ -40,7 +40,7 @@ class ModerationActionPreview extends ModerationAction {
 	}
 
 	public function execute() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$row = $dbr->selectRow( 'moderation',
 			[
 				'mod_namespace AS namespace',

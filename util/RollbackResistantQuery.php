@@ -32,7 +32,7 @@ class RollbackResistantQuery {
 	/**
 	 * @brief Perform $dbw->insert() that won't be undone by $dbw->rollback().
 	 * @param $dbw Database object.
-	 * @param $args Arguments of $dbw->insert() call.
+	 * @param args Arguments of $dbw->insert call.
 	 */
 	public static function insert( IDatabase $dbw, array $args ) {
 		new self( 'insert', $dbw, $args );
@@ -41,7 +41,7 @@ class RollbackResistantQuery {
 	/**
 	 * @brief Perform $dbw->update() that won't be undone by $dbw->rollback().
 	 * @param $dbw Database object.
-	 * @param $args Arguments of $dbw->update() call.
+	 * @param args Arguments of $dbw->update call.
 	 */
 	public static function update( IDatabase $dbw, array $args ) {
 		new self( 'update', $dbw, $args );
@@ -50,7 +50,7 @@ class RollbackResistantQuery {
 	/**
 	 * @brief Perform $dbw->replace() that won't be undone by $dbw->rollback().
 	 * @param $dbw Database object.
-	 * @param $args Arguments of $dbw->replace() call.
+	 * @param args Arguments of $dbw->replace call.
 	 */
 	public static function replace( IDatabase $dbw, array $args ) {
 		new self( 'replace', $dbw, $args );
@@ -59,7 +59,7 @@ class RollbackResistantQuery {
 	/**
 	 * @brief Perform $dbw->upsert() that won't be undone by $dbw->rollback().
 	 * @param $dbw Database object.
-	 * @param $args Arguments of $dbw->upsert() call.
+	 * @param args Arguments of $dbw->upsert call.
 	 */
 	public static function upsert( IDatabase $dbw, array $args ) {
 		new self( 'upsert', $dbw, $args );
@@ -69,7 +69,7 @@ class RollbackResistantQuery {
 	 * @brief Create and immediately execute a new query.
 	 * @param $methodName String, e.g. 'insert', 'update' or 'replace'.
 	 * @param $dbw Database object.
-	 * @param $args Arguments of $dbw->update() call.
+	 * @param args Arguments of $dbw->update call.
 	 */
 	protected function __construct( $methodName, IDatabase $dbw, array $args ) {
 		$this->dbw = $dbw;
@@ -97,18 +97,17 @@ class RollbackResistantQuery {
 
 			/* MediaWiki 1.28+ calls TransactionListener callback after rollback() */
 			if ( defined( 'Database::TRIGGER_ROLLBACK' ) ) {
-				$this->dbw->setTransactionListener( 'moderation-on-rollback', function( $trigger ) use ( $query ) {
+				$this->dbw->setTransactionListener( 'moderation-on-rollback', function ( $trigger ) use ( $query ) {
 					if ( $trigger == Database::TRIGGER_ROLLBACK ) {
 						$query->onRollback();
 					}
 				}, __METHOD__ );
-			}
-			else {
+			} else {
 				/* MediaWiki 1.27 doesn't call any callbacks after rollback(),
 					but we can at least detect MWException - what usually causes the rolback
 					in MWExceptionHandler::handleException() */
 
-				Hooks::register( 'LogException', function( $e, $suppressed ) use ( $query ) {
+				Hooks::register( 'LogException', function ( $e, $suppressed ) use ( $query ) {
 					if (
 						!( $e instanceof DBError ) && /* DBError likely means that rollback failed */
 						!( $e instanceof JobQueueError ) /* Non-fatal error in JobQueue, doesn't cause rollback */

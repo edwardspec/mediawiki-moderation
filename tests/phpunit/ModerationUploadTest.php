@@ -20,15 +20,14 @@
  * @brief Ensures that uploads are intercepted by Extension:Moderation.
  */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationUploadHooks
  * @requires extension curl
  * @note Only cURL version of MWHttpRequest supports uploads.
  */
-class ModerationTestUpload extends MediaWikiTestCase
-{
+class ModerationTestUpload extends MediaWikiTestCase {
 	public function testUpload() {
 		$t = new ModerationTestsuite();
 
@@ -173,8 +172,7 @@ class ModerationTestUpload extends MediaWikiTestCase
 		$rev2 = $ret_page['revisions'][1];
 
 		# Make $rev1 the most recent edit
-		if ( $rev2['parentid'] == $rev1['revid'] )
-		{
+		if ( $rev2['parentid'] == $rev1['revid'] ) {
 			$tmp = $rev1;
 			$rev1 = $rev2;
 			$rev2 = $tmp;

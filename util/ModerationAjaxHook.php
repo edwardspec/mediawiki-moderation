@@ -36,25 +36,25 @@ class ModerationAjaxHook {
 
 	/**
 	 * @brief Depending on $configName being true/false/"guess", return true/false/$default.
-	 * @return boolean
+	 * @return bool
 	 */
-	static protected function need( $configName, $default ) {
+	protected static function need( $configName, $default ) {
 		$config = RequestContext::getMain()->getConfig();
 		$val = $config->get( $configName );
 		return ( is_bool( $val ) ? $val : $default );
 	}
 
 	/** @brief Convenience method: returns true if in Mobile skin, false otherwise */
-	static protected function isMobile() {
+	protected static function isMobile() {
 		return ( class_exists( 'MobileContext' ) &&
-			MobileContext::singleton()->shouldDisplayMobileView());
+			MobileContext::singleton()->shouldDisplayMobileView() );
 	}
 
 	/**
 	 * @brief Guess whether VisualEditor needs to be supported
-	 * @returns boolean
+	 * @return bool
 	 */
-	static protected function guessVE() {
+	protected static function guessVE() {
 		return ( class_exists( 'ApiVisualEditorEdit' ) && !self::isMobile() );
 	}
 

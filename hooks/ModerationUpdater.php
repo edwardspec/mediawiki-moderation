@@ -22,7 +22,7 @@
 
 class ModerationUpdater {
 	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
-		$base = dirname( __FILE__ );
+		$base = __DIR__;
 		$dbw = $updater->getDB();
 
 		/* Main database schema */

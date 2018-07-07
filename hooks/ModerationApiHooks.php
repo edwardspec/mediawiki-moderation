@@ -84,8 +84,7 @@ class ModerationApiHooks {
 		if ( $section ) {
 			if ( $section == 'new' ) {
 				$content = ContentHandler::makeContent( '', $title );
-			}
-			else {
+			} else {
 				$content = $oldContent->getSection( $section );
 				if ( !$content ) {
 					$main->dieUsage( "There is no section {$section}.", 'nosuchsection' );

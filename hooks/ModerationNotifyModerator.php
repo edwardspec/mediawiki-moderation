@@ -26,8 +26,7 @@ class ModerationNotifyModerator {
 		onGetNewMessagesAlert()
 		Show in-wiki notification "new edits are pending moderation" to moderators.
 	*/
-	public static function onGetNewMessagesAlert( &$newMessagesAlert, array $newtalks, User $user, OutputPage $out )
-	{
+	public static function onGetNewMessagesAlert( &$newMessagesAlert, array $newtalks, User $user, OutputPage $out ) {
 		if ( $newtalks ) {
 			return true; /* Don't suppress "You have new messages" notification, it's more important */
 		}
@@ -65,7 +64,7 @@ class ModerationNotifyModerator {
 		return true;
 	}
 
-	/** @brief Returns memcached key used by getPendingTime()/setPendingTime()  */
+	/** @brief Returns memcached key used by getPendingTime()/setPendingTime() */
 	protected static function getPendingCacheKey() {
 		return wfMemcKey( 'moderation-newest-pending-timestamp' );
 	}
@@ -91,7 +90,7 @@ class ModerationNotifyModerator {
 
 	/** @brief Uncached version of getPendingTime(). Shouldn't be used outside of getPendingTime() */
 	protected static function getPendingTimeUncached() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		return $dbr->selectField( 'moderation', 'mod_timestamp',
 			[
 				'mod_rejected' => 0,
@@ -112,13 +111,13 @@ class ModerationNotifyModerator {
 	 * @brief Clear the cache of getPendingTime().
 		Used instead of setPendingTime() when we don't know $newTimestamp,
 		e.g. in modaction=rejectall.
-	*/
+	 */
 	public static function invalidatePendingTime() {
 		$cache = wfGetMainCache();
 		$cache->delete( self::getPendingCacheKey() );
 	}
 
-	/** @brief Returns memcached key used by getSeen()/setSeen()  */
+	/** @brief Returns memcached key used by getSeen()/setSeen() */
 	protected static function getSeenCacheKey( User $user ) {
 		return wfMemcKey( 'moderation-seen-timestamp', $user->getId() );
 	}

@@ -24,19 +24,18 @@
 	In this situation new row in "moderation" table shouldn't be lost.
 */
 
-require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
  * @covers RollbackResistantQuery
  */
-class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
-{
+class ModerationTestRollbackResistantQuery extends MediaWikiTestCase {
 	public function getRandomTitle() {
 		return Title::newFromText( 'RandomPage_' . wfTimestampNow() . '_' . MWCryptRand::generateHex( 32 ) );
 	}
 
 	public function getRandomPage() {
-		return  WikiPage::factory( $this->getRandomTitle() );
+		return WikiPage::factory( $this->getRandomTitle() );
 	}
 
 	public function getRandomText() {
@@ -82,8 +81,7 @@ class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 	protected function setTrxFlag( $db, $newTrxFlagValue ) {
 		if ( $newTrxFlagValue ) {
 			$db->setFlag( DBO_TRX );
-		}
-		else {
+		} else {
 			$db->clearFlag( DBO_TRX );
 		}
 	}
@@ -92,8 +90,7 @@ class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 	 * @brief Ensure that RollbackResistantQuery is not reverted after MWException.
 	 * @dataProvider dataProvider
 	 */
-	public function testRollbackResistantQuery( $isTrxAutomatic, $isExplicitTransaction, $isAtomic )
-	{
+	public function testRollbackResistantQuery( $isTrxAutomatic, $isExplicitTransaction, $isAtomic ) {
 		$t = new ModerationTestsuite();
 
 		$dbw = wfGetDB( DB_MASTER );

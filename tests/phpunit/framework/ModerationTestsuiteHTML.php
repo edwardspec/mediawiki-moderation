@@ -51,7 +51,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	/**
 	 * @brief Utility function to warn about Libxml errors.
 		Ignores the fact that some HTML5 tags are unknown to libxml2.
-	*/
+	 */
 	public static function checkLibxmlErrors() {
 		$errors = libxml_get_errors();
 		foreach ( $errors as $error ) {
@@ -75,8 +75,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 		libxml_clear_errors();
 	}
 
-	public function loadFromString( $string )
-	{
+	public function loadFromString( $string ) {
 		/* Ignore "unknown tag" error, see checkLibxmlErrors() for details */
 		libxml_use_internal_errors( true );
 
@@ -89,8 +88,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	/**
 	 * @brief Returns the text of the <title> tag.
 	 */
-	public function getTitle( $url = null )
-	{
+	public function getTitle( $url = null ) {
 		$this->loadFromURL( $url );
 
 		return $this->
@@ -100,8 +98,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	/**
 	 * @brief Returns HTML element of the error message shown by Moderation.
 	 */
-	public function getModerationError( $url = null )
-	{
+	public function getModerationError( $url = null ) {
 		$this->loadFromURL( $url );
 
 		$elem = $this->getElementById( 'mw-mod-error' );
@@ -115,8 +112,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	/**
 	 * @brief Returns HTML element of the main text of the page.
 	 */
-	public function getMainContent( $url = null )
-	{
+	public function getMainContent( $url = null ) {
 		$this->loadFromURL( $url );
 
 		return $this->getElementById( 'mw-content-text' );
@@ -125,8 +121,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	/**
 	 * @brief Returns main text of the page (without navigation, etc.).
 	 */
-	public function getMainText( $url = null )
-	{
+	public function getMainText( $url = null ) {
 		$elem = $this->getMainContent( $url );
 
 		return trim( $elem->textContent );
@@ -157,7 +152,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	/**
 	 * @brief Find the DOM element by XPath selector.
 		E.g. $t->html->getElementsByXPath( '//row[@name="wpSummary"]' )
-	 * @returns DOMElement
+	 * @return DOMElement
 	 */
 	public function getElementByXPath( $selector ) {
 		$result = $this->getElementsByXPath( $selector );
@@ -167,7 +162,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	/**
 	 * @brief Find all DOM elements matching the XPath selector.
 		E.g. $t->html->getElementsByXPath( '//a[@class="new"]' )
-	 * @returns DOMNodeList
+	 * @return DOMNodeList
 	 */
 	public function getElementsByXPath( $selector ) {
 		$xpath = new DomXpath( $this );
@@ -195,22 +190,18 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	/**
 	 * @brief Return the list of ResourceLoader modules
 			which are used in the last fetched HTML.
-	*/
-	public function getLoaderModulesList( $url = null )
-	{
+	 */
+	public function getLoaderModulesList( $url = null ) {
 		$this->loadFromURL( $url );
 		$scripts = $this->getElementsByTagName( 'script' );
 
 		$list = [];
-		foreach ( $scripts as $script )
-		{
+		foreach ( $scripts as $script ) {
 			$matches = null;
-			if ( preg_match( '/mw\.loader\.load\(\[([^]]+)\]/', $script->textContent, $matches ) )
-			{
+			if ( preg_match( '/mw\.loader\.load\(\[([^]]+)\]/', $script->textContent, $matches ) ) {
 				$items = explode( ',', $matches[1] );
 
-				foreach ( $items as $item )
-				{
+				foreach ( $items as $item ) {
 					$list[] = preg_replace( '/^"(.*)"$/', '$1', $item );
 				}
 			}
@@ -221,9 +212,8 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	/**
 	 * @brief Return the array of <input> elements in the form
 			(name => value).
-	*/
-	public function getFormElements( $formElement = null, $url = null )
-	{
+	 */
+	public function getFormElements( $formElement = null, $url = null ) {
 		$this->loadFromURL( $url );
 
 		if ( !$formElement ) {
@@ -232,8 +222,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 		$inputs = $formElement->getElementsByTagName( 'input' );
 		$result = [];
-		foreach ( $inputs as $input )
-		{
+		foreach ( $inputs as $input ) {
 			$name = $input->getAttribute( 'name' );
 			$value = $input->getAttribute( 'value' );
 
