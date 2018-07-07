@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Parent class for all moderation actions.
-*/
+ * @file
+ * @brief Parent class for all moderation actions.
+ */
 
 abstract class ModerationAction extends ContextSource {
 	protected $id;
@@ -68,24 +68,24 @@ abstract class ModerationAction extends ContextSource {
 	}
 
 	/**
-		@brief Function called when the action is invoked.
-		@return Array containing API response.
-		@throws ModerationError
-	*/
+	 * @brief Function called when the action is invoked.
+	 * @return Array containing API response.
+	 * @throws ModerationError
+	 */
 
 	abstract public function execute();
 
 	/**
-		@brief Print the result of execute() in a human-readable way.
-		@param $result Value returned by execute().
-		@param $out OutputPage object.
-	*/
+	 * @brief Print the result of execute() in a human-readable way.
+	 * @param $result Value returned by execute().
+	 * @param $out OutputPage object.
+	 */
 	abstract public function outputResult( array $result, OutputPage &$out );
 
 	/**
-		@brief Utility function. Get userpage of user who made this edit.
-		@returns Title object or false.
-	*/
+	 * @brief Utility function. Get userpage of user who made this edit.
+	 * @returns Title object or false.
+	 */
 	protected function getUserpageOfPerformer() {
 		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
 		$username = $dbw->selectField( 'moderation', 'mod_user_text',

@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Hooks/methods to preload edits which are pending moderation.
-*/
+ * @file
+ * @brief Hooks/methods to preload edits which are pending moderation.
+ */
 
 /*
 	Calculating 'mod_preload_id':
@@ -51,17 +51,17 @@ class ModerationPreload {
 	}
 
 	/**
-		@brief Get the request.
-		@returns WebRequest object.
-	*/
+	 * @brief Get the request.
+	 * @returns WebRequest object.
+	 */
 	protected function getRequest() {
 		return RequestContext::getMain()->getRequest();
 	}
 
 	/**
-		@brief Get the user.
-		@returns User object.
-	*/
+	 * @brief Get the user.
+	 * @returns User object.
+	 */
 	protected function getUser() {
 		if ( $this->user ) {
 			return $this->user;
@@ -71,18 +71,18 @@ class ModerationPreload {
 	}
 
 	/**
-		@brief Override the current user: preload for $user instead.
-	*/
+	 * @brief Override the current user: preload for $user instead.
+	 */
 	public function setUser( User $user ) {
 		$this->user = $user;
 	}
 
 	/**
-		@brief Calculate value of mod_preload_id for the current user.
-		@param $create If true, new preload ID will be generated for first-time anonymous editors.
-		@returns Preload ID (string).
-		@retval false Current user is anonymous AND hasn't edited before AND $create is false.
-	*/
+	 * @brief Calculate value of mod_preload_id for the current user.
+	 * @param $create If true, new preload ID will be generated for first-time anonymous editors.
+	 * @returns Preload ID (string).
+	 * @retval false Current user is anonymous AND hasn't edited before AND $create is false.
+	 */
 	public function getId( $create = false ) {
 		$user = $this->getUser();
 		if ( $user->isLoggedIn() ) {
@@ -93,8 +93,8 @@ class ModerationPreload {
 	}
 
 	/**
-		@brief Calculate mod_preload_id for anonymous user.
-	*/
+	 * @brief Calculate mod_preload_id for anonymous user.
+	 */
 	protected function getAnonId( $create ) {
 		$anonToken = $this->getRequest()->getSessionData( 'anon_id' );
 		if ( !$anonToken ) {
@@ -112,7 +112,7 @@ class ModerationPreload {
 	}
 
 	/**
-		@brief Forget the fact that this user edited anonymously.
+	 * @brief Forget the fact that this user edited anonymously.
 		Used in LocalUserCreated hook, when user becomes registered and no longer needs anonymous preload.
 	*/
 	protected function forgetAnonId() {
@@ -162,7 +162,7 @@ class ModerationPreload {
 	}
 
 	/**
-		@brief Check if there is a pending-moderation edit of this user
+	 * @brief Check if there is a pending-moderation edit of this user
 		to this page, and if such edit exists, then load its text and
 		edit comment.
 	*/

@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Enable plugins for using third-party extensions with Moderation.
-*/
+ * @file
+ * @brief Enable plugins for using third-party extensions with Moderation.
+ */
 
 class ModerationPlugins {
 	public static function install() {

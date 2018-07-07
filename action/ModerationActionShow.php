@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Implements modaction=show on [[Special:Moderation]].
-*/
+ * @file
+ * @brief Implements modaction=show on [[Special:Moderation]].
+ */
 
 class ModerationActionShow extends ModerationAction {
 

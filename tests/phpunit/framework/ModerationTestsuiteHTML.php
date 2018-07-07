@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Implements HTML parsing methods for the automated testsuite.
-*/
+ * @file
+ * @brief Implements HTML parsing methods for the automated testsuite.
+ */
 
 class ModerationTestsuiteHTML extends DOMDocument {
 
@@ -49,7 +49,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-		@brief Utility function to warn about Libxml errors.
+	 * @brief Utility function to warn about Libxml errors.
 		Ignores the fact that some HTML5 tags are unknown to libxml2.
 	*/
 	public static function checkLibxmlErrors() {
@@ -87,8 +87,8 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-		@brief Returns the text of the <title> tag.
-	*/
+	 * @brief Returns the text of the <title> tag.
+	 */
 	public function getTitle( $url = null )
 	{
 		$this->loadFromURL( $url );
@@ -98,8 +98,8 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-		@brief Returns HTML element of the error message shown by Moderation.
-	*/
+	 * @brief Returns HTML element of the error message shown by Moderation.
+	 */
 	public function getModerationError( $url = null )
 	{
 		$this->loadFromURL( $url );
@@ -113,8 +113,8 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-		@brief Returns HTML element of the main text of the page.
-	*/
+	 * @brief Returns HTML element of the main text of the page.
+	 */
 	public function getMainContent( $url = null )
 	{
 		$this->loadFromURL( $url );
@@ -123,8 +123,8 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-		@brief Returns main text of the page (without navigation, etc.).
-	*/
+	 * @brief Returns main text of the page (without navigation, etc.).
+	 */
 	public function getMainText( $url = null )
 	{
 		$elem = $this->getMainContent( $url );
@@ -133,8 +133,8 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-		@brief  Returns the text of the notice "You have new messages".
-	*/
+	 * @brief  Returns the text of the notice "You have new messages".
+	 */
 	public function getNewMessagesNotice( $url = null ) {
 		$this->loadFromURL( $url );
 		$elem = $this->getElementByXPath( '//*[@class="usermessage"]' );
@@ -147,37 +147,37 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-		@brief  Returns the text of the notice "You have new messages".
-	*/
+	 * @brief  Returns the text of the notice "You have new messages".
+	 */
 	public function getSubmitButton( $url = null ) {
 		$this->loadFromURL( $url );
 		return $this->getElementByXPath( '//*[@id="mw-content-text"]//*[@type="submit"]' );
 	}
 
 	/**
-		@brief Find the DOM element by XPath selector.
+	 * @brief Find the DOM element by XPath selector.
 		E.g. $t->html->getElementsByXPath( '//row[@name="wpSummary"]' )
-		@returns DOMElement
-	*/
+	 * @returns DOMElement
+	 */
 	public function getElementByXPath( $selector ) {
 		$result = $this->getElementsByXPath( $selector );
 		return $result->item( 0 );
 	}
 
 	/**
-		@brief Find all DOM elements matching the XPath selector.
+	 * @brief Find all DOM elements matching the XPath selector.
 		E.g. $t->html->getElementsByXPath( '//a[@class="new"]' )
-		@returns DOMNodeList
-	*/
+	 * @returns DOMNodeList
+	 */
 	public function getElementsByXPath( $selector ) {
 		$xpath = new DomXpath( $this );
 		return $xpath->query( $selector );
 	}
 
 	/**
-		@brief Fetch the edit form and return the text in #wpTextbox1.
-		@param $title The page to be opened for editing.
-	*/
+	 * @brief Fetch the edit form and return the text in #wpTextbox1.
+	 * @param $title The page to be opened for editing.
+	 */
 	public function getPreloadedText( $title ) {
 		$url = wfAppendQuery( wfScript( 'index' ), [
 			'title' => $title,
@@ -193,7 +193,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-		@brief Return the list of ResourceLoader modules
+	 * @brief Return the list of ResourceLoader modules
 			which are used in the last fetched HTML.
 	*/
 	public function getLoaderModulesList( $url = null )
@@ -219,7 +219,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-		@brief Return the array of <input> elements in the form
+	 * @brief Return the array of <input> elements in the form
 			(name => value).
 	*/
 	public function getFormElements( $formElement = null, $url = null )

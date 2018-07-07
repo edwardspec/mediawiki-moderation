@@ -16,15 +16,15 @@
 */
 
 /**
-	@file
-	@brief Ensure that known error conditions cause exceptions.
-*/
+ * @file
+ * @brief Ensure that known error conditions cause exceptions.
+ */
 
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 /**
-	@covers ModerationError
-*/
+ * @covers ModerationError
+ */
 class ModerationTestErrors extends MediaWikiTestCase
 {
 	public function testUnknownAction() {
@@ -87,9 +87,9 @@ class ModerationTestErrors extends MediaWikiTestCase
 	}
 
 	/**
-		@requires extension curl
-		@note Only cURL version of MWHttpRequest supports uploads.
-	*/
+	 * @requires extension curl
+	 * @note Only cURL version of MWHttpRequest supports uploads.
+	 */
 	public function testMissingStashedImage() {
 		$t = new ModerationTestsuite();
 

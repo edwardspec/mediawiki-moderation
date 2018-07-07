@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Functions for seamless database updates between versions.
-*/
+ * @file
+ * @brief Functions for seamless database updates between versions.
+ */
 
 class ModerationVersionCheck {
 
@@ -55,8 +55,8 @@ class ModerationVersionCheck {
 	}
 
 	/**
-		@brief Returns value of mod_preloadable that means "YES, this change can be preloaded".
-	*/
+	 * @brief Returns value of mod_preloadable that means "YES, this change can be preloaded".
+	 */
 	public static function preloadableYes() {
 		if ( self::hasUniqueIndex() ) {
 			/* Current approach: 0 for YES, mod_id for NO */
@@ -68,9 +68,9 @@ class ModerationVersionCheck {
 	}
 
 	/**
-		@brief Determines how to mark edit as NOT preloadable in SQL UPDATE.
-		@returns One element of $fields parameter for $db->update().
-	*/
+	 * @brief Determines how to mark edit as NOT preloadable in SQL UPDATE.
+	 * @returns One element of $fields parameter for $db->update().
+	 */
 	public static function setPreloadableToNo() {
 		if ( self::hasUniqueIndex() ) {
 			/* Current approach: 0 for YES, mod_id for NO */
@@ -99,17 +99,17 @@ class ModerationVersionCheck {
 	}
 
 	/**
-		@brief Check if update.php was called after $versionOfModeration was installed.
-		@param $versionOfModeration Version of Extension:Moderation, as listed in extension.json.
-		@returns True if update.php was called, false otherwise.
-	*/
+	 * @brief Check if update.php was called after $versionOfModeration was installed.
+	 * @param $versionOfModeration Version of Extension:Moderation, as listed in extension.json.
+	 * @returns True if update.php was called, false otherwise.
+	 */
 	protected static function wasDbUpdatedAfter( $versionOfModeration ) {
 		return version_compare( $versionOfModeration, self::getDbUpdatedVersion(), '<=' );
 	}
 
 	/**
-		@brief Returns version that Moderation had during the latest invocation of update.php.
-	*/
+	 * @brief Returns version that Moderation had during the latest invocation of update.php.
+	 */
 	protected static function getDbUpdatedVersion() {
 		if ( self::$dbUpdatedVersion ) {
 			/* Already known, no need to look in Memcached */
@@ -145,8 +145,8 @@ class ModerationVersionCheck {
 	}
 
 	/**
-		@brief Returns current version of Moderation (string).
-	*/
+	 * @brief Returns current version of Moderation (string).
+	 */
 	protected static function getVersionOfModeration() {
 		global $wgExtensionCredits;
 		foreach ( $wgExtensionCredits as $group => $list ) {
@@ -161,8 +161,8 @@ class ModerationVersionCheck {
 	}
 
 	/**
-		@brief Called from update.php. Remembers current version for further calls to wasDbUpdatedAfter().
-	*/
+	 * @brief Called from update.php. Remembers current version for further calls to wasDbUpdatedAfter().
+	 */
 	public static function markDbAsUpdated() {
 		$fields = self::$where + [ 'pp_value' => self::getVersionOfModeration() ];
 

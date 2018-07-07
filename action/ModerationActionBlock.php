@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Implements modaction=(un)block on [[Special:Moderation]].
-*/
+ * @file
+ * @brief Implements modaction=(un)block on [[Special:Moderation]].
+ */
 
 class ModerationActionBlock extends ModerationAction {
 

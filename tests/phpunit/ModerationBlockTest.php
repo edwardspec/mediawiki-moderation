@@ -16,15 +16,15 @@
 */
 
 /**
-	@file
-	@brief Verifies that modaction=(un)block works as expected.
-*/
+ * @file
+ * @brief Verifies that modaction=(un)block works as expected.
+ */
 
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 /**
-	@covers ModerationActionBlock
-*/
+ * @covers ModerationActionBlock
+ */
 class ModerationTestBlock extends MediaWikiTestCase
 {
 	public function testBlock() {

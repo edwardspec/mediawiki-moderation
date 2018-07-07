@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Parent class for objects that represent one row in the 'moderation' SQL table.
-*/
+ * @file
+ * @brief Parent class for objects that represent one row in the 'moderation' SQL table.
+ */
 
 abstract class ModerationEntry implements IModerationEntry {
 	private $row;
@@ -45,22 +45,22 @@ abstract class ModerationEntry implements IModerationEntry {
 	}
 
 	/**
-		@brief Returns true if this is a move, false otherwise.
-	*/
+	 * @brief Returns true if this is a move, false otherwise.
+	 */
 	public function isMove() {
 		return $this->row->type == ModerationNewChange::MOD_TYPE_MOVE;
 	}
 
 	/**
-		@brief Returns true if this is an upload, false otherwise.
-	*/
+	 * @brief Returns true if this is an upload, false otherwise.
+	 */
 	public function isUpload() {
 		return $this->row->stash_key ? true : false;
 	}
 
 	/**
-		@brief Returns true if this edit is recent enough to be reapproved after rejection.
-	*/
+	 * @brief Returns true if this edit is recent enough to be reapproved after rejection.
+	 */
 	public function canReapproveRejected() {
 		if ( self::$earliestReapprovableTimestamp === false ) {
 			global $wgModerationTimeToOverrideRejection;
@@ -73,9 +73,9 @@ abstract class ModerationEntry implements IModerationEntry {
 	}
 
 	/**
-		@brief Returns author of this change (User object).
-		@param int $flags User::READ_* constant bitfield.
-	*/
+	 * @brief Returns author of this change (User object).
+	 * @param int $flags User::READ_* constant bitfield.
+	 */
 	protected function getUser( $flags = 0 ) {
 		if ( is_null( $this->user ) ) {
 			$row = $this->getRow();
@@ -99,8 +99,8 @@ abstract class ModerationEntry implements IModerationEntry {
 	}
 
 	/**
-		@brief Returns Title of the page affected by this change.
-	*/
+	 * @brief Returns Title of the page affected by this change.
+	 */
 	public function getTitle() {
 		if ( is_null( $this->title ) ) {
 			$row = $this->getRow();
@@ -111,10 +111,10 @@ abstract class ModerationEntry implements IModerationEntry {
 	}
 
 	/**
-		@brief Returns Title of the second affected page (if any).
+	 * @brief Returns Title of the second affected page (if any).
 		E.g. new name of the article when renaming it.
-		@retval null Not applicable (e.g. mod_type=edit).
-	*/
+	 * @retval null Not applicable (e.g. mod_type=edit).
+	 */
 	public function getPage2Title() {
 		$row = $this->getRow();
 		if ( !$row->page2_title ) {
@@ -125,10 +125,10 @@ abstract class ModerationEntry implements IModerationEntry {
 	}
 
 	/**
-		@brief Load ModerationEntry from the database by mod_id.
-		@param $dbType DB_MASTER or DB_SLAVE.
-		@throws ModerationError
-	*/
+	 * @brief Load ModerationEntry from the database by mod_id.
+	 * @param $dbType DB_MASTER or DB_SLAVE.
+	 * @throws ModerationError
+	 */
 	public static function newFromId( $id, $dbType = DB_MASTER ) {
 		$dbw = wfGetDB( $dbType );
 		$row = $dbw->selectRow( 'moderation',
@@ -145,9 +145,9 @@ abstract class ModerationEntry implements IModerationEntry {
 	}
 
 	/**
-		@brief Construct new ModerationEntry from $row.
-		@throws ModerationError
-	*/
+	 * @brief Construct new ModerationEntry from $row.
+	 * @throws ModerationError
+	 */
 	public static function newFromRow( $row ) {
 		return new static( $row );
 	}

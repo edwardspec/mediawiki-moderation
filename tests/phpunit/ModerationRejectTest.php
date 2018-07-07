@@ -16,15 +16,15 @@
 */
 
 /**
-	@file
-	@brief Verifies that modaction=reject(all) works as expected.
-*/
+ * @file
+ * @brief Verifies that modaction=reject(all) works as expected.
+ */
 
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 /**
-	@covers ModerationActionReject
-*/
+ * @covers ModerationActionReject
+ */
 class ModerationTestReject extends MediaWikiTestCase
 {
 	public function testReject() {

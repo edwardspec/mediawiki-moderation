@@ -16,15 +16,15 @@
 */
 
 /**
-	@file
-	@brief Checks that user can continue editing their version of the page.
-*/
+ * @file
+ * @brief Checks that user can continue editing their version of the page.
+ */
 
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 /**
-	@covers ModerationPreload
-*/
+ * @covers ModerationPreload
+ */
 class ModerationTestPreload extends MediaWikiTestCase
 {
 	/** @covers ModerationPreload::onEditFormPreloadText */

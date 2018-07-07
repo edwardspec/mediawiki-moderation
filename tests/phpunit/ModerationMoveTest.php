@@ -16,15 +16,15 @@
 */
 
 /**
-	@file
-	@brief Ensures that moves are intercepted by Extension:Moderation.
-*/
+ * @file
+ * @brief Ensures that moves are intercepted by Extension:Moderation.
+ */
 
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 /**
-	@covers ModerationMoveHooks
-*/
+ * @covers ModerationMoveHooks
+ */
 class ModerationMoveTest extends MediaWikiTestCase
 {
 	public $oldTitle = 'About dogs';
@@ -145,7 +145,7 @@ class ModerationMoveTest extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Ensures that Special:MovePage won't queue the move before submit.
+	 * @brief Ensures that Special:MovePage won't queue the move before submit.
 
 		Hook MovePageCheckPermissions (where we queue the move) is called
 		not only on submit, but also in MovePageForm::showForm, i.e. before submit.

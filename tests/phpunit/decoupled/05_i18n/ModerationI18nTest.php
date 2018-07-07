@@ -16,16 +16,16 @@
 */
 
 /**
-	@file
-	@brief Checks i18n/*.json files for syntax errors.
-*/
+ * @file
+ * @brief Checks i18n/*.json files for syntax errors.
+ */
 
 class ModerationI18nTest extends MediaWikiTestCase
 {
 	/**
-		@brief Ensures that $path is a valid JSON file.
-		@dataProvider dataProvider
-	*/
+	 * @brief Ensures that $path is a valid JSON file.
+	 * @dataProvider dataProvider
+	 */
 	public function testLanguageFile( $path ) {
 		$status = FormatJson::parse( file_get_contents( $path ) );
 		$this->assertTrue( $status->isGood(),
@@ -33,8 +33,8 @@ class ModerationI18nTest extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Provide datasets for testLanguageFile() runs.
-	*/
+	 * @brief Provide datasets for testLanguageFile() runs.
+	 */
 	public function dataProvider() {
 		return array_map( function( $path ) {
 			return [ $path ];

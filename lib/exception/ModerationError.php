@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Handles exceptions thrown by actions on Special:Moderation.
-*/
+ * @file
+ * @brief Handles exceptions thrown by actions on Special:Moderation.
+ */
 
 class ModerationError extends ErrorPageError {
 

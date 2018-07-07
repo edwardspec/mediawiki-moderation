@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Testsuite engine that sends real HTTP requests via the network, as users do.
-*/
+ * @file
+ * @brief Testsuite engine that sends real HTTP requests via the network, as users do.
+ */
 
 class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 
@@ -44,8 +44,8 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 	}
 
 	/**
-		@brief Perform API request and return the resulting structure.
-		@note If $apiQuery contains 'token' => 'null', then 'token'
+	 * @brief Perform API request and return the resulting structure.
+	 * @note If $apiQuery contains 'token' => 'null', then 'token'
 			will be set to the current value of $editToken.
 	*/
 	protected function doQuery( array $apiQuery ) {

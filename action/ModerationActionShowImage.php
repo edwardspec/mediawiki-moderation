@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Implements modaction=showimg on [[Special:Moderation]].
-*/
+ * @file
+ * @brief Implements modaction=showimg on [[Special:Moderation]].
+ */
 
 class ModerationActionShowImage extends ModerationAction {
 

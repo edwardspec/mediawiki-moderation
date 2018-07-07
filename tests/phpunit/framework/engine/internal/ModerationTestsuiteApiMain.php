@@ -16,17 +16,17 @@
 */
 
 /**
-	@file
-	@brief ApiMain subclass for testing API requests via internal invocation.
-*/
+ * @file
+ * @brief ApiMain subclass for testing API requests via internal invocation.
+ */
 
 class ModerationTestsuiteApiMain extends ApiMain {
 
 	/**
-		@brief Run API via internal invocation with proper error handling.
-		@returns array (parsed JSON of the response).
+	 * @brief Run API via internal invocation with proper error handling.
+	 * @returns array (parsed JSON of the response).
 
-		@note This function runs ApiResult through the ApiFormatter,
+	 * @note This function runs ApiResult through the ApiFormatter,
 		so its return value will be exactly the same
 		as if api.php was called NOT via internal invocation.
 	*/

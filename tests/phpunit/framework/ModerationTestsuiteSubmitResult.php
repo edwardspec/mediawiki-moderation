@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Return value of non-API methods like $t->nonApiUpload().
-*/
+ * @file
+ * @brief Return value of non-API methods like $t->nonApiUpload().
+ */
 
 class ModerationTestsuiteSubmitResult {
 
@@ -39,8 +39,8 @@ class ModerationTestsuiteSubmitResult {
 	}
 
 	/**
-		@brief Create ModerationTestsuiteSubmitResult object from $req.
-	*/
+	 * @brief Create ModerationTestsuiteSubmitResult object from $req.
+	 */
 	public static function newFromResponse( ModerationTestsuiteResponse $req, ModerationTestsuite $t ) {
 		if ( $req->getResponseHeader( 'Location' ) ) {
 			return null; # No errors

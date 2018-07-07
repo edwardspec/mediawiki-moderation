@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Ensures that only moderators can use Special:Moderation.
-*/
+ * @file
+ * @brief Ensures that only moderators can use Special:Moderation.
+ */
 
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 

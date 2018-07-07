@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Verifies that after-action link "Return to Special:Moderation" is shown.
-*/
+ * @file
+ * @brief Verifies that after-action link "Return to Special:Moderation" is shown.
+ */
 
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 

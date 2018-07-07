@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Hooks that are only needed for moderators.
-*/
+ * @file
+ * @brief Hooks that are only needed for moderators.
+ */
 
 class ModerationNotifyModerator {
 
@@ -109,7 +109,7 @@ class ModerationNotifyModerator {
 	}
 
 	/**
-		@brief Clear the cache of getPendingTime().
+	 * @brief Clear the cache of getPendingTime().
 		Used instead of setPendingTime() when we don't know $newTimestamp,
 		e.g. in modaction=rejectall.
 	*/
@@ -124,17 +124,17 @@ class ModerationNotifyModerator {
 	}
 
 	/**
-		@brief Get newest mod_timestamp seen by $user.
-		@retval false Unknown.
-	*/
+	 * @brief Get newest mod_timestamp seen by $user.
+	 * @retval false Unknown.
+	 */
 	protected static function getSeen( User $user ) {
 		$cache = wfGetMainCache();
 		return $cache->get( self::getSeenCacheKey( $user ) );
 	}
 
 	/**
-		@brief Remember the newest mod_timestamp seen by $user.
-	*/
+	 * @brief Remember the newest mod_timestamp seen by $user.
+	 */
 	public static function setSeen( User $user, $timestamp ) {
 		$cache = wfGetMainCache();
 		$cache->set( self::getSeenCacheKey( $user ), $timestamp, 604800 ); /* 7 days */

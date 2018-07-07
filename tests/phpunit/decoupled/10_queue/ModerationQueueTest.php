@@ -16,27 +16,27 @@
 */
 
 /**
-	@file
-	@brief Checks SQL table 'moderation' after the edit.
-*/
+ * @file
+ * @brief Checks SQL table 'moderation' after the edit.
+ */
 
 require_once( __DIR__ . "/../../framework/ModerationTestsuite.php" );
 
 /**
-	@covers ModerationNewChange
-*/
+ * @covers ModerationNewChange
+ */
 class ModerationQueueTest extends MediaWikiTestCase
 {
 	/**
-		@dataProvider dataProvider
-	*/
+	 * @dataProvider dataProvider
+	 */
 	public function testQueue( array $options ) {
 		ModerationQueueTestSet::run( $options, $this );
 	}
 
 	/**
-		@brief Provide datasets for testQueueEdit() runs.
-	*/
+	 * @brief Provide datasets for testQueueEdit() runs.
+	 */
 	public function dataProvider() {
 		return [
 			[ [ 'anonymously' => true ] ],
@@ -80,8 +80,8 @@ class ModerationQueueTest extends MediaWikiTestCase
 }
 
 /**
-	@brief Represents one TestSet for testQueue().
-*/
+ * @brief Represents one TestSet for testQueue().
+ */
 class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 
 	protected $user = null; /**< User object */
@@ -101,8 +101,8 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	protected $watch = null; /**< If true/false, defines the state of "Watch this page" checkbox. */
 
 	/**
-		@brief Initialize this TestSet from the input of dataProvider.
-	*/
+	 * @brief Initialize this TestSet from the input of dataProvider.
+	 */
 	protected function applyOptions( array $options ) {
 		foreach ( $options as $key => $value ) {
 			switch ( $key ) {
@@ -167,8 +167,8 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Assert the state of the database after the edit.
-	*/
+	 * @brief Assert the state of the database after the edit.
+	 */
 	protected function assertResults( MediaWikiTestCase $testcase ) {
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation', '*', '', __METHOD__ );
@@ -188,8 +188,8 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Execute the TestSet, making an edit/upload/move with requested parameters.
-	*/
+	 * @brief Execute the TestSet, making an edit/upload/move with requested parameters.
+	 */
 	protected function makeChanges() {
 		$testcase = $this->getTestcase();
 
@@ -293,10 +293,10 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Returns array of expected post-edit values of all mod_* fields in the database.
-		@note Values like "/value/" are treated as regular expressions.
-		@returns [ 'mod_user' => ..., 'mod_namespace' => ..., ... ]
-	*/
+	 * @brief Returns array of expected post-edit values of all mod_* fields in the database.
+	 * @note Values like "/value/" are treated as regular expressions.
+	 * @returns [ 'mod_user' => ..., 'mod_namespace' => ..., ... ]
+	 */
 	protected function getExpectedRow() {
 		$expectedContent = ContentHandler::makeContent( $this->text, null, CONTENT_MODEL_WIKITEXT );
 		if ( $this->needPst ) {
@@ -373,9 +373,9 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Assert the state of UploadStash after the test.
-		@param $stashKey Value of mod_stash_key (as found in the database after the test).
-	*/
+	 * @brief Assert the state of UploadStash after the test.
+	 * @param $stashKey Value of mod_stash_key (as found in the database after the test).
+	 */
 	protected function checkUpload( $stashKey ) {
 		if ( !$this->filename ) {
 			return; // Not an upload, nothing to do
@@ -394,8 +394,8 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Assert the state of Watchlist after the test.
-	*/
+	 * @brief Assert the state of Watchlist after the test.
+	 */
 	protected function checkWatchlist( $expected ) {
 		if ( $expected === null ) {
 			return; // Watch/Unwatch test not requested
@@ -412,9 +412,9 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Assert that $title is watched/unwatched.
-		@param $expectedState True if $title should be watched, false if not.
-	*/
+	 * @brief Assert that $title is watched/unwatched.
+	 * @param $expectedState True if $title should be watched, false if not.
+	 */
 	protected function assertWatched( $expectedState, Title $title ) {
 		// Note: $user->isWatched() can't be used,
 		// because it would return cached results.
@@ -440,8 +440,8 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 }
 
 /**
-	@brief Regular expression returned by getExpectedRow() instead of a constant field value.
-*/
+ * @brief Regular expression returned by getExpectedRow() instead of a constant field value.
+ */
 class ModerationTestSetRegex {
 	public $regex;
 

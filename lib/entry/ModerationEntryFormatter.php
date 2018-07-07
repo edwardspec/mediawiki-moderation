@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Formatter for displaying entry on Special:Moderation.
-*/
+ * @file
+ * @brief Formatter for displaying entry on Special:Moderation.
+ */
 
 class ModerationEntryFormatter extends ModerationEntry {
 	protected $context = null; /**< IContextSource */
@@ -36,14 +36,14 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	/**
-		@brief Returns User object of moderator.
-	*/
+	 * @brief Returns User object of moderator.
+	 */
 	public function getModerator() {
 		return $this->getContext()->getUser();
 	}
 
 	/**
-		@brief Add all titles needed by getHTML() to $batch.
+	 * @brief Add all titles needed by getHTML() to $batch.
 		This method is for QueryPage::preprocessResults().
 		It optimizes Linker::link() calls by detecting all redlinks in one SQL query.
 	*/
@@ -71,8 +71,8 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	/**
-		@brief Returns QueryInfo for $db->select(), as expected by QueryPage::getQueryInfo().
-	*/
+	 * @brief Returns QueryInfo for $db->select(), as expected by QueryPage::getQueryInfo().
+	 */
 	public static function getQueryInfo() {
 		return [
 			'tables' => [ 'moderation', 'moderation_block' ],
@@ -91,9 +91,9 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	/**
-		@brief Get the list of fields needed for selecting $row, as expected by newFromRow().
-		@returns array ($fields parameter for $db->select()).
-	*/
+	 * @brief Get the list of fields needed for selecting $row, as expected by newFromRow().
+	 * @returns array ($fields parameter for $db->select()).
+	 */
 	public static function getFields() {
 		$fields = [
 			'mod_id AS id',
@@ -134,8 +134,8 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	/**
-		@brief Returns HTML of formatted line for Special:Moderation.
-	*/
+	 * @brief Returns HTML of formatted line for Special:Moderation.
+	 */
 	public function getHTML() {
 		global $wgModerationPreviewLink;
 

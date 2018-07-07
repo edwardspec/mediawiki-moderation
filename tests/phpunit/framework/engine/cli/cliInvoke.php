@@ -16,11 +16,11 @@
 */
 
 /**
-	@file
-	@brief Helper script to run MediaWiki as a command line script.
+ * @file
+ * @brief Helper script to run MediaWiki as a command line script.
 
-	@see ModerationTestsuiteCliEngine::cliExecute()
-	@note this runs before Setup.php, configuration is unknown,
+ * @see ModerationTestsuiteCliEngine::cliExecute()
+ * @note this runs before Setup.php, configuration is unknown,
 	and we can't use any of the MediaWiki classes.
 	We just populate $_GET, $_POST, etc. and include "index.php".
 */

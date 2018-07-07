@@ -18,13 +18,13 @@
 require_once( __DIR__ . '/../common/ModerationTestUtil.php' );
 
 /**
-	@file
-	@brief Parent class for benchmark scripts.
-*/
+ * @file
+ * @brief Parent class for benchmark scripts.
+ */
 
 abstract class ModerationBenchmark extends Maintenance {
 	/**
-		@brief Prefix that is always prepended to all titles, etc.
+	 * @brief Prefix that is always prepended to all titles, etc.
 		This ensures that two benchmarks won't work with the same pages,
 		causing errors like "benchmark #1 was creating a new page,
 		benchmark #2 was editing existing page,
@@ -33,20 +33,20 @@ abstract class ModerationBenchmark extends Maintenance {
 	private $uniquePrefix = null;
 
 	/**
-		@brief User object. Always created before the benchmark.
-	*/
+	 * @brief User object. Always created before the benchmark.
+	 */
 	private $testUser = null;
 
 	/**
-		@brief Returns User object of test account.
-	*/
+	 * @brief Returns User object of test account.
+	 */
 	public function getUser() {
 		return $this->testUser;
 	}
 
 	/**
-		@brief Returns Title object for testing.
-		@param $suffix Full text of the title, e.g. "Talk:Welsh corgi".
+	 * @brief Returns Title object for testing.
+	 * @param $suffix Full text of the title, e.g. "Talk:Welsh corgi".
 
 		During this benchmark, same value is returned for same $suffix,
 		but another benchmark will get a different Title.
@@ -60,28 +60,28 @@ abstract class ModerationBenchmark extends Maintenance {
 	}
 
 	/**
-		@brief This function will be benchmarked by execute().
-	*/
+	 * @brief This function will be benchmarked by execute().
+	 */
 	abstract public function doActualWork( $iterationNumber );
 
 	/**
-		@brief Initialize everything before the tests.
-	*/
+	 * @brief Initialize everything before the tests.
+	 */
 	public function beforeBenchmark( $numberOfLoops ) {
 		/* Nothing to do.
 			Will be redefined by benchmarks if they need this. */
 	}
 
 	/**
-		@brief Default number of loops.
-	*/
+	 * @brief Default number of loops.
+	 */
 	public function getDefaultLoops() {
 		return 500;
 	}
 
 	/**
-		@brief Main function: test the performance of doActualWork().
-	*/
+	 * @brief Main function: test the performance of doActualWork().
+	 */
 	function execute() {
 		$user = User::newSystemUser( 'Benchmark User', [ 'steal' => true ] );
 		foreach( $user->getGroups() as $existingGroup ) {
@@ -120,9 +120,9 @@ abstract class ModerationBenchmark extends Maintenance {
 	}
 
 	/**
-		@brief Edit the page (convenience function to be used by benchmarks).
-		@return Status object.
-	*/
+	 * @brief Edit the page (convenience function to be used by benchmarks).
+	 * @return Status object.
+	 */
 	public function edit( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
 		$page = WikiPage::factory( $title );
 		$content = ContentHandler::makeContent( $newText, null, CONTENT_MODEL_WIKITEXT );
@@ -142,7 +142,7 @@ abstract class ModerationBenchmark extends Maintenance {
 	}
 
 	/**
-		@brief Edit the page by directly modifying the database. Very fast.
+	 * @brief Edit the page by directly modifying the database. Very fast.
 
 		This is used for initialization of tests.
 		For example, if moveQueue benchmark needs 500 existing pages,
@@ -154,11 +154,11 @@ abstract class ModerationBenchmark extends Maintenance {
 	}
 
 	/**
-		@brief Queue the page by directly modifying the database. Very fast.
+	 * @brief Queue the page by directly modifying the database. Very fast.
 		This is used for initialization of tests.
 
-		@returns mod_id of the newly inserted row.
-	*/
+	 * @returns mod_id of the newly inserted row.
+	 */
 	public function fastQueue( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
 		$page = WikiPage::factory( $title );
 		if ( !$user ) {
@@ -196,9 +196,9 @@ abstract class ModerationBenchmark extends Maintenance {
 	}
 
 	/**
-		@brief Render Special:Moderation with $params.
-		@returns HTML of the result.
-	*/
+	 * @brief Render Special:Moderation with $params.
+	 * @returns HTML of the result.
+	 */
 	public function runSpecialModeration( array $params, $wasPosted = false ) {
 		ModerationTestUtil::runSpecialModeration(
 			$this->getUser(),

@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Replacement of LocalSettings.php loaded by [cliInvoke.php].
-*/
+ * @file
+ * @brief Replacement of LocalSettings.php loaded by [cliInvoke.php].
+ */
 
 # Load the usual LocalSettings.php
 require_once "$IP/LocalSettings.php";

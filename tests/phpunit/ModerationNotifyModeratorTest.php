@@ -16,15 +16,15 @@
 */
 
 /**
-	@file
-	@brief Verifies that moderators see "New changes await moderation" notice.
-*/
+ * @file
+ * @brief Verifies that moderators see "New changes await moderation" notice.
+ */
 
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 /**
-	@covers ModerationNotifyModerator
-*/
+ * @covers ModerationNotifyModerator
+ */
 class ModerationTestNotifyModerator extends MediaWikiTestCase
 {
 	public function testNotifyModerator() {

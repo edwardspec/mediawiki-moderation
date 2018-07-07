@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Parent class for TestSet objects used in the Moderation testsuite.
-*/
+ * @file
+ * @brief Parent class for TestSet objects used in the Moderation testsuite.
+ */
 
 abstract class ModerationTestsuiteTestSet {
 	private $testsuite; /**< ModerationTestsuite object */
@@ -30,7 +30,7 @@ abstract class ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Returns current PHPUnitTestCase object.
+	 * @brief Returns current PHPUnitTestCase object.
 		Used for calling assert*() methods.
 	*/
 	protected function getTestcase() {
@@ -38,10 +38,10 @@ abstract class ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Run this TestSet from input of dataProvider.
-		@param $options Parameters of test, e.g. [ 'user' => 'Bear expert', 'title' => 'Black bears' ].
-		@param $testcase Current PHPUnitTestCase object.
-	*/
+	 * @brief Run this TestSet from input of dataProvider.
+	 * @param $options Parameters of test, e.g. [ 'user' => 'Bear expert', 'title' => 'Black bears' ].
+	 * @param $testcase Current PHPUnitTestCase object.
+	 */
 	final public static function run( array $options, MediaWikiTestCase $testcase ) {
 		$set = new static( $options, $testcase );
 
@@ -50,8 +50,8 @@ abstract class ModerationTestsuiteTestSet {
 	}
 
 	/**
-		@brief Construct TestSet from the input of dataProvider.
-	*/
+	 * @brief Construct TestSet from the input of dataProvider.
+	 */
 	final protected function __construct( array $options, MediaWikiTestCase $testcase ) {
 		$this->testsuite = new ModerationTestsuite; // Cleans the database
 		$this->testcase = $testcase;
@@ -62,17 +62,17 @@ abstract class ModerationTestsuiteTestSet {
 	/*-------------------------------------------------------------------*/
 
 	/**
-		@brief Initialize this TestSet from the input of dataProvider.
-	*/
+	 * @brief Initialize this TestSet from the input of dataProvider.
+	 */
 	abstract protected function applyOptions( array $options );
 
 	/**
-		@brief Execute this TestSet, making the edit with requested parameters.
-	*/
+	 * @brief Execute this TestSet, making the edit with requested parameters.
+	 */
 	abstract protected function makeChanges();
 
 	/**
-		@brief Assert whether the situation after the edit is correct or not.
-	*/
+	 * @brief Assert whether the situation after the edit is correct or not.
+	 */
 	abstract protected function assertResults( MediaWikiTestCase $testcase );
 }

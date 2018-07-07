@@ -16,17 +16,17 @@
 */
 
 /**
-	@file
-	@brief Ensures that uploads are intercepted by Extension:Moderation.
-*/
+ * @file
+ * @brief Ensures that uploads are intercepted by Extension:Moderation.
+ */
 
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 /**
-	@covers ModerationUploadHooks
-	@requires extension curl
-	@note Only cURL version of MWHttpRequest supports uploads.
-*/
+ * @covers ModerationUploadHooks
+ * @requires extension curl
+ * @note Only cURL version of MWHttpRequest supports uploads.
+ */
 class ModerationTestUpload extends MediaWikiTestCase
 {
 	public function testUpload() {
@@ -91,8 +91,8 @@ class ModerationTestUpload extends MediaWikiTestCase
 	}
 
 	/**
-		@covers ModerationApproveHook::onNewRevisionFromEditComplete
-	*/
+	 * @covers ModerationApproveHook::onNewRevisionFromEditComplete
+	 */
 	public function testReupload() {
 		$t = new ModerationTestsuite();
 		$title = "Test image 1.png";
@@ -218,8 +218,8 @@ class ModerationTestUpload extends MediaWikiTestCase
 	}
 
 	/**
-		@covers ModerationApiHooks::onApiCheckCanExecute()
-	*/
+	 * @covers ModerationApiHooks::onApiCheckCanExecute()
+	 */
 	public function testNoApiUploadBefore1_28() {
 		global $wgVersion;
 		if ( version_compare( $wgVersion, '1.28.0', '>=' ) ) {

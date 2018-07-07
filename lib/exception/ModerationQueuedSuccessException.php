@@ -16,8 +16,8 @@
 */
 
 /**
-	@file
-	@brief Displays "Upload successful! Sent for moderation!" on Special:Upload.
+ * @file
+ * @brief Displays "Upload successful! Sent for moderation!" on Special:Upload.
 
 	When we return "moderation-edit-queued" Status from upload/move hooks,
 	forms like Special:Upload and Special:MovePage often portray this as
@@ -32,8 +32,8 @@
 class ModerationQueuedSuccessException extends ErrorPageError {
 
 	/**
-		@brief Throw this exception if the user is on a special page that needs it.
-	*/
+	 * @brief Throw this exception if the user is on a special page that needs it.
+	 */
 	public static function throwIfNeeded( $msg, array $params = [] ) {
 		$title = RequestContext::getMain()->getTitle();
 		if ( !$title ) {

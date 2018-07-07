@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief API to invoke moderation actions like Approve, Reject, etc.
-*/
+ * @file
+ * @brief API to invoke moderation actions like Approve, Reject, etc.
+ */
 
 class ApiModeration extends ApiBase {
 

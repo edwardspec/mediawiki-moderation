@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Intercepts header() calls in PHP CLI.
-*/
+ * @file
+ * @brief Intercepts header() calls in PHP CLI.
+ */
 
 class ModerationTestsuiteMockAutoLoader {
 
@@ -27,13 +27,13 @@ class ModerationTestsuiteMockAutoLoader {
 	protected static $instance = null; /**< Singleton instance */
 
 	/**
-		@brief Array of function rewrites. Populated by replaceFunction() calls.
+	 * @brief Array of function rewrites. Populated by replaceFunction() calls.
 		[ 'oldFunctionName1' => 'newFunctionName1', ... ]
 	*/
 	protected $replacements = [];
 
 	/**
-		@brief Array of classnames which already have been mocked.
+	 * @brief Array of classnames which already have been mocked.
 		[ 'WebRequest' => true, 'FauxRequest' => true, ... ]
 	*/
 	private $alreadyMockedClasses = [];
@@ -50,8 +50,8 @@ class ModerationTestsuiteMockAutoLoader {
 	}
 
 	/**
-		@brief Cache the fact that $className doesn't need mocking.
-	*/
+	 * @brief Cache the fact that $className doesn't need mocking.
+	 */
 	protected function cacheThatNoMockIsNeeded( $className ) {
 		$fp = fopen( self::NOMOCK_CACHE_FILENAME, 'a' );
 		fwrite( $fp, $className . "\n" );
@@ -71,15 +71,15 @@ class ModerationTestsuiteMockAutoLoader {
 	}
 
 	/**
-		@brief Replace all calls to function A with calls to function B.
-	*/
+	 * @brief Replace all calls to function A with calls to function B.
+	 */
 	static public function replaceFunction( $oldFunctionName, $newFunctionName ) {
 		self::singleton()->replacements[$oldFunctionName] = $newFunctionName;
 	}
 
 	/**
-		@brief Autoload the mock-modified file instead of the original file.
-	*/
+	 * @brief Autoload the mock-modified file instead of the original file.
+	 */
 	public function autoload( $className ) {
 		global $wgAutoloadClasses, $wgAutoloadLocalClasses;
 
@@ -127,10 +127,10 @@ class ModerationTestsuiteMockAutoLoader {
 	}
 
 	/**
-		@brief Rewrite the PHP code, replacing the calls to intercepted functions with mocks.
-		@param $text Original PHP source code (string).
-		@returns Modified source code (string).
-	*/
+	 * @brief Rewrite the PHP code, replacing the calls to intercepted functions with mocks.
+	 * @param $text Original PHP source code (string).
+	 * @returns Modified source code (string).
+	 */
 	protected function rewriteFile( $text ) {
 		$functionNameRegex = join( '|', array_map( 'preg_quote', array_keys( $this->replacements ) ) );
 		if ( !$functionNameRegex ) {

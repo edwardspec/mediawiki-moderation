@@ -16,15 +16,15 @@
 */
 
 /**
-	@file
-	@brief Verifies that modaction=show works as expected.
-*/
+ * @file
+ * @brief Verifies that modaction=show works as expected.
+ */
 
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 /**
-	@covers ModerationActionShow
-*/
+ * @covers ModerationActionShow
+ */
 class ModerationTestShow extends MediaWikiTestCase
 {
 	public function testShow() {
@@ -91,10 +91,10 @@ class ModerationTestShow extends MediaWikiTestCase
 	}
 
 	/**
-		@covers ModerationActionShowImage
-		@requires extension curl
-		@note Only cURL version of MWHttpRequest supports uploads.
-	*/
+	 * @covers ModerationActionShowImage
+	 * @requires extension curl
+	 * @note Only cURL version of MWHttpRequest supports uploads.
+	 */
 	public function testShowUpload() {
 		$t = new ModerationTestsuite();
 
@@ -231,11 +231,11 @@ class ModerationTestShow extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Ensures that non-image uploads (e.g. OGG files) are shown correctly.
-		@covers ModerationActionShowImage
-		@requires extension curl
-		@note Only cURL version of MWHttpRequest supports uploads.
-	*/
+	 * @brief Ensures that non-image uploads (e.g. OGG files) are shown correctly.
+	 * @covers ModerationActionShowImage
+	 * @requires extension curl
+	 * @note Only cURL version of MWHttpRequest supports uploads.
+	 */
 	public function testShowUploadNonImage() {
 		$t = new ModerationTestsuite();
 

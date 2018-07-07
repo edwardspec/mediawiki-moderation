@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Plugin for using Moderation with Extension:PageForms.
-*/
+ * @file
+ * @brief Plugin for using Moderation with Extension:PageForms.
+ */
 
 class ModerationPageForms {
 
@@ -27,7 +27,7 @@ class ModerationPageForms {
 	}
 
 	/**
-		@brief Preload text of pending edit into the form of Special:FormEdit.
+	 * @brief Preload text of pending edit into the form of Special:FormEdit.
 
 		This is used by two hooks:
 		PageForms::EditFormPreloadText (when creating new page)
@@ -46,7 +46,7 @@ class ModerationPageForms {
 	}
 
 	/**
-		@brief ModerationContinueEditingLink hook.
+	 * @brief ModerationContinueEditingLink hook.
 		Here we point "continue editing" link to FormEdit after using FormEdit.
 	*/
 	public function onModerationContinueEditingLink( &$returnto, array &$returntoquery, Title $title, IContextSource $context ) {

@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Automated testsuite of Extension:Moderation.
-*/
+ * @file
+ * @brief Automated testsuite of Extension:Moderation.
+ */
 
 require_once( __DIR__ . '/../../common/ModerationTestUtil.php' );
 
@@ -77,10 +77,10 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Sets MediaWiki global variable. Not supported by RealHttpEngine.
-		@param $name Name of variable without the "$wg" prefix.
-		@throws PHPUnit_Framework_SkippedTestError TestsuiteEngine doesn't support this method.
-	*/
+	 * @brief Sets MediaWiki global variable. Not supported by RealHttpEngine.
+	 * @param $name Name of variable without the "$wg" prefix.
+	 * @throws PHPUnit_Framework_SkippedTestError TestsuiteEngine doesn't support this method.
+	 */
 	public function setMwConfig( $name, $value ) {
 		$this->engine->setMwConfig( $name, $value );
 	}
@@ -91,22 +91,22 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Set User-Agent header for all outgoing requests.
-	*/
+	 * @brief Set User-Agent header for all outgoing requests.
+	 */
 	public function setUserAgent( $ua ) {
 		$this->setHeader( 'User-Agent', $ua );
 	}
 
 	/**
-		@brief Don't throw exception when HTTP request returns $code.
-	*/
+	 * @brief Don't throw exception when HTTP request returns $code.
+	 */
 	public function ignoreHttpError( $code ) {
 		$this->engine->ignoreHttpError( $code );
 	}
 
 	/**
-		@brief Re-enable throwing an exception when HTTP request returns $code.
-	*/
+	 * @brief Re-enable throwing an exception when HTTP request returns $code.
+	 */
 	public function stopIgnoringHttpError( $code ) {
 		$this->engine->stopIgnoringHttpError( $code );
 	}
@@ -126,7 +126,7 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Delete the results of previous fetchSpecial().
+	 * @brief Delete the results of previous fetchSpecial().
 			If fetchSpecial() is then called, all entries
 			in this folder will be considered new entries.
 	*/
@@ -136,12 +136,12 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Download and parse Special:Moderation. Diff its current
+	 * @brief Download and parse Special:Moderation. Diff its current
 			state with the previously downloaded/parsed state, and
 			populate the arrays \b $new_entries, \b $old_entries.
 
-		@remark Logs in as $moderator.
-	*/
+	 * @remark Logs in as $moderator.
+	 */
 	public function fetchSpecial( $folder = 'DEFAULT' )
 	{
 		if(!$this->isModerator()) { /* Don't relogin in testModeratorNotAutomoderated() */
@@ -202,7 +202,7 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Create controlled environment before each test.
+	 * @brief Create controlled environment before each test.
 		(as in "Destroy everything on testsuite's path")
 	*/
 	private function prepareDbForTests()
@@ -342,17 +342,17 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Create an account and return User object.
-		@note Will not login automatically (loginAs must be called).
-	*/
+	 * @brief Create an account and return User object.
+	 * @note Will not login automatically (loginAs must be called).
+	 */
 	public function createAccount( $username ) {
 		return $this->engine->createAccount( $username );
 	}
 
 	/**
-		@brief Move the page via API.
-		@returns Error code (e.g. '(moderation-move-queued)') or null.
-	*/
+	 * @brief Move the page via API.
+	 * @returns Error code (e.g. '(moderation-move-queued)') or null.
+	 */
 	public function apiMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] ) {
 		$ret = $this->query( [
 			'action' => 'move',
@@ -372,10 +372,10 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Perform a test move.
-		@see apiMove
-		@see nonApiMove
-	*/
+	 * @brief Perform a test move.
+	 * @see apiMove
+	 * @see nonApiMove
+	 */
 	public function doTestMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] )
 	{
 		$method = $this->moveViaAPI ? 'apiMove': 'nonApiMove';
@@ -383,8 +383,8 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Place information about newly made change into lastEdit[] array.
-	*/
+	 * @brief Place information about newly made change into lastEdit[] array.
+	 */
 	protected function setLastEdit( $title, $summary, array $extraData = [] ) {
 		$this->lastEdit = $extraData + [
 			'User' => $this->loggedInAs()->getName(),
@@ -394,9 +394,9 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief via the usual interface, as real users do.
-		@returns ModerationTestsuiteSubmitResult object.
-	*/
+	 * @brief via the usual interface, as real users do.
+	 * @returns ModerationTestsuiteSubmitResult object.
+	 */
 	public function nonApiMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] )
 	{
 		$newTitleObj = Title::newFromText( $newTitle );
@@ -418,12 +418,12 @@ class ModerationTestsuite
 
 
 	/**
-		@brief Make an edit via API.
-		@warning Several side-effects can't be tested this way,
+	 * @brief Make an edit via API.
+	 * @warning Several side-effects can't be tested this way,
 			for example HTTP redirect after editing or
 			session cookies (used for anonymous preloading)
-		@returns API response
-	*/
+	 * @returns API response
+	 */
 	public function apiEdit( $title, $text, $summary, array $extraParams = [] )
 	{
 		return $this->query( [
@@ -440,9 +440,9 @@ class ModerationTestsuite
 	public $moveViaAPI = false;
 
 	/**
-		@brief Make an edit via the usual interface, as real users do.
-		@returns ModerationTestsuiteResponse object.
-	*/
+	 * @brief Make an edit via the usual interface, as real users do.
+	 * @returns ModerationTestsuiteResponse object.
+	 */
 	public function nonApiEdit( $title, $text, $summary, array $extraParams = [] )
 	{
 		$params = $extraParams + [
@@ -507,7 +507,7 @@ class ModerationTestsuite
 	public $TEST_EDITS_COUNT = 3; /* See doNTestEditsWith() */
 
 	/**
-		@brief Do 2*N alternated edits - N by $user1 and N by $user2.
+	 * @brief Do 2*N alternated edits - N by $user1 and N by $user2.
 			Number of edits is $TEST_EDITS_COUNT.
 			If $user2 is null, only makes N edits by $user1.
 	*/
@@ -527,9 +527,9 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Makes one edit and returns its correct entry.
-		@remark Logs in as $moderator.
-	*/
+	 * @brief Makes one edit and returns its correct entry.
+	 * @remark Logs in as $moderator.
+	 */
 	public function getSampleEntry( $title = null )
 	{
 		$this->fetchSpecial();
@@ -564,10 +564,10 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Perform a test upload.
-		@returns MediaWiki error message code (e.g. "(emptyfile)").
-		@retval null Upload succeeded (no errors found).
-	*/
+	 * @brief Perform a test upload.
+	 * @returns MediaWiki error message code (e.g. "(emptyfile)").
+	 * @retval null Upload succeeded (no errors found).
+	 */
 	public function doTestUpload( $title = null, $srcFilename = null, $text = null, array $extraParams = [] )
 	{
 		if ( !$title ) {
@@ -599,7 +599,7 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Resolve $srcFilename into an absolute path.
+	 * @brief Resolve $srcFilename into an absolute path.
 		Used in tests: '1.png' is found at [tests/resources/1.png].
 	*/
 	public static function findSourceFilename( $srcFilename ) {
@@ -615,9 +615,9 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Make an upload via the usual Special:Upload, as real users do.
-		@returns ModerationTestsuiteSubmitResult object.
-	*/
+	 * @brief Make an upload via the usual Special:Upload, as real users do.
+	 * @returns ModerationTestsuiteSubmitResult object.
+	 */
 	public function nonApiUpload( $title, $srcFilename, $text, array $extraParams = [] )
 	{
 		$req = $this->httpPost( wfScript( 'index' ), $extraParams + [
@@ -634,9 +634,9 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Make an upload via API.
-		@returns Error code (e.g. '(emptyfile)') or null.
-	*/
+	 * @brief Make an upload via API.
+	 * @returns Error code (e.g. '(emptyfile)') or null.
+	 */
 	public function apiUpload( $title, $srcFilename, $text )
 	{
 		$ret = $this->query( [
@@ -656,7 +656,7 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Get up to $count moderation log entries via API
+	 * @brief Get up to $count moderation log entries via API
 			(most recent first).
 	*/
 	public function apiLogEntries( $count = 100 )
@@ -671,7 +671,7 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Get up to $count moderation log entries NOT via API
+	 * @brief Get up to $count moderation log entries NOT via API
 			(most recent first).
 	*/
 	public function nonApiLogEntries( $count = 100 )
@@ -704,8 +704,8 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Get the last revision of page $title via API.
-	*/
+	 * @brief Get the last revision of page $title via API.
+	 */
 	public function getLastRevision( $title )
 	{
 		$ret = $this->query( [
@@ -720,8 +720,8 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Remove "token=" from URL and return its new HTML title.
-	*/
+	 * @brief Remove "token=" from URL and return its new HTML title.
+	 */
 	public function noTokenTitle( $url )
 	{
 		$bad_url = preg_replace( '/token=[^&]*/', '', $url );
@@ -729,8 +729,8 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Corrupt "token=" in URL and return its new HTML title.
-	*/
+	 * @brief Corrupt "token=" in URL and return its new HTML title.
+	 */
 	public function badTokenTitle( $url )
 	{
 		$bad_url = preg_replace( '/(token=)([^&]*)/', '\1WRONG\2', $url );
@@ -738,9 +738,9 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Wait for "recentchanges" table to be updated by DeferredUpdates.
-		@param $numberOfEdits How many recent revisions must be in RecentChanges.
-		@returns Array of revision IDs.
+	 * @brief Wait for "recentchanges" table to be updated by DeferredUpdates.
+	 * @param $numberOfEdits How many recent revisions must be in RecentChanges.
+	 * @returns Array of revision IDs.
 
 		This function is needed before testing cu_changes or tags:
 		they are updated in RecentChange_save hook,
@@ -783,9 +783,9 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Queue an edis that would cause an edit conflict when approved.
-		@returns ModerationEntry
-	*/
+	 * @brief Queue an edis that would cause an edit conflict when approved.
+	 * @returns ModerationEntry
+	 */
 	public function causeEditConflict( $title, $origText, $textOfUser1, $textOfUser2 ) {
 		$this->loginAs( $this->automoderated );
 		$this->doTestEdit( $title, $origText );
@@ -801,19 +801,19 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Get cuc_agent of the last entry in "cu_changes" table.
-		@returns User-agent (string).
-	*/
+	 * @brief Get cuc_agent of the last entry in "cu_changes" table.
+	 * @returns User-agent (string).
+	 */
 	public function getCUCAgent() {
 		$agents = $this->getCUCAgents( 1 );
 		return array_pop( $agents );
 	}
 
 	/**
-		@brief Get cuc_agent of the last entries in "cu_changes" table.
-		@param $limit How many entries to select.
-		@returns Array of user-agents.
-	*/
+	 * @brief Get cuc_agent of the last entries in "cu_changes" table.
+	 * @param $limit How many entries to select.
+	 * @returns Array of user-agents.
+	 */
 	public function getCUCAgents( $limit ) {
 		$dbw = wfGetDB( DB_MASTER );
 		return $dbw->selectFieldValues(
@@ -827,9 +827,9 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Create AbuseFilter rule that will assign tags to all edits.
-		@returns ID of the newly created filter.
-	*/
+	 * @brief Create AbuseFilter rule that will assign tags to all edits.
+	 * @returns ID of the newly created filter.
+	 */
 	public function addTagAllAbuseFilter( array $tags ) {
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->insert( 'abuse_filter',
@@ -866,8 +866,8 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Disable AbuseFilter rule #$filterId.
-	*/
+	 * @brief Disable AbuseFilter rule #$filterId.
+	 */
 	public function disableAbuseFilter( $filterId ) {
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'abuse_filter', [ 'af_enabled' => 0 ], [ 'af_id' => $filterId ], __METHOD__ );
@@ -875,8 +875,8 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Assert that API response $ret contains error $expectedErrorCode.
-	*/
+	 * @brief Assert that API response $ret contains error $expectedErrorCode.
+	 */
 	public function assertApiError( $expectedErrorCode, array $ret, MediaWikiTestCase $tcase ) {
 		$tcase->assertArrayHasKey( 'error', $ret );
 
@@ -892,8 +892,8 @@ class ModerationTestsuite
 	}
 
 	/**
-		@brief Call version_compare on $wgVersion.
-	*/
+	 * @brief Call version_compare on $wgVersion.
+	 */
 	public static function mwVersionCompare( $compareWith, $operator ) {
 		global $wgVersion;
 		return version_compare( $wgVersion, $compareWith, $operator );

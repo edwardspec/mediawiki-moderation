@@ -16,8 +16,8 @@
 */
 
 /**
-	@file
-	@brief Ensure that changes to "moderation" table are NOT undone by database rollback.
+ * @file
+ * @brief Ensure that changes to "moderation" table are NOT undone by database rollback.
 
 	Some third-party extension may call doEditContent(), mistakenly
 	assume "moderation-edit-queued" to be an error and call rollback().
@@ -27,8 +27,8 @@
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 /**
-	@covers RollbackResistantQuery
-*/
+ * @covers RollbackResistantQuery
+ */
 class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 {
 	public function getRandomTitle() {
@@ -48,8 +48,8 @@ class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Provide datasets for testRollbackResistantQuery() runs.
-	*/
+	 * @brief Provide datasets for testRollbackResistantQuery() runs.
+	 */
 	public function dataProvider() {
 		global $wgVersion;
 		$is1_31 = version_compare( $wgVersion, '1.31.0', '>=' );
@@ -89,9 +89,9 @@ class ModerationTestRollbackResistantQuery extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Ensure that RollbackResistantQuery is not reverted after MWException.
-		@dataProvider dataProvider
-	*/
+	 * @brief Ensure that RollbackResistantQuery is not reverted after MWException.
+	 * @dataProvider dataProvider
+	 */
 	public function testRollbackResistantQuery( $isTrxAutomatic, $isExplicitTransaction, $isAtomic )
 	{
 		$t = new ModerationTestsuite();

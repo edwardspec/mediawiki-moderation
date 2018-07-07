@@ -16,15 +16,15 @@
 */
 
 /**
-	@file
-	@brief Verifies that modaction=approve(all) works as expected.
-*/
+ * @file
+ * @brief Verifies that modaction=approve(all) works as expected.
+ */
 
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 /**
-	@covers ModerationActionApprove
-*/
+ * @covers ModerationActionApprove
+ */
 class ModerationTestApprove extends MediaWikiTestCase
 {
 	public function testApprove() {
@@ -249,8 +249,8 @@ class ModerationTestApprove extends MediaWikiTestCase
 	}
 
 	/**
-		@covers ModerationCanSkip::enterApproveMode()
-		@brief This test verifies that moderator can be NOT automoderated.
+	 * @covers ModerationCanSkip::enterApproveMode()
+	 * @brief This test verifies that moderator can be NOT automoderated.
 
 		There is no real use for such setup other than debugging,
 		and that's why we don't want to test this manually.
@@ -416,7 +416,7 @@ class ModerationTestApprove extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Test that approval still works if author of edit was deleted
+	 * @brief Test that approval still works if author of edit was deleted
 		(e.g. via [maintenance/removeUnusedAccounts.php]).
 	*/
 	public function testApproveDeletedUser() {

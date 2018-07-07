@@ -16,22 +16,22 @@
 */
 
 /**
-	@file
-	@brief Verifies that modactions work via api.php?action=moderation.
-*/
+ * @file
+ * @brief Verifies that modactions work via api.php?action=moderation.
+ */
 
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 /**
-	@covers ApiModeration
-*/
+ * @covers ApiModeration
+ */
 class ModerationTestApi extends MediaWikiTestCase
 {
 
 	/**
-		@brief Checks return value of api.php?action=moderation&modaction=...
-		@note Consequences of actions are checked by other tests (e.g. ModerationApproveTest).
-		@testWith	[ "approve", { "moderation": { "approved": [ "{{ID}}" ] } } ]
+	 * @brief Checks return value of api.php?action=moderation&modaction=...
+	 * @note Consequences of actions are checked by other tests (e.g. ModerationApproveTest).
+	 * @testWith	[ "approve", { "moderation": { "approved": [ "{{ID}}" ] } } ]
 				[ "approveall", { "moderation": { "approved": { "{{ID}}": "" }, "failed": [] } } ]
 				[ "reject", { "moderation": { "rejected-count":1 } } ]
 				[ "rejectall", { "moderation": { "rejected-count":1 } } ]

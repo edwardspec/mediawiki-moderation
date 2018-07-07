@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Helper class to run MediaWiki as a command line script.
-*/
+ * @file
+ * @brief Helper class to run MediaWiki as a command line script.
+ */
 
 
 class ModerationTestsuiteInternallyInvokedWiki {
@@ -70,15 +70,15 @@ class ModerationTestsuiteInternallyInvokedWiki {
 	}
 
 	/**
-		@brief True if this is API request, false otherwise.
-	*/
+	 * @brief True if this is API request, false otherwise.
+	 */
 	protected function isApi() {
 		return ( $this->url == wfScript( 'api' ) );
 	}
 
 	/**
-		@brief Create RequestContext for use in invokeFromScript().
-	*/
+	 * @brief Create RequestContext for use in invokeFromScript().
+	 */
 	protected function makeRequestContext() {
 		$url = wfExpandUrl( $this->url, PROTO_CANONICAL );
 
@@ -166,9 +166,9 @@ class ModerationTestsuiteInternallyInvokedWiki {
 	}
 
 	/**
-		@brief Execute the request. Called internally from the proc_open()ed script.
-		@returns array
-	*/
+	 * @brief Execute the request. Called internally from the proc_open()ed script.
+	 * @returns array
+	 */
 	public function invokeFromScript() {
 		$context = $this->makeRequestContext();
 
@@ -198,8 +198,8 @@ class ModerationTestsuiteInternallyInvokedWiki {
 	}
 
 	/**
-		@brief Execute the request. Called from ModerationTestsuiteEngine.
-	*/
+	 * @brief Execute the request. Called from ModerationTestsuiteEngine.
+	 */
 	public function execute() {
 		global $IP;
 

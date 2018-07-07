@@ -16,8 +16,8 @@
 */
 
 /**
-	@file
-	@brief Benchmark: how fast are edits queued for moderation?
+ * @file
+ * @brief Benchmark: how fast are edits queued for moderation?
 
 	Usage:
 	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/queueEdit.php

@@ -16,8 +16,8 @@
 */
 
 /**
-	@file
-	@brief Abstract parent class for sending requests (HTTP or API) to MediaWiki.
+ * @file
+ * @brief Abstract parent class for sending requests (HTTP or API) to MediaWiki.
 
 	Possible subclasses:
 	1) "send real HTTP requests via network"
@@ -30,8 +30,8 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	protected $reqHeaders = []; /**< Array of HTTP headers to add to all requests, e.g. [ 'User-Agent' => '...' ] */
 
 	/**
-		@brief Create engine object.
-	*/
+	 * @brief Create engine object.
+	 */
 	public static function factory() {
 		switch (  getenv( 'MODERATION_TEST_ENGINE' ) ) {
 			case 'internal':
@@ -64,38 +64,38 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	}
 
 	/**
-		@brief Perform GET request.
-		@returns ModerationTestsuiteResponse object.
-	*/
+	 * @brief Perform GET request.
+	 * @returns ModerationTestsuiteResponse object.
+	 */
 	public function httpGet( $url ) {
 		return $this->executeHttpRequest( $url, 'GET', [] );
 	}
 
 	/**
-		@brief Perform POST request.
-		@returns ModerationTestsuiteResponse object.
-	*/
+	 * @brief Perform POST request.
+	 * @returns ModerationTestsuiteResponse object.
+	 */
 	public function httpPost( $url, array $postData = [] ) {
 		return $this->executeHttpRequest( $url, 'POST', $postData );
 	}
 
 	/**
-		@brief Don't throw exception when HTTP request returns $code.
-	*/
+	 * @brief Don't throw exception when HTTP request returns $code.
+	 */
 	public function ignoreHttpError( $code ) {
 		$this->ignoredHttpErrors[$code] = true;
 	}
 
 	/**
-		@brief Re-enable throwing an exception when HTTP request returns $code.
-	*/
+	 * @brief Re-enable throwing an exception when HTTP request returns $code.
+	 */
 	public function stopIgnoringHttpError( $code ) {
 		unset( $this->ignoredHttpErrors[$code] );
 	}
 
 	/**
-		@brief Re-enable throwing an exception when HTTP request returns $code.
-	*/
+	 * @brief Re-enable throwing an exception when HTTP request returns $code.
+	 */
 	protected function isHttpErrorIgnored( $code ) {
 		return isset( $this->ignoredHttpErrors[$code] )
 			&& $this->ignoredHttpErrors[$code];
@@ -112,8 +112,8 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	}
 
 	/**
-		@brief Perform API request and return the resulting structure.
-		@note If $apiQuery contains 'token' => 'null', then 'token'
+	 * @brief Perform API request and return the resulting structure.
+	 * @note If $apiQuery contains 'token' => 'null', then 'token'
 			will be set to the current value of $editToken.
 	*/
 	final public function query( array $apiQuery ) {
@@ -127,14 +127,14 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	}
 
 	/**
-		@brief Engine-specific implementation of query().
-	*/
+	 * @brief Engine-specific implementation of query().
+	 */
 	abstract protected function doQuery( array $apiQuery );
 
 	/**
-		@brief Create an account and return User object.
-		@note Will not login automatically (loginAs must be called).
-	*/
+	 * @brief Create an account and return User object.
+	 * @note Will not login automatically (loginAs must be called).
+	 */
 	public function createAccount( $username ) {
 		# Step 1. Get the token.
 		$q = [
@@ -164,10 +164,10 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	}
 
 	/**
-		@brief Sets MediaWiki global variable.
-		@param $name Name of variable without the "$wg" prefix.
-		@throws PHPUnit_Framework_SkippedTestError
-	*/
+	 * @brief Sets MediaWiki global variable.
+	 * @param $name Name of variable without the "$wg" prefix.
+	 * @throws PHPUnit_Framework_SkippedTestError
+	 */
 	public function setMwConfig( $name, $value ) {
 		/* Implementation depends on the engine.
 			RealHttpEngine can't implement this at all.
@@ -177,7 +177,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	}
 
 	/**
-		@brief Handle the fact that MediaWikiTestCase tries to isolate us from the real database.
+	 * @brief Handle the fact that MediaWikiTestCase tries to isolate us from the real database.
 
 		MediaWiki 1.28+ started to agressively isolate tests from the real database,
 		which means that executed HTTP requests must also be in the sandbox.

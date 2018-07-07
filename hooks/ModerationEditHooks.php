@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Hooks related to normal edits.
-*/
+ * @file
+ * @brief Hooks related to normal edits.
+ */
 
 class ModerationEditHooks {
 	public static $NewMergeID = null; /** During modaction=merge, this is mod_id of the pending edit which is currently being merged */
@@ -114,10 +114,10 @@ class ModerationEditHooks {
 	}
 
 	/**
-		@brief Returns the URL to where the user is redirected after successful edit.
-		@param $title Title of the article that was edited.
-		@param $context Any object that contains current context.
-	*/
+	 * @brief Returns the URL to where the user is redirected after successful edit.
+	 * @param $title Title of the article that was edited.
+	 * @param $context Any object that contains current context.
+	 */
 	protected static function getRedirectURL( Title $title, IContextSource $context ) {
 		$query = [ 'modqueued' => 1 ];
 
@@ -234,8 +234,8 @@ class ModerationEditHooks {
 	}
 
 	/**
-		@brief Registers 'moderation-merged' ChangeTag.
-	*/
+	 * @brief Registers 'moderation-merged' ChangeTag.
+	 */
 	public static function onListDefinedTags( &$tags ) {
 		$tags[] = 'moderation-merged';
 		return true;

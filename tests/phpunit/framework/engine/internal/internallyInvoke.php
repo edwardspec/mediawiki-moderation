@@ -16,10 +16,10 @@
 */
 
 /**
-	@file
-	@brief Helper script to run MediaWiki as a command line script.
+ * @file
+ * @brief Helper script to run MediaWiki as a command line script.
 
-	@usage
+ * @usage
 		$wiki = new ModerationTestsuiteInternallyInvokedWiki( ... );
 		$wiki->execute();
 */

@@ -16,15 +16,15 @@
 */
 
 /**
-	@file
-	@brief Verifies that modaction=preview works as expected.
-*/
+ * @file
+ * @brief Verifies that modaction=preview works as expected.
+ */
 
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 /**
-	@covers ModerationActionPreview
-*/
+ * @covers ModerationActionPreview
+ */
 class ModerationTestPreview extends MediaWikiTestCase
 {
 	public function testPreview() {

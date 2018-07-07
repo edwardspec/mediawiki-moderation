@@ -16,8 +16,8 @@
 */
 
 /**
-	@file
-	@brief Affects doEditContent() during modaction=approve(all).
+ * @file
+ * @brief Affects doEditContent() during modaction=approve(all).
 
 	Corrects rev_timestamp, rc_ip and checkuser logs when edit is approved.
 */
@@ -27,21 +27,21 @@ class ModerationApproveHook implements DeferrableUpdate {
 	protected $useCount = 0; /**< How many times was this DeferrableUpdate queued */
 
 	/**
-		@brief Database updates that will be applied in doUpdate().
+	 * @brief Database updates that will be applied in doUpdate().
 		Format: [ 'recentchanges' => [ 'rc_ip' => [ rc_id1 => '127.0.0.1', rc_id2 => '127.0.0.5', ... ], ... ]
 	*/
 	protected $dbUpdates = [];
 
 	/**
-		@brief List of _id fields in tables mentioned in $dbUpdates.
-	*/
+	 * @brief List of _id fields in tables mentioned in $dbUpdates.
+	 */
 	protected $idFieldNames = [
 		'recentchanges' => 'rc_id',
 		'revision' => 'rev_id'
 	];
 
 	/**
-		@brief Array of tasks which must be performed by postapprove hooks.
+	 * @brief Array of tasks which must be performed by postapprove hooks.
 		Format: [ key1 => [ 'ip' => ..., 'xff' => ..., 'ua' => ... ], key2 => ... ]
 	*/
 	protected static $tasks = [];
@@ -180,7 +180,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	}
 
 	/**
-		@brief NewRevisionFromEditComplete hook.
+	 * @brief NewRevisionFromEditComplete hook.
 		Here we determine $lastRevId.
 	*/
 	public function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
@@ -190,9 +190,9 @@ class ModerationApproveHook implements DeferrableUpdate {
 	}
 
 	/**
-		@brief Calculate key in $tasks array for $title/$username/$type triplet.
-		@param $type mod_type of this change.
-	*/
+	 * @brief Calculate key in $tasks array for $title/$username/$type triplet.
+	 * @param $type mod_type of this change.
+	 */
 	protected static function getTaskKey( Title $title, $username, $type ) {
 		return join( '[', /* Symbol "[" is not allowed in both titles and usernames */
 			[
@@ -205,18 +205,18 @@ class ModerationApproveHook implements DeferrableUpdate {
 	}
 
 	/**
-		@brief Find the task regarding edit by $username on $title.
-		@param $type One of ModerationNewChange::MOD_TYPE_* values.
-		@returns [ 'ip' => ..., 'xff' => ..., 'ua' => ..., ... ]
-	*/
+	 * @brief Find the task regarding edit by $username on $title.
+	 * @param $type One of ModerationNewChange::MOD_TYPE_* values.
+	 * @returns [ 'ip' => ..., 'xff' => ..., 'ua' => ..., ... ]
+	 */
 	public function getTask( Title $title, $username, $type ) {
 		$key = self::getTaskKey( $title, $username, $type );
 		return isset( self::$tasks[$key] ) ? self::$tasks[$key] : false;
 	}
 
 	/**
-		@brief Find the entry in $tasks about change $rc.
-	*/
+	 * @brief Find the entry in $tasks about change $rc.
+	 */
 	public function getTaskByRC( RecentChange $rc ) {
 		$type = ModerationNewChange::MOD_TYPE_EDIT;
 		if ( $rc->mAttribs['rc_log_action'] == 'move' ) {
@@ -261,11 +261,11 @@ class ModerationApproveHook implements DeferrableUpdate {
 	}
 
 	/**
-		@brief Schedule post-approval UPDATE SQL query.
-		@param $table Name of table, e.g. 'revision'.
-		@param $ids ID (integer, e.g. rev_id or rc_id) or array of IDs.
-		@param $values New values, as expected by $db->update(), e.g. [ 'rc_ip' => '1.2.3.4', 'rc_something' => '...' ].
-	*/
+	 * @brief Schedule post-approval UPDATE SQL query.
+	 * @param $table Name of table, e.g. 'revision'.
+	 * @param $ids ID (integer, e.g. rev_id or rc_id) or array of IDs.
+	 * @param $values New values, as expected by $db->update(), e.g. [ 'rc_ip' => '1.2.3.4', 'rc_something' => '...' ].
+	 */
 	public function queueUpdate( $table, $ids, array $values ) {
 		if ( !is_array( $ids ) ) {
 			$ids = [ $ids ];
@@ -350,8 +350,8 @@ class ModerationApproveHook implements DeferrableUpdate {
 	}
 
 	/**
-		@brief Prepare the approve hook. Called before doEditContent().
-	*/
+	 * @brief Prepare the approve hook. Called before doEditContent().
+	 */
 	public static function install( Title $title, User $user, $type, array $task ) {
 		$key = self::getTaskKey( $title, $user->getName(), $type );
 		self::$tasks[$key] = $task;

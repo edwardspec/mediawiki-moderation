@@ -16,8 +16,8 @@
 */
 
 /**
-	@file
-	@brief Benchmark: how fast is Show on Special:Moderation?
+ * @file
+ * @brief Benchmark: how fast is Show on Special:Moderation?
 
 	Usage:
 	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/showEdit.php
@@ -33,8 +33,8 @@ class BenchmarkShowEdit extends ModerationBenchmark {
 	const TEXT_AFTER = 'Newtext after';
 
 	/**
-		@brief Default number of loops.
-	*/
+	 * @brief Default number of loops.
+	 */
 	public function getDefaultLoops() {
 		return 3000;
 	}

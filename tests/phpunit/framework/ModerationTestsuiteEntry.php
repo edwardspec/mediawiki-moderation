@@ -16,14 +16,14 @@
 */
 
 /**
-	@file
-	@brief Methods to parse/analyze single entry on Special:Moderation.
-*/
+ * @file
+ * @brief Methods to parse/analyze single entry on Special:Moderation.
+ */
 
 /**
-	@class ModerationTestsuiteEntry
-	@brief Represents one line on [[Special:Moderation]]
-*/
+ * @class ModerationTestsuiteEntry
+ * @brief Represents one line on [[Special:Moderation]]
+ */
 class ModerationTestsuiteEntry
 {
 	public $id = null;
@@ -217,8 +217,8 @@ class ModerationTestsuiteEntry
 	}
 
 	/**
-		@brief Get any link, assuming at least one exists.
-	*/
+	 * @brief Get any link, assuming at least one exists.
+	 */
 	public function getAnyLink() {
 		/* Either Block or Unblock link always exists */
 		$url = $this->blockLink ? $this->blockLink : $this->unblockLink;
@@ -230,9 +230,9 @@ class ModerationTestsuiteEntry
 	}
 
 	/**
-		@brief Get URL of the link $action.
-		@param $action Name of modaction (e.g. 'rejectall') or 'mergedDiff'.
-	*/
+	 * @brief Get URL of the link $action.
+	 * @param $action Name of modaction (e.g. 'rejectall') or 'mergedDiff'.
+	 */
 	public function getActionLink( $modaction ) {
 		switch ( $modaction ) {
 			case 'show':
@@ -285,7 +285,7 @@ class ModerationTestsuiteEntry
 	}
 
 	/**
-		@brief Populates both $e->blockLink and $e->unblockLink,
+	 * @brief Populates both $e->blockLink and $e->unblockLink,
 			even though only one link exists on Special:Moderation
 	*/
 	public function fakeBlockLink()
@@ -302,15 +302,15 @@ class ModerationTestsuiteEntry
 	}
 
 	/**
-		@brief Returns the URL of modaction=showimg for this entry.
-	*/
+	 * @brief Returns the URL of modaction=showimg for this entry.
+	 */
 	public function expectedShowImgLink() {
 		return $this->expectedActionLink( 'showimg', false );
 	}
 
 	/**
-		@brief Returns the URL of modaction=$action for this entry.
-	*/
+	 * @brief Returns the URL of modaction=$action for this entry.
+	 */
 	public function expectedActionLink( $action, $needsToken = true ) {
 		/* Either block or unblock link always exists */
 		$url = $this->getAnyLink();
@@ -322,9 +322,9 @@ class ModerationTestsuiteEntry
 	}
 
 	/**
-		@brief Fetches this entry from the database and returns $field.
-		@param $field Field name, e.g. "mod_len_new".
-	*/
+	 * @brief Fetches this entry from the database and returns $field.
+	 * @param $field Field name, e.g. "mod_len_new".
+	 */
 	public function getDbField( $field ) {
 		$dbw = wfGetDB( DB_MASTER );
 		return $dbw->selectField(
@@ -336,16 +336,16 @@ class ModerationTestsuiteEntry
 	}
 
 	/**
-		@brief Returns mod_text of this entry (loaded from the database).
-	*/
+	 * @brief Returns mod_text of this entry (loaded from the database).
+	 */
 	public function getDbText() {
 		return $this->getDbField( 'mod_text' );
 	}
 
 	/**
-		@brief Modified this entry in the database.
-		@param $updates List of updates, as expected by $dbw->update().
-	*/
+	 * @brief Modified this entry in the database.
+	 * @param $updates List of updates, as expected by $dbw->update().
+	 */
 	public function updateDbRow( array $updates ) {
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'moderation',

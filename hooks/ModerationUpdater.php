@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Creates/updates the SQL tables when 'update.php' is invoked.
-*/
+ * @file
+ * @brief Creates/updates the SQL tables when 'update.php' is invoked.
+ */
 
 class ModerationUpdater {
 	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {

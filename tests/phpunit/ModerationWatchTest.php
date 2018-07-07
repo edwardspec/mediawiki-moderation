@@ -16,21 +16,21 @@
 */
 
 /**
-	@file
-	@brief Verifies that "Watch this page" checkbox is respected when editing.
-*/
+ * @file
+ * @brief Verifies that "Watch this page" checkbox is respected when editing.
+ */
 
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 /**
-	@covers ModerationActionApprove
-*/
+ * @covers ModerationActionApprove
+ */
 class ModerationTestWatch extends MediaWikiTestCase
 {
 	/**
 
-		@brief Test that checkboxes "Watch this page" work.
-		@testWith	["edit"]
+	 * @brief Test that checkboxes "Watch this page" work.
+	 * @testWith	["edit"]
 				["upload"]
 				["move"]
 	*/

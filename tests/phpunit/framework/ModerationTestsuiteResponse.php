@@ -16,8 +16,8 @@
 */
 
 /**
-	@file
-	@brief HTTP response to be analyzed by tests. Made from MWHttpRequest or OutputPage.
+ * @file
+ * @brief HTTP response to be analyzed by tests. Made from MWHttpRequest or OutputPage.
 
 	This class mimics the methods of MWHttpRequest, even if it was created
 	from OutputPage (as the result of internal invocation).
@@ -36,9 +36,9 @@ class ModerationTestsuiteResponse {
 	}
 
 	/**
-		@brief Create response from real MWHttpRequest.
-		@returns ModerationTestsuiteResponse object.
-	*/
+	 * @brief Create response from real MWHttpRequest.
+	 * @returns ModerationTestsuiteResponse object.
+	 */
 	public static function newFromMWHttpRequest( MWHttpRequest $httpRequest ) {
 		return new self(
 			$httpRequest->getContent(),
@@ -48,11 +48,11 @@ class ModerationTestsuiteResponse {
 	}
 
 	/**
-		@brief Create response after internal invocation.
-		@param $mwResponse FauxResponse object after $mediaWiki->run().
-		@param $capturedContent Text printed by $mediaWiki->run(), as captured by ob_start()/ob_get_clean().
-		@returns ModerationTestsuiteResponse object.
-	*/
+	 * @brief Create response after internal invocation.
+	 * @param $mwResponse FauxResponse object after $mediaWiki->run().
+	 * @param $capturedContent Text printed by $mediaWiki->run(), as captured by ob_start()/ob_get_clean().
+	 * @returns ModerationTestsuiteResponse object.
+	 */
 	public static function newFromFauxResponse( FauxResponse $mwResponse, $capturedContent ) {
 		$httpCode = $mwResponse->getStatusCode();
 		if ( !$httpCode ) { /* WebResponse doesn't set code for successful requests */

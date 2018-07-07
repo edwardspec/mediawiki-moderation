@@ -16,23 +16,23 @@
 */
 
 /**
-	@file
-	@brief Ensures that checkuser-related functionality works correctly.
-*/
+ * @file
+ * @brief Ensures that checkuser-related functionality works correctly.
+ */
 
 require_once( __DIR__ . "/framework/ModerationTestsuite.php" );
 
 /**
-	@covers ModerationApproveHook
-*/
+ * @covers ModerationApproveHook
+ */
 class ModerationTestCheckuser extends MediaWikiTestCase
 {
 	public $moderatorUA = 'UserAgent of Moderator/1.0';
 	public $userUA = 'UserAgent of UnprivilegedUser/1.0';
 
 	/**
-		@brief Verifies that checkusers can see Whois link for registered users, but non-checkusers can't.
-	*/
+	 * @brief Verifies that checkusers can see Whois link for registered users, but non-checkusers can't.
+	 */
 	public function testModerationCheckuser() {
 		$t = new ModerationTestsuite();
 		$entry = $t->getSampleEntry();
@@ -61,9 +61,9 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Returns mod_ip of the last edit, as provided to the current user by QueryPage API.
-		@retval null IP is not in the API response.
-	*/
+	 * @brief Returns mod_ip of the last edit, as provided to the current user by QueryPage API.
+	 * @retval null IP is not in the API response.
+	 */
 	protected function getIpFromApi( ModerationTestsuite $t ) {
 		$ret = $t->query( [
 			'action' => 'query',
@@ -77,8 +77,8 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Verifies that anyone can see Whois link for anonymous users.
-	*/
+	 * @brief Verifies that anyone can see Whois link for anonymous users.
+	 */
 	public function testAnonymousWhoisLink() {
 		$t = new ModerationTestsuite();
 
@@ -106,8 +106,8 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Ensure that modaction=approve preserves user-agent of edits.
-	*/
+	 * @brief Ensure that modaction=approve preserves user-agent of edits.
+	 */
 	public function testApproveEditPrevervesUA() {
 		$this->skipIfNoCheckuser();
 		$t = new ModerationTestsuite();
@@ -133,9 +133,9 @@ class ModerationTestCheckuser extends MediaWikiTestCase
 	}
 
 	/**
-		@brief Ensure that modaction=approveall preserves user-agent of uploads.
-		@covers ModerationApproveHook::getTask()
-	*/
+	 * @brief Ensure that modaction=approveall preserves user-agent of uploads.
+	 * @covers ModerationApproveHook::getTask()
+	 */
 	public function testApproveAllUploadPrevervesUA() {
 		$this->skipIfNoCheckuser();
 		$t = new ModerationTestsuite();

@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Basic interface of sending requests (HTTP or API) to MediaWiki.
-*/
+ * @file
+ * @brief Basic interface of sending requests (HTTP or API) to MediaWiki.
+ */
 
 interface IModerationTestsuiteEngine {
 	public function query( array $apiQuery );
@@ -33,9 +33,9 @@ interface IModerationTestsuiteEngine {
 	public function logout();
 
 	/**
-		@brief Create an account and return User object.
-		@note Will not login automatically (loginAs must be called).
-	*/
+	 * @brief Create an account and return User object.
+	 * @note Will not login automatically (loginAs must be called).
+	 */
 	public function createAccount( $username );
 
 	public function getEditToken();

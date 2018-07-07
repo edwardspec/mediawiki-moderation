@@ -16,15 +16,15 @@
 */
 
 /**
-	@file
-	@brief File upload that awaits moderation.
-*/
+ * @file
+ * @brief File upload that awaits moderation.
+ */
 
 class ModerationEntryUpload extends ModerationApprovableEntry {
 	/**
-		@brief Approve this upload.
-		@returns Status object.
-	*/
+	 * @brief Approve this upload.
+	 * @returns Status object.
+	 */
 	public function doApprove( User $moderator ) {
 		$row = $this->getRow();
 		$user = $this->getUser();

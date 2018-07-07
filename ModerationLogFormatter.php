@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Defines the format of [[Special:Log/moderation]]
-*/
+ * @file
+ * @brief Defines the format of [[Special:Log/moderation]]
+ */
 
 class ModerationLogFormatter extends LogFormatter {
 	public function getMessageParameters() {
@@ -88,8 +88,8 @@ class ModerationLogFormatter extends LogFormatter {
 	}
 
 	/**
-		@brief List of Titles to be fed to LinkBatch (to check their existence).
-	*/
+	 * @brief List of Titles to be fed to LinkBatch (to check their existence).
+	 */
 	public function getPreloadTitles() {
 		$type = $this->entry->getSubtype();
 		$params = $this->entry->getParameters();

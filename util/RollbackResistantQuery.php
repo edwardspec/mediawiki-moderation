@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Performs database query that is not rolled back by MWException.
-*/
+ * @file
+ * @brief Performs database query that is not rolled back by MWException.
+ */
 
 class RollbackResistantQuery {
 
@@ -30,47 +30,47 @@ class RollbackResistantQuery {
 	protected $args; /**< Array of parameters to be passed to $dbw->insert(), etc. */
 
 	/**
-		@brief Perform $dbw->insert() that won't be undone by $dbw->rollback().
-		@param $dbw Database object.
-		@param $args Arguments of $dbw->insert() call.
-	*/
+	 * @brief Perform $dbw->insert() that won't be undone by $dbw->rollback().
+	 * @param $dbw Database object.
+	 * @param $args Arguments of $dbw->insert() call.
+	 */
 	public static function insert( IDatabase $dbw, array $args ) {
 		new self( 'insert', $dbw, $args );
 	}
 
 	/**
-		@brief Perform $dbw->update() that won't be undone by $dbw->rollback().
-		@param $dbw Database object.
-		@param $args Arguments of $dbw->update() call.
-	*/
+	 * @brief Perform $dbw->update() that won't be undone by $dbw->rollback().
+	 * @param $dbw Database object.
+	 * @param $args Arguments of $dbw->update() call.
+	 */
 	public static function update( IDatabase $dbw, array $args ) {
 		new self( 'update', $dbw, $args );
 	}
 
 	/**
-		@brief Perform $dbw->replace() that won't be undone by $dbw->rollback().
-		@param $dbw Database object.
-		@param $args Arguments of $dbw->replace() call.
-	*/
+	 * @brief Perform $dbw->replace() that won't be undone by $dbw->rollback().
+	 * @param $dbw Database object.
+	 * @param $args Arguments of $dbw->replace() call.
+	 */
 	public static function replace( IDatabase $dbw, array $args ) {
 		new self( 'replace', $dbw, $args );
 	}
 
 	/**
-		@brief Perform $dbw->upsert() that won't be undone by $dbw->rollback().
-		@param $dbw Database object.
-		@param $args Arguments of $dbw->upsert() call.
-	*/
+	 * @brief Perform $dbw->upsert() that won't be undone by $dbw->rollback().
+	 * @param $dbw Database object.
+	 * @param $args Arguments of $dbw->upsert() call.
+	 */
 	public static function upsert( IDatabase $dbw, array $args ) {
 		new self( 'upsert', $dbw, $args );
 	}
 
 	/**
-		@brief Create and immediately execute a new query.
-		@param $methodName String, e.g. 'insert', 'update' or 'replace'.
-		@param $dbw Database object.
-		@param $args Arguments of $dbw->update() call.
-	*/
+	 * @brief Create and immediately execute a new query.
+	 * @param $methodName String, e.g. 'insert', 'update' or 'replace'.
+	 * @param $dbw Database object.
+	 * @param $args Arguments of $dbw->update() call.
+	 */
 	protected function __construct( $methodName, IDatabase $dbw, array $args ) {
 		$this->dbw = $dbw;
 		$this->methodName = $methodName;
@@ -87,8 +87,8 @@ class RollbackResistantQuery {
 	}
 
 	/**
-		@brief Install hooks that can detect a database rollback.
-	*/
+	 * @brief Install hooks that can detect a database rollback.
+	 */
 	protected function initialize() {
 		if ( !self::$initialized ) {
 			self::$initialized = true;
@@ -123,8 +123,8 @@ class RollbackResistantQuery {
 	}
 
 	/**
-		@brief Re-run all $performedQueries. Called after the database rollback.
-	*/
+	 * @brief Re-run all $performedQueries. Called after the database rollback.
+	 */
 	protected function onRollback() {
 		foreach ( self::$performedQueries as $query ) {
 			$query->executeNow();
@@ -134,8 +134,8 @@ class RollbackResistantQuery {
 	}
 
 	/**
-		@brief Run the scheduled query immediately.
-	*/
+	 * @brief Run the scheduled query immediately.
+	 */
 	protected function executeNow() {
 		call_user_func_array(
 			[ $this->dbw, $this->methodName ],

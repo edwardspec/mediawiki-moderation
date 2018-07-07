@@ -16,9 +16,9 @@
 */
 
 /**
-	@file
-	@brief Hooks related to edits/uploads via API.
-*/
+ * @file
+ * @brief Hooks related to edits/uploads via API.
+ */
 
 class ModerationApiHooks {
 
@@ -131,8 +131,8 @@ class ModerationApiHooks {
 	}
 
 	/**
-		@brief Adds qppage=Moderation to api.php?action=query&list=querypage.
-	*/
+	 * @brief Adds qppage=Moderation to api.php?action=query&list=querypage.
+	 */
 	public static function onwgQueryPages( &$wgQueryPages ) {
 		$wgQueryPages[] = [ SpecialModeration::class, 'Moderation' ];
 		return true;

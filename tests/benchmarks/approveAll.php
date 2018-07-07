@@ -16,8 +16,8 @@
 */
 
 /**
-	@file
-	@brief Benchmark: how fast is ApproveAll on Special:Moderation?
+ * @file
+ * @brief Benchmark: how fast is ApproveAll on Special:Moderation?
 
 	Usage:
 	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/approveAll.php
@@ -30,15 +30,15 @@ class BenchmarkApproveAll extends ModerationBenchmark {
 	public $ids = []; /* mod_id of rows where ApproveAll should be applied */
 
 	/**
-		@brief Default number of loops.
-	*/
+	 * @brief Default number of loops.
+	 */
 	public function getDefaultLoops() {
 		return 10;
 	}
 
 	/**
-		@brief How many rows to approve with one approveall.
-	*/
+	 * @brief How many rows to approve with one approveall.
+	 */
 	public function getEditsPerUser() {
 		return 10;
 	}

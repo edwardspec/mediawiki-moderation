@@ -16,15 +16,15 @@
 */
 
 /**
-	@file
-	@brief Parent class for all entry types (edit, upload, move, etc.).
-*/
+ * @file
+ * @brief Parent class for all entry types (edit, upload, move, etc.).
+ */
 
 abstract class ModerationApprovableEntry extends ModerationEntry {
 	/**
-		@brief Get the list of fields needed for selecting $row, as expected by newFromRow().
-		@returns array ($fields parameter for $db->select()).
-	*/
+	 * @brief Get the list of fields needed for selecting $row, as expected by newFromRow().
+	 * @returns array ($fields parameter for $db->select()).
+	 */
 	public static function getFields() {
 		$fields = [
 			'mod_id AS id',
@@ -63,9 +63,9 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	}
 
 	/**
-		@brief Construct new ModerationApprovableEntry from $row.
-		@throws ModerationError
-	*/
+	 * @brief Construct new ModerationApprovableEntry from $row.
+	 * @throws ModerationError
+	 */
 	public static function newFromRow( $row ) {
 		if ( isset( $row->type ) && $row->type == ModerationNewChange::MOD_TYPE_MOVE ) {
 			return new ModerationEntryMove( $row );
@@ -85,8 +85,8 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	}
 
 	/**
-		@brief Install hooks which affect postedit behavior of doEditContent().
-	*/
+	 * @brief Install hooks which affect postedit behavior of doEditContent().
+	 */
 	protected function installApproveHook() {
 		$row = $this->getRow();
 		$user = $this->getUser();
@@ -111,9 +111,9 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	}
 
 	/**
-		@brief Approve this change.
-		@throws ModerationError
-	*/
+	 * @brief Approve this change.
+	 * @throws ModerationError
+	 */
 	final public function approve( User $moderator ) {
 		$row = $this->getRow();
 
@@ -156,24 +156,24 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	}
 
 	/**
-		@brief Post-approval log subtype. May be overridden in subclass.
-		@returns String (e.g. "approve" for "moderation/approve" log).
-	*/
+	 * @brief Post-approval log subtype. May be overridden in subclass.
+	 * @returns String (e.g. "approve" for "moderation/approve" log).
+	 */
 	protected function getApproveLogSubtype() {
 		return 'approve';
 	}
 
 	/**
-		@brief Parameters for post-approval log.
-		@returns array
-	*/
+	 * @brief Parameters for post-approval log.
+	 * @returns array
+	 */
 	protected function getApproveLogParameters() {
 		return [ 'revid' => ModerationApproveHook::getLastRevId() ];
 	}
 
 	/**
-		@brief Approve this change.
-		@returns Status object.
-	*/
+	 * @brief Approve this change.
+	 * @returns Status object.
+	 */
 	abstract public function doApprove( User $moderator );
 }

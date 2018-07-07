@@ -16,15 +16,15 @@
 */
 
 /**
-	@file
-	@brief Hooks related to moving (renaming) pages.
-*/
+ * @file
+ * @brief Hooks related to moving (renaming) pages.
+ */
 
 class ModerationMoveHooks {
 
 	/**
-		@brief Intercept attempts to rename pages and queue them for moderation.
-	*/
+	 * @brief Intercept attempts to rename pages and queue them for moderation.
+	 */
 	public static function onMovePageCheckPermissions( Title $oldTitle, Title $newTitle, User $user, $reason, Status $status ) {
 		if ( !$status->isOK() ) {
 			// $user is not allowed to move ($status is already fatal)
