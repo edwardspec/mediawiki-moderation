@@ -200,7 +200,7 @@ abstract class ModerationBenchmark extends Maintenance {
 	 * @returns HTML of the result.
 	 */
 	public function runSpecialModeration( array $params, $wasPosted = false ) {
-		ModerationTestUtil::runSpecialModeration(
+		return ModerationTestUtil::runSpecialModeration(
 			$this->getUser(),
 			$params,
 			$wasPosted
