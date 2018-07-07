@@ -47,11 +47,13 @@ function efModerationTestsuiteSetup() {
 		(because you can't extract response headers from WebResponse,
 		only from FauxResponse)
 	*/
+// phpcs:disable MediaWiki.Usage.SuperGlobalsUsage.SuperGlobals
 	$request = new FauxRequest(
 		$_POST + $_GET, // $data
 		( $_SERVER['REQUEST_METHOD'] == 'POST' ) // $wasPosted
 	);
 	$request->setRequestURL( $_SERVER['REQUEST_URI'] );
+// phpcs:enable
 	$request->setHeaders( $wgModerationTestsuiteCliDescriptor['httpHeaders'] );
 	$request->setCookies( $_COOKIE, '' );
 

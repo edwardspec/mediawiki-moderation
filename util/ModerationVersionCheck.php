@@ -38,7 +38,7 @@ class ModerationVersionCheck {
 	}
 
 	/**
-         * @brief Returns false if mod_preloadable is 0 or 1 (obsolete behavior),
+	 * @brief Returns false if mod_preloadable is 0 or 1 (obsolete behavior),
 	 * true if unique for rejected edits (correct behavior)
 	 */
 	public static function hasUniqueIndex() {
