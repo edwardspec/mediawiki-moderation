@@ -26,8 +26,11 @@
 
 abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
-	protected $ignoredHttpErrors = []; /**< Array of HTTP codes, e.g. [ 302, 404 ] */
-	protected $reqHeaders = []; /**< Array of HTTP headers to add to all requests, e.g. [ 'User-Agent' => '...' ] */
+	/** @var array Ignored non-OK HTTP codes, e.g. [ 302, 404 ] */
+	protected $ignoredHttpErrors = [];
+
+	/** @var array HTTP headers to add to all requests, e.g. [ 'User-Agent' => '...' ] */
+	protected $reqHeaders = [];
 
 	/**
 	 * @brief Create engine object.

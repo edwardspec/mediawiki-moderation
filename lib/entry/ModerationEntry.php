@@ -21,12 +21,17 @@
  */
 
 abstract class ModerationEntry implements IModerationEntry {
+	/** @var stdClass Return value of Database::selectRow() */
 	private $row;
 
-	private $user = null; /**< Author of this change (User object) */
-	private $title = null; /**< Page affected by this change (Title object) */
+	/** @var User Author of this change */
+	private $user = null;
 
-	protected static $earliestReapprovableTimestamp = false; /**< Cache used by canReapproveRejected() */
+	/** @var Title Page affected by this change */
+	private $title = null;
+
+	/** @var bool Cache used by canReapproveRejected() */
+	protected static $earliestReapprovableTimestamp = null;
 
 	protected function getRow() {
 		return $this->row;
@@ -62,7 +67,7 @@ abstract class ModerationEntry implements IModerationEntry {
 	 * @brief Returns true if this edit is recent enough to be reapproved after rejection.
 	 */
 	public function canReapproveRejected() {
-		if ( self::$earliestReapprovableTimestamp === false ) {
+		if ( self::$earliestReapprovableTimestamp === null ) {
 			global $wgModerationTimeToOverrideRejection;
 
 			$ts = new MWTimestamp();
@@ -126,6 +131,7 @@ abstract class ModerationEntry implements IModerationEntry {
 
 	/**
 	 * @brief Load ModerationEntry from the database by mod_id.
+	 * @param int $id
 	 * @param int $dbType DB_MASTER or DB_REPLICA.
 	 * @throws ModerationError
 	 */

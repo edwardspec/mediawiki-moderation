@@ -21,7 +21,8 @@
  */
 
 class ModerationEntryFormatter extends ModerationEntry {
-	protected $context = null; /**< IContextSource */
+	/** @var IContextSource */
+	protected $context = null;
 
 	public function getContext() {
 		if ( is_null( $this->context ) ) {

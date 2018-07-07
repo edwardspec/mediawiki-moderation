@@ -22,16 +22,23 @@
 
 class ModerationNewChange {
 
-	public static $LastInsertId = null; /**< mod_id of the last inserted row */
+	/** @var int|null mod_id of the last inserted row */
+	public static $LastInsertId = null;
 
 	const MOD_TYPE_EDIT = 'edit';
 	const MOD_TYPE_MOVE = 'move';
 
-	protected $title; /**< Title object (page to be edited) */
-	protected $user; /**< User object (author of the edit) */
-	protected $fields = []; /**< All database fields (array) */
+	/** @var Title Page to be edited */
+	protected $title;
 
-	private $pendingChange = null; /**< False if no pending change, array( 'mod_id' => ..., 'mod_text' => ... ) otherwise */
+	/** @var User Author of the edit */
+	protected $user;
+
+	/** @var array All mod_* database fields */
+	protected $fields = [];
+
+	/** @var array|false [ 'mod_id' => ..., 'mod_text' => ... ] */
+	private $pendingChange = null;
 
 	public function __construct( Title $title, User $user ) {
 		$this->title = $title;

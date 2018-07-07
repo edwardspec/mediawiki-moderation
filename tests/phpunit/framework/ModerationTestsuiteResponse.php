@@ -18,16 +18,21 @@
 /**
  * @file
  * @brief HTTP response to be analyzed by tests. Made from MWHttpRequest or OutputPage.
-
-	This class mimics the methods of MWHttpRequest, even if it was created
-	from OutputPage (as the result of internal invocation).
-*/
+ *
+ * This class mimics the methods of MWHttpRequest, even if it was created
+ * from OutputPage (as the result of internal invocation).
+ */
 
 class ModerationTestsuiteResponse {
 
-	protected $content; /**< Response text */
-	protected $httpCode; /**< HTTP return code, e.g. 200 */
-	protected $getHeaderMethod; /**< callable, implementation-specific method used by getResponseHeader() */
+	/** @var string Response text */
+	protected $content;
+
+	/** @var int HTTP return code, e.g. 200 */
+	protected $httpCode;
+
+	/** @var callable Implementation-specific callaback used by getResponseHeader() */
+	protected $getHeaderMethod;
 
 	protected function __construct( $content, $httpCode, callable $getHeaderMethod ) {
 		$this->content = $content;

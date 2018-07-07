@@ -22,12 +22,20 @@
 
 class RollbackResistantQuery {
 
-	protected static $initialized = false; /**< Becomes true after initialize() */
-	protected static $performedQueries = []; /**< array of all created RollbackResistantQuery objects */
+	/** @var bool Becomes true after initialize() */
+	protected static $initialized = false;
 
-	protected $dbw; /**< IDatabase */
-	protected $methodName; /**< Database method, e.g. 'insert' or 'update' */
-	protected $args; /**< Array of parameters to be passed to Database::insert(), etc. */
+	/** @var array All created RollbackResistantQuery objects */
+	protected static $performedQueries = [];
+
+	/** @var IDatabase */
+	protected $dbw;
+
+	/** @var string Database method, e.g. 'insert' or 'update' */
+	protected $methodName;
+
+	/** @var array Arguments to be passed to Database::insert(), etc. */
+	protected $args;
 
 	/**
 	 * @brief Perform Database::insert() that won't be undone by Database::rollback().

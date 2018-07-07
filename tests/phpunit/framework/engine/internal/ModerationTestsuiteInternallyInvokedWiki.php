@@ -23,11 +23,21 @@
 class ModerationTestsuiteInternallyInvokedWiki {
 
 	public $url;
-	public $data; /**< array */
-	public $isPosted; /**< True - POST request, false - GET request */
-	public $extraHttpHeaders; /**< array */
-	public $files; /**< array( requestParamName1 => filename1, ... )  */
-	public $cookies; /**< array */
+
+	/** @var array */
+	public $data;
+
+	/** @var bool True - POST request, false - GET request */
+	public $isPosted;
+
+	/** @var array */
+	public $extraHttpHeaders;
+
+	/** @var array [ requestParamName1 => filename1, ... ] */
+	public $files;
+
+	/** @var array */
+	public $cookies;
 
 	public function __construct( $url, array $data, $isPosted, array $extraHttpHeaders = [] ) {
 		$this->cookies = $_COOKIE;

@@ -21,8 +21,11 @@
  */
 
 abstract class ModerationTestsuiteTestSet {
-	private $testsuite; /**< ModerationTestsuite object */
-	private $testcase; /**< PHPUnitTestCase object */
+	/** @var ModerationTestsuite */
+	private $testsuite;
+
+	/** @var MediaWikiTestCase */
+	private $testcase;
 
 	/** @brief Returns ModerationTestsuite object. */
 	protected function getTestsuite() {
@@ -30,7 +33,7 @@ abstract class ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Returns current PHPUnitTestCase object.
+	 * @brief Returns current MediaWikiTestCase object.
 	 * Used for calling assert*() methods.
 	 */
 	protected function getTestcase() {

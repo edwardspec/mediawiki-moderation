@@ -48,10 +48,14 @@ class ModerationTestsuite {
 	const TEST_PASSWORD = '123456';
 	const DEFAULT_USER_AGENT = 'MediaWiki Moderation Testsuite';
 
-	protected $engine; /**< ModerationTestsuiteEngine class */
-	public $html; /**< ModerationTestsuiteHTML class */
+	/** @var ModerationTestsuiteEngine */
+	protected $engine;
 
-	public $lastEdit = []; /**< array, populated by setLastEdit() */
+	/** @var ModerationTestsuiteHTML */
+	public $html;
+
+	/** @var array Misc. information about the last edit, as populated by setLastEdit() */
+	public $lastEdit = [];
 
 	function __construct() {
 		$this->engine = ModerationTestsuiteEngine::factory();
@@ -296,7 +300,8 @@ class ModerationTestsuite {
 	public $unprivilegedUser2;
 	public $moderatorAndCheckuser;
 
-	protected $currentUser = null; /**< User object */
+	/** @var User */
+	protected $currentUser = null;
 
 	public function loggedInAs() {
 		return $this->currentUser;

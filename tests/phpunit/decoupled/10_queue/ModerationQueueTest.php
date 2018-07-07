@@ -83,21 +83,51 @@ class ModerationQueueTest extends MediaWikiTestCase {
  */
 class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 
-	protected $user = null; /**< User object */
-	protected $title = null; /**< Title object */
-	protected $newTitle = null; /**< Title object. Only used for moves. */
+	/** @var User */
+	protected $user = null;
+
+	/** @var Title */
+	protected $title = null;
+
+	/** @var Title Second title, only used for moves. */
+	protected $newTitle = null;
+
+	/** @var string */
 	protected $text = 'Hello, World!';
+
+	/** @var string */
 	protected $summary = 'Edit by the Moderation Testsuite';
+
+	/** @var string */
 	protected $userAgent = ModerationTestsuite::DEFAULT_USER_AGENT;
-	protected $xff = null; /**< X-Forwarded-For header */
-	protected $filename = null; /**< string. Only used for uploads. */
-	protected $anonymously = false; /**< If true, the edit will be anonymous. ($user will be ignored) */
-	protected $viaApi = false; /**< If true, edits are made via API. If false, they are made via the user interface. */
-	protected $needPst = false; /**< If true, text is expected to be altered by PreSaveTransform (e.g. contains "~~~~"). */
-	protected $existing = false; /*< If true, existing page will be edited. If false, new page will be created. */
-	protected $oldText = ''; /**< Text of existing article (if any). */
-	protected $modblocked = false; /**< If true, user will be modblocked before the edit. */
-	protected $watch = null; /**< If true/false, defines the state of "Watch this page" checkbox. */
+
+	/** @var string X-Forwarded-For header */
+	protected $xff = null;
+
+	/** @var string Source filename, only used for uploads. */
+	protected $filename = null;
+
+	/** @var bool If true, the edit will be anonymous. ($user will be ignored) */
+	protected $anonymously = false;
+
+	/** @var bool If true, edits are made via API, if false, via the user interface. */
+	protected $viaApi = false;
+
+	/** @var bool If true, text is expected to be altered by PreSaveTransform
+		(e.g. contains "~~~~"). */
+	protected $needPst = false;
+
+	/** @var bool If true, existing page will be edited. If false, new page will be created. */
+	protected $existing = false;
+
+	/** @var string Text of existing article (if any) */
+	protected $oldText = '';
+
+	/** @var bool If true, user will be modblocked before the edit */
+	protected $modblocked = false;
+
+	/** @var bool|null If true/false, defines the state of "Watch this page" checkbox. */
+	protected $watch = null;
 
 	/**
 	 * @brief Initialize this TestSet from the input of dataProvider.

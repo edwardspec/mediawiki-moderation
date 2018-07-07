@@ -22,7 +22,8 @@
 
 class ModerationError extends ErrorPageError {
 
-	public $status; /**< Error details (Status object) */
+	/** @var Status Error details */
+	public $status;
 
 	public function __construct( $message ) {
 		if ( $message instanceof Status ) {

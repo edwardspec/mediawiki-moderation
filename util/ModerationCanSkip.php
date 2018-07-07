@@ -21,12 +21,13 @@
  */
 
 class ModerationCanSkip {
-	protected static $inApprove = false; /**< Flag used in enterApproveMode() */
+	/** @var bool Flag used in enterApproveMode() */
+	protected static $inApprove = false;
 
 	/**
 	 * @brief Enters "approve mode", making all further calls of canSkip() return true.
-		This is used in ModerationActionApprove, so that newly approved edit
-		wouldn't be stopped by Moderation again.
+	 * This is used in modaction=approve, so that newly approved edit
+	 * wouldn't be stopped by Moderation again.
 	 */
 	public static function enterApproveMode() {
 		self::$inApprove = true;

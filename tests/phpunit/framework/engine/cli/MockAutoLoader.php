@@ -24,18 +24,19 @@ class ModerationTestsuiteMockAutoLoader {
 
 	const NOMOCK_CACHE_FILENAME = '.NOMOCK_CACHE.mocked.php';
 
-	protected static $instance = null; /**< Singleton instance */
+	/** @var ModerationTestsuiteMockAutoLoader Singleton instance */
+	protected static $instance = null;
 
 	/**
-	 * @brief Array of function rewrites. Populated by replaceFunction() calls.
-		[ 'oldFunctionName1' => 'newFunctionName1', ... ]
-	*/
+	 * @var array List of function rewrites. Populated by replaceFunction() calls.
+	 * Format: [ 'oldFunctionName1' => 'newFunctionName1', ... ]
+	 */
 	protected $replacements = [];
 
 	/**
-	 * @brief Array of classnames which already have been mocked.
-		[ 'WebRequest' => true, 'FauxRequest' => true, ... ]
-	*/
+	 * @brief array List of classnames which have already been mocked.
+	 * Format: [ 'WebRequest' => true, 'FauxRequest' => true, ... ]
+	 */
 	private $alreadyMockedClasses = [];
 
 	protected function __construct() {

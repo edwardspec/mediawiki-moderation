@@ -25,8 +25,11 @@
 
 class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 
-	protected $cookies = []; /**< array( 'name' => 'value' ) */
-	protected $config = []; /**< $wg* variables from setMwConfig(). array( 'name' => 'value' ) */
+	/** @var array [ 'name' => 'value' ] */
+	protected $cookies = [];
+
+	/** @var array [ 'name' => 'value' ] - $wg* variables from setMwConfig() */
+	protected $config = [];
 
 	public function logout() {
 		parent::logout();

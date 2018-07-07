@@ -24,25 +24,24 @@
 
 class ModerationApproveHook implements DeferrableUpdate {
 
-	protected $useCount = 0; /**< How many times was this DeferrableUpdate queued */
+	/** @var int How many times was this DeferrableUpdate queued */
+	protected $useCount = 0;
 
 	/**
-	 * @brief Database updates that will be applied in doUpdate().
-		Format: [ 'recentchanges' => [ 'rc_ip' => [ rc_id1 => '127.0.0.1', rc_id2 => '127.0.0.5', ... ], ... ]
+	 * @var array Database updates that will be applied in doUpdate().
+	 * Format: [ 'recentchanges' => [ 'rc_ip' => [ rc_id1 => '127.0.0.1', rc_id2 => '127.0.0.5', ... ], ... ]
 	*/
 	protected $dbUpdates = [];
 
-	/**
-	 * @brief List of _id fields in tables mentioned in $dbUpdates.
-	 */
+	/** @var array List of _id fields in tables mentioned in $dbUpdates. */
 	protected $idFieldNames = [
 		'recentchanges' => 'rc_id',
 		'revision' => 'rev_id'
 	];
 
 	/**
-	 * @brief Array of tasks which must be performed by postapprove hooks.
-		Format: [ key1 => [ 'ip' => ..., 'xff' => ..., 'ua' => ... ], key2 => ... ]
+	 * @var array Tasks which must be performed by postapprove hooks.
+	 * Format: [ key1 => [ 'ip' => ..., 'xff' => ..., 'ua' => ... ], key2 => ... ]
 	*/
 	protected static $tasks = [];
 
@@ -171,7 +170,8 @@ class ModerationApproveHook implements DeferrableUpdate {
 		$dbw->endAtomic( __METHOD__ );
 	}
 
-	protected static $lastRevId = null; /**< Revid of the last edit, populated in onNewRevisionFromEditComplete */
+	/** @var int|null Revid of the last edit, populated in onNewRevisionFromEditComplete */
+	protected static $lastRevId = null;
 
 	/** @brief Returns revid of the last edit */
 	public static function getLastRevId() {

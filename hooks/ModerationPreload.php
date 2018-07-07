@@ -30,9 +30,14 @@
 
 class ModerationPreload {
 
-	protected static $singleton = null; /**< Singleton instance */
-	protected $editPage = null; /**< EditPage object, passed by onAlternateEdit() to onEditFormPreloadText() */
-	private $user = null; /**< User object. If not set, $wgUser will be used. */
+	/** @var ModerationPreload Singleton instance */
+	protected static $instance = null;
+
+	/** @var EditPage Editor object passed from onAlternateEdit() to onEditFormPreloadText() */
+	protected $editPage = null;
+
+	/** @var User|null Current user. If not set, $wgUser will be used. */
+	private $user = null;
 
 	protected function __construct() {
 	}
@@ -42,11 +47,11 @@ class ModerationPreload {
 	 * @return ModerationPreload
 	 */
 	public static function singleton() {
-		if ( is_null( self::$singleton ) ) {
-			self::$singleton = new self;
+		if ( is_null( self::$instance ) ) {
+			self::$instance = new self;
 		}
 
-		return self::$singleton;
+		return self::$instance;
 	}
 
 	/**

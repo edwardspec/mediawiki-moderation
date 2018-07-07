@@ -86,11 +86,13 @@ class ModerationVersionCheck {
 
 	/*-------------------------------------------------------------------*/
 
-	const EXTENSION_NAME = 'Moderation'; /**< Name of extension (as listed in extension.json) */
+	/** @const string Name of extension (as listed in extension.json) */
+	const EXTENSION_NAME = 'Moderation';
 
-	protected static $dbUpdatedVersion = null; /**< Stores result of getDbUpdatedVersion() */
+	/** @var string|null Local cache used by getDbUpdatedVersion() */
+	protected static $dbUpdatedVersion = null;
 
-	/** @brief WHERE conditions used in getDbUpdatedVersionUncached(), markDbAsUpdated() */
+	/** @var array WHERE conditions used in getDbUpdatedVersionUncached(), markDbAsUpdated() */
 	protected static $where = [
 		'pp_page' => -1,
 		'pp_propname' => 'moderation:lastDbUpdateVersion'

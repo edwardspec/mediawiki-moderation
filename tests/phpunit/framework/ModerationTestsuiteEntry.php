@@ -54,13 +54,19 @@ class ModerationTestsuiteEntry {
 	public $bot = false;
 	public $new = false;
 
-	public $time = null; /**< Time of the timestamp, e.g. '08:30' */
-	public $datetime = null; /**< Full human-readable timestamp, e.g. '12:20, 22 June 2018' */
+	/** @var string Time of the timestamp, e.g. '08:30' */
+	public $time = null;
+
+	/** @var string Full human-readable timestamp, e.g. '12:20, 22 June 2018' */
+	public $datetime = null;
 
 	public $noMergeNotAutomoderated = false;
 
-	public $charChange = null; /**< Difference betwen old_len and new_len, e.g. "-25" or "+600" */
-	public $charChangeBold = false; /**< True if the character change is highlighted (due to being large) */
+	/** @var int Difference between old_len and new_len, e.g. -25 or +600 */
+	public $charChange = null;
+
+	/** @var bool True if the character change is highlighted (due to being large) */
+	public $charChangeBold = false;
 
 	public function __construct( DomElement $span ) {
 		if ( strpos( $span->getAttribute( 'class' ), 'modconflict' ) !== false ) {

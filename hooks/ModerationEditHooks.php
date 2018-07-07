@@ -21,12 +21,20 @@
  */
 
 class ModerationEditHooks {
-	public static $NewMergeID = null; /** During modaction=merge, this is mod_id of the pending edit which is currently being merged */
+	/**
+	 * @var int
+	 * mod_id of the pending edit which is currently being merged (during modaction=merge)
+	 */
+	public static $NewMergeID = null;
 
-	protected static $section = ''; /**< Number of edited section, if any (populated in onEditFilter) */
-	protected static $sectionText = null; /**< Text of edited section, if any (populated in onEditFilter) */
+	/** @var int|string Number of edited section, if any (populated in onEditFilter) */
+	protected static $section = '';
 
-	protected static $watchthis = null; /**< Checkbox "Watch this page", if found (populated in onEditFilter) */
+	/** @var string Text of edited section, if any (populated in onEditFilter) */
+	protected static $sectionText = null;
+
+	/** @var bool|null Checkbox "Watch this page", if found (populated in onEditFilter) */
+	protected static $watchthis = null;
 
 	/*
 		onEditFilter()

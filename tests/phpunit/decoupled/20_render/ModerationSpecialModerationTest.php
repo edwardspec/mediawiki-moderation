@@ -102,13 +102,27 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase {
  */
 class ModerationRenderTestSet extends ModerationTestsuiteTestSet {
 
-	protected $fields; /**< mod_* fields of one row in the 'moderation' SQL table */
-	protected $expectedFolder = 'DEFAULT'; /**< Folder of Special:Moderation where this entry should appear */
-	protected $isCheckuser = false; /**< If true, moderator who visits Special:Moderation will be a checkuser. */
-	protected $previewLinkEnabled = false; /**< If true, $wgModerationPreviewLink will be enabled. */
-	protected $modblocked = false; /**< If true, user will be modblocked. */
-	protected $expectNotReapprovable = false; /**< If true, Approve link should be absent, because the entry was rejected too long ago. */
-	protected $notAutomoderated = false; /**< If true, moderator will NOT be automoderated. */
+	/** @var array All mod_* fields of one row in the 'moderation' SQL table */
+	protected $fields;
+
+	/** @var string Folder of Special:Moderation where this entry should appear */
+	protected $expectedFolder = 'DEFAULT';
+
+	/** @var bool If true, moderator who visits Special:Moderation will be a checkuser. */
+	protected $isCheckuser = false;
+
+	/** @var bool If true, $wgModerationPreviewLink will be enabled. */
+	protected $previewLinkEnabled = false;
+
+	/** @var bool If true, user will be modblocked. */
+	protected $modblocked = false;
+
+	/** @var bool If true, Approve link should be absent,
+		because the entry was rejected too long ago. */
+	protected $expectNotReapprovable = false;
+
+	/** @var bool If true, moderator will NOT be automoderated. */
+	protected $notAutomoderated = false;
 
 	/**
 	 * @brief Initialize this TestSet from the input of dataProvider.

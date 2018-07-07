@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017 Edward Chernenko.
+	Copyright (C) 2017-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,8 +23,6 @@
 class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 
 	const HTTP_REQUEST_CLASS = 'MWHttpRequest';
-
-	protected $api; /**< ModerationTestsuiteAPI object */
 
 	protected $apiUrl;
 	protected $editToken = false;

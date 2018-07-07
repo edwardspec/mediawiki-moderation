@@ -22,8 +22,11 @@
 
 class ModerationTestsuiteSubmitResult {
 
-	protected $error; /**< string if error exists, false otherwise */
-	protected $successText; /**< string if not an error, false otherwise */
+	/** @var string|false */
+	protected $error;
+
+	/** @var string|false */
+	protected $successText;
 
 	protected function __construct( $error, $successText ) {
 		$this->error = $error;
