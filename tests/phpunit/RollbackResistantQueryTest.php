@@ -29,7 +29,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
 /**
  * @covers RollbackResistantQuery
  */
-class ModerationTestRollbackResistantQuery extends MediaWikiTestCase {
+class ModerationRollbackResistantQueryTest extends MediaWikiTestCase {
 	public function getRandomTitle() {
 		return Title::newFromText( 'RandomPage_' . wfTimestampNow() . '_' . MWCryptRand::generateHex( 32 ) );
 	}

@@ -25,7 +25,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
 /**
  * @covers ModerationActionApprove
  */
-class ModerationTestWatch extends MediaWikiTestCase {
+class ModerationWatchTest extends MediaWikiTestCase {
 	/**
 
 	 * @brief Test that checkboxes "Watch this page" work.

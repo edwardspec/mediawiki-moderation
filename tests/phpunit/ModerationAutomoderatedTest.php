@@ -22,7 +22,7 @@
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
-class ModerationTestAutomoderated extends MediaWikiTestCase {
+class ModerationAutomoderatedTest extends MediaWikiTestCase {
 	/**
 	 * @brief Can automoderated users bypass moderation of edits?
 	 * @covers ModerationCanSkip::canEditSkip

@@ -22,7 +22,7 @@
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
-class ModerationTestEdit extends MediaWikiTestCase {
+class ModerationEditTest extends MediaWikiTestCase {
 	public function testPreSaveTransform() {
 		$t = new ModerationTestsuite();
 

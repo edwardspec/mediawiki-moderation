@@ -25,7 +25,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
 /**
  * @covers ModerationApproveHook
  */
-class ModerationTestCheckuser extends MediaWikiTestCase {
+class ModerationCheckuserTest extends MediaWikiTestCase {
 	public $moderatorUA = 'UserAgent of Moderator/1.0';
 	public $userUA = 'UserAgent of UnprivilegedUser/1.0';
 

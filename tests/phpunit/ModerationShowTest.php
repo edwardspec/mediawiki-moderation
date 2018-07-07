@@ -25,7 +25,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
 /**
  * @covers ModerationActionShow
  */
-class ModerationTestShow extends MediaWikiTestCase {
+class ModerationShowTest extends MediaWikiTestCase {
 	public function testShow() {
 		$t = new ModerationTestsuite();
 

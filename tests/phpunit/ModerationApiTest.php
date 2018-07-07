@@ -25,7 +25,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
 /**
  * @covers ApiModeration
  */
-class ModerationTestApi extends MediaWikiTestCase {
+class ModerationApiTest extends MediaWikiTestCase {
 
 	/**
 	 * @brief Checks return value of api.php?action=moderation&modaction=...

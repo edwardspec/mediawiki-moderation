@@ -27,7 +27,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
  * @requires extension curl
  * @note Only cURL version of MWHttpRequest supports uploads.
  */
-class ModerationTestUpload extends MediaWikiTestCase {
+class ModerationUploadTest extends MediaWikiTestCase {
 	public function testUpload() {
 		$t = new ModerationTestsuite();
 

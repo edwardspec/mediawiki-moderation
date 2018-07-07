@@ -25,7 +25,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
 /**
  * @covers ModerationError
  */
-class ModerationTestErrors extends MediaWikiTestCase {
+class ModerationErrorsTest extends MediaWikiTestCase {
 	public function testUnknownAction() {
 		$t = new ModerationTestsuite();
 		$t->loginAs( $t->moderator );
