@@ -59,3 +59,6 @@ script:
 # then run the remaining testsuite with --reuse-db to save time.
   - MODERATION_TEST_ENGINE=cli php tests/phpunit/phpunit.php --use-normal-tables extensions/Moderation/tests/phpunit/ModerationPermissionsTest.php
   - MODERATION_TEST_ENGINE=cli php tests/phpunit/phpunit.php --use-normal-tables --reuse-db extensions/Moderation/
+
+after_script:
+  - ./vendor/bin/phpcs -ps --exclude='Generic.Files.LineLength' extensions/Moderation/
