@@ -77,7 +77,7 @@ class ModerationTestsuite {
 
 	/**
 	 * @brief Sets MediaWiki global variable. Not supported by RealHttpEngine.
-	 * @param name Name of variable without the $wg prefix.
+	 * @param string $name Name of variable without the $wg prefix.
 	 * @throws PHPUnit_Framework_SkippedTestError TestsuiteEngine doesn't support this method.
 	 */
 	public function setMwConfig( $name, $value ) {
@@ -706,17 +706,11 @@ class ModerationTestsuite {
 
 	/**
 	 * @brief Wait for "recentchanges" table to be updated by DeferredUpdates.
-	 * @param $numberOfEdits How many recent revisions must be in RecentChanges.
-	 * @return Array of revision IDs.
-
-		This function is needed before testing cu_changes or tags:
-		they are updated in RecentChange_save hook,
-		so they might not yet exist when we return from doTestEdit().
-
-		Usage:
-			$waiter = $t->waitForRecentChangesToAppear();
-			// Do something that should create N recentchanges entries
-			$waiter( N );
+	 *
+	 * Usage:
+	 * 	$waiter = $t->waitForRecentChangesToAppear();
+	 * 	// Do something that should create N recentchanges entries
+	 * 	$waiter( N );
 	 */
 	public function waitForRecentChangesToAppear() {
 		$dbw = wfGetDB( DB_MASTER );
@@ -778,7 +772,7 @@ class ModerationTestsuite {
 
 	/**
 	 * @brief Get cuc_agent of the last entries in "cu_changes" table.
-	 * @param $limit How many entries to select.
+	 * @param int $limit How many entries to select.
 	 * @return Array of user-agents.
 	 */
 	public function getCUCAgents( $limit ) {

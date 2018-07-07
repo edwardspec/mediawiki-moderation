@@ -78,7 +78,7 @@ class ModerationPreload {
 
 	/**
 	 * @brief Calculate value of mod_preload_id for the current user.
-	 * @param $create If true, new preload ID will be generated for first-time anonymous editors.
+	 * @param bool $create If true, new preload ID will be generated for first-time anonymous editors.
 	 * @return Preload ID (string).
 	 * @retval false Current user is anonymous AND hasn't edited before AND $create is false.
 	 */

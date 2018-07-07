@@ -171,7 +171,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 	/**
 	 * @brief Fetch the edit form and return the text in #wpTextbox1.
-	 * @param $title The page to be opened for editing.
+	 * @param string $title The page to be opened for editing.
 	 */
 	public function getPreloadedText( $title ) {
 		$url = wfAppendQuery( wfScript( 'index' ), [

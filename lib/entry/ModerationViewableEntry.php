@@ -50,7 +50,7 @@ class ModerationViewableEntry extends ModerationEntry {
 
 	/**
 	 * @brief Returns HTML of the diff.
-	 * @param $context Any object that contains current context.
+	 * @param IContextSource $context Any object that contains current context.
 	 */
 	public function getDiffHTML( IContextSource $context ) {
 		$row = $this->getRow();
@@ -126,7 +126,7 @@ class ModerationViewableEntry extends ModerationEntry {
 
 	/**
 	 * @brief Returns URL of modaction=showimg for this upload.
-	 * @param $isThumb True for thumbnail, false for full-sized image.
+	 * @param bool $isThumb True for thumbnail, false for full-sized image.
 	 */
 	public function getImageURL( $isThumb = false ) {
 		$row = $this->getRow();

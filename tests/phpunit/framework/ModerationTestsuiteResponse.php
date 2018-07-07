@@ -49,8 +49,8 @@ class ModerationTestsuiteResponse {
 
 	/**
 	 * @brief Create response after internal invocation.
-	 * @param mwResponse FauxResponse object after $mediaWiki->run
-	 * @param capturedContent Text printed by $mediaWiki->run as captured by ob_start()/ob_get_clean().
+	 * @param FauxResponse $mwResponse Response object after $mediaWiki->run
+	 * @param string $capturedContent Text printed by $mediaWiki->run as captured by ob_start()/ob_get_clean().
 	 * @return ModerationTestsuiteResponse object.
 	 */
 	public static function newFromFauxResponse( FauxResponse $mwResponse, $capturedContent ) {

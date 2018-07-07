@@ -103,7 +103,7 @@ class ModerationVersionCheck {
 
 	/**
 	 * @brief Check if update.php was called after $versionOfModeration was installed.
-	 * @param $versionOfModeration Version of Extension:Moderation, as listed in extension.json.
+	 * @param string $versionOfModeration Version of Extension:Moderation, as listed in extension.json.
 	 * @return True if update.php was called, false otherwise.
 	 */
 	protected static function wasDbUpdatedAfter( $versionOfModeration ) {

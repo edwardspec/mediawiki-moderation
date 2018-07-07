@@ -34,6 +34,8 @@ class ModerationCanSkip {
 
 	/**
 	 * @brief Check if edits by $user can bypass moderation in namespace $namespaceNumber.
+	 * @param User $user
+	 * @param int $namespaceNumber
 	 */
 	public static function canEditSkip( User $user, $namespaceNumber ) {
 		return self::canSkip( $user, 'skip-moderation', [ $namespaceNumber ] );
@@ -41,6 +43,7 @@ class ModerationCanSkip {
 
 	/**
 	 * @brief Check if uploads by $user can bypass moderation.
+	 * @param User $user
 	 */
 	public static function canUploadSkip( User $user ) {
 		return self::canEditSkip( $user, NS_FILE );
@@ -48,8 +51,9 @@ class ModerationCanSkip {
 
 	/**
 	 * @brief Check if moves by $user can bypass moderation.
-	 * @param $fromNamespace Namespace of the old title.
-	 * @param $toNamespace Namespace of the new title.
+	 * @param User $user
+	 * @param int $fromNamespace Namespace of the old title.
+	 * @param int $toNamespace Namespace of the new title.
 	 */
 	public static function canMoveSkip( User $user, $fromNamespace, $toNamespace ) {
 		return self::canSkip( $user, 'skip-move-moderation', [
@@ -62,8 +66,9 @@ class ModerationCanSkip {
 
 	/**
 	 * @brief Returns true if $user can skip moderation, false otherwise.
-	 * @param $permission Name of the user's right that allows to bypass moderation.
-	 * @param $affectedNamespaces Array of namespace numbers of all affected pages.
+	 * @param User $user
+	 * @param string $permission Name of the user's right that allows to bypass moderation.
+	 * @param array $affectedNamespaces Array of namespace numbers of all affected pages.
 	 */
 	protected static function canSkip( User $user, $permission, array $affectedNamespaces ) {
 		global $wgModerationEnable;
@@ -92,7 +97,7 @@ class ModerationCanSkip {
 
 	/**
 	 * @brief Check if moderation can be skipped in all $namespaces.
-	 * @param $namespaces Array of namespace numbers.
+	 * @param array $namespaces Array of namespace numbers.
 	 * @retval true All $namespaces are non-moderated.
 	 * @retval false At least one of $namespaces in moderated.
 	 */

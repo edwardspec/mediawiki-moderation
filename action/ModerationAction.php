@@ -71,13 +71,12 @@ abstract class ModerationAction extends ContextSource {
 	 * @return Array containing API response.
 	 * @throws ModerationError
 	 */
-
 	abstract public function execute();
 
 	/**
 	 * @brief Print the result of execute() in a human-readable way.
-	 * @param $result Value returned by execute().
-	 * @param $out OutputPage object.
+	 * @param array $result Value returned by execute().
+	 * @param OutputPage &$out OutputPage object.
 	 */
 	abstract public function outputResult( array $result, OutputPage &$out );
 

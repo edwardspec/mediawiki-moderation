@@ -165,7 +165,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 	/**
 	 * @brief Sets MediaWiki global variable.
-	 * @param name Name of variable without the " $wg prefix.
+	 * @param string $name Name of variable without the $wg prefix.
 	 * @throws PHPUnit_Framework_SkippedTestError
 	 */
 	public function setMwConfig( $name, $value ) {

@@ -27,39 +27,39 @@ class RollbackResistantQuery {
 
 	protected $dbw; /**< IDatabase */
 	protected $methodName; /**< Database method, e.g. 'insert' or 'update' */
-	protected $args; /**< Array of parameters to be passed to $dbw->insert(), etc. */
+	protected $args; /**< Array of parameters to be passed to Database::insert(), etc. */
 
 	/**
-	 * @brief Perform $dbw->insert() that won't be undone by $dbw->rollback().
-	 * @param $dbw Database object.
-	 * @param args Arguments of $dbw->insert call.
+	 * @brief Perform Database::insert() that won't be undone by Database::rollback().
+	 * @param IDatabase $dbw Database object.
+	 * @param array $args Arguments of Database::insert call.
 	 */
 	public static function insert( IDatabase $dbw, array $args ) {
 		new self( 'insert', $dbw, $args );
 	}
 
 	/**
-	 * @brief Perform $dbw->update() that won't be undone by $dbw->rollback().
-	 * @param $dbw Database object.
-	 * @param args Arguments of $dbw->update call.
+	 * @brief Perform Database::update() that won't be undone by Database::rollback().
+	 * @param IDatabase $dbw Database object.
+	 * @param array $args Arguments of Database::update call.
 	 */
 	public static function update( IDatabase $dbw, array $args ) {
 		new self( 'update', $dbw, $args );
 	}
 
 	/**
-	 * @brief Perform $dbw->replace() that won't be undone by $dbw->rollback().
-	 * @param $dbw Database object.
-	 * @param args Arguments of $dbw->replace call.
+	 * @brief Perform Database::replace() that won't be undone by Database::rollback().
+	 * @param IDatabase $dbw Database object.
+	 * @param array $args Arguments of Database::replace call.
 	 */
 	public static function replace( IDatabase $dbw, array $args ) {
 		new self( 'replace', $dbw, $args );
 	}
 
 	/**
-	 * @brief Perform $dbw->upsert() that won't be undone by $dbw->rollback().
-	 * @param $dbw Database object.
-	 * @param args Arguments of $dbw->upsert call.
+	 * @brief Perform Database::upsert() that won't be undone by Database::rollback().
+	 * @param IDatabase $dbw Database object.
+	 * @param array $args Arguments of Database::upsert call.
 	 */
 	public static function upsert( IDatabase $dbw, array $args ) {
 		new self( 'upsert', $dbw, $args );
@@ -67,9 +67,9 @@ class RollbackResistantQuery {
 
 	/**
 	 * @brief Create and immediately execute a new query.
-	 * @param $methodName String, e.g. 'insert', 'update' or 'replace'.
-	 * @param $dbw Database object.
-	 * @param args Arguments of $dbw->update call.
+	 * @param string $methodName One of the following: 'insert', 'update' or 'replace'.
+	 * @param IDatabase $dbw Database object.
+	 * @param array $args Arguments of the method.
 	 */
 	protected function __construct( $methodName, IDatabase $dbw, array $args ) {
 		$this->dbw = $dbw;

@@ -221,8 +221,8 @@ class ModerationTestsuiteEntry {
 	}
 
 	/**
-	 * @brief Get URL of the link $action.
-	 * @param $action Name of modaction (e.g. 'rejectall') or 'mergedDiff'.
+	 * @brief Get URL of the link $modaction.
+	 * @param string $modaction Name of modaction (e.g. 'rejectall') or 'mergedDiff'.
 	 */
 	public function getActionLink( $modaction ) {
 		switch ( $modaction ) {
@@ -308,7 +308,7 @@ class ModerationTestsuiteEntry {
 
 	/**
 	 * @brief Fetches this entry from the database and returns $field.
-	 * @param $field Field name, e.g. "mod_len_new".
+	 * @param string $field Field name, e.g. "mod_len_new".
 	 */
 	public function getDbField( $field ) {
 		$dbw = wfGetDB( DB_MASTER );
@@ -329,7 +329,7 @@ class ModerationTestsuiteEntry {
 
 	/**
 	 * @brief Modified this entry in the database.
-	 * @param updates List of updates, as expected by $dbw->update
+	 * @param array $updates List of updates, as expected by Database::update
 	 */
 	public function updateDbRow( array $updates ) {
 		$dbw = wfGetDB( DB_MASTER );

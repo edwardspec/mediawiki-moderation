@@ -190,7 +190,9 @@ class ModerationApproveHook implements DeferrableUpdate {
 
 	/**
 	 * @brief Calculate key in $tasks array for $title/$username/$type triplet.
-	 * @param $type mod_type of this change.
+	 * @param Title $title
+	 * @param string $username
+	 * @param string $type mod_type of this change.
 	 */
 	protected static function getTaskKey( Title $title, $username, $type ) {
 		return implode( '[', /* Symbol "[" is not allowed in both titles and usernames */
@@ -205,7 +207,9 @@ class ModerationApproveHook implements DeferrableUpdate {
 
 	/**
 	 * @brief Find the task regarding edit by $username on $title.
-	 * @param $type One of ModerationNewChange::MOD_TYPE_* values.
+	 * @param Title $title
+	 * @param string $username
+	 * @param int $type One of ModerationNewChange::MOD_TYPE_* values.
 	 * @return [ 'ip' => ..., 'xff' => ..., 'ua' => ..., ... ]
 	 */
 	public function getTask( Title $title, $username, $type ) {
@@ -261,9 +265,9 @@ class ModerationApproveHook implements DeferrableUpdate {
 
 	/**
 	 * @brief Schedule post-approval UPDATE SQL query.
-	 * @param $table Name of table, e.g. 'revision'.
-	 * @param $ids ID (integer, e.g. rev_id or rc_id) or array of IDs.
-	 * @param values New values, as expected by $db->update e.g. [ 'rc_ip' => '1.2.3.4', 'rc_something' => '...' ].
+	 * @param string $table Name of table, e.g. 'revision'.
+	 * @param int|array $ids One or several IDs (e.g. rev_id or rc_id).
+	 * @param array $values New values, as expected by $db->update, e.g. [ 'rc_ip' => '1.2.3.4', 'rc_something' => '...' ].
 	 */
 	public function queueUpdate( $table, $ids, array $values ) {
 		if ( !is_array( $ids ) ) {

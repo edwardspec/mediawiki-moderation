@@ -128,7 +128,7 @@ class ModerationTestsuiteMockAutoLoader {
 
 	/**
 	 * @brief Rewrite the PHP code, replacing the calls to intercepted functions with mocks.
-	 * @param $text Original PHP source code (string).
+	 * @param string $text Original PHP source code.
 	 * @return Modified source code (string).
 	 */
 	protected function rewriteFile( $text ) {

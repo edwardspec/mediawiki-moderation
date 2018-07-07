@@ -126,7 +126,7 @@ abstract class ModerationEntry implements IModerationEntry {
 
 	/**
 	 * @brief Load ModerationEntry from the database by mod_id.
-	 * @param $dbType DB_MASTER or DB_SLAVE.
+	 * @param int $dbType DB_MASTER or DB_REPLICA.
 	 * @throws ModerationError
 	 */
 	public static function newFromId( $id, $dbType = DB_MASTER ) {

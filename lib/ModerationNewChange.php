@@ -177,7 +177,9 @@ class ModerationNewChange {
 
 	/**
 	 * @brief Calculate the value of mod_tags.
-	 * @param $action AbuseFilter action, e.g. 'edit' or 'delete'.
+	 * @param Title $title
+	 * @param User $user
+	 * @param string $action AbuseFilter action, e.g. 'edit' or 'delete'.
 	 */
 	public static function findAbuseFilterTags( Title $title, User $user, $action ) {
 		if ( !class_exists( 'AbuseFilter' ) || empty( AbuseFilter::$tagsToSet ) ) {
@@ -235,8 +237,8 @@ class ModerationNewChange {
 
 	/**
 	 * @brief Returns one of the fields for database INSERT.
-	 * @param $fieldName String, e.g. "mod_timestamp".
-	 * @return Value (string) or false.
+	 * @param string $fieldName Field, e.g. "mod_timestamp".
+	 * @return string|false
 	 */
 	public function getField( $fieldName ) {
 		return isset( $this->fields[$fieldName] ) ? $this->fields[$fieldName] : false;

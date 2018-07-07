@@ -40,7 +40,8 @@ class ModerationFormatTimestamp {
 
 	/**
 	 * @brief Returns true if $timestamp is today, false otherwise.
-	 * @param $timestamp Timestamp in MediaWiki format (14 digits).
+	 * @param string $timestamp Timestamp in MediaWiki format (14 digits).
+	 * @param IContextSource $context Any object that contains current context.
 	 */
 	protected static function isToday( $timestamp, IContextSource $context ) {
 		static $today = '',

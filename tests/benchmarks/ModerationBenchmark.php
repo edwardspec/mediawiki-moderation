@@ -46,7 +46,7 @@ abstract class ModerationBenchmark extends Maintenance {
 
 	/**
 	 * @brief Returns Title object for testing.
-	 * @param $suffix Full text of the title, e.g. "Talk:Welsh corgi".
+	 * @param string $suffix Full text of the title, e.g. "Talk:Welsh corgi".
 	 *
 	 * During this benchmark, same value is returned for same $suffix,
 	 * but another benchmark will get a different Title.
@@ -66,6 +66,7 @@ abstract class ModerationBenchmark extends Maintenance {
 
 	/**
 	 * @brief Initialize everything before the tests. Called once.
+	 * @param int $numberOfLoops
 	 */
 	public function beforeBenchmark( $numberOfLoops ) {
 		/* Nothing to do.
@@ -74,7 +75,7 @@ abstract class ModerationBenchmark extends Maintenance {
 
 	/**
 	 * @brief Same as beforeBenchmark, but is called getDefaultLoops() times.
-	 * @param $iterationNumber Number of the loop (integer starting with 0).
+	 * @param int $iterationNumber Number of the loop (integer starting with 0).
 	 */
 	public function beforeBenchmarkPrepareLoop( $iterationNumber ) {
 		/* Nothing to do.
@@ -209,7 +210,7 @@ abstract class ModerationBenchmark extends Maintenance {
 
 	/**
 	 * @brief Render Special:Moderation with $params.
-	 * @returns HTML of the result.
+	 * @return HTML of the result.
 	 */
 	public function runSpecialModeration( array $params, $wasPosted = false ) {
 		return ModerationTestUtil::runSpecialModeration(

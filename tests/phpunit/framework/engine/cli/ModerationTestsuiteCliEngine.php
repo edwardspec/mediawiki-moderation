@@ -26,7 +26,7 @@
 class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 
 	protected $cookies = []; /**< array( 'name' => 'value' ) */
-	protected $config = []; /** < $wg* variables from setMwConfig(). array( 'name' => 'value' ) */
+	protected $config = []; /**< $wg* variables from setMwConfig(). array( 'name' => 'value' ) */
 
 	public function logout() {
 		parent::logout();
@@ -35,7 +35,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 
 	/**
 	 * @brief Sets MediaWiki global variable.
-	 * @param name Name of variable without the $wg prefix.
+	 * @param string $name Name of variable without the $wg prefix.
 	 */
 	public function setMwConfig( $name, $value ) {
 		$this->config[$name] = $value;
