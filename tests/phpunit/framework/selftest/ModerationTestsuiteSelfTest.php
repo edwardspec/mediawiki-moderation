@@ -18,13 +18,15 @@
 /**
  * @file
  * @brief Tests the ModerationTestsuite itself.
- * @group Utility
-
-	Used for debugging subclasses of ModerationTestsuiteEngine.
+ *
+ * Used for debugging subclasses of ModerationTestsuiteEngine.
 */
 
 require_once __DIR__ . "/../ModerationTestsuite.php";
 
+/**
+ * @group Utility
+ */
 class ModerationTestsuiteSelfTest extends MediaWikiTestCase {
 	/**
 	 * @brief Ensures that API response is correct.
