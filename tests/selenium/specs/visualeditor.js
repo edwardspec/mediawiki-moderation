@@ -4,7 +4,6 @@ const expect = require( 'chai' ).expect,
 	VisualEditor = require( '../pageobjects/visualeditor.page' ),
 	PostEdit = require( '../pageobjects/postedit.page' ),
 	EditPage = require( '../pageobjects/edit.page' ),
-	UserLoginPage = require( '../pageobjects/userlogin.page' ),
 	Api = require( 'wdio-mediawiki/Api' );
 
 /*
