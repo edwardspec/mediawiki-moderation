@@ -11,8 +11,15 @@ var PageName = 'Test ' + browser.getTestString(),
 		'Beginning of the article ' + browser.getTestString(),
 		"== Header 1 ==\n" + browser.getTestString(),
 		"== Header 2 ==\n" + browser.getTestString()
-	],
-	Summary = 'funny change #' + browser.getTestString();
+	];
+
+// When saving the edit, MobileFrontend adds /* Section name */ to the
+// edit summary. However, Moderation preloads the previous summary when
+// subsequently editing the same page.
+// Here we test that Moderation deletes this /* Section name */ to avoid ugly
+// summaries like "/* Section 1 */ /* Section 3 */ /* Section 1 */ fix typo".
+var ExpectedSummary = 'funny change #' + browser.getTestString(),
+	SavedSummary = '/* Some section name */ ' + ExpectedSummary;
 
 describe( 'When user opens MobileFrontend editor and has a pending edit', function () {
 	before( function () {
@@ -20,8 +27,11 @@ describe( 'When user opens MobileFrontend editor and has a pending edit', functi
 		return bot.getEditToken().then( () => {
 			// Because our newly created test account is NOT automoderated,
 			// this edit will be queued for moderation
-			var Content = Sections.join( "\n\n" );
-			return bot.edit( PageName, Content, Summary ).catch( function ( error ) {
+			return bot.edit(
+				PageName,
+				Sections.join( "\n\n" ),
+				SavedSummary
+			).catch( function ( error ) {
 				expect( error.code, 'error.code' )
 					.to.equal( 'moderation-edit-queued' );
 			} );
@@ -47,6 +57,6 @@ describe( 'When user opens MobileFrontend editor and has a pending edit', functi
 		MobileFrontend.nextButton.click();
 
 		expect( MobileFrontend.summary.getValue(), 'MobileFrontend.summary' )
-			.to.equal( Summary );
+			.to.equal( ExpectedSummary );
 	} );
 } );
