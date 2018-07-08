@@ -17,21 +17,12 @@ var PageName = 'Test ' + browser.getTestString(),
 
 describe( 'MobileFrontend', function () {
 
-	it( 'should show pending edit when editing a section', function () {
+	before( function () {
 		/* Prepare the page with several sections */
 		MobileFrontend.edit( PageName, 0, Sections.join( "\n\n" ) );
 
 		PostEdit.init(); /* Wait for the page to be loaded before we go with MobileFrontend.open() */
 		BlankPage.open(); /* Make sure old MobileFrontend form isn't still in the DOM */
-
-		/* Test preloading of a single section into MobileFrontend */
-		for ( var sectionIdx = 0; sectionIdx < Sections.length; sectionIdx ++ ) {
-			MobileFrontend.open( PageName, sectionIdx );
-
-			MobileFrontend.content.waitForValue();
-			expect( MobileFrontend.content.getValue(), 'MobileFrontend.content[' + sectionIdx +']' )
-					.to.equal( Sections[sectionIdx] );
-		}
 	} );
 
 	it( 'shouldn\'t mention several edited sections in the summary', function () {

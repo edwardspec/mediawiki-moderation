@@ -1,23 +1,26 @@
 'use strict';
 
 const expect = require( 'chai' ).expect,
-	MobileFrontend = require( '../pageobjects/mobilefrontend.page' ),
-	PostEdit = require( '../pageobjects/postedit.page' );
+	MobileFrontend = require( '../pageobjects/mobilefrontend.page' );
 
 /*
 	Title of MediaWiki page which should be edited during this test.
 */
 var PageName = 'Test ' + browser.getTestString(),
-	Content = browser.getTestString(),
-	Summary = 'funny change #' + browser.getTestString(),
-	bot;
+	Sections = [
+		'Beginning of the article ' + browser.getTestString(),
+		"== Header 1 ==\n" + browser.getTestString(),
+		"== Header 2 ==\n" + browser.getTestString()
+	],
+	Summary = 'funny change #' + browser.getTestString();
 
 describe( 'When user opens MobileFrontend editor and has a pending edit', function () {
 	before( function () {
-		bot = browser.loginIntoNewAccount();
+		var bot = browser.loginIntoNewAccount();
 		return bot.getEditToken().then( () => {
 			// Because our newly created test account is NOT automoderated,
 			// this edit will be queued for moderation
+			var Content = Sections.join( "\n\n" );
 			return bot.edit( PageName, Content, Summary ).catch( function ( error ) {
 				expect( error.code, 'error.code' )
 					.to.equal( 'moderation-edit-queued' );
@@ -25,15 +28,20 @@ describe( 'When user opens MobileFrontend editor and has a pending edit', functi
 		} );
 	} );
 
-	it( 'pending edit should be shown in the edit form', function () {
-		MobileFrontend.open( PageName, 0 );
+	/* Test preloading of a single section into MobileFrontend */
+	for ( var idx in Sections ) {
+		it( 'section #' + idx + ' should be shown', function () {
+			MobileFrontend.open( PageName, idx );
 
-		MobileFrontend.content.waitForValue();
-		expect( MobileFrontend.content.getValue(), 'MobileFrontend.content' )
-			.to.equal( Content );
-	} );
+			MobileFrontend.content.waitForValue();
+			return expect(
+				MobileFrontend.content.getValue(),
+				'MobileFrontend.content[' + idx +']' )
+			.to.equal( Sections[idx] );
+		} );
+	}
 
-	it( 'should suggest summary of the pending edit', function () {
+	it( 'edit summary should be shown', function () {
 		/* To see the summary, we need to open "How did you improve the page?" dialog */
 		MobileFrontend.content.addValue( '+' );
 		MobileFrontend.nextButton.click();
