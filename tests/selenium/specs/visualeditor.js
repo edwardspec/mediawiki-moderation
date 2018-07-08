@@ -4,15 +4,14 @@ const expect = require( 'chai' ).expect,
 	VisualEditor = require( '../pageobjects/visualeditor.page' ),
 	PostEdit = require( '../pageobjects/postedit.page' ),
 	EditPage = require( '../pageobjects/edit.page' ),
-	UserLoginPage = require( '../pageobjects/userlogin.page' ),
 	Api = require( 'wdio-mediawiki/Api' );
 
 /*
 	Title of MediaWiki page which should be edited during this test.
 */
-var PageName = 'Test' + Math.random(),
-	Content = Date.now() + ' ' + Math.random(),
-	Summary = 'funny change #' + Math.random();
+var PageName = 'Test ' + browser.getTestString(),
+	Content = browser.getTestString(),
+	Summary = 'funny change #' + browser.getTestString();
 
 describe( 'VisualEditor', function () {
 

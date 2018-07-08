@@ -4,63 +4,49 @@ const expect = require( 'chai' ).expect,
 	EditPage = require( '../pageobjects/edit.page' ),
 	MobileFrontend = require( '../pageobjects/mobilefrontend.page' ),
 	PostEdit = require( '../pageobjects/postedit.page' ),
-	CreateAccountPage = require( '../pageobjects/createaccount.page' ),
-	UserLoginPage = require( '../pageobjects/userlogin.page' ),
-	LogoutPage = require( '../pageobjects/logout.page' ),
 	Api = require( 'wdio-mediawiki/Api' );
 
 /*
 	Title of MediaWiki page which should be edited during this test.
 */
-var PageName = 'Test' + Math.random(),
-	ExistingPageName = 'ExistingPage' + Math.random(),
-	UserName = 'TestUser' + Math.random(),
-	UserPassword = '123456',
+var PageName = 'Test ' + browser.getTestString(),
+	ExistingPageName = 'ExistingPage ' + browser.getTestString(),
 	subtests = [
-		'desktop',
-		'MobileFrontend'
+		[ 'desktop', function ( title ) {
+			EditPage.edit(
+				title,
+				browser.getTestString()
+			);
+		} ],
+		[ 'MobileFrontend', function ( title ) {
+			MobileFrontend.edit(
+				title,
+				0,
+				browser.getTestString()
+			);
+		} ]
 	];
 
-/* Run the same tests for desktop and mobile view */
-subtests.forEach( function( subTest ) {
-
-describe( 'Postedit notification (' + subTest + ')', function () {
-
-	var doTestEdit;
-	switch ( subTest ) {
-		case 'desktop':
-			doTestEdit = function( title ) {
-				EditPage.edit(
-					title,
-					Date.now() + ' ' + Math.random() + "\n"
-				);
-			};
-			break;
-
-		case 'MobileFrontend':
-			doTestEdit = function( title ) {
-				MobileFrontend.edit(
-					title,
-					0,
-					Date.now() + ' ' + Math.random() + "\n"
-				);
-			};
-	}
+describe( 'Postedit notification', function () {
 
 	before( function() {
 		/* Pre-create the article ExistingPageName */
-		return Api.edit( ExistingPageName, 'Initial content: something ' + Math.random() )
-			.then( function() { return Api.createAccount( UserName, UserPassword ); } );
+		return Api.edit( ExistingPageName, 'Initial content ' + browser.getTestString() );
 	} );
 
-	before( function() {
-		UserLoginPage.login( UserName, UserPassword );
+	/* Run the same tests for desktop and mobile view */
+	new Map( subtests ).forEach( ( doTestEdit, subTest ) => { describe( '(' + subTest + ')', () => {
+
+/*---------------- Desktop/mobile subtest -----------------------------------*/
+
+	before( function () {
+		browser.loginIntoNewAccount();
 		doTestEdit( PageName );
 		PostEdit.init();
 	} );
 
-	after( function() {
-		LogoutPage.logout();
+	after( function () {
+		browser.logout();
 	} );
 
 	it( 'should be visible', function () {
@@ -76,11 +62,11 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 		expect( PostEdit.text ).to.not.contain( 'Your edit was saved' );
 	} );
 
-	it ( 'should contain "Pending Review" icon', function() {
+	it ( 'should contain "Pending Review" icon', function () {
 		expect( PostEdit.pendingIcon.isVisible(), 'pendingIcon.isVisible' ).to.be.true;
 	} );
 
-	it ( 'should say "your edit has been sent to moderation"', function() {
+	it ( 'should say "your edit has been sent to moderation"', function () {
 		expect( PostEdit.text )
 			.to.contain( 'Success: your edit has been sent to moderation' );
 	} );
@@ -90,17 +76,16 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 		expect( PostEdit.editLink.isVisible(), 'editLink.isVisible' ).to.be.true;
 
 		expect( PostEdit.editLink.query.title, 'editLink.query.title' )
-			.to.equal( PageName );
+			.to.equal( PageName.replace( / /g, '_' ) );
 		expect( PostEdit.editLink.query.action, 'editLink.query.action' )
 			.to.equal( 'edit' );
 	} );
 
-	it ( 'shouldn\'t contain "sign up" link if the user is logged in', function() {
-
+	it ( 'shouldn\'t contain "sign up" link if the user is logged in', function () {
 		expect( PostEdit.signupLink.isVisible(), 'signupLink.isVisible' ).to.be.false;
 	} );
 
-	it ( 'shouldn\'t disappear after 3.5 seconds', function() {
+	it ( 'shouldn\'t disappear after 3.5 seconds', function () {
 		/* Default postedit notification of MediaWiki is removed after 3.5 seconds
 			(because it's not important whether the user reads it or not).
 
@@ -112,13 +97,13 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 		expect( PostEdit.notification.isVisible(), 'notification.isVisible' ).to.be.true;
 	} );
 
-	it ( 'should be removed when you click on it', function() {
+	it ( 'should be removed when you click on it', function () {
 		/* Clicking on notification should remove it */
 		PostEdit.notification.click();
 		PostEdit.notification.waitForVisible( 500, true ); /* Wait for it to vanish */
 	} );
 
-	it( 'should be shown after editing the existing article', function () {
+	it ( 'should be shown after editing the existing article', function () {
 		/*
 			Older MobileFrontend (for MediaWiki <=1.26) reloaded the page
 			when creating a new article and didn't reload it when editing
@@ -130,9 +115,9 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 		expect( PostEdit.notification.isVisible(), 'notification.isVisible' ).to.be.true;
 	} );
 
-	it ( 'should contain "sign up" link if the user is anonymous', function() {
+	it ( 'should contain "sign up" link if the user is anonymous', function () {
 
-		LogoutPage.logout();
+		browser.logout();
 
 		doTestEdit( PageName );
 		PostEdit.init();
@@ -144,7 +129,10 @@ describe( 'Postedit notification (' + subTest + ')', function () {
 		).to.equal( 'Special:CreateAccount' );
 	} );
 
+/*---------------- Desktop/mobile subtest -----------------------------------*/
+
+	} ) } );  // .forEach( function( subTest ) { describe( ...
+
 } ); /* describe( ..., function { */
 
 
-} ); /* .forEach( function( subTest ) { */

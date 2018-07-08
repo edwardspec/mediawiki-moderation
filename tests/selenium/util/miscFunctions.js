@@ -5,7 +5,10 @@
 
 'use strict';
 
-var nodeUrl = require( 'url' );
+var nodeUrl = require( 'url' ),
+	request = require( 'request' ),
+	MWBot = require( 'mwbot' ),
+	Page = require( 'wdio-mediawiki/Page' );
 
 /**
 	@brief Runs from after() section of wdio.conf.js.
@@ -52,6 +55,68 @@ module.exports.install = function( browser ) {
 		} catch( e ) {}
 
 		return ret;
+	};
+
+	/**
+		@brief Returns random string which is unlikely to be the same in two different tests.
+	*/
+	browser.getTestString = function () {
+		return Date.now() + ' ' + Math.random();
+	};
+
+	/**
+		@brief Creates new account and logins into it via API.
+		@returns MWBot
+	*/
+	browser.loginIntoNewAccount = function() {
+		var username = 'Test User ' + Date.now() + ' ' + Math.random(),
+			password = '123456';
+
+		/* Because API is executed directly by the test (not in the browser
+			controlled by Selenium), we need to obtain the login cookies
+			from API and feed them to the browser.
+		*/
+		var cookieJar = request.jar();
+		var bot = new MWBot( {
+			apiUrl: `${browser.options.baseUrl}/api.php`,
+			verbose: true
+		}, { jar: cookieJar } );
+
+		browser.call( () => bot.getCreateaccountToken()
+			.then( () => bot.request( {
+				// Create the new account. Note: this alone does NOT login.
+				action: 'createaccount',
+				createreturnurl: browser.options.baseUrl,
+				createtoken: bot.createaccountToken,
+				username: username,
+				password: password,
+				retype: password
+			} ).then( () => bot.login( {
+				username: username,
+				password: password
+			} ) ) ) );
+
+		for ( var cookie of cookieJar._jar.toJSON().cookies ) {
+			// Feed these login cookies to Selenium-controlled browser
+			browser.setCookie( {
+				name: cookie.key,
+				value: cookie.value
+			} );
+		}
+
+		return bot;
+	};
+
+	/** @brief Logout from the currently used MediaWiki user account. */
+	browser.logout = function() {
+		if ( browser.desiredCapabilities.browserName == 'safari' ) {
+			/* With SafariDriver, HttpOnly cookies can't be deleted by deleteCookie() */
+			(new Page).openTitle( 'Special:UserLogout' );
+		}
+		else {
+			/* Quick logout: forget the session cookie */
+			browser.deleteCookie();
+		}
 	};
 
 	/** @brief Select $link by selector. Adds $link.query field to the returned $link */
