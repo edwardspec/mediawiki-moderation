@@ -66,7 +66,7 @@ module.exports.install = function( browser ) {
 
 	/**
 		@brief Creates new account and logins into it via API.
-		@returns Promise
+		@returns MWBot
 	*/
 	browser.loginIntoNewAccount = function() {
 		var username = 'Test User ' + Date.now() + ' ' + Math.random(),
@@ -103,6 +103,8 @@ module.exports.install = function( browser ) {
 				value: cookie.value
 			} );
 		}
+
+		return bot;
 	};
 
 	/** @brief Select $link by selector. Adds $link.query field to the returned $link */
