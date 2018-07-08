@@ -4,7 +4,6 @@ const expect = require( 'chai' ).expect,
 	EditPage = require( '../pageobjects/edit.page' ),
 	MobileFrontend = require( '../pageobjects/mobilefrontend.page' ),
 	PostEdit = require( '../pageobjects/postedit.page' ),
-	LogoutPage = require( '../pageobjects/logout.page' ),
 	Api = require( 'wdio-mediawiki/Api' );
 
 /*
@@ -47,7 +46,7 @@ describe( 'Postedit notification', function () {
 	} );
 
 	after( function () {
-		LogoutPage.logout();
+		browser.logout();
 	} );
 
 	it( 'should be visible', function () {
@@ -118,7 +117,7 @@ describe( 'Postedit notification', function () {
 
 	it ( 'should contain "sign up" link if the user is anonymous', function () {
 
-		LogoutPage.logout();
+		browser.logout();
 
 		doTestEdit( PageName );
 		PostEdit.init();

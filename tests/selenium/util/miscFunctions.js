@@ -7,8 +7,8 @@
 
 var nodeUrl = require( 'url' ),
 	request = require( 'request' ),
-	MWBot = require( 'mwbot' );
-
+	MWBot = require( 'mwbot' ),
+	Page = require( 'wdio-mediawiki/Page' );
 
 /**
 	@brief Runs from after() section of wdio.conf.js.
@@ -105,6 +105,18 @@ module.exports.install = function( browser ) {
 		}
 
 		return bot;
+	};
+
+	/** @brief Logout from the currently used MediaWiki user account. */
+	browser.logout = function() {
+		if ( browser.desiredCapabilities.browserName == 'safari' ) {
+			/* With SafariDriver, HttpOnly cookies can't be deleted by deleteCookie() */
+			(new Page).openTitle( 'Special:UserLogout' );
+		}
+		else {
+			/* Quick logout: forget the session cookie */
+			browser.deleteCookie();
+		}
 	};
 
 	/** @brief Select $link by selector. Adds $link.query field to the returned $link */
