@@ -31,6 +31,7 @@ describe( 'Postedit notification', function () {
 
 	before( function() {
 		/* Pre-create the article ExistingPageName */
+		browser.loginIntoNewAccount();
 		return Api.edit( ExistingPageName, 'Initial content ' + browser.getTestString() );
 	} );
 
@@ -40,16 +41,11 @@ describe( 'Postedit notification', function () {
 /*---------------- Desktop/mobile subtest -----------------------------------*/
 
 	before( function () {
-		browser.loginIntoNewAccount();
 		doTestEdit( PageName );
-		PostEdit.init();
-	} );
-
-	after( function () {
-		browser.logout();
 	} );
 
 	it( 'should be visible', function () {
+		PostEdit.init();
 		expect( PostEdit.notification.isVisible(), 'notification.isVisible' ).to.be.true;
 	} );
 
@@ -113,20 +109,6 @@ describe( 'Postedit notification', function () {
 		PostEdit.init();
 
 		expect( PostEdit.notification.isVisible(), 'notification.isVisible' ).to.be.true;
-	} );
-
-	it ( 'should contain "sign up" link if the user is anonymous', function () {
-
-		browser.logout();
-
-		doTestEdit( PageName );
-		PostEdit.init();
-
-		expect( PostEdit.signupLink.isVisible(), 'signupLink.isVisible' ).to.be.true;
-		expect(
-			PostEdit.signupLink.query.title,
-			'signupLink.query.title'
-		).to.equal( 'Special:CreateAccount' );
 	} );
 
 /*---------------- Desktop/mobile subtest -----------------------------------*/
