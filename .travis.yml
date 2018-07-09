@@ -37,7 +37,7 @@ cache:
 
 before_script:
   - phpenv config-rm xdebug.ini
-  - phpenv config-add tests/travis/phpconf/php.ini
+  - if [ ${TRAVIS_PHP_VERSION:0:1} = "7" ]; then phpenv config-add tests/travis/phpconf/php7.ini; fi
   - bash -ex ./tests/travis/build_mediawiki.sh "$branch"
   - rsync -a --exclude buildcache --exclude mediawiki --exclude .git --exclude node_modules * mediawiki/extensions/Moderation/
   - cd mediawiki
