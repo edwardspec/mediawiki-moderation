@@ -32,8 +32,15 @@ describe( 'When user opens MobileFrontend editor and has a pending edit', functi
 				Sections.join( "\n\n" ),
 				SavedSummary
 			).catch( function ( error ) {
-				expect( error.code, 'error.code' )
-					.to.equal( 'moderation-edit-queued' );
+				// Detect "Intercepted OK" from legacy MediaWiki 1.27-1.28
+				if ( error.code == 'unknownerror' &&
+					error.info.match( /moderation-edit-queued/ )
+				) {
+					return; // OK
+				}
+
+				// Modern MediaWiki 1.29+
+				expect( error.code, 'error.code' ).to.equal( 'moderation-edit-queued' );
 			} );
 		} );
 	} );
