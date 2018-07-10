@@ -60,7 +60,7 @@ matrix:
 
 stages:
   - name: test
-    if: !branch IN (selenium,travis-sandbox)
+    if: branch NOT IN (selenium,travis-sandbox)
   - name: selenium
     if: branch IN (selenium,travis-sandbox)
 
