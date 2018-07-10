@@ -91,10 +91,17 @@ module.exports.install = function( browser ) {
 				username: username,
 				password: password,
 				retype: password
-			} ).then( () => bot.login( {
+			} ).then( () => bot.request( {
+				action: 'query',
+				meta: 'tokens',
+				type: 'login'
+			} ).then( ( ret ) => bot.request( {
+				action: 'clientlogin',
 				username: username,
-				password: password
-			} ) ) ) );
+				password: password,
+				loginreturnurl: browser.options.baseUrl,
+				logintoken: ret.query.tokens.logintoken
+			} ) ) ) ) );
 
 		for ( var cookie of cookieJar._jar.toJSON().cookies ) {
 			// Feed these login cookies to Selenium-controlled browser
