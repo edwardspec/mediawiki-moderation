@@ -2,6 +2,8 @@ dist: trusty
 sudo: true
 language: php
 
+conditions: v1
+
 git:
   depth: 1
 
