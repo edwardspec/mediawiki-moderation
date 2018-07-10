@@ -60,7 +60,7 @@ matrix:
 
 stages:
   - name: test
-    if: !branch IN (selenium)
+    if: !branch IN (selenium,travis-sandbox)
   - name: selenium
     if: branch IN (selenium,travis-sandbox)
 
@@ -74,8 +74,8 @@ before_script:
   - if [ ${TRAVIS_PHP_VERSION:0:1} = "7" ]; then phpenv config-add tests/travis/phpconf/php7.ini; fi
   - php -i
 
-  - if [ ${TRAVIS_BUILD_STAGE_NAME} = "Selenium" ]; then bash -ex ./tests/travis/run_apache.sh; fi
-  - if [ ${TRAVIS_BUILD_STAGE_NAME} = "Selenium" ]; then bash -ex ./tests/travis/run_parsoid.sh "$branch"; fi
+  - if [ ${TRAVIS_BUILD_STAGE_NAME} = "Selenium" ]; then bash -ex ./tests/travis/apache/run_apache.sh; fi
+  - if [ ${TRAVIS_BUILD_STAGE_NAME} = "Selenium" ]; then bash -ex ./tests/travis/parsoid/run_parsoid.sh "$branch"; fi
   - bash -ex ./tests/travis/build_mediawiki.sh "$branch"
 
   - rsync -a --exclude buildcache --exclude mediawiki --exclude .git --exclude node_modules * mediawiki/extensions/Moderation/
