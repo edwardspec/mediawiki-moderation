@@ -40,7 +40,7 @@ matrix:
   include:
     # PHPUnit tests
     - &phpunit-build
-      if: NOT branch IN (selenium,travis-sandbox)
+      if: NOT branch IN (selenium)
       script:
         # First run the smallest test without --reuse-db, so that the cloned database tables are created,
         # then run the remaining testsuite with --reuse-db to save time.
@@ -56,7 +56,7 @@ matrix:
 
     # Selenium tests
     - &selenium-build
-      if: branch IN (selenium,travis-sandbox)
+      if: branch IN (master,selenium,travis-sandbox)
       env: TESTSUITE_TYPE=selenium
       script: ( cd extensions/Moderation/tests/selenium && ./node_modules/.bin/wdio wdio.conf.sauce.js --baseUrl 'http://moderation.example.com/mediawiki/' )
       after_script:
