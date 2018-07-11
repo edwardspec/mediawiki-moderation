@@ -28,6 +28,7 @@ php:
 env:
   global:
     - branch=REL1_31
+    - TESTSUITE_TYPE=phpunit
     - DBTYPE=mysql
     - DBUSER=root
     - MEDIAWIKI_USER="Moderator User"
@@ -38,33 +39,29 @@ env:
 matrix:
   include:
     # PHPUnit tests
-    - &phpunit-stage
-      stage: test
+    - &phpunit-build
+      if: NOT branch IN (selenium,travis-sandbox)
       script:
         # First run the smallest test without --reuse-db, so that the cloned database tables are created,
         # then run the remaining testsuite with --reuse-db to save time.
         - MODERATION_TEST_ENGINE=cli php tests/phpunit/phpunit.php --use-normal-tables extensions/Moderation/tests/phpunit/ModerationPermissionsTest.php
         - MODERATION_TEST_ENGINE=cli php tests/phpunit/phpunit.php --use-normal-tables --reuse-db extensions/Moderation/
       after_script: ./vendor/bin/phpcs -ps extensions/Moderation/
-    - <<: *phpunit-stage
+    - <<: *phpunit-build
       env: branch=REL1_27
       php: 7.1
-    - <<: *phpunit-stage
+    - <<: *phpunit-build
       env: branch=REL1_27
       php: 5.6
 
     # Selenium tests
-    - stage: selenium
+    - &selenium-build
+      if: branch IN (selenium,travis-sandbox)
+      env: TESTSUITE_TYPE=selenium
       script: ( cd extensions/Moderation/tests/selenium && ./node_modules/.bin/wdio wdio.conf.sauce.js --baseUrl 'http://moderation.example.com/mediawiki/' )
       after_script:
         - cat $TRAVIS_BUILD_DIR/parsoid.log
         - sudo cat /var/log/apache2/error.log
-
-stages:
-  - name: test
-    if: NOT branch IN (selenium,travis-sandbox)
-  - name: selenium
-    if: branch IN (selenium,travis-sandbox)
 
 cache:
   directories:
@@ -76,8 +73,8 @@ before_script:
   - if [ ${TRAVIS_PHP_VERSION:0:1} = "7" ]; then phpenv config-add tests/travis/phpconf/php7.ini; fi
   - php -i
 
-  - if [ ${TRAVIS_BUILD_STAGE_NAME} = "Selenium" ]; then bash -ex ./tests/travis/apache/run_apache.sh; fi
-  - if [ ${TRAVIS_BUILD_STAGE_NAME} = "Selenium" ]; then bash -ex ./tests/travis/parsoid/run_parsoid.sh "$branch"; fi
+  - if [ ${TESTSUITE_TYPE} = "selenium" ]; then bash -ex ./tests/travis/apache/run_apache.sh; fi
+  - if [ ${TESTSUITE_TYPE} = "selenium" ]; then bash -ex ./tests/travis/parsoid/run_parsoid.sh "$branch"; fi
   - bash -ex ./tests/travis/build_mediawiki.sh "$branch"
 
   - rsync -a --exclude buildcache --exclude mediawiki --exclude .git --exclude node_modules * mediawiki/extensions/Moderation/
@@ -95,4 +92,4 @@ before_script:
   - php -l ./LocalSettings.php
   - php maintenance/update.php --quick
   - php maintenance/createAndPromote.php "$MEDIAWIKI_USER" "$MEDIAWIKI_PASSWORD" --custom-groups moderator,automoderated
-  - if [ ${TRAVIS_BUILD_STAGE_NAME} = "Selenium" ]; then ( cd extensions/Moderation/tests/selenium && npm install ); fi
+  - if [ ${TESTSUITE_TYPE} = "selenium" ]; then ( cd extensions/Moderation/tests/selenium && npm install ); fi
