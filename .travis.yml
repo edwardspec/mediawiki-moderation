@@ -37,6 +37,9 @@ env:
     - secure: "YzZDIDMvMH4xKsFC9f/Z5algUXnY9kMpBpD0i9k8Iew6ci6mCG73V0t+65MpTcUxLDEExMjjkdnzmKGULw1vgSLwwKya8BjmqT2GCHPwuiMvIAdpnXg0SES3QohR99C9OpF3g2LlSIZn3hPTt0SkfNPgE+tE+3PJnMtKNPMOMgyWIByRJFS9ZhAl+Z3paYhLg3iRJq0uRHfdxFEBwJQpv3WmqaKL5M4lnD5uzVNysvfK8pvxZUM/BdnAc6dPb62BjsySnv45TAbAsk2XOaFSdoldKNN1mw0bqxV8Bz0Ew4b6u7lafsoQgyISINJWkIEYTvGmZzV8AS5j7POyNtRG3Mzwlyt3mMV7EQNZh1fWmFXEoyIfu9k+5dmJkhoHM6qJlttvpKRPU7GThBAWJiN5pZ0s34yH2JdcvPtQ7pY3XWJjPfLxoX1WIRJe/XepzKOE3I5/c7ILcW/OsCFWDH55hFN2lGjNrp6X6DXcMfU+lrreRjx1qMi4l/oqieR7/j/cQQScqtMnIMp4jSmtMii0+Wc7mr9Mg5azrHJ3uwBRbWvtGppM0fuZsdTiBtvZQOEckAz2Zge33ZmMGcb8t+9AFLWH7PJAIQlK3SDzc9V0YAOrQfckZFcIARdy310hB0Pey5MWJHFOEpzffOtLWrde5C6vvNAgQJ29LeGPm7DG/pM="
 
 matrix:
+  fast_finish: true
+  allow_failures:
+    - env: TESTSUITE_TYPE=selenium
   include:
     # PHPUnit tests
     - &phpunit-build
@@ -69,6 +72,8 @@ cache:
     - parsoid
 
 before_script:
+  - echo $TESTSUITE_TYPE
+
   - phpenv config-rm xdebug.ini
   - if [ ${TRAVIS_PHP_VERSION:0:1} = "7" ]; then phpenv config-add tests/travis/phpconf/php7.ini; fi
   - php -i
