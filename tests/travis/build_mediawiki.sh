@@ -21,6 +21,12 @@ if [ ! -f buildcache/mediawiki/COMPLETE ]; then
 				mediawiki/extensions/$EXT
 		done
 
+		for SKIN in MinervaNeue; do
+			git clone $GITCLONE_OPTS \
+				https://gerrit.wikimedia.org/r/p/mediawiki/skins/$SKIN.git \
+				mediawiki/skins/$SKIN
+		done
+
 		cd mediawiki
 		[[ -f includes/DevelopmentSettings.php ]] || \
 			wget https://raw.githubusercontent.com/wikimedia/mediawiki/master/includes/DevelopmentSettings.php \

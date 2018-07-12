@@ -1,6 +1,8 @@
 dist: trusty
-sudo: false
+sudo: true
 language: php
+
+conditions: v1
 
 git:
   depth: 1
@@ -10,35 +12,76 @@ notifications:
 
 branches:
   except:
-  - selenium # Don't run PHPUnit testsuite on the branch for developing Selenium tests
   - REL1_23
 
 services:
-  - mysql
   - memcached
+
+addons:
+  hosts:
+    - moderation.example.com
+  mariadb: "10.3"
+
+php:
+  - 7.2
 
 env:
   global:
+    - branch=REL1_31
+    - TESTSUITE_TYPE=phpunit
     - DBTYPE=mysql
     - DBUSER=root
+    - MEDIAWIKI_USER="Moderator User"
+    - MEDIAWIKI_PASSWORD="123456"
+    - SAUCE_USERNAME=edwardspec
+    - secure: "YzZDIDMvMH4xKsFC9f/Z5algUXnY9kMpBpD0i9k8Iew6ci6mCG73V0t+65MpTcUxLDEExMjjkdnzmKGULw1vgSLwwKya8BjmqT2GCHPwuiMvIAdpnXg0SES3QohR99C9OpF3g2LlSIZn3hPTt0SkfNPgE+tE+3PJnMtKNPMOMgyWIByRJFS9ZhAl+Z3paYhLg3iRJq0uRHfdxFEBwJQpv3WmqaKL5M4lnD5uzVNysvfK8pvxZUM/BdnAc6dPb62BjsySnv45TAbAsk2XOaFSdoldKNN1mw0bqxV8Bz0Ew4b6u7lafsoQgyISINJWkIEYTvGmZzV8AS5j7POyNtRG3Mzwlyt3mMV7EQNZh1fWmFXEoyIfu9k+5dmJkhoHM6qJlttvpKRPU7GThBAWJiN5pZ0s34yH2JdcvPtQ7pY3XWJjPfLxoX1WIRJe/XepzKOE3I5/c7ILcW/OsCFWDH55hFN2lGjNrp6X6DXcMfU+lrreRjx1qMi4l/oqieR7/j/cQQScqtMnIMp4jSmtMii0+Wc7mr9Mg5azrHJ3uwBRbWvtGppM0fuZsdTiBtvZQOEckAz2Zge33ZmMGcb8t+9AFLWH7PJAIQlK3SDzc9V0YAOrQfckZFcIARdy310hB0Pey5MWJHFOEpzffOtLWrde5C6vvNAgQJ29LeGPm7DG/pM="
 
 matrix:
+  fast_finish: true
+  allow_failures:
+    - env: TESTSUITE_TYPE=selenium
   include:
-    - env: branch=REL1_31
-      php: 7.2
-    - env: branch=REL1_27
+    # PHPUnit tests
+    - &phpunit-build
+      if: NOT branch IN (selenium)
+      script:
+        # First run the smallest test without --reuse-db, so that the cloned database tables are created,
+        # then run the remaining testsuite with --reuse-db to save time.
+        - MODERATION_TEST_ENGINE=cli php tests/phpunit/phpunit.php --use-normal-tables extensions/Moderation/tests/phpunit/ModerationPermissionsTest.php
+        - MODERATION_TEST_ENGINE=cli php tests/phpunit/phpunit.php --use-normal-tables --reuse-db extensions/Moderation/
+      after_script: ./vendor/bin/phpcs -ps extensions/Moderation/
+    - <<: *phpunit-build
+      env: branch=REL1_27
       php: 7.1
-    - env: branch=REL1_27
+    - <<: *phpunit-build
+      env: branch=REL1_27
       php: 5.6
+
+    # Selenium tests
+    - &selenium-build
+      if: branch IN (master,selenium,travis-sandbox)
+      env: TESTSUITE_TYPE=selenium
+      script: ( cd extensions/Moderation/tests/selenium && ./node_modules/.bin/wdio wdio.conf.sauce.js --baseUrl 'http://moderation.example.com/mediawiki/' )
+      after_script:
+        - cat $TRAVIS_BUILD_DIR/parsoid.log
+        - sudo cat /var/log/apache2/error.log
 
 cache:
   directories:
     - buildcache
+    - parsoid
 
 before_script:
+  - echo $TESTSUITE_TYPE
+
   - phpenv config-rm xdebug.ini
   - if [ ${TRAVIS_PHP_VERSION:0:1} = "7" ]; then phpenv config-add tests/travis/phpconf/php7.ini; fi
+  - php -i
+
+  - if [ ${TESTSUITE_TYPE} = "selenium" ]; then bash -ex ./tests/travis/apache/run_apache.sh; fi
+  - if [ ${TESTSUITE_TYPE} = "selenium" ]; then bash -ex ./tests/travis/parsoid/run_parsoid.sh "$branch"; fi
   - bash -ex ./tests/travis/build_mediawiki.sh "$branch"
+
   - rsync -a --exclude buildcache --exclude mediawiki --exclude .git --exclude node_modules * mediawiki/extensions/Moderation/
   - cd mediawiki
   - >
@@ -53,12 +96,5 @@ before_script:
   - echo -en "\n\nrequire_once __DIR__ . '/extensions/Moderation/tests/travis/ModerationSettings.php';\n" >> ./LocalSettings.php
   - php -l ./LocalSettings.php
   - php maintenance/update.php --quick
-
-script:
-# First run the smallest test without --reuse-db, so that the cloned database tables are created,
-# then run the remaining testsuite with --reuse-db to save time.
-  - MODERATION_TEST_ENGINE=cli php tests/phpunit/phpunit.php --use-normal-tables extensions/Moderation/tests/phpunit/ModerationPermissionsTest.php
-  - MODERATION_TEST_ENGINE=cli php tests/phpunit/phpunit.php --use-normal-tables --reuse-db extensions/Moderation/
-
-after_script:
-  - ./vendor/bin/phpcs -ps extensions/Moderation/
+  - php maintenance/createAndPromote.php "$MEDIAWIKI_USER" "$MEDIAWIKI_PASSWORD" --custom-groups moderator,automoderated
+  - if [ ${TESTSUITE_TYPE} = "selenium" ]; then ( cd extensions/Moderation/tests/selenium && npm install ); fi

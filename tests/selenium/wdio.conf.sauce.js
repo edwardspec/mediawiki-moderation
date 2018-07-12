@@ -5,7 +5,7 @@ var merge = require( 'deepmerge' ),
 
 // Overwrite default settings
 conf = merge( conf, {
-	maxInstances: 1,
+	maxInstances: 5,
 
 	services: [ 'sauce' ],
 	user: process.env.SAUCE_USERNAME || '',
@@ -41,6 +41,11 @@ conf.capabilities = [
 	},
 	{ browserName: 'chrome', version: 'latest' },
 	{ browserName: 'firefox', version: 'latest' }
-];
+].map( function ( capability ) {
+	// Group all tests in SauceLabs Dashboard by the build ID
+	capability.build = process.env.TRAVIS_JOB_NUMBER + ' [' + process.env.branch + '] - Testsuite of Extension:Moderation';
+
+	return capability;
+} );;
 
 exports.config = conf;
