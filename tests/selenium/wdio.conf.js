@@ -13,7 +13,7 @@ exports.config = {
 		require( './util/miscFunctions' ).install( browser );
 	},
 
-	afterTest: function() {
+	afterSuite: function() {
 		require( './util/miscFunctions' ).afterTestHook( browser );
 	},
 

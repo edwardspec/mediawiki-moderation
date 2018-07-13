@@ -11,7 +11,7 @@ var nodeUrl = require( 'url' ),
 	Page = require( 'wdio-mediawiki/Page' );
 
 /**
-	@brief Runs from afterTest() hook of wdio.conf.js.
+	@brief Runs from afterSuite() hook of wdio.conf.js.
 */
 module.exports.afterTestHook = function( browser ) {
 	/* Latest Firefox displays "Do you really want to leave" dialog
