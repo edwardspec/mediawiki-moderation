@@ -38,8 +38,6 @@ env:
 
 matrix:
   fast_finish: true
-  allow_failures:
-    - env: TESTSUITE_TYPE=selenium
   include:
     # PHPUnit tests
     - &phpunit-build
@@ -98,3 +96,6 @@ before_script:
   - php maintenance/update.php --quick
   - php maintenance/createAndPromote.php "$MEDIAWIKI_USER" "$MEDIAWIKI_PASSWORD" --custom-groups moderator,automoderated
   - if [ ${TESTSUITE_TYPE} = "selenium" ]; then ( cd extensions/Moderation/tests/selenium && npm install ); fi
+  # Workaround for T199393 - parallel CreateAccount attempts cause a deadlock in MediaWiki,
+  # which affects our Selenium tests (they create test accounts before the test).
+  - sed -i 's/READ_LOCKING/READ_NORMAL/' includes/auth/AuthManager.php
