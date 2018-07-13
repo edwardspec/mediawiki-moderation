@@ -6,11 +6,11 @@ exports.config = {
 	password: process.env.MEDIAWIKI_PASSWORD || '123456',
 
 	before: function() {
-		/* Install additional functions, e.g. browser.selectByLabel() */
-		require( './util/miscFunctions' ).install( browser );
-
 		/* Always open Special:BlankPage before tests */
 		require( 'wdio-mediawiki/BlankPage' ).open();
+
+		/* Install additional functions, e.g. browser.selectByLabel() */
+		require( './util/miscFunctions' ).install( browser );
 	},
 
 	after: function() {
