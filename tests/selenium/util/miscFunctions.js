@@ -9,7 +9,8 @@ var nodeUrl = require( 'url' ),
 	request = require( 'request' ),
 	MWBot = require( 'mwbot' ),
 	Page = require( 'wdio-mediawiki/Page' ),
-	fs = require( 'fs-ext' );
+	fs = require( 'fs-ext' ), // for fs.flock()
+	Promise = require( 'bluebird' );
 
 /**
 	@brief Runs from afterSuite() hook of wdio.conf.js.
@@ -100,6 +101,13 @@ module.exports.install = function( browser ) {
 				retype: password
 			} ).finally( () => {
 				fs.flockSync( lockfile, 'un' ); // Unlock
+			} ).then( ( apiResult ) => {
+				if ( apiResult.createaccount.status != 'PASS' ) {
+					return Promise.reject( new Error(
+						'loginIntoNewAccount(): failed to create account: ' +
+						apiResult.createaccount.message
+					) );
+				}
 			} ).then( () => bot.request( {
 				action: 'query',
 				meta: 'tokens',
@@ -110,6 +118,13 @@ module.exports.install = function( browser ) {
 				password: password,
 				loginreturnurl: browser.options.baseUrl,
 				logintoken: ret.query.tokens.logintoken
+			} ).then( ( apiResult ) => {
+				if ( apiResult.clientlogin.status != 'PASS' ) {
+					return Promise.reject( new Error(
+						'loginIntoNewAccount(): failed to login: ' +
+						apiResult.clientlogin.message
+					) );
+				}
 			} ) ) ) ) );
 
 		for ( var cookie of cookieJar._jar.toJSON().cookies ) {
