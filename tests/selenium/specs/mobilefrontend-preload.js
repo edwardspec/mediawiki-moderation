@@ -47,7 +47,7 @@ describe( 'When user opens MobileFrontend editor and has a pending edit', functi
 
 	/* Test preloading of a single section into MobileFrontend */
 	for ( var idx in Sections ) {
-		it( 'section #' + idx + ' should be shown', function () {
+		it( 'section #' + idx + ' should be shown', function ( idx ) {
 			MobileFrontend.open( PageName, idx );
 
 			MobileFrontend.content.waitForValue();
@@ -55,7 +55,7 @@ describe( 'When user opens MobileFrontend editor and has a pending edit', functi
 				MobileFrontend.content.getValue(),
 				'MobileFrontend.content[' + idx +']' )
 			.to.equal( Sections[idx] );
-		} );
+		}.bind( null, idx ) );
 	}
 
 	it( 'edit summary should be shown', function () {
