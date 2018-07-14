@@ -3,14 +3,13 @@
 const expect = require( 'chai' ).expect,
 	EditPage = require( '../pageobjects/edit.page' ),
 	MobileFrontend = require( '../pageobjects/mobilefrontend.page' ),
-	PostEdit = require( '../pageobjects/postedit.page' ),
-	Api = require( 'wdio-mediawiki/Api' );
+	PostEdit = require( '../pageobjects/postedit.page' );
 
 /*
 	Title of MediaWiki page which should be edited during this test.
 */
 var PageName = 'Test ' + browser.getTestString(),
-	ExistingPageName = 'ExistingPage ' + browser.getTestString(),
+	ExistingPagePromise,
 	subtests = [
 		[ 'desktop', function ( title ) {
 			EditPage.edit(
@@ -30,9 +29,8 @@ var PageName = 'Test ' + browser.getTestString(),
 describe( 'Postedit notification', function () {
 
 	before( function() {
-		/* Pre-create the article ExistingPageName */
+		ExistingPagePromise = browser.precreatePageAsync();
 		browser.loginIntoNewAccount();
-		return Api.edit( ExistingPageName, 'Initial content ' + browser.getTestString() );
 	} );
 
 	/* Run the same tests for desktop and mobile view */
@@ -105,6 +103,8 @@ describe( 'Postedit notification', function () {
 			when creating a new article and didn't reload it when editing
 			existing article. Our notification should work in both situations.
 		*/
+		var ExistingPageName = browser.call( () => ExistingPagePromise );
+
 		doTestEdit( ExistingPageName );
 		PostEdit.init();
 

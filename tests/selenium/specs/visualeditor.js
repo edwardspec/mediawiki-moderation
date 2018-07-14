@@ -3,17 +3,21 @@
 const expect = require( 'chai' ).expect,
 	VisualEditor = require( '../pageobjects/visualeditor.page' ),
 	PostEdit = require( '../pageobjects/postedit.page' ),
-	EditPage = require( '../pageobjects/edit.page' ),
-	Api = require( 'wdio-mediawiki/Api' );
+	EditPage = require( '../pageobjects/edit.page' );
 
 /*
 	Title of MediaWiki page which should be edited during this test.
 */
 var PageName = 'Test ' + browser.getTestString(),
 	Content = browser.getTestString(),
-	Summary = 'funny change #' + browser.getTestString();
+	Summary = 'funny change #' + browser.getTestString(),
+	ExistingPagePromise;
 
 describe( 'VisualEditor', function () {
+
+	before( function () {
+		ExistingPagePromise = browser.precreatePageAsync();
+	} );
 
 	it( 'should save the new edit without errors', function () {
 		VisualEditor.edit( PageName, Content, Summary );
@@ -66,15 +70,14 @@ describe( 'VisualEditor', function () {
 			First we need an existing article. Because of the moderation,
 			such article can only be created by an automoderated user.
 		*/
-		return Api.edit( PageName, 'Initial content: ' + Content ).then( function() {
+		var ExistingPageName = browser.call( () => ExistingPagePromise );
 
-			/* Now that we have an existing page, edit it again as anonymous user */
-			VisualEditor.edit( PageName, 'Suggested content: ' + Content );
-			PostEdit.init();
+		/* Now that we have an existing page, edit it again as anonymous user */
+		VisualEditor.edit( ExistingPageName, 'Suggested content: ' + Content );
+		PostEdit.init();
 
-			expect( PostEdit.pageContent.getText(), 'PostEdit.pageContent' )
-				.to.not.equal( '' );
-		} );
+		expect( PostEdit.pageContent.getText(), 'PostEdit.pageContent' )
+			.to.not.equal( '' );
 	} );
 
 } );

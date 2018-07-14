@@ -10,7 +10,8 @@ var nodeUrl = require( 'url' ),
 	MWBot = require( 'mwbot' ),
 	Page = require( 'wdio-mediawiki/Page' ),
 	fs = require( 'fs-ext' ), // for fs.flock()
-	Promise = require( 'bluebird' );
+	Promise = require( 'bluebird' ),
+	Api = require( 'wdio-mediawiki/Api' );
 
 /**
 	@brief Runs from afterSuite() hook of wdio.conf.js.
@@ -67,8 +68,21 @@ module.exports.install = function( browser ) {
 	};
 
 	/**
+		@brief Precreates a test page (using moderator's account).
+		@return Promise which is resolved with the Title of newly created page.
+	*/
+	browser.precreatePageAsync = function() {
+		var PageName = 'ExistingPage ' + browser.getTestString(),
+			Content = 'Initial content ' + browser.getTestString();
+
+		return Api.edit( PageName, Content ).then( () => {
+			return PageName;
+		} );
+	};
+
+	/**
 		@brief Creates new account and logins into it via API.
-		@returns MWBot
+		@return MWBot
 	*/
 	browser.loginIntoNewAccount = function() {
 		var username = 'Test User ' + Date.now() + ' ' + Math.random(),
