@@ -13,10 +13,6 @@ exports.config = {
 		require( './util/miscFunctions' ).install( browser );
 	},
 
-	afterSuite: function() {
-		require( './util/miscFunctions' ).afterTestHook( browser );
-	},
-
 	/* Common WebdriverIO options */
 	specs: [
 		'specs/*.js'

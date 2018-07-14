@@ -14,21 +14,6 @@ var nodeUrl = require( 'url' ),
 	Api = require( 'wdio-mediawiki/Api' );
 
 /**
-	@brief Runs from afterSuite() hook of wdio.conf.js.
-*/
-module.exports.afterTestHook = function( browser ) {
-	/* Latest Firefox displays "Do you really want to leave" dialog
-		even when WebDriver is being closed. Suppress that.
-	*/
-	browser.execute( function() {
-		window.onbeforeunload = null;
-		if ( window.$ ) {
-			$( window ).off( 'beforeunload pageshow' ); /* See [mediawiki.confirmCloseWindow.js] in MediaWiki core */
-		}
-	} );
-};
-
-/**
 	@brief Runs from before() section of wdio.conf.js.
 */
 module.exports.install = function( browser ) {
