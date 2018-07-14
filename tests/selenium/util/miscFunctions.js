@@ -8,7 +8,8 @@
 var nodeUrl = require( 'url' ),
 	request = require( 'request' ),
 	MWBot = require( 'mwbot' ),
-	Page = require( 'wdio-mediawiki/Page' );
+	Page = require( 'wdio-mediawiki/Page' ),
+	fs = require( 'fs-ext' );
 
 /**
 	@brief Runs from afterSuite() hook of wdio.conf.js.
@@ -82,8 +83,14 @@ module.exports.install = function( browser ) {
 			verbose: true
 		}, { jar: cookieJar } );
 
+		var lockfile = fs.openSync( __filename, 'r' );
+
 		browser.call( () => bot.getCreateaccountToken()
-			.then( () => bot.request( {
+			.then( () => {
+				// Workaround for T199393
+				// (MediaWiki deadlocks on simultaneous CreateAccount attempts)
+				fs.flockSync( lockfile, 'ex' );
+			} ).then( () => bot.request( {
 				// Create the new account. Note: this alone does NOT login.
 				action: 'createaccount',
 				createreturnurl: browser.options.baseUrl,
@@ -91,6 +98,8 @@ module.exports.install = function( browser ) {
 				username: username,
 				password: password,
 				retype: password
+			} ).finally( () => {
+				fs.flockSync( lockfile, 'un' ); // Unlock
 			} ).then( () => bot.request( {
 				action: 'query',
 				meta: 'tokens',
