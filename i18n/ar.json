@@ -90,6 +90,8 @@
 	"right-moderation": "الإشراف على التعديلات",
 	"right-skip-moderation": "تعديلاتهم تتجاوز الإشراف",
 	"right-skip-move-moderation": "نقل الصفحات دون إشراف",
+	"tag-moderation-merged": "تم دمج تحرير مستخدم آخر",
+	"tag-moderation-merged-description": "تعديل مستخدم آخر (قام مشرف بحل تعارض في التعديل فيه).",
 	"tooltip-moderation-approveall": "الموافقة على جميع التعديلات من هذا المستخدم/الآيبي",
 	"tooltip-moderation-approve": "الموافقة على هذا التعديل المفرد",
 	"tooltip-moderation-approved-diff": "عرض التعديل المعتمد",
