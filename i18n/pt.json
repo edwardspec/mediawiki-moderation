@@ -69,7 +69,7 @@
 	"moderation-nothing-to-rejectall": "Não há edições a aguardar moderação: nada para rejeitar.",
 	"moderation-notification-content": "Uma edição nova da página '$1', feita pelo utilizador '$2', está a aguardar moderação. Clique para vê-la: $3",
 	"moderation-notification-subject": "[Moderação] Uma mudança nova aguarda moderação",
-	"moderation-pending-review": "Revisão pendente",
+	"moderation-pending-review": "A aguardar revisão",
 	"moderation-preview": "antevisão",
 	"moderation-preview-title": "Revisão de \"$1\" a aguardar moderação",
 	"moderation-rejectall": "Rejeitar todas",
