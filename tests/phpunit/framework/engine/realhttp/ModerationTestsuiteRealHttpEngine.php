@@ -44,7 +44,7 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 	/**
 	 * @brief Perform API request and return the resulting structure.
 	 * @note If $apiQuery contains 'token' => 'null', then 'token'
-			will be set to the current value of $editToken.
+	 * will be set to the current value of $editToken.
 	 */
 	protected function doQuery( array $apiQuery ) {
 		$req = $this->httpPost( $this->apiUrl, $apiQuery );
@@ -69,12 +69,12 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 			'logintoken' => $loginToken
 		] );
 
-		if ( $ret['clientlogin']['status'] == 'PASS' ) {
-			$this->getEditToken( true ); # It's different for a logged-in user
-			return true;
+		if ( isset( $ret['error'] ) || $ret['clientlogin']['status'] != 'PASS' ) {
+			throw new MWException( 'Failed to login as [' . $user->getName() . ']: ' .
+				FormatJson::encode( $ret ) );
 		}
 
-		return false;
+		$this->getEditToken( true ); # It's different for a logged-in user
 	}
 
 	public function executeHttpRequest( $url, $method = 'GET', array $postData = [] ) {
