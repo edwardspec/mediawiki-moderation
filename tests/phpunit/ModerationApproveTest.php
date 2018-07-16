@@ -439,6 +439,7 @@ class ModerationApproveTest extends MediaWikiTestCase {
 		$dbw->delete( 'user', [
 			'user_id' => $t->unprivilegedUser->getId()
 		], __METHOD__ );
+		$t->unprivilegedUser->invalidateCache();
 
 		$t->fetchSpecial();
 
