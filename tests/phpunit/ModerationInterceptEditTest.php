@@ -26,26 +26,6 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
  * @covers ModerationEditHooks
  */
 class ModerationInterceptEditTest extends MediaWikiTestCase {
-	public function testInterceptEdit() {
-		$t = new ModerationTestsuite();
-
-		$t->loginAs( $t->unprivilegedUser );
-
-		$t->editViaAPI = true;
-		$ret = $t->doTestEdit();
-		$t->fetchSpecial();
-
-		$t->assertApiError( 'moderation-edit-queued', $ret, $this );
-
-		$this->assertCount( 1, $t->new_entries,
-			"testInterceptEdit(): One edit was queued for moderation, " .
-			"but number of added entries in Pending folder isn't 1" );
-		$this->assertCount( 0, $t->deleted_entries,
-			"testInterceptEdit(): Something was deleted from Pending folder during the queueing" );
-		$this->assertEquals( $t->lastEdit['User'], $t->new_entries[0]->user );
-		$this->assertEquals( $t->lastEdit['Title'], $t->new_entries[0]->title );
-	}
-
 	public function testPostEditRedirect() {
 		$t = new ModerationTestsuite();
 

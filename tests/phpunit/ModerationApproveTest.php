@@ -252,56 +252,6 @@ class ModerationApproveTest extends MediaWikiTestCase {
 		$this->tryToApprove( $t, $entry, __FUNCTION__ );
 	}
 
-	/**
-	 * @covers ModerationCanSkip::enterApproveMode()
-	 * @brief This test verifies that moderator can be NOT automoderated.
-
-		There is no real use for such setup other than debugging,
-		and that's why we don't want to test this manually.
-	*/
-	public function testModeratorNotAutomoderated() {
-		$t = new ModerationTestsuite();
-
-		$t->loginAs( $t->moderatorButNotAutomoderated );
-
-		$t->editViaAPI = true;
-		$ret = $t->doTestEdit();
-
-		$t->fetchSpecial();
-
-		/* Edit must be intercepted (this user is not automoderated) */
-		$t->assertApiError( 'moderation-edit-queued', $ret, $this );
-
-		$entry = $t->new_entries[0];
-		$this->assertCount( 1, $t->new_entries,
-			"testModeratorNotAutomoderated(): One edit was queued for moderation, " .
-			"but number of added entries in Pending folder isn't 1" );
-		$this->assertCount( 0, $t->deleted_entries,
-			"testModeratorNotAutomoderated(): Something was deleted from Pending folder " .
-			"during the queueing" );
-		$this->assertEquals( $t->lastEdit['User'], $entry->user );
-		$this->assertEquals( $t->lastEdit['Title'], $entry->title );
-
-		/* Must be able to approve the edit (this user is moderator) */
-		$t->loginAs( $t->moderatorButNotAutomoderated );
-		$this->tryToApprove( $t, $entry, __FUNCTION__ );
-
-		/* ApproveAll must also work */
-		$t->doNTestEditsWith( $t->moderatorButNotAutomoderated );
-		$t->fetchSpecial();
-
-		$t->loginAs( $t->moderatorButNotAutomoderated );
-		$t->httpGet( $t->new_entries[0]->approveAllLink );
-
-		$t->fetchSpecial();
-		$this->assertCount( 0, $t->new_entries,
-			"testModeratorNotAutomoderated(): Something was added into Pending folder " .
-			"during modaction=approveall" );
-		$this->assertCount( $t->TEST_EDITS_COUNT, $t->deleted_entries,
-			"testModeratorNotAutomoderated(): Several edits were approved, but number of " .
-			"deleted entries in Pending folder doesn't match" );
-	}
-
 	public function testApproveTimestamp() {
 		$t = new ModerationTestsuite();
 		$entry = $t->getSampleEntry();
