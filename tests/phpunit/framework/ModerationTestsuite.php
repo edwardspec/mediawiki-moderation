@@ -326,6 +326,7 @@ class ModerationTestsuite {
 
 		if ( $user->isAnon() ) {
 			$this->logout();
+			return;
 		}
 
 		$this->engine->loginAs( $user );
