@@ -30,30 +30,17 @@ class ModerationCheckuserTest extends MediaWikiTestCase {
 	public $userUA = 'UserAgent of UnprivilegedUser/1.0';
 
 	/**
-	 * @brief Verifies that checkusers can see Whois link for registered users,
+	 * @brief Verifies that checkusers can see the IP of registered users via API,
 	 * but non-checkusers can't.
 	 */
-	public function testModerationCheckuser() {
+	public function testApiModerationCheckuser() {
 		$t = new ModerationTestsuite();
-		$entry = $t->getSampleEntry();
+		$t->doTestEdit();
 
-		$this->assertNull( $entry->ip,
-			"testModerationCheckuser(): IP was shown to non-checkuser on Special:Moderation" );
-		$this->assertNull( $this->getIpFromApi( $t ),
+		$this->assertNull( $this->getIpFromApi( $t, $t->moderator ),
 			"testModerationCheckuser(): API exposed IP to non-checkuser" );
 
-		$t->moderator = $t->moderatorAndCheckuser;
-
-		$t->assumeFolderIsEmpty();
-		$t->fetchSpecial();
-
-		$entry = $t->new_entries[0];
-		$this->assertNotNull( $entry->ip,
-			"testModerationCheckuser(): IP wasn't shown to checkuser on Special:Moderation" );
-		$this->assertEquals( "127.0.0.1", $entry->ip,
-			"testModerationCheckuser(): incorrect IP on Special:Moderation" );
-
-		$ip = $this->getIpFromApi( $t );
+		$ip = $this->getIpFromApi( $t, $t->moderatorAndCheckuser );
 		$this->assertNotNull( $ip,
 			"testModerationCheckuser(): API didn't show IP to checkuser" );
 		$this->assertEquals( "127.0.0.1", $ip,
@@ -64,7 +51,8 @@ class ModerationCheckuserTest extends MediaWikiTestCase {
 	 * @brief Returns mod_ip of the last edit, as provided to the current user by QueryPage API.
 	 * @retval null IP is not in the API response.
 	 */
-	protected function getIpFromApi( ModerationTestsuite $t ) {
+	protected function getIpFromApi( ModerationTestsuite $t, User $user ) {
+		$t->loginAs( $user );
 		$ret = $t->query( [
 			'action' => 'query',
 			'list' => 'querypage',
@@ -74,24 +62,6 @@ class ModerationCheckuserTest extends MediaWikiTestCase {
 
 		$row = $ret['query']['querypage']['results'][0]['databaseResult'];
 		return isset( $row['ip'] ) ? $row['ip'] : null;
-	}
-
-	/**
-	 * @brief Verifies that anyone can see Whois link for anonymous users.
-	 */
-	public function testAnonymousWhoisLink() {
-		$t = new ModerationTestsuite();
-
-		$t->logout();
-		$t->doTestEdit();
-		$t->fetchSpecial();
-
-		$entry = $t->new_entries[0];
-
-		$this->assertNotNull( $entry->ip,
-			"testAnonymousWhoisLink(): Whois link not shown for anonymous user" );
-		$this->assertEquals( "127.0.0.1", $entry->ip,
-			"testAnonymousWhoisLink(): incorrect Whois link for anonymous user" );
 	}
 
 	public function skipIfNoCheckuser() {

@@ -304,6 +304,10 @@ class ModerationTestsuite {
 	protected $currentUser = null;
 
 	public function loggedInAs() {
+		if ( $this->currentUser === null ) {
+			$this->currentUser = $this->engine->loggedInAs();
+		}
+
 		return $this->currentUser;
 	}
 
