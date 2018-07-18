@@ -68,8 +68,8 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 
 	/**
 	 * @brief Returns default value for $fields.
-		This represents situation when dataProvider provides an empty array.
-	*/
+	 * This represents situation when dataProvider provides an empty array.
+	 */
 	protected function getDefaultFields() {
 		$t = $this->getTestsuite();
 		$user = $t->unprivilegedUser;

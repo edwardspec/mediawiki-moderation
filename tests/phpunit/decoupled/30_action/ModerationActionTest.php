@@ -169,8 +169,10 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 		// Execute the action, check HTML printed by the action
 		$output = $t->html->getMainText( $this->getActionURL() );
-		$testcase->assertContains( $this->expectedOutput, $output,
-			"modaction={$this->modaction}: unexpected output." );
+		if ( $this->expectedOutput ) {
+			$testcase->assertContains( $this->expectedOutput, $output,
+				"modaction={$this->modaction}: unexpected output." );
+		}
 
 		// Check the mod_* fields in the database after the action.
 		if ( $this->expectRowDeleted ) {
@@ -182,8 +184,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			);
 			$testcase->assertFalse( $row,
 				"modaction={$this->modaction}: database row wasn't deleted" );
-		}
-		else {
+		} else {
 			$this->assertRowEquals( $this->expectedFields );
 		}
 
