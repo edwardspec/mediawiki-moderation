@@ -75,7 +75,66 @@ class ModerationActionTest extends MediaWikiTestCase {
 			[ [ 'modaction' => 'preview' ] ],
 			[ [ 'mod_conflict' => 1, 'modaction' => 'merge' ] ],
 			[ [ 'modaction' => 'block', 'expectModblocked' => true ] ],
-			[ [ 'modaction' => 'unblock', 'modblocked' => true, 'expectModblocked' => false ] ]
+			[ [ 'modaction' => 'unblock', 'modblocked' => true, 'expectModblocked' => false ] ],
+
+			// Errors printed by actions:
+			[ [
+				'modaction' => 'makesandwich',
+				'expectedError' => '(moderation-unknown-modaction)'
+			] ],
+			[ [
+				'modaction' => 'reject',
+				'mod_rejected' => 1,
+				'expectedError' => '(moderation-already-rejected)'
+			] ],
+			[ [
+				'modaction' => 'approveall',
+				'mod_rejected' => 1,
+				'expectedError' => '(moderation-nothing-to-approveall)'
+			] ],
+			[ [
+				'modaction' => 'rejectall',
+				'mod_rejected' => 1,
+				'expectedError' => '(moderation-nothing-to-rejectall)'
+			] ],
+			[ [
+				'modaction' => 'approve',
+				'mod_merged_revid' => 12345,
+				'expectedError' => '(moderation-already-merged)'
+			] ],
+			[ [
+				'modaction' => 'reject',
+				'mod_merged_revid' => 12345,
+				'expectedError' => '(moderation-already-merged)'
+			] ],
+			[ [
+				'modaction' => 'merge',
+				'expectedError' => '(moderation-merge-not-needed)'
+			] ],
+			[ [
+				'modaction' => 'merge',
+				'mod_conflict' => 1,
+				'notAutomoderated' => true,
+				'expectedError' => '(moderation-merge-not-automoderated)'
+			] ],
+
+			/* TODO: this error is not yet thrown, uncomment when added.
+			[ [
+				'modaction' => 'merge',
+				'mod_conflict' => 1,
+				'mod_merged_revid' => 12345,
+				'expectedError' => '(moderation-already-merged)'
+			] ],
+			*/
+
+			// TODO: 'moderation-rejected-long-ago' from 'approve'
+			// TODO: 'moderation-edit-not-found' from everything
+			// TODO: ReadOnlyError exception from non-readonly actions
+			// TODO: approval errors originating from doEditContent(), etc.
+
+
+			// TODO: test uploads, moves
+			// TODO: modaction=showimg
 		];
 	}
 }
@@ -95,6 +154,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * Field that are NOT in this array are expected to be unmodified.
 	 */
 	protected $expectedFields = [];
+
+	/**
+	 * @var string|null Error that should be printed by this action, e.g. "(sessionfailure)".
+	 */
+	protected $expectedError = null;
 
 	/**
 	 * @var bool|null If true/false, author of change is expected to become (not) modblocked.
@@ -118,6 +182,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		foreach ( $options as $key => $value ) {
 			switch ( $key ) {
 				case 'expectedFields':
+				case 'expectedError':
 				case 'expectModblocked':
 				case 'expectedOutput':
 				case 'expectRowDeleted':
@@ -172,6 +237,16 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		if ( $this->expectedOutput ) {
 			$testcase->assertContains( $this->expectedOutput, $output,
 				"modaction={$this->modaction}: unexpected output." );
+		}
+
+		$error = $t->html->getModerationError();
+		if ( $this->expectedError ) {
+			$testcase->assertEquals( $this->expectedError, $error,
+				"modaction={$this->modaction}: expected error not shown." );
+		}
+		else {
+			$testcase->assertNull( $this->expectedError,
+				"modaction={$this->modaction}: unexpected error." );
 		}
 
 		// Check the mod_* fields in the database after the action.
