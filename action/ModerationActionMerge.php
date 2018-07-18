@@ -30,7 +30,8 @@ class ModerationActionMerge extends ModerationAction {
 				'mod_title AS title',
 				'mod_user_text AS user_text',
 				'mod_text AS text',
-				'mod_conflict AS conflict'
+				'mod_conflict AS conflict',
+				'mod_merged_revid AS merged_revid'
 			],
 			[ 'mod_id' => $this->id ],
 			__METHOD__
@@ -41,6 +42,10 @@ class ModerationActionMerge extends ModerationAction {
 
 		if ( !$row->conflict ) {
 			throw new ModerationError( 'moderation-merge-not-needed' );
+		}
+
+		if ( $row->merged_revid ) {
+			throw new ModerationError( 'moderation-already-merged' );
 		}
 
 		// In order to merge, moderator must also be automoderated

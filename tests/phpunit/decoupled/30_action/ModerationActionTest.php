@@ -141,15 +141,12 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'notAutomoderated' => true,
 				'expectedError' => '(moderation-merge-not-automoderated)'
 			] ],
-
-			/* TODO: this error is not yet thrown, uncomment when added.
 			[ [
 				'modaction' => 'merge',
 				'mod_conflict' => 1,
 				'mod_merged_revid' => 12345,
 				'expectedError' => '(moderation-already-merged)'
 			] ],
-			*/
 
 			// TODO: 'moderation-rejected-long-ago' from 'approve'
 			// TODO: 'moderation-edit-not-found' from everything
