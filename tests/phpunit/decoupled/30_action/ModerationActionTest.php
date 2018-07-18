@@ -70,12 +70,36 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectRowDeleted' => true
 			] ],
 
-			// The following actions shouldn't change the row
+			// Actions show/preview/merge/block/unblock shouldn't change the row
 			[ [ 'modaction' => 'show' ] ],
 			[ [ 'modaction' => 'preview' ] ],
 			[ [ 'mod_conflict' => 1, 'modaction' => 'merge' ] ],
-			[ [ 'modaction' => 'block', 'expectModblocked' => true ] ],
-			[ [ 'modaction' => 'unblock', 'modblocked' => true, 'expectModblocked' => false ] ],
+
+			// Check block/unblock
+			[ [
+				'modaction' => 'block',
+				'expectModblocked' => true,
+				'expectedOutput' => 'moderation-block-ok'
+			] ],
+			[ [
+				'modaction' => 'unblock',
+				'modblocked' => true,
+				'expectModblocked' => false,
+				'expectedOutput' => 'moderation-unblock-ok'
+			] ],
+			[ [
+				'modaction' => 'block',
+				'modblocked' => true,
+				'expectModblocked' => true,
+				// block doesn't show an error if already blocked
+				'expectedOutput' => 'moderation-block-ok'
+			] ],
+			[ [
+				'modaction' => 'unblock',
+				'expectModblocked' => false,
+				// unblock shows an error if user wasn't blocked
+				'expectedOutput' => 'moderation-unblock-fail'
+			] ],
 
 			// Errors printed by actions:
 			[ [
@@ -131,7 +155,6 @@ class ModerationActionTest extends MediaWikiTestCase {
 			// TODO: 'moderation-edit-not-found' from everything
 			// TODO: ReadOnlyError exception from non-readonly actions
 			// TODO: approval errors originating from doEditContent(), etc.
-
 
 			// TODO: test uploads, moves
 			// TODO: modaction=showimg
@@ -243,8 +266,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		if ( $this->expectedError ) {
 			$testcase->assertEquals( $this->expectedError, $error,
 				"modaction={$this->modaction}: expected error not shown." );
-		}
-		else {
+		} else {
 			$testcase->assertNull( $this->expectedError,
 				"modaction={$this->modaction}: unexpected error." );
 		}
