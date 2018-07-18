@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Checks how HTML of Special:Moderation is rendered from the 'moderation' SQL table.
+ * @brief Checks consequences of the moderation actions on Special:Moderation.
  */
 
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
@@ -48,6 +48,34 @@ class ModerationActionTest extends MediaWikiTestCase {
 					'mod_preloadable' => '{{{MODID}}}'
 				]
 			] ],
+			[ [
+				'modaction' => 'rejectall',
+				'expectedOutput' => '(moderation-rejected-ok: 1)',
+				'expectedFields' => [
+					'mod_rejected' => 1,
+					'mod_rejected_batch' => 1,
+					'mod_rejected_by_user' => '{{{MODERATOR_USERID}}}',
+					'mod_rejected_by_user_text' => '{{{MODERATOR_USERNAME}}}',
+					'mod_preloadable' => '{{{MODID}}}'
+				]
+			] ],
+			[ [
+				'modaction' => 'approve',
+				'expectedOutput' => '(moderation-approved-ok: 1)',
+				'expectRowDeleted' => true
+			] ],
+			[ [
+				'modaction' => 'approveall',
+				'expectedOutput' => '(moderation-approved-ok: 1)',
+				'expectRowDeleted' => true
+			] ],
+
+			// The following actions shouldn't change the row
+			[ [ 'modaction' => 'show' ] ],
+			[ [ 'modaction' => 'preview' ] ],
+			[ [ 'mod_conflict' => 1, 'modaction' => 'merge' ] ],
+			[ [ 'modaction' => 'block', 'expectModblocked' => true ] ],
+			[ [ 'modaction' => 'unblock', 'modblocked' => true, 'expectModblocked' => false ] ]
 		];
 	}
 }
@@ -69,6 +97,16 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectedFields = [];
 
 	/**
+	 * @var bool|null If true/false, author of change is expected to become (not) modblocked.
+	 */
+	protected $expectModblocked = null;
+
+	/**
+	 * @var bool If true, database row is expected to be deleted ($expectedFields are ignored).
+	 */
+	protected $expectRowDeleted = false;
+
+	/**
 	 * @var string Text that should be present in the output of modaction.
 	 */
 	protected $expectedOutput = '';
@@ -80,7 +118,9 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		foreach ( $options as $key => $value ) {
 			switch ( $key ) {
 				case 'expectedFields':
+				case 'expectModblocked':
 				case 'expectedOutput':
+				case 'expectRowDeleted':
 				case 'modaction':
 					$this->$key = $value;
 					unset( $options[$key] );
@@ -100,6 +140,8 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * @brief Assert the consequences of the action.
 	 */
 	protected function assertResults( MediaWikiTestCase $testcase ) {
+		$dbw = wfGetDB( DB_MASTER );
+
 		$t = $this->getTestsuite();
 		$user = $this->notAutomoderated ?
 			$t->moderatorButNotAutomoderated :
@@ -131,7 +173,32 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			"modaction={$this->modaction}: unexpected output." );
 
 		// Check the mod_* fields in the database after the action.
-		$this->assertRowEquals( $this->expectedFields );
+		if ( $this->expectRowDeleted ) {
+			$row = $dbw->selectRow(
+				'moderation',
+				'*',
+				[ 'mod_id' => $this->fields['mod_id'] ],
+				__METHOD__
+			);
+			$testcase->assertFalse( $row,
+				"modaction={$this->modaction}: database row wasn't deleted" );
+		}
+		else {
+			$this->assertRowEquals( $this->expectedFields );
+		}
+
+		if ( $this->expectModblocked !== null ) {
+			$isBlocked = (bool)$dbw->selectField(
+				'moderation_block',
+				'1',
+				[ 'mb_address' => $this->fields['mod_user_text'] ],
+				__METHOD__
+			);
+			$testcase->assertEquals(
+				[ 'author is modblocked' => $this->expectModblocked ],
+				[ 'author is modblocked' => $isBlocked ]
+			);
+		}
 	}
 
 	/**
