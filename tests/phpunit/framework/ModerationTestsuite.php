@@ -27,6 +27,7 @@ require_once __DIR__ . '/ModerationTestsuiteHTML.php';
 require_once __DIR__ . '/ModerationTestsuiteResponse.php';
 require_once __DIR__ . '/ModerationTestsuiteSubmitResult.php';
 require_once __DIR__ . '/ModerationTestSet.php';
+require_once __DIR__ . '/ModerationPendingChangeTestSet.php';
 
 /* FIXME: this can really use some autoloading, as only one engine is needed at a time */
 require_once __DIR__ . '/engine/IModerationTestsuiteEngine.php';

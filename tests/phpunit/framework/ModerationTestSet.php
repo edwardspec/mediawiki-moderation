@@ -78,4 +78,39 @@ abstract class ModerationTestsuiteTestSet {
 	 * @brief Assert whether the situation after the edit is correct or not.
 	 */
 	abstract protected function assertResults( MediaWikiTestCase $testcase );
+
+	/*-------------------------------------------------------------------*/
+
+	/**
+	 * @brief Assert that recent row in 'moderation' SQL table consists of $expectedFields.
+	 * @param array $expectedFields Key-value list of all mod_* fields.
+	 * @throws AssertionFailedError
+	 * @return stdClass $row
+	 */
+	protected function assertRowEquals( array $expectedFields ) {
+		$testcase = $this->getTestcase();
+
+		$dbw = wfGetDB( DB_MASTER );
+		$row = $dbw->selectRow( 'moderation', '*', '', __METHOD__ );
+
+		foreach ( $expectedFields as $key => $val ) {
+			if ( $val instanceof ModerationTestSetRegex ) {
+				$testcase->assertRegExp( $val->regex, $row->$key, "Field $key doesn't match regex" );
+			} else {
+				$testcase->assertEquals( $val, $row->$key, "Field $key doesn't match expected" );
+			}
+		}
+		return $row;
+	}
+}
+
+/**
+ * @brief Regular expression that can be used in assertRowEquals() as values of $expectedFields.
+ */
+class ModerationTestSetRegex {
+	public $regex;
+
+	public function __construct( $regex ) {
+		$this->regex = $regex;
+	}
 }

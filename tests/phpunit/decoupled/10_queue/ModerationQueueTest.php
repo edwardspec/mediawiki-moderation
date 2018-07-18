@@ -203,18 +203,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	 * @brief Assert the state of the database after the edit.
 	 */
 	protected function assertResults( MediaWikiTestCase $testcase ) {
-		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( 'moderation', '*', '', __METHOD__ );
-
-		$expectedRow = $this->getExpectedRow();
-		foreach ( $expectedRow as $key => $val ) {
-			if ( $val instanceof ModerationTestSetRegex ) {
-				$testcase->assertRegExp( $val->regex, $row->$key, "Field $key doesn't match regex" );
-			} else {
-				$testcase->assertEquals( $val, $row->$key, "Field $key doesn't match expected" );
-			}
-		}
-
+		$row = $this->assertRowEquals( $this->getExpectedRow() );
 		$this->checkUpload( $row->mod_stash_key );
 		$this->checkWatchlist( $this->watch );
 	}
@@ -463,16 +452,5 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			$this->getTestcase()->assertFalse( $isWatched,
 				"Page edited without \"Watch this page\" was not deleted from the watchlist" );
 		}
-	}
-}
-
-/**
- * @brief Regular expression returned by getExpectedRow() instead of a constant field value.
- */
-class ModerationTestSetRegex {
-	public $regex;
-
-	public function __construct( $regex ) {
-		$this->regex = $regex;
 	}
 }
