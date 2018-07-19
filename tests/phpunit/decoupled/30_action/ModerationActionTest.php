@@ -49,7 +49,8 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'modaction' => 'rejectall',
 				'expectedOutput' => '(moderation-rejected-ok: 1)',
 				'expectRejected' => true,
-				'expectedFields' => [ 'mod_rejected_batch' => 1 ]
+				'expectedFields' => [ 'mod_rejected_batch' => 1 ],
+				'expectedLogTargetIsAuthor' => true
 			] ],
 			[ [
 				'modaction' => 'approve',
@@ -59,7 +60,8 @@ class ModerationActionTest extends MediaWikiTestCase {
 			[ [
 				'modaction' => 'approveall',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
-				'expectRowDeleted' => true
+				'expectRowDeleted' => true,
+				'expectedLogTargetIsAuthor' => true
 			] ],
 
 			// Can we reject an edit with the conflict?
@@ -79,26 +81,32 @@ class ModerationActionTest extends MediaWikiTestCase {
 			[ [
 				'modaction' => 'block',
 				'expectModblocked' => true,
-				'expectedOutput' => 'moderation-block-ok'
+				'expectedOutput' => 'moderation-block-ok',
+				'expectedLogTargetIsAuthor' => true
 			] ],
 			[ [
 				'modaction' => 'unblock',
 				'modblocked' => true,
 				'expectModblocked' => false,
-				'expectedOutput' => 'moderation-unblock-ok'
+				'expectedOutput' => 'moderation-unblock-ok',
+				'expectedLogTargetIsAuthor' => true
 			] ],
 			[ [
 				'modaction' => 'block',
 				'modblocked' => true,
 				'expectModblocked' => true,
 				// block doesn't show an error if already blocked
-				'expectedOutput' => 'moderation-block-ok'
+				'expectedOutput' => 'moderation-block-ok',
+
+				// FIXME: it shouldn't create the log entry
+				'expectedLogTargetIsAuthor' => true
 			] ],
 			[ [
 				'modaction' => 'unblock',
 				'expectModblocked' => false,
 				// unblock shows an error if user wasn't blocked
-				'expectedOutput' => 'moderation-unblock-fail'
+				'expectedOutput' => 'moderation-unblock-fail',
+				'expectLogEntry' => false
 			] ],
 
 			// Errors printed by actions:
@@ -205,6 +213,23 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectedError = null;
 
 	/**
+	 * @var string|null Expected subtype of LogEntry. If null, assumed to be same as $modaction.
+	 * Example of non-default value: 'approve-move' for modaction=approve.
+	 */
+	protected $expectedLogAction = null;
+
+	/**
+	 * @var bool If true, new LogEntry is expected to appear after the action.
+	 * If false, LogEntry is expected to NOT appear. If null, auto-detect.
+	 */
+	protected $expectLogEntry = null;
+
+	/**
+	 * @var bool If true, userpage of author of the change is the expected target of LogEntry.
+	 */
+	protected $expectedLogTargetIsAuthor = false;
+
+	/**
 	 * @var bool|null If true/false, author of change is expected to become (not) modblocked.
 	 */
 	protected $expectModblocked = null;
@@ -237,6 +262,9 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			switch ( $key ) {
 				case 'expectedFields':
 				case 'expectedError':
+				case 'expectedLogAction':
+				case 'expectLogEntry':
+				case 'expectedLogTargetIsAuthor':
 				case 'expectModblocked':
 				case 'expectedOutput':
 				case 'expectRejected':
@@ -252,33 +280,72 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			throw new MWException( __CLASS__ . ": parameter 'modaction' is required" );
 		}
 
-		parent::applyOptions( $options );
+		if ( $this->expectLogEntry === null ) {
+			// Auto-detect whether the log entry is needed.
+			$this->expectLogEntry = false;
+			if ( $this->expectedFields ||
+				$this->expectRejected ||
+				$this->expectRowDeleted ||
+				$this->expectModblocked !== null
+			) {
+				$this->expectLogEntry = true;
+			}
+		}
 
+		parent::applyOptions( $options );
 		$this->expectedFields += $this->fields;
+
+		if ( !$this->expectedLogAction ) {
+			// Default: $expectedLogAction is the same as $modaction
+			// (e.g. modaction=reject creates 'moderation/reject' log entries).
+			$this->expectedLogAction = $this->modaction;
+		}
+	}
+
+	/**
+	 * @brief Returns the expected target of LogEntry created by this modaction.
+	 * @return Title
+	 */
+	protected function getExpectedLogTarget() {
+		if ( $this->expectedLogTargetIsAuthor ) {
+			// For actions like 'block' or 'rejectall':
+			// target is the author's userpage.
+			return Title::makeTitle( NS_USER, $this->fields['mod_user_text'] );
+		}
+
+		// Default (for actions like 'approve' or 'reject'):
+		// target is the page affected by this change.
+		return $this->getExpectedTitleObj();
+	}
+
+	/**
+	 * @brief Returns the User who will perform this modaction.
+	 * @return User
+	 */
+	protected function getModerator() {
+		$t = $this->getTestsuite();
+		return $this->notAutomoderated ?
+			$t->moderatorButNotAutomoderated :
+			$t->moderator;
 	}
 
 	/**
 	 * @brief Assert the consequences of the action.
 	 */
 	protected function assertResults( MediaWikiTestCase $testcase ) {
-		$dbw = wfGetDB( DB_MASTER );
-
-		$t = $this->getTestsuite();
-		$user = $this->notAutomoderated ?
-			$t->moderatorButNotAutomoderated :
-			$t->moderator;
-
-		// Add rejection-related fields to $this->expectedFields
+		// Add rejection-related fields to $this->expectedFields.
+		// It was too early to do in applyOptions(), because $this->fields['mod_id'] was unknown.
 		if ( $this->expectRejected ) {
 			$this->expectedFields = array_merge( $this->expectedFields, [
 				'mod_rejected' => 1,
-				'mod_rejected_by_user' => $user->getId(),
-				'mod_rejected_by_user_text' => $user->getName(),
+				'mod_rejected_by_user' => $this->getModerator()->getId(),
+				'mod_rejected_by_user_text' => $this->getModerator()->getName(),
 				'mod_preloadable' => $this->fields['mod_id']
 			] );
 		}
 
-		$t->loginAs( $user );
+		$t = $this->getTestsuite();
+		$t->loginAs( $this->getModerator() );
 
 		// Execute the action, check HTML printed by the action
 		$output = $t->html->getMainText( $this->getActionURL() );
@@ -297,6 +364,16 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		}
 
 		// Check the mod_* fields in the database after the action.
+		$this->assertDatabaseChanges( $testcase );
+		$this->assertBlockedStatus( $testcase );
+		$this->assertLogEntry( $testcase );
+	}
+
+	/**
+	 * @brief Check whether/how was the database row modified by this action.
+	 */
+	protected function assertDatabaseChanges( MediaWikiTestCase $testcase ) {
+		$dbw = wfGetDB( DB_MASTER );
 		if ( $this->expectRowDeleted ) {
 			$row = $dbw->selectRow(
 				'moderation',
@@ -309,18 +386,68 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		} else {
 			$this->assertRowEquals( $this->expectedFields );
 		}
+	}
 
-		if ( $this->expectModblocked !== null ) {
-			$isBlocked = (bool)$dbw->selectField(
-				'moderation_block',
-				'1',
-				[ 'mb_address' => $this->fields['mod_user_text'] ],
-				__METHOD__
-			);
+	/**
+	 * @brief Check whether the moderation block was added/deleted.
+	 */
+	protected function assertBlockedStatus( MediaWikiTestCase $testcase ) {
+		if ( $this->expectModblocked === null ) {
+			return; // This action is unrelated to moderation blocks
+		}
+
+		$dbw = wfGetDB( DB_MASTER );
+		$isBlocked = (bool)$dbw->selectField(
+			'moderation_block',
+			'1',
+			[ 'mb_address' => $this->fields['mod_user_text'] ],
+			__METHOD__
+		);
+		$testcase->assertEquals(
+			[ 'author is modblocked' => $this->expectModblocked ],
+			[ 'author is modblocked' => $isBlocked ]
+		);
+	}
+
+	/**
+	 * @brief Check the log entry created by this action (if any).
+	 */
+	protected function assertLogEntry( MediaWikiTestCase $testcase ) {
+		// Check the LogEntry, if any
+		$queryInfo = DatabaseLogEntry::getSelectQueryData();
+		$queryInfo['options']['ORDER BY'] = 'log_id DESC';
+
+		$dbw = wfGetDB( DB_MASTER );
+		$row = $dbw->selectRow(
+			$queryInfo['tables'],
+			$queryInfo['fields'],
+			$queryInfo['conds'],
+			__METHOD__,
+			$queryInfo['options'],
+			$queryInfo['join_conds']
+		);
+
+		if ( !$this->expectLogEntry ) {
+			$testcase->assertFalse( $row,
+				"modaction={$this->modaction}: unexpected LogEntry appeared after readonly action" );
+		} else {
+			$testcase->assertNotFalse( $row,
+				"modaction={$this->modaction}: logging table is empty after the action" );
+
+			$logEntry = DatabaseLogEntry::newFromRow( $row );
+
+			$testcase->assertEquals( 'moderation', $logEntry->getType(),
+				"modaction={$this->modaction}: incorrect LogEntry type" );
+			$testcase->assertEquals( $this->modaction, $logEntry->getSubtype(),
+				"modaction={$this->modaction}: incorrect LogEntry subtype" );
 			$testcase->assertEquals(
-				[ 'author is modblocked' => $this->expectModblocked ],
-				[ 'author is modblocked' => $isBlocked ]
-			);
+				$this->getModerator()->getName(),
+				$logEntry->getPerformer()->getName(),
+				"modaction={$this->modaction}: incorrect name of moderator in LogEntry" );
+			$testcase->assertEquals( $this->getExpectedLogTarget(), $logEntry->getTarget(),
+				"modaction={$this->modaction}: incorrect LogEntry target" );
+
+			// TODO: check $logEntry->getParameters()
 		}
 	}
 
