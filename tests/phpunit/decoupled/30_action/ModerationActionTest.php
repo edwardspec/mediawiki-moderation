@@ -92,19 +92,17 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedLogTargetIsAuthor' => true
 			] ],
 			[ [
+				// Attempting to block when already blocked
 				'modaction' => 'block',
 				'modblocked' => true,
 				'expectModblocked' => true,
-				// block doesn't show an error if already blocked
-				'expectedOutput' => 'moderation-block-ok',
-
-				// FIXME: it shouldn't create the log entry
-				'expectedLogTargetIsAuthor' => true
+				'expectedOutput' => 'moderation-block-fail',
+				'expectLogEntry' => false
 			] ],
 			[ [
+				// Attempting to unblock when not blocked
 				'modaction' => 'unblock',
 				'expectModblocked' => false,
-				// unblock shows an error if user wasn't blocked
 				'expectedOutput' => 'moderation-unblock-fail',
 				'expectLogEntry' => false
 			] ],

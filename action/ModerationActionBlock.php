@@ -52,8 +52,7 @@ class ModerationActionBlock extends ModerationAction {
 
 		$dbw = wfGetDB( DB_MASTER );
 		if ( $this->actionName == 'block' ) {
-			$dbw->replace( 'moderation_block',
-				[ 'mb_address' ],
+			$dbw->insert( 'moderation_block',
 				[
 					'mb_address' => $row->user_text,
 					'mb_user' => $row->user,
@@ -61,7 +60,8 @@ class ModerationActionBlock extends ModerationAction {
 					'mb_by_text' => $this->moderator->getName(),
 					'mb_timestamp' => $dbw->timestamp()
 				],
-				__METHOD__
+				__METHOD__,
+				[ 'IGNORE' ]
 			);
 			$logEntry = new ManualLogEntry( 'moderation', 'block' );
 		} else {
