@@ -108,7 +108,7 @@ class ModerationEditTest extends MediaWikiTestCase {
 			"testEditSections(): When section header is deleted, resulting text doesn't match expected " );
 	}
 
-	public function testNewSize() {
+	public function testNewSizeAfterEditSection() {
 		$t = new ModerationTestsuite();
 
 		/* Make sure that mod_new_len is properly recalculated when editing sections */
@@ -135,9 +135,10 @@ class ModerationEditTest extends MediaWikiTestCase {
 		$newlen = $t->new_entries[0]->getDbField( 'mod_new_len' );
 
 		$this->assertNotEquals( strlen( $sections[0] ), $newlen,
-			"testNewSize(): Incorrect length: matches the length of the edited section" );
+			"testNewSizeAfterEditSection(): Incorrect length: " .
+			"matches the length of the edited section" );
 		$this->assertEquals( strlen( $origText ), $newlen,
-			"testNewSize(): Length changed after null edit in a section" );
+			"testNewSizeAfterEditSection(): Length changed after null edit in a section" );
 	}
 
 	public function testApiEditAppend() {

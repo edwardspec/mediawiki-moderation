@@ -130,21 +130,6 @@ class ModerationMoveTest extends MediaWikiTestCase {
 			$events[0]['params'][4] );
 	}
 
-	public function testApiMove() {
-		/* Same as testMove(),
-			but we move via API and check return value of API */
-
-		$t = new ModerationTestsuite();
-
-		$t->loginAs( $t->automoderated );
-		$t->doTestEdit( $this->oldTitle, $this->text );
-
-		$t->loginAs( $t->unprivilegedUser );
-		$error = $t->apiMove( $this->oldTitle, $this->newTitle, $this->reasonForMoving );
-
-		$this->assertEquals( '(moderation-move-queued)', $error );
-	}
-
 	/**
 	 * @brief Ensures that Special:MovePage won't queue the move before submit.
 

@@ -64,13 +64,4 @@ class ModerationPreviewTest extends MediaWikiTestCase {
 		$this->assertEquals( 'most italic', $italic->textContent,
 			"testPreview(): Incorrect content within <b></b> tags" );
 	}
-
-	public function testPreviewLink() {
-		$t = new ModerationTestsuite();
-		$t->setMwConfig( 'ModerationPreviewLink', true );
-
-		$entry = $t->getSampleEntry();
-		$this->assertNotNull( $entry->previewLink,
-			"testPreviewLink(): Preview link not shown, even though \$wgModerationPreviewLink=true" );
-	}
 }

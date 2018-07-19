@@ -72,6 +72,19 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectRowDeleted' => true
 			] ],
 
+			// Can we reject an edit with the conflict?
+			[ [
+				'modaction' => 'reject',
+				'mod_conflict' => 1,
+				'expectedOutput' => '(moderation-rejected-ok: 1)',
+				'expectedFields' => [
+					'mod_rejected' => 1,
+					'mod_rejected_by_user' => '{{{MODERATOR_USERID}}}',
+					'mod_rejected_by_user_text' => '{{{MODERATOR_USERNAME}}}',
+					'mod_preloadable' => '{{{MODID}}}'
+				]
+			] ],
+
 			// Actions show/preview/merge/block/unblock shouldn't change the row
 			[ [ 'modaction' => 'show' ] ],
 			[ [ 'modaction' => 'preview' ] ],

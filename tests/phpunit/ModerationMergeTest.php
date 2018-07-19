@@ -276,38 +276,4 @@ class ModerationMergeTest extends MediaWikiTestCase {
 			"testApproveAllConflicts(): Edit with detected conflict is not marked " .
 			"with class='modconflict'" );
 	}
-
-	public function testRejectConflict() {
-		$t = new ModerationTestsuite();
-
-		# Can we reject edit with a conflict?
-		$entry = $this->makeUnresolvableEditConflict( $t );
-		$t->httpGet( $entry->approveLink );
-
-		$t->html->loadFromURL( $entry->rejectLink );
-		$this->assertRegExp( '/\(moderation-rejected-ok: 1\)/',
-			$t->html->getMainText(),
-			"testRejectConflict(): Result page doesn't contain (moderation-rejected-ok: 1)" );
-
-		$t->fetchSpecial();
-		$this->assertCount( 0, $t->new_entries,
-			"testRejectConflict(): Something was added into Pending folder during modaction=reject" );
-		$this->assertCount( 1, $t->deleted_entries,
-			"testRejectConflict(): One edit was rejected, but number of deleted entries " .
-			"in Pending folder isn't 1" );
-
-		$t->fetchSpecial( 'rejected' );
-		$this->assertCount( 1, $t->new_entries,
-			"testRejectConflict(): One edit was rejected, but number of new entries " .
-			"in Rejected folder isn't 1" );
-		$this->assertCount( 0, $t->deleted_entries,
-			"testRejectConflict(): Something was deleted from Rejected folder during modaction=reject" );
-
-		$entry = $t->new_entries[0];
-		$this->assertTrue( $entry->conflict,
-			"testRejectConflict(): Rejected edit with detected conflict is not marked " .
-			"with class='modconflict'" );
-		$this->assertNotNull( $entry->mergeLink,
-			"testRejectConflict(): Merge link not found for rejected edit with detected conflict" );
-	}
 }
