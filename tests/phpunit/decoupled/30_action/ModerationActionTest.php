@@ -43,23 +43,13 @@ class ModerationActionTest extends MediaWikiTestCase {
 			[ [
 				'modaction' => 'reject',
 				'expectedOutput' => '(moderation-rejected-ok: 1)',
-				'expectedFields' => [
-					'mod_rejected' => 1,
-					'mod_rejected_by_user' => '{{{MODERATOR_USERID}}}',
-					'mod_rejected_by_user_text' => '{{{MODERATOR_USERNAME}}}',
-					'mod_preloadable' => '{{{MODID}}}'
-				]
+				'expectRejected' => true
 			] ],
 			[ [
 				'modaction' => 'rejectall',
 				'expectedOutput' => '(moderation-rejected-ok: 1)',
-				'expectedFields' => [
-					'mod_rejected' => 1,
-					'mod_rejected_batch' => 1,
-					'mod_rejected_by_user' => '{{{MODERATOR_USERID}}}',
-					'mod_rejected_by_user_text' => '{{{MODERATOR_USERNAME}}}',
-					'mod_preloadable' => '{{{MODID}}}'
-				]
+				'expectRejected' => true,
+				'expectedFields' => [ 'mod_rejected_batch' => 1 ]
 			] ],
 			[ [
 				'modaction' => 'approve',
@@ -77,12 +67,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'modaction' => 'reject',
 				'mod_conflict' => 1,
 				'expectedOutput' => '(moderation-rejected-ok: 1)',
-				'expectedFields' => [
-					'mod_rejected' => 1,
-					'mod_rejected_by_user' => '{{{MODERATOR_USERID}}}',
-					'mod_rejected_by_user_text' => '{{{MODERATOR_USERNAME}}}',
-					'mod_preloadable' => '{{{MODID}}}'
-				]
+				'expectRejected' => true
 			] ],
 
 			// Actions show/preview/merge/block/unblock shouldn't change the row
@@ -225,6 +210,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectModblocked = null;
 
 	/**
+	 * @var bool If true, rejection fields will be added to $expectedFields.
+	 */
+	protected $expectRejected = false;
+
+	/**
 	 * @var bool If true, database row is expected to be deleted ($expectedFields are ignored).
 	 */
 	protected $expectRowDeleted = false;
@@ -249,6 +239,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'expectedError':
 				case 'expectModblocked':
 				case 'expectedOutput':
+				case 'expectRejected':
 				case 'expectRowDeleted':
 				case 'modaction':
 				case 'simulateNoSuchEntry':
@@ -277,23 +268,15 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			$t->moderatorButNotAutomoderated :
 			$t->moderator;
 
-		// Replace variables like {{MODERATOR_USERID}} in $this->expectedFields
-		$this->expectedFields = FormatJson::decode(
-			str_replace(
-				[
-					'{{{MODID}}}',
-					'{{{MODERATOR_USERID}}}',
-					'{{{MODERATOR_USERNAME}}}'
-				],
-				[
-					$this->fields['mod_id'],
-					$user->getId(),
-					$user->getName()
-				],
-				FormatJson::encode( $this->expectedFields )
-			),
-			true
-		);
+		// Add rejection-related fields to $this->expectedFields
+		if ( $this->expectRejected ) {
+			$this->expectedFields = array_merge( $this->expectedFields, [
+				'mod_rejected' => 1,
+				'mod_rejected_by_user' => $user->getId(),
+				'mod_rejected_by_user_text' => $user->getName(),
+				'mod_preloadable' => $this->fields['mod_id']
+			] );
+		}
 
 		$t->loginAs( $user );
 
