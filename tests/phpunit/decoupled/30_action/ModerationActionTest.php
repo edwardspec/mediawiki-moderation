@@ -37,6 +37,8 @@ class ModerationActionTest extends MediaWikiTestCase {
 	 * @brief Provide datasets for testAction() runs.
 	 */
 	public function dataProvider() {
+		global $wgModerationTimeToOverrideRejection;
+
 		return [
 			[ [
 				'modaction' => 'reject',
@@ -112,6 +114,12 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedError' => '(moderation-already-rejected)'
 			] ],
 			[ [
+				'modaction' => 'approve',
+				'mod_rejected' => 1,
+				'mod_timestamp' => '-' . ( $wgModerationTimeToOverrideRejection + 1 ) . ' seconds',
+				'expectedError' => '(moderation-rejected-long-ago)'
+			] ],
+			[ [
 				'modaction' => 'approveall',
 				'mod_rejected' => 1,
 				'expectedError' => '(moderation-nothing-to-approveall)'
@@ -148,8 +156,26 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedError' => '(moderation-already-merged)'
 			] ],
 
-			// TODO: 'moderation-rejected-long-ago' from 'approve'
-			// TODO: 'moderation-edit-not-found' from everything
+			// 'moderation-edit-not-found' from everything
+			[ [ 'modaction' => 'approve', 'simulateNoSuchEntry' => true,
+				'expectedError' => '(moderation-edit-not-found)' ] ],
+			[ [ 'modaction' => 'approveall', 'simulateNoSuchEntry' => true,
+				'expectedError' => '(moderation-edit-not-found)' ] ],
+			[ [ 'modaction' => 'reject', 'simulateNoSuchEntry' => true,
+				'expectedError' => '(moderation-edit-not-found)' ] ],
+			[ [ 'modaction' => 'rejectall', 'simulateNoSuchEntry' => true,
+				'expectedError' => '(moderation-edit-not-found)' ] ],
+			[ [ 'modaction' => 'block', 'simulateNoSuchEntry' => true,
+				'expectedError' => '(moderation-edit-not-found)' ] ],
+			[ [ 'modaction' => 'unblock', 'simulateNoSuchEntry' => true,
+				'expectedError' => '(moderation-edit-not-found)' ] ],
+			[ [ 'modaction' => 'merge', 'simulateNoSuchEntry' => true,
+				'expectedError' => '(moderation-edit-not-found)' ] ],
+			[ [ 'modaction' => 'show', 'simulateNoSuchEntry' => true,
+				'expectedError' => '(moderation-edit-not-found)' ] ],
+			[ [ 'modaction' => 'showimg', 'simulateNoSuchEntry' => true,
+				'expectedError' => '(moderation-edit-not-found)' ] ],
+
 			// TODO: ReadOnlyError exception from non-readonly actions
 			// TODO: approval errors originating from doEditContent(), etc.
 
@@ -196,6 +222,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectedOutput = '';
 
 	/**
+	 * @var bool If true, incorrect modid will be used in the action URL.
+	 */
+	protected $simulateNoSuchEntry = false;
+
+	/**
 	 * @brief Initialize this TestSet from the input of dataProvider.
 	 */
 	protected function applyOptions( array $options ) {
@@ -207,6 +238,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'expectedOutput':
 				case 'expectRowDeleted':
 				case 'modaction':
+				case 'simulateNoSuchEntry':
 					$this->$key = $value;
 					unset( $options[$key] );
 			}
@@ -306,6 +338,10 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		];
 		if ( !in_array( $this->modaction, [ 'show', 'showimg', 'preview' ] ) ) {
 			$q['token'] = $this->getTestsuite()->getEditToken();
+		}
+
+		if ( $this->simulateNoSuchEntry ) {
+			$q['modid'] = 0; // Wrong
 		}
 
 		return SpecialPage::getTitleFor( 'Moderation' )->getLocalURL( $q );
