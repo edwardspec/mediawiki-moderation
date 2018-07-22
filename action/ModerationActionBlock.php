@@ -23,15 +23,12 @@
 class ModerationActionBlock extends ModerationAction {
 
 	public function outputResult( array $result, OutputPage &$out ) {
-		/* Messages used here (for grep):
-			moderation-block-fail
+		/* Messages used here (for grep)
 			moderation-block-ok
-			moderation-unblock-fail
 			moderation-unblock-ok
 		*/
 		$out->addWikiMsg(
-			'moderation-' . ( $result['action'] == 'unblock' ? 'un' : '' ) .
-				'block-' . ( $result['success'] ? 'ok' : 'fail' ),
+			'moderation-' . ( $result['action'] == 'unblock' ? 'un' : '' ) . 'block-ok',
 			$result['username']
 		);
 	}
@@ -69,8 +66,14 @@ class ModerationActionBlock extends ModerationAction {
 			$logEntry = new ManualLogEntry( 'moderation', 'unblock' );
 		}
 
-		$nrows = $dbw->affectedRows();
-		if ( $nrows > 0 ) {
+		/*
+			If the user was already (un)blocked and we attempt to (un)block,
+			we silently ignore this (saying "successfully (un)blocked!" to moderator),
+			because the desired outcome has been reached anyway.
+			E.g. this can happen if the moderator clicked "Mark as spammer" twice.
+		*/
+		$somethingChanged = ( $dbw->affectedRows() > 0 );
+		if ( $somethingChanged ) {
 			$logEntry->setPerformer( $this->moderator );
 			$logEntry->setTarget( Title::makeTitle( NS_USER, $row->user_text ) );
 			$logid = $logEntry->insert();
@@ -80,7 +83,7 @@ class ModerationActionBlock extends ModerationAction {
 		return [
 			'action' => $this->actionName,
 			'username' => $row->user_text,
-			'success' => ( $nrows > 0 )
+			'noop' => !$somethingChanged // Already was blocked/unblocked
 		];
 	}
 }

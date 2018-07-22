@@ -84,12 +84,12 @@ class ModerationApiTest extends MediaWikiTestCase {
 			] ],
 			[ "block", [
 				"action" => "block",
-				"username" => "{{AUTHOR}}",
-				"success" => ""
+				"username" => "{{AUTHOR}}"
 			] ],
 			[ "unblock", [
 				"action" => "unblock",
-				"username" => "{{AUTHOR}}"
+				"username" => "{{AUTHOR}}",
+				"noop" => ""
 			] ],
 			[ "show", [
 				"diff-html" => "{{DIFF}}",

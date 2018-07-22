@@ -93,15 +93,18 @@ class ModerationActionTest extends MediaWikiTestCase {
 			] ],
 			[ [
 				// Attempting to block when already blocked
+				// (e.g. moderator clicked twice on "Mark as spammer"):
+				// should report success, but shouldn't create a new LogEntry.
 				'modaction' => 'block',
 				'modblocked' => true,
-				'expectedOutput' => 'moderation-block-fail',
+				'expectedOutput' => 'moderation-block-ok',
 				'expectLogEntry' => false
 			] ],
 			[ [
-				// Attempting to unblock when not blocked
+				// Attempting to unblock when not blocked:
+				// should report success, but shouldn't create a new LogEntry.
 				'modaction' => 'unblock',
-				'expectedOutput' => 'moderation-unblock-fail',
+				'expectedOutput' => 'moderation-unblock-ok',
 				'expectLogEntry' => false
 			] ],
 
