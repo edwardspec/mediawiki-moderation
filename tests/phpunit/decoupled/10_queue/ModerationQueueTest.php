@@ -204,6 +204,8 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	 */
 	protected function assertResults( MediaWikiTestCase $testcase ) {
 		$row = $this->assertRowEquals( $this->getExpectedRow() );
+
+		$this->assertTimestampIsRecent( $row->mod_timestamp );
 		$this->checkUpload( $row->mod_stash_key );
 		$this->checkWatchlist( $this->watch );
 	}

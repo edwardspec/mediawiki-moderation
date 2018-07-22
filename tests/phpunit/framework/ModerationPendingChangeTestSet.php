@@ -137,6 +137,16 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 	}
 
 	/**
+	 * @brief Get the test user who issues a moderation block if modblocked=true was requested.
+	 * @return User
+	 */
+	protected function getModeratorWhoBlocked() {
+		// We don't really need this account to exist,
+		// it's only used for logging its ID/Name as mb_by/mb_by_tezt.
+		return User::newFromName( 'Some moderator', false );
+	}
+
+	/**
 	 * @brief Execute the TestSet, making an edit/upload/move with requested parameters.
 	 */
 	protected function makeChanges() {
@@ -155,8 +165,8 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 				[
 					'mb_address' => $this->fields['mod_user_text'],
 					'mb_user' => $this->fields['mod_user'],
-					'mb_by' => 0,
-					'mb_by_text' => 'Some moderator',
+					'mb_by' => $this->getModeratorWhoBlocked()->getId(),
+					'mb_by_text' => $this->getModeratorWhoBlocked()->getName(),
 					'mb_timestamp' => $dbw->timestamp()
 				],
 				__METHOD__

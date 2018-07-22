@@ -82,6 +82,31 @@ abstract class ModerationTestsuiteTestSet {
 	/*-------------------------------------------------------------------*/
 
 	/**
+	 * @brief Assert that $timestamp is a realistic time for changes made during this test.
+	 * @param string $timestamp Timestamp in MediaWiki format (14 digits).
+	 */
+	protected function assertTimestampIsRecent( $timestamp ) {
+		// How many seconds ago are allowed without failing the assertion.
+		$allowedRangeInSeconds = 60;
+
+		$this->getTestcase()->assertLessThanOrEqual(
+			wfTimestampNow(),
+			$timestamp,
+			'assertTimestampIsRecent(): timestamp of existing change is in the future.'
+		);
+
+		$ts = new MWTimestamp();
+		$ts->timestamp->modify( "- $allowedRangeInSeconds seconds" );
+		$minTimestamp = $ts->getTimestamp( TS_MW );
+
+		$this->getTestcase()->assertGreaterThan(
+			$minTimestamp,
+			$timestamp,
+			'assertTimestampIsRecent(): timestamp of recently made change is too far in the past.'
+		);
+	}
+
+	/**
 	 * @brief Assert that recent row in 'moderation' SQL table consists of $expectedFields.
 	 * @param array $expectedFields Key-value list of all mod_* fields.
 	 * @throws AssertionFailedError

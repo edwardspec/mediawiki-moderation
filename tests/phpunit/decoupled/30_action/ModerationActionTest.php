@@ -95,14 +95,12 @@ class ModerationActionTest extends MediaWikiTestCase {
 				// Attempting to block when already blocked
 				'modaction' => 'block',
 				'modblocked' => true,
-				'expectModblocked' => true,
 				'expectedOutput' => 'moderation-block-fail',
 				'expectLogEntry' => false
 			] ],
 			[ [
 				// Attempting to unblock when not blocked
 				'modaction' => 'unblock',
-				'expectModblocked' => false,
 				'expectedOutput' => 'moderation-unblock-fail',
 				'expectLogEntry' => false
 			] ],
@@ -229,6 +227,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 	/**
 	 * @var bool|null If true/false, author of change is expected to become (not) modblocked.
+	 * If null, blocked status is expected to remain the same.
 	 */
 	protected $expectModblocked = null;
 
@@ -390,21 +389,46 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * @brief Check whether the moderation block was added/deleted.
 	 */
 	protected function assertBlockedStatus( MediaWikiTestCase $testcase ) {
+		$expectedBlocker = $this->getModerator();
 		if ( $this->expectModblocked === null ) {
-			return; // This action is unrelated to moderation blocks
+			// Default: block status shouldn't change.
+			$this->expectModblocked = $this->modblocked;
+
+			// If the user was already blocked via [ 'modblocked' => true ],
+			// we should expect getModeratorWhoBlocked() to tell who did it.
+			$expectedBlocker = $this->getModeratorWhoBlocked();
 		}
 
 		$dbw = wfGetDB( DB_MASTER );
-		$isBlocked = (bool)$dbw->selectField(
+		$row = $dbw->selectRow(
 			'moderation_block',
-			'1',
+			[
+				'mb_user',
+				'mb_by',
+				'mb_by_text',
+				'mb_timestamp'
+			],
 			[ 'mb_address' => $this->fields['mod_user_text'] ],
 			__METHOD__
 		);
-		$testcase->assertEquals(
-			[ 'author is modblocked' => $this->expectModblocked ],
-			[ 'author is modblocked' => $isBlocked ]
-		);
+
+		if ( $this->expectModblocked ) {
+			$fields = get_object_vars( $row );
+
+			// Not-strict check that 'mb_timestamp' is not too far from "now"
+			$this->assertTimestampIsRecent( $fields['mb_timestamp'] );
+			unset( $fields['mb_timestamp'] );
+
+			$expectedFields = [
+				'mb_user' => $this->fields['mod_user'],
+				'mb_by' => $expectedBlocker->getId(),
+				'mb_by_text' => $expectedBlocker->getName()
+			];
+			$testcase->assertEquals( $expectedFields, $fields );
+		} else {
+			$testcase->assertFalse( $row,
+				"modaction={$this->modaction}: Author is unexpectedly blacklisted as spammer." );
+		}
 	}
 
 	/**
@@ -444,6 +468,8 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				"modaction={$this->modaction}: incorrect name of moderator in LogEntry" );
 			$testcase->assertEquals( $this->getExpectedLogTarget(), $logEntry->getTarget(),
 				"modaction={$this->modaction}: incorrect LogEntry target" );
+
+			$this->assertTimestampIsRecent( $logEntry->getTimestamp() );
 
 			// TODO: check $logEntry->getParameters()
 		}
