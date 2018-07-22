@@ -474,7 +474,31 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 			$this->assertTimestampIsRecent( $logEntry->getTimestamp() );
 
-			// TODO: check $logEntry->getParameters()
+			$expectedParams = [];
+			switch ( $this->expectedLogAction ) {
+				case 'reject':
+					$expectedParams = [
+						'modid' => $this->fields['mod_id'],
+						'user' => $this->fields['mod_user'],
+						'user_text' => $this->fields['mod_user_text']
+					];
+					break;
+
+				case 'rejectall':
+				case 'approveall':
+					$expectedParams = [
+						'4::count' => 1
+					];
+					break;
+
+				case 'approve':
+					$expectedParams = [
+						'revid' => $this->getExpectedTitleObj()->getLatestRevID()
+					];
+			}
+
+			$testcase->assertEquals( $expectedParams, $logEntry->getParameters(),
+				"modaction={$this->modaction}: incorrect LogEntry parameters" );
 		}
 	}
 
