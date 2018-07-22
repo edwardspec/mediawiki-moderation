@@ -2,48 +2,35 @@ TODO:
 
 Medium-prio:
 * (testsuite) Provide ~100% automated test coverage of all functionality.
-* (compat) Support PostgreSQL.
-
-Low-prio:
-* (feature) Provide flexible handling of zero edits, for example suppress if
-	there is no edit comment, mark them with "is zero edit" flag viewable
-	to the moderator, add an option (disabled by default) to suppress
-	zero edits completely, etc.
-* (interface) For non-automoderated users: show a message on their
-	Special:Contributions ensuring them that their edits will
-	appear there when they are approved.
-* (interface) Perform the actions like Approve via Ajax (without leaving Special:Moderation).
-	Partially implemented ($wgModerationUseAjax), but we need some feedback
-	from users on UX (is it convenient to use or not?)
-* (feature) Special page to list users blocked via "Mark as spammer".
-* (feature) modaction=promote for quickly assigning "automoderated" flag.
-* (testsuite) Investigate some tests being flaky under PHP-FPM (but not mod_php).
-* (documentation) Ensure that testsuite and hooks have Doxygen-style comments.
-	Testsuite is documented quite well, but those are non-Doxygen comments.
-	The list in README.testsuite is outdated and inconvenient to maintain.
+* (testsuite) Have as many checks as practical in the decoupled testsuite,
+	then remove the old tests if they are completely duplicating what
+	the decoupled testsuite already covers.
 * (feature) Show "you have N pending edits" link to non-automoderated users
 	("shopping cart" style), so that they would know to which pages
 	to return to continue editing.
-* (UI) Always show whois links for anonymous users (not only to checkusers).
 
-Testsuite issues:
-* CliEngine: FileRepo::streamFileWithStatus() breaks out of ob_start(),
-	which prevents CliEngine from capturing the output
-	(TODO: fix by redirecting output of cliInvoke.php script).
+Low-prio:
+* (compat) Support PostgreSQL.
+* (feature) Special page to list users blocked via "Mark as spammer".
+* (feature) modaction=promote for quickly assigning "automoderated" flag.
+* (documentation) Ensure that testsuite and hooks have Doxygen-style comments.
+	Testsuite is documented quite well, but those are non-Doxygen comments.
+	The list in README.testsuite is outdated and inconvenient to maintain.
+* (interface) Improve $wgModerationUseAjax - actions like Approve via Ajax
+	(without leaving Special:Moderation). Partially implemented,
+	but need feedback from users on UX (is it convenient to use or not?)
+* (testsuite) Selenium testsuite: investigate test flakiness of notify.js
+	(in IE11, notification sometimes doesn't disappear after the click)
 
 Background-prio (may not be needed):
 * (meta) Display notification "Please run update.php" on Special:Moderation if
 some new feature (that requires DB update) is disabled because it wasn't done.
-* (feature) Show "rejected edits" link to moderators on Special:Contributions.
-* (feature) Should ApproveHook update timestamp of upload/move logs?
-* (testsuite) Many tests repeat the same operations when preparing the starting
-	conditions. Maybe the tests should be decoupled in the following way:
-	test #1 makes the edit AND checks 'moderation' SQL table,
-	test #2 pre-fills SQL table AND checks HTML of Special:Moderation,
-	test #3 pre-fills SQL table, runs modaction, checks SQL table.
-	Because right now the things like "is the Approve link on Special page
-	displayed correctly?" are tested way more times than needed.
-	Look at how nice and fast [tests/benchmarks/*.php] are in comparison.
+* (feature) Add "rejected edits" link for moderators in ContributionsToolLinks hook.
+* (feature) Should ApproveHook update timestamps of upload/move logs?
+* (UX) Improve handling of zero edits. (having to reject them manually doesn't feel right)
+* (interface) For non-automoderated users: show a message on their
+	Special:Contributions ensuring them that their edits will
+	appear there when they are approved.
 
 Tests needed:
 * PageForms plugin ("continue editing" link in postedit notification)
