@@ -33,7 +33,6 @@
 	"moderation-approved-errors": "Неуспех при одобряване на $1 {{plural:$1|редакция|редакции}}: конфликт при редактиране и т.н.",
 	"moderation-approved-ok": "{{plural:$1|Одобрена|Одобрени}} $1 {{plural:$1|редакция|редакции}}.",
 	"moderation-blocker": "Модерационно блокиране",
-	"moderation-block-fail": "Неуспех при добавяне на [[Special:Contributions/$1|$1]] в списъка на спамърите. Неизвестна грешка.",
 	"moderation-block": "Отбелязване като спамър",
 	"moderation-block-ok": "Успешно отбелязан [[Special:Contributions/$1|$1]] като спамър.",
 	"moderation-desc": "Изпращане на всички редакции и качвания направени от нови потребители за модерация",
