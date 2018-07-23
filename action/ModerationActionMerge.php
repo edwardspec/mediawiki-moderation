@@ -58,7 +58,7 @@ class ModerationActionMerge extends ModerationAction {
 			'namespace' => $row->namespace,
 			'title' => $row->title,
 			'text' => $row->text,
-			'summary' => wfMessage(
+			'summary' => $this->msg(
 				'moderation-merge-comment',
 				$row->user_text
 			)->inContentLanguage()->plain()

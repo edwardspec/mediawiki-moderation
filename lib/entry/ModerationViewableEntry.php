@@ -64,7 +64,7 @@ class ModerationViewableEntry extends ModerationEntry {
 
 		if ( $this->isMove() ) {
 			// "Page A moved into B"
-			return wfMessage( 'movepage-page-moved' )->rawParams(
+			return $context->msg( 'movepage-page-moved' )->rawParams(
 				Linker::link( $title ),
 				Linker::link( $this->getPage2Title() )
 			)->parseAsBlock();
@@ -100,8 +100,8 @@ class ModerationViewableEntry extends ModerationEntry {
 		// TODO: add more information into headers (username, timestamp etc.), as in usual diffs
 
 		return $de->addHeader( $diff,
-			wfMessage( 'moderation-diff-header-before' )->text(),
-			wfMessage( 'moderation-diff-header-after' )->text()
+			$context->msg( 'moderation-diff-header-before' )->text(),
+			$context->msg( 'moderation-diff-header-after' )->text()
 		);
 	}
 

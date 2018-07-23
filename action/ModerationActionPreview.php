@@ -31,7 +31,7 @@ class ModerationActionPreview extends ModerationAction {
 	}
 
 	public function outputResult( array $result, OutputPage &$out ) {
-		$out->setPageTitle( wfMessage(
+		$out->setPageTitle( $this->msg(
 			'moderation-preview-title',
 			$result['title']
 		) );

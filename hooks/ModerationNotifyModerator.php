@@ -64,7 +64,7 @@ class ModerationNotifyModerator {
 		/* Need to notify */
 		$newMessagesAlert .= Linker::link(
 			SpecialPage::getTitleFor( 'Moderation' ),
-			wfMessage( 'moderation-new-changes-appeared' )->plain()
+			$out->msg( 'moderation-new-changes-appeared' )->plain()
 		);
 		return true;
 	}

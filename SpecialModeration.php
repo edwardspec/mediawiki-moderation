@@ -76,7 +76,7 @@ class SpecialModeration extends QueryPage {
 	function getPageHeader() {
 		$folderLinks = [];
 		foreach ( array_keys( $this->folders_list ) as $f_name ) {
-			$label = wfMessage( 'moderation-folder-' . $f_name )->plain();
+			$label = $this->msg( 'moderation-folder-' . $f_name )->plain();
 
 			if ( $f_name == $this->folder ) {
 				$folderLinks[] = Xml::element( 'strong', [ 'class' => 'selflink' ], $label );
@@ -84,7 +84,7 @@ class SpecialModeration extends QueryPage {
 				$folderLinks[] = Linker::link(
 					$this->getPageTitle(),
 					$label,
-					[ 'title' => wfMessage( 'tooltip-moderation-folder-' . $f_name )->plain() ],
+					[ 'title' => $this->msg( 'tooltip-moderation-folder-' . $f_name )->plain() ],
 					[ 'folder' => $f_name ],
 					[ 'known', 'noclasses' ]
 				);

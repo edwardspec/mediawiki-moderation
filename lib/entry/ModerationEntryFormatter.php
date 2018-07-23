@@ -44,6 +44,16 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	/**
+	 * @brief Same as wfMessage(), but respects local context.
+	 * @return Message
+	 */
+	public function msg() {
+		// We still support MediaWiki 1.27, which supports PHP 5.5.9,
+		// so we can't use ...$args syntax (appeared in PHP 5.6).
+		return call_user_func_array( [ $this->getContext(), 'msg' ], func_get_args() );
+	}
+
+	/**
 	 * @brief Add all titles needed by getHTML() to $batch.
 		This method is for QueryPage::preprocessResults().
 		It optimizes Linker::link() calls by detecting all redlinks in one SQL query.
@@ -159,13 +169,13 @@ class ModerationEntryFormatter extends ModerationEntry {
 		}
 
 		if ( $row->minor ) {
-			$line .= wfMessage( 'minoreditletter' )->plain();
+			$line .= $this->msg( 'minoreditletter' )->plain();
 		}
 		if ( $row->bot ) {
-			$line .= wfMessage( 'boteditletter' )->plain();
+			$line .= $this->msg( 'boteditletter' )->plain();
 		}
 		if ( $row->new ) {
-			$line .= wfMessage( 'newpageletter' )->plain();
+			$line .= $this->msg( 'newpageletter' )->plain();
 		}
 		$line .= ' ';
 
@@ -174,7 +184,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 			/* "Page A renamed into B" */
 			$page2Link = Linker::link( $this->getPage2Title() );
 
-			$line .= wfMessage( 'moderation-move' )->rawParams(
+			$line .= $this->msg( 'moderation-move' )->rawParams(
 				$pageLink,
 				$page2Link
 			)->plain();
@@ -205,8 +215,8 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 		if ( $ip ) {
 			/* Add Whois link to this IP. */
-			$url = wfMessage( 'moderation-whois-link-url', $ip )->plain();
-			$text = wfMessage( 'moderation-whois-link-text' )->plain();
+			$url = $this->msg( 'moderation-whois-link-url', $ip )->plain();
+			$text = $this->msg( 'moderation-whois-link-text' )->plain();
 
 			$link = Linker::makeExternalLink( $url, $text );
 			$line .= Xml::tags( 'sup', [ 'class' => 'whois plainlinks' ], "[$link]" );
@@ -223,7 +233,8 @@ class ModerationEntryFormatter extends ModerationEntry {
 				if ( ModerationCanSkip::canEditSkip( $this->getModerator(), $row->namespace ) ) {
 					$line .= $this->makeModerationLink( 'merge', $row->id );
 				} else {
-					$line .= wfMessage( 'moderation-no-merge-link-not-automoderated' )->plain();
+					$line .= $this->msg(
+						'moderation-no-merge-link-not-automoderated' )->plain();
 				}
 			} else {
 				if ( !$row->rejected || $this->canReapproveRejected() ) {
@@ -249,8 +260,8 @@ class ModerationEntryFormatter extends ModerationEntry {
 		} else {
 			$line .= ' [' . Linker::link(
 				$title,
-				wfMessage( 'moderation-merged-link' )->plain(),
-				[ 'title' => wfMessage( 'tooltip-moderation-merged-link' )->plain() ],
+				$this->msg( 'moderation-merged-link' )->plain(),
+				[ 'title' => $this->msg( 'tooltip-moderation-merged-link' )->plain() ],
 				[ 'diff' => $row->merged_revid ],
 				[ 'known', 'noclasses' ]
 			) . ']';
@@ -267,16 +278,16 @@ class ModerationEntryFormatter extends ModerationEntry {
 			$line .= ' . . ';
 
 			if ( $row->rejected_by_user ) {
-				$line .= wfMessage( 'moderation-rejected-by',
+				$line .= $this->msg( 'moderation-rejected-by',
 					Linker::userLink( $row->rejected_by_user, $row->rejected_by_user_text ),
 					$row->rejected_by_user_text // plain username for {{gender:}} syntax
 				)->text();
 			} elseif ( $row->rejected_auto ) {
-				$line .= wfMessage( 'moderation-rejected-auto' )->plain();
+				$line .= $this->msg( 'moderation-rejected-auto' )->plain();
 			}
 
 			if ( $row->rejected_batch ) {
-				$line .= ' . . ' . wfMessage( 'moderation-rejected-batch' )->plain();
+				$line .= ' . . ' . $this->msg( 'moderation-rejected-batch' )->plain();
 			}
 		}
 

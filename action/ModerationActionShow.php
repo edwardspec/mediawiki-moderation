@@ -35,7 +35,7 @@ class ModerationActionShow extends ModerationAction {
 			'mediawiki.diff.styles', // MediaWiki 1.28+
 			'mediawiki.action.history.diff' // legacy MediaWiki 1.27 (LTS)
 		] );
-		$out->setPageTitle( wfMessage( 'difference-title', $result['title'] ) );
+		$out->setPageTitle( $this->msg( 'difference-title', $result['title'] ) );
 
 		if ( isset( $result['image-thumb-html'] ) ) {
 			$out->addHTML( Xml::tags( 'a', [
