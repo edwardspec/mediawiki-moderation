@@ -1,7 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"Mainframe98"
+			"Mainframe98",
+			"SPQRobin"
 		]
 	},
 	"action-moderation": "bewerkingen te controleren",
@@ -32,7 +33,6 @@
 	"moderation-approve": "Goedkeuren",
 	"moderation-approved-errors": "Kon $1 {{plural:$1|bewerking|bewerkingen}} niet goedkeuren vanwege bewerkingsconflicten, etc.",
 	"moderation-approved-ok": "$1 {{plural:$1|bewerking|bewerkingen}} goedgekeurd.",
-	"moderation-block-fail": "Kon [[Special:Contributions/$1|$1]] niet aan de lijst met spammers toevoegen. Onbekende fout.",
 	"moderation-block": "Gemarkeerd als spammer",
 	"moderation-block-ok": "[[Special:Contributions/$1|$1]] is als spammer gemarkeerd.",
 	"moderation-desc": "Stuurt alle bewerkingen en uploads van nieuwe gebruikers op voor controle",
@@ -80,7 +80,6 @@
 	"moderation-show": "wijz",
 	"moderation-suggest-signup": "[[Special:CreateAccount|Maak een account aan]] om bewerkingscontrole in de toekomst over te slaan.",
 	"moderation-text": "Deze speciale pagina toont een lijst met alle bewerkingen die nog gecontroleerd moeten worden (afgekeurd dan wel goedgekeurd).<br>Zie ook het [[Special:Log/moderation|bewerkingscontrole logboek]].",
-	"moderation-unblock-fail": "Kon [[Special:Contributions/$1|$1]] niet in de lijst met spammers vinden. Waarschijnlijk is deze al verwijderd.",
 	"moderation-unblock": "Niet langer een spammer",
 	"moderation-unblock-ok": "Gebruiker [[Special:Contributions/$1|$1]] wordt niet langer als een spammer beschouwd.",
 	"moderation-unknown-modaction": "Onbekende bewerkingscontrole handeling.",
@@ -88,6 +87,7 @@
 	"right-moderation": "Bewerkingen controleren",
 	"right-skip-moderation": "Mag de bewerkingscontrole overslaan",
 	"right-skip-move-moderation": "Mag pagina's hernoemen zonder bewerkingscontrole",
+	"tag-moderation-merged": "samengevoegde bewerking van een andere gebruiker",
 	"tooltip-moderation-approveall": "Alle bewerkingen van deze gebruiker/IP-adres goedkeuren",
 	"tooltip-moderation-approve": "Deze enkele bewerking goedkeuren",
 	"tooltip-moderation-approved-diff": "Bekijk de goedgekeurde bewerking",

@@ -32,7 +32,6 @@
 	"moderation-approved-errors": "$1 {{plural:$1|düzenleme|düzenleme}} onaylanmadı: değişiklik çakışması vb.",
 	"moderation-approved-ok": "$1 {{plural:$1|düzenleme|düzenleme}} onaylandı.",
 	"moderation-blocker": "Moderasyon engeli",
-	"moderation-block-fail": "[[Special:Contributions/$1|$1]], spam listesine eklenemedi. Bilinmeyen hata.",
 	"moderation-block": "Spam yapan kişi olarak işaretle",
 	"moderation-block-ok": "[[Special:Contributions/$1|$1]], başarılı bir şekilde spam yapan kişi olarak işaretlendi.",
 	"moderation-desc": "Yeni kullanıcıların tüm düzenlemeleriyle yüklemelerini moderasyona gönderir",
