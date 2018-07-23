@@ -180,10 +180,24 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedError' => '(moderation-edit-not-found)' ] ],
 			[ [ 'modaction' => 'showimg', 'simulateNoSuchEntry' => true,
 				'expectedError' => '(moderation-edit-not-found)' ] ],
+			[ [ 'modaction' => 'preview', 'simulateNoSuchEntry' => true,
+				'expectedError' => '(moderation-edit-not-found)' ] ],
 
-			// TODO: ReadOnlyError exception from non-readonly actions
+			// ReadOnlyError exception from non-readonly actions
+			[ [ 'modaction' => 'approve', 'readonly' => true, 'expectReadOnlyError' => true ] ],
+			[ [ 'modaction' => 'approveall', 'readonly' => true, 'expectReadOnlyError' => true ] ],
+			[ [ 'modaction' => 'reject', 'readonly' => true, 'expectReadOnlyError' => true ] ],
+			[ [ 'modaction' => 'rejectall', 'readonly' => true, 'expectReadOnlyError' => true ] ],
+			[ [ 'modaction' => 'block', 'readonly' => true, 'expectReadOnlyError' => true ] ],
+			[ [ 'modaction' => 'unblock', 'readonly' => true, 'expectReadOnlyError' => true ] ],
+			[ [ 'modaction' => 'merge', 'readonly' => true, 'expectReadOnlyError' => true ] ],
+
+			// Actions that don't modify anything shouldn't throw ReadOnlyError
+			[ [ 'modaction' => 'show', 'readonly' => true ] ],
+			// TODO: showimg
+			[ [ 'modaction' => 'preview', 'readonly' => true ] ],
+
 			// TODO: approval errors originating from doEditContent(), etc.
-
 			// TODO: test uploads, moves
 			// TODO: modaction=showimg
 		];
@@ -194,6 +208,8 @@ class ModerationActionTest extends MediaWikiTestCase {
  * @brief Represents one TestSet for testAction().
  */
 class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
+
+	const READONLY_REASON = 'Simulated ReadOnly mode';
 
 	/**
 	 * @var string Name of action, e.g. 'approve' or 'rejectall'.
@@ -235,6 +251,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectModblocked = null;
 
 	/**
+	 * @var bool If true, we expect ReadOnlyError exception to be thrown.
+	 */
+	protected $expectReadOnlyError = false;
+
+	/**
 	 * @var bool If true, rejection fields will be added to $expectedFields.
 	 */
 	protected $expectRejected = false;
@@ -255,6 +276,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $simulateNoSuchEntry = false;
 
 	/**
+	 * @var bool If true, the wiki will be in readonly mode.
+	 */
+	protected $readonly = false;
+
+	/**
 	 * @brief Initialize this TestSet from the input of dataProvider.
 	 */
 	protected function applyOptions( array $options ) {
@@ -267,9 +293,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'expectedLogTargetIsAuthor':
 				case 'expectModblocked':
 				case 'expectedOutput':
+				case 'expectReadOnlyError':
 				case 'expectRejected':
 				case 'expectRowDeleted':
 				case 'modaction':
+				case 'readonly':
 				case 'simulateNoSuchEntry':
 					$this->$key = $value;
 					unset( $options[$key] );
@@ -347,11 +375,24 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		$t = $this->getTestsuite();
 		$t->loginAs( $this->getModerator() );
 
+		if ( $this->readonly ) {
+			$t->setMwConfig( 'ReadOnly', self::READONLY_REASON );
+		}
+
 		// Execute the action, check HTML printed by the action
 		$output = $t->html->getMainText( $this->getActionURL() );
 		if ( $this->expectedOutput ) {
 			$testcase->assertContains( $this->expectedOutput, $output,
 				"modaction={$this->modaction}: unexpected output." );
+		}
+
+		$expectedReadOnlyText = '(readonlytext: ' . self::READONLY_REASON . ')';
+		if ( $this->expectReadOnlyError ) {
+			$testcase->assertContains( $expectedReadOnlyText, $output,
+				"modaction={$this->modaction}: no ReadOnlyError exception in ReadOnly mode." );
+		} else {
+			$testcase->assertNotContains( $expectedReadOnlyText, $output,
+				"modaction={$this->modaction}: unexpected ReadOnlyError exception." );
 		}
 
 		$error = $t->html->getModerationError();
