@@ -27,7 +27,7 @@
 	"logentry-moderation-rejectall": "$1 has {{GENDER:$2|rejected}} $4 edits by $3",
 	"logentry-moderation-unblock": "$1 has {{GENDER:$2|removed}} $3 from the list of spammers",
 	"log-name-moderation": "Moderation log",
-	"moderation-already-merged": "This edit has already been manually merged. It makes no sence to approve or reject it.",
+	"moderation-already-merged": "This edit has already been manually merged. It makes no sense to approve or reject it.",
 	"moderation-already-rejected": "This edit has already been rejected.",
 	"moderation-approveall": "Approve all",
 	"moderation-approve": "Approve",
