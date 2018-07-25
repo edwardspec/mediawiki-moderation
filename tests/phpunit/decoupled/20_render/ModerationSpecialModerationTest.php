@@ -66,6 +66,7 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase {
 			[ [ 'mod_conflict' => 1, 'notAutomoderated' => true ] ],
 			[ [ 'previewLinkEnabled' => true ] ],
 			[ [ 'previewLinkEnabled' => true, 'mod_type' => 'move' ] ],
+			[ [ 'editChangeEnabled' => true ] ],
 			[ [ 'modblocked' => true ] ],
 			[ [ 'modblocked' => true, 'mod_user' => 0, 'mod_user_text' => '127.0.0.1' ] ],
 			[ [ 'mod_minor' => 1 ] ],
@@ -113,6 +114,9 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	/** @var bool If true, $wgModerationPreviewLink will be enabled. */
 	protected $previewLinkEnabled = false;
 
+	/** @var bool If true, $wgModerationEnableEditChange will be enabled. */
+	protected $editChangeEnabled = false;
+
 	/** @var bool If true, Approve link should be absent,
 		because the entry was rejected too long ago. */
 	protected $expectNotReapprovable = false;
@@ -127,6 +131,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'isCheckuser':
 				case 'previewLinkEnabled':
 				case 'expectNotReapprovable':
+				case 'editChangeEnabled':
 					$this->$key = $value;
 					unset( $options[$key] );
 			}
@@ -149,6 +154,10 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 		if ( $this->previewLinkEnabled ) {
 			$t->setMwConfig( 'ModerationPreviewLink', true );
+		}
+
+		if ( $this->editChangeEnabled ) {
+			$t->setMwConfig( 'ModerationEnableEditChange', true );
 		}
 
 		$t->fetchSpecial( $this->expectedFolder );
@@ -198,7 +207,6 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 	/**
 	 * @brief Check whether timestamp of $entry is correct.
-	 * @covers ModerationFormatTimestamp
 	 */
 	protected function assertTimestamp( ModerationTestsuiteEntry $entry ) {
 		$testcase = $this->getTestcase();
@@ -374,6 +382,10 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 			if ( $this->previewLinkEnabled ) {
 				$expectedLinks['preview'] = true;
+			}
+
+			if ( $this->editChangeEnabled ) {
+				$expectedLinks['editchange'] = true;
 			}
 		}
 
