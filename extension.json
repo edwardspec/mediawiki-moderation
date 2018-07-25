@@ -102,6 +102,7 @@
 		"ModerationActionApprove": "action/ModerationActionApprove.php",
 		"ModerationActionBlock": "action/ModerationActionBlock.php",
 		"ModerationActionEditChange": "action/review/ModerationActionEditChange.php",
+		"ModerationActionEditChangeSubmit": "action/review/ModerationActionEditChangeSubmit.php",
 		"ModerationActionMerge": "action/ModerationActionMerge.php",
 		"ModerationActionPreview": "action/review/ModerationActionPreview.php",
 		"ModerationActionReject": "action/ModerationActionReject.php",

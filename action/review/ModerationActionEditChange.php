@@ -27,7 +27,7 @@
 class ModerationActionEditChange extends ModerationAction {
 
 	public function requiresEditToken() {
-		return false; // Will be checked on POST request later
+		return false; // True in ModerationActionEditChangeSubmit
 	}
 
 	public function execute() {
@@ -46,49 +46,6 @@ class ModerationActionEditChange extends ModerationAction {
 		);
 		if ( !$row ) {
 			throw new ModerationError( 'moderation-edit-not-found' );
-		}
-
-		if ( $this->getRequest()->wasPosted() ) {
-			if ( !$wgModerationEnableEditChange ) {
-				throw new ModerationError( 'moderation-editchange-disabled' );
-			}
-
-			$token = $this->getRequest()->getVal( 'wpEditToken' );
-			if ( !$this->getUser()->matchEditToken( $token ) ) {
-				throw new ErrorPageError( 'sessionfailure-title', 'sessionfailure' );
-			}
-
-			$request = $this->getRequest();
-			$dbw->update( 'moderation',
-				[
-					'mod_text' => $request->getVal( 'wpTextbox1' ),
-					'mod_comment' => $request->getVal( 'wpSummary' )
-				],
-				[
-					'mod_id' => $this->id
-				],
-				__METHOD__
-			);
-
-			if ( !$dbw->affectedRows() ) {
-				throw new ModerationError( 'moderation-edit-not-found' );
-			}
-
-			$title = Title::makeTitle( $row->namespace, $row->title );
-
-			$logEntry = new ManualLogEntry( 'moderation', 'editchange' );
-			$logEntry->setPerformer( $this->moderator );
-			$logEntry->setTarget( $title );
-			$logEntry->setParameters( [
-				'modid' => $this->id
-			] );
-			$logid = $logEntry->insert();
-			$logEntry->publish( $logid );
-
-			return [
-				'id' => $this->id,
-				'success' => ''
-			];
 		}
 
 		return [

@@ -31,4 +31,13 @@ class ModerationEditChangePage extends EditPage {
 			'modaction' => 'editchange'
 		] );
 	}
+
+	/**
+	 * @brief Add CSRF token.
+	 */
+	protected function showFormAfterText() {
+		$this->context->getOutput()->addHTML(
+			Html::hidden( "token", $this->context->getUser()->getEditToken() )
+		);
+	}
 }

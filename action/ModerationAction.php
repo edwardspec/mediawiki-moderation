@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2017 Edward Chernenko.
+	Copyright (C) 2014-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -95,7 +95,8 @@ abstract class ModerationAction extends ContextSource {
 
 	/** @brief Construct new ModerationAction */
 	public static function factory( IContextSource $context ) {
-		$action = $context->getRequest()->getVal( 'modaction' );
+		$request = $context->getRequest();
+		$action = $request->getVal( 'modaction' );
 		switch ( $action ) {
 			case 'showimg':
 				return new ModerationActionShowImage( $context );
@@ -107,6 +108,10 @@ abstract class ModerationAction extends ContextSource {
 				return new ModerationActionPreview( $context );
 
 			case 'editchange':
+				if ( $request->wasPosted() && $request->getVal( 'wpSave' ) ) {
+					return new ModerationActionEditChangeSubmit( $context );
+				}
+
 				return new ModerationActionEditChange( $context );
 
 			case 'approve':

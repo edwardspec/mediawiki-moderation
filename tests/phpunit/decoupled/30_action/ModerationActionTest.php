@@ -75,6 +75,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 			// Actions show/preview/merge/block/unblock shouldn't change the row
 			[ [ 'modaction' => 'show' ] ],
 			[ [ 'modaction' => 'preview' ] ],
+			[ [ 'modaction' => 'editchange' ] ],
 			[ [ 'mod_conflict' => 1, 'modaction' => 'merge' ] ],
 
 			// Check block/unblock
