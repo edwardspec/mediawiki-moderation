@@ -51,6 +51,23 @@ class ModerationLogFormatterTest extends MediaWikiTestCase {
 				]
 			] ],
 			[ [
+				'subtype' => 'approve-move',
+				'target' => 'Help:Moving pages',
+				'params' => [
+					'4::target' => 'New title',
+					'user' => 500,
+					'user_text' => 'Test username'
+				],
+				'expectedParams' => [
+					3 => [
+						'pagelink' => 'New title'
+					],
+					4 => [
+						'userlink' => [ 500, 'Test username' ]
+					]
+				]
+			] ],
+			[ [
 				'subtype' => 'approveall',
 				'target' => 'User:Some author',
 				'expectTargetUserlink' => true
@@ -77,9 +94,7 @@ class ModerationLogFormatterTest extends MediaWikiTestCase {
 						// FIXME: why is this the userpage link and not
 						// the userlink? (Special:Contributions for anonymous user)
 						// Fix this in the Formatter itself.
-						'text' => 'Some author',
-						'query' => [ 'title' => 'User:Some_author' ],
-						'tooltip' => 'User:Some author (page does not exist)'
+						'pagelink' => 'User:Some author'
 					]
 				]
 			] ],
@@ -259,10 +274,26 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 		$testcase = $this->getTestcase();
 
 		if ( !isset( $expectedParam['query'] ) ) {
-			// Plaintext parameter (not a link).
-			$testcase->assertEquals( $expectedParam['text'], $paramHtml,
-				"$errorContext: incorrect text of parameter #$idx." );
-			return;
+			$title = null;
+			if ( isset( $expectedParam['userlink'] ) ) {
+				list( $userId, $username ) = $expectedParam['userlink'];
+				$title = $userId ?
+					Title::makeTitle( NS_USER, $username ) :
+					SpecialPage::getTitleFor( 'Contributions', $username );
+				unset( $expectedParam['userlink'] );
+			} elseif ( isset( $expectedParam['pagelink'] ) ) {
+				$title = Title::newFromText( $expectedParam['pagelink'] );
+				unset( $expectedParam['pagelink'] );
+			} else {
+				// Plaintext parameter (not a link).
+				$testcase->assertEquals( $expectedParam['text'], $paramHtml,
+					"$errorContext: incorrect text of parameter #$idx." );
+				return;
+			}
+
+			$expectedParam['query']['title'] = $title->getPrefixedDBKey();
+			$expectedParam['text'] = $title->getText();
+			$expectedParam['tooltip'] = $title->getFullText();
 		}
 
 		if ( $expectedParam['query']['title'] == '{{TARGET}}' ) {
@@ -271,10 +302,17 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 
 		$linkTitle = Title::newFromText( $expectedParam['query']['title'] );
 		if ( !$linkTitle->isKnown() ) {
+			// Expect a redlink
 			$expectedParam['query'] += [
 				'action' => 'edit',
 				'redlink' => 1
 			];
+
+			// Add "page does not exist" if this is NOT a customized tooltip
+			$trivialTooltip = str_replace( '_', ' ',  $expectedParam['query']['title'] );
+			if ( $expectedParam['tooltip'] == $trivialTooltip ) {
+				$expectedParam['tooltip'] .= ' (page does not exist)';
+			}
 		}
 
 		$param = $this->parseParam( $paramHtml );
