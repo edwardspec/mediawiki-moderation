@@ -34,13 +34,19 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	/** @var ModerationTestsuiteEngine */
 	protected $engine;
 
-	function __construct( ModerationTestsuiteEngine $engine ) {
+	function __construct( ModerationTestsuiteEngine $engine = null ) {
 		$this->engine = $engine;
 	}
 
 	public function loadFromURL( $url ) {
 		if ( !$url ) {
 			return null;
+		}
+
+		if ( !$this->engine ) {
+			throw new MWException(
+				"This ModerationTestsuiteHTML object can't use loadFromUrl(), " .
+				"it was created without ModerationTestsuiteEngine." );
 		}
 
 		$this->engine->ignoreHttpError( 404 );
