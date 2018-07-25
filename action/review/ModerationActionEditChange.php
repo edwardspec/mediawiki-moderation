@@ -124,5 +124,10 @@ class ModerationActionEditChange extends ModerationAction {
 		}
 
 		$editPage->showEditForm();
+
+		$out->setPageTitle( $this->msg(
+			'moderation-editchange-title',
+			$title->getFullText()
+		) );
 	}
 }
