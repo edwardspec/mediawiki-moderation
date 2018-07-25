@@ -20,6 +20,8 @@
  * @brief Checks rendering of moderation-related log entries on Special:Log.
  */
 
+require_once __DIR__ . "/framework/ModerationTestsuite.php";
+
 /**
  * @covers ModerationLogFormatter
  */
@@ -27,51 +29,8 @@ class ModerationLogFormatterTest extends MediaWikiTestCase {
 	/**
 	 * @dataProvider dataProvider
 	 */
-	public function testLogFormatter( array $data ) {
-		$performer = User::newFromName( 'Some moderator', false );
-		$target = Title::newFromText( $data['target'] );
-
-		$context = new DerivativeContext( RequestContext::getMain() );
-		$context->setLanguage( 'qqx' );
-
-		$entry = new ManualLogEntry( 'moderation', $data['subtype'] );
-		$entry->setPerformer( $performer );
-		$entry->setTarget( $target );
-		if ( isset( $data['params'] ) ) {
-			$entry->setParameters( $data['params'] );
-		}
-
-		$formatter = LogFormatter::newFromEntry( $entry );
-		$formatter->setContext( $context );
-		$html = $formatter->getActionText();
-
-		// Split $html into parameters
-		$this->assertEquals( 1,
-			preg_match( '/\(logentry-moderation-([^:]+): (.*)\)\s*$/', $html, $matches ),
-			"Log entry 'moderation/{$data['subtype']}': malformed log line." );
-
-		list( , $subtype, $paramLine ) = $matches;
-		$params = explode( ', ', $paramLine );
-
-		// Now check $subtype and $params for correctness
-		$this->assertEquals( $data['subtype'], $subtype,
-			"Log entry 'moderation/{$data['subtype']}': incorrect subtype." );
-		$this->assertEquals( $performer->getName(), $params[1],
-			"Log entry 'moderation/{$data['subtype']}': incorrect performer." );
-		$this->assertEquals(
-			Linker::userLink( $performer->getId(), $performer->getName() ),
-			$params[0],
-			"Log entry 'moderation/{$data['subtype']}': incorrect link to performer."
-		);
-
-		// TODO: check other $params
-
-		// libxml treats <bdi> tag as syntax error
-		$params = array_map( function ( $html ) {
-			return preg_replace( '/<\/?bdi>/', '', $html );
-		}, $params );
-
-		// TODO
+	public function testLogFormatter( array $options ) {
+		ModerationLogFormatterTestSet::run( $options, $this );
 	}
 
 	/**
@@ -82,12 +41,19 @@ class ModerationLogFormatterTest extends MediaWikiTestCase {
 			[ [
 				'subtype' => 'approve',
 				'target' => 'Project:Some page',
-				'params' => [ 'revid' => 12345 ]
+				'params' => [ 'revid' => 12345 ],
+				'expectedParams' => [
+					3 => [
+						'text' => '(moderation-log-diff: 12345)',
+						'query' => [ 'title' => '{{TARGET}}', 'diff' => 12345 ],
+						'tooltip' => '(tooltip-moderation-approved-diff)'
+					]
+				]
 			] ],
 			[ [
 				'subtype' => 'approveall',
 				'target' => 'User:Some author',
-				'4::count' => 345
+				'expectTargetUserlink' => true
 			] ],
 			[ [
 				'subtype' => 'reject',
@@ -96,25 +62,290 @@ class ModerationLogFormatterTest extends MediaWikiTestCase {
 					'modid' => 678,
 					'user' => 987,
 					'user_text' => 'Some author'
+				],
+				'expectedParams' => [
+					3 => [
+						'text' => '(moderation-log-change: 678)',
+						'query' => [
+							'title' => 'Special:Moderation',
+							'modaction' => 'show',
+							'modid' => 678
+						],
+						'tooltip' => '(tooltip-moderation-rejected-change)'
+					],
+					4 => [
+						// FIXME: why is this the userpage link and not
+						// the userlink? (Special:Contributions for anonymous user)
+						// Fix this in the Formatter itself.
+						'text' => 'Some author',
+						'query' => [ 'title' => 'User:Some_author' ],
+						'tooltip' => 'User:Some author (page does not exist)'
+					]
 				]
 			] ],
 			[ [
 				'subtype' => 'rejectall',
 				'target' => 'User:Some author',
 				'params' => [
-					'4::count' => 345
+					'4::count' => 42
+				],
+				'expectTargetUserlink' => true,
+				'expectedParams' => [
+					3 => [
+						'text' => 42
+					]
 				]
+
 			] ],
-			[ [ 'subtype' => 'block', 'target' => 'User:Some author' ] ],
-			[ [ 'subtype' => 'unblock', 'target' => 'User:Some author' ] ],
+			[ [ 'subtype' => 'block', 'target' => 'User:Some author',
+				'expectTargetUserlink' => true ] ],
+			[ [ 'subtype' => 'unblock', 'target' => 'User:Some author',
+				'expectTargetUserlink' => true ] ],
 			[ [
 				'subtype' => 'merge',
 				'target' => 'User:Some page',
 				'params' => [
 					'modid' => 200,
 					'revid' => 3000
+				],
+				'expectedParams' => [
+					3 => [
+						'text' => '(moderation-log-change: 200)',
+						'query' => [
+							'title' => 'Special:Moderation',
+							'modaction' => 'show',
+							'modid' => 200
+						],
+						'tooltip' => '(tooltip-moderation-rejected-change)'
+					],
+					4 => [
+						'text' => '(moderation-log-diff: 3000)',
+						'query' => [ 'title' => '{{TARGET}}', 'diff' => 3000 ],
+						'tooltip' => '(tooltip-moderation-approved-diff)'
+					]
 				]
 			] ]
 		];
+	}
+}
+
+/**
+ * @brief Represents one TestSet for testLogFormatter().
+ */
+class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
+
+	/** @var array Expected parameters, see assertParam() for details */
+	protected $expectedParams = [];
+
+	/** @var bool If true, $3 in logentry is expected to be a userlink. */
+	protected $expectTargetUserlink = false;
+
+	/** @var string Log action, e.g. 'approve-move' or 'rejectall'. */
+	protected $subtype = null;
+
+	/** @var Title Target of LogEntry */
+	protected $target = null;
+
+	/** @var array Parameters of LogEntry */
+	protected $params = [];
+
+	/** @var User Moderator who did the action. */
+	protected $performer = null;
+
+	/** @var string Resulting HTML produced by LogFormatter. Checked in assertResults(). */
+	protected $resultHtml = '';
+
+	/**
+	 * @brief Initialize this TestSet from the input of dataProvider.
+	 */
+	protected function applyOptions( array $options ) {
+		foreach ( $options as $key => $value ) {
+			switch ( $key ) {
+				case 'target':
+					$this->target = Title::newFromText( $value );
+					break;
+
+				case 'expectedParams':
+				case 'expectTargetUserlink':
+				case 'subtype':
+				case 'target':
+				case 'params':
+					$this->$key = $value;
+					break;
+
+				default:
+					throw new Exception( __CLASS__ . ": unknown key {$key} in options" );
+			}
+		}
+
+		if ( !$this->subtype || !$this->target ) {
+			throw new MWException( __CLASS__ . ': subtype and target are mandatory parameters.' );
+		}
+
+		$this->performer = User::newFromName( 'Some moderator', false );
+	}
+
+	/**
+	 * @brief Get human-readable description of this TestSet (for error messages).
+	 * @return string
+	 */
+	protected function getErrorContext() {
+		return "Log entry 'moderation/{$this->subtype}'";
+	}
+
+	/**
+	 * @brief Assert correctness of $this->resultHtml.
+	 */
+	protected function assertResults( MediaWikiTestCase $testcase ) {
+		$errorContext = $this->getErrorContext();
+
+		// Split resultHtml into parameters
+		$isMatched = preg_match(
+			'/\(logentry-moderation-([^:]+): (.*)\)\s*$/',
+			$this->resultHtml,
+			$matches
+		);
+		$testcase->assertEquals( 1, $isMatched,
+			"$errorContext: malformed log line." );
+
+		list( , $subtype, $paramLine ) = $matches;
+		$testcase->assertEquals( $this->subtype, $subtype,
+			"$errorContext: incorrect subtype." );
+
+		// Now check $params for correctness
+		$params = [];
+		$params = explode( ', ', $paramLine );
+
+		$testcase->assertEquals( $this->performer->getName(), $params[1],
+			"$errorContext: incorrect performer." );
+		$testcase->assertEquals(
+			Linker::userLink( $this->performer->getId(), $this->performer->getName() ),
+			$params[0],
+			"$errorContext: incorrect link to performer."
+		);
+
+		// Check $params[2], which is the link to the target
+		if ( $this->expectTargetUserlink ) {
+			$this->assertIsUserLink(
+				User::newFromName( $this->target->getText(), false ),
+				$params[2],
+				"$errorContext: incorrect userlink to the target user."
+			);
+		} else {
+			$testcase->assertEquals(
+				Linker::link( $this->target ),
+				$params[2],
+				"$errorContext: incorrect link to the target page."
+			);
+		}
+
+		// Check other $params (aside from the already checked 3)
+		$testcase->assertCount( 3 + count( $this->expectedParams ), $params,
+			"$errorContext: incorrect number of parameters in i18n message of logentry." );
+
+		foreach ( $this->expectedParams as $idx => $expectedParam ) {
+			$this->assertParamHtml( $expectedParam, $params[$idx], $idx );
+		}
+	}
+
+	/**
+	 * @brief Assert correctness of the parsed HTML of one LogEntry parameter.
+	 * @param array $expectedParam Expected text/tooltip/etc. of the parameter, see dataProvider().
+	 * @param string $paramHtml HTML to check.
+	 * @param int $idx Index of the parameter (for error messages).
+	 */
+	protected function assertParamHtml( array $expectedParam, $paramHtml, $idx ) {
+		$errorContext = $this->getErrorContext();
+		$testcase = $this->getTestcase();
+
+		if ( !isset( $expectedParam['query'] ) ) {
+			// Plaintext parameter (not a link).
+			$testcase->assertEquals( $expectedParam['text'], $paramHtml,
+				"$errorContext: incorrect text of parameter #$idx." );
+			return;
+		}
+
+		if ( $expectedParam['query']['title'] == '{{TARGET}}' ) {
+			$expectedParam['query']['title'] = $this->target->getPrefixedDBKey();
+		}
+
+		$linkTitle = Title::newFromText( $expectedParam['query']['title'] );
+		if ( !$linkTitle->isKnown() ) {
+			$expectedParam['query'] += [
+				'action' => 'edit',
+				'redlink' => 1
+			];
+		}
+
+		$param = $this->parseParam( $paramHtml );
+		$testcase->assertEquals( $expectedParam, $param,
+			"$errorContext: incorrect HTML of parameter #$idx." );
+	}
+
+	protected function parseParam( $paramHtml ) {
+		$html = new ModerationTestsuiteHTML;
+		$html->loadFromString( $paramHtml );
+
+		$parsed = [
+			'text' => $html->textContent
+		];
+
+		$link = $html->getElementsByTagName( 'a' )->item( 0 );
+		if ( !$link ) {
+			return $parsed;
+
+		}
+
+		$parsed['tooltip'] = $link->getAttribute( 'title' );
+		$href = $link->getAttribute( 'href' );
+
+		// Split $href (URL of this link as a string)
+		// into an array of querystring parameters.
+
+		$_SERVER['REQUEST_URI'] = $href;
+		$parsed['query'] = WebRequest::getPathInfo(); // Will find 'title', if any.
+		unset( $_SERVER['REQUEST_URI'] );
+
+		$bits = wfParseUrl( wfExpandUrl( $href ) );
+		if ( $bits['query'] ) {
+			$parsed['query'] += wfCgiToArray( $bits['query'] );
+		}
+
+		return $parsed;
+	}
+
+	/**
+	 * @brief Execute the TestSet. Populates $this->resultHtml by formatting a LogEntry.
+	 */
+	protected function makeChanges() {
+		$subtype = $this->subtype;
+
+		$context = new DerivativeContext( RequestContext::getMain() );
+		$context->setLanguage( 'qqx' );
+
+		$entry = new ManualLogEntry( 'moderation', $subtype );
+		$entry->setPerformer( $this->performer );
+		$entry->setTarget( $this->target );
+		if ( $this->params ) {
+			$entry->setParameters( $this->params );
+		}
+
+		$formatter = LogFormatter::newFromEntry( $entry );
+		$formatter->setContext( $context );
+		$this->resultHtml = $formatter->getActionText();
+	}
+
+	/**
+	 * @brief Asserts that $html is the userlink to certain user.
+	 * @param User $expectedUser
+	 * @param string $html
+	 * @param string $errorText
+	 */
+	protected function assertIsUserLink( User $expectedUser, $html, $errorText ) {
+		$this->getTestcase()->assertEquals(
+			Linker::userLink( $expectedUser->getId(), $expectedUser->getName() ),
+			$html,
+			$errorText
+		);
 	}
 }
