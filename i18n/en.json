@@ -46,6 +46,7 @@
 	"moderation-editing-your-version": "You are editing your version of this article. It is currently awaiting moderation.<br>Once approved, it will be visible to other users.",
 	"moderation-edit-not-found": "Edit not found. Probably already approved.",
 	"moderation-edit-queued": "Success: your edit has been sent to moderation.<br>You can continue editing <a href='$1'>your version of this page</a>.",
+	"moderation-editchange-disabled": "Moderators are not allowed to edit pending changes. This is dangerous and should be explicitly enabled in LocalSettings.php.",
 	"moderation-folder-merged": "Merged",
 	"moderation-folder-pending": "Pending moderation",
 	"moderation-folder-rejected": "Rejected",

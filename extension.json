@@ -101,6 +101,7 @@
 		"ModerationAction": "action/ModerationAction.php",
 		"ModerationActionApprove": "action/ModerationActionApprove.php",
 		"ModerationActionBlock": "action/ModerationActionBlock.php",
+		"ModerationActionEditChange": "action/review/ModerationActionEditChange.php",
 		"ModerationActionMerge": "action/ModerationActionMerge.php",
 		"ModerationActionPreview": "action/review/ModerationActionPreview.php",
 		"ModerationActionReject": "action/ModerationActionReject.php",
@@ -113,6 +114,7 @@
 		"ModerationBlockCheck": "util/ModerationBlockCheck.php",
 		"ModerationCanSkip": "util/ModerationCanSkip.php",
 		"ModerationEditHooks": "hooks/ModerationEditHooks.php",
+		"ModerationEditChangePage": "action/review/ModerationEditChangePage.php",
 		"ModerationEntryEdit": "lib/entry/ModerationEntryEdit.php",
 		"ModerationEntryFormatter": "lib/entry/ModerationEntryFormatter.php",
 		"ModerationEntry": "lib/entry/ModerationEntry.php",
@@ -343,7 +345,10 @@
 		"ModerationOnlyInNamespaces": [],
 
 		"@doc12": "If set to an array of namespace numbers (e.g. NS_MAIN, NS_FILE), non-automoderated users can bypass moderation in these namespaces. Default (empty array): moderation can't be bypassed anywhere.",
-		"ModerationIgnoredInNamespaces": []
+		"ModerationIgnoredInNamespaces": [],
+
+		"@doc13": "If true, moderators are allowed to edit pending changes before approving. DANGEROUS: moderator can accidentally delete the text of pending change. Enable this only when you use Moderation for pre-publish review.",
+		"ModerationEnableEditChange": false
 	},
 	"manifest_version": 1
 }

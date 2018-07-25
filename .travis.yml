@@ -58,6 +58,9 @@ matrix:
         - for i in extensions/Moderation/tests/benchmarks/*; do php maintenance/runScript.php $i; done
       after_script: ./vendor/bin/phpcs -ps extensions/Moderation/
     - <<: *phpunit-build
+      if: branch IN (review-usecase)
+      env: branch=REL1_30
+    - <<: *phpunit-build
       env: branch=REL1_27
       php: 7.1
     - <<: *phpunit-build

@@ -106,6 +106,9 @@ abstract class ModerationAction extends ContextSource {
 			case 'preview':
 				return new ModerationActionPreview( $context );
 
+			case 'editchange':
+				return new ModerationActionEditChange( $context );
+
 			case 'approve':
 			case 'approveall':
 				return new ModerationActionApprove( $context );
