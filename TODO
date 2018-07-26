@@ -21,6 +21,14 @@ Low-prio:
 	but need feedback from users on UX (is it convenient to use or not?)
 * (testsuite) Selenium testsuite: investigate test flakiness of notify.js
 	(in IE11, notification sometimes doesn't disappear after the click)
+* (feature) Backup previous text when a pending change is modified.
+	This would prevent situation when a user has accidentally deleted
+	important text in his own pending change, and the old text wasn't
+	recoverable.
+	It would also make [action=editchange] safe from moderator's errors,
+	and would allow to log what exactly did the moderator change.
+	Note: this backup must be in a separate SQL table.
+	Not having "edit history" in moderation table simplifies everything.
 
 Background-prio (may not be needed):
 * (meta) Display notification "Please run update.php" on Special:Moderation if
@@ -34,3 +42,5 @@ some new feature (that requires DB update) is disabled because it wasn't done.
 
 Tests needed:
 * PageForms plugin ("continue editing" link in postedit notification)
+* modaction=editchange (with and without $wgModerationEnableEditChange)
+
