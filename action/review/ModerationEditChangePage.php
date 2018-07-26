@@ -26,8 +26,11 @@ class ModerationEditChangePage extends EditPage {
 	 * @brief When user clicks Submit, handle this back to Special:Moderation.
 	 */
 	protected function getActionURL( Title $title ) {
+		global $wgOut;
+		$context = $wgOut->getContext(); // MediaWiki 1.27 doesn't have EditPage::getContext()
+
 		return SpecialPage::getTitleFor( 'Moderation' )->getLocalURL( [
-			'modid' => $this->getContext()->getRequest()->getVal( 'modid' ),
+			'modid' => $context->getRequest()->getVal( 'modid' ),
 			'modaction' => 'editchange'
 		] );
 	}
@@ -36,8 +39,10 @@ class ModerationEditChangePage extends EditPage {
 	 * @brief Add CSRF token.
 	 */
 	protected function showFormAfterText() {
-		$this->context->getOutput()->addHTML(
-			Html::hidden( "token", $this->context->getUser()->getEditToken() )
+		global $wgOut; // MediaWiki 1.27 doesn't have EditPage::getContext()
+
+		$wgOut->addHTML(
+			Html::hidden( "token", $wgOut->getContext()->getUser()->getEditToken() )
 		);
 	}
 
