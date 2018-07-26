@@ -100,6 +100,7 @@
 	"tooltip-moderation-approve": "Approve this single edit",
 	"tooltip-moderation-approved-diff": "View the approved edit",
 	"tooltip-moderation-block": "Send further edits of this user to Spam folder",
+	"tooltip-moderation-editchange": "Modify the text (or edit summary) of this pending change",
 	"tooltip-moderation-folder-merged": "Edits manually merged by a moderator",
 	"tooltip-moderation-folder-pending": "Edits which are not yet approved or rejected",
 	"tooltip-moderation-folder-rejected": "Edits rejected by a moderator",
