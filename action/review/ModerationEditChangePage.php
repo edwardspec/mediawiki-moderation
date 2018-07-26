@@ -40,4 +40,23 @@ class ModerationEditChangePage extends EditPage {
 			Html::hidden( "token", $this->context->getUser()->getEditToken() )
 		);
 	}
+
+	/**
+	 * @brief Remove "Preview" and "Show changes" buttons (not yet implemented).
+	 */
+	public function getEditButtons( &$tabindex ) {
+		$buttons = parent::getEditButtons( $tabindex );
+
+		unset( $buttons['preview'] );
+		unset( $buttons['diff'] );
+
+		return $buttons;
+	}
+
+	/**
+	 * @brief Point "Cancel" button to Special:Moderation, not to the nonexistent article.
+	 */
+	public function getContextTitle() {
+		return SpecialPage::getTitleFor( 'Moderation' );
+	}
 }
