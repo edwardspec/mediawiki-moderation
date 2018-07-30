@@ -2,7 +2,8 @@
 	"@metadata": {
 		"authors": [
 			"Deathkon",
-			"Liuxinyu970226"
+			"Liuxinyu970226",
+			"Wxyveronica"
 		]
 	},
 	"action-moderation": "版主编辑",
@@ -27,7 +28,7 @@
 	"logentry-moderation-rejectall": "$1已{{GENDER:$2|拒绝}}由$3做出的$4次编辑",
 	"logentry-moderation-unblock": "$1已将$3从垃破坏者列表中{{GENDER:$2|移除}}",
 	"log-name-moderation": "版主日志",
-	"moderation-already-merged": "此编辑已被手工合并。批准或拒绝它是没有意义的。",
+	"moderation-already-merged": "此条编辑已通过手动合并。无法批准或拒绝。",
 	"moderation-already-rejected": "此编辑已被拒绝。",
 	"moderation-approveall": "全部批准",
 	"moderation-approve": "批准",
