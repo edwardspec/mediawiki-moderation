@@ -206,6 +206,23 @@ class ModerationActionTest extends MediaWikiTestCase {
 			// TODO: showimg
 			[ [ 'modaction' => 'preview', 'readonly' => true ] ],
 
+			// POST action=editchange
+			[ [
+				'modaction' => 'editchange',
+				'enableEditChange' => true,
+				'POST' => true,
+				'postData' => [
+					'wpTextbox1' => 'Modified text',
+					'wpSummary' => 'Modified edit summary',
+					'wpSave' => 'Save'
+				],
+				'expectedOutput' => '(moderation-editchange-ok)',
+				'expectedFields' => [
+					'mod_text' => 'Modified text',
+					'mod_comment' => 'Modified edit summary'
+				]
+			] ],
+
 			// TODO: approval errors originating from doEditContent(), etc.
 			// TODO: test uploads, moves
 			// TODO: modaction=showimg
@@ -285,14 +302,24 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectedOutput = '';
 
 	/**
-	 * @var bool If true, incorrect modid will be used in the action URL.
+	 * @var string If true, request will be POST (if false, GET).
 	 */
-	protected $simulateNoSuchEntry = false;
+	protected $POST = false;
+
+	/**
+	 * @var string Request body to send with POST request.
+	 */
+	protected $postData = [];
 
 	/**
 	 * @var bool If true, the wiki will be in readonly mode.
 	 */
 	protected $readonly = false;
+
+	/**
+	 * @var bool If true, incorrect modid will be used in the action URL.
+	 */
+	protected $simulateNoSuchEntry = false;
 
 	/**
 	 * @brief Initialize this TestSet from the input of dataProvider.
@@ -312,6 +339,8 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'expectRejected':
 				case 'expectRowDeleted':
 				case 'modaction':
+				case 'POST':
+				case 'postData':
 				case 'readonly':
 				case 'simulateNoSuchEntry':
 					$this->$key = $value;
@@ -399,7 +428,12 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		}
 
 		// Execute the action, check HTML printed by the action
-		$output = $t->html->getMainText( $this->getActionURL() );
+		$url = $this->getActionURL();
+		$req = $this->POST ? $t->httpPost( $url, $this->postData ) : $t->httpGet( $url );
+
+		$html = $t->html->loadFromReq( $req );
+
+		$output = $html->getMainText();
 		if ( $this->expectedOutput ) {
 			$testcase->assertContains( $this->expectedOutput, $output,
 				"modaction={$this->modaction}: unexpected output." );
@@ -414,7 +448,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				"modaction={$this->modaction}: unexpected ReadOnlyError exception." );
 		}
 
-		$error = $t->html->getModerationError();
+		$error = $html->getModerationError();
 		if ( $this->expectedError ) {
 			$testcase->assertEquals( $this->expectedError, $error,
 				"modaction={$this->modaction}: expected error not shown." );
@@ -555,6 +589,12 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 					$expectedParams = [
 						'revid' => $this->getExpectedTitleObj()->getLatestRevID()
 					];
+					break;
+
+				case 'editchange':
+					$expectedParams = [
+						'modid' => $this->fields['mod_id']
+					];
 			}
 
 			$testcase->assertEquals( $expectedParams, $logEntry->getParameters(),
@@ -572,6 +612,10 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		];
 		if ( !in_array( $this->modaction, [ 'show', 'showimg', 'preview' ] ) ) {
 			$q['token'] = $this->getTestsuite()->getEditToken();
+		}
+
+		if ( $this->modaction == 'editchange' && !$this->POST ) {
+			unset( $q['token'] );
 		}
 
 		if ( $this->simulateNoSuchEntry ) {

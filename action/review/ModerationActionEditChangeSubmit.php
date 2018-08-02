@@ -47,6 +47,11 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 			[
 				'mod_text' => $request->getVal( 'wpTextbox1' ),
 				'mod_comment' => $request->getVal( 'wpSummary' )
+
+				// TODO: 1) Apply preSaveTransform() to new mod_text
+				// (make sure to use original author as User for preSaveTransform(),
+				// so that ~~~~ is not transformed into signature of moderator)
+				// 2) recalculate mod_new_len.
 			],
 			[
 				'mod_id' => $this->id
