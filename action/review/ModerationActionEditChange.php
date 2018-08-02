@@ -31,7 +31,9 @@ class ModerationActionEditChange extends ModerationAction {
 	}
 
 	public function execute() {
-		global $wgModerationEnableEditChange;
+		if ( !$this->getConfig()->get( 'ModerationEnableEditChange' ) ) {
+			throw new ModerationError( 'moderation-unknown-modaction' );
+		}
 
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
@@ -53,8 +55,7 @@ class ModerationActionEditChange extends ModerationAction {
 			'namespace' => $row->namespace,
 			'title' => $row->title,
 			'text' => $row->text,
-			'summary' => $row->comment,
-			'readonly' => !$wgModerationEnableEditChange
+			'summary' => $row->comment
 		];
 	}
 
@@ -67,18 +68,6 @@ class ModerationActionEditChange extends ModerationAction {
 		$editPage->setContextTitle( $title );
 		$editPage->textbox1 = $result['text'];
 		$editPage->summary = $result['summary'];
-
-		if ( $result['readonly'] ) {
-			$reason = $this->msg( 'moderation-editchange-disabled' )->plain();
-
-			if ( method_exists( 'MediaWiki\MediaWikiServices', 'getReadOnlyMode' ) ) {
-				$roMode = MediaWiki\MediaWikiServices::getInstance()->getReadOnlyMode();
-				$roMode->setReason( $reason );
-			} else {
-				global $wgReadOnly;
-				$wgReadOnly = $reason;
-			}
-		}
 
 		$editPage->showEditForm();
 

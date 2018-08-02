@@ -75,7 +75,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 			// Actions show/preview/merge/block/unblock shouldn't change the row
 			[ [ 'modaction' => 'show' ] ],
 			[ [ 'modaction' => 'preview' ] ],
-			[ [ 'modaction' => 'editchange' ] ],
+			[ [ 'modaction' => 'editchange', 'enableEditChange' => true ] ],
 			[ [ 'mod_conflict' => 1, 'modaction' => 'merge' ] ],
 
 			// Check block/unblock
@@ -112,6 +112,11 @@ class ModerationActionTest extends MediaWikiTestCase {
 			// Errors printed by actions:
 			[ [
 				'modaction' => 'makesandwich',
+				'expectedError' => '(moderation-unknown-modaction)'
+			] ],
+			[ [
+				// editchange shouldn't be available without $wgModerationEnableEditChange
+				'modaction' => 'editchange',
 				'expectedError' => '(moderation-unknown-modaction)'
 			] ],
 			[ [
@@ -183,6 +188,9 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedError' => '(moderation-edit-not-found)' ] ],
 			[ [ 'modaction' => 'preview', 'simulateNoSuchEntry' => true,
 				'expectedError' => '(moderation-edit-not-found)' ] ],
+			[ [ 'modaction' => 'editchange', 'enableEditChange' => true,
+				'simulateNoSuchEntry' => true,
+				'expectedError' => '(moderation-edit-not-found)' ] ],
 
 			// ReadOnlyError exception from non-readonly actions
 			[ [ 'modaction' => 'approve', 'readonly' => true, 'expectReadOnlyError' => true ] ],
@@ -216,6 +224,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * @var string Name of action, e.g. 'approve' or 'rejectall'.
 	 */
 	protected $modaction = null;
+
+	/**
+	 * @var bool If true, $wgModerationEnableEditChange is enabled.
+	 */
+	protected $enableEditChange = false;
 
 	/**
 	 * @var array Expected field values after the action.
@@ -287,6 +300,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected function applyOptions( array $options ) {
 		foreach ( $options as $key => $value ) {
 			switch ( $key ) {
+				case 'enableEditChange':
 				case 'expectedFields':
 				case 'expectedError':
 				case 'expectedLogAction':
@@ -378,6 +392,10 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 		if ( $this->readonly ) {
 			$t->setMwConfig( 'ReadOnly', self::READONLY_REASON );
+		}
+
+		if ( $this->enableEditChange ) {
+			$t->setMwConfig( 'ModerationEnableEditChange', true );
 		}
 
 		// Execute the action, check HTML printed by the action

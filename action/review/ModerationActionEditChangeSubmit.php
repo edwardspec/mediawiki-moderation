@@ -25,9 +25,8 @@
 class ModerationActionEditChangeSubmit extends ModerationAction {
 
 	public function execute() {
-		global $wgModerationEnableEditChange;
-		if ( !$wgModerationEnableEditChange ) {
-			throw new ModerationError( 'moderation-editchange-disabled' );
+		if ( !$this->getConfig()->get( 'ModerationEnableEditChange' ) ) {
+			throw new ModerationError( 'moderation-unknown-modaction' );
 		}
 
 		$dbw = wfGetDB( DB_MASTER );

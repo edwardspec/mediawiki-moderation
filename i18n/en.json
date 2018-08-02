@@ -48,7 +48,6 @@
 	"moderation-edit-not-found": "Edit not found. Probably already approved.",
 	"moderation-edit-queued": "Success: your edit has been sent to moderation.<br>You can continue editing <a href='$1'>your version of this page</a>.",
 	"moderation-editchange": "edit",
-	"moderation-editchange-disabled": "Moderators are not allowed to edit pending changes. This is dangerous and should be explicitly enabled in LocalSettings.php.",
 	"moderation-editchange-ok": "Pending revision changed.",
 	"moderation-editchange-title": "Pending revision of \"$1\"",
 	"moderation-folder-merged": "Merged",
