@@ -25,6 +25,8 @@
 class ModerationActionEditChangeSubmit extends ModerationAction {
 
 	public function execute() {
+		global $wgContLang;
+
 		if ( !$this->getConfig()->get( 'ModerationEnableEditChange' ) ) {
 			throw new ModerationError( 'moderation-unknown-modaction' );
 		}
@@ -33,7 +35,9 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 		$row = $dbw->selectRow( 'moderation',
 			[
 				'mod_namespace AS namespace',
-				'mod_title AS title'
+				'mod_title AS title',
+				'mod_user AS user',
+				'mod_user_text AS user_text'
 			],
 			[ 'mod_id' => $this->id ],
 			__METHOD__
@@ -43,15 +47,31 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 		}
 
 		$request = $this->getRequest();
+
+		/* Apply preSaveTransform to the submitted text */
+		$title = Title::makeTitle( $row->namespace, $row->title );
+		$newContent = ContentHandler::makeContent(
+			$request->getVal( 'wpTextbox1' ),
+			$title
+		);
+
+		$originalAuthor = $row->user ?
+			User::newFromId( $row->user ) :
+			User::newFromName( $row->user_text, false );
+		$pstContent = $newContent->preSaveTransform(
+			$title,
+			$originalAuthor,
+			ParserOptions::newFromUserAndLang(
+				$originalAuthor,
+				$wgContLang
+			)
+		);
+
 		$dbw->update( 'moderation',
 			[
-				'mod_text' => $request->getVal( 'wpTextbox1' ),
+				'mod_text' => $pstContent->getNativeData(),
+				'mod_new_len' => $pstContent->getSize(),
 				'mod_comment' => $request->getVal( 'wpSummary' )
-
-				// TODO: 1) Apply preSaveTransform() to new mod_text
-				// (make sure to use original author as User for preSaveTransform(),
-				// so that ~~~~ is not transformed into signature of moderator)
-				// 2) recalculate mod_new_len.
 			],
 			[
 				'mod_id' => $this->id
@@ -61,8 +81,6 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 
 		$somethingChanged = ( $dbw->affectedRows() > 0 );
 		if ( $somethingChanged ) {
-			$title = Title::makeTitle( $row->namespace, $row->title );
-
 			$logEntry = new ManualLogEntry( 'moderation', 'editchange' );
 			$logEntry->setPerformer( $this->moderator );
 			$logEntry->setTarget( $title );

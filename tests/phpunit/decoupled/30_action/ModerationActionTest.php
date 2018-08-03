@@ -369,6 +369,12 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			}
 		}
 
+		if ( isset( $this->expectedFields['mod_text'] ) ) {
+			// We expect the text to change,
+			// therefore mod_new_len should be changed as well.
+			$this->expectedFields['mod_new_len'] = strlen( $this->expectedFields['mod_text'] );
+		}
+
 		parent::applyOptions( $options );
 		$this->expectedFields += $this->fields;
 
