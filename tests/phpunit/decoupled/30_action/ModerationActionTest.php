@@ -72,7 +72,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectRejected' => true
 			] ],
 
-			// Actions show/preview/merge/block/unblock shouldn't change the row
+			// Actions show/preview/merge/block/unblock/editchange shouldn't change the row
 			[ [ 'modaction' => 'show' ] ],
 			[ [ 'modaction' => 'preview' ] ],
 			[ [ 'modaction' => 'editchange', 'enableEditChange' => true ] ],
@@ -112,11 +112,6 @@ class ModerationActionTest extends MediaWikiTestCase {
 			// Errors printed by actions:
 			[ [
 				'modaction' => 'makesandwich',
-				'expectedError' => '(moderation-unknown-modaction)'
-			] ],
-			[ [
-				// editchange shouldn't be available without $wgModerationEnableEditChange
-				'modaction' => 'editchange',
 				'expectedError' => '(moderation-unknown-modaction)'
 			] ],
 			[ [
@@ -167,6 +162,17 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedError' => '(moderation-already-merged)'
 			] ],
 
+			// editchange{,submit} shouldn't be available without $wgModerationEnableEditChange
+			[ [
+
+				'modaction' => 'editchange',
+				'expectedError' => '(moderation-unknown-modaction)'
+			] ],
+			[ [
+				'modaction' => 'editchangesubmit',
+				'expectedError' => '(moderation-unknown-modaction)'
+			] ],
+
 			// 'moderation-edit-not-found' from everything
 			[ [ 'modaction' => 'approve', 'simulateNoSuchEntry' => true,
 				'expectedError' => '(moderation-edit-not-found)' ] ],
@@ -191,6 +197,9 @@ class ModerationActionTest extends MediaWikiTestCase {
 			[ [ 'modaction' => 'editchange', 'enableEditChange' => true,
 				'simulateNoSuchEntry' => true,
 				'expectedError' => '(moderation-edit-not-found)' ] ],
+			[ [ 'modaction' => 'editchangesubmit', 'enableEditChange' => true,
+				'simulateNoSuchEntry' => true,
+				'expectedError' => '(moderation-edit-not-found)' ] ],
 
 			// ReadOnlyError exception from non-readonly actions
 			[ [ 'modaction' => 'approve', 'readonly' => true, 'expectReadOnlyError' => true ] ],
@@ -200,17 +209,18 @@ class ModerationActionTest extends MediaWikiTestCase {
 			[ [ 'modaction' => 'block', 'readonly' => true, 'expectReadOnlyError' => true ] ],
 			[ [ 'modaction' => 'unblock', 'readonly' => true, 'expectReadOnlyError' => true ] ],
 			[ [ 'modaction' => 'merge', 'readonly' => true, 'expectReadOnlyError' => true ] ],
+			[ [ 'modaction' => 'editchange', 'readonly' => true, 'expectReadOnlyError' => true ] ],
+			[ [ 'modaction' => 'editchangesubmit', 'readonly' => true, 'expectReadOnlyError' => true ] ],
 
 			// Actions that don't modify anything shouldn't throw ReadOnlyError
 			[ [ 'modaction' => 'show', 'readonly' => true ] ],
 			// TODO: showimg
 			[ [ 'modaction' => 'preview', 'readonly' => true ] ],
 
-			// POST action=editchange
+			// action=editchangesubmit
 			[ [
-				'modaction' => 'editchange',
+				'modaction' => 'editchangesubmit',
 				'enableEditChange' => true,
-				'POST' => true,
 				'postData' => [
 					'wpTextbox1' => 'Modified text',
 					'wpSummary' => 'Modified edit summary',
@@ -220,7 +230,8 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedFields' => [
 					'mod_text' => 'Modified text',
 					'mod_comment' => 'Modified edit summary'
-				]
+				],
+				'expectedLogAction' => 'editchange'
 			] ],
 
 			// TODO: approval errors originating from doEditContent(), etc.
@@ -302,12 +313,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectedOutput = '';
 
 	/**
-	 * @var string If true, request will be POST (if false, GET).
-	 */
-	protected $POST = false;
-
-	/**
-	 * @var string Request body to send with POST request.
+	 * @var array Request body to send with POST request.
 	 */
 	protected $postData = [];
 
@@ -339,7 +345,6 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'expectRejected':
 				case 'expectRowDeleted':
 				case 'modaction':
-				case 'POST':
 				case 'postData':
 				case 'readonly':
 				case 'simulateNoSuchEntry':
@@ -429,7 +434,9 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 		// Execute the action, check HTML printed by the action
 		$url = $this->getActionURL();
-		$req = $this->POST ? $t->httpPost( $url, $this->postData ) : $t->httpGet( $url );
+		$req = ( $this->modaction == 'editchangesubmit' ) ?
+			$t->httpPost( $url, $this->postData ) :
+			$t->httpGet( $url );
 
 		$html = $t->html->loadFromReq( $req );
 
@@ -557,7 +564,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 			$testcase->assertEquals( 'moderation', $logEntry->getType(),
 				"modaction={$this->modaction}: incorrect LogEntry type" );
-			$testcase->assertEquals( $this->modaction, $logEntry->getSubtype(),
+			$testcase->assertEquals( $this->expectedLogAction, $logEntry->getSubtype(),
 				"modaction={$this->modaction}: incorrect LogEntry subtype" );
 			$testcase->assertEquals(
 				$this->getModerator()->getName(),
@@ -610,12 +617,8 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			'modid' => $this->fields['mod_id'],
 			'modaction' => $this->modaction
 		];
-		if ( !in_array( $this->modaction, [ 'show', 'showimg', 'preview' ] ) ) {
+		if ( !in_array( $this->modaction, [ 'show', 'showimg', 'preview', 'editchange' ] ) ) {
 			$q['token'] = $this->getTestsuite()->getEditToken();
-		}
-
-		if ( $this->modaction == 'editchange' && !$this->POST ) {
-			unset( $q['token'] );
 		}
 
 		if ( $this->simulateNoSuchEntry ) {

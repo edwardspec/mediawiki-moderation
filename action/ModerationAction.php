@@ -108,11 +108,10 @@ abstract class ModerationAction extends ContextSource {
 				return new ModerationActionPreview( $context );
 
 			case 'editchange':
-				if ( $request->wasPosted() && $request->getVal( 'wpSave' ) ) {
-					return new ModerationActionEditChangeSubmit( $context );
-				}
-
 				return new ModerationActionEditChange( $context );
+
+			case 'editchangesubmit':
+				return new ModerationActionEditChangeSubmit( $context );
 
 			case 'approve':
 			case 'approveall':
