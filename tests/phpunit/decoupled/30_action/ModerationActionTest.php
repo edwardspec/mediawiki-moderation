@@ -39,7 +39,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 	public function dataProvider() {
 		global $wgModerationTimeToOverrideRejection;
 
-		return [
+		$sets = [
 			[ [
 				'modaction' => 'reject',
 				'expectedOutput' => '(moderation-rejected-ok: 1)',
@@ -136,16 +136,6 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedError' => '(moderation-nothing-to-rejectall)'
 			] ],
 			[ [
-				'modaction' => 'approve',
-				'mod_merged_revid' => 12345,
-				'expectedError' => '(moderation-already-merged)'
-			] ],
-			[ [
-				'modaction' => 'reject',
-				'mod_merged_revid' => 12345,
-				'expectedError' => '(moderation-already-merged)'
-			] ],
-			[ [
 				'modaction' => 'merge',
 				'expectedError' => '(moderation-merge-not-needed)'
 			] ],
@@ -154,12 +144,6 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'mod_conflict' => 1,
 				'notAutomoderated' => true,
 				'expectedError' => '(moderation-merge-not-automoderated)'
-			] ],
-			[ [
-				'modaction' => 'merge',
-				'mod_conflict' => 1,
-				'mod_merged_revid' => 12345,
-				'expectedError' => '(moderation-already-merged)'
 			] ],
 
 			// editchange{,submit} shouldn't be available without $wgModerationEnableEditChange
@@ -172,45 +156,6 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'modaction' => 'editchangesubmit',
 				'expectedError' => '(moderation-unknown-modaction)'
 			] ],
-
-			// 'moderation-edit-not-found' from everything
-			[ [ 'modaction' => 'approve', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'approveall', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'reject', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'rejectall', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'block', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'unblock', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'merge', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'show', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'showimg', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'preview', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'editchange', 'enableEditChange' => true,
-				'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'editchangesubmit', 'enableEditChange' => true,
-				'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-
-			// ReadOnlyError exception from non-readonly actions
-			[ [ 'modaction' => 'approve', 'readonly' => true, 'expectReadOnlyError' => true ] ],
-			[ [ 'modaction' => 'approveall', 'readonly' => true, 'expectReadOnlyError' => true ] ],
-			[ [ 'modaction' => 'reject', 'readonly' => true, 'expectReadOnlyError' => true ] ],
-			[ [ 'modaction' => 'rejectall', 'readonly' => true, 'expectReadOnlyError' => true ] ],
-			[ [ 'modaction' => 'block', 'readonly' => true, 'expectReadOnlyError' => true ] ],
-			[ [ 'modaction' => 'unblock', 'readonly' => true, 'expectReadOnlyError' => true ] ],
-			[ [ 'modaction' => 'merge', 'readonly' => true, 'expectReadOnlyError' => true ] ],
-			[ [ 'modaction' => 'editchange', 'readonly' => true, 'expectReadOnlyError' => true ] ],
-			[ [ 'modaction' => 'editchangesubmit', 'readonly' => true, 'expectReadOnlyError' => true ] ],
 
 			// Actions that don't modify anything shouldn't throw ReadOnlyError
 			[ [ 'modaction' => 'show', 'readonly' => true ] ],
@@ -238,6 +183,40 @@ class ModerationActionTest extends MediaWikiTestCase {
 			// TODO: test uploads, moves
 			// TODO: modaction=showimg
 		];
+
+		// "Already merged" error
+		foreach ( [ 'approve', 'reject', 'merge' ] as $action ) {
+			$sets[] = [ [
+				'modaction' => $action,
+				'mod_conflict' => 1,
+				'mod_merged_revid' => 12345,
+				'expectedError' => '(moderation-already-merged)'
+			] ];
+		}
+
+		// ReadOnlyError exception from non-readonly actions
+		$nonReadOnlyActions = [ 'approve', 'approveall', 'reject', 'rejectall',
+			'block', 'unblock', 'merge', 'editchange', 'editchangesubmit' ];
+		foreach ( $nonReadOnlyActions as $action ) {
+			$sets[] = [ [ 'modaction' => $action, 'readonly' => true, 'expectReadOnlyError' => true ] ];
+		}
+
+		// 'moderation-edit-not-found' from everything
+		$allActions = array_merge( $nonReadOnlyActions, [ 'show', 'showimg', 'preview' ] );
+		foreach ( $nonReadOnlyActions as $action ) {
+			$options = [
+				'modaction' => $action,
+				'readonly' => true,
+				'expectReadOnlyError' => true
+			];
+			if ( $action == 'editchange' || $action == 'editchangesubmit' ) {
+				$options['enableEditChange'] = true;
+			}
+
+			$sets[] = [ $options ];
+		}
+
+		return $sets;
 	}
 }
 
