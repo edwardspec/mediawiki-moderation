@@ -86,6 +86,7 @@ before_script:
   - echo $TESTSUITE_TYPE
 
   - phpenv config-rm xdebug.ini
+  - phpenv config-add tests/travis/phpconf/php.ini
   - if [ ${TRAVIS_PHP_VERSION:0:1} = "7" ]; then phpenv config-add tests/travis/phpconf/php7.ini; fi
   - php -i
 
