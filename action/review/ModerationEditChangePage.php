@@ -31,7 +31,7 @@ class ModerationEditChangePage extends EditPage {
 
 		return SpecialPage::getTitleFor( 'Moderation' )->getLocalURL( [
 			'modid' => $context->getRequest()->getVal( 'modid' ),
-			'modaction' => 'editchange'
+			'modaction' => 'editchangesubmit'
 		] );
 	}
 
