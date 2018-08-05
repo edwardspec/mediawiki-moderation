@@ -182,6 +182,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 			// TODO: approval errors originating from doEditContent(), etc.
 			// TODO: test uploads, moves
 			// TODO: modaction=showimg
+			// TODO: preSaveTransform() test for action=editchangesubmit
 		];
 
 		// "Already merged" error
@@ -607,7 +608,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		}
 
 		if ( $this->simulateNoSuchEntry ) {
-			$q['modid'] = 0; // Wrong
+			$q['modid'] = 0; // Entry with ID=0 never exists
 		}
 
 		return SpecialPage::getTitleFor( 'Moderation' )->getLocalURL( $q );

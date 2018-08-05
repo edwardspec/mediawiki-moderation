@@ -17,14 +17,14 @@
 
 /**
  * @file
- * @brief Verifies that modaction=editchange{,submit} works as expected.
+ * @brief Verifies that modaction=editchange works as expected.
+ * @note modaction=editchangesubmit is tested in ModerationActionTest.
  */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationActionEditChange
- * @covers ModerationActionEditChangeSubmit
  * @covers ModerationEditChangePage
  */
 class ModerationEditChangeTest extends MediaWikiTestCase {
