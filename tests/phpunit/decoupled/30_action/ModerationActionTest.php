@@ -157,6 +157,20 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedError' => '(moderation-unknown-modaction)'
 			] ],
 
+			// editchange{,submit} shouldn't be applicable to non-text changes (e.g. page moves)
+			[ [
+				'modaction' => 'editchange',
+				'enableEditChange' => true,
+				'mod_type' => 'move',
+				'expectedError' => '(moderation-editchange-not-edit)'
+			] ],
+			[ [
+				'modaction' => 'editchangesubmit',
+				'enableEditChange' => true,
+				'mod_type' => 'move',
+				'expectedError' => '(moderation-edit-not-found)'
+			] ],
+
 			// Actions that don't modify anything shouldn't throw ReadOnlyError
 			[ [ 'modaction' => 'show', 'readonly' => true ] ],
 			// TODO: showimg

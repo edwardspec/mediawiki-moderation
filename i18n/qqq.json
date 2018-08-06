@@ -48,6 +48,7 @@
 	"moderation-edit-not-found": "Error message when Special:Moderation can't find the change (in 99.9% situations - because the change is already approved).",
 	"moderation-edit-queued": "Success message shown to non-automoderated user after the edit. Informs the user about moderation and that he can continue editing his version of the page. Parameters: $1 - link to the edit form.",
 	"moderation-editchange": "Edit button on Special:Moderation (disabled by default)",
+	"moderation-editchange-not-edit": "Error message when moderator tries to Edit a non-text change (e.g. proposal to rename a page).",
 	"moderation-editchange-ok": "Success message after modifying the pending change.",
 	"moderation-editchange-title": "Title of the editform page where moderator edits a pending change on Special:Moderation.",
 	"moderation-folder-merged": "Folder on Special:Moderation for manually merged changes.",

@@ -35,19 +35,28 @@ class ModerationActionEditChange extends ModerationAction {
 			throw new ModerationError( 'moderation-unknown-modaction' );
 		}
 
+		$fields = [
+			'mod_namespace AS namespace',
+			'mod_title AS title',
+			'mod_text AS text',
+			'mod_comment AS comment'
+		];
+		if ( ModerationVersionCheck::hasModType() ) {
+			$fields[] = 'mod_type AS type';
+		}
+
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
-			[
-				'mod_namespace AS namespace',
-				'mod_title AS title',
-				'mod_text AS text',
-				'mod_comment AS comment'
-			],
+			$fields,
 			[ 'mod_id' => $this->id ],
 			__METHOD__
 		);
 		if ( !$row ) {
 			throw new ModerationError( 'moderation-edit-not-found' );
+		}
+
+		if ( isset( $row->type ) && $row->type != ModerationNewChange::MOD_TYPE_EDIT ) {
+			throw new ModerationError( 'moderation-editchange-not-edit' );
 		}
 
 		return [

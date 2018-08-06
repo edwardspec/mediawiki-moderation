@@ -31,6 +31,12 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 			throw new ModerationError( 'moderation-unknown-modaction' );
 		}
 
+		$where = [ 'mod_id' => $this->id ];
+		if ( ModerationVersionCheck::hasModType() ) {
+			// Disallow modification of non-edits, e.g. pending page moves.
+			$where['mod_type'] = ModerationNewChange::MOD_TYPE_EDIT;
+		}
+
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation',
 			[
@@ -39,7 +45,7 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 				'mod_user AS user',
 				'mod_user_text AS user_text'
 			],
-			[ 'mod_id' => $this->id ],
+			$where,
 			__METHOD__
 		);
 		if ( !$row ) {
