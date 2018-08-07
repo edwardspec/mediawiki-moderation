@@ -100,6 +100,7 @@
 	"tooltip-moderation-approve": "Tooltip for Approve link on Special:Moderation.",
 	"tooltip-moderation-approved-diff": "Tooltip for diff link in \"edit was approved\" log entries on Special:Log/moderation.",
 	"tooltip-moderation-block": "Tooltip for \"Mark as spammer\" link on Special:Moderation.",
+	"tooltip-moderation-editchange": "Tooltip for \"Edit\" link on Special:Moderation.",
 	"tooltip-moderation-merged-link": "Tooltip for \"Edit this change\" link on Special:Moderation.",
 	"tooltip-moderation-folder-merged": "Tooltip for Merged folder on Special:Moderation.",
 	"tooltip-moderation-folder-pending": "Tooltip for Pending folder on Special:Moderation.",
