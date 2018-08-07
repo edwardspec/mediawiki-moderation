@@ -383,6 +383,7 @@ class ModerationApproveTest extends MediaWikiTestCase {
 
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit();
+		$t->logout();
 
 		# Delete the author
 		$dbw = wfGetDB( DB_MASTER );

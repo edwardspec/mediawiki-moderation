@@ -55,6 +55,15 @@ class ModerationLogFormatter extends LogFormatter {
 
 			$userLink = Linker::userLink( $entryParams['user'], $entryParams['user_text'] );
 			$params[4] = Message::rawParam( $userLink );
+		} elseif ( $type === 'editchange' ) {
+			$modId = $entryParams['modid'];
+			$link = Linker::linkKnown(
+				SpecialPage::getTitleFor( 'Moderation' ),
+				$this->msg( 'moderation-log-change' )->params( $modId )->text(),
+				[], // TODO: add tooltip
+				[ 'modaction' => 'show', 'modid' => $modId ]
+			);
+			$params[3] = Message::rawParam( $link );
 		} elseif ( $type === 'merge' ) {
 			$revId = $entryParams['revid'];
 			$modId = $entryParams['modid'];

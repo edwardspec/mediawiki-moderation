@@ -23,6 +23,14 @@ Low-prio:
 	(in IE11, notification sometimes doesn't disappear after the click)
 * (feature) Support gzip compression and external storage of mod_text.
 	Since MediaWiki 1.31, this can be easily done using BlobStore class.
+* (feature) Backup previous text when a pending change is modified.
+	This would prevent situation when a user has accidentally deleted
+	important text in his own pending change, and the old text wasn't
+	recoverable.
+	It would also make [action=editchange] safe from moderator's errors,
+	and would allow to log what exactly did the moderator change.
+	Note: this backup must be in a separate SQL table.
+	Not having "edit history" in moderation table simplifies everything.
 
 Background-prio (may not be needed):
 * (meta) Display notification "Please run update.php" on Special:Moderation if

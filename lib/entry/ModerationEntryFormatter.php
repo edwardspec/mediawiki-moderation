@@ -148,7 +148,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 	 * @brief Returns HTML of formatted line for Special:Moderation.
 	 */
 	public function getHTML() {
-		global $wgModerationPreviewLink;
+		global $wgModerationPreviewLink, $wgModerationEnableEditChange;
 
 		$row = $this->getRow();
 
@@ -163,6 +163,10 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 			if ( $wgModerationPreviewLink ) {
 				$line .= ' | ' . $this->makeModerationLink( 'preview', $row->id );
+			}
+
+			if ( $wgModerationEnableEditChange ) {
+				$line .= ' | ' . $this->makeModerationLink( 'editchange', $row->id );
 			}
 
 			$line .= ') . . ';

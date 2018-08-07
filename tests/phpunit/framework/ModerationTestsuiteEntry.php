@@ -33,6 +33,7 @@ class ModerationTestsuiteEntry {
 
 	public $showLink = null;
 	public $previewLink = null;
+	public $editChangeLink = null;
 	public $approveLink = null;
 	public $approveAllLink = null;
 	public $rejectLink = null;
@@ -161,6 +162,10 @@ class ModerationTestsuiteEntry {
 					$this->previewLink = $href;
 					break;
 
+				case '(moderation-editchange)':
+					$this->editChangeLink = $href;
+					break;
+
 				case '(moderation-approve)':
 					$this->approveLink = $href;
 					break;
@@ -236,6 +241,8 @@ class ModerationTestsuiteEntry {
 				return $this->showLink;
 			case 'preview':
 				return $this->previewLink;
+			case 'editchange':
+				return $this->editChangeLink;
 			case 'approve':
 				return $this->approveLink;
 			case 'approveall':

@@ -102,5 +102,10 @@ class ModerationPageFormsTest extends MediaWikiTestCase {
 		if ( !ExtensionRegistry::getInstance()->isLoaded( 'Page Forms' ) ) {
 			$this->markTestSkipped( 'Test skipped: PageForms extension must be installed to run it.' );
 		}
+
+		if ( ModerationTestsuite::mwVersionCompare( '1.31.0', '<' ) ) {
+			$this->markTestSkipped(
+				'Test skipped: Extension:PageForms supports Moderation only in MediaWiki 1.31+.' );
+		}
 	}
 }

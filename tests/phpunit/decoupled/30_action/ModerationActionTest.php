@@ -39,7 +39,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 	public function dataProvider() {
 		global $wgModerationTimeToOverrideRejection;
 
-		return [
+		$sets = [
 			[ [
 				'modaction' => 'reject',
 				'expectedOutput' => '(moderation-rejected-ok: 1)',
@@ -72,9 +72,10 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectRejected' => true
 			] ],
 
-			// Actions show/preview/merge/block/unblock shouldn't change the row
+			// Actions show/preview/merge/block/unblock/editchange shouldn't change the row
 			[ [ 'modaction' => 'show' ] ],
 			[ [ 'modaction' => 'preview' ] ],
+			[ [ 'modaction' => 'editchange', 'enableEditChange' => true ] ],
 			[ [ 'mod_conflict' => 1, 'modaction' => 'merge' ] ],
 
 			// Check block/unblock
@@ -135,16 +136,6 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedError' => '(moderation-nothing-to-rejectall)'
 			] ],
 			[ [
-				'modaction' => 'approve',
-				'mod_merged_revid' => 12345,
-				'expectedError' => '(moderation-already-merged)'
-			] ],
-			[ [
-				'modaction' => 'reject',
-				'mod_merged_revid' => 12345,
-				'expectedError' => '(moderation-already-merged)'
-			] ],
-			[ [
 				'modaction' => 'merge',
 				'expectedError' => '(moderation-merge-not-needed)'
 			] ],
@@ -154,53 +145,109 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'notAutomoderated' => true,
 				'expectedError' => '(moderation-merge-not-automoderated)'
 			] ],
+
+			// editchange{,submit} shouldn't be available without $wgModerationEnableEditChange
 			[ [
-				'modaction' => 'merge',
-				'mod_conflict' => 1,
-				'mod_merged_revid' => 12345,
-				'expectedError' => '(moderation-already-merged)'
+
+				'modaction' => 'editchange',
+				'expectedError' => '(moderation-unknown-modaction)'
+			] ],
+			[ [
+				'modaction' => 'editchangesubmit',
+				'expectedError' => '(moderation-unknown-modaction)'
 			] ],
 
-			// 'moderation-edit-not-found' from everything
-			[ [ 'modaction' => 'approve', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'approveall', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'reject', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'rejectall', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'block', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'unblock', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'merge', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'show', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'showimg', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-			[ [ 'modaction' => 'preview', 'simulateNoSuchEntry' => true,
-				'expectedError' => '(moderation-edit-not-found)' ] ],
-
-			// ReadOnlyError exception from non-readonly actions
-			[ [ 'modaction' => 'approve', 'readonly' => true, 'expectReadOnlyError' => true ] ],
-			[ [ 'modaction' => 'approveall', 'readonly' => true, 'expectReadOnlyError' => true ] ],
-			[ [ 'modaction' => 'reject', 'readonly' => true, 'expectReadOnlyError' => true ] ],
-			[ [ 'modaction' => 'rejectall', 'readonly' => true, 'expectReadOnlyError' => true ] ],
-			[ [ 'modaction' => 'block', 'readonly' => true, 'expectReadOnlyError' => true ] ],
-			[ [ 'modaction' => 'unblock', 'readonly' => true, 'expectReadOnlyError' => true ] ],
-			[ [ 'modaction' => 'merge', 'readonly' => true, 'expectReadOnlyError' => true ] ],
+			// editchange{,submit} shouldn't be applicable to non-text changes (e.g. page moves)
+			[ [
+				'modaction' => 'editchange',
+				'enableEditChange' => true,
+				'mod_type' => 'move',
+				'expectedError' => '(moderation-editchange-not-edit)'
+			] ],
+			[ [
+				'modaction' => 'editchangesubmit',
+				'enableEditChange' => true,
+				'mod_type' => 'move',
+				'expectedError' => '(moderation-edit-not-found)'
+			] ],
 
 			// Actions that don't modify anything shouldn't throw ReadOnlyError
 			[ [ 'modaction' => 'show', 'readonly' => true ] ],
 			// TODO: showimg
 			[ [ 'modaction' => 'preview', 'readonly' => true ] ],
 
+			// action=editchangesubmit
+			[ [
+				'modaction' => 'editchangesubmit',
+				'enableEditChange' => true,
+				'mod_user' => 0,
+				'mod_user_text' => '127.1.2.3',
+				'postData' => [
+					'wpTextbox1' => 'Modified text ~~~', // "~~~" is to test PreSaveTransform
+					'wpSummary' => 'Modified edit summary'
+				],
+				'expectedOutput' => '(moderation-editchange-ok)',
+				'expectedFields' => [
+					'mod_text' => 'Modified text [[Special:Contributions/127.1.2.3|127.1.2.3]]',
+					'mod_new_len' => 59,
+					'mod_comment' => 'Modified edit summary'
+				],
+				'expectedLogAction' => 'editchange'
+			] ],
+
+			// No-op action=editchangesubmit (the original text wasn't changed)
+			[ [
+				'modaction' => 'editchangesubmit',
+				'enableEditChange' => true,
+				'mod_text' => 'Original Text 1',
+				'mod_comment' => 'Original Summary 1',
+				'mod_new_len' => 15,
+				'postData' => [
+					'wpTextbox1' => 'Original Text 1',
+					'wpSummary' => 'Original Summary 1'
+				],
+				'expectedOutput' => '(moderation-editchange-ok)',
+				'expectLogEntry' => false
+			] ],
+
 			// TODO: approval errors originating from doEditContent(), etc.
 			// TODO: test uploads, moves
 			// TODO: modaction=showimg
 		];
+
+		// "Already merged" error
+		foreach ( [ 'approve', 'reject', 'merge' ] as $action ) {
+			$sets[] = [ [
+				'modaction' => $action,
+				'mod_conflict' => 1,
+				'mod_merged_revid' => 12345,
+				'expectedError' => '(moderation-already-merged)'
+			] ];
+		}
+
+		// ReadOnlyError exception from non-readonly actions
+		$nonReadOnlyActions = [ 'approve', 'approveall', 'reject', 'rejectall',
+			'block', 'unblock', 'merge', 'editchange', 'editchangesubmit' ];
+		foreach ( $nonReadOnlyActions as $action ) {
+			$sets[] = [ [ 'modaction' => $action, 'readonly' => true, 'expectReadOnlyError' => true ] ];
+		}
+
+		// 'moderation-edit-not-found' from everything
+		$allActions = array_merge( $nonReadOnlyActions, [ 'show', 'showimg', 'preview' ] );
+		foreach ( $nonReadOnlyActions as $action ) {
+			$options = [
+				'modaction' => $action,
+				'readonly' => true,
+				'expectReadOnlyError' => true
+			];
+			if ( $action == 'editchange' || $action == 'editchangesubmit' ) {
+				$options['enableEditChange'] = true;
+			}
+
+			$sets[] = [ $options ];
+		}
+
+		return $sets;
 	}
 }
 
@@ -215,6 +262,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * @var string Name of action, e.g. 'approve' or 'rejectall'.
 	 */
 	protected $modaction = null;
+
+	/**
+	 * @var bool If true, $wgModerationEnableEditChange is enabled.
+	 */
+	protected $enableEditChange = false;
 
 	/**
 	 * @var array Expected field values after the action.
@@ -271,9 +323,9 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectedOutput = '';
 
 	/**
-	 * @var bool If true, incorrect modid will be used in the action URL.
+	 * @var array Request body to send with POST request.
 	 */
-	protected $simulateNoSuchEntry = false;
+	protected $postData = [];
 
 	/**
 	 * @var bool If true, the wiki will be in readonly mode.
@@ -281,11 +333,17 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $readonly = false;
 
 	/**
+	 * @var bool If true, incorrect modid will be used in the action URL.
+	 */
+	protected $simulateNoSuchEntry = false;
+
+	/**
 	 * @brief Initialize this TestSet from the input of dataProvider.
 	 */
 	protected function applyOptions( array $options ) {
 		foreach ( $options as $key => $value ) {
 			switch ( $key ) {
+				case 'enableEditChange':
 				case 'expectedFields':
 				case 'expectedError':
 				case 'expectedLogAction':
@@ -297,6 +355,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'expectRejected':
 				case 'expectRowDeleted':
 				case 'modaction':
+				case 'postData':
 				case 'readonly':
 				case 'simulateNoSuchEntry':
 					$this->$key = $value;
@@ -379,8 +438,19 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			$t->setMwConfig( 'ReadOnly', self::READONLY_REASON );
 		}
 
+		if ( $this->enableEditChange ) {
+			$t->setMwConfig( 'ModerationEnableEditChange', true );
+		}
+
 		// Execute the action, check HTML printed by the action
-		$output = $t->html->getMainText( $this->getActionURL() );
+		$url = $this->getActionURL();
+		$req = ( $this->modaction == 'editchangesubmit' ) ?
+			$t->httpPost( $url, $this->postData ) :
+			$t->httpGet( $url );
+
+		$html = $t->html->loadFromReq( $req );
+
+		$output = $html->getMainText();
 		if ( $this->expectedOutput ) {
 			$testcase->assertContains( $this->expectedOutput, $output,
 				"modaction={$this->modaction}: unexpected output." );
@@ -395,7 +465,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				"modaction={$this->modaction}: unexpected ReadOnlyError exception." );
 		}
 
-		$error = $t->html->getModerationError();
+		$error = $html->getModerationError();
 		if ( $this->expectedError ) {
 			$testcase->assertEquals( $this->expectedError, $error,
 				"modaction={$this->modaction}: expected error not shown." );
@@ -504,7 +574,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 			$testcase->assertEquals( 'moderation', $logEntry->getType(),
 				"modaction={$this->modaction}: incorrect LogEntry type" );
-			$testcase->assertEquals( $this->modaction, $logEntry->getSubtype(),
+			$testcase->assertEquals( $this->expectedLogAction, $logEntry->getSubtype(),
 				"modaction={$this->modaction}: incorrect LogEntry subtype" );
 			$testcase->assertEquals(
 				$this->getModerator()->getName(),
@@ -536,6 +606,12 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 					$expectedParams = [
 						'revid' => $this->getExpectedTitleObj()->getLatestRevID()
 					];
+					break;
+
+				case 'editchange':
+					$expectedParams = [
+						'modid' => $this->fields['mod_id']
+					];
 			}
 
 			$testcase->assertEquals( $expectedParams, $logEntry->getParameters(),
@@ -551,12 +627,12 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			'modid' => $this->fields['mod_id'],
 			'modaction' => $this->modaction
 		];
-		if ( !in_array( $this->modaction, [ 'show', 'showimg', 'preview' ] ) ) {
+		if ( !in_array( $this->modaction, [ 'show', 'showimg', 'preview', 'editchange' ] ) ) {
 			$q['token'] = $this->getTestsuite()->getEditToken();
 		}
 
 		if ( $this->simulateNoSuchEntry ) {
-			$q['modid'] = 0; // Wrong
+			$q['modid'] = 0; // Entry with ID=0 never exists
 		}
 
 		return SpecialPage::getTitleFor( 'Moderation' )->getLocalURL( $q );

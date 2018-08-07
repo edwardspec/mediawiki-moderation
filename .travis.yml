@@ -61,6 +61,9 @@ matrix:
         - for i in extensions/Moderation/tests/benchmarks/*; do php maintenance/runScript.php $i; done
       after_script: ./vendor/bin/phpcs -ps extensions/Moderation/
     - <<: *phpunit-build
+      if: branch IN (review-usecase)
+      env: branch=REL1_30
+    - <<: *phpunit-build
       env: branch=REL1_27
       php: 7.1
     - <<: *phpunit-build
@@ -86,6 +89,7 @@ before_script:
   - echo $TESTSUITE_TYPE
 
   - phpenv config-rm xdebug.ini
+  - phpenv config-add tests/travis/phpconf/php.ini
   - if [ ${TRAVIS_PHP_VERSION:0:1} = "7" ]; then phpenv config-add tests/travis/phpconf/php7.ini; fi
   - php -i
 
