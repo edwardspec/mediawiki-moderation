@@ -180,23 +180,39 @@ class ModerationActionTest extends MediaWikiTestCase {
 			[ [
 				'modaction' => 'editchangesubmit',
 				'enableEditChange' => true,
+				'mod_user' => 0,
+				'mod_user_text' => '127.1.2.3',
 				'postData' => [
-					'wpTextbox1' => 'Modified text',
-					'wpSummary' => 'Modified edit summary',
-					'wpSave' => 'Save'
+					'wpTextbox1' => 'Modified text ~~~', // "~~~" is to test PreSaveTransform
+					'wpSummary' => 'Modified edit summary'
 				],
 				'expectedOutput' => '(moderation-editchange-ok)',
 				'expectedFields' => [
-					'mod_text' => 'Modified text',
+					'mod_text' => 'Modified text [[Special:Contributions/127.1.2.3|127.1.2.3]]',
+					'mod_new_len' => 59,
 					'mod_comment' => 'Modified edit summary'
 				],
 				'expectedLogAction' => 'editchange'
 			] ],
 
+			// No-op action=editchangesubmit (the original text wasn't changed)
+			[ [
+				'modaction' => 'editchangesubmit',
+				'enableEditChange' => true,
+				'mod_text' => 'Original Text 1',
+				'mod_comment' => 'Original Summary 1',
+				'mod_new_len' => 15,
+				'postData' => [
+					'wpTextbox1' => 'Original Text 1',
+					'wpSummary' => 'Original Summary 1'
+				],
+				'expectedOutput' => '(moderation-editchange-ok)',
+				'expectLogEntry' => false
+			] ],
+
 			// TODO: approval errors originating from doEditContent(), etc.
 			// TODO: test uploads, moves
 			// TODO: modaction=showimg
-			// TODO: preSaveTransform() test for action=editchangesubmit
 		];
 
 		// "Already merged" error
@@ -361,12 +377,6 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			) {
 				$this->expectLogEntry = true;
 			}
-		}
-
-		if ( isset( $this->expectedFields['mod_text'] ) ) {
-			// We expect the text to change,
-			// therefore mod_new_len should be changed as well.
-			$this->expectedFields['mod_new_len'] = strlen( $this->expectedFields['mod_text'] );
 		}
 
 		parent::applyOptions( $options );
