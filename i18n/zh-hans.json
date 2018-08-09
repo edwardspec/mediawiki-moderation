@@ -3,7 +3,8 @@
 		"authors": [
 			"Deathkon",
 			"Liuxinyu970226",
-			"Wxyveronica"
+			"Wxyveronica",
+			"Chixvv"
 		]
 	},
 	"action-moderation": "版主编辑",
@@ -47,6 +48,10 @@
 	"moderation-editing-your-version": "您正在编辑由您做出的此条目版本。它当前正等待版主操作。<br>一旦通过，其他用户将可以看到它。",
 	"moderation-edit-not-found": "找不到编辑。可能已获批准。",
 	"moderation-edit-queued": "成功：您的编辑已送交版主操作。<br>您可以继续编辑<a href='$1'>您的此页面版本</a>。",
+	"moderation-editchange": "编辑",
+	"moderation-editchange-not-edit": "这不是一次编辑。只有编辑才能修改。",
+	"moderation-editchange-ok": "待定修订版本已更改。",
+	"moderation-editchange-title": "“$1”的待定修订版本",
 	"moderation-folder-merged": "已合并",
 	"moderation-folder-pending": "等待版主操作",
 	"moderation-folder-rejected": "已拒绝",
@@ -96,6 +101,7 @@
 	"tooltip-moderation-approve": "批准此次编辑",
 	"tooltip-moderation-approved-diff": "查看已批准的编辑",
 	"tooltip-moderation-block": "将此用户今后的编辑全部移入垃圾内容文件夹",
+	"tooltip-moderation-editchange": "修改此待定更改的文本（或编辑摘要）",
 	"tooltip-moderation-folder-merged": "编辑结果已被一位版主手动合并",
 	"tooltip-moderation-folder-pending": "尚未被批准或拒绝的编辑",
 	"tooltip-moderation-folder-rejected": "编辑已被一位版主拒绝",

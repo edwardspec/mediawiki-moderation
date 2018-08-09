@@ -35,6 +35,8 @@
 	"moderation-edit-conflict": "편집 충돌. (수동 병합 필요)",
 	"moderation-editing-your-version": "이 문서의 당신의 판을 편집하고 있습니다. 현재 조정을 대기 중입니다.<br>승인되면 다른 사용자에게 표시됩니다.",
 	"moderation-edit-not-found": "편집을 찾을 수 없습니다. 이미 승인되었을 수 있습니다.",
+	"moderation-editchange": "편집",
+	"moderation-editchange-not-edit": "이것은 편집이 아닙니다. 편집만 수정할 수 있습니다.",
 	"moderation-folder-merged": "병합됨",
 	"moderation-folder-pending": "보류 중인 조정",
 	"moderation-folder-rejected": "거부함",
