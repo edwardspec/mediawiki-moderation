@@ -109,6 +109,34 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectLogEntry' => false
 			] ],
 
+			// Check modaction=show for uploads/moves
+			[ [
+				'modaction' => 'show',
+				'filename' => 'image100x100.png',
+				'expectedOutput' => '(moderation-diff-upload-notext)'
+			] ],
+			[ [
+				'modaction' => 'show',
+				'filename' => 'image100x100.png',
+				'mod_text' => 'Funny description',
+				'mod_new_len' => 17,
+				'expectedOutput' => 'Funny description'
+			] ],
+			[ [
+				'modaction' => 'show',
+				'filename' => 'sound.ogg',
+				'expectedOutput' => '(moderation-diff-upload-notext)'
+			] ],
+			[ [
+				'modaction' => 'show',
+				'mod_type' => 'move',
+				'mod_namespace' => NS_TEMPLATE,
+				'mod_title' => 'OrigTitle',
+				'mod_page2_namespace' => NS_CATEGORY,
+				'mod_page2_title' => 'NewTitle',
+				'expectedOutput' => '(movepage-page-moved: Template:OrigTitle, Category:NewTitle)'
+			] ],
+
 			// Errors printed by actions:
 			[ [
 				'modaction' => 'makesandwich',

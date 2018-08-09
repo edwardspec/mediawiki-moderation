@@ -88,7 +88,10 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	public function loadFromString( $string ) {
-		/* Ignore "unknown tag" error, see checkLibxmlErrors() for details */
+		// Forget any unhandled errors from previous LibXML parse attempts.
+		libxml_clear_errors();
+
+		// Ignore "unknown tag" error, see checkLibxmlErrors() for details.
 		libxml_use_internal_errors( true );
 
 		$this->loadHTML( $string );
