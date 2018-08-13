@@ -45,6 +45,7 @@
 	"moderation-editing-your-version": "Du redigerar din version av denna artikel. Den väntar för tillfället på moderation.<br>När den har godkänts kommer den vara synlig för andra användare.",
 	"moderation-edit-not-found": "Redigering hittades inte. Den är förmodligen redan godkänd.",
 	"moderation-edit-queued": "Färdigt: din redigering skickades för moderation.<br>Du kan fortsätta redigera <a href='$1'>din version av denna sida</a>.",
+	"moderation-editchange": "redigera",
 	"moderation-folder-merged": "Sammanfogades",
 	"moderation-folder-pending": "Väntar på moderation",
 	"moderation-folder-rejected": "Avvisade",
