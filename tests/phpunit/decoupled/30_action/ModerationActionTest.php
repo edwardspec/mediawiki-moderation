@@ -262,11 +262,11 @@ class ModerationActionTest extends MediaWikiTestCase {
 
 		// 'moderation-edit-not-found' from everything
 		$allActions = array_merge( $nonReadOnlyActions, [ 'show', 'showimg', 'preview' ] );
-		foreach ( $nonReadOnlyActions as $action ) {
+		foreach ( $allActions as $action ) {
 			$options = [
 				'modaction' => $action,
-				'readonly' => true,
-				'expectReadOnlyError' => true
+				'simulateNoSuchEntry' => true,
+				'expectedError' => '(moderation-edit-not-found)'
 			];
 			if ( $action == 'editchange' || $action == 'editchangesubmit' ) {
 				$options['enableEditChange'] = true;
