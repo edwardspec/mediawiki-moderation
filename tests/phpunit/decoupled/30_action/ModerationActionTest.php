@@ -73,7 +73,12 @@ class ModerationActionTest extends MediaWikiTestCase {
 			] ],
 
 			// Actions show/preview/merge/block/unblock/editchange shouldn't change the row
-			[ [ 'modaction' => 'show' ] ],
+			[ [
+				'modaction' => 'show',
+				'expectedOutput' => '(moderation-diff-no-changes)', // null edit
+				'expectActionLinks' => [ 'approve' => false, 'reject' => true ]
+			] ],
+			//[ [ 'modaction' => 'showimg', 'filename' => 'image100x100.png' ] ],
 			[ [ 'modaction' => 'preview' ] ],
 			[ [ 'modaction' => 'editchange', 'enableEditChange' => true ] ],
 			[ [ 'mod_conflict' => 1, 'modaction' => 'merge' ] ],
@@ -107,6 +112,14 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'modaction' => 'unblock',
 				'expectedOutput' => 'moderation-unblock-ok',
 				'expectLogEntry' => false
+			] ],
+
+			// Check modaction=show for normal edits
+			[ [
+				'modaction' => 'show',
+				'mod_text' => 'Very funny description',
+				'mod_new_len' => 22,
+				'expectActionLinks' => [ 'approve' => true, 'reject' => true ]
 			] ],
 
 			// Check modaction=show for uploads/moves
@@ -201,7 +214,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 
 			// Actions that don't modify anything shouldn't throw ReadOnlyError
 			[ [ 'modaction' => 'show', 'readonly' => true ] ],
-			// TODO: showimg
+			//[ [ 'modaction' => 'showimg', 'filename' => 'image100x100.png', 'readonly' => true ] ],
 			[ [ 'modaction' => 'preview', 'readonly' => true ] ],
 
 			// action=editchangesubmit
@@ -240,7 +253,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 
 			// TODO: approval errors originating from doEditContent(), etc.
 			// TODO: test uploads, moves
-			// TODO: modaction=showimg
+			// TODO: modaction=showimg (NOTE: don't attempt to parse HTML in assertResults())
 		];
 
 		// "Already merged" error
@@ -331,6 +344,13 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectModblocked = null;
 
 	/**
+	 * @var array Action links to expect and NOT expect on the result page.
+	 * Example: [ 'approve' => true, 'reject' => false ].
+	 * Not listed actions are not checked for existence/nonexistence.
+	 */
+	protected $expectActionLinks = [];
+
+	/**
 	 * @var bool If true, we expect ReadOnlyError exception to be thrown.
 	 */
 	protected $expectReadOnlyError = false;
@@ -379,6 +399,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'expectedLogTargetIsAuthor':
 				case 'expectModblocked':
 				case 'expectedOutput':
+				case 'expectActionLinks':
 				case 'expectReadOnlyError':
 				case 'expectRejected':
 				case 'expectRowDeleted':
@@ -500,6 +521,14 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		} else {
 			$testcase->assertNull( $this->expectedError,
 				"modaction={$this->modaction}: unexpected error." );
+		}
+
+		foreach ( $this->expectActionLinks as $action => $isExpected ) {
+			$link = $t->html->getElementByXPath( '//a[contains(@href,"modaction=' . $action . '")]' );
+			$testcase->assertEquals(
+				[ "action link [$action] exists" => $isExpected ],
+				[ "action link [$action] exists" => (bool)$link ]
+			);
 		}
 
 		// Check the mod_* fields in the database after the action.
