@@ -4,7 +4,8 @@
 			"Deathkon",
 			"Liuxinyu970226",
 			"Wxyveronica",
-			"Chixvv"
+			"Chixvv",
+			"Hanyanbo98"
 		]
 	},
 	"action-moderation": "版主编辑",
@@ -24,6 +25,7 @@
 	"logentry-moderation-approveall": "$1已{{GENDER:$2|批准}}由$3做出的$4次编辑",
 	"logentry-moderation-approve-move": "$1已{{GENDER:$2|批准}}$5做出的将$3移动到$4操作",
 	"logentry-moderation-block": "$1已将$3{{GENDER:$2|标记为}}破坏者",
+	"logentry-moderation-editchange": "$1已{{GENDER:$2|批准}}对页面$3的$4",
 	"logentry-moderation-merge": "$1已在页面$3上，将$4{{GENDER:$2|合并}}至$5",
 	"logentry-moderation-reject": "$1已{{GENDER:$2|拒绝}}由$5做出的对页面$3的$4",
 	"logentry-moderation-rejectall": "$1已{{GENDER:$2|拒绝}}由$3做出的$4次编辑",
