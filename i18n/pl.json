@@ -34,5 +34,6 @@
 	"moderation-rejected-long-ago": "Ta edycja została odrzucona dawno temu, nie można jej już zatwierdzić.",
 	"moderation-rejected-ok": "Odrzucono $1 {{plural:$1|edycję|edycje|edycji}}.",
 	"moderation-reject": "Odrzuć",
+	"tooltip-moderation-editchange": "Zmodyfikuj tekst (lub podsumowanie edycji) tej oczekującej zmiany",
 	"tooltip-moderation-folder-spam": "Edycje odrzucone automatycznie"
 }
