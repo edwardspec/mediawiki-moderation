@@ -15,6 +15,9 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 	/** @var bool If true, moderator will NOT be automoderated. */
 	protected $notAutomoderated = false;
 
+	/** @var string Source filename, only used for uploads. */
+	protected $filename = null;
+
 	/**
 	 * @brief Initialize this TestSet from the input of dataProvider.
 	 */
@@ -22,6 +25,7 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 		$this->fields = $this->getDefaultFields();
 		foreach ( $options as $key => $value ) {
 			switch ( $key ) {
+				case 'filename':
 				case 'modblocked':
 				case 'notAutomoderated':
 					$this->$key = $value;
@@ -64,6 +68,16 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 			'/(?<=235)[0-9]/', '0', // Replace with 23:50
 			$this->fields['mod_timestamp']
 		);
+
+		// Populate mod_stash_key for uploads.
+		if ( $this->filename ) {
+			$srcPath = ModerationTestsuite::findSourceFilename( $this->filename );
+			$uploader = User::newFromName( $this->fields['mod_user_text'], false );
+
+			// Store the image in UploadStash.
+			$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash( $uploader );
+			$this->fields['mod_stash_key'] = $stash->stashFile( $srcPath )->getFileKey();
+		}
 	}
 
 	/**
