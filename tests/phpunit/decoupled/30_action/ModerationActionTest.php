@@ -78,7 +78,11 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedOutput' => '(moderation-diff-no-changes)', // null edit
 				'expectActionLinks' => [ 'approve' => false, 'reject' => true ]
 			] ],
-			//[ [ 'modaction' => 'showimg', 'filename' => 'image100x100.png' ] ],
+			[ [
+				'modaction' => 'showimg',
+				'filename' => 'image100x100.png',
+				'expectedContentType' => 'image/png'
+			] ],
 			[ [ 'modaction' => 'preview' ] ],
 			[ [ 'modaction' => 'editchange', 'enableEditChange' => true ] ],
 			[ [ 'mod_conflict' => 1, 'modaction' => 'merge' ] ],
@@ -214,7 +218,12 @@ class ModerationActionTest extends MediaWikiTestCase {
 
 			// Actions that don't modify anything shouldn't throw ReadOnlyError
 			[ [ 'modaction' => 'show', 'readonly' => true ] ],
-			//[ [ 'modaction' => 'showimg', 'filename' => 'image100x100.png', 'readonly' => true ] ],
+			[ [
+				'modaction' => 'showimg',
+				'filename' => 'image100x100.png',
+				'readonly' => true,
+				'expectedContentType' => 'image/png'
+			] ],
 			[ [ 'modaction' => 'preview', 'readonly' => true ] ],
 
 			// action=editchangesubmit
@@ -253,7 +262,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 
 			// TODO: approval errors originating from doEditContent(), etc.
 			// TODO: test uploads, moves
-			// TODO: modaction=showimg (NOTE: don't attempt to parse HTML in assertResults())
+			// TODO: modaction=showimg (checks from ModerationShowTest::testShowUpload())
 		];
 
 		// "Already merged" error
@@ -338,6 +347,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectedLogTargetIsAuthor = false;
 
 	/**
+	 * @var string|null If not null, we expect response to have this Content-Type (e.g. image/png).
+	 */
+	protected $expectedContentType = null;
+
+	/**
 	 * @var bool|null If true/false, author of change is expected to become (not) modblocked.
 	 * If null, blocked status is expected to remain the same.
 	 */
@@ -392,6 +406,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		foreach ( $options as $key => $value ) {
 			switch ( $key ) {
 				case 'enableEditChange':
+				case 'expectedContentType':
 				case 'expectedFields':
 				case 'expectedError':
 				case 'expectedLogAction':
@@ -497,8 +512,23 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			$t->httpPost( $url, $this->postData ) :
 			$t->httpGet( $url );
 
-		$html = $t->html->loadFromReq( $req );
+		if ( $this->expectedContentType ) {
+			$this->assertBinaryOutput( $testcase, $req );
+		} else {
+			$this->assertHtmlOutput( $testcase, $t->html->loadFromReq( $req ) );
+		}
 
+		// Check the mod_* fields in the database after the action.
+		$this->assertDatabaseChanges( $testcase );
+		$this->assertBlockedStatus( $testcase );
+		$this->assertLogEntry( $testcase );
+	}
+
+	/**
+	 * @brief Check HTML output printed by the action URL.
+	 * @see assertBinaryOutput
+	 */
+	protected function assertHtmlOutput( MediaWikiTestCase $testcase, ModerationTestsuiteHTML $html ) {
 		$output = $html->getMainText();
 		if ( $this->expectedOutput ) {
 			$testcase->assertContains( $this->expectedOutput, $output,
@@ -524,17 +554,27 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		}
 
 		foreach ( $this->expectActionLinks as $action => $isExpected ) {
-			$link = $t->html->getElementByXPath( '//a[contains(@href,"modaction=' . $action . '")]' );
+			$link = $html->getElementByXPath( '//a[contains(@href,"modaction=' . $action . '")]' );
 			$testcase->assertEquals(
 				[ "action link [$action] exists" => $isExpected ],
 				[ "action link [$action] exists" => (bool)$link ]
 			);
 		}
+	}
 
-		// Check the mod_* fields in the database after the action.
-		$this->assertDatabaseChanges( $testcase );
-		$this->assertBlockedStatus( $testcase );
-		$this->assertLogEntry( $testcase );
+	/**
+	 * @brief Check non-HTML output printed by the action URL.
+	 * @see assertHtmlOutput
+	 */
+	protected function assertBinaryOutput(
+		MediaWikiTestCase $testcase,
+		ModerationTestsuiteResponse $req
+	) {
+		$testcase->assertEquals(
+			$this->expectedContentType,
+			$req->getResponseHeader( 'Content-Type' ),
+			"modaction={$this->modaction}: wrong Content-Type header."
+		);
 	}
 
 	/**
