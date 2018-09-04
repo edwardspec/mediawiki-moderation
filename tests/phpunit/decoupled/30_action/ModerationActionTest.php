@@ -510,6 +510,13 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			// (e.g. modaction=reject creates 'moderation/reject' log entries).
 			$this->expectedLogAction = $this->modaction;
 		}
+
+		if ( $this->expectedContentType == 'application/ogg' ) {
+			// Allow OGG files (music, i.e. not images) to be uploaded.
+			global $wgFileExtensions;
+			$this->getTestsuite()->setMwConfig( 'FileExtensions',
+				array_merge( $wgFileExtensions, [ 'ogg' ] ) );
+		}
 	}
 
 	/**
