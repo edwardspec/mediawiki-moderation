@@ -78,7 +78,12 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedOutput' => '(moderation-diff-no-changes)', // null edit
 				'expectActionLinks' => [ 'approve' => false, 'reject' => true ]
 			] ],
-			//[ [ 'modaction' => 'showimg', 'filename' => 'image100x100.png' ] ],
+			[ [
+				'modaction' => 'showimg',
+				'filename' => 'image100x100.png',
+				'expectedContentType' => 'image/png',
+				'expectOutputToEqualUploadedFile' => true
+			] ],
 			[ [ 'modaction' => 'preview' ] ],
 			[ [ 'modaction' => 'editchange', 'enableEditChange' => true ] ],
 			[ [ 'mod_conflict' => 1, 'modaction' => 'merge' ] ],
@@ -214,7 +219,13 @@ class ModerationActionTest extends MediaWikiTestCase {
 
 			// Actions that don't modify anything shouldn't throw ReadOnlyError
 			[ [ 'modaction' => 'show', 'readonly' => true ] ],
-			//[ [ 'modaction' => 'showimg', 'filename' => 'image100x100.png', 'readonly' => true ] ],
+			[ [
+				'modaction' => 'showimg',
+				'filename' => 'image100x100.png',
+				'readonly' => true,
+				'expectedContentType' => 'image/png',
+				'expectOutputToEqualUploadedFile' => true
+			] ],
 			[ [ 'modaction' => 'preview', 'readonly' => true ] ],
 
 			// action=editchangesubmit
@@ -251,9 +262,54 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectLogEntry' => false
 			] ],
 
+			// modaction=showimg
+			[ [
+				'modaction' => 'showimg',
+				'filename' => 'image640x50.png',
+				'expectedContentType' => 'image/png',
+				'expectOutputToEqualUploadedFile' => true
+			] ],
+			[ [
+				'modaction' => 'showimg',
+				'filename' => 'image640x50.png',
+				'expectedContentType' => 'image/png',
+				'showThumb' => true,
+				'expectOutputToEqualUploadedFile' => false // Thumbnail, not original image
+			] ],
+			[ [
+				'modaction' => 'showimg',
+				'filename' => 'image100x100.png',
+				'expectedContentType' => 'image/png',
+				'showThumb' => true,
+
+				// This image is not wide enough,
+				// its thumbnail will be the same as the original image.
+				'expectOutputToEqualUploadedFile' => true
+			] ],
+			[ [
+				'modaction' => 'showimg',
+				'filename' => 'sound.ogg',
+				'expectedContentType' => 'application/ogg',
+				'expectOutputToEqualUploadedFile' => true
+			] ],
+
+			/*
+			// FIXME: showimg&thumb=1 (as unused as it is) on OGG file throws an ugly exception,
+			// it should instead print the original OGG file (as if &thumb=1 wasn't present).
+			[ [
+				'modaction' => 'showimg',
+				'filename' => 'sound.ogg',
+				'expectedContentType' => 'application/ogg',
+				'showThumb' => true,
+
+				// OGG is not an image, thumbnail will be the same as the original file.
+				'expectOutputToEqualUploadedFile' => true
+			] ],
+			*/
+
 			// TODO: approval errors originating from doEditContent(), etc.
 			// TODO: test uploads, moves
-			// TODO: modaction=showimg (NOTE: don't attempt to parse HTML in assertResults())
+			// TODO: modaction=showimg (checks from ModerationShowTest::testShowUpload())
 		];
 
 		// "Already merged" error
@@ -338,6 +394,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectedLogTargetIsAuthor = false;
 
 	/**
+	 * @var string|null If not null, we expect response to have this Content-Type (e.g. image/png).
+	 */
+	protected $expectedContentType = null;
+
+	/**
 	 * @var bool|null If true/false, author of change is expected to become (not) modblocked.
 	 * If null, blocked status is expected to remain the same.
 	 */
@@ -349,6 +410,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * Not listed actions are not checked for existence/nonexistence.
 	 */
 	protected $expectActionLinks = [];
+
+	/**
+	 * @var bool If true, binary output of this modaction must be the same as content of $filename.
+	 */
+	protected $expectOutputToEqualUploadedFile = false;
 
 	/**
 	 * @var bool If true, we expect ReadOnlyError exception to be thrown.
@@ -386,12 +452,18 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $simulateNoSuchEntry = false;
 
 	/**
+	 * @var bool If true, thumb=1 will be added to action URL (for modaction=showimg).
+	 */
+	protected $showThumb = false;
+
+	/**
 	 * @brief Initialize this TestSet from the input of dataProvider.
 	 */
 	protected function applyOptions( array $options ) {
 		foreach ( $options as $key => $value ) {
 			switch ( $key ) {
 				case 'enableEditChange':
+				case 'expectedContentType':
 				case 'expectedFields':
 				case 'expectedError':
 				case 'expectedLogAction':
@@ -400,6 +472,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'expectModblocked':
 				case 'expectedOutput':
 				case 'expectActionLinks':
+				case 'expectOutputToEqualUploadedFile':
 				case 'expectReadOnlyError':
 				case 'expectRejected':
 				case 'expectRowDeleted':
@@ -407,6 +480,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'postData':
 				case 'readonly':
 				case 'simulateNoSuchEntry':
+				case 'showThumb':
 					$this->$key = $value;
 					unset( $options[$key] );
 			}
@@ -435,6 +509,13 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			// Default: $expectedLogAction is the same as $modaction
 			// (e.g. modaction=reject creates 'moderation/reject' log entries).
 			$this->expectedLogAction = $this->modaction;
+		}
+
+		if ( $this->expectedContentType == 'application/ogg' ) {
+			// Allow OGG files (music, i.e. not images) to be uploaded.
+			global $wgFileExtensions;
+			$this->getTestsuite()->setMwConfig( 'FileExtensions',
+				array_merge( $wgFileExtensions, [ 'ogg' ] ) );
 		}
 	}
 
@@ -497,8 +578,23 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			$t->httpPost( $url, $this->postData ) :
 			$t->httpGet( $url );
 
-		$html = $t->html->loadFromReq( $req );
+		if ( $this->expectedContentType ) {
+			$this->assertBinaryOutput( $testcase, $req );
+		} else {
+			$this->assertHtmlOutput( $testcase, $t->html->loadFromReq( $req ) );
+		}
 
+		// Check the mod_* fields in the database after the action.
+		$this->assertDatabaseChanges( $testcase );
+		$this->assertBlockedStatus( $testcase );
+		$this->assertLogEntry( $testcase );
+	}
+
+	/**
+	 * @brief Check HTML output printed by the action URL.
+	 * @see assertBinaryOutput
+	 */
+	protected function assertHtmlOutput( MediaWikiTestCase $testcase, ModerationTestsuiteHTML $html ) {
 		$output = $html->getMainText();
 		if ( $this->expectedOutput ) {
 			$testcase->assertContains( $this->expectedOutput, $output,
@@ -524,17 +620,39 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		}
 
 		foreach ( $this->expectActionLinks as $action => $isExpected ) {
-			$link = $t->html->getElementByXPath( '//a[contains(@href,"modaction=' . $action . '")]' );
+			$link = $html->getElementByXPath( '//a[contains(@href,"modaction=' . $action . '")]' );
 			$testcase->assertEquals(
 				[ "action link [$action] exists" => $isExpected ],
 				[ "action link [$action] exists" => (bool)$link ]
 			);
 		}
+	}
 
-		// Check the mod_* fields in the database after the action.
-		$this->assertDatabaseChanges( $testcase );
-		$this->assertBlockedStatus( $testcase );
-		$this->assertLogEntry( $testcase );
+	/**
+	 * @brief Check non-HTML output printed by the action URL.
+	 * @see assertHtmlOutput
+	 */
+	protected function assertBinaryOutput(
+		MediaWikiTestCase $testcase,
+		ModerationTestsuiteResponse $req
+	) {
+		$testcase->assertEquals(
+			$this->expectedContentType,
+			$req->getResponseHeader( 'Content-Type' ),
+			"modaction={$this->modaction}: wrong Content-Type header."
+		);
+
+		if ( $this->filename ) {
+			$testedMetric = "output matches contents of [{$this->filename}]";
+			$srcPath = $this->findSourceFilename();
+
+			$outputEqualsUploadedFile = ( file_get_contents( $srcPath ) == $req->getContent() );
+
+			$testcase->assertEquals(
+				[ $testedMetric => $this->expectOutputToEqualUploadedFile ],
+				[ $testedMetric => $outputEqualsUploadedFile ]
+			);
+		}
 	}
 
 	/**
@@ -686,6 +804,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		];
 		if ( !in_array( $this->modaction, [ 'show', 'showimg', 'preview', 'editchange' ] ) ) {
 			$q['token'] = $this->getTestsuite()->getEditToken();
+		}
+
+		if ( $this->showThumb ) {
+			// modaction=showimg&thumb=1
+			$q['thumb'] = 1;
 		}
 
 		if ( $this->simulateNoSuchEntry ) {

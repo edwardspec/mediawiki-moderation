@@ -71,13 +71,21 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 
 		// Populate mod_stash_key for uploads.
 		if ( $this->filename ) {
-			$srcPath = ModerationTestsuite::findSourceFilename( $this->filename );
+			$srcPath = $this->findSourceFilename();
 			$uploader = User::newFromName( $this->fields['mod_user_text'], false );
 
 			// Store the image in UploadStash.
 			$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash( $uploader );
 			$this->fields['mod_stash_key'] = $stash->stashFile( $srcPath )->getFileKey();
 		}
+	}
+
+	/**
+	 * @brief Returns full path of $this->filename.
+	 * @return string
+	 */
+	protected function findSourceFilename() {
+		return ModerationTestsuite::findSourceFilename( $this->filename );
 	}
 
 	/**
