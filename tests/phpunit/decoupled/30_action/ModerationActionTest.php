@@ -81,7 +81,8 @@ class ModerationActionTest extends MediaWikiTestCase {
 			[ [
 				'modaction' => 'showimg',
 				'filename' => 'image100x100.png',
-				'expectedContentType' => 'image/png'
+				'expectedContentType' => 'image/png',
+				'expectOutputToEqualUploadedFile' => true
 			] ],
 			[ [ 'modaction' => 'preview' ] ],
 			[ [ 'modaction' => 'editchange', 'enableEditChange' => true ] ],
@@ -222,7 +223,8 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'modaction' => 'showimg',
 				'filename' => 'image100x100.png',
 				'readonly' => true,
-				'expectedContentType' => 'image/png'
+				'expectedContentType' => 'image/png',
+				'expectOutputToEqualUploadedFile' => true
 			] ],
 			[ [ 'modaction' => 'preview', 'readonly' => true ] ],
 
@@ -259,6 +261,51 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedOutput' => '(moderation-editchange-ok)',
 				'expectLogEntry' => false
 			] ],
+
+			// modaction=showimg
+			[ [
+				'modaction' => 'showimg',
+				'filename' => 'image640x50.png',
+				'expectedContentType' => 'image/png',
+				'expectOutputToEqualUploadedFile' => true
+			] ],
+			[ [
+				'modaction' => 'showimg',
+				'filename' => 'image640x50.png',
+				'expectedContentType' => 'image/png',
+				'showThumb' => true,
+				'expectOutputToEqualUploadedFile' => false // Thumbnail, not original image
+			] ],
+			[ [
+				'modaction' => 'showimg',
+				'filename' => 'image100x100.png',
+				'expectedContentType' => 'image/png',
+				'showThumb' => true,
+
+				// This image is not wide enough,
+				// its thumbnail will be the same as the original image.
+				'expectOutputToEqualUploadedFile' => true
+			] ],
+			[ [
+				'modaction' => 'showimg',
+				'filename' => 'sound.ogg',
+				'expectedContentType' => 'application/ogg',
+				'expectOutputToEqualUploadedFile' => true
+			] ],
+
+			/*
+			// FIXME: showimg&thumb=1 (as unused as it is) on OGG file throws an ugly exception,
+			// it should instead print the original OGG file (as if &thumb=1 wasn't present).
+			[ [
+				'modaction' => 'showimg',
+				'filename' => 'sound.ogg',
+				'expectedContentType' => 'application/ogg',
+				'showThumb' => true,
+
+				// OGG is not an image, thumbnail will be the same as the original file.
+				'expectOutputToEqualUploadedFile' => true
+			] ],
+			*/
 
 			// TODO: approval errors originating from doEditContent(), etc.
 			// TODO: test uploads, moves
@@ -365,6 +412,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectActionLinks = [];
 
 	/**
+	 * @var bool If true, binary output of this modaction must be the same as content of $filename.
+	 */
+	protected $expectOutputToEqualUploadedFile = false;
+
+	/**
 	 * @var bool If true, we expect ReadOnlyError exception to be thrown.
 	 */
 	protected $expectReadOnlyError = false;
@@ -400,6 +452,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $simulateNoSuchEntry = false;
 
 	/**
+	 * @var bool If true, thumb=1 will be added to action URL (for modaction=showimg).
+	 */
+	protected $showThumb = false;
+
+	/**
 	 * @brief Initialize this TestSet from the input of dataProvider.
 	 */
 	protected function applyOptions( array $options ) {
@@ -415,6 +472,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'expectModblocked':
 				case 'expectedOutput':
 				case 'expectActionLinks':
+				case 'expectOutputToEqualUploadedFile':
 				case 'expectReadOnlyError':
 				case 'expectRejected':
 				case 'expectRowDeleted':
@@ -422,6 +480,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'postData':
 				case 'readonly':
 				case 'simulateNoSuchEntry':
+				case 'showThumb':
 					$this->$key = $value;
 					unset( $options[$key] );
 			}
@@ -575,6 +634,18 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			$req->getResponseHeader( 'Content-Type' ),
 			"modaction={$this->modaction}: wrong Content-Type header."
 		);
+
+		if ( $this->filename ) {
+			$testedMetric = "output matches contents of [{$this->filename}]";
+			$srcPath = $this->findSourceFilename();
+
+			$outputEqualsUploadedFile = ( file_get_contents( $srcPath ) == $req->getContent() );
+
+			$testcase->assertEquals(
+				[ $testedMetric => $this->expectOutputToEqualUploadedFile ],
+				[ $testedMetric => $outputEqualsUploadedFile ]
+			);
+		}
 	}
 
 	/**
@@ -726,6 +797,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		];
 		if ( !in_array( $this->modaction, [ 'show', 'showimg', 'preview', 'editchange' ] ) ) {
 			$q['token'] = $this->getTestsuite()->getEditToken();
+		}
+
+		if ( $this->showThumb ) {
+			// modaction=showimg&thumb=1
+			$q['thumb'] = 1;
 		}
 
 		if ( $this->simulateNoSuchEntry ) {
