@@ -292,10 +292,6 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedContentType' => 'application/ogg',
 				'expectOutputToEqualUploadedFile' => true
 			] ],
-
-			/*
-			// FIXME: showimg&thumb=1 (as unused as it is) on OGG file throws an ugly exception,
-			// it should instead print the original OGG file (as if &thumb=1 wasn't present).
 			[ [
 				'modaction' => 'showimg',
 				'filename' => 'sound.ogg',
@@ -305,7 +301,6 @@ class ModerationActionTest extends MediaWikiTestCase {
 				// OGG is not an image, thumbnail will be the same as the original file.
 				'expectOutputToEqualUploadedFile' => true
 			] ],
-			*/
 
 			// TODO: approval errors originating from doEditContent(), etc.
 			// TODO: test uploads, moves

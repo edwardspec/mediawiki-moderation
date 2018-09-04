@@ -86,13 +86,14 @@ class ModerationActionShowImage extends ModerationAction {
 		if ( $isThumb ) {
 			$thumb = $file->transform( [ 'width' => self::THUMB_WIDTH ], File::RENDER_NOW );
 			if ( $thumb ) {
-				if ( $thumb->fileIsSource() ) {
+				$storagePath = $thumb->getStoragePath();
+				if ( $thumb->fileIsSource() || !$storagePath ) {
 					$isThumb = false;
 				} else {
 					$file = new UnregisteredLocalFile(
 						false,
 						$stash->repo,
-						$thumb->getStoragePath(),
+						$storagePath,
 						false
 					);
 				}
@@ -105,7 +106,7 @@ class ModerationActionShowImage extends ModerationAction {
 
 		$thumbFilename = '';
 		if ( $isThumb ) {
-			$thumbFilename .= $file->getWidth() .  'px-';
+			$thumbFilename .= $file->getWidth() . 'px-';
 		}
 		$thumbFilename .= $row->title;
 
