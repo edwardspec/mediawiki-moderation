@@ -33,7 +33,7 @@ for blackbox testing of Extension:Moderation.
 
 It provides the following:
 
-1) methods to access the MediaWiki API (NOT via internal invocation).
+1) methods to access the MediaWiki API.
 
 2) automated creation of test users and clean test environment.
 

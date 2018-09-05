@@ -35,15 +35,7 @@ require_once __DIR__ . '/engine/ModerationTestsuiteEngine.php';
 
 /* Completely working Engine, used for pre-commit testing */
 require_once __DIR__ . '/engine/realhttp/ModerationTestsuiteRealHttpEngine.php';
-
-/* Experimental, idea looks promising */
 require_once __DIR__ . '/engine/cli/ModerationTestsuiteCliEngine.php';
-
-/* Not yet ready (issues with SessionManager),
-	less useful than RealHttp (interferes too much with MediaWiki during the test) */
-require_once __DIR__ . '/engine/internal/ModerationTestsuiteApiMain.php';
-require_once __DIR__ . '/engine/internal/ModerationTestsuiteInternalInvocationEngine.php';
-require_once __DIR__ . '/engine/internal/ModerationTestsuiteInternallyInvokedWiki.php';
 
 class ModerationTestsuite {
 	const TEST_PASSWORD = '123456';
@@ -284,10 +276,6 @@ class ModerationTestsuite {
 	/** @brief Prevent tags set by the previous test from affecting the current test */
 	public function purgeTagCache() {
 		ChangeTags::purgeTagCacheAll(); /* For RealHttpEngine tests */
-
-		if ( class_exists( 'AbuseFilter' ) ) {
-			AbuseFilter::$tagsToSet = []; /* For InternalInvocationEngine tests */
-		}
 	}
 
 	#
@@ -886,6 +874,7 @@ class ModerationTestsuite {
 }
 
 class ModerationTestsuiteException extends Exception {
-};
+}
+
 class ModerationTestsuiteHttpError extends ModerationTestsuiteException {
-};
+}
