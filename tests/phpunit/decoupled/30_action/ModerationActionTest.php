@@ -268,7 +268,6 @@ class ModerationActionTest extends MediaWikiTestCase {
 			// modaction=showimg.
 			// TODO: use spaces in mod_title (to check underscores in Content-Disposition)
 			// TODO: check error 404 when the image is missing from stash
-			// TODO: for tests where expectOutputToEqualUploadedFile=false: check width/height
 			[ [
 				'modaction' => 'showimg',
 				'filename' => 'image640x50.png',
@@ -280,9 +279,13 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'modaction' => 'showimg',
 				'filename' => 'image640x50.png',
 				'expectedContentType' => 'image/png',
-				'expectedContentDisposition' => "inline;filename*=UTF-8''320px-Image640x50.png",
+				'expectedContentDisposition' =>
+					"inline;filename*=UTF-8''" .
+					ModerationActionShowImage::THUMB_WIDTH .
+					"px-Image640x50.png",
 				'showThumb' => true,
-				'expectOutputToEqualUploadedFile' => false // Thumbnail, not original image
+				'expectOutputToEqualUploadedFile' => false, // Thumbnail, not original image
+				'expectedImageWidth' => ModerationActionShowImage::THUMB_WIDTH
 			] ],
 			[ [
 				'modaction' => 'showimg',
@@ -409,6 +412,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectedContentType = null;
 
 	/**
+	 * @var int|null If not null, we expect response to be an image with this width.
+	 */
+	protected $expectedImageWidth = null;
+
+	/**
 	 * @var bool|null If true/false, author of change is expected to become (not) modblocked.
 	 * If null, blocked status is expected to remain the same.
 	 */
@@ -477,6 +485,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'expectedContentDisposition':
 				case 'expectedFields':
 				case 'expectedError':
+				case 'expectedImageWidth':
 				case 'expectedLogAction':
 				case 'expectLogEntry':
 				case 'expectedLogTargetIsAuthor':
@@ -654,15 +663,30 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		);
 
 		if ( $this->filename ) {
+			$origFile = file_get_contents( $this->findSourceFilename() );
+			$downloadedFile = $req->getContent();
+
 			$testedMetric = "output matches contents of [{$this->filename}]";
-			$srcPath = $this->findSourceFilename();
-
-			$outputEqualsUploadedFile = ( file_get_contents( $srcPath ) == $req->getContent() );
-
 			$testcase->assertEquals(
 				[ $testedMetric => $this->expectOutputToEqualUploadedFile ],
-				[ $testedMetric => $outputEqualsUploadedFile ]
+				[ $testedMetric => ( $origFile == $downloadedFile ) ]
 			);
+
+			if ( isset( $this->expectedImageWidth ) ) {
+				// Determine width/height of image in $req->getContent().
+				list( $width, $height ) = $this->getImageSize( $downloadedFile );
+
+				$testcase->assertEquals( $this->expectedImageWidth, $width,
+					"modaction={$this->modaction}: thumbnail's width doesn't match expected" );
+
+				// Has the ratio been preserved?
+				list( $origWidth, $origHeight ) = $this->getImageSize( $origFile );
+
+				$testcase->assertEquals(
+					round( $origWidth / $origHeight, 2 ),
+					round( $width / $height, 2 ),
+					"modaction={$this->modaction}: thumbnail's ratio doesn't match original" );
+			}
 		}
 
 		if ( $this->expectedContentDisposition ) {
@@ -672,6 +696,20 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				"modaction={$this->modaction}: wrong Content-Disposition header."
 			);
 		}
+	}
+
+	/**
+	 * @brief Determine width/height of downloaded image.
+	 * @param string $contents
+	 * @return array Array of two integers (width and height).
+	 */
+	private function getImageSize( $contents ) {
+		$path = tempnam( sys_get_temp_dir(), 'modtest_thumb' );
+		file_put_contents( $path, $contents );
+		$size = getimagesize( $path );
+		unlink( $path );
+
+		return $size;
 	}
 
 	/**
