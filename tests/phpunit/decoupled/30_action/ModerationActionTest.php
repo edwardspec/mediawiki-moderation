@@ -82,6 +82,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'modaction' => 'showimg',
 				'filename' => 'image100x100.png',
 				'expectedContentType' => 'image/png',
+				'expectedContentDisposition' => "inline;filename*=UTF-8''Image100x100.png",
 				'expectOutputToEqualUploadedFile' => true
 			] ],
 			[ [ 'modaction' => 'preview' ] ],
@@ -128,6 +129,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 			] ],
 
 			// Check modaction=show for uploads/moves
+			// TODO: check download link (for non-images) and full image link (for images)
 			[ [
 				'modaction' => 'show',
 				'filename' => 'image100x100.png',
@@ -224,6 +226,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'filename' => 'image100x100.png',
 				'readonly' => true,
 				'expectedContentType' => 'image/png',
+				'expectedContentDisposition' => "inline;filename*=UTF-8''Image100x100.png",
 				'expectOutputToEqualUploadedFile' => true
 			] ],
 			[ [ 'modaction' => 'preview', 'readonly' => true ] ],
@@ -262,17 +265,22 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectLogEntry' => false
 			] ],
 
-			// modaction=showimg
+			// modaction=showimg.
+			// TODO: use spaces in mod_title (to check underscores in Content-Disposition)
+			// TODO: check error 404 when the image is missing from stash
+			// TODO: for tests where expectOutputToEqualUploadedFile=false: check width/height
 			[ [
 				'modaction' => 'showimg',
 				'filename' => 'image640x50.png',
 				'expectedContentType' => 'image/png',
+				'expectedContentDisposition' => "inline;filename*=UTF-8''Image640x50.png",
 				'expectOutputToEqualUploadedFile' => true
 			] ],
 			[ [
 				'modaction' => 'showimg',
 				'filename' => 'image640x50.png',
 				'expectedContentType' => 'image/png',
+				'expectedContentDisposition' => "inline;filename*=UTF-8''320px-Image640x50.png",
 				'showThumb' => true,
 				'expectOutputToEqualUploadedFile' => false // Thumbnail, not original image
 			] ],
@@ -280,6 +288,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'modaction' => 'showimg',
 				'filename' => 'image100x100.png',
 				'expectedContentType' => 'image/png',
+				'expectedContentDisposition' => "inline;filename*=UTF-8''Image100x100.png",
 				'showThumb' => true,
 
 				// This image is not wide enough,
@@ -290,12 +299,14 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'modaction' => 'showimg',
 				'filename' => 'sound.ogg',
 				'expectedContentType' => 'application/ogg',
+				'expectedContentDisposition' => "inline;filename*=UTF-8''Sound.ogg",
 				'expectOutputToEqualUploadedFile' => true
 			] ],
 			[ [
 				'modaction' => 'showimg',
 				'filename' => 'sound.ogg',
 				'expectedContentType' => 'application/ogg',
+				'expectedContentDisposition' => "inline;filename*=UTF-8''Sound.ogg",
 				'showThumb' => true,
 
 				// OGG is not an image, thumbnail will be the same as the original file.
@@ -304,7 +315,6 @@ class ModerationActionTest extends MediaWikiTestCase {
 
 			// TODO: approval errors originating from doEditContent(), etc.
 			// TODO: test uploads, moves
-			// TODO: modaction=showimg (checks from ModerationShowTest::testShowUpload())
 		];
 
 		// "Already merged" error
@@ -389,6 +399,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectedLogTargetIsAuthor = false;
 
 	/**
+	 * @var string|null Expected value of Content-Disposition header (if any) or null.
+	 */
+	protected $expectedContentDisposition = null;
+
+	/**
 	 * @var string|null If not null, we expect response to have this Content-Type (e.g. image/png).
 	 */
 	protected $expectedContentType = null;
@@ -459,6 +474,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			switch ( $key ) {
 				case 'enableEditChange':
 				case 'expectedContentType':
+				case 'expectedContentDisposition':
 				case 'expectedFields':
 				case 'expectedError':
 				case 'expectedLogAction':
@@ -646,6 +662,14 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			$testcase->assertEquals(
 				[ $testedMetric => $this->expectOutputToEqualUploadedFile ],
 				[ $testedMetric => $outputEqualsUploadedFile ]
+			);
+		}
+
+		if ( $this->expectedContentDisposition ) {
+			$testcase->assertEquals(
+				$this->expectedContentDisposition,
+				$req->getResponseHeader( 'Content-Disposition' ),
+				"modaction={$this->modaction}: wrong Content-Disposition header."
 			);
 		}
 	}

@@ -77,6 +77,14 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 			// Store the image in UploadStash.
 			$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash( $uploader );
 			$this->fields['mod_stash_key'] = $stash->stashFile( $srcPath )->getFileKey();
+
+			// Default value of mod_title for uploads: same as filename.
+			if ( !isset( $options['mod_title'] ) ) {
+				$this->fields['mod_title'] = strtr( ucfirst( $this->filename ), ' ', '_' );
+			}
+
+			// Uploads are always in File: namespace.
+			$this->fields['mod_namespace'] = NS_FILE;
 		}
 	}
 
