@@ -266,13 +266,13 @@ class ModerationActionTest extends MediaWikiTestCase {
 			] ],
 
 			// modaction=showimg.
-			// TODO: use spaces in mod_title (to check underscores in Content-Disposition)
-			// TODO: check error 404 when the image is missing from stash
+			// TODO: move testMissingStashedImage() here? (error 404 "image is missing from stash")
 			[ [
 				'modaction' => 'showimg',
 				'filename' => 'image640x50.png',
+				'mod_title' => 'Image_name_with_spaces.png',
 				'expectedContentType' => 'image/png',
-				'expectedContentDisposition' => "inline;filename*=UTF-8''Image640x50.png",
+				'expectedContentDisposition' => "inline;filename*=UTF-8''Image_name_with_spaces.png",
 				'expectOutputToEqualUploadedFile' => true
 			] ],
 			[ [
@@ -317,7 +317,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 			] ],
 
 			// TODO: approval errors originating from doEditContent(), etc.
-			// TODO: test uploads, moves
+			// TODO: test moves
 		];
 
 		// "Already merged" error
