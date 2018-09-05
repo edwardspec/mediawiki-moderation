@@ -265,8 +265,16 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectLogEntry' => false
 			] ],
 
-			// modaction=showimg.
-			// TODO: move testMissingStashedImage() here? (error 404 "image is missing from stash")
+			/*
+				modaction=showimg.
+				NOTE: when testing thumbnails, we check two images:
+				one smaller than thumbnail's width, one larger,
+				because they are handled differently.
+				First test is on image640x50.png (large image),
+				second on image100x100.png (smaller image).
+
+				TODO: move testMissingStashedImage() here? (error 404 "image is missing from stash")
+			*/
 			[ [
 				'modaction' => 'showimg',
 				'filename' => 'image640x50.png',
