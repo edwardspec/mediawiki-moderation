@@ -41,5 +41,10 @@
 	"moderation-diff-no-changes": "Няма промени в текста на страницата (нулева редакция).",
 	"moderation-diff-reupload": "Това изображение е повторно качено (няма да промени текста на страницата).",
 	"moderation-diff-upload-notext": "Това изображение е качено без описание.",
-	"moderation-edit-conflict": "Конфликт при редактиране (изисква ръчно сливане)."
+	"moderation-edit-conflict": "Конфликт при редактиране (изисква ръчно сливане).",
+	"moderation-editchange": "редактиране",
+	"moderation-editchange-not-edit": "Това не е редакция. Само редакциите могат да бъдат променяни.",
+	"moderation-folder-spam": "Спам",
+	"moderation-log-diff": "редакция $1",
+	"moderation": "Модерация"
 }
