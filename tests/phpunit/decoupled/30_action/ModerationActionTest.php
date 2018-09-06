@@ -123,9 +123,24 @@ class ModerationActionTest extends MediaWikiTestCase {
 			// Check modaction=show for normal edits
 			[ [
 				'modaction' => 'show',
-				'mod_text' => 'Very funny description',
-				'mod_new_len' => 22,
-				'expectActionLinks' => [ 'approve' => true, 'reject' => true ]
+				'mod_title' => 'Test_page_1',
+				'mod_text' => "This text is '''very bold''' and ''most italic''.\n",
+				'mod_new_len' => 49,
+				'expectActionLinks' => [ 'approve' => true, 'reject' => true ],
+				'expectedHtmlTitle' => '(difference-title: Test page 1)',
+
+				// Shouldn't render any HTML: modaction=show displays wikitext
+				'expectedOutputHtml' => "This text is '''very bold''' and ''most italic''."
+			] ],
+
+			// modaction=preview
+			[ [
+				'modaction' => 'preview',
+				'mod_title' => 'Test_page_1',
+				'mod_text' => "This text is '''very bold''' and ''most italic''.\n",
+				'mod_new_len' => 49,
+				'expectedOutputHtml' => 'This text is <b>very bold</b> and <i>most italic</i>.',
+				'expectedHtmlTitle' => '(moderation-preview-title: Test page 1)'
 			] ],
 
 			// Check modaction=show for uploads/moves
@@ -325,7 +340,6 @@ class ModerationActionTest extends MediaWikiTestCase {
 			] ],
 
 			// TODO: approval errors originating from doEditContent(), etc.
-			// TODO: test moves
 		];
 
 		// "Already merged" error
@@ -425,6 +439,11 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectedImageWidth = null;
 
 	/**
+	 * @var string|null If not null, we expect <h1> tag to contain this string.
+	 */
+	protected $expectedHtmlTitle = null;
+
+	/**
 	 * @var bool|null If true/false, author of change is expected to become (not) modblocked.
 	 * If null, blocked status is expected to remain the same.
 	 */
@@ -458,9 +477,15 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectRowDeleted = false;
 
 	/**
-	 * @var string Text that should be present in the output of modaction.
+	 * @var string Plaintext that should be present in the output of modaction.
 	 */
 	protected $expectedOutput = '';
+
+	/**
+	 * @var string Raw HTML that should be present in the output of modaction.
+	 * @see $expectedOutput
+	 */
+	protected $expectedOutputHtml = '';
 
 	/**
 	 * @var array Request body to send with POST request.
@@ -494,11 +519,13 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'expectedFields':
 				case 'expectedError':
 				case 'expectedImageWidth':
+				case 'expectedHtmlTitle':
 				case 'expectedLogAction':
 				case 'expectLogEntry':
 				case 'expectedLogTargetIsAuthor':
 				case 'expectModblocked':
 				case 'expectedOutput':
+				case 'expectedOutputHtml':
 				case 'expectActionLinks':
 				case 'expectOutputToEqualUploadedFile':
 				case 'expectReadOnlyError':
@@ -623,6 +650,22 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * @see assertBinaryOutput
 	 */
 	protected function assertHtmlOutput( MediaWikiTestCase $testcase, ModerationTestsuiteHTML $html ) {
+		if ( $this->expectedHtmlTitle ) {
+			$testcase->assertEquals(
+				'(pagetitle: ' . $this->expectedHtmlTitle . ')',
+				$html->getTitle(),
+				"modaction={$this->modaction}: unexpected HTML title."
+			);
+		}
+
+		if ( $this->expectedOutputHtml ) {
+			$testcase->assertContains(
+				$this->expectedOutputHtml,
+				$html->saveHTML( $html->getMainContent() ),
+				"modaction={$this->modaction}: unexpected HTML output."
+			);
+		}
+
 		$output = $html->getMainText();
 		if ( $this->expectedOutput ) {
 			$testcase->assertContains( $this->expectedOutput, $output,
