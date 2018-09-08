@@ -249,7 +249,11 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 
 		switch ( $this->action ) {
 			case 'edit':
-				$this->result = $t->apiEdit( $title->getFullText(), 'New text', 'Summary' );
+				$this->result = $t->getBot( 'api' )->edit(
+					$title->getFullText(),
+					'New text',
+					'Summary'
+				);
 				break;
 
 			case 'move':

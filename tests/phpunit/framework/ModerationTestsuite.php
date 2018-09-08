@@ -24,10 +24,19 @@ require_once __DIR__ . '/../../common/ModerationTestUtil.php';
 
 require_once __DIR__ . '/ModerationTestsuiteEntry.php';
 require_once __DIR__ . '/ModerationTestsuiteHTML.php';
+require_once __DIR__ . '/IModerationTestsuiteResponse.php';
 require_once __DIR__ . '/ModerationTestsuiteResponse.php';
 require_once __DIR__ . '/ModerationTestsuiteSubmitResult.php';
 require_once __DIR__ . '/ModerationTestSet.php';
 require_once __DIR__ . '/ModerationPendingChangeTestSet.php';
+
+require_once __DIR__ . '/bot/ModerationTestsuiteBot.php';
+require_once __DIR__ . '/bot/ModerationTestsuiteApiBot.php';
+require_once __DIR__ . '/bot/ModerationTestsuiteNonApiBot.php';
+
+require_once __DIR__ . '/bot/response/ModerationTestsuiteBotResponseTrait.php';
+require_once __DIR__ . '/bot/response/ModerationTestsuiteApiBotResponse.php';
+require_once __DIR__ . '/bot/response/ModerationTestsuiteNonApiBotResponse.php';
 
 /* FIXME: this can really use some autoloading, as only one engine is needed at a time */
 require_once __DIR__ . '/engine/IModerationTestsuiteEngine.php';
@@ -374,7 +383,7 @@ class ModerationTestsuite {
 	/**
 	 * @brief Place information about newly made change into lastEdit[] array.
 	 */
-	protected function setLastEdit( $title, $summary, array $extraData = [] ) {
+	public function setLastEdit( $title, $summary, array $extraData = [] ) {
 		$this->lastEdit = $extraData + [
 			'User' => $this->loggedInAs()->getName(),
 			'Title' => $title,
@@ -404,53 +413,17 @@ class ModerationTestsuite {
 		return ModerationTestsuiteSubmitResult::newFromResponse( $req, $this );
 	}
 
-	/**
-	 * @brief Make an edit via API.
-	 * @warning Several side-effects can't be tested this way,
-	 * for example HTTP redirect after editing or
-	 * session cookies (used for anonymous preloading)
-	 * @return API response
-	 */
-	public function apiEdit( $title, $text, $summary, array $extraParams = [] ) {
-		return $this->query( [
-			'action' => 'edit',
-			'title' => $title,
-			'text' => $text,
-			'summary' => $summary,
-			'token' => null
-		] + $extraParams );
-	}
-
 	public $editViaAPI = false;
 	public $uploadViaAPI = false;
 	public $moveViaAPI = false;
 
 	/**
-	 * @brief Make an edit via the usual interface, as real users do.
-	 * @return ModerationTestsuiteResponse object.
+	 * @brief Create a new bot.
+	 * @param string $method One of the following: 'api', 'nonApi'.
+	 * @return ModerationTestsuiteBot
 	 */
-	public function nonApiEdit( $title, $text, $summary, array $extraParams = [] ) {
-		$params = $extraParams + [
-			'action' => 'submit',
-			'title' => $title,
-			'wpTextbox1' => $text,
-			'wpSummary' => $summary,
-			'wpEditToken' => $this->getEditToken(),
-			'wpSave' => 'Save',
-			'wpIgnoreBlankSummary' => '',
-			'wpRecreate' => ''
-		];
-
-		if ( defined( 'EditPage::UNICODE_CHECK' ) ) { // MW 1.30+
-			$params['wpUnicodeCheck'] = EditPage::UNICODE_CHECK;
-		}
-
-		/* Determine wpEdittime (timestamp of the current revision of $title),
-			otherwise edit conflict will occur. */
-		$rev = $this->getLastRevision( $title );
-		$params['wpEdittime'] = $rev ? wfTimestamp( TS_MW, $rev['timestamp'] ) : '';
-
-		return $this->httpPost( wfScript( 'index' ), $params );
+	public function getBot( $method ) {
+		return ModerationTestsuiteBot::factory( $method, $this );
 	}
 
 	public function doTestEdit(
@@ -460,37 +433,8 @@ class ModerationTestsuite {
 		$section = '',
 		$extraParams = []
 	) {
-		if ( !$title ) {
-			$title = $this->generateRandomTitle();
-		}
-
-		if ( !$text ) {
-			$text = $this->generateRandomText();
-		}
-
-		if ( !$summary ) {
-			$summary = $this->generateEditSummary();
-		}
-
-		# TODO: ensure that page $title doesn't already contain $text
-		# (to avoid extremely rare test failures due to random collisions)
-
-		if ( $this->editViaAPI ) {
-			if ( $section !== '' ) {
-				$extraParams['section'] = $section;
-			}
-			$ret = $this->apiEdit( $title, $text, $summary, $extraParams );
-		} else {
-			if ( $section !== '' ) {
-				$extraParams['wpSection'] = $section;
-			}
-			$ret = $this->nonApiEdit( $title, $text, $summary, $extraParams );
-		}
-
-		/* TODO: check if successful */
-
-		$this->setLastEdit( $title, $summary, [ 'Text' => $text ] );
-		return $ret;
+		$bot = $this->getBot( $this->editViaAPI ? 'api' : 'nonApi' );
+		return $bot->edit( $title, $text, $summary, $section, $extraParams );
 	}
 
 	public $TEST_EDITS_COUNT = 3; /* See doNTestEditsWith() */

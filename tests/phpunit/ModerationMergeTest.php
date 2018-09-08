@@ -134,7 +134,11 @@ class ModerationMergeTest extends MediaWikiTestCase {
 			"testMerge(): Value of wpMergeID field doesn't match the entry id" );
 
 		# Try to edit now
-		$req = $t->nonApiEdit( $this->page, $this->text3, "Wow, I merged an edit",
+		$req = $t->getBot( 'nonApi' )->edit(
+			$this->page,
+			$this->text3,
+			"Wow, I merged an edit",
+			'',
 			[ 'wpMergeID' => $id ]
 		);
 		$this->assertNotNull( $req->getResponseHeader( 'location' ),

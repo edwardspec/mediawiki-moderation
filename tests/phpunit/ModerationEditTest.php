@@ -124,10 +124,10 @@ class ModerationEditTest extends MediaWikiTestCase {
 		$t->doTestEdit( $title, $origText );
 
 		# Now edit a section (not via API), forcing a situation when mod_new_len should be recalculated
-		$req = $t->nonApiEdit( $title,
+		$t->getBot( 'nonApi' )->edit( $title,
 			$sections[0], /* No changes */
 			'Some edit comment',
-			[ 'wpSection' => '0' ]
+			'0' // section number
 		);
 
 		$t->fetchSpecial();
