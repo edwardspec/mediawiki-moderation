@@ -82,6 +82,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'modaction' => 'showimg',
 				'filename' => 'image100x100.png',
 				'expectedContentType' => 'image/png',
+				'expectedContentDisposition' => "inline;filename*=UTF-8''Image100x100.png",
 				'expectOutputToEqualUploadedFile' => true
 			] ],
 			[ [ 'modaction' => 'preview' ] ],
@@ -122,12 +123,28 @@ class ModerationActionTest extends MediaWikiTestCase {
 			// Check modaction=show for normal edits
 			[ [
 				'modaction' => 'show',
-				'mod_text' => 'Very funny description',
-				'mod_new_len' => 22,
-				'expectActionLinks' => [ 'approve' => true, 'reject' => true ]
+				'mod_title' => 'Test_page_1',
+				'mod_text' => "This text is '''very bold''' and ''most italic''.\n",
+				'mod_new_len' => 49,
+				'expectActionLinks' => [ 'approve' => true, 'reject' => true ],
+				'expectedHtmlTitle' => '(difference-title: Test page 1)',
+
+				// Shouldn't render any HTML: modaction=show displays wikitext
+				'expectedOutputHtml' => "This text is '''very bold''' and ''most italic''."
+			] ],
+
+			// modaction=preview
+			[ [
+				'modaction' => 'preview',
+				'mod_title' => 'Test_page_1',
+				'mod_text' => "This text is '''very bold''' and ''most italic''.\n",
+				'mod_new_len' => 49,
+				'expectedOutputHtml' => 'This text is <b>very bold</b> and <i>most italic</i>.',
+				'expectedHtmlTitle' => '(moderation-preview-title: Test page 1)'
 			] ],
 
 			// Check modaction=show for uploads/moves
+			// TODO: check download link (for non-images) and full image link (for images)
 			[ [
 				'modaction' => 'show',
 				'filename' => 'image100x100.png',
@@ -224,6 +241,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'filename' => 'image100x100.png',
 				'readonly' => true,
 				'expectedContentType' => 'image/png',
+				'expectedContentDisposition' => "inline;filename*=UTF-8''Image100x100.png",
 				'expectOutputToEqualUploadedFile' => true
 			] ],
 			[ [ 'modaction' => 'preview', 'readonly' => true ] ],
@@ -262,24 +280,41 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectLogEntry' => false
 			] ],
 
-			// modaction=showimg
+			/*
+				modaction=showimg.
+				NOTE: when testing thumbnails, we check two images:
+				one smaller than thumbnail's width, one larger,
+				because they are handled differently.
+				First test is on image640x50.png (large image),
+				second on image100x100.png (smaller image).
+
+				TODO: move testMissingStashedImage() here? (error 404 "image is missing from stash")
+			*/
 			[ [
 				'modaction' => 'showimg',
 				'filename' => 'image640x50.png',
+				'mod_title' => 'Image_name_with_spaces.png',
 				'expectedContentType' => 'image/png',
+				'expectedContentDisposition' => "inline;filename*=UTF-8''Image_name_with_spaces.png",
 				'expectOutputToEqualUploadedFile' => true
 			] ],
 			[ [
 				'modaction' => 'showimg',
 				'filename' => 'image640x50.png',
 				'expectedContentType' => 'image/png',
+				'expectedContentDisposition' =>
+					"inline;filename*=UTF-8''" .
+					ModerationActionShowImage::THUMB_WIDTH .
+					"px-Image640x50.png",
 				'showThumb' => true,
-				'expectOutputToEqualUploadedFile' => false // Thumbnail, not original image
+				'expectOutputToEqualUploadedFile' => false, // Thumbnail, not original image
+				'expectedImageWidth' => ModerationActionShowImage::THUMB_WIDTH
 			] ],
 			[ [
 				'modaction' => 'showimg',
 				'filename' => 'image100x100.png',
 				'expectedContentType' => 'image/png',
+				'expectedContentDisposition' => "inline;filename*=UTF-8''Image100x100.png",
 				'showThumb' => true,
 
 				// This image is not wide enough,
@@ -290,12 +325,14 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'modaction' => 'showimg',
 				'filename' => 'sound.ogg',
 				'expectedContentType' => 'application/ogg',
+				'expectedContentDisposition' => "inline;filename*=UTF-8''Sound.ogg",
 				'expectOutputToEqualUploadedFile' => true
 			] ],
 			[ [
 				'modaction' => 'showimg',
 				'filename' => 'sound.ogg',
 				'expectedContentType' => 'application/ogg',
+				'expectedContentDisposition' => "inline;filename*=UTF-8''Sound.ogg",
 				'showThumb' => true,
 
 				// OGG is not an image, thumbnail will be the same as the original file.
@@ -303,8 +340,6 @@ class ModerationActionTest extends MediaWikiTestCase {
 			] ],
 
 			// TODO: approval errors originating from doEditContent(), etc.
-			// TODO: test uploads, moves
-			// TODO: modaction=showimg (checks from ModerationShowTest::testShowUpload())
 		];
 
 		// "Already merged" error
@@ -389,9 +424,24 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectedLogTargetIsAuthor = false;
 
 	/**
+	 * @var string|null Expected value of Content-Disposition header (if any) or null.
+	 */
+	protected $expectedContentDisposition = null;
+
+	/**
 	 * @var string|null If not null, we expect response to have this Content-Type (e.g. image/png).
 	 */
 	protected $expectedContentType = null;
+
+	/**
+	 * @var int|null If not null, we expect response to be an image with this width.
+	 */
+	protected $expectedImageWidth = null;
+
+	/**
+	 * @var string|null If not null, we expect <h1> tag to contain this string.
+	 */
+	protected $expectedHtmlTitle = null;
 
 	/**
 	 * @var bool|null If true/false, author of change is expected to become (not) modblocked.
@@ -427,9 +477,15 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectRowDeleted = false;
 
 	/**
-	 * @var string Text that should be present in the output of modaction.
+	 * @var string Plaintext that should be present in the output of modaction.
 	 */
 	protected $expectedOutput = '';
+
+	/**
+	 * @var string Raw HTML that should be present in the output of modaction.
+	 * @see $expectedOutput
+	 */
+	protected $expectedOutputHtml = '';
 
 	/**
 	 * @var array Request body to send with POST request.
@@ -459,13 +515,17 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			switch ( $key ) {
 				case 'enableEditChange':
 				case 'expectedContentType':
+				case 'expectedContentDisposition':
 				case 'expectedFields':
 				case 'expectedError':
+				case 'expectedImageWidth':
+				case 'expectedHtmlTitle':
 				case 'expectedLogAction':
 				case 'expectLogEntry':
 				case 'expectedLogTargetIsAuthor':
 				case 'expectModblocked':
 				case 'expectedOutput':
+				case 'expectedOutputHtml':
 				case 'expectActionLinks':
 				case 'expectOutputToEqualUploadedFile':
 				case 'expectReadOnlyError':
@@ -590,6 +650,22 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * @see assertBinaryOutput
 	 */
 	protected function assertHtmlOutput( MediaWikiTestCase $testcase, ModerationTestsuiteHTML $html ) {
+		if ( $this->expectedHtmlTitle ) {
+			$testcase->assertEquals(
+				'(pagetitle: ' . $this->expectedHtmlTitle . ')',
+				$html->getTitle(),
+				"modaction={$this->modaction}: unexpected HTML title."
+			);
+		}
+
+		if ( $this->expectedOutputHtml ) {
+			$testcase->assertContains(
+				$this->expectedOutputHtml,
+				$html->saveHTML( $html->getMainContent() ),
+				"modaction={$this->modaction}: unexpected HTML output."
+			);
+		}
+
 		$output = $html->getMainText();
 		if ( $this->expectedOutput ) {
 			$testcase->assertContains( $this->expectedOutput, $output,
@@ -638,16 +714,53 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		);
 
 		if ( $this->filename ) {
+			$origFile = file_get_contents( $this->findSourceFilename() );
+			$downloadedFile = $req->getContent();
+
 			$testedMetric = "output matches contents of [{$this->filename}]";
-			$srcPath = $this->findSourceFilename();
-
-			$outputEqualsUploadedFile = ( file_get_contents( $srcPath ) == $req->getContent() );
-
 			$testcase->assertEquals(
 				[ $testedMetric => $this->expectOutputToEqualUploadedFile ],
-				[ $testedMetric => $outputEqualsUploadedFile ]
+				[ $testedMetric => ( $origFile == $downloadedFile ) ]
+			);
+
+			if ( isset( $this->expectedImageWidth ) ) {
+				// Determine width/height of image in $req->getContent().
+				list( $width, $height ) = $this->getImageSize( $downloadedFile );
+
+				$testcase->assertEquals( $this->expectedImageWidth, $width,
+					"modaction={$this->modaction}: thumbnail's width doesn't match expected" );
+
+				// Has the ratio been preserved?
+				list( $origWidth, $origHeight ) = $this->getImageSize( $origFile );
+
+				$testcase->assertEquals(
+					round( $origWidth / $origHeight, 2 ),
+					round( $width / $height, 2 ),
+					"modaction={$this->modaction}: thumbnail's ratio doesn't match original" );
+			}
+		}
+
+		if ( $this->expectedContentDisposition ) {
+			$testcase->assertEquals(
+				$this->expectedContentDisposition,
+				$req->getResponseHeader( 'Content-Disposition' ),
+				"modaction={$this->modaction}: wrong Content-Disposition header."
 			);
 		}
+	}
+
+	/**
+	 * @brief Determine width/height of downloaded image.
+	 * @param string $contents
+	 * @return array Array of two integers (width and height).
+	 */
+	private function getImageSize( $contents ) {
+		$path = tempnam( sys_get_temp_dir(), 'modtest_thumb' );
+		file_put_contents( $path, $contents );
+		$size = getimagesize( $path );
+		unlink( $path );
+
+		return $size;
 	}
 
 	/**

@@ -55,7 +55,7 @@ class ModerationPreloadTest extends MediaWikiTestCase {
 		$t = new ModerationTestsuite();
 
 		$t->logout();
-		$ret = $t->doTestEdit();
+		$t->doTestEdit();
 
 		$this->assertEquals(
 			$t->lastEdit['Text'],

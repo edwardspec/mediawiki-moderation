@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017 Edward Chernenko.
+	Copyright (C) 2017-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
  * from OutputPage (as the result of internal invocation).
  */
 
-class ModerationTestsuiteResponse {
+class ModerationTestsuiteResponse implements IModerationTestsuiteResponse {
 
 	/** @var string Response text */
 	protected $content;

@@ -57,7 +57,7 @@ class ModerationEditTest extends MediaWikiTestCase {
 	 */
 	public function testEditSections( $useApi ) {
 		$t = new ModerationTestsuite();
-		$t->editViaAPI = $useApi;
+		$bot = $t->getBot( $useApi ? 'api' : 'nonApi' );
 
 		$sections = [
 			"Text in zero section\n\n",
@@ -69,19 +69,19 @@ class ModerationEditTest extends MediaWikiTestCase {
 		$text = implode( '', $sections );
 
 		$t->loginAs( $t->automoderated );
-		$t->doTestEdit( $title, $text );
+		$bot->edit( $title, $text );
 
 		$t->loginAs( $t->unprivilegedUser );
 
 		# Do several edits in the different sections of the text.
 		$sections[0] = "New text in zero section\n\n";
-		$t->doTestEdit( $title, $sections[0], null, 0 );
+		$bot->edit( $title, $sections[0], null, 0 );
 
 		$sections[2] = "== Second section (#2) ==\nText in second section\n\n";
-		$t->doTestEdit( $title, $sections[2], null, 2 );
+		$bot->edit( $title, $sections[2], null, 2 );
 
 		$sections[] = "== New section ==\nText in the new section";
-		$t->doTestEdit( $title, end( $sections ), null, 'new' );
+		$bot->edit( $title, end( $sections ), null, 'new' );
 
 		$t->fetchSpecial();
 
@@ -93,7 +93,7 @@ class ModerationEditTest extends MediaWikiTestCase {
 		# Does PreSaveTransform work when editing sections?
 
 		$t->loginAs( $t->unprivilegedUser );
-		$t->doTestEdit( $title, "== New section 2 ==\n~~~\n\n", null, 2 );
+		$bot->edit( $title, "== New section 2 ==\n~~~\n\n", null, 2 );
 
 		$this->assertNotRegExp( '/~~~/', $t->new_entries[0]->getDbText(),
 			"testEditSections(): Signature (~~~~) hasn't been properly substituted." );
@@ -101,7 +101,7 @@ class ModerationEditTest extends MediaWikiTestCase {
 		# Will editing the section work if section header was deleted?
 
 		$sections[2] = "When editing this section, the user removed <nowiki>== This ==</nowiki>\n\n";
-		$t->doTestEdit( $title, $sections[2], null, 2 );
+		$bot->edit( $title, $sections[2], null, 2 );
 
 		$expectedText = implode( '', $sections );
 		$this->assertEquals( $expectedText, $t->new_entries[0]->getDbText(),
@@ -124,10 +124,10 @@ class ModerationEditTest extends MediaWikiTestCase {
 		$t->doTestEdit( $title, $origText );
 
 		# Now edit a section (not via API), forcing a situation when mod_new_len should be recalculated
-		$req = $t->nonApiEdit( $title,
+		$t->getBot( 'nonApi' )->edit( $title,
 			$sections[0], /* No changes */
 			'Some edit comment',
-			[ 'wpSection' => '0' ]
+			'0' // section number
 		);
 
 		$t->fetchSpecial();

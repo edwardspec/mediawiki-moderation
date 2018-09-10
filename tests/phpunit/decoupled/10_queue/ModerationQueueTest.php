@@ -227,7 +227,11 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			if ( $this->filename ) {
 				$moderatorUser = User::newFromName( 'User 1' );
 				$t->loginAs( $moderatorUser );
-				$t->apiUpload( $this->title->getText(), $this->filename, $this->oldText );
+				$t->getBot( 'api' )->upload(
+					$this->title->getText(),
+					$this->filename,
+					$this->oldText
+				);
 			} else {
 				ModerationTestUtil::fastEdit(
 					$this->title,
@@ -266,49 +270,38 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			$extraParams[$watchField] = 1;
 		}
 
+		$bot = $t->getBot( $this->viaApi ? 'api' : 'nonApi' );
+
 		if ( $this->filename ) {
 			/* Upload */
-			$t->uploadViaAPI = $this->viaApi;
-			$result = $t->doTestUpload(
+			$result = $bot->upload(
 				$this->title->getText(), /* Without "File:" namespace prefix */
 				$this->filename,
 				$this->text,
 				$extraParams
 			);
-
-			if ( $this->viaApi ) {
-				$testcase->assertEquals( '(moderation-image-queued)', $result );
-			} else {
-				$testcase->assertFalse( $result->getError(),
-					__METHOD__ . "(): Special:Upload displayed an error." );
-				$testcase->assertContains( '(moderation-image-queued)', $result->getSuccessText() );
-			}
+			$testcase->assertTrue( $result->isIntercepted(),
+				"Upload wasn't intercepted by Moderation." );
 		} elseif ( $this->newTitle ) {
-			$t->moveViaAPI = $this->viaApi;
-			$result = $t->doTestMove(
+			$result = $bot->move(
 				$this->title->getFullText(),
 				$this->newTitle->getFullText(),
 				$this->summary,
 				$extraParams
 			);
-
-			if ( $this->viaApi ) {
-				$testcase->assertEquals( '(moderation-move-queued)', $result );
-			} else {
-				$testcase->assertFalse( $result->getError(),
-					__METHOD__ . "(): Special:MovePage displayed an error." );
-				$testcase->assertContains( '(moderation-move-queued)', $result->getSuccessText() );
-			}
+			$testcase->assertTrue( $result->isIntercepted(),
+				"Move wasn't intercepted by Moderation." );
 		} else {
 			/* Normal edit */
-			$t->editViaAPI = $this->viaApi;
-			$t->doTestEdit(
+			$result = $bot->edit(
 				$this->title->getFullText(),
 				$this->text,
 				$this->summary,
 				'',
 				$extraParams
 			);
+			$testcase->assertTrue( $result->isIntercepted(),
+				"Edit wasn't intercepted by Moderation." );
 		}
 	}
 

@@ -71,7 +71,7 @@ class ModerationAbuseFilterTest extends MediaWikiTestCase {
 			tags set by AbuseFilter should be remembered by Moderation. */
 
 		$t->loginAs( $t->unprivilegedUser );
-		$t->apiMove( $title, "New $title" );
+		$t->getBot( 'api' )->move( $title, "New $title" );
 		$t->fetchSpecial();
 
 		/* Disable the filter (so that it would no longer add tags to newly made moves). */

@@ -24,10 +24,18 @@ require_once __DIR__ . '/../../common/ModerationTestUtil.php';
 
 require_once __DIR__ . '/ModerationTestsuiteEntry.php';
 require_once __DIR__ . '/ModerationTestsuiteHTML.php';
+require_once __DIR__ . '/IModerationTestsuiteResponse.php';
 require_once __DIR__ . '/ModerationTestsuiteResponse.php';
-require_once __DIR__ . '/ModerationTestsuiteSubmitResult.php';
 require_once __DIR__ . '/ModerationTestSet.php';
 require_once __DIR__ . '/ModerationPendingChangeTestSet.php';
+
+require_once __DIR__ . '/bot/ModerationTestsuiteBot.php';
+require_once __DIR__ . '/bot/ModerationTestsuiteApiBot.php';
+require_once __DIR__ . '/bot/ModerationTestsuiteNonApiBot.php';
+
+require_once __DIR__ . '/bot/response/ModerationTestsuiteBotResponseTrait.php';
+require_once __DIR__ . '/bot/response/ModerationTestsuiteApiBotResponse.php';
+require_once __DIR__ . '/bot/response/ModerationTestsuiteNonApiBotResponse.php';
 
 /* FIXME: this can really use some autoloading, as only one engine is needed at a time */
 require_once __DIR__ . '/engine/IModerationTestsuiteEngine.php';
@@ -35,15 +43,7 @@ require_once __DIR__ . '/engine/ModerationTestsuiteEngine.php';
 
 /* Completely working Engine, used for pre-commit testing */
 require_once __DIR__ . '/engine/realhttp/ModerationTestsuiteRealHttpEngine.php';
-
-/* Experimental, idea looks promising */
 require_once __DIR__ . '/engine/cli/ModerationTestsuiteCliEngine.php';
-
-/* Not yet ready (issues with SessionManager),
-	less useful than RealHttp (interferes too much with MediaWiki during the test) */
-require_once __DIR__ . '/engine/internal/ModerationTestsuiteApiMain.php';
-require_once __DIR__ . '/engine/internal/ModerationTestsuiteInternalInvocationEngine.php';
-require_once __DIR__ . '/engine/internal/ModerationTestsuiteInternallyInvokedWiki.php';
 
 class ModerationTestsuite {
 	const TEST_PASSWORD = '123456';
@@ -284,10 +284,6 @@ class ModerationTestsuite {
 	/** @brief Prevent tags set by the previous test from affecting the current test */
 	public function purgeTagCache() {
 		ChangeTags::purgeTagCacheAll(); /* For RealHttpEngine tests */
-
-		if ( class_exists( 'AbuseFilter' ) ) {
-			AbuseFilter::$tagsToSet = []; /* For InternalInvocationEngine tests */
-		}
 	}
 
 	#
@@ -352,41 +348,16 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Move the page via API.
-	 * @return Error code (e.g. '(moderation-move-queued)') or null.
-	 */
-	public function apiMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] ) {
-		$ret = $this->query( [
-			'action' => 'move',
-			'from' => $oldTitle,
-			'to' => $newTitle,
-			'reason' => $reason,
-			'token' => null
-		] + $extraParams );
-
-		$this->setLastEdit( $oldTitle, $reason, [ 'NewTitle' => $newTitle ] );
-
-		if ( isset( $ret['error']['code'] ) ) {
-			return '(' . $ret['error']['code'] . ')';
-		}
-
-		return null; /* No errors */
-	}
-
-	/**
 	 * @brief Perform a test move.
-	 * @see apiMove
-	 * @see nonApiMove
 	 */
 	public function doTestMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] ) {
-		$method = $this->moveViaAPI ? 'apiMove' : 'nonApiMove';
-		return $this->$method( $oldTitle, $newTitle, $reason, $extraParams );
+		return $this->getBot( 'nonApi' )->move( $oldTitle, $newTitle, $reason, $extraParams );
 	}
 
 	/**
 	 * @brief Place information about newly made change into lastEdit[] array.
 	 */
-	protected function setLastEdit( $title, $summary, array $extraData = [] ) {
+	public function setLastEdit( $title, $summary, array $extraData = [] ) {
 		$this->lastEdit = $extraData + [
 			'User' => $this->loggedInAs()->getName(),
 			'Title' => $title,
@@ -395,74 +366,12 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief via the usual interface, as real users do.
-	 * @return ModerationTestsuiteSubmitResult object.
+	 * @brief Create a new bot.
+	 * @param string $method One of the following: 'api', 'nonApi'.
+	 * @return ModerationTestsuiteBot
 	 */
-	public function nonApiMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] ) {
-		$newTitleObj = Title::newFromText( $newTitle );
-
-		$req = $this->httpPost( wfScript( 'index' ), $extraParams + [
-			'action' => 'submit',
-			'title' => 'Special:MovePage',
-			'wpOldTitle' => $oldTitle,
-			'wpNewTitleMain' => $newTitleObj->getText(),
-			'wpNewTitleNs' => $newTitleObj->getNamespace(),
-			'wpMove' => 'Move',
-			'wpEditToken' => $this->getEditToken(),
-			'wpReason' => $reason
-		] );
-
-		$this->setLastEdit( $oldTitle, $reason, [ 'NewTitle' => $newTitle ] );
-		return ModerationTestsuiteSubmitResult::newFromResponse( $req, $this );
-	}
-
-	/**
-	 * @brief Make an edit via API.
-	 * @warning Several side-effects can't be tested this way,
-	 * for example HTTP redirect after editing or
-	 * session cookies (used for anonymous preloading)
-	 * @return API response
-	 */
-	public function apiEdit( $title, $text, $summary, array $extraParams = [] ) {
-		return $this->query( [
-			'action' => 'edit',
-			'title' => $title,
-			'text' => $text,
-			'summary' => $summary,
-			'token' => null
-		] + $extraParams );
-	}
-
-	public $editViaAPI = false;
-	public $uploadViaAPI = false;
-	public $moveViaAPI = false;
-
-	/**
-	 * @brief Make an edit via the usual interface, as real users do.
-	 * @return ModerationTestsuiteResponse object.
-	 */
-	public function nonApiEdit( $title, $text, $summary, array $extraParams = [] ) {
-		$params = $extraParams + [
-			'action' => 'submit',
-			'title' => $title,
-			'wpTextbox1' => $text,
-			'wpSummary' => $summary,
-			'wpEditToken' => $this->getEditToken(),
-			'wpSave' => 'Save',
-			'wpIgnoreBlankSummary' => '',
-			'wpRecreate' => ''
-		];
-
-		if ( defined( 'EditPage::UNICODE_CHECK' ) ) { // MW 1.30+
-			$params['wpUnicodeCheck'] = EditPage::UNICODE_CHECK;
-		}
-
-		/* Determine wpEdittime (timestamp of the current revision of $title),
-			otherwise edit conflict will occur. */
-		$rev = $this->getLastRevision( $title );
-		$params['wpEdittime'] = $rev ? wfTimestamp( TS_MW, $rev['timestamp'] ) : '';
-
-		return $this->httpPost( wfScript( 'index' ), $params );
+	public function getBot( $method ) {
+		return ModerationTestsuiteBot::factory( $method, $this );
 	}
 
 	public function doTestEdit(
@@ -472,37 +381,7 @@ class ModerationTestsuite {
 		$section = '',
 		$extraParams = []
 	) {
-		if ( !$title ) {
-			$title = $this->generateRandomTitle();
-		}
-
-		if ( !$text ) {
-			$text = $this->generateRandomText();
-		}
-
-		if ( !$summary ) {
-			$summary = $this->generateEditSummary();
-		}
-
-		# TODO: ensure that page $title doesn't already contain $text
-		# (to avoid extremely rare test failures due to random collisions)
-
-		if ( $this->editViaAPI ) {
-			if ( $section !== '' ) {
-				$extraParams['section'] = $section;
-			}
-			$ret = $this->apiEdit( $title, $text, $summary, $extraParams );
-		} else {
-			if ( $section !== '' ) {
-				$extraParams['wpSection'] = $section;
-			}
-			$ret = $this->nonApiEdit( $title, $text, $summary, $extraParams );
-		}
-
-		/* TODO: check if successful */
-
-		$this->setLastEdit( $title, $summary, [ 'Text' => $text ] );
-		return $ret;
+		return $this->getBot( 'nonApi' )->edit( $title, $text, $summary, $section, $extraParams );
 	}
 
 	public $TEST_EDITS_COUNT = 3; /* See doNTestEditsWith() */
@@ -539,30 +418,8 @@ class ModerationTestsuite {
 		return $this->new_entries[0];
 	}
 
-	public function generateRandomTitle() {
-		/* Simple string, no underscores */
-
-		return "Test page 1"; /* TODO: randomize */
-	}
-
-	private function generateRandomText() {
-		return "Hello, World!"; /* TODO: randomize */
-	}
-
-	private function generateEditSummary() {
-		/*
-			NOTE: No wikitext! Plaintext only.
-			Otherwise we'll have to run it through the parser before
-			comparing to what's shown on Special:Moderation.
-		*/
-
-		return "Edit by the Moderation Testsuite";
-	}
-
 	/**
 	 * @brief Perform a test upload.
-	 * @return MediaWiki error message code (e.g. "(emptyfile)").
-	 * @retval null Upload succeeded (no errors found).
 	 */
 	public function doTestUpload(
 		$title = null,
@@ -570,31 +427,7 @@ class ModerationTestsuite {
 		$text = null,
 		array $extraParams = []
 	) {
-		if ( !$title ) {
-			$title = $this->generateRandomTitle() . '.png';
-		}
-
-		if ( is_null( $text ) ) { # Empty string (no description) is allowed
-			$text = $this->generateRandomText();
-		}
-
-		if ( $this->uploadViaAPI ) {
-			$error = $this->apiUpload( $title, $srcFilename, $text, $extraParams );
-		} else {
-			$error = $this->nonApiUpload( $title, $srcFilename, $text, $extraParams );
-		}
-
-		$srcFilename = $this->findSourceFilename( $srcFilename );
-		$this->setLastEdit(
-			Title::newFromText( $title, NS_FILE )->getFullText(),
-			'', /* Summary wasn't used */
-			[
-				'Text' => $text,
-				'SHA1' => sha1_file( $srcFilename ),
-				'Source' => $srcFilename
-			]
-		);
-		return $error;
+		return $this->getBot( 'nonApi' )->upload( $title, $srcFilename, $text, $extraParams );
 	}
 
 	/**
@@ -611,45 +444,6 @@ class ModerationTestsuite {
 		}
 
 		return realpath( $srcFilename );
-	}
-
-	/**
-	 * @brief Make an upload via the usual Special:Upload, as real users do.
-	 * @return ModerationTestsuiteSubmitResult object.
-	 */
-	public function nonApiUpload( $title, $srcFilename, $text, array $extraParams = [] ) {
-		$req = $this->httpPost( wfScript( 'index' ), $extraParams + [
-			'title' => 'Special:Upload',
-			'wpUploadFile' => curl_file_create( $this->findSourceFilename( $srcFilename ) ),
-			'wpDestFile' => $title,
-			'wpIgnoreWarning' => '1',
-			'wpEditToken' => $this->getEditToken(),
-			'wpUpload' => 'Upload',
-			'wpUploadDescription' => $text
-		] );
-
-		return ModerationTestsuiteSubmitResult::newFromResponse( $req, $this );
-	}
-
-	/**
-	 * @brief Make an upload via API.
-	 * @return Error code (e.g. '(emptyfile)') or null.
-	 */
-	public function apiUpload( $title, $srcFilename, $text ) {
-		$ret = $this->query( [
-			'action' => 'upload',
-			'filename' => $title,
-			'text' => $text,
-			'token' => null,
-			'file' => curl_file_create( $this->findSourceFilename( $srcFilename ) ),
-			'ignorewarnings' => 1
-		] );
-
-		if ( isset( $ret['error']['code'] ) ) {
-			return '(' . $ret['error']['code'] . ')';
-		}
-
-		return null; /* No errors */
 	}
 
 	/**
@@ -886,6 +680,7 @@ class ModerationTestsuite {
 }
 
 class ModerationTestsuiteException extends Exception {
-};
+}
+
 class ModerationTestsuiteHttpError extends ModerationTestsuiteException {
-};
+}

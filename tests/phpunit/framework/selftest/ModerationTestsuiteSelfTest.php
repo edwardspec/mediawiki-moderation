@@ -117,8 +117,7 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase {
 	public function engineDataProvider() {
 		return [
 			[ new ModerationTestsuiteCliEngine ],
-			[ new ModerationTestsuiteRealHttpEngine ],
-			// [ new ModerationTestsuiteInternalInvocationEngine ]
+			[ new ModerationTestsuiteRealHttpEngine ]
 		];
 	}
 
