@@ -46,11 +46,7 @@ class ModerationTestsuiteApiBot extends ModerationTestsuiteBot {
 			'token' => null
 		] + $extraParams );
 
-		return ModerationTestsuiteApiBotResponse::factory( $ret,
-			isset( $ret['error'] ) && $ret['error']['code'] == 'moderation-edit-queued',
-			!isset( $ret['error'] ),
-			isset( $ret['error'] ) && $ret['error']['code'] != 'moderation-edit-queued'
-		);
+		return $this->makeResponse( $ret, 'moderation-edit-queued' );
 	}
 
 	/**
@@ -73,10 +69,68 @@ class ModerationTestsuiteApiBot extends ModerationTestsuiteBot {
 			'token' => null
 		] + $extraParams );
 
+		return $this->makeResponse( $ret, 'moderation-move-queued' );
+	}
+
+	/**
+	 * @brief Perform an upload via API.
+	 * @param ModerationTestsuite $t
+	 * @param string $title
+	 * @param string $srcPath
+	 * @param string $text
+	 * @param array $extraParams Bot-specific parameters.
+	 * @return ModerationTestsuiteApiBotResult
+	 */
+	/** @brief Bot-specific (e.g. API or non-API) implementation of upload(). */
+	public function doUpload( ModerationTestsuite $t,
+		$title, $srcPath, $text, array $extraParams
+	) {
+		$ret = $t->query( [
+			'action' => 'upload',
+			'filename' => $title,
+			'text' => $text,
+			'token' => null,
+			'file' => curl_file_create( $srcPath ),
+			'ignorewarnings' => 1
+		] );
+
+		return $this->makeResponse( $ret, 'moderation-image-queued' );
+	}
+
+	/**
+	 * @brief Convenience method to create ModerationTestsuiteApiBotResponse object.
+	 * @param array $ret Raw API result (value returned by $t->query()).
+	 * @param string $interceptCode "Action was intercepted" error, e.g. 'moderation-edit-queued'.
+	 * @return ModerationTestsuiteApiBotResponse
+	 */
+	protected function makeResponse( array $ret, $interceptCode ) {
+		$isIntercepted = false;
+		$isBypassed = true;
+		$error = null;
+
+		if ( isset( $ret['error'] ) ) {
+			$isBypassed = false;
+
+			$code = $ret['error']['code'];
+			if ( $code == 'unknownerror' &&
+				ModerationTestsuite::mwVersionCompare( '1.29.0', '<' ) &&
+				strpos( $ret['error']['info'], $interceptCode ) !== false
+			) {
+				# MediaWiki 1.28 and older displayed "unknownerror" status code
+				# for some custom hook-returned errors (e.g. from PageContentSave).
+				$code = $interceptCode;
+			}
+
+			$isIntercepted = ( $code == $interceptCode );
+			if ( !$isIntercepted ) {
+				// We wrap the error code in braces, e.g. "(emptyfile)",
+				// so that the return value of getError() would be the same
+				// for ApiBot and NonApiBot.
+				$error = "($code)";
+			}
+		}
+
 		return ModerationTestsuiteApiBotResponse::factory( $ret,
-			isset( $ret['error'] ) && $ret['error']['code'] == 'moderation-move-queued',
-			!isset( $ret['error'] ),
-			isset( $ret['error'] ) && $ret['error']['code'] != 'moderation-move-queued'
-		);
+			$isIntercepted, $isBypassed, $error );
 	}
 }

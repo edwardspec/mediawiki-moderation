@@ -264,7 +264,7 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 				break;
 
 			case 'upload':
-				$this->result = $t->apiUpload( $title->getText(), '', '' );
+				$this->result = $t->getBot( 'api' )->upload( $title->getText(), '', '' );
 				break;
 
 			default:

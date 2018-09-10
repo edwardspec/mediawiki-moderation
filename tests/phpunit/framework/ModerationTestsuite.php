@@ -26,7 +26,6 @@ require_once __DIR__ . '/ModerationTestsuiteEntry.php';
 require_once __DIR__ . '/ModerationTestsuiteHTML.php';
 require_once __DIR__ . '/IModerationTestsuiteResponse.php';
 require_once __DIR__ . '/ModerationTestsuiteResponse.php';
-require_once __DIR__ . '/ModerationTestsuiteSubmitResult.php';
 require_once __DIR__ . '/ModerationTestSet.php';
 require_once __DIR__ . '/ModerationPendingChangeTestSet.php';
 
@@ -425,30 +424,8 @@ class ModerationTestsuite {
 		return $this->new_entries[0];
 	}
 
-	public function generateRandomTitle() {
-		/* Simple string, no underscores */
-
-		return "Test page 1"; /* TODO: randomize */
-	}
-
-	private function generateRandomText() {
-		return "Hello, World!"; /* TODO: randomize */
-	}
-
-	private function generateEditSummary() {
-		/*
-			NOTE: No wikitext! Plaintext only.
-			Otherwise we'll have to run it through the parser before
-			comparing to what's shown on Special:Moderation.
-		*/
-
-		return "Edit by the Moderation Testsuite";
-	}
-
 	/**
 	 * @brief Perform a test upload.
-	 * @return MediaWiki error message code (e.g. "(emptyfile)").
-	 * @retval null Upload succeeded (no errors found).
 	 */
 	public function doTestUpload(
 		$title = null,
@@ -456,31 +433,8 @@ class ModerationTestsuite {
 		$text = null,
 		array $extraParams = []
 	) {
-		if ( !$title ) {
-			$title = $this->generateRandomTitle() . '.png';
-		}
-
-		if ( is_null( $text ) ) { # Empty string (no description) is allowed
-			$text = $this->generateRandomText();
-		}
-
-		if ( $this->uploadViaAPI ) {
-			$error = $this->apiUpload( $title, $srcFilename, $text, $extraParams );
-		} else {
-			$error = $this->nonApiUpload( $title, $srcFilename, $text, $extraParams );
-		}
-
-		$srcFilename = $this->findSourceFilename( $srcFilename );
-		$this->setLastEdit(
-			Title::newFromText( $title, NS_FILE )->getFullText(),
-			'', /* Summary wasn't used */
-			[
-				'Text' => $text,
-				'SHA1' => sha1_file( $srcFilename ),
-				'Source' => $srcFilename
-			]
-		);
-		return $error;
+		$bot = $this->getBot( $this->uploadViaAPI ? 'api' : 'nonApi' );
+		return $bot->upload( $title, $srcFilename, $text, $extraParams );
 	}
 
 	/**
@@ -497,45 +451,6 @@ class ModerationTestsuite {
 		}
 
 		return realpath( $srcFilename );
-	}
-
-	/**
-	 * @brief Make an upload via the usual Special:Upload, as real users do.
-	 * @return ModerationTestsuiteSubmitResult object.
-	 */
-	public function nonApiUpload( $title, $srcFilename, $text, array $extraParams = [] ) {
-		$req = $this->httpPost( wfScript( 'index' ), $extraParams + [
-			'title' => 'Special:Upload',
-			'wpUploadFile' => curl_file_create( $this->findSourceFilename( $srcFilename ) ),
-			'wpDestFile' => $title,
-			'wpIgnoreWarning' => '1',
-			'wpEditToken' => $this->getEditToken(),
-			'wpUpload' => 'Upload',
-			'wpUploadDescription' => $text
-		] );
-
-		return ModerationTestsuiteSubmitResult::newFromResponse( $req, $this );
-	}
-
-	/**
-	 * @brief Make an upload via API.
-	 * @return Error code (e.g. '(emptyfile)') or null.
-	 */
-	public function apiUpload( $title, $srcFilename, $text ) {
-		$ret = $this->query( [
-			'action' => 'upload',
-			'filename' => $title,
-			'text' => $text,
-			'token' => null,
-			'file' => curl_file_create( $this->findSourceFilename( $srcFilename ) ),
-			'ignorewarnings' => 1
-		] );
-
-		if ( isset( $ret['error']['code'] ) ) {
-			return '(' . $ret['error']['code'] . ')';
-		}
-
-		return null; /* No errors */
 	}
 
 	/**

@@ -63,7 +63,7 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 		return ModerationTestsuiteNonApiBotResponse::factory( $req,
 			( $location && strpos( $location, 'modqueued=1' ) !== false ),
 			( $location && strpos( $location, 'modqueued=1' ) === false ),
-			!$location
+			( !$location ? "unknown error" : null )
 		);
 	}
 
@@ -91,15 +91,88 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 			'wpReason' => $reason
 		] );
 
-		// TODO: eliminate ModerationTestsuiteSubmitResult class completely,
-		// its logic should be internal to ModerationTestsuiteNonApiBot.
-		$submitRes = ModerationTestsuiteSubmitResult::newFromResponse( $req, $t );
-
+		$submitResult = $this->getSubmitResult( $req, 'moderation-move-queued', $failedReason );
 		return ModerationTestsuiteNonApiBotResponse::factory( $req,
-			( $submitRes && !$submitRes->getError() &&
-				strpos( $submitRes->getSuccessText(), '(moderation-move-queued)' ) !== false ),
-			!$submitRes,
-			$submitRes && $submitRes->getError()
+			$submitResult == 'intercepted',
+			$submitResult == 'bypassed',
+			$failedReason
 		);
+	}
+
+	/**
+	 * @brief Perform an upload via the usual interface, as real users do.
+	 * @param ModerationTestsuite $t
+	 * @param string $title
+	 * @param string $srcPath
+	 * @param string $text
+	 * @param array $extraParams Bot-specific parameters.
+	 * @return ModerationTestsuiteNonApiBotResult
+	 */
+	public function doUpload( ModerationTestsuite $t,
+		$title, $srcPath, $text, array $extraParams
+	) {
+		$req = $t->httpPost( wfScript( 'index' ), $extraParams + [
+			'title' => 'Special:Upload',
+			'wpUploadFile' => curl_file_create( $srcPath ),
+			'wpDestFile' => $title,
+			'wpIgnoreWarning' => '1',
+			'wpEditToken' => $t->getEditToken(),
+			'wpUpload' => 'Upload',
+			'wpUploadDescription' => $text
+		] );
+
+		$submitResult = $this->getSubmitResult( $req, 'moderation-image-queued', $failedReason );
+		return ModerationTestsuiteNonApiBotResponse::factory( $req,
+			$submitResult == 'intercepted',
+			$submitResult == 'bypassed',
+			$failedReason
+		);
+	}
+
+	/**
+	 * @brief Interpret the HTML page printed by submitted Special:Upload or Special:Movepage.
+	 * @param ModerationTestsuiteResponse $req Value returned by httpPost().
+	 * @param string $interceptMsg One of "moderation-move-queued", "moderation-image-queued".
+	 * @param string|null &$failedReason Error code (if any) will be written into this variable.
+	 * @return string One of "intercepted", "bypassed", "failed".
+	 */
+	protected function getSubmitResult(
+		ModerationTestsuiteResponse $req,
+		$interceptMsg,
+		&$failedReason = null
+	) {
+		if ( $req->getResponseHeader( 'Location' ) ) {
+			return 'bypassed'; // HTTP redirect from Upload/Movepage
+		}
+
+		$html = new ModerationTestsuiteHTML;
+		$div = $html->loadFromReq( $req )->getElementByXPath( '//div[@class="error"]' );
+
+		if ( $div ) {
+			// Error found
+			$error = trim( $div->textContent );
+			if ( $error == $interceptMsg ) {
+				// The change was indeed intercepted, but a customized
+				// "success!" message (ModerationQueuedSuccessException)
+				// wasn't used for some reason. This would be a bug,
+				// so let's throw an exception to make the test fail.
+				throw new MWException( __METHOD__ . ": message $interceptMsg was printed " .
+					'as an error, not via "successfully intercepted" exception.' );
+			}
+
+			// Genuine error (likely unrelated to Moderation), e.g. 'readonly'.
+			$failedReason = $error;
+			return 'failed';
+		}
+
+		if ( strpos( $html->getMainText(), "($interceptMsg)" ) === false ) {
+			// No errors were found, however but a customized "success!" message
+			// (ModerationQueuedSuccessException) wasn't printed either.
+			// This would be a bug, so let's throw an exception to make the test fail.
+			throw new MWException( __METHOD__ . ": no errors were found, but the output " .
+				"doesn't contain \"successfully intercepted\" message." );
+		}
+
+		return 'intercepted';
 	}
 }

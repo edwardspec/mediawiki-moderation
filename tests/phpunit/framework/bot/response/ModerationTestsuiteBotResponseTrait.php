@@ -28,21 +28,21 @@ trait ModerationTestsuiteBotResponse {
 	/** @var bool */
 	private $isBypassed;
 
-	/** @var bool */
-	private $hasFailed;
+	/** @var string|null */
+	private $error;
 
 	/**
 	 * @brief Construct new BotResponse object.
 	 * @param array|ModerationTestsuiteResponse $nativeResponse Depends on bot type (API or not).
 	 * @param bool $isIntercepted
 	 * @param bool $isBypassed
-	 * @param bool $hasFailed
+	 * @param string|null $error
 	 */
-	public static function factory( $nativeResponse, $isIntercepted, $isBypassed, $hasFailed ) {
+	public static function factory( $nativeResponse, $isIntercepted, $isBypassed, $error ) {
 		$r = new self( $nativeResponse );
 		$r->isIntercepted = $isIntercepted;
 		$r->isBypassed = $isBypassed;
-		$r->hasFailed = $hasFailed;
+		$r->error = $error;
 
 		return $r;
 	}
@@ -64,10 +64,10 @@ trait ModerationTestsuiteBotResponse {
 	}
 
 	/**
-	 * Check if this action has failed (wasn't saved due to an error).
-	 * @return bool
+	 * Returns the error string (if any) or null (if the operation was successful).
+	 * @return string|error
 	 */
-	public function hasFailed() {
-		return $this->hasFailed;
+	public function getError() {
+		return $this->error;
 	}
 }

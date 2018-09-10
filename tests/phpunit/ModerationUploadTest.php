@@ -36,8 +36,8 @@ class ModerationUploadTest extends MediaWikiTestCase {
 		$t->fetchSpecial();
 
 		# Was the upload queued for moderation?
-		$this->assertFalse( $result->getError(), "testUpload(): Special:Upload displayed an error." );
-		$this->assertContains( '(moderation-image-queued)', $result->getSuccessText() );
+		$this->assertTrue( $result->isIntercepted(),
+			"testUpload(): Special:Upload didn't say that upload was queued for moderation." );
 
 		# Is the data on Special:Moderation correct?
 		$entry = $t->new_entries[0];
@@ -84,10 +84,11 @@ class ModerationUploadTest extends MediaWikiTestCase {
 		file_put_contents( $path, '' ); # Empty
 
 		$t->loginAs( $t->unprivilegedUser );
-		$result = $t->doTestUpload( "1.png", $path );
+		$result = $t->getBot( 'nonApi' )->upload( "1.png", $path );
 		unlink( $path );
 
-		$this->assertEquals( '(emptyfile)', $result->getError() );
+		$this->assertEquals( '(emptyfile)', $result->getError(),
+			"testUploadHookVerifies(): no error was printed when trying to upload empty file." );
 	}
 
 	/**
@@ -107,7 +108,8 @@ class ModerationUploadTest extends MediaWikiTestCase {
 		$t->fetchSpecial();
 
 		# Was the reupload queued for moderation?
-		$this->assertContains( '(moderation-image-queued)', $result->getSuccessText() );
+		$this->assertTrue( $result->isIntercepted(),
+			"testMove(): Special:MovePage didn't say that reupload was queued for moderation." );
 
 		# Is the data on Special:Moderation correct?
 		$entry = $t->new_entries[0];
@@ -202,10 +204,10 @@ class ModerationUploadTest extends MediaWikiTestCase {
 		$t->uploadViaAPI = true;
 
 		$t->loginAs( $t->unprivilegedUser );
-		$apiError = $t->doTestUpload();
+		$result = $t->doTestUpload();
 
 		/* Uploads via API are only supported in MediaWiki 1.28+,
 			older MediaWiki should return error. */
-		$this->assertEquals( '(nouploadmodule)', $apiError );
+		$this->assertEquals( '(nouploadmodule)', $result->getError() );
 	}
 }

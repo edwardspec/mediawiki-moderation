@@ -60,6 +60,8 @@ abstract class ModerationTestsuiteBot {
 	 * @return ModerationTestsuiteApiBotResult|ModerationTestsuiteNonApiBotResult
 	 */
 	final public function edit( $title, $text, $summary, $section = '', array $extraParams = [] ) {
+		$t = $this->getTestsuite();
+
 		if ( !$title ) {
 			$title = $this->generateRandomTitle();
 		}
@@ -72,7 +74,6 @@ abstract class ModerationTestsuiteBot {
 			$summary = $this->generateEditSummary();
 		}
 
-		$t = $this->getTestsuite();
 		$result = $this->doEdit( $t, $title, $text, $summary, $section, $extraParams );
 		$t->setLastEdit( $title, $summary, [ 'Text' => $text ] );
 
@@ -95,6 +96,41 @@ abstract class ModerationTestsuiteBot {
 		return $result;
 	}
 
+	/**
+	 * @brief Perform a test upload.
+	 * @param string $title
+	 * @param string $srcFilename
+	 * @param string|null $text
+	 * @param array $extraParams Bot-specific parameters.
+	 * @return ModerationTestsuiteApiBotResult|ModerationTestsuiteNonApiBotResult
+	 */
+	final public function upload( $title, $srcFilename, $text = '', array $extraParams = [] ) {
+		$t = $this->getTestsuite();
+
+		if ( !$title ) {
+			$title = $this->generateRandomTitle() . '.png';
+		}
+
+		if ( is_null( $text ) ) { # Empty string (no description) is allowed
+			$text = $this->generateRandomText();
+		}
+
+		$srcFilename = $t->findSourceFilename( $srcFilename );
+		$result = $this->doUpload( $t, $title, $srcFilename, $text, $extraParams );
+
+		$t->setLastEdit(
+			Title::newFromText( $title, NS_FILE )->getFullText(),
+			'', /* Summary wasn't used */
+			[
+				'Text' => $text,
+				'SHA1' => sha1_file( $srcFilename ),
+				'Source' => $srcFilename
+			]
+		);
+
+		return $result;
+	}
+
 	/** @brief Bot-specific (e.g. API or non-API) implementation of edit(). */
 	abstract public function doEdit( ModerationTestsuite $t,
 		$title, $text, $summary, $section, array $extraParams );
@@ -102,6 +138,10 @@ abstract class ModerationTestsuiteBot {
 	/** @brief Bot-specific (e.g. API or non-API) implementation of move(). */
 	abstract public function doMove( ModerationTestsuite $t,
 		$oldTitle, $newTitle, $reason, array $extraParams );
+
+	/** @brief Bot-specific (e.g. API or non-API) implementation of upload(). */
+	abstract public function doUpload( ModerationTestsuite $t,
+		$title, $srcPath, $text, array $extraParams );
 
 	/**
 	 * @brief Get sample page name (used when the test hasn't specified it).
