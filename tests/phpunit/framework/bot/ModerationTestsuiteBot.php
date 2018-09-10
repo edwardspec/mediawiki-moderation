@@ -57,7 +57,7 @@ abstract class ModerationTestsuiteBot {
 	 * @param string $summary
 	 * @param string|int $section One of the following: section number, empty string or 'new'.
 	 * @param array $extraParams Bot-specific parameters.
-	 * @return ModerationTestsuiteBotResult
+	 * @return ModerationTestsuiteApiBotResult|ModerationTestsuiteNonApiBotResult
 	 */
 	final public function edit( $title, $text, $summary, $section = '', array $extraParams = [] ) {
 		if ( !$title ) {
@@ -79,9 +79,29 @@ abstract class ModerationTestsuiteBot {
 		return $result;
 	}
 
+	/**
+	 * @brief Perform a test move.
+	 * @param string $oldTitle
+	 * @param string $newTitle
+	 * @param string $reason
+	 * @param array $extraParams Bot-specific parameters.
+	 * @return ModerationTestsuiteApiBotResult|ModerationTestsuiteNonApiBotResult
+	 */
+	final public function move( $oldTitle, $newTitle, $reason = '', array $extraParams = [] ) {
+		$t = $this->getTestsuite();
+		$result = $this->doMove( $t, $oldTitle, $newTitle, $reason, $extraParams );
+		$t->setLastEdit( $oldTitle, $reason, [ 'NewTitle' => $newTitle ] );
+
+		return $result;
+	}
+
 	/** @brief Bot-specific (e.g. API or non-API) implementation of edit(). */
 	abstract public function doEdit( ModerationTestsuite $t,
 		$title, $text, $summary, $section, array $extraParams );
+
+	/** @brief Bot-specific (e.g. API or non-API) implementation of move(). */
+	abstract public function doMove( ModerationTestsuite $t,
+		$oldTitle, $newTitle, $reason, array $extraParams );
 
 	/**
 	 * @brief Get sample page name (used when the test hasn't specified it).

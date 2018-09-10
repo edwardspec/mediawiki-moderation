@@ -292,13 +292,8 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 				$extraParams
 			);
 
-			if ( $this->viaApi ) {
-				$testcase->assertEquals( '(moderation-move-queued)', $result );
-			} else {
-				$testcase->assertFalse( $result->getError(),
-					__METHOD__ . "(): Special:MovePage displayed an error." );
-				$testcase->assertContains( '(moderation-move-queued)', $result->getSuccessText() );
-			}
+			$testcase->assertTrue( $result->isIntercepted(),
+				"Move wasn't intercepted by Moderation." );
 		} else {
 			/* Normal edit */
 			$t->editViaAPI = $this->viaApi;

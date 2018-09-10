@@ -257,7 +257,7 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 				break;
 
 			case 'move':
-				$this->result = $t->apiMove(
+				$this->result = $t->getBot( 'api' )->move(
 					$title->getFullText(),
 					$page2Title->getFullText()
 				);

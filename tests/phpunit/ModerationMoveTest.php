@@ -41,11 +41,15 @@ class ModerationMoveTest extends MediaWikiTestCase {
 		$t->doTestEdit( $this->oldTitle, $this->text );
 
 		$t->loginAs( $t->unprivilegedUser );
-		$result = $t->nonApiMove( $this->oldTitle, $this->newTitle, $this->reasonForMoving );
+		$result = $t->getBot( 'nonApi' )->move(
+			$this->oldTitle,
+			$this->newTitle,
+			$this->reasonForMoving
+		);
 
 		# Was the move queued for moderation?
-		$this->assertFalse( $result->getError(), "testMove(): Special:MovePage displayed an error." );
-		$this->assertContains( '(moderation-move-queued)', $result->getSuccessText() );
+		$this->assertTrue( $result->isIntercepted(),
+			"testMove(): Special:MovePage didn't say that move was queued for moderation." );
 
 		/* Check how it looks on Special:Moderation */
 		$t->fetchSpecial();

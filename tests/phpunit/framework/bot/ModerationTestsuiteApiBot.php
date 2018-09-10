@@ -28,6 +28,7 @@ class ModerationTestsuiteApiBot extends ModerationTestsuiteBot {
 	 * @param string $text
 	 * @param string $summary
 	 * @param string|int $section
+	 * @param array $extraParams
 	 * @return ModerationTestsuiteApiBotResponse
 	 */
 	public function doEdit( ModerationTestsuite $t,
@@ -49,6 +50,33 @@ class ModerationTestsuiteApiBot extends ModerationTestsuiteBot {
 			isset( $ret['error'] ) && $ret['error']['code'] == 'moderation-edit-queued',
 			!isset( $ret['error'] ),
 			isset( $ret['error'] ) && $ret['error']['code'] != 'moderation-edit-queued'
+		);
+	}
+
+	/**
+	 * @brief Make a move via API.
+	 * @param ModerationTestsuite $t
+	 * @param string $oldTitle
+	 * @param string $newTitle
+	 * @param string $reason
+	 * @param array $extraParams
+	 * @return ModerationTestsuiteApiBotResponse
+	 */
+	public function doMove( ModerationTestsuite $t,
+		$oldTitle, $newTitle, $reason, array $extraParams
+	) {
+		$ret = $t->query( [
+			'action' => 'move',
+			'from' => $oldTitle,
+			'to' => $newTitle,
+			'reason' => $reason,
+			'token' => null
+		] + $extraParams );
+
+		return ModerationTestsuiteApiBotResponse::factory( $ret,
+			isset( $ret['error'] ) && $ret['error']['code'] == 'moderation-move-queued',
+			!isset( $ret['error'] ),
+			isset( $ret['error'] ) && $ret['error']['code'] != 'moderation-move-queued'
 		);
 	}
 }

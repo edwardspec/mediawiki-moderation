@@ -66,4 +66,40 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 			!$location
 		);
 	}
+
+	/**
+	 * @brief Make a move via the usual interface, as real users do.
+	 * @param ModerationTestsuite $t
+	 * @param string $oldTitle
+	 * @param string $newTitle
+	 * @param string $reason
+	 * @param array $extraParams
+	 * @return ModerationTestsuiteNonApiBotResponse
+	 */
+	public function doMove( ModerationTestsuite $t,
+		$oldTitle, $newTitle, $reason, array $extraParams
+	) {
+		$newTitleObj = Title::newFromText( $newTitle );
+		$req = $t->httpPost( wfScript( 'index' ), $extraParams + [
+			'action' => 'submit',
+			'title' => 'Special:MovePage',
+			'wpOldTitle' => $oldTitle,
+			'wpNewTitleMain' => $newTitleObj->getText(),
+			'wpNewTitleNs' => $newTitleObj->getNamespace(),
+			'wpMove' => 'Move',
+			'wpEditToken' => $t->getEditToken(),
+			'wpReason' => $reason
+		] );
+
+		// TODO: eliminate ModerationTestsuiteSubmitResult class completely,
+		// its logic should be internal to ModerationTestsuiteNonApiBot.
+		$submitRes = ModerationTestsuiteSubmitResult::newFromResponse( $req, $t );
+
+		return ModerationTestsuiteNonApiBotResponse::factory( $req,
+			( $submitRes && !$submitRes->getError() &&
+				strpos( $submitRes->getSuccessText(), '(moderation-move-queued)' ) !== false ),
+			!$submitRes,
+			$submitRes && $submitRes->getError()
+		);
+	}
 }

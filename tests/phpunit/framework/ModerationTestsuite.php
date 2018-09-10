@@ -349,35 +349,11 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Move the page via API.
-	 * @return Error code (e.g. '(moderation-move-queued)') or null.
-	 */
-	public function apiMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] ) {
-		$ret = $this->query( [
-			'action' => 'move',
-			'from' => $oldTitle,
-			'to' => $newTitle,
-			'reason' => $reason,
-			'token' => null
-		] + $extraParams );
-
-		$this->setLastEdit( $oldTitle, $reason, [ 'NewTitle' => $newTitle ] );
-
-		if ( isset( $ret['error']['code'] ) ) {
-			return '(' . $ret['error']['code'] . ')';
-		}
-
-		return null; /* No errors */
-	}
-
-	/**
 	 * @brief Perform a test move.
-	 * @see apiMove
-	 * @see nonApiMove
 	 */
 	public function doTestMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] ) {
-		$method = $this->moveViaAPI ? 'apiMove' : 'nonApiMove';
-		return $this->$method( $oldTitle, $newTitle, $reason, $extraParams );
+		$bot = $this->getBot( $this->editViaAPI ? 'api' : 'nonApi' );
+		return $bot->move( $oldTitle, $newTitle, $reason, $extraParams );
 	}
 
 	/**
@@ -389,28 +365,6 @@ class ModerationTestsuite {
 			'Title' => $title,
 			'Summary' => $summary
 		];
-	}
-
-	/**
-	 * @brief via the usual interface, as real users do.
-	 * @return ModerationTestsuiteSubmitResult object.
-	 */
-	public function nonApiMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] ) {
-		$newTitleObj = Title::newFromText( $newTitle );
-
-		$req = $this->httpPost( wfScript( 'index' ), $extraParams + [
-			'action' => 'submit',
-			'title' => 'Special:MovePage',
-			'wpOldTitle' => $oldTitle,
-			'wpNewTitleMain' => $newTitleObj->getText(),
-			'wpNewTitleNs' => $newTitleObj->getNamespace(),
-			'wpMove' => 'Move',
-			'wpEditToken' => $this->getEditToken(),
-			'wpReason' => $reason
-		] );
-
-		$this->setLastEdit( $oldTitle, $reason, [ 'NewTitle' => $newTitle ] );
-		return ModerationTestsuiteSubmitResult::newFromResponse( $req, $this );
 	}
 
 	public $editViaAPI = false;
