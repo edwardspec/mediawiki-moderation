@@ -201,10 +201,9 @@ class ModerationUploadTest extends MediaWikiTestCase {
 		}
 
 		$t = new ModerationTestsuite();
-		$t->uploadViaAPI = true;
 
 		$t->loginAs( $t->unprivilegedUser );
-		$result = $t->doTestUpload();
+		$result = $t->getBot( 'api' )->upload();
 
 		/* Uploads via API are only supported in MediaWiki 1.28+,
 			older MediaWiki should return error. */

@@ -52,14 +52,20 @@ abstract class ModerationTestsuiteBot {
 
 	/**
 	 * @brief Perform a test edit.
-	 * @param string $title
-	 * @param string $text
-	 * @param string $summary
+	 * @param string|null $title
+	 * @param string|null $text
+	 * @param string|null $summary
 	 * @param string|int $section One of the following: section number, empty string or 'new'.
 	 * @param array $extraParams Bot-specific parameters.
 	 * @return ModerationTestsuiteApiBotResult|ModerationTestsuiteNonApiBotResult
 	 */
-	final public function edit( $title, $text, $summary, $section = '', array $extraParams = [] ) {
+	final public function edit(
+		$title = null,
+		$text = null,
+		$summary = null,
+		$section = '',
+		array $extraParams = []
+	) {
 		$t = $this->getTestsuite();
 
 		if ( !$title ) {
@@ -98,13 +104,18 @@ abstract class ModerationTestsuiteBot {
 
 	/**
 	 * @brief Perform a test upload.
-	 * @param string $title
-	 * @param string $srcFilename
+	 * @param string|null $title
+	 * @param string|null $srcFilename
 	 * @param string|null $text
 	 * @param array $extraParams Bot-specific parameters.
 	 * @return ModerationTestsuiteApiBotResult|ModerationTestsuiteNonApiBotResult
 	 */
-	final public function upload( $title, $srcFilename, $text = '', array $extraParams = [] ) {
+	final public function upload(
+		$title = null,
+		$srcFilename = null,
+		$text = null,
+		array $extraParams = []
+	) {
 		$t = $this->getTestsuite();
 
 		if ( !$title ) {
@@ -115,16 +126,16 @@ abstract class ModerationTestsuiteBot {
 			$text = $this->generateRandomText();
 		}
 
-		$srcFilename = $t->findSourceFilename( $srcFilename );
-		$result = $this->doUpload( $t, $title, $srcFilename, $text, $extraParams );
+		$srcPath = $t->findSourceFilename( $srcFilename );
+		$result = $this->doUpload( $t, $title, $srcPath, $text, $extraParams );
 
 		$t->setLastEdit(
 			Title::newFromText( $title, NS_FILE )->getFullText(),
 			'', /* Summary wasn't used */
 			[
 				'Text' => $text,
-				'SHA1' => sha1_file( $srcFilename ),
-				'Source' => $srcFilename
+				'SHA1' => sha1_file( $srcPath ),
+				'Source' => $srcPath
 			]
 		);
 

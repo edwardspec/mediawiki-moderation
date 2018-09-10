@@ -270,40 +270,36 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			$extraParams[$watchField] = 1;
 		}
 
+		$bot = $t->getBot( $this->viaApi ? 'api' : 'nonApi' );
+
 		if ( $this->filename ) {
 			/* Upload */
-			$t->uploadViaAPI = $this->viaApi;
-			$result = $t->doTestUpload(
+			$result = $bot->upload(
 				$this->title->getText(), /* Without "File:" namespace prefix */
 				$this->filename,
 				$this->text,
 				$extraParams
 			);
-
 			$testcase->assertTrue( $result->isIntercepted(),
 				"Upload wasn't intercepted by Moderation." );
 		} elseif ( $this->newTitle ) {
-			$t->moveViaAPI = $this->viaApi;
-			$result = $t->doTestMove(
+			$result = $bot->move(
 				$this->title->getFullText(),
 				$this->newTitle->getFullText(),
 				$this->summary,
 				$extraParams
 			);
-
 			$testcase->assertTrue( $result->isIntercepted(),
 				"Move wasn't intercepted by Moderation." );
 		} else {
 			/* Normal edit */
-			$t->editViaAPI = $this->viaApi;
-			$result = $t->doTestEdit(
+			$result = $bot->edit(
 				$this->title->getFullText(),
 				$this->text,
 				$this->summary,
 				'',
 				$extraParams
 			);
-
 			$testcase->assertTrue( $result->isIntercepted(),
 				"Edit wasn't intercepted by Moderation." );
 		}

@@ -145,7 +145,10 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 	/** @var string Operation to test, one of the following: 'edit', 'upload', 'move' */
 	protected $action = 'edit';
 
-	/** @var string|array|null Result of apiEdit(), apiMove(), apiUpload(), if any */
+	/**
+	 * @var ModerationTestsuiteApiBotResult|ModerationTestsuiteNonApiBotResult
+	 * Result of edit(), move() or upload().
+	 */
 	protected $result = null;
 
 	/**
@@ -197,11 +200,6 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 		);
 
 		/* TODO: check $this->result */
-
-		/* TODO: write a uniform class for return values of $t->apiMove(), $t->nonApiMove(), etc.,
-			so that we could just write $result->wasIntercepted()
-			and not reinvent the complex checks in the tests themselves.
-		*/
 	}
 
 	/**

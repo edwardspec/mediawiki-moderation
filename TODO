@@ -41,7 +41,6 @@ some new feature (that requires DB update) is disabled because it wasn't done.
 * (interface) For non-automoderated users: show a message on their
 	Special:Contributions ensuring them that their edits will
 	appear there when they are approved.
-* (testsuite) Refactor methods doTestEdit(), apiEdit(), nonApiEdit(), etc.
 
 Tests needed:
 * PageForms plugin ("continue editing" link in postedit notification)

@@ -351,8 +351,7 @@ class ModerationTestsuite {
 	 * @brief Perform a test move.
 	 */
 	public function doTestMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] ) {
-		$bot = $this->getBot( $this->editViaAPI ? 'api' : 'nonApi' );
-		return $bot->move( $oldTitle, $newTitle, $reason, $extraParams );
+		return $this->getBot( 'nonApi' )->move( $oldTitle, $newTitle, $reason, $extraParams );
 	}
 
 	/**
@@ -365,10 +364,6 @@ class ModerationTestsuite {
 			'Summary' => $summary
 		];
 	}
-
-	public $editViaAPI = false;
-	public $uploadViaAPI = false;
-	public $moveViaAPI = false;
 
 	/**
 	 * @brief Create a new bot.
@@ -386,8 +381,7 @@ class ModerationTestsuite {
 		$section = '',
 		$extraParams = []
 	) {
-		$bot = $this->getBot( $this->editViaAPI ? 'api' : 'nonApi' );
-		return $bot->edit( $title, $text, $summary, $section, $extraParams );
+		return $this->getBot( 'nonApi' )->edit( $title, $text, $summary, $section, $extraParams );
 	}
 
 	public $TEST_EDITS_COUNT = 3; /* See doNTestEditsWith() */
@@ -433,8 +427,7 @@ class ModerationTestsuite {
 		$text = null,
 		array $extraParams = []
 	) {
-		$bot = $this->getBot( $this->uploadViaAPI ? 'api' : 'nonApi' );
-		return $bot->upload( $title, $srcFilename, $text, $extraParams );
+		return $this->getBot( 'nonApi' )->upload( $title, $srcFilename, $text, $extraParams );
 	}
 
 	/**
