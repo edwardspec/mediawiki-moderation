@@ -142,7 +142,13 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 		&$failedReason = null
 	) {
 		if ( $req->getResponseHeader( 'Location' ) ) {
-			return 'bypassed'; // HTTP redirect from Upload/Movepage
+			if ( $interceptMsg == 'moderation-image-queued' ) {
+				return 'bypassed'; // HTTP redirect from Special:Upload
+			}
+
+			// Sanity check: Special:Movepage doesn't print a HTTP redirect.
+			throw new MWException( __METHOD__ . ": unexpected HTTP redirect, " .
+				"expected either success text or ($interceptMsg) message." );
 		}
 
 		$html = new ModerationTestsuiteHTML;
@@ -165,14 +171,22 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 			return 'failed';
 		}
 
-		if ( strpos( $html->getMainText(), "($interceptMsg)" ) === false ) {
-			// No errors were found, however but a customized "success!" message
-			// (ModerationQueuedSuccessException) wasn't printed either.
-			// This would be a bug, so let's throw an exception to make the test fail.
-			throw new MWException( __METHOD__ . ": no errors were found, but the output " .
-				"doesn't contain \"successfully intercepted\" message." );
+		$successText = $html->getMainText();
+		if ( strpos( $successText, "($interceptMsg)" ) !== false ) {
+			return 'intercepted';
 		}
 
-		return 'intercepted';
+		if ( $interceptMsg == 'moderation-move-queued' &&
+			strpos( $successText, "(movepage-moved:" ) !== false
+		) {
+			// Successfully submitted Special:Movepage (move wasn't queued for moderation)
+			return 'bypassed';
+		}
+
+		// No errors were found, however but a customized "success!" message
+		// (ModerationQueuedSuccessException) wasn't printed either.
+		// This would be a bug, so let's throw an exception to make the test fail.
+		throw new MWException( __METHOD__ . ": no errors were found, but the output " .
+			"doesn't contain \"successfully intercepted\" message." );
 	}
 }
