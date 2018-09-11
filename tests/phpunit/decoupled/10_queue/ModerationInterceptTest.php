@@ -37,7 +37,7 @@ class ModerationInterceptTest extends MediaWikiTestCase {
 	 * @brief Provide datasets for testIntercept() runs.
 	 */
 	public function dataProvider() {
-		return [
+		$sets = [
 			[ [ 'anonymously' => true ] ],
 			[ [ 'groups' => [] ] ],
 			[ [ 'intercept' => false, 'groups' => [ 'automoderated' ] ] ],
@@ -105,6 +105,14 @@ class ModerationInterceptTest extends MediaWikiTestCase {
 				]
 			] ]
 		];
+
+		// Run each set via ApiBot and NonApiBot.
+		$newSets = [];
+		foreach ( $sets as $set ) {
+			$newSets[] = [ $set[0] + [ 'viaApi' => true ] ];
+			$newSets[] = [ $set[0] + [ 'viaApi' => false ] ];
+		}
+		return $newSets;
 	}
 }
 
@@ -142,6 +150,9 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 	/** @var bool If true, the edit will be anonymous. ($groups will be ignored) */
 	protected $anonymously = false;
 
+	/** @var bool If true, edits are made via API, if false, via the user interface. */
+	protected $viaApi = false;
+
 	/** @var string Operation to test, one of the following: 'edit', 'upload', 'move' */
 	protected $action = 'edit';
 
@@ -164,12 +175,13 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 					$this->configVars[$key] = $value;
 					break;
 
+				case 'action':
+				case 'anonymously':
 				case 'intercept':
+				case 'groups':
 				case 'namespace':
 				case 'namespace2':
-				case 'action':
-				case 'groups':
-				case 'anonymously':
+				case 'viaApi':
 					$this->$key = $value;
 					break;
 
@@ -247,10 +259,11 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 		}
 
 		$t->loginAs( $user );
+		$bot = $t->getBot( $this->viaApi ? 'api' : 'nonApi' );
 
 		switch ( $this->action ) {
 			case 'edit':
-				$this->result = $t->getBot( 'api' )->edit(
+				$this->result = $bot->edit(
 					$title->getFullText(),
 					'New text',
 					'Summary'
@@ -258,14 +271,14 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 				break;
 
 			case 'move':
-				$this->result = $t->getBot( 'api' )->move(
+				$this->result = $bot->move(
 					$title->getFullText(),
 					$page2Title->getFullText()
 				);
 				break;
 
 			case 'upload':
-				$this->result = $t->getBot( 'api' )->upload( $title->getText(), '', '' );
+				$this->result = $bot->upload( $title->getText(), '', '' );
 				break;
 
 			default:
