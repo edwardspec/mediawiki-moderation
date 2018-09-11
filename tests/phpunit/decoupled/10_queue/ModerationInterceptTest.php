@@ -191,15 +191,18 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 	 * @brief Assert the state of the database after the edit.
 	 */
 	protected function assertResults( MediaWikiTestCase $testcase ) {
+		$testcase->assertEquals(
+			[ 'edit was intercepted' => $this->intercept ],
+			[ 'edit was intercepted' => $this->result->isIntercepted() ]
+		);
+
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation', '*', '', __METHOD__ );
 
-		$this->getTestcase()->assertEquals(
-			[ 'edit was intercepted' => $this->intercept ],
-			[ 'edit was intercepted' => (bool)$row ]
+		$testcase->assertEquals(
+			[ 'edit was queued' => $this->intercept ],
+			[ 'edit was queued' => (bool)$row ]
 		);
-
-		/* TODO: check $this->result */
 	}
 
 	/**
