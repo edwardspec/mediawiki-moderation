@@ -55,12 +55,12 @@ class ModerationActionTest extends MediaWikiTestCase {
 			[ [
 				'modaction' => 'approve',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
-				'expectRowDeleted' => true
+				'expectApproved' => true
 			] ],
 			[ [
 				'modaction' => 'approveall',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
-				'expectRowDeleted' => true,
+				'expectApproved' => true,
 				'expectedLogTargetIsAuthor' => true
 			] ],
 
@@ -472,9 +472,10 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectRejected = false;
 
 	/**
-	 * @var bool If true, database row is expected to be deleted ($expectedFields are ignored).
+	 * @var bool If true, post-approve consequences are tested (e.g. that database row is deleted).
+	 * ($expectedFields are ignored).
 	 */
-	protected $expectRowDeleted = false;
+	protected $expectApproved = false;
 
 	/**
 	 * @var string Plaintext that should be present in the output of modaction.
@@ -530,7 +531,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'expectOutputToEqualUploadedFile':
 				case 'expectReadOnlyError':
 				case 'expectRejected':
-				case 'expectRowDeleted':
+				case 'expectApproved':
 				case 'modaction':
 				case 'postData':
 				case 'readonly':
@@ -550,7 +551,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			$this->expectLogEntry = false;
 			if ( $this->expectedFields ||
 				$this->expectRejected ||
-				$this->expectRowDeleted ||
+				$this->expectApproved ||
 				$this->expectModblocked !== null
 			) {
 				$this->expectLogEntry = true;
@@ -641,6 +642,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 		// Check the mod_* fields in the database after the action.
 		$this->assertDatabaseChanges( $testcase );
+		$this->assertApproved( $testcase );
 		$this->assertBlockedStatus( $testcase );
 		$this->assertLogEntry( $testcase );
 	}
@@ -768,7 +770,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 */
 	protected function assertDatabaseChanges( MediaWikiTestCase $testcase ) {
 		$dbw = wfGetDB( DB_MASTER );
-		if ( $this->expectRowDeleted ) {
+		if ( $this->expectApproved ) {
 			$row = $dbw->selectRow(
 				'moderation',
 				'*',
@@ -779,6 +781,33 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				"modaction={$this->modaction}: database row wasn't deleted" );
 		} else {
 			$this->assertRowEquals( $this->expectedFields );
+		}
+	}
+
+	/**
+	 * @brief Check the necessary consequences of modaction=approve(all).
+	 */
+	protected function assertApproved( MediaWikiTestCase $testcase ) {
+		if ( !$this->expectApproved ) {
+			return; // Not an Approve operation.
+		}
+
+		if ( $this->fields['mod_type'] == 'move' ) {
+			// TODO: test consequences of the move
+			return;
+		}
+
+		$rev = $this->getTestsuite()->getLastRevision( $this->getExpectedTitle() );
+
+		$testcase->assertEquals( $this->fields['mod_user_text'], $rev['user'] );
+		$testcase->assertEquals( $this->fields['mod_text'], $rev['*'] );
+		$testcase->assertEquals( $this->fields['mod_comment'], $rev['comment'] );
+
+		$expectedTimestamp = wfTimestamp( TS_ISO_8601, $this->fields['mod_timestamp'] );
+		$testcase->assertEquals( $expectedTimestamp, $rev['timestamp'] );
+
+		if ( $this->filename ) {
+			// TODO: check wfFindFile( $this->getExpectedTitle() )
 		}
 	}
 
