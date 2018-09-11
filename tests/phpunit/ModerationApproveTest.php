@@ -26,52 +26,6 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
  * @covers ModerationActionApprove
  */
 class ModerationApproveTest extends MediaWikiTestCase {
-	public function testApprove() {
-		$t = new ModerationTestsuite();
-
-		$t->loginAs( $t->unprivilegedUser );
-		$t->doTestEdit();
-		$t->fetchSpecial();
-
-		$entry = $t->new_entries[0];
-		$this->assertNotNull( $entry->approveLink,
-			"testApprove(): Approve link not found" );
-
-		$rev = $this->tryToApprove( $t, $entry, __FUNCTION__ );
-		$t->fetchSpecial();
-
-		$this->assertCount( 0, $t->new_entries,
-			"testApprove(): Something was added into Pending folder during modaction=approve" );
-		$this->assertCount( 1, $t->deleted_entries,
-			"testApprove(): One edit was approved, but number of deleted entries ".
-			"in Pending folder isn't 1" );
-		$this->assertEquals( $entry->id, $t->deleted_entries[0]->id );
-		$this->assertEquals( $t->lastEdit['User'], $t->deleted_entries[0]->user );
-		$this->assertEquals( $t->lastEdit['Title'], $t->deleted_entries[0]->title );
-
-		# Check the log entry
-		$events = $t->apiLogEntries();
-		$this->assertCount( 1, $events,
-			"testApprove(): Number of log entries isn't 1." );
-		$le = $events[0];
-
-		$this->assertEquals( 'approve', $le['action'],
-			"testApprove(): Most recent log entry is not 'approve'" );
-		$this->assertEquals( $t->lastEdit['Title'], $le['title'] );
-		$this->assertEquals( $t->moderator->getName(), $le['user'] );
-		$this->assertEquals( $rev['revid'], $le['params']['revid'] );
-
-		$events = $t->nonApiLogEntries( 1 );
-		$this->assertEquals( 'approve', $events[0]['type'] );
-
-		$this->assertEquals( $t->moderator->getName(),
-			$events[0]['params'][1] );
-		$this->assertEquals( $t->lastEdit['Title'],
-			$events[0]['params'][2] );
-		$this->assertEquals( "(moderation-log-diff: " . $rev['revid'] . ")",
-			$events[0]['params'][3] );
-	}
-
 	public function testApproveAll() {
 		$t = new ModerationTestsuite();
 
