@@ -196,46 +196,4 @@ class ModerationApproveTest extends MediaWikiTestCase {
 				"testApproveAllTimestamp(): approved edit has incorrect IP in recentchanges" );
 		}
 	}
-
-	/**
-	 * @brief Test that approval still works if author of edit was deleted
-		(e.g. via [maintenance/removeUnusedAccounts.php]).
-	*/
-	public function testApproveDeletedUser() {
-		$t = new ModerationTestsuite();
-
-		$t->loginAs( $t->unprivilegedUser );
-		$t->doTestEdit();
-		$t->logout();
-
-		# Delete the author
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->delete( 'user', [
-			'user_id' => $t->unprivilegedUser->getId()
-		], __METHOD__ );
-		$t->unprivilegedUser->invalidateCache();
-
-		$t->fetchSpecial();
-
-		$entry = $t->new_entries[0];
-		$this->assertNotNull( $entry->approveLink,
-			"testApproveDeletedUser(): Approve link not found" );
-
-		$rev = $this->tryToApprove( $t, $entry, __FUNCTION__ );
-	}
-
-	private function tryToApprove( ModerationTestsuite $t, ModerationTestsuiteEntry $entry, $caller ) {
-		$t->html->loadFromURL( $entry->approveLink );
-		$this->assertRegExp( '/\(moderation-approved-ok: 1\)/',
-			$t->html->getMainText(),
-			"$caller(): Result page doesn't contain (moderation-approved-ok: 1)" );
-
-		$rev = $t->getLastRevision( $entry->title );
-
-		$this->assertEquals( $t->lastEdit['User'], $rev['user'] );
-		$this->assertEquals( $t->lastEdit['Text'], $rev['*'] );
-		$this->assertEquals( $t->lastEdit['Summary'], $rev['comment'] );
-
-		return $rev;
-	}
 }

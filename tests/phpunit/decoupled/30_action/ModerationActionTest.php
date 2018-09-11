@@ -75,6 +75,12 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true
 			] ],
+			[ [
+				'modaction' => 'approve',
+				'simulateDeletedAuthor' => true,
+				'expectedOutput' => '(moderation-approved-ok: 1)',
+				'expectApproved' => true
+			] ],
 
 			// modaction=approveall
 			[ [
@@ -519,6 +525,13 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $readonly = false;
 
 	/**
+	 * @var bool If true, author of this change will be deleted from the database.
+	 * This mimicks situation when the user account was deleted via Extension:UserMerge.
+	 * This is used in the test "can we still Approve a pending edit by deleted author?"
+	 */
+	protected $simulateDeletedAuthor = false;
+
+	/**
 	 * @var bool If true, incorrect modid will be used in the action URL.
 	 */
 	protected $simulateNoSuchEntry = false;
@@ -555,6 +568,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'modaction':
 				case 'postData':
 				case 'readonly':
+				case 'simulateDeletedAuthor':
 				case 'simulateNoSuchEntry':
 				case 'showThumb':
 					$this->$key = $value;
@@ -646,6 +660,16 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 		if ( $this->enableEditChange ) {
 			$t->setMwConfig( 'ModerationEnableEditChange', true );
+		}
+
+		if ( $this->simulateDeletedAuthor ) {
+			// Delete the author from the database (similar to Extension:UserMerge)
+			$dbw = wfGetDB( DB_MASTER );
+			$dbw->delete( 'user', [
+				'user_id' => $this->fields['mod_user']
+			], __METHOD__ );
+
+			User::purge( wfWikiID(), $this->fields['mod_user'] );
 		}
 
 		// Execute the action, check HTML printed by the action
