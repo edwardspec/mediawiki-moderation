@@ -58,6 +58,13 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectApproved' => true
 			] ],
 			[ [
+				// Approving previously rejected change
+				'modaction' => 'approve',
+				'mod_rejected' => 1,
+				'expectedOutput' => '(moderation-approved-ok: 1)',
+				'expectApproved' => true
+			] ],
+			[ [
 				'modaction' => 'approveall',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true,
