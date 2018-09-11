@@ -833,6 +833,13 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		if ( $this->filename ) {
 			// TODO: check wfFindFile( $this->getExpectedTitle() )
 		}
+
+		// Check that recentchanges (unlike page history) contain the timestamp of approval,
+		// not timestamp of the original edit.
+		$dbw = wfGetDB( DB_MASTER );
+		$rcTimestamp = $dbw->selectField( 'recentchanges', 'rc_timestamp', [], __METHOD__,
+			[ 'ORDER BY' => 'rc_timestamp DESC' ] );
+		$this->assertTimestampIsRecent( $rcTimestamp );
 	}
 
 	/**

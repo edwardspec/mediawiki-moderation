@@ -127,58 +127,6 @@ class ModerationApproveTest extends MediaWikiTestCase {
 			"during modaction=approveall" );
 	}
 
-	public function testApproveTimestamp() {
-		$t = new ModerationTestsuite();
-		$entry = $t->getSampleEntry();
-
-		$TEST_TIME_CHANGE = '6 hours';
-		$ACCEPTABLE_DIFFERENCE = 300; # in seconds
-
-		$ts = new MWTimestamp( time() );
-		$ts->timestamp->modify( '-' . $TEST_TIME_CHANGE );
-
-		$entry->updateDbRow( [ 'mod_timestamp' => $ts->getTimestamp( TS_MW ) ] );
-		$rev = $this->tryToApprove( $t, $entry, __FUNCTION__ );
-
-		# Page history should mention the time when edit was made,
-		# not when it was approved.
-
-		$expected = $ts->getTimestamp( TS_ISO_8601 );
-		$this->assertEquals( $expected, $rev['timestamp'],
-			"testApproveTimestamp(): approved edit has incorrect timestamp in the page history" );
-
-		# RecentChanges should mention the time when the edit was
-		# approved, so that it won't "appear in the past", confusing
-		# those who read RecentChanges.
-
-		$ret = $t->query( [
-			'action' => 'query',
-			'list' => 'recentchanges',
-			'rcprop' => 'timestamp',
-			'rclimit' => 1,
-			'rcuser' => $t->lastEdit['User']
-		] );
-		$rc_timestamp = $ret['query']['recentchanges'][0]['timestamp'];
-
-		$this->assertNotEquals( $expected, $rc_timestamp,
-			"testApproveTimestamp(): approved edit has \"appeared in the past\" in the RecentChanges" );
-
-		# Does the time in RecentChanges match the time of approval?
-		#
-		# NOTE: we don't know the time of approval to the second, so
-		# string comparison can't be used. Difference can be seconds
-		# or even minutes (if system time is off).
-		$ts->timestamp->modify( '+' . $TEST_TIME_CHANGE );
-		$expected = $ts->getTimestamp( TS_UNIX );
-
-		$ts_actual = new MWTimestamp( $rc_timestamp );
-		$actual = $ts_actual->getTimestamp( TS_UNIX );
-
-		$this->assertLessThan( $ACCEPTABLE_DIFFERENCE, abs( $expected - $actual ),
-			"testApproveTimestamp(): timestamp of approved edit in RecentChanges is " .
-			"too different from the time of approval" );
-	}
-
 	public function testApproveAllTimestamp() {
 		/*
 			Check that rev_timestamp and rc_ip are properly modified by modaction=approveall.
