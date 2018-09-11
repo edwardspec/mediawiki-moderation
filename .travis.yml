@@ -67,7 +67,7 @@ matrix:
       env: branch=REL1_27
       php: 7.1
     - <<: *phpunit-build
-      if: NOT branch IN (translatewiki,selenium)
+      if: NOT branch IN (translatewiki,selenium,phpunit)
       env: branch=REL1_27
       php: 5.6
 
