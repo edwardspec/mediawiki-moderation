@@ -55,8 +55,8 @@ matrix:
         - composer lint extensions/Moderation/
         # First run the smallest test without --reuse-db, so that the cloned database tables are created,
         # then run the remaining testsuite with --reuse-db to save time.
-        - MODERATION_TEST_ENGINE=cli php tests/phpunit/phpunit.php --use-normal-tables extensions/Moderation/tests/phpunit/ModerationPermissionsTest.php
-        - MODERATION_TEST_ENGINE=cli php tests/phpunit/phpunit.php --use-normal-tables --reuse-db extensions/Moderation/
+        - php tests/phpunit/phpunit.php --use-normal-tables extensions/Moderation/tests/phpunit/ModerationPermissionsTest.php
+        - php tests/phpunit/phpunit.php --use-normal-tables --reuse-db extensions/Moderation/
         # Run small benchmarks to detect performance regressions
         - for i in extensions/Moderation/tests/benchmarks/*; do php maintenance/runScript.php $i; done
       after_script: ./vendor/bin/phpcs -ps extensions/Moderation/

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017 Edward Chernenko.
+	Copyright (C) 2017-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -37,12 +37,12 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 */
 	public static function factory() {
 		switch ( getenv( 'MODERATION_TEST_ENGINE' ) ) {
-			case 'cli':
-				return new ModerationTestsuiteCliEngine;
+			case 'realhttp':
+				return new ModerationTestsuiteRealHttpEngine;
 		}
 
 		/* Default */
-		return new ModerationTestsuiteRealHttpEngine;
+		return new ModerationTestsuiteCliEngine;
 	}
 
 	/** @brief Add an arbitrary HTTP header to all outgoing requests. */
