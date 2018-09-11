@@ -40,11 +40,14 @@ class ModerationActionTest extends MediaWikiTestCase {
 		global $wgModerationTimeToOverrideRejection;
 
 		$sets = [
+			// modaction=reject
 			[ [
 				'modaction' => 'reject',
 				'expectedOutput' => '(moderation-rejected-ok: 1)',
 				'expectRejected' => true
 			] ],
+
+			// modaction=rejectall
 			[ [
 				'modaction' => 'rejectall',
 				'expectedOutput' => '(moderation-rejected-ok: 1)',
@@ -52,6 +55,8 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedFields' => [ 'mod_rejected_batch' => 1 ],
 				'expectedLogTargetIsAuthor' => true
 			] ],
+
+			// modaction=approve
 			[ [
 				'modaction' => 'approve',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
@@ -64,6 +69,14 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true
 			] ],
+			[ [
+				'modaction' => 'approve',
+				'mod_timestamp' => '-6 hours', // Check that Approve preserves the timestamp
+				'expectedOutput' => '(moderation-approved-ok: 1)',
+				'expectApproved' => true
+			] ],
+
+			// modaction=approveall
 			[ [
 				'modaction' => 'approveall',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
@@ -640,6 +653,10 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		$req = ( $this->modaction == 'editchangesubmit' ) ?
 			$t->httpPost( $url, $this->postData ) :
 			$t->httpGet( $url );
+
+		// Clear the link cache, so that methods like $title->getLatestRevID()
+		// wouldn't return stale data after modaction=approve.
+		Title::clearCaches();
 
 		if ( $this->expectedContentType ) {
 			$this->assertBinaryOutput( $testcase, $req );
