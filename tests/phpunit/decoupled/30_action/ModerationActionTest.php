@@ -81,6 +81,12 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true
 			] ],
+			[ [
+				'modaction' => 'approve',
+				'filename' => 'image100x100.png',
+				'expectedOutput' => '(moderation-approved-ok: 1)',
+				'expectApproved' => true
+			] ],
 
 			// modaction=approveall
 			[ [
@@ -918,6 +924,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected function assertLogEntry( MediaWikiTestCase $testcase ) {
 		// Check the LogEntry, if any
 		$queryInfo = DatabaseLogEntry::getSelectQueryData();
+		$queryInfo['conds']['log_type'] = 'moderation';
 		$queryInfo['options']['ORDER BY'] = 'log_id DESC';
 
 		$dbw = wfGetDB( DB_MASTER );

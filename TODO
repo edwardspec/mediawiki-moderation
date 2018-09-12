@@ -44,3 +44,11 @@ some new feature (that requires DB update) is disabled because it wasn't done.
 
 Tests needed:
 * PageForms plugin ("continue editing" link in postedit notification)
+
+FIXME:
+* log entry "moderation/approve" has revid=null for uploads,
+	because creation of description page of the uploaded file is delayed
+	via DeferredUpdates, and the revid is not yet known when log entry
+	is created in ModerationApprovableEntry::approve().
+	We can't delay creation of log entry itself (via DeferredUpdates too),
+	because it should be in the same DB transaction as the main changes.
