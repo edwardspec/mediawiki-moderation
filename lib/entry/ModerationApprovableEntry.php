@@ -148,6 +148,8 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 		$logid = $logEntry->insert();
 		$logEntry->publish( $logid );
 
+		ModerationApproveHook::checkLogEntry( $logid, $logEntry );
+
 		# Approved edits are removed from "moderation" table,
 		# because they already exist in page history, recentchanges etc.
 

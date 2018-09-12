@@ -45,6 +45,12 @@ class ModerationApproveHook implements DeferrableUpdate {
 	*/
 	protected static $tasks = [];
 
+	/**
+	 * @var array Log entries to modify in FileUpload hook.
+	 * Format: [ log_id1 => ManualLogEntry, log_id2 => ... ]
+	*/
+	protected static $logEntriesToFix = [];
+
 	protected function __construct() {
 	}
 
@@ -57,6 +63,9 @@ class ModerationApproveHook implements DeferrableUpdate {
 		DeferredUpdates::addUpdate( $this->newDeferrableUpdate() );
 	}
 
+	/**
+	 * @brief Correct rev_timestamp, rc_ip and other fields (as requested by queueUpdate()).
+	 */
 	public function doUpdate() {
 		/* This DeferredUpdate is installed after every edit.
 			Only the last of these updates should run, because
@@ -170,6 +179,18 @@ class ModerationApproveHook implements DeferrableUpdate {
 		$dbw->endAtomic( __METHOD__ );
 	}
 
+	/**
+	 * @brief Add revid parameter to LogEntry (if missing). See onFileUpload() for details.
+	 * @param int $logid
+	 * @param LogEntry $logEntry
+	 */
+	public static function checkLogEntry( $logid, LogEntry $logEntry ) {
+		$params = $logEntry->getParameters();
+		if ( array_key_exists( 'revid', $params ) && $params['revid'] === null ) {
+			self::$logEntriesToFix[$logid] = $logEntry;
+		}
+	}
+
 	/** @var int|null Revid of the last edit, populated in onNewRevisionFromEditComplete */
 	protected static $lastRevId = null;
 
@@ -258,6 +279,40 @@ class ModerationApproveHook implements DeferrableUpdate {
 		} else {
 			$fields['cuc_xff'] = '';
 			$fields['cuc_xff_hex'] = null;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @brief Fix approve LogEntry not having "revid" parameter (because it wasn't known before).
+	 * This happens when approving uploads (but NOT reuploads),
+	 * because creation of description page of newly uploaded images is delayed via DeferredUpdate,
+	 * so it happens AFTER the LogEntry has been added to the database.
+	 *
+	 * This is called from FileUpload hook (temporarily installed when approving the edit).
+	 *
+	 * @param LocalFile $file
+	 * @param bool $reupload
+	 * @param bool $hasDescription
+	 */
+	public function onFileUpload( LocalFile $file, $reupload, $hasDescription ) {
+		if ( $reupload ) {
+			return true; // rev_id is not missing for reuploads
+		}
+
+		$dbw = wfGetDB( DB_MASTER );
+		foreach ( self::$logEntriesToFix as $logid => $logEntry ) {
+			$title = $file->getTitle();
+			if ( $logEntry->getTarget()->equals( $title ) ) {
+				$params = $logEntry->getParameters();
+				$params['revid'] = $title->getLatestRevID();
+
+				$dbw->update( 'logging',
+					[ 'log_params' => $logEntry->makeParamBlob( $params ) ],
+					[ 'log_id' => $logid ]
+				);
+			}
 		}
 
 		return true;
@@ -366,9 +421,10 @@ class ModerationApproveHook implements DeferrableUpdate {
 
 			$hook = new self;
 			$wgHooks['CheckUserInsertForRecentChange'][] = $hook;
-			$wgHooks['RecentChange_save'][] = $hook;
+			$wgHooks['FileUpload'][] = $hook;
 			$wgHooks['NewRevisionFromEditComplete'][] = $hook;
 			$wgHooks['PageContentSaveComplete'][] = $hook;
+			$wgHooks['RecentChange_save'][] = $hook;
 
 			$installed = true;
 		}
