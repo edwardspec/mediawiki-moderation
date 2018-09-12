@@ -127,6 +127,39 @@ abstract class ModerationTestsuiteTestSet {
 		}
 		return $row;
 	}
+
+	/**
+	 * @brief Create an existing page (or file) before the test.
+	 * @param Title $title
+	 * @param string $initialText
+	 * @param string|null $filename If not null, upload another file (NOT $filename) before test.
+	 */
+	protected function precreatePage( Title $title, $initialText, $filename = null ) {
+		$t = $this->getTestsuite();
+		$t->loginAs( $t->moderator );
+
+		if ( $filename ) {
+			// Important: $filename is the file that will be uploaded by the test itself.
+			// We want to pre-upload a different file here, so that attempts
+			// to later approve $filename wouldn't fail with (fileexists-no-change).
+			$anotherFilename = ( strpos( $filename, 'image100x100.png' ) === false ) ?
+				'image100x100.png' : 'image640x50.png';
+
+			$t->getBot( 'api' )->upload(
+				$title->getText(),
+				$anotherFilename,
+				$initialText
+			);
+		} else {
+			// Normal page (not an upload).
+			ModerationTestUtil::fastEdit(
+				$title,
+				$initialText,
+				'', // edit summary doesn't matter
+				$t->moderator
+			);
+		}
+	}
 }
 
 /**

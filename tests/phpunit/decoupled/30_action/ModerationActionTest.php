@@ -63,6 +63,12 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectApproved' => true
 			] ],
 			[ [
+				'modaction' => 'approve',
+				'existing' => true, // edit in existing page
+				'expectedOutput' => '(moderation-approved-ok: 1)',
+				'expectApproved' => true
+			] ],
+			[ [
 				// Approving previously rejected change
 				'modaction' => 'approve',
 				'mod_rejected' => 1,
@@ -82,12 +88,27 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectApproved' => true
 			] ],
 			[ [
+				// Approving the upload
 				'modaction' => 'approve',
 				'filename' => 'image100x100.png',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true
 			] ],
-
+			[ [
+				'modaction' => 'approve',
+				'existing' => true, // reupload
+				'filename' => 'image100x100.png',
+				'expectedOutput' => '(moderation-approved-ok: 1)',
+				'expectApproved' => true
+			] ],
+			[ [
+				// Approving the move
+				'modaction' => 'approve',
+				'mod_type' => 'move',
+				'expectedOutput' => '(moderation-approved-ok: 1)',
+				'expectApproved' => true,
+				'expectedLogAction' => 'approve-move'
+			] ],
 			// modaction=approveall
 			[ [
 				'modaction' => 'approveall',
@@ -855,13 +876,20 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 		$testcase->assertEquals( $this->fields['mod_user_text'], $rev['user'] );
 		$testcase->assertEquals( $this->fields['mod_text'], $rev['*'] );
-		$testcase->assertEquals( $this->fields['mod_comment'], $rev['comment'] );
 
-		$expectedTimestamp = wfTimestamp( TS_ISO_8601, $this->fields['mod_timestamp'] );
-		$testcase->assertEquals( $expectedTimestamp, $rev['timestamp'] );
+		$isReupload = $this->existing && $this->filename;
+		if ( !$isReupload ) {
+			// Reuploads don't place edit comment into rev_comment.
+			$testcase->assertEquals( $this->fields['mod_comment'], $rev['comment'] );
+
+			// Changing rev_timestamp in ApproveHook is not yet implemented for reuploads.
+			$expectedTimestamp = wfTimestamp( TS_ISO_8601, $this->fields['mod_timestamp'] );
+			$testcase->assertEquals( $expectedTimestamp, $rev['timestamp'] );
+		}
 
 		if ( $this->filename ) {
-			// TODO: check wfFindFile( $this->getExpectedTitle() )
+			$file = wfFindFile( $this->getExpectedTitleObj() );
+			$testcase->assertTrue( $file->exists(), "Approved file doesn't exist in FileRepo" );
 		}
 
 		// Check that recentchanges (unlike page history) contain the timestamp of approval,
@@ -979,6 +1007,14 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'approve':
 					$expectedParams = [
 						'revid' => $this->getExpectedTitleObj()->getLatestRevID()
+					];
+					break;
+
+				case 'approve-move':
+					$expectedParams = [
+						'4::target' => $this->getExpectedPage2Title(),
+						'user' => $this->fields['mod_user'],
+						'user_text' => $this->fields['mod_user_text']
 					];
 					break;
 

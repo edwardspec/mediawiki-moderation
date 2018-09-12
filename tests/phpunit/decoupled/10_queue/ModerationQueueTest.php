@@ -224,22 +224,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 		}
 
 		if ( $this->existing || $this->newTitle ) {
-			if ( $this->filename ) {
-				$moderatorUser = User::newFromName( 'User 1' );
-				$t->loginAs( $moderatorUser );
-				$t->getBot( 'api' )->upload(
-					$this->title->getText(),
-					$this->filename,
-					$this->oldText
-				);
-			} else {
-				ModerationTestUtil::fastEdit(
-					$this->title,
-					$this->oldText,
-					'',
-					$this->user
-				);
-			}
+			$this->precreatePage( $this->title, $this->oldText, $this->filename );
 		}
 
 		$t->loginAs( $this->user );

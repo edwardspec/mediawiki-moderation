@@ -15,6 +15,9 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 	/** @var bool If true, moderator will NOT be automoderated. */
 	protected $notAutomoderated = false;
 
+	/** @var bool If true, existing page will be edited. If false, new page will be created. */
+	protected $existing = false;
+
 	/** @var string Source filename, only used for uploads. */
 	protected $filename = null;
 
@@ -25,6 +28,7 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 		$this->fields = $this->getDefaultFields();
 		foreach ( $options as $key => $value ) {
 			switch ( $key ) {
+				case 'existing':
 				case 'filename':
 				case 'modblocked':
 				case 'notAutomoderated':
@@ -86,6 +90,38 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 			// Uploads are always in File: namespace.
 			$this->fields['mod_namespace'] = NS_FILE;
 		}
+
+		if ( $this->existing || $this->fields['mod_type'] == 'move' ) {
+			// Precreate the page/file.
+			$title = $this->getExpectedTitleObj();
+			$oldText = 'Old text';
+
+			$initialFilename = null;
+			if ( $this->filename !== null ) {
+				// Pre-upload another image (not the one that will be tested),
+				// otherwise
+			}
+
+			$this->precreatePage(
+				$title,
+				$oldText,
+				$this->filename
+			);
+
+			$this->fields['mod_new'] = 0;
+			$this->fields['mod_last_oldid'] = $title->getLatestRevID( Title::GAID_FOR_UPDATE );
+			$this->fields['mod_old_len'] = strlen( $oldText );
+
+			// Make sure that mod_timestamp is not earlier than the timestamp of precreated edit,
+			// otherwise the order of history will be wrong.
+			$this->fields['mod_timestamp'] = wfTimestampNow();
+
+			if ( $this->existing && $this->filename ) {
+				// Reuploads don't modify the text of the page.
+				$this->fields['mod_text'] = $oldText;
+				$this->fields['mod_new_len'] = $this->fields['mod_old_len'];
+			}
+		}
 	}
 
 	/**
@@ -114,11 +150,11 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 			'mod_comment' => 'Some reason',
 			'mod_minor' => 0,
 			'mod_bot' => 0,
-			'mod_new' => 0,
+			'mod_new' => 1,
 			'mod_last_oldid' => 0,
 			'mod_ip' => '127.1.2.3',
 			'mod_old_len' => 0,
-			'mod_new_len' => 0,
+			'mod_new_len' => 8, // Length of mod_text, see below
 			'mod_header_xff' => null,
 			'mod_header_ua' => ModerationTestsuite::DEFAULT_USER_AGENT,
 			'mod_preload_id' => ']fake',
@@ -130,7 +166,7 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 			'mod_preloadable' => 0,
 			'mod_conflict' => 0,
 			'mod_merged_revid' => 0,
-			'mod_text' => '',
+			'mod_text' => 'New text',
 			'mod_stash_key' => '',
 			'mod_tags' => null,
 			'mod_type' => 'edit',
