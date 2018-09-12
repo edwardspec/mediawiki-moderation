@@ -9,17 +9,20 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 	/** @var array All mod_* fields of one row in the 'moderation' SQL table */
 	protected $fields;
 
+	/** @var bool If true, existing page will be edited. If false, new page will be created. */
+	protected $existing = false;
+
+	/** @var string Source filename, only used for uploads. */
+	protected $filename = null;
+
 	/** @var bool If true, user will be modblocked. */
 	protected $modblocked = false;
 
 	/** @var bool If true, moderator will NOT be automoderated. */
 	protected $notAutomoderated = false;
 
-	/** @var bool If true, existing page will be edited. If false, new page will be created. */
-	protected $existing = false;
-
-	/** @var string Source filename, only used for uploads. */
-	protected $filename = null;
+	/** @var bool If true, mod_text will equal the text of previous revision (if any) or "". */
+	protected $nullEdit = false;
 
 	/**
 	 * @brief Initialize this TestSet from the input of dataProvider.
@@ -32,6 +35,7 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 				case 'filename':
 				case 'modblocked':
 				case 'notAutomoderated':
+				case 'nullEdit':
 					$this->$key = $value;
 					break;
 
@@ -115,12 +119,16 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 			// Make sure that mod_timestamp is not earlier than the timestamp of precreated edit,
 			// otherwise the order of history will be wrong.
 			$this->fields['mod_timestamp'] = wfTimestampNow();
+		}
 
-			if ( $this->existing && $this->filename ) {
-				// Reuploads don't modify the text of the page.
-				$this->fields['mod_text'] = $oldText;
-				$this->fields['mod_new_len'] = $this->fields['mod_old_len'];
-			}
+		if ( $this->nullEdit || ( $this->existing && $this->filename ) ) {
+			// Either simulated "null edit" or a reupload
+			// (reuploads don't modify the text of the page).
+			$page = WikiPage::factory( $this->getExpectedTitleObj() );
+			$oldContent = $page->getContent( Revision::RAW );
+
+			$this->fields['mod_text'] = $oldContent ? $oldContent->getNativeData() : "";
+			$this->fields['mod_new_len'] = $oldContent ? $oldContent->getSize() : 0;
 		}
 	}
 

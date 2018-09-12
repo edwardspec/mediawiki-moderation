@@ -128,7 +128,8 @@ class ModerationActionTest extends MediaWikiTestCase {
 			// Actions show/preview/merge/block/unblock/editchange shouldn't change the row
 			[ [
 				'modaction' => 'show',
-				'expectedOutput' => '(moderation-diff-no-changes)', // null edit
+				'nullEdit' => true,
+				'expectedOutput' => '(moderation-diff-no-changes)',
 				'expectActionLinks' => [ 'approve' => false, 'reject' => true ]
 			] ],
 			[ [
@@ -201,6 +202,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 			[ [
 				'modaction' => 'show',
 				'filename' => 'image100x100.png',
+				'nullEdit' => true,
 				'expectedOutput' => '(moderation-diff-upload-notext)'
 			] ],
 			[ [
@@ -213,6 +215,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 			[ [
 				'modaction' => 'show',
 				'filename' => 'sound.ogg',
+				'nullEdit' => true,
 				'expectedOutput' => '(moderation-diff-upload-notext)'
 			] ],
 			[ [
@@ -697,6 +700,12 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			], __METHOD__ );
 
 			User::purge( wfWikiID(), $this->fields['mod_user'] );
+		}
+
+		if ( $this->existing && $this->filename && $this->expectApproved ) {
+			// Wait 1 second, because archived image names are based on time (up to the second),
+			// so if two uploads happen within the same second, only the first will succeed.
+			sleep( 1 );
 		}
 
 		// Execute the action, check HTML printed by the action
