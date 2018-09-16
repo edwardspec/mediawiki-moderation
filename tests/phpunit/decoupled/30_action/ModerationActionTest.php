@@ -899,6 +899,14 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		if ( $this->filename ) {
 			$file = wfFindFile( $this->getExpectedTitleObj() );
 			$testcase->assertTrue( $file->exists(), "Approved file doesn't exist in FileRepo" );
+
+			$srcPath = ModerationTestsuite::findSourceFilename( $this->filename );
+			$expectedContents = file_get_contents( $srcPath );
+
+			$contents = file_get_contents( $file->getLocalRefPath() );
+
+			$this->getTestcase()->assertEquals( $expectedContents, $contents,
+				"Approved file is different from uploaded file" );
 		}
 
 		// Check that recentchanges (unlike page history) contain the timestamp of approval,
