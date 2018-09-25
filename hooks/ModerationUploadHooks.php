@@ -51,8 +51,8 @@ class ModerationUploadHooks {
 			$user
 		);
 
-		// Disable redirection after doEditContent()
-		// TODO: is this still needed?
+		// Disable the HTTP redirect after doEditContent.
+		// (this redirect has just been added in ModerationEditHooks::onPageContentSave)
 		RequestContext::getMain()->getOutput()->redirect( '' );
 
 		/*
