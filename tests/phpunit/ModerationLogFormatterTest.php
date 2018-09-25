@@ -91,10 +91,30 @@ class ModerationLogFormatterTest extends MediaWikiTestCase {
 						'tooltip' => '(tooltip-moderation-rejected-change)'
 					],
 					4 => [
-						// FIXME: why is this the userpage link and not
-						// the userlink? (Special:Contributions for anonymous user)
-						// Fix this in the Formatter itself.
-						'pagelink' => 'User:Some author'
+						'userlink' => [ 987, 'Some author' ]
+					]
+				]
+			] ],
+			[ [
+				'subtype' => 'reject',
+				'target' => 'Project:Some page',
+				'params' => [
+					'modid' => 678,
+					'user' => 0,
+					'user_text' => '10.11.12.13'
+				],
+				'expectedParams' => [
+					3 => [
+						'text' => '(moderation-log-change: 678)',
+						'query' => [
+							'title' => 'Special:Moderation',
+							'modaction' => 'show',
+							'modid' => 678
+						],
+						'tooltip' => '(tooltip-moderation-rejected-change)'
+					],
+					4 => [
+						'userlink' => [ 0, '10.11.12.13' ]
 					]
 				]
 			] ],
@@ -281,6 +301,8 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 					Title::makeTitle( NS_USER, $username ) :
 					SpecialPage::getTitleFor( 'Contributions', $username );
 				unset( $expectedParam['userlink'] );
+
+				$expectedParam['text'] = $username;
 			} elseif ( isset( $expectedParam['pagelink'] ) ) {
 				$title = Title::newFromText( $expectedParam['pagelink'] );
 				unset( $expectedParam['pagelink'] );
@@ -292,8 +314,11 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 			}
 
 			$expectedParam['query']['title'] = $title->getPrefixedDBKey();
-			$expectedParam['text'] = $title->getText();
 			$expectedParam['tooltip'] = $title->getFullText();
+
+			if ( !isset( $expectedParam['text'] ) ) {
+				$expectedParam['text'] = $title->getText();
+			}
 		}
 
 		if ( $expectedParam['query']['title'] == '{{TARGET}}' ) {
@@ -345,7 +370,7 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 		unset( $_SERVER['REQUEST_URI'] );
 
 		$bits = wfParseUrl( wfExpandUrl( $href ) );
-		if ( $bits['query'] ) {
+		if ( isset( $bits['query'] ) ) {
 			$parsed['query'] += wfCgiToArray( $bits['query'] );
 		}
 
