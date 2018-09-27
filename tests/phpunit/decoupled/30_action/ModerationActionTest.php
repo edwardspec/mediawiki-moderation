@@ -245,6 +245,12 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedError' => '(moderation-rejected-long-ago)'
 			] ],
 			[ [
+				// approve: handing of situation when doEditContent() results in an error
+				'modaction' => 'approve',
+				'simulateInvalidJsonContent' => true,
+				'expectedOutput' => '(invalid-content-data)'
+			] ],
+			[ [
 				'modaction' => 'approveall',
 				'mod_rejected' => 1,
 				'expectedError' => '(moderation-nothing-to-approveall)'
@@ -393,9 +399,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 
 				// OGG is not an image, thumbnail will be the same as the original file.
 				'expectOutputToEqualUploadedFile' => true
-			] ],
-
-			// TODO: approval errors originating from doEditContent(), etc.
+			] ]
 		];
 
 		// "Already merged" error
@@ -562,6 +566,12 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $simulateDeletedAuthor = false;
 
 	/**
+	 * @var bool If true, page will be of JSON model and content of this edit will be invalid JSON.
+	 * This is used for test "does modaction=approve detect errors from doEditContent?"
+	 */
+	protected $simulateInvalidJsonContent = false;
+
+	/**
 	 * @var bool If true, incorrect modid will be used in the action URL.
 	 */
 	protected $simulateNoSuchEntry = false;
@@ -599,6 +609,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				case 'postData':
 				case 'readonly':
 				case 'simulateDeletedAuthor':
+				case 'simulateInvalidJsonContent':
 				case 'simulateNoSuchEntry':
 				case 'showThumb':
 					$this->$key = $value;
@@ -623,6 +634,16 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		}
 
 		parent::applyOptions( $options );
+
+		if ( $this->simulateInvalidJsonContent ) {
+			$this->fields['mod_text'] = 'NOT A VALID JSON';
+			$this->fields['mod_new_len'] = 16;
+
+			$this->getTestsuite()->setMwConfig( 'NamespaceContentModels',
+				[ $this->fields['mod_namespace'] => CONTENT_MODEL_JSON ]
+			);
+		}
+
 		$this->expectedFields += $this->fields;
 
 		if ( !$this->expectedLogAction ) {
