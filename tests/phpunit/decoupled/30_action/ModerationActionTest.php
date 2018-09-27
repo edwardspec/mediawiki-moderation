@@ -40,15 +40,13 @@ class ModerationActionTest extends MediaWikiTestCase {
 		global $wgModerationTimeToOverrideRejection;
 
 		$sets = [
-			// modaction=reject
-			[ [
+			'successful Reject' => [ [
 				'modaction' => 'reject',
 				'expectedOutput' => '(moderation-rejected-ok: 1)',
 				'expectRejected' => true
 			] ],
 
-			// modaction=rejectall
-			[ [
+			'successful RejectAll' => [ [
 				'modaction' => 'rejectall',
 				'expectedOutput' => '(moderation-rejected-ok: 1)',
 				'expectRejected' => true,
@@ -56,69 +54,64 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedLogTargetIsAuthor' => true
 			] ],
 
-			// modaction=approve
-			[ [
+			'successful Approve (newly created page)' => [ [
 				'modaction' => 'approve',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true
 			] ],
-			[ [
+			'successful Approve (edit on the existing page)' => [ [
 				'modaction' => 'approve',
 				'existing' => true, // edit in existing page
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true
 			] ],
-			[ [
-				// Approving previously rejected change
+			'successful Approve (previously rejected change)' => [ [
 				'modaction' => 'approve',
 				'mod_rejected' => 1,
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true
 			] ],
-			[ [
+			'successful Approve should preserve the timestamp of original edit' => [ [
 				'modaction' => 'approve',
-				'mod_timestamp' => '-6 hours', // Check that Approve preserves the timestamp
+				'mod_timestamp' => '-6 hours',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true
 			] ],
-			[ [
+			'successful Approve (when author\'s user account was deleted from the database)' => [ [
 				'modaction' => 'approve',
 				'simulateDeletedAuthor' => true,
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true
 			] ],
-			[ [
-				// Approving the upload
+			'successful Approve (upload)' => [ [
 				'modaction' => 'approve',
 				'filename' => 'image100x100.png',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true
 			] ],
-			[ [
+			'successful Approve (reupload)' => [ [
 				'modaction' => 'approve',
 				'existing' => true, // reupload
 				'filename' => 'image100x100.png',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true
 			] ],
-			[ [
-				// Approving the move
+			'successful Approve (move)' => [ [
 				'modaction' => 'approve',
 				'mod_type' => 'move',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true,
 				'expectedLogAction' => 'approve-move'
 			] ],
-			// modaction=approveall
-			[ [
+
+			'successful ApproveAll' => [ [
 				'modaction' => 'approveall',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true,
 				'expectedLogTargetIsAuthor' => true
 			] ],
 
-			// Can we reject an edit with the conflict?
-			[ [
+			'successful Reject (edit with the conflict)' => [ [
 				'modaction' => 'reject',
 				'mod_conflict' => 1,
 				'expectedOutput' => '(moderation-rejected-ok: 1)',
@@ -126,56 +119,52 @@ class ModerationActionTest extends MediaWikiTestCase {
 			] ],
 
 			// Actions show/preview/merge/block/unblock/editchange shouldn't change the row
-			[ [
+			'Show (null edit)' => [ [
 				'modaction' => 'show',
 				'nullEdit' => true,
 				'expectedOutput' => '(moderation-diff-no-changes)',
 				'expectActionLinks' => [ 'approve' => false, 'reject' => true ]
 			] ],
-			[ [
+			'ShowImage (100x100 PNG image)' => [ [
 				'modaction' => 'showimg',
 				'filename' => 'image100x100.png',
 				'expectedContentType' => 'image/png',
 				'expectedContentDisposition' => "inline;filename*=UTF-8''Image100x100.png",
 				'expectOutputToEqualUploadedFile' => true
 			] ],
-			[ [ 'modaction' => 'preview' ] ],
-			[ [ 'modaction' => 'editchange', 'enableEditChange' => true ] ],
-			[ [ 'mod_conflict' => 1, 'modaction' => 'merge' ] ],
+			'EditChange' => [ [ 'modaction' => 'editchange', 'enableEditChange' => true ] ],
+			'Merge' => [ [ 'mod_conflict' => 1, 'modaction' => 'merge' ] ],
 
 			// Check block/unblock
-			[ [
+			'successful Block' => [ [
 				'modaction' => 'block',
 				'expectModblocked' => true,
 				'expectedOutput' => 'moderation-block-ok',
 				'expectedLogTargetIsAuthor' => true
 			] ],
-			[ [
+			'successful Unblock' => [ [
 				'modaction' => 'unblock',
 				'modblocked' => true,
 				'expectModblocked' => false,
 				'expectedOutput' => 'moderation-unblock-ok',
 				'expectedLogTargetIsAuthor' => true
 			] ],
-			[ [
-				// Attempting to block when already blocked
-				// (e.g. moderator clicked twice on "Mark as spammer"):
-				// should report success, but shouldn't create a new LogEntry.
+			'duplicate attempt to Block (already blocked)' => [ [
+				// Can happen if moderator clicked twice on "Mark as spammer" link.
+				// Should report success, but shouldn't create a new LogEntry.
 				'modaction' => 'block',
 				'modblocked' => true,
 				'expectedOutput' => 'moderation-block-ok',
 				'expectLogEntry' => false
 			] ],
-			[ [
-				// Attempting to unblock when not blocked:
-				// should report success, but shouldn't create a new LogEntry.
+			'duplicate attempt to Unblock (already unblocked)' => [ [
+				// Should report success, but shouldn't create a new LogEntry.
 				'modaction' => 'unblock',
 				'expectedOutput' => 'moderation-unblock-ok',
 				'expectLogEntry' => false
 			] ],
 
-			// Check modaction=show for normal edits
-			[ [
+			'Show (normal edit)' => [ [
 				'modaction' => 'show',
 				'mod_title' => 'Test_page_1',
 				'mod_text' => "This text is '''very bold''' and ''most italic''.\n",
@@ -188,7 +177,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 			] ],
 
 			// modaction=preview
-			[ [
+			'Preview (normal edit)' => [ [
 				'modaction' => 'preview',
 				'mod_title' => 'Test_page_1',
 				'mod_text' => "This text is '''very bold''' and ''most italic''.\n",
@@ -199,26 +188,26 @@ class ModerationActionTest extends MediaWikiTestCase {
 
 			// Check modaction=show for uploads/moves
 			// TODO: check download link (for non-images) and full image link (for images)
-			[ [
+			'Show (100x100 PNG image, no description)' => [ [
 				'modaction' => 'show',
 				'filename' => 'image100x100.png',
 				'nullEdit' => true,
 				'expectedOutput' => '(moderation-diff-upload-notext)'
 			] ],
-			[ [
+			'Show (100x100 PNG image, with description)' => [ [
 				'modaction' => 'show',
 				'filename' => 'image100x100.png',
 				'mod_text' => 'Funny description',
 				'mod_new_len' => 17,
 				'expectedOutput' => 'Funny description'
 			] ],
-			[ [
+			'Show (non-image upload: OGG audio file, no description)' => [ [
 				'modaction' => 'show',
 				'filename' => 'sound.ogg',
 				'nullEdit' => true,
 				'expectedOutput' => '(moderation-diff-upload-notext)'
 			] ],
-			[ [
+			'Show (move)' => [ [
 				'modaction' => 'show',
 				'mod_type' => 'move',
 				'mod_namespace' => NS_TEMPLATE,
@@ -229,42 +218,42 @@ class ModerationActionTest extends MediaWikiTestCase {
 			] ],
 
 			// Errors printed by actions:
-			[ [
+			'Error: unknown modaction' => [ [
 				'modaction' => 'makesandwich',
 				'expectedError' => '(moderation-unknown-modaction)'
 			] ],
-			[ [
+			'Error: attempt to Reject already rejected edit' => [ [
 				'modaction' => 'reject',
 				'mod_rejected' => 1,
 				'expectedError' => '(moderation-already-rejected)'
 			] ],
-			[ [
+			'Error: attempt to Approve edit which was rejected long ago' => [ [
 				'modaction' => 'approve',
 				'mod_rejected' => 1,
 				'mod_timestamp' => '-' . ( $wgModerationTimeToOverrideRejection + 1 ) . ' seconds',
 				'expectedError' => '(moderation-rejected-long-ago)'
 			] ],
-			[ [
+			'Error: attempt to Approve edit which should cause an error in doEditContent' => [ [
 				// approve: handing of situation when doEditContent() results in an error
 				'modaction' => 'approve',
 				'simulateInvalidJsonContent' => true,
 				'expectedOutput' => '(invalid-content-data)'
 			] ],
-			[ [
+			'Error: attempt to ApproveAll when there is nothing to approve' => [ [
 				'modaction' => 'approveall',
 				'mod_rejected' => 1,
 				'expectedError' => '(moderation-nothing-to-approveall)'
 			] ],
-			[ [
+			'Error: attempt to RejectAll when there is nothing to reject' => [ [
 				'modaction' => 'rejectall',
 				'mod_rejected' => 1,
 				'expectedError' => '(moderation-nothing-to-rejectall)'
 			] ],
-			[ [
+			'Error: attempt to Merge when there is no edit conflict' => [ [
 				'modaction' => 'merge',
 				'expectedError' => '(moderation-merge-not-needed)'
 			] ],
-			[ [
+			'Error: attempt to Merge by non-automoderated moderator' => [ [
 				'modaction' => 'merge',
 				'mod_conflict' => 1,
 				'notAutomoderated' => true,
@@ -272,24 +261,22 @@ class ModerationActionTest extends MediaWikiTestCase {
 			] ],
 
 			// editchange{,submit} shouldn't be available without $wgModerationEnableEditChange
-			[ [
+			'Error: attempt to EditChange without $wgModerationEnableEditChange' => [ [
 
 				'modaction' => 'editchange',
 				'expectedError' => '(moderation-unknown-modaction)'
 			] ],
-			[ [
+			'Error: attempt to EditChangeSubmit without $wgModerationEnableEditChange' => [ [
 				'modaction' => 'editchangesubmit',
 				'expectedError' => '(moderation-unknown-modaction)'
 			] ],
-
-			// editchange{,submit} shouldn't be applicable to non-text changes (e.g. page moves)
-			[ [
+			'Error: attempt to use EditChange on non-text change (page move)' => [ [
 				'modaction' => 'editchange',
 				'enableEditChange' => true,
 				'mod_type' => 'move',
 				'expectedError' => '(moderation-editchange-not-edit)'
 			] ],
-			[ [
+			'Error: attempt to use EditChangeSubmit on non-text change (page move)' => [ [
 				'modaction' => 'editchangesubmit',
 				'enableEditChange' => true,
 				'mod_type' => 'move',
@@ -297,8 +284,8 @@ class ModerationActionTest extends MediaWikiTestCase {
 			] ],
 
 			// Actions that don't modify anything shouldn't throw ReadOnlyError
-			[ [ 'modaction' => 'show', 'readonly' => true ] ],
-			[ [
+			'Show (when wiki is readonly)' => [ [ 'modaction' => 'show', 'readonly' => true ] ],
+			'ShowImage (when wiki is readonly)' => [ [
 				'modaction' => 'showimg',
 				'filename' => 'image100x100.png',
 				'readonly' => true,
@@ -306,10 +293,12 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedContentDisposition' => "inline;filename*=UTF-8''Image100x100.png",
 				'expectOutputToEqualUploadedFile' => true
 			] ],
-			[ [ 'modaction' => 'preview', 'readonly' => true ] ],
+			'Preview (when wiki is readonly)' => [ [
+				'modaction' => 'preview',
+				'readonly' => true
+			] ],
 
-			// action=editchangesubmit
-			[ [
+			'successful EditChangeSubmit' => [ [
 				'modaction' => 'editchangesubmit',
 				'enableEditChange' => true,
 				'mod_user' => 0,
@@ -326,9 +315,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 				],
 				'expectedLogAction' => 'editchange'
 			] ],
-
-			// No-op action=editchangesubmit (the original text wasn't changed)
-			[ [
+			'no-op EditChangSubmit (the original text hasnt\'t been changed)' => [ [
 				'modaction' => 'editchangesubmit',
 				'enableEditChange' => true,
 				'mod_text' => 'Original Text 1',
@@ -352,7 +339,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 
 				TODO: move testMissingStashedImage() here? (error 404 "image is missing from stash")
 			*/
-			[ [
+			'ShowImage (650x50 PNG image)' => [ [
 				'modaction' => 'showimg',
 				'filename' => 'image640x50.png',
 				'mod_title' => 'Image_name_with_spaces.png',
@@ -360,7 +347,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectedContentDisposition' => "inline;filename*=UTF-8''Image_name_with_spaces.png",
 				'expectOutputToEqualUploadedFile' => true
 			] ],
-			[ [
+			'ShowImage: thumbnail of 650x50 PNG image (larger than thumbnail width)' => [ [
 				'modaction' => 'showimg',
 				'filename' => 'image640x50.png',
 				'expectedContentType' => 'image/png',
@@ -372,7 +359,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 				'expectOutputToEqualUploadedFile' => false, // Thumbnail, not original image
 				'expectedImageWidth' => ModerationActionShowImage::THUMB_WIDTH
 			] ],
-			[ [
+			'ShowImage: thumbnail of 100x100 PNG image (smaller than thumbnail width)' => [ [
 				'modaction' => 'showimg',
 				'filename' => 'image100x100.png',
 				'expectedContentType' => 'image/png',
@@ -383,14 +370,14 @@ class ModerationActionTest extends MediaWikiTestCase {
 				// its thumbnail will be the same as the original image.
 				'expectOutputToEqualUploadedFile' => true
 			] ],
-			[ [
+			'ShowImage (non-image upload: OGG audio file)' => [ [
 				'modaction' => 'showimg',
 				'filename' => 'sound.ogg',
 				'expectedContentType' => 'application/ogg',
 				'expectedContentDisposition' => "inline;filename*=UTF-8''Sound.ogg",
 				'expectOutputToEqualUploadedFile' => true
 			] ],
-			[ [
+			'ShowImage: thumbnail mode for non-image (OGG audio file)' => [ [
 				'modaction' => 'showimg',
 				'filename' => 'sound.ogg',
 				'expectedContentType' => 'application/ogg',
@@ -404,7 +391,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 
 		// "Already merged" error
 		foreach ( [ 'approve', 'reject', 'merge' ] as $action ) {
-			$sets[] = [ [
+			$sets["Error: modaction=$action used on edit which is already merged"] = [ [
 				'modaction' => $action,
 				'mod_conflict' => 1,
 				'mod_merged_revid' => 12345,
@@ -416,7 +403,9 @@ class ModerationActionTest extends MediaWikiTestCase {
 		$nonReadOnlyActions = [ 'approve', 'approveall', 'reject', 'rejectall',
 			'block', 'unblock', 'merge', 'editchange', 'editchangesubmit' ];
 		foreach ( $nonReadOnlyActions as $action ) {
-			$sets[] = [ [ 'modaction' => $action, 'readonly' => true, 'expectReadOnlyError' => true ] ];
+			$sets["Error: ReadOnlyError exception from non-readonly modaction=$action"] = [ [
+				'modaction' => $action, 'readonly' => true, 'expectReadOnlyError' => true
+			] ];
 		}
 
 		// 'moderation-edit-not-found' from everything
@@ -431,7 +420,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 				$options['enableEditChange'] = true;
 			}
 
-			$sets[] = [ $options ];
+			$sets["Error: \"edit not found\" from modaction=$action"] = [ $options ];
 		}
 
 		return $sets;
