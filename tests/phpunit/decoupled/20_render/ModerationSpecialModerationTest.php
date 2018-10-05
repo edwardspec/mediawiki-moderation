@@ -44,58 +44,87 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase {
 		$notLongAgoEnough = '-' . ( $wgModerationTimeToOverrideRejection - 3600 ) . ' seconds';
 
 		return [
-			[ [] ],
-			[ [ 'mod_namespace' => NS_MAIN, 'mod_title' => 'Page_in_main_namespace' ] ],
-			[ [ 'mod_namespace' => NS_PROJECT, 'mod_title' => 'Page_in_Project_namespace' ] ],
-			[ [ 'mod_user' => 0, 'mod_user_text' => '127.0.0.1' ] ],
-			[ [ 'mod_user' => 12345, 'mod_user_text' => 'Some registered user' ] ],
-			[ [ 'mod_comment' => 'Hello, World!' ] ],
-			[ [ 'mod_comment' => 'Hello, [[World]]!' ] ],
-			[ [ 'mod_comment' => '<i>HTML</i> will be <b>escaped' ] ], // no </b> on purpose
-			[ [ 'mod_comment' => '/* Section 1 */ edited this section' ] ],
-			[ [ 'mod_rejected' => 1, 'expectedFolder' => 'rejected' ] ],
-			[ [ 'mod_rejected' => 1, 'mod_rejected_auto' => 1, 'expectedFolder' => 'spam' ] ],
-			[ [ 'mod_merged_revid' => 12345, 'expectedFolder' => 'merged' ] ],
-			[ [ 'isCheckuser' => 1, 'mod_ip' => '127.0.0.2' ] ],
-			[ [ 'isCheckuser' => 1, 'mod_user' => 0, 'mod_user_text' => '127.0.0.3' ] ],
-			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_MAIN,
-				'mod_page2_title' => 'NewTitle_in_Main_namespace' ] ],
-			[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_PROJECT,
-				'mod_page2_title' => 'NewTitle_in_Project_namespace' ] ],
-			[ [ 'mod_conflict' => 1 ] ],
-			[ [ 'mod_conflict' => 1, 'notAutomoderated' => true ] ],
-			[ [ 'previewLinkEnabled' => true ] ],
-			[ [ 'previewLinkEnabled' => true, 'mod_type' => 'move' ] ],
-			[ [ 'editChangeEnabled' => true ] ],
-			[ [ 'modblocked' => true ] ],
-			[ [ 'modblocked' => true, 'mod_user' => 0, 'mod_user_text' => '127.0.0.1' ] ],
-			[ [ 'mod_minor' => 1 ] ],
-			[ [ 'mod_bot' => 1 ] ],
-			[ [ 'mod_new' => 1 ] ],
-			[ [ 'mod_timestamp' => '-2 days' ] ],
-			[ [ 'mod_timestamp' => '-2 days', 'mod_type' => 'move' ] ],
-			[ [ 'mod_old_len' => 100, 'mod_new_len' => 101 + $wgRCChangedSizeThreshold ] ],
-			[ [ 'mod_old_len' => 100, 'mod_new_len' => 99 + $wgRCChangedSizeThreshold ] ],
-			[ [ 'mod_old_len' => 100 + $wgRCChangedSizeThreshold, 'mod_new_len' => 99 ] ],
-			[ [ 'mod_old_len' => 100 + $wgRCChangedSizeThreshold, 'mod_new_len' => 101 ] ],
-			[ [
-				'expectNotReapprovable' => true,
-				'expectedFolder' => 'rejected',
-				'mod_rejected' => 1,
-				'mod_timestamp' => $longAgo
-			] ],
-			[ [
-				'expectNotReapprovable' => true,
-				'expectedFolder' => 'spam',
-				'mod_rejected' => 1,
-				'mod_rejected_auto' => 1,
-				'mod_timestamp' => $longAgo
-			] ],
-			[ [
-				'expectedFolder' => 'rejected',
-				'mod_rejected' => 1,
-				'mod_timestamp' => $notLongAgoEnough
-			] ]
+			'pending edit' => [ [] ],
+			'pending edit in main namespace' =>
+				[ [ 'mod_namespace' => NS_MAIN, 'mod_title' => 'Page_in_main_namespace' ] ],
+			'pending edit in Project namespace' =>
+				[ [ 'mod_namespace' => NS_PROJECT, 'mod_title' => 'Page_in_Project_namespace' ] ],
+			'pending edit by anonymous user' =>
+				[ [ 'mod_user' => 0, 'mod_user_text' => '127.0.0.1' ] ],
+			'pending edit by registered user' =>
+				[ [ 'mod_user' => 12345, 'mod_user_text' => 'Some registered user' ] ],
+			'pending edit with empty edit summary' => [ [ 'mod_comment' => '' ] ],
+			'pending edit with non-empty edit summary (plaintext only)' =>
+				[ [ 'mod_comment' => 'Hello, World!' ] ],
+			'pending edit where edit summary contains [[wikitext links]]' =>
+				[ [ 'mod_comment' => 'Hello, [[World]]!' ] ],
+			'pending edit where edit summary contains <b>HTML</b> (it should be escaped)' =>
+				[ [ 'mod_comment' => '<i>HTML</i> will be <b>escaped' ] ], // no </b> on purpose
+			'pending edit where edit summary contains "/* SectionName */" link' =>
+				[ [ 'mod_comment' => '/* Section 1 */ edited this section' ] ],
+			'rejected edit' => [ [ 'mod_rejected' => 1, 'expectedFolder' => 'rejected' ] ],
+			'edit that was rejected automatically (should be in the Spam folder)' =>
+				[ [ 'mod_rejected' => 1, 'mod_rejected_auto' => 1, 'expectedFolder' => 'spam' ] ],
+			'edit that has already been manually merged' =>
+				[ [ 'mod_merged_revid' => 12345, 'expectedFolder' => 'merged' ] ],
+			'edit of registered user, as seen by moderator with "checkuser" right' =>
+				[ [ 'isCheckuser' => 1, 'mod_ip' => '127.0.0.2' ] ],
+			'edit of anonymous user, as seen by moderator with "checkuser" right' =>
+				[ [ 'isCheckuser' => 1, 'mod_user' => 0, 'mod_user_text' => '127.0.0.3' ] ],
+			'pending move (new title in main namespace)' =>
+				[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_MAIN,
+					'mod_page2_title' => 'NewTitle_in_Main_namespace' ] ],
+			'pending move (new title in Project namespace)' =>
+				[ [ 'mod_type' => 'move', 'mod_page2_namespace' => NS_PROJECT,
+					'mod_page2_title' => 'NewTitle_in_Project_namespace' ] ],
+			'pending edit with detected edit conflict' => [ [ 'mod_conflict' => 1 ] ],
+			'pending edit with edit conflict, as seen by moderator-but-not-automoderated' =>
+				[ [ 'mod_conflict' => 1, 'notAutomoderated' => true ] ],
+			'pending edit when $wgModerationPreviewLink=true' =>
+				[ [ 'previewLinkEnabled' => true ] ],
+			'pending move when $wgModerationPreviewLink=true' =>
+				[ [ 'previewLinkEnabled' => true, 'mod_type' => 'move' ] ],
+			'pending edit when $wgModerationEnableEditChange=true' =>
+				[ [ 'editChangeEnabled' => true ] ],
+			'pending edit by modblocked user' => [ [ 'modblocked' => true ] ],
+			'pending anonymous edit from modblocked IP' =>
+				[ [ 'modblocked' => true, 'mod_user' => 0, 'mod_user_text' => '127.0.0.1' ] ],
+			'pending minor edit' => [ [ 'mod_minor' => 1 ] ],
+			'pending bot edit' => [ [ 'mod_bot' => 1 ] ],
+			'pending edit that creates a new article' => [ [ 'mod_new' => 1 ] ],
+			'pending edit that was queued 2 days ago' => [ [ 'mod_timestamp' => '-2 days' ] ],
+			'pending move that was queued 2 days ago' =>
+				[ [ 'mod_timestamp' => '-2 days', 'mod_type' => 'move' ] ],
+
+			"large pending edit (more than $wgRCChangedSizeThreshold bytes added)" =>
+				[ [ 'mod_old_len' => 100, 'mod_new_len' => 101 + $wgRCChangedSizeThreshold ] ],
+			"small pending edit (less than $wgRCChangedSizeThreshold bytes added)" =>
+				[ [ 'mod_old_len' => 100, 'mod_new_len' => 99 + $wgRCChangedSizeThreshold ] ],
+			"large pending edit (more than $wgRCChangedSizeThreshold bytes deleted)" =>
+				[ [ 'mod_old_len' => 100 + $wgRCChangedSizeThreshold, 'mod_new_len' => 99 ] ],
+			"large pending edit (less than $wgRCChangedSizeThreshold bytes deleted)" =>
+				[ [ 'mod_old_len' => 100 + $wgRCChangedSizeThreshold, 'mod_new_len' => 101 ] ],
+			"edit that was rejected very long ago (shouldn't have Approve link)" =>
+				[ [
+					'expectNotReapprovable' => true,
+					'expectedFolder' => 'rejected',
+					'mod_rejected' => 1,
+					'mod_timestamp' => $longAgo
+				] ],
+			"edit that was automatically rejected very long ago (shouldn't have Approve link)" =>
+				[ [
+					'expectNotReapprovable' => true,
+					'expectedFolder' => 'spam',
+					'mod_rejected' => 1,
+					'mod_rejected_auto' => 1,
+					'mod_timestamp' => $longAgo
+				] ],
+			"recently rejected edit (should have Approve link)" =>
+				[ [
+					'expectedFolder' => 'rejected',
+					'mod_rejected' => 1,
+					'mod_timestamp' => $notLongAgoEnough
+				] ]
 		];
 	}
 }
