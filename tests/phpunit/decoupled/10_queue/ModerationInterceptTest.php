@@ -38,79 +38,108 @@ class ModerationInterceptTest extends MediaWikiTestCase {
 	 */
 	public function dataProvider() {
 		$sets = [
-			[ [ 'anonymously' => true ] ],
-			[ [ 'groups' => [] ] ],
-			[ [ 'intercept' => false, 'groups' => [ 'automoderated' ] ] ],
-			[ [ 'namespace' => NS_MAIN ] ],
-			[ [ 'namespace' => NS_PROJECT ] ],
+			'anonymous edit should be intercepted' => [ [ 'anonymously' => true ] ],
+			'edit by unprivileged user should be intercepted' => [ [ 'groups' => [] ] ],
+			'edit by automoderated user should bypass moderation' =>
+				[ [ 'intercept' => false, 'groups' => [ 'automoderated' ] ] ],
+			'edit in main namespace should be intercepted' => [ [ 'namespace' => NS_MAIN ] ],
+			'edit in Project namespace should be intercepted' => [ [ 'namespace' => NS_PROJECT ] ],
 
-			// Special cases:
-			// moderator-but-not-automoderated can't skip moderation of edits,
-			// but rollback can (see ModerationCanSkip::canSkip() for explanation).
-			[ [ 'groups' => [ 'moderator' ] ] ], // can't skip
-			[ [ 'intercept' => false, 'groups' => [ 'rollback' ] ] ],
-			[ [ 'action' => 'move', 'groups' => [ 'rollback' ] ] ],
+			// Users with "rollback" right always bypass moderation of edits (but not moves),
+			// see ModerationCanSkip::canSkip() for explanation.
+			'non-automoderated user with "rollback" right can bypass moderation of edits' =>
+				[ [ 'intercept' => false, 'groups' => [ 'rollback' ] ] ],
+			'moves by non-automoderated user with "rollback" right are intercepted' =>
+				[ [ 'action' => 'move', 'groups' => [ 'rollback' ] ] ],
+
+			'edits by moderator-but-not-automoderated should be intercepted' =>
+				[ [ 'groups' => [ 'moderator' ] ] ],
 
 			// $wgModerationEnable
-			[ [ 'intercept' => false, 'anonymously' => true, 'ModerationEnable' => false ] ],
+			'edits shouldn\'t be intercepted when $wgModerationEnable=false' =>
+				[ [ 'intercept' => false, 'anonymously' => true, 'ModerationEnable' => false ] ],
 
 			// $wgModerationOnlyInNamespaces
-			[ [ 'namespace' => NS_MAIN,
-				'ModerationOnlyInNamespaces' => [ NS_MAIN, NS_PROJECT ] ] ],
-			[ [ 'namespace' => NS_PROJECT,
-				'ModerationOnlyInNamespaces' => [ NS_MAIN, NS_PROJECT ] ] ],
-			[ [ 'intercept' => false, 'namespace' => NS_USER,
-				'ModerationOnlyInNamespaces' => [ NS_MAIN, NS_PROJECT ] ] ],
+			'edit in main namespace should be intercepted ' .
+				'when $wgModerationOnlyInNamespaces=[NS_MAIN, NS_PROJECT]' => [ [
+					'namespace' => NS_MAIN,
+					'ModerationOnlyInNamespaces' => [ NS_MAIN, NS_PROJECT ]
+				] ],
+			'edit in Project namespace should be intercepted ' .
+				'when $wgModerationOnlyInNamespaces=[NS_MAIN, NS_PROJECT]' => [ [
+					'namespace' => NS_PROJECT,
+					'ModerationOnlyInNamespaces' => [ NS_MAIN, NS_PROJECT ]
+				] ],
+			'edit in User namespace should bypass moderation ' .
+				'when $wgModerationOnlyInNamespaces=[NS_MAIN, NS_PROJECT]' => [ [
+					'intercept' => false,
+					'namespace' => NS_USER,
+					'ModerationOnlyInNamespaces' => [ NS_MAIN, NS_PROJECT ]
+				] ],
 
 			// $wgModerationIgnoredInNamespaces
-			[ [ 'intercept' => false, 'namespace' => NS_MAIN,
-				'ModerationIgnoredInNamespaces' => [ NS_MAIN, NS_PROJECT ] ] ],
-			[ [ 'intercept' => false, 'namespace' => NS_PROJECT,
-				'ModerationIgnoredInNamespaces' => [ NS_MAIN, NS_PROJECT ] ] ],
-			[ [ 'namespace' => NS_USER,
-				'ModerationIgnoredInNamespaces' => [ NS_MAIN, NS_PROJECT ] ] ],
+			'edit in main namespace should bypass moderation ' .
+				'when $wgModerationIgnoredInNamespaces=[NS_MAIN, NS_PROJECT]' => [ [
+					'intercept' => false,
+					'namespace' => NS_MAIN,
+					'ModerationIgnoredInNamespaces' => [ NS_MAIN, NS_PROJECT ]
+				] ],
+			'edit in Project namespace should bypass moderation ' .
+				'when $wgModerationIgnoredInNamespaces=[NS_MAIN, NS_PROJECT]' => [ [
+					'intercept' => false,
+					'namespace' => NS_PROJECT,
+					'ModerationIgnoredInNamespaces' => [ NS_MAIN, NS_PROJECT ]
+				] ],
+			'edit in User namespace should by intercepted ' .
+				'when $wgModerationIgnoredInNamespaces=[NS_MAIN, NS_PROJECT]' => [ [
+					'namespace' => NS_USER,
+					'ModerationIgnoredInNamespaces' => [ NS_MAIN, NS_PROJECT ]
+				] ],
 
 			// Uploads
-			[ [ 'action' => 'upload' ] ],
-			[ [ 'intercept' => false, 'action' => 'upload', 'groups' => [ 'automoderated' ] ] ],
-			[ [ 'intercept' => false, 'action' => 'upload',
-				'ModerationIgnoredInNamespaces' => [ NS_FILE ] ] ],
-			[ [ 'intercept' => false, 'action' => 'upload',
-				'ModerationOnlyInNamespaces' => [ NS_MAIN ] ] ],
+			'upload should be intercepted' => [ [ 'action' => 'upload' ] ],
+			'upload by automoderated user should bypass moderation' =>
+				[ [ 'intercept' => false, 'action' => 'upload', 'groups' => [ 'automoderated' ] ] ],
+			'upload should bypass moderation when $wgModerationIgnoredInNamespaces=[NS_FILE]' =>
+				[ [ 'intercept' => false, 'action' => 'upload',
+					'ModerationIgnoredInNamespaces' => [ NS_FILE ] ] ],
+			'upload should bypass moderation when $wgModerationOnlyInNamespaces=[NS_MAIN]' =>
+				[ [ 'intercept' => false, 'action' => 'upload',
+					'ModerationOnlyInNamespaces' => [ NS_MAIN ] ] ],
 
 			// Moves
-			[ [ 'action' => 'move' ] ],
-			[ [ 'intercept' => false, 'action' => 'move', 'groups' => [ 'automoderated' ] ] ],
+			'move should be intercepted' => [ [ 'action' => 'move' ] ],
+			'move by automoderated user should bypass moderation' =>
+				[ [ 'intercept' => false, 'action' => 'move', 'groups' => [ 'automoderated' ] ] ],
 
-			[ [
-				// Source namespace being excluded is not enough for move to bypass moderation,
-				// both source and target must be excluded from moderation.
-				'intercept' => true,
-				'action' => 'move',
-				'ModerationIgnoredInNamespaces' => [ ModerationInterceptTestSet::DEFAULT_NS1 ]
-			] ],
-			[ [
-				// Target namespace being excluded is not enough for move to bypass moderation,
-				// both source and target must be excluded from moderation.
-				'intercept' => true,
-				'action' => 'move',
-				'ModerationIgnoredInNamespaces' => [ ModerationInterceptTestSet::DEFAULT_NS2 ]
-			] ],
-			[ [
-				'intercept' => false,
-				'action' => 'move',
-				'ModerationIgnoredInNamespaces' => [
-					ModerationInterceptTestSet::DEFAULT_NS1,
-					ModerationInterceptTestSet::DEFAULT_NS2
-				]
-			] ]
+			'source namespace being excluded is not enough for move to bypass moderation ' .
+				'(both source and target must be excluded from moderation)' => [ [
+					'intercept' => true,
+					'action' => 'move',
+					'ModerationIgnoredInNamespaces' => [ ModerationInterceptTestSet::DEFAULT_NS1 ]
+				] ],
+			'target namespace being excluded is not enough for move to bypass moderation ' .
+				'(both source and target must be excluded from moderation)' => [ [
+					'intercept' => true,
+					'action' => 'move',
+					'ModerationIgnoredInNamespaces' => [ ModerationInterceptTestSet::DEFAULT_NS2 ]
+				] ],
+			'move should bypass moderation if both source and target namespaces are excluded' =>
+				[ [
+					'intercept' => false,
+					'action' => 'move',
+					'ModerationIgnoredInNamespaces' => [
+						ModerationInterceptTestSet::DEFAULT_NS1,
+						ModerationInterceptTestSet::DEFAULT_NS2
+					]
+				] ]
 		];
 
 		// Run each set via ApiBot and NonApiBot.
 		$newSets = [];
-		foreach ( $sets as $set ) {
-			$newSets[] = [ $set[0] + [ 'viaApi' => true ] ];
-			$newSets[] = [ $set[0] + [ 'viaApi' => false ] ];
+		foreach ( $sets as $description => $set ) {
+			$newSets["$description (API)"] = [ $set[0] + [ 'viaApi' => true ] ];
+			$newSets["$description (not API)"] = [ $set[0] + [ 'viaApi' => false ] ];
 		}
 		return $newSets;
 	}
