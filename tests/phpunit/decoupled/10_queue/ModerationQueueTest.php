@@ -38,45 +38,75 @@ class ModerationQueueTest extends MediaWikiTestCase {
 	 */
 	public function dataProvider() {
 		return [
-			[ [ 'anonymously' => true ] ],
-			[ [] ],
-			[ [ 'user' => 'User 6' ] ],
-			[ [ 'title' => 'TitleWithoutSpaces' ] ],
-			[ [ 'title' => 'Title with spaces' ] ],
-			[ [ 'title' => 'Title_with_underscores' ] ],
-			[ [ 'title' => 'Project:Title_in_another_namespace' ] ],
-			[ [ 'text' => 'Interesting text 1' ] ],
-			[ [ 'text' => 'Wikitext with [[links]] and {{templates}} and something' ] ],
-			[ [ 'text' => 'Text before signature ~~~ Text after signature', 'needPst' => true ] ],
-			[ [ 'summary' => 'Summary 1' ] ],
-			[ [ 'summary' => 'Summary 2' ] ],
-			[ [ 'userAgent' => 'UserAgent for Testing/1.0' ] ],
-			[ [ 'userAgent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) ' .
-				'AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 ' .
-				'Mobile/14E304 Safari/602.1' ] ],
-			[ [ 'filename' => 'image100x100.png' ] ],
-			[ [ 'filename' => 'image100x100.png', 'viaApi' => true ] ],
-			[ [ 'filename' => 'image100x100.png', 'text' => 'Before ~~~ After', 'needPst' => true ] ],
-			[ [ 'existing' => true ] ],
-			[ [ 'existing' => true, 'filename' => 'image100x100.png' ] ],
-			[ [ 'title' => 'Old title', 'newTitle' => 'New title with spaces' ] ],
-			[ [ 'title' => 'Old title', 'newTitle' => 'New_title_with_underscores',
-				'summary' => 'New title is cooler' ] ],
-			[ [ 'title' => 'Title 1', 'newTitle' => 'Title 2', 'viaApi' => true ] ],
-			[ [ 'modblocked' => true ] ],
-			[ [ 'modblocked' => true, 'anonymously' => true ] ],
-			[ [ 'modblocked' => true, 'viaApi' => true ] ],
-			[ [ 'xff' => '127.1.2.3', 'viaApi' => true ] ],
-			[ [ 'xff' => '203.0.113.195, 70.41.3.18, 150.172.238.178' ] ],
-			[ [ 'xff' => '2001:db8:85a3:8d3:1319:8a2e:370:7348' ] ],
-			[ [ 'watch' => true ] ],
-			[ [ 'unwatch' => true ] ],
-			[ [ 'watch' => true, 'filename' => 'image100x100.png' ] ],
-			[ [ 'unwatch' => true, 'filename' => 'image100x100.png' ] ],
-			[ [ 'watch' => true, 'newTitle' => 'Title #2' ] ],
-			[ [ 'unwatch' => true, 'newTitle' => 'Title #2' ] ],
-			[ [ 'watch' => true, 'anonymously' => true ] ],
-			[ [ 'unwatch' => true, 'anonymously' => true ] ]
+			'anonymous edit' => [ [ 'anonymously' => true ] ],
+			'edit by unprivileged user #1' => [ [] ],
+			'edit by unprivileged user #2' => [ [ 'user' => 'User 6' ] ],
+			'edit in the article without spaces in the title' =>
+				[ [ 'title' => 'TitleWithoutSpaces' ] ],
+			'edit in the article with spaces in the title' =>
+				[ [ 'title' => 'Title with spaces' ] ],
+			'edit in the article with underscores ("_") in the title' =>
+				[ [ 'title' => 'Title_with_underscores' ] ],
+			'edit in Project namespace' => [ [ 'title' => 'Project:Title_in_another_namespace' ] ],
+			'edit with plain text only' => [ [ 'text' => 'Interesting text 1' ] ],
+			'edit with complex wikitext' =>
+				[ [ 'text' => 'Wikitext with [[links]] and {{templates}} and something' ] ],
+			'edit with "~~~~" in its wikitext (should be replaced by PreSaveTransform)' =>
+				[ [
+					'text' => 'Text before signature ~~~ Text after signature',
+					'needPst' => true
+				] ],
+			'edit with summary #1' => [ [ 'summary' => 'Summary 1' ] ],
+			'edit with summary #2' => [ [ 'summary' => 'Summary 2' ] ],
+			'edit with User-Agent #1' => [ [ 'userAgent' => 'UserAgent for Testing/1.0' ] ],
+			'edit with User-Agent #2' =>
+				[ [ 'userAgent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) ' .
+					'AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 ' .
+					'Mobile/14E304 Safari/602.1' ] ],
+			'image uploaded via Special:Upload' => [ [ 'filename' => 'image100x100.png' ] ],
+			'image uploaded via API' => [ [ 'filename' => 'image100x100.png', 'viaApi' => true ] ],
+			'image with "~~~~" in its description (should be replaced by PreSaveTransform)' =>
+				[ [
+					'filename' => 'image100x100.png',
+					'text' => 'Before ~~~ After',
+					'needPst' => true
+				] ],
+			'edit in existing page' => [ [ 'existing' => true ] ],
+			'image reupload' => [ [ 'existing' => true, 'filename' => 'image100x100.png' ] ],
+			'page move (new title with spaces)' =>
+				[ [ 'title' => 'Old title', 'newTitle' => 'New title with spaces' ] ],
+			'page move (new title with underscores)' =>
+				[ [
+					'title' => 'Old title',
+					'newTitle' => 'New_title_with_underscores',
+					'summary' => 'New title is cooler'
+				] ],
+			'page move via API' =>
+				[ [ 'title' => 'Title 1', 'newTitle' => 'Title 2', 'viaApi' => true ] ],
+			'edit by modblocked user' => [ [ 'modblocked' => true ] ],
+			'anonymous edit from modblocked IP' => [ [ 'modblocked' => true, 'anonymously' => true ] ],
+			'edit by modblocked user via API' => [ [ 'modblocked' => true, 'viaApi' => true ] ],
+			'edit with "X-Forwarded-For: <ipv4 address>"' =>
+				[ [ 'xff' => '127.1.2.3', 'viaApi' => true ] ],
+			'edit with "X-Forwarded-For: <ipv4 address #1>, <ip #2>, <ip #3>"' =>
+				[ [ 'xff' => '203.0.113.195, 70.41.3.18, 150.172.238.178' ] ],
+			'edit with "X-Forwarded-For: <ipv6 address>"' =>
+				[ [ 'xff' => '2001:db8:85a3:8d3:1319:8a2e:370:7348' ] ],
+
+			'non-API edit with enabled "Watch this page" checkbox' => [ [ 'watch' => true ] ],
+			'non-API edit with disabled "Watch this page" checkbox' => [ [ 'unwatch' => true ] ],
+			'non-API upload with enabled "Watch this file" checkbox' =>
+				[ [ 'watch' => true, 'filename' => 'image100x100.png' ] ],
+			'non-API upload with disabled "Watch this file" checkbox' =>
+				[ [ 'unwatch' => true, 'filename' => 'image100x100.png' ] ],
+			'non-API move with enabled "Watch source page and target page" checkbox' =>
+				[ [ 'watch' => true, 'newTitle' => 'Title #2' ] ],
+			'non-API move with disabled "Watch source page and target page" checkbox' =>
+				[ [ 'unwatch' => true, 'newTitle' => 'Title #2' ] ],
+			'anonymous non-API edit: enabled "Watch this page" checkbox should be ignored' =>
+				[ [ 'watch' => true, 'anonymously' => true ] ],
+			'anonymous non-API edit: disabled "Watch this page" checkbox should be ignored' =>
+				[ [ 'unwatch' => true, 'anonymously' => true ] ]
 		];
 	}
 }
