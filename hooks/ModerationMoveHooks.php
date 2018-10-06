@@ -17,13 +17,13 @@
 
 /**
  * @file
- * @brief Hooks related to moving (renaming) pages.
+ * Hooks related to moving (renaming) pages.
  */
 
 class ModerationMoveHooks {
 
 	/**
-	 * @brief Intercept attempts to rename pages and queue them for moderation.
+	 * Intercept attempts to rename pages and queue them for moderation.
 	 */
 	public static function onMovePageCheckPermissions(
 		Title $oldTitle,

@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Intercepts header() calls in PHP CLI.
+ * Intercepts header() calls in PHP CLI.
  */
 
 class ModerationTestsuiteMockAutoLoader {
@@ -34,7 +34,7 @@ class ModerationTestsuiteMockAutoLoader {
 	protected $replacements = [];
 
 	/**
-	 * @brief array List of classnames which have already been mocked.
+	 * array List of classnames which have already been mocked.
 	 * Format: [ 'WebRequest' => true, 'FauxRequest' => true, ... ]
 	 */
 	private $alreadyMockedClasses = [];
@@ -51,7 +51,7 @@ class ModerationTestsuiteMockAutoLoader {
 	}
 
 	/**
-	 * @brief Cache the fact that $className doesn't need mocking.
+	 * Cache the fact that $className doesn't need mocking.
 	 */
 	protected function cacheThatNoMockIsNeeded( $className ) {
 		$fp = fopen( self::NOMOCK_CACHE_FILENAME, 'a' );
@@ -72,14 +72,14 @@ class ModerationTestsuiteMockAutoLoader {
 	}
 
 	/**
-	 * @brief Replace all calls to function A with calls to function B.
+	 * Replace all calls to function A with calls to function B.
 	 */
 	public static function replaceFunction( $oldFunctionName, $newFunctionName ) {
 		self::singleton()->replacements[$oldFunctionName] = $newFunctionName;
 	}
 
 	/**
-	 * @brief Autoload the mock-modified file instead of the original file.
+	 * Autoload the mock-modified file instead of the original file.
 	 */
 	public function autoload( $className ) {
 		global $wgAutoloadClasses, $wgAutoloadLocalClasses;
@@ -128,7 +128,7 @@ class ModerationTestsuiteMockAutoLoader {
 	}
 
 	/**
-	 * @brief Rewrite the PHP code, replacing the calls to intercepted functions with mocks.
+	 * Rewrite the PHP code, replacing the calls to intercepted functions with mocks.
 	 * @param string $text Original PHP source code.
 	 * @return Modified source code (string).
 	 */

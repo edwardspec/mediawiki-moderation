@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Tests the ModerationTestsuite itself.
+ * Tests the ModerationTestsuite itself.
  *
  * Used for debugging subclasses of ModerationTestsuiteEngine.
 */
@@ -29,7 +29,7 @@ require_once __DIR__ . "/../ModerationTestsuite.php";
  */
 class ModerationTestsuiteSelfTest extends MediaWikiTestCase {
 	/**
-	 * @brief Ensures that API response is correct.
+	 * Ensures that API response is correct.
 	 * @covers ModerationTestsuiteEngine::query
 	 * @dataProvider engineDataProvider
 	 */
@@ -49,7 +49,7 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Ensures that login works (and/or login cookies are remembered).
+	 * Ensures that login works (and/or login cookies are remembered).
 	 * @covers ModerationTestsuiteEngine::loginAs
 	 * @dataProvider engineDataProvider
 	 */
@@ -77,7 +77,7 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Ensures that non-API HTTP response is correct.
+	 * Ensures that non-API HTTP response is correct.
 	 * @covers ModerationTestsuiteEngine::executeHttpRequest
 	 * @dataProvider engineAndMethodDataProvider
 	 */
@@ -112,7 +112,7 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Provide ModerationTestsuiteEngine objects for tests.
+	 * Provide ModerationTestsuiteEngine objects for tests.
 	 */
 	public function engineDataProvider() {
 		return [
@@ -122,7 +122,7 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Provide $method datasets for testEngineNonApi() runs.
+	 * Provide $method datasets for testEngineNonApi() runs.
 	 */
 	public function methodDataProvider() {
 		return [
@@ -132,14 +132,14 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Provide [ $engine, $method ] datasets for testEngineNonApi() runs.
+	 * Provide [ $engine, $method ] datasets for testEngineNonApi() runs.
 	 */
 	public function engineAndMethodDataProvider() {
 		return $this->multiplyProviders( 'engineDataProvider', 'methodDataProvider' );
 	}
 
 	/**
-	 * @brief Provides dataset where some parameters are provided by $provider1, some by $provider2.
+	 * Provides dataset where some parameters are provided by $provider1, some by $provider2.
 	 * @param $provider1 Name of DataProvider method, e.g. 'engineDataProvider'.
 	 * @param $provider2 Name of DataProvider method, e.g. 'methodDataProvider'.
 	 */

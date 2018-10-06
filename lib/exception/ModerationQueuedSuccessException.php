@@ -17,22 +17,22 @@
 
 /**
  * @file
- * @brief Displays "Upload successful! Sent for moderation!" on Special:Upload.
-
-	When we return "moderation-edit-queued" Status from upload/move hooks,
-	forms like Special:Upload and Special:MovePage often portray this as
-	some kind of fatal error. For example, MovePage says "Permission error:
-	queued for moderation", which is not user-friendly at all.
-
-	To avoid that, we throw ErrorPageError exception that completely
-	rewrites the response page, saying that Upload/Move were a success,
-	followed by explanation about moderation.
-*/
+ * Displays "Upload successful! Sent for moderation!" on Special:Upload.
+ *
+ * When we return "moderation-edit-queued" Status from upload/move hooks,
+ * forms like Special:Upload and Special:MovePage often portray this as
+ * some kind of fatal error. For example, MovePage says "Permission error:
+ * queued for moderation", which is not user-friendly at all.
+ *
+ * To avoid that, we throw ErrorPageError exception that completely
+ * rewrites the response page, saying that Upload/Move were a success,
+ * followed by explanation about moderation.
+ */
 
 class ModerationQueuedSuccessException extends ErrorPageError {
 
 	/**
-	 * @brief Throw this exception if the user is on a special page that needs it.
+	 * Throw this exception if the user is on a special page that needs it.
 	 */
 	public static function throwIfNeeded( $msg, array $params = [] ) {
 		$title = RequestContext::getMain()->getTitle();

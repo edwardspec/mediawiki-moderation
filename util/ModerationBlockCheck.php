@@ -17,11 +17,11 @@
 
 /**
  * @file
- * @brief Checks if the user is blacklisted.
+ * Checks if the user is blacklisted.
  */
 
 class ModerationBlockCheck {
-	/** @brief Returns true if $user is blacklisted, false otherwise. */
+	/** Returns true if $user is blacklisted, false otherwise. */
 	public static function isModerationBlocked( User $user ) {
 		$dbw = wfGetDB( DB_MASTER ); # Need actual data
 		$blocked = $dbw->selectField( 'moderation_block',

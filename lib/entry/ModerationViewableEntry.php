@@ -17,12 +17,12 @@
 
 /**
  * @file
- * @brief Formatter for displaying entry in modaction=show.
+ * Formatter for displaying entry in modaction=show.
  */
 
 class ModerationViewableEntry extends ModerationEntry {
 	/**
-	 * @brief Get the list of fields needed for selecting $row, as expected by newFromRow().
+	 * Get the list of fields needed for selecting $row, as expected by newFromRow().
 	 * @return array ($fields parameter for $db->select()).
 	 */
 	public static function getFields() {
@@ -49,7 +49,7 @@ class ModerationViewableEntry extends ModerationEntry {
 	}
 
 	/**
-	 * @brief Returns HTML of the diff.
+	 * Returns HTML of the diff.
 	 * @param IContextSource $context Any object that contains current context.
 	 */
 	public function getDiffHTML( IContextSource $context ) {
@@ -106,7 +106,7 @@ class ModerationViewableEntry extends ModerationEntry {
 	}
 
 	/**
-	 * @brief Returns false if this file is not an image (e.g. OGG file), true otherwise.
+	 * Returns false if this file is not an image (e.g. OGG file), true otherwise.
 	 */
 	protected function isImage() {
 		$row = $this->getRow();
@@ -125,7 +125,7 @@ class ModerationViewableEntry extends ModerationEntry {
 	}
 
 	/**
-	 * @brief Returns URL of modaction=showimg for this upload.
+	 * Returns URL of modaction=showimg for this upload.
 	 * @param bool $isThumb True for thumbnail, false for full-sized image.
 	 */
 	public function getImageURL( $isThumb = false ) {
@@ -144,7 +144,7 @@ class ModerationViewableEntry extends ModerationEntry {
 	}
 
 	/**
-	 * @brief Returns HTML of the image thumbnail.
+	 * Returns HTML of the image thumbnail.
 	 */
 	public function getImageThumbHTML() {
 		$row = $this->getRow();

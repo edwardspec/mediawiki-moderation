@@ -17,12 +17,12 @@
 
 /**
  * @file
- * @brief Parent class for all entry types (edit, upload, move, etc.).
+ * Parent class for all entry types (edit, upload, move, etc.).
  */
 
 abstract class ModerationApprovableEntry extends ModerationEntry {
 	/**
-	 * @brief Get the list of fields needed for selecting $row, as expected by newFromRow().
+	 * Get the list of fields needed for selecting $row, as expected by newFromRow().
 	 * @return array ($fields parameter for $db->select()).
 	 */
 	public static function getFields() {
@@ -63,7 +63,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	}
 
 	/**
-	 * @brief Construct new ModerationApprovableEntry from $row.
+	 * Construct new ModerationApprovableEntry from $row.
 	 * @throws ModerationError
 	 */
 	public static function newFromRow( $row ) {
@@ -85,7 +85,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	}
 
 	/**
-	 * @brief Install hooks which affect postedit behavior of doEditContent().
+	 * Install hooks which affect postedit behavior of doEditContent().
 	 */
 	protected function installApproveHook() {
 		$row = $this->getRow();
@@ -111,7 +111,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	}
 
 	/**
-	 * @brief Approve this change.
+	 * Approve this change.
 	 * @throws ModerationError
 	 */
 	final public function approve( User $moderator ) {
@@ -158,7 +158,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	}
 
 	/**
-	 * @brief Post-approval log subtype. May be overridden in subclass.
+	 * Post-approval log subtype. May be overridden in subclass.
 	 * @return String (e.g. "approve" for "moderation/approve" log).
 	 */
 	protected function getApproveLogSubtype() {
@@ -166,7 +166,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	}
 
 	/**
-	 * @brief Parameters for post-approval log.
+	 * Parameters for post-approval log.
 	 * @return array
 	 */
 	protected function getApproveLogParameters() {
@@ -174,7 +174,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	}
 
 	/**
-	 * @brief Approve this change.
+	 * Approve this change.
 	 * @returns Status object.
 	 */
 	abstract public function doApprove( User $moderator );

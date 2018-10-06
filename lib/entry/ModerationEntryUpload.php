@@ -17,12 +17,12 @@
 
 /**
  * @file
- * @brief File upload that awaits moderation.
+ * File upload that awaits moderation.
  */
 
 class ModerationEntryUpload extends ModerationApprovableEntry {
 	/**
-	 * @brief Approve this upload.
+	 * Approve this upload.
 	 * @return Status object.
 	 */
 	public function doApprove( User $moderator ) {

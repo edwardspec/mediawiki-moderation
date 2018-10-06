@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief ApiMain subclass for testing API requests via CliEngine.
+ * ApiMain subclass for testing API requests via CliEngine.
  */
 
 class ModerationTestsuiteCliApiMain extends ApiMain {

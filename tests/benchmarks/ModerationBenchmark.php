@@ -19,12 +19,12 @@ require_once __DIR__ . '/../common/ModerationTestUtil.php';
 
 /**
  * @file
- * @brief Parent class for benchmark scripts.
+ * Parent class for benchmark scripts.
  */
 
 abstract class ModerationBenchmark extends Maintenance {
 	/**
-	 * @brief Prefix that is always prepended to all titles, etc.
+	 * Prefix that is always prepended to all titles, etc.
 	 * 	This ensures that two benchmarks won't work with the same pages,
 	 *	causing errors like "benchmark #1 was creating a new page,
 	 *	benchmark #2 was editing existing page,
@@ -33,19 +33,19 @@ abstract class ModerationBenchmark extends Maintenance {
 	private $uniquePrefix = null;
 
 	/**
-	 * @brief User object. Always created before the benchmark.
+	 * User object. Always created before the benchmark.
 	 */
 	private $testUser = null;
 
 	/**
-	 * @brief Returns User object of test account.
+	 * Returns User object of test account.
 	 */
 	public function getUser() {
 		return $this->testUser;
 	}
 
 	/**
-	 * @brief Returns Title object for testing.
+	 * Returns Title object for testing.
 	 * @param string $suffix Full text of the title, e.g. "Talk:Welsh corgi".
 	 *
 	 * During this benchmark, same value is returned for same $suffix,
@@ -60,12 +60,12 @@ abstract class ModerationBenchmark extends Maintenance {
 	}
 
 	/**
-	 * @brief This function will be benchmarked by execute().
+	 * This function will be benchmarked by execute().
 	 */
 	abstract public function doActualWork( $iterationNumber );
 
 	/**
-	 * @brief Initialize everything before the tests. Called once.
+	 * Initialize everything before the tests. Called once.
 	 * @param int $numberOfLoops
 	 */
 	public function beforeBenchmark( $numberOfLoops ) {
@@ -74,7 +74,7 @@ abstract class ModerationBenchmark extends Maintenance {
 	}
 
 	/**
-	 * @brief Same as beforeBenchmark, but is called getDefaultLoops() times.
+	 * Same as beforeBenchmark, but is called getDefaultLoops() times.
 	 * @param int $iterationNumber Number of the loop (integer starting with 0).
 	 */
 	public function beforeBenchmarkPrepareLoop( $iterationNumber ) {
@@ -83,14 +83,14 @@ abstract class ModerationBenchmark extends Maintenance {
 	}
 
 	/**
-	 * @brief Default number of loops.
+	 * Default number of loops.
 	 */
 	public function getDefaultLoops() {
 		return 500;
 	}
 
 	/**
-	 * @brief Main function: test the performance of doActualWork().
+	 * Main function: test the performance of doActualWork().
 	 */
 	function execute() {
 		$user = User::newSystemUser( 'Benchmark User', [ 'steal' => true ] );
@@ -134,7 +134,7 @@ abstract class ModerationBenchmark extends Maintenance {
 	}
 
 	/**
-	 * @brief Edit the page (convenience function to be used by benchmarks).
+	 * Edit the page (convenience function to be used by benchmarks).
 	 * @return Status object.
 	 */
 	public function edit( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
@@ -156,7 +156,7 @@ abstract class ModerationBenchmark extends Maintenance {
 	}
 
 	/**
-	 * @brief Edit the page by directly modifying the database. Very fast.
+	 * Edit the page by directly modifying the database. Very fast.
 	 *
 	 * This is used for initialization of tests.
 	 * For example, if moveQueue benchmark needs 500 existing pages,
@@ -168,7 +168,7 @@ abstract class ModerationBenchmark extends Maintenance {
 	}
 
 	/**
-	 * @brief Queue the page by directly modifying the database. Very fast.
+	 * Queue the page by directly modifying the database. Very fast.
 	 * This is used for initialization of tests.
 	 *
 	 * @return mod_id of the newly inserted row.
@@ -215,7 +215,7 @@ abstract class ModerationBenchmark extends Maintenance {
 	}
 
 	/**
-	 * @brief Render Special:Moderation with $params.
+	 * Render Special:Moderation with $params.
 	 * @return HTML of the result.
 	 */
 	public function runSpecialModeration( array $params, $wasPosted = false ) {

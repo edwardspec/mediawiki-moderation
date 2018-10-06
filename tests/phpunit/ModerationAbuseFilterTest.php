@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Verifies that AbuseFilter-assigned tags are preserved by Moderation.
+ * Verifies that AbuseFilter-assigned tags are preserved by Moderation.
  */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
@@ -29,7 +29,7 @@ class ModerationAbuseFilterTest extends MediaWikiTestCase {
 	];
 
 	/**
-	 * @brief Are AbuseFilter tags preserved for edits?
+	 * Are AbuseFilter tags preserved for edits?
 	 */
 	public function testAFTagsEdit() {
 		$t = new ModerationTestsuite();
@@ -53,7 +53,7 @@ class ModerationAbuseFilterTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Are AbuseFilter tags preserved for moves?
+	 * Are AbuseFilter tags preserved for moves?
 	 */
 	public function testAFTagsMove() {
 		$t = new ModerationTestsuite();
@@ -82,7 +82,7 @@ class ModerationAbuseFilterTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Are AbuseFilter tags preserved for uploads?
+	 * Are AbuseFilter tags preserved for uploads?
 	 */
 	public function testAFTagsUpload() {
 		$t = new ModerationTestsuite();

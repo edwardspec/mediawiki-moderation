@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Benchmark: how fast is Approve on Special:Moderation?
+ * Benchmark: how fast is Approve on Special:Moderation?
 
 	Usage:
 	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/approveEdit.php
@@ -30,7 +30,7 @@ class BenchmarkApproveEdit extends ModerationBenchmark {
 	public $ids = []; /* mod_id of all changes to approve */
 
 	/**
-	 * @brief Default number of loops.
+	 * Default number of loops.
 	 */
 	public function getDefaultLoops() {
 		return 100;

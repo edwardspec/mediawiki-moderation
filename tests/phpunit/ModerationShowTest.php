@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Verifies that modaction=show works as expected.
+ * Verifies that modaction=show works as expected.
  */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
@@ -153,7 +153,7 @@ class ModerationShowTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Ensures that non-image uploads (e.g. OGG files) are shown correctly.
+	 * Ensures that non-image uploads (e.g. OGG files) are shown correctly.
 	 * @covers ModerationActionShowImage
 	 * @requires extension curl
 	 * @note Only cURL version of MWHttpRequest supports uploads.

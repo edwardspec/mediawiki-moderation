@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Ensures that checkuser-related functionality works correctly.
+ * Ensures that checkuser-related functionality works correctly.
  */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
@@ -30,7 +30,7 @@ class ModerationCheckuserTest extends MediaWikiTestCase {
 	public $userUA = 'UserAgent of UnprivilegedUser/1.0';
 
 	/**
-	 * @brief Verifies that checkusers can see the IP of registered users via API,
+	 * Verifies that checkusers can see the IP of registered users via API,
 	 * but non-checkusers can't.
 	 */
 	public function testApiModerationCheckuser() {
@@ -48,7 +48,7 @@ class ModerationCheckuserTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Returns mod_ip of the last edit, as provided to the current user by QueryPage API.
+	 * Returns mod_ip of the last edit, as provided to the current user by QueryPage API.
 	 * @retval null IP is not in the API response.
 	 */
 	protected function getIpFromApi( ModerationTestsuite $t, User $user ) {
@@ -75,7 +75,7 @@ class ModerationCheckuserTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Ensure that modaction=approve preserves user-agent of edits.
+	 * Ensure that modaction=approve preserves user-agent of edits.
 	 */
 	public function testApproveEditPrevervesUA() {
 		$this->skipIfNoCheckuser();
@@ -103,7 +103,7 @@ class ModerationCheckuserTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Ensure that modaction=approveall preserves user-agent of uploads.
+	 * Ensure that modaction=approveall preserves user-agent of uploads.
 	 * @covers ModerationApproveHook::getTask()
 	 */
 	public function testApproveAllUploadPrevervesUA() {

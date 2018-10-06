@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Hooks/methods to preload edits which are pending moderation.
+ * Hooks/methods to preload edits which are pending moderation.
  */
 
 /*
@@ -55,7 +55,7 @@ class ModerationPreload {
 	}
 
 	/**
-	 * @brief Get the request.
+	 * Get the request.
 	 * @return WebRequest object.
 	 */
 	protected function getRequest() {
@@ -63,7 +63,7 @@ class ModerationPreload {
 	}
 
 	/**
-	 * @brief Get the user.
+	 * Get the user.
 	 * @return User object.
 	 */
 	protected function getUser() {
@@ -75,14 +75,14 @@ class ModerationPreload {
 	}
 
 	/**
-	 * @brief Override the current user: preload for $user instead.
+	 * Override the current user: preload for $user instead.
 	 */
 	public function setUser( User $user ) {
 		$this->user = $user;
 	}
 
 	/**
-	 * @brief Calculate value of mod_preload_id for the current user.
+	 * Calculate value of mod_preload_id for the current user.
 	 * @param bool $create If true, new preload ID will be generated for first-time anonymous editors.
 	 * @return Preload ID (string).
 	 * @retval false Current user is anonymous AND hasn't edited before AND $create is false.
@@ -97,7 +97,7 @@ class ModerationPreload {
 	}
 
 	/**
-	 * @brief Calculate mod_preload_id for anonymous user.
+	 * Calculate mod_preload_id for anonymous user.
 	 */
 	protected function getAnonId( $create ) {
 		$anonToken = $this->getRequest()->getSessionData( 'anon_id' );
@@ -116,14 +116,14 @@ class ModerationPreload {
 	}
 
 	/**
-	 * @brief Forget the fact that this user edited anonymously.
-		Used in LocalUserCreated hook, when user becomes registered and no longer needs anonymous preload.
+	 * Forget the fact that this user edited anonymously.
+	 * Used in LocalUserCreated hook, when user becomes registered and no longer needs anonymous preload.
 	 */
 	protected function forgetAnonId() {
 		$this->getRequest()->setSessionData( 'anon_id', '' );
 	}
 
-	/** @brief Make sure that results of $request->setSessionData() won't be lost */
+	/** Make sure that results of $request->setSessionData() won't be lost */
 	protected function makeSureSessionExists() {
 		$session = MediaWiki\Session\SessionManager::getGlobalSession();
 		$session->persist();
@@ -166,9 +166,9 @@ class ModerationPreload {
 	}
 
 	/**
-	 * @brief Check if there is a pending-moderation edit of this user
-		to this page, and if such edit exists, then load its text and
-		edit comment.
+	 * Check if there is a pending-moderation edit of this user
+	 * to this page, and if such edit exists, then load its text and
+	 * edit comment.
 	 */
 	public function loadUnmoderatedEdit( $title ) {
 		$id = $this->getId();

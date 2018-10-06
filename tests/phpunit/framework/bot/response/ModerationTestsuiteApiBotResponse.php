@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Wrapper around the API response of ApiBot methods.
+ * Wrapper around the API response of ApiBot methods.
  *
  * Behaves like a usual API response array, but also has ModerationTestsuiteBotResponse methods.
  */

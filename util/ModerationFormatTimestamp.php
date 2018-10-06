@@ -17,13 +17,13 @@
 
 /**
  * @file
- * @brief Displays mod_timestamp on Special:Moderation.
+ * Displays mod_timestamp on Special:Moderation.
  */
 
 class ModerationFormatTimestamp {
 
 	/**
-	 * @brief Returns human-readable version of $timestamp.
+	 * Returns human-readable version of $timestamp.
 	 */
 	public static function format( $timestamp, IContextSource $context ) {
 		$lang = $context->getLanguage();
@@ -39,7 +39,7 @@ class ModerationFormatTimestamp {
 	}
 
 	/**
-	 * @brief Returns true if $timestamp is today, false otherwise.
+	 * Returns true if $timestamp is today, false otherwise.
 	 * @param string $timestamp Timestamp in MediaWiki format (14 digits).
 	 * @param IContextSource $context Any object that contains current context.
 	 */

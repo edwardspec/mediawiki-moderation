@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Replacement of LocalSettings.php loaded by [cliInvoke.php].
+ * Replacement of LocalSettings.php loaded by [cliInvoke.php].
  */
 
 # Load the usual LocalSettings.php

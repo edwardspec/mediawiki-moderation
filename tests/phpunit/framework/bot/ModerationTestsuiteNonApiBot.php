@@ -17,12 +17,12 @@
 
 /**
  * @file
- * @brief Performs editing methods of the testsuite (edit/upload/move) NOT via API.
+ * Performs editing methods of the testsuite (edit/upload/move) NOT via API.
  */
 
 class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 	/**
-	 * @brief Make an edit via the usual interface, as real users do.
+	 * Make an edit via the usual interface, as real users do.
 	 * @param ModerationTestsuite $t
 	 * @param string $title
 	 * @param string $text
@@ -68,7 +68,7 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 	}
 
 	/**
-	 * @brief Make a move via the usual interface, as real users do.
+	 * Make a move via the usual interface, as real users do.
 	 * @param ModerationTestsuite $t
 	 * @param string $oldTitle
 	 * @param string $newTitle
@@ -100,7 +100,7 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 	}
 
 	/**
-	 * @brief Perform an upload via the usual interface, as real users do.
+	 * Perform an upload via the usual interface, as real users do.
 	 * @param ModerationTestsuite $t
 	 * @param string $title
 	 * @param string $srcPath
@@ -130,7 +130,7 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 	}
 
 	/**
-	 * @brief Interpret the HTML page printed by submitted Special:Upload or Special:Movepage.
+	 * Interpret the HTML page printed by submitted Special:Upload or Special:Movepage.
 	 * @param ModerationTestsuiteResponse $req Value returned by httpPost().
 	 * @param string $interceptMsg One of "moderation-move-queued", "moderation-image-queued".
 	 * @param string|null &$failedReason Error code (if any) will be written into this variable.

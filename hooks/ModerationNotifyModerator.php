@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Hooks that are only needed for moderators.
+ * Hooks that are only needed for moderators.
  */
 
 class ModerationNotifyModerator {
@@ -69,12 +69,12 @@ class ModerationNotifyModerator {
 		return true;
 	}
 
-	/** @brief Returns memcached key used by getPendingTime()/setPendingTime() */
+	/** Returns memcached key used by getPendingTime()/setPendingTime() */
 	protected static function getPendingCacheKey() {
 		return wfMemcKey( 'moderation-newest-pending-timestamp' );
 	}
 
-	/** @brief Returns most recent mod_timestamp of pending edit */
+	/** Returns most recent mod_timestamp of pending edit */
 	protected static function getPendingTime() {
 		$cache = wfGetMainCache();
 		$cacheKey = self::getPendingCacheKey();
@@ -94,7 +94,7 @@ class ModerationNotifyModerator {
 		return $result;
 	}
 
-	/** @brief Uncached version of getPendingTime(). Shouldn't be used outside of getPendingTime() */
+	/** Uncached version of getPendingTime(). Shouldn't be used outside of getPendingTime() */
 	protected static function getPendingTimeUncached() {
 		$dbr = wfGetDB( DB_REPLICA );
 		return $dbr->selectField( 'moderation', 'mod_timestamp',
@@ -107,29 +107,29 @@ class ModerationNotifyModerator {
 		);
 	}
 
-	/** @brief Update the cache of getPendingTime() with more actual value. */
+	/** Update the cache of getPendingTime() with more actual value. */
 	public static function setPendingTime( $newTimestamp ) {
 		$cache = wfGetMainCache();
 		$cache->set( self::getPendingCacheKey(), $newTimestamp, 86400 ); /* 24 hours */
 	}
 
 	/**
-	 * @brief Clear the cache of getPendingTime().
-		Used instead of setPendingTime() when we don't know $newTimestamp,
-		e.g. in modaction=rejectall.
+	 * Clear the cache of getPendingTime().
+	 * Used instead of setPendingTime() when we don't know $newTimestamp,
+	 * e.g. in modaction=rejectall.
 	 */
 	public static function invalidatePendingTime() {
 		$cache = wfGetMainCache();
 		$cache->delete( self::getPendingCacheKey() );
 	}
 
-	/** @brief Returns memcached key used by getSeen()/setSeen() */
+	/** Returns memcached key used by getSeen()/setSeen() */
 	protected static function getSeenCacheKey( User $user ) {
 		return wfMemcKey( 'moderation-seen-timestamp', $user->getId() );
 	}
 
 	/**
-	 * @brief Get newest mod_timestamp seen by $user.
+	 * Get newest mod_timestamp seen by $user.
 	 * @retval false Unknown.
 	 */
 	protected static function getSeen( User $user ) {
@@ -138,7 +138,7 @@ class ModerationNotifyModerator {
 	}
 
 	/**
-	 * @brief Remember the newest mod_timestamp seen by $user.
+	 * Remember the newest mod_timestamp seen by $user.
 	 */
 	public static function setSeen( User $user, $timestamp ) {
 		$cache = wfGetMainCache();

@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Testsuite engine that runs index.php/api.php in PHP CLI.
+ * Testsuite engine that runs index.php/api.php in PHP CLI.
 
 	For now, we subclass from RealHttpEngine, because we want doQuery()
 	to be based on executeHttpRequest(), same as in RealHttpEngine.
@@ -37,7 +37,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 	}
 
 	/**
-	 * @brief Sets MediaWiki global variable.
+	 * Sets MediaWiki global variable.
 	 * @param string $name Name of variable without the $wg prefix.
 	 */
 	public function setMwConfig( $name, $value ) {
@@ -192,7 +192,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 		return $result;
 	}
 
-	/** @brief Safely split $bits['path'] into SCRIPT_NAME and PATH_INFO */
+	/** Safely split $bits['path'] into SCRIPT_NAME and PATH_INFO */
 	protected function safelyExtractPathInfo( $relPath ) {
 		$allowedScripts = array_map( 'wfScript', [ 'index', 'api' ] );
 
@@ -210,7 +210,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 	}
 
 	/**
-	 * @brief Run subrequests in the DB sandbox imposed by MediaWikiTestCase.
+	 * Run subrequests in the DB sandbox imposed by MediaWikiTestCase.
 	 */
 	public function escapeDbSandbox() {
 		if ( !empty( PHPUnitMaintClass::$additionalOptions['use-normal-tables'] ) ) {

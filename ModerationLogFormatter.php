@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Defines the format of [[Special:Log/moderation]]
+ * Defines the format of [[Special:Log/moderation]]
  */
 
 class ModerationLogFormatter extends LogFormatter {
@@ -101,7 +101,7 @@ class ModerationLogFormatter extends LogFormatter {
 	}
 
 	/**
-	 * @brief List of Titles to be fed to LinkBatch (to check their existence).
+	 * List of Titles to be fed to LinkBatch (to check their existence).
 	 */
 	public function getPreloadTitles() {
 		$type = $this->entry->getSubtype();

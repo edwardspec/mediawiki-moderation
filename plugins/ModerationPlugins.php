@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Enable plugins for using third-party extensions with Moderation.
+ * Enable plugins for using third-party extensions with Moderation.
  */
 
 class ModerationPlugins {

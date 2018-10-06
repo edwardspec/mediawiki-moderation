@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Benchmark: how fast are moves queued for moderation?
+ * Benchmark: how fast are moves queued for moderation?
 
 	Usage:
 	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/queueMove.php

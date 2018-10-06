@@ -2,7 +2,7 @@
 
 
 /**
- * @brief Basic TestSet for tests which precreate a change that awaits moderation.
+ * Basic TestSet for tests which precreate a change that awaits moderation.
  */
 abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsuiteTestSet {
 
@@ -25,7 +25,7 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 	protected $nullEdit = false;
 
 	/**
-	 * @brief Initialize this TestSet from the input of dataProvider.
+	 * Initialize this TestSet from the input of dataProvider.
 	 */
 	protected function applyOptions( array $options ) {
 		$this->fields = $this->getDefaultFields();
@@ -133,7 +133,7 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 	}
 
 	/**
-	 * @brief Returns full path of $this->filename.
+	 * Returns full path of $this->filename.
 	 * @return string
 	 */
 	protected function findSourceFilename() {
@@ -141,7 +141,7 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 	}
 
 	/**
-	 * @brief Returns default value for $fields.
+	 * Returns default value for $fields.
 	 * This represents situation when dataProvider provides an empty array.
 	 */
 	protected function getDefaultFields() {
@@ -184,7 +184,7 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 	}
 
 	/**
-	 * @brief Returns Title object of the page mentioned in $this->fields.
+	 * Returns Title object of the page mentioned in $this->fields.
 	 */
 	protected function getExpectedTitleObj( $nsField = 'mod_namespace', $titleField = 'mod_title' ) {
 		return Title::makeTitle(
@@ -194,14 +194,14 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 	}
 
 	/**
-	 * @brief Returns pagename (string) of the page mentioned in $this->fields.
+	 * Returns pagename (string) of the page mentioned in $this->fields.
 	 */
 	protected function getExpectedTitle( $nsField = 'mod_namespace', $titleField = 'mod_title' ) {
 		return $this->getExpectedTitleObj( $nsField, $titleField )->getFullText();
 	}
 
 	/**
-	 * @brief Returns pagename (string) of the second page mentioned in $this->fields.
+	 * Returns pagename (string) of the second page mentioned in $this->fields.
 	 */
 	protected function getExpectedPage2Title() {
 		return $this->getExpectedTitle(
@@ -211,7 +211,7 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 	}
 
 	/**
-	 * @brief Get the test user who issues a moderation block if modblocked=true was requested.
+	 * Get the test user who issues a moderation block if modblocked=true was requested.
 	 * @return User
 	 */
 	protected function getModeratorWhoBlocked() {
@@ -221,7 +221,7 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 	}
 
 	/**
-	 * @brief Execute the TestSet, making an edit/upload/move with requested parameters.
+	 * Execute the TestSet, making an edit/upload/move with requested parameters.
 	 */
 	protected function makeChanges() {
 		$dbw = wfGetDB( DB_MASTER );

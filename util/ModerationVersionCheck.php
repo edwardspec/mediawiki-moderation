@@ -17,12 +17,12 @@
 
 /**
  * @file
- * @brief Functions for seamless database updates between versions.
+ * Functions for seamless database updates between versions.
  */
 
 class ModerationVersionCheck {
 
-	/** @brief Returns true if the database has mod_tags field, false otherwise */
+	/** Returns true if the database has mod_tags field, false otherwise */
 	public static function areTagsSupported() {
 		return self::wasDbUpdatedAfter( '1.1.29' );
 	}
@@ -35,7 +35,7 @@ class ModerationVersionCheck {
 		return self::wasDbUpdatedAfter( '1.1.31' );
 	}
 
-	/** @brief Returns true if the database has mod_type field, false otherwise */
+	/** Returns true if the database has mod_type field, false otherwise */
 	public static function hasModType() {
 		return self::wasDbUpdatedAfter( '1.2.17' );
 	}
@@ -49,7 +49,7 @@ class ModerationVersionCheck {
 	}
 
 	/**
-	 * @brief Calculate mod_title for $title.
+	 * Calculate mod_title for $title.
 	 * Backward compatible with old Moderation databases that used spaces, not underscores.
 	 */
 	public static function getModTitleFor( Title $title ) {
@@ -61,7 +61,7 @@ class ModerationVersionCheck {
 	}
 
 	/**
-	 * @brief Returns value of mod_preloadable that means "YES, this change can be preloaded".
+	 * Returns value of mod_preloadable that means "YES, this change can be preloaded".
 	 */
 	public static function preloadableYes() {
 		if ( self::hasUniqueIndex() ) {
@@ -74,7 +74,7 @@ class ModerationVersionCheck {
 	}
 
 	/**
-	 * @brief Determines how to mark edit as NOT preloadable in SQL UPDATE.
+	 * Determines how to mark edit as NOT preloadable in SQL UPDATE.
 	 * @return One element of $fields parameter for $db->update().
 	 */
 	public static function setPreloadableToNo() {
@@ -101,13 +101,13 @@ class ModerationVersionCheck {
 		'pp_propname' => 'moderation:lastDbUpdateVersion'
 	];
 
-	/** @brief Returns memcached key used by getDbUpdatedVersion() and markDbAsUpdated() */
+	/** Returns memcached key used by getDbUpdatedVersion() and markDbAsUpdated() */
 	protected static function getCacheKey() {
 		return wfMemcKey( 'moderation-lastDbUpdateVersion' );
 	}
 
 	/**
-	 * @brief Check if update.php was called after $versionOfModeration was installed.
+	 * Check if update.php was called after $versionOfModeration was installed.
 	 * @param string $versionOfModeration Version of Extension:Moderation, as listed in extension.json.
 	 * @return True if update.php was called, false otherwise.
 	 */
@@ -116,7 +116,7 @@ class ModerationVersionCheck {
 	}
 
 	/**
-	 * @brief Returns version that Moderation had during the latest invocation of update.php.
+	 * Returns version that Moderation had during the latest invocation of update.php.
 	 */
 	protected static function getDbUpdatedVersion() {
 		if ( self::$dbUpdatedVersion ) {
@@ -138,7 +138,7 @@ class ModerationVersionCheck {
 	}
 
 	/**
-	 * @brief Uncached version of getDbUpdatedVersion().
+	 * Uncached version of getDbUpdatedVersion().
 	 * @note Shouldn't be used outside of getDbUpdatedVersion()
 	 */
 	protected static function getDbUpdatedVersionUncached() {
@@ -156,7 +156,7 @@ class ModerationVersionCheck {
 	}
 
 	/**
-	 * @brief Returns current version of Moderation (string).
+	 * Returns current version of Moderation (string).
 	 */
 	protected static function getVersionOfModeration() {
 		global $wgExtensionCredits;
@@ -172,7 +172,7 @@ class ModerationVersionCheck {
 	}
 
 	/**
-	 * @brief Remember the current version of Moderation for use in wasDbUpdatedAfter().
+	 * Remember the current version of Moderation for use in wasDbUpdatedAfter().
 	 * Called from update.php.
 	 */
 	public static function markDbAsUpdated() {

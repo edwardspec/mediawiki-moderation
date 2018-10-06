@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Trait for classes that represent return value of bot methods edit(), move(), upload().
+ * Trait for classes that represent return value of bot methods edit(), move(), upload().
  */
 
 trait ModerationTestsuiteBotResponse {
@@ -32,7 +32,7 @@ trait ModerationTestsuiteBotResponse {
 	private $error;
 
 	/**
-	 * @brief Construct new BotResponse object.
+	 * Construct new BotResponse object.
 	 * @param array|ModerationTestsuiteResponse $nativeResponse Depends on bot type (API or not).
 	 * @param bool $isIntercepted
 	 * @param bool $isBypassed

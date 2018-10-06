@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Ensures that moves are intercepted by Extension:Moderation.
+ * Ensures that moves are intercepted by Extension:Moderation.
  */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
@@ -135,12 +135,11 @@ class ModerationMoveTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Ensures that Special:MovePage won't queue the move before submit.
-
-		Hook MovePageCheckPermissions (where we queue the move) is called
-		not only on submit, but also in MovePageForm::showForm, i.e. before submit.
-
-		At this point we shouldn't attempt to queue the move for moderation.
+	 * Ensures that Special:MovePage won't queue the move before submit.
+	 * Hook MovePageCheckPermissions (where we queue the move) is called
+	 * not only on submit, but also in MovePageForm::showForm, i.e. before submit.
+	 *
+	 * At this point we shouldn't attempt to queue the move for moderation.
 	*/
 	public function testNoPrematureMoveInShowForm() {
 		$t = new ModerationTestsuite();

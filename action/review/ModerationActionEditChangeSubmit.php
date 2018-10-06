@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Implements modaction=editchangesubmit on [[Special:Moderation]].
+ * Implements modaction=editchangesubmit on [[Special:Moderation]].
  *
  * @see ModerationActionEditChange - handles the edit form
  */

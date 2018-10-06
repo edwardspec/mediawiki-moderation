@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Checks consequences of the moderation actions on Special:Moderation.
+ * Checks consequences of the moderation actions on Special:Moderation.
  */
 
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
@@ -34,7 +34,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Provide datasets for testAction() runs.
+	 * Provide datasets for testAction() runs.
 	 */
 	public function dataProvider() {
 		global $wgModerationTimeToOverrideRejection;
@@ -428,7 +428,7 @@ class ModerationActionTest extends MediaWikiTestCase {
 }
 
 /**
- * @brief Represents one TestSet for testAction().
+ * Represents one TestSet for testAction().
  */
 class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 
@@ -571,7 +571,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $showThumb = false;
 
 	/**
-	 * @brief Initialize this TestSet from the input of dataProvider.
+	 * Initialize this TestSet from the input of dataProvider.
 	 */
 	protected function applyOptions( array $options ) {
 		foreach ( $options as $key => $value ) {
@@ -650,7 +650,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Returns the expected target of LogEntry created by this modaction.
+	 * Returns the expected target of LogEntry created by this modaction.
 	 * @return Title
 	 */
 	protected function getExpectedLogTarget() {
@@ -666,7 +666,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Returns the User who will perform this modaction.
+	 * Returns the User who will perform this modaction.
 	 * @return User
 	 */
 	protected function getModerator() {
@@ -677,7 +677,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Assert the consequences of the action.
+	 * Assert the consequences of the action.
 	 */
 	protected function assertResults( MediaWikiTestCase $testcase ) {
 		// Add rejection-related fields to $this->expectedFields.
@@ -742,7 +742,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Check HTML output printed by the action URL.
+	 * Check HTML output printed by the action URL.
 	 * @see assertBinaryOutput
 	 */
 	protected function assertHtmlOutput( MediaWikiTestCase $testcase, ModerationTestsuiteHTML $html ) {
@@ -796,7 +796,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Check non-HTML output printed by the action URL.
+	 * Check non-HTML output printed by the action URL.
 	 * @see assertHtmlOutput
 	 */
 	protected function assertBinaryOutput(
@@ -846,7 +846,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Determine width/height of downloaded image.
+	 * Determine width/height of downloaded image.
 	 * @param string $contents
 	 * @return array Array of two integers (width and height).
 	 */
@@ -860,7 +860,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Check whether/how was the database row modified by this action.
+	 * Check whether/how was the database row modified by this action.
 	 */
 	protected function assertDatabaseChanges( MediaWikiTestCase $testcase ) {
 		$dbw = wfGetDB( DB_MASTER );
@@ -879,7 +879,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Check the necessary consequences of modaction=approve(all).
+	 * Check the necessary consequences of modaction=approve(all).
 	 */
 	protected function assertApproved( MediaWikiTestCase $testcase ) {
 		if ( !$this->expectApproved ) {
@@ -928,7 +928,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Check whether the moderation block was added/deleted.
+	 * Check whether the moderation block was added/deleted.
 	 */
 	protected function assertBlockedStatus( MediaWikiTestCase $testcase ) {
 		$expectedBlocker = $this->getModerator();
@@ -974,7 +974,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Check the log entry created by this action (if any).
+	 * Check the log entry created by this action (if any).
 	 */
 	protected function assertLogEntry( MediaWikiTestCase $testcase ) {
 		// Check the LogEntry, if any
@@ -1057,7 +1057,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Calculates the URL of modaction requested by this TestSet.
+	 * Calculates the URL of modaction requested by this TestSet.
 	 */
 	protected function getActionURL() {
 		$q = [

@@ -17,14 +17,14 @@
 
 /**
  * @file
- * @brief Ensures that reverting image to old revision doesn't bypass Moderation.
+ * Ensures that reverting image to old revision doesn't bypass Moderation.
  */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 class ModerationFileRevertTest extends MediaWikiTestCase {
 	/**
-	 * @brief Check that index.php?action=revert can't be used to bypass Moderation.
+	 * Check that index.php?action=revert can't be used to bypass Moderation.
 	 * @covers ModerationUploadHooks::ongetUserPermissionsErrors
 	 */
 	public function testFileRevert() {
@@ -42,7 +42,7 @@ class ModerationFileRevertTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Check that api.php?action=filerevert can't be used to bypass Moderation.
+	 * Check that api.php?action=filerevert can't be used to bypass Moderation.
 	 */
 	public function testApiFileRevert() {
 		$t = new ModerationTestsuite();

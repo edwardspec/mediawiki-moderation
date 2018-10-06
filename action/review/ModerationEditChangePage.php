@@ -17,13 +17,13 @@
 
 /**
  * @file
- * @brief Subclass of EditPage used by modaction=editchange
+ * Subclass of EditPage used by modaction=editchange
  */
 
 class ModerationEditChangePage extends EditPage {
 
 	/**
-	 * @brief When user clicks Submit, handle this back to Special:Moderation.
+	 * When user clicks Submit, handle this back to Special:Moderation.
 	 */
 	protected function getActionURL( Title $title ) {
 		global $wgOut;
@@ -36,7 +36,7 @@ class ModerationEditChangePage extends EditPage {
 	}
 
 	/**
-	 * @brief Add CSRF token.
+	 * Add CSRF token.
 	 */
 	protected function showFormAfterText() {
 		global $wgOut; // MediaWiki 1.27 doesn't have EditPage::getContext()
@@ -47,7 +47,7 @@ class ModerationEditChangePage extends EditPage {
 	}
 
 	/**
-	 * @brief Remove "Preview" and "Show changes" buttons (not yet implemented).
+	 * Remove "Preview" and "Show changes" buttons (not yet implemented).
 	 */
 	public function getEditButtons( &$tabindex ) {
 		$buttons = parent::getEditButtons( $tabindex );
@@ -59,7 +59,7 @@ class ModerationEditChangePage extends EditPage {
 	}
 
 	/**
-	 * @brief Point "Cancel" button to Special:Moderation, not to the nonexistent article.
+	 * Point "Cancel" button to Special:Moderation, not to the nonexistent article.
 	 */
 	public function getContextTitle() {
 		return SpecialPage::getTitleFor( 'Moderation' );

@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Verifies that moderators see "New changes await moderation" notice.
+ * Verifies that moderators see "New changes await moderation" notice.
  */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";

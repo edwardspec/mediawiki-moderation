@@ -2,11 +2,11 @@
 
 /**
  * @file
- * @brief Backward compatibility file to support require_once() in LocalSettings.
-
-	Modern syntax (to enable Moderation in LocalSettings.php) is
-		wfLoadExtension( 'Moderation' );
-*/
+ * Backward compatibility file to support require_once() in LocalSettings.
+ *
+ * Modern syntax (to enable Moderation in LocalSettings.php) is
+ * wfLoadExtension( 'Moderation' );
+ */
 
 if ( function_exists( 'wfLoadExtension' ) ) {
 	wfLoadExtension( 'Moderation' );

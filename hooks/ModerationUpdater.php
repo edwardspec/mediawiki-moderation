@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Creates/updates the SQL tables when 'update.php' is invoked.
+ * Creates/updates the SQL tables when 'update.php' is invoked.
  */
 
 class ModerationUpdater {

@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Additional LocalSettings.php for Travis testing of Extension:Moderation.
+ * Additional LocalSettings.php for Travis testing of Extension:Moderation.
  */
 
 # URL of the testwiki (as configured in .travis.yml).

@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Implements testsuite methods edit(), upload() and move().
+ * Implements testsuite methods edit(), upload() and move().
  */
 
 abstract class ModerationTestsuiteBot {
@@ -35,7 +35,7 @@ abstract class ModerationTestsuiteBot {
 	}
 
 	/**
-	 * @brief Create a new bot.
+	 * Create a new bot.
 	 * @param string $method One of the following: 'api', 'nonApi'.
 	 */
 	public static function factory( $method, ModerationTestsuite $t ) {
@@ -51,7 +51,7 @@ abstract class ModerationTestsuiteBot {
 	}
 
 	/**
-	 * @brief Perform a test edit.
+	 * Perform a test edit.
 	 * @param string|null $title
 	 * @param string|null $text
 	 * @param string|null $summary
@@ -87,7 +87,7 @@ abstract class ModerationTestsuiteBot {
 	}
 
 	/**
-	 * @brief Perform a test move.
+	 * Perform a test move.
 	 * @param string $oldTitle
 	 * @param string $newTitle
 	 * @param string $reason
@@ -103,7 +103,7 @@ abstract class ModerationTestsuiteBot {
 	}
 
 	/**
-	 * @brief Perform a test upload.
+	 * Perform a test upload.
 	 * @param string|null $title
 	 * @param string|null $srcFilename
 	 * @param string|null $text
@@ -142,20 +142,20 @@ abstract class ModerationTestsuiteBot {
 		return $result;
 	}
 
-	/** @brief Bot-specific (e.g. API or non-API) implementation of edit(). */
+	/** Bot-specific (e.g. API or non-API) implementation of edit(). */
 	abstract public function doEdit( ModerationTestsuite $t,
 		$title, $text, $summary, $section, array $extraParams );
 
-	/** @brief Bot-specific (e.g. API or non-API) implementation of move(). */
+	/** Bot-specific (e.g. API or non-API) implementation of move(). */
 	abstract public function doMove( ModerationTestsuite $t,
 		$oldTitle, $newTitle, $reason, array $extraParams );
 
-	/** @brief Bot-specific (e.g. API or non-API) implementation of upload(). */
+	/** Bot-specific (e.g. API or non-API) implementation of upload(). */
 	abstract public function doUpload( ModerationTestsuite $t,
 		$title, $srcPath, $text, array $extraParams );
 
 	/**
-	 * @brief Get sample page name (used when the test hasn't specified it).
+	 * Get sample page name (used when the test hasn't specified it).
 	 * @return string
 	 */
 	private function generateRandomTitle() {
@@ -164,7 +164,7 @@ abstract class ModerationTestsuiteBot {
 	}
 
 	/**
-	 * @brief Get sample text of the page (used when the test hasn't specified it).
+	 * Get sample text of the page (used when the test hasn't specified it).
 	 * @return string
 	 */
 	private function generateRandomText() {
@@ -172,7 +172,7 @@ abstract class ModerationTestsuiteBot {
 	}
 
 	/**
-	 * @brief Get sample edit summary (used when the test hasn't specified it).
+	 * Get sample edit summary (used when the test hasn't specified it).
 	 * @return string
 	 */
 	private function generateEditSummary() {

@@ -17,13 +17,13 @@
 
 /**
  * @file
- * @brief Hooks related to file uploads.
+ * Hooks related to file uploads.
  */
 
 class ModerationUploadHooks {
 
 	/**
-	 * @brief Intercept image uploads and queue them for moderation.
+	 * Intercept image uploads and queue them for moderation.
 	 */
 	public static function onUploadVerifyUpload( $upload, $user, $__unused,
 		$comment, $pageText, &$error
@@ -98,7 +98,7 @@ class ModerationUploadHooks {
 	}
 
 	/**
-	 * @brief Returns true if UploadVerifyUpload hook exists, false otherwise.
+	 * Returns true if UploadVerifyUpload hook exists, false otherwise.
 	 */
 	public static function haveUploadVerifyUpload() {
 		global $wgVersion;
@@ -106,7 +106,7 @@ class ModerationUploadHooks {
 	}
 
 	/**
-	 * @brief Polyfill to call onUploadVerifyUpload in MediaWiki 1.27.
+	 * Polyfill to call onUploadVerifyUpload in MediaWiki 1.27.
 	 * Not needed in MediaWiki 1.28+.
 	 */
 	public static function onUploadVerifyFile( $upload, $mime, &$status ) {

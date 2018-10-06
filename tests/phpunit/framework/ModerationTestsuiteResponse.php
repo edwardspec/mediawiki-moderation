@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief HTTP response to be analyzed by tests. Made from MWHttpRequest or OutputPage.
+ * HTTP response to be analyzed by tests. Made from MWHttpRequest or OutputPage.
  *
  * This class mimics the methods of MWHttpRequest, even if it was created
  * from OutputPage (as the result of internal invocation).
@@ -41,7 +41,7 @@ class ModerationTestsuiteResponse implements IModerationTestsuiteResponse {
 	}
 
 	/**
-	 * @brief Create response from real MWHttpRequest.
+	 * Create response from real MWHttpRequest.
 	 * @return ModerationTestsuiteResponse object.
 	 */
 	public static function newFromMWHttpRequest( MWHttpRequest $httpRequest ) {
@@ -53,7 +53,7 @@ class ModerationTestsuiteResponse implements IModerationTestsuiteResponse {
 	}
 
 	/**
-	 * @brief Create response after internal invocation.
+	 * Create response after internal invocation.
 	 * @param FauxResponse $mwResponse Response object after $mediaWiki->run
 	 * @param string $capturedContent Text printed by $mediaWiki->run
 	 * @return ModerationTestsuiteResponse object.

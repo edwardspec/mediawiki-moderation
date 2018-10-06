@@ -17,9 +17,9 @@
 
 /**
  * @file
- * @brief Verifies that edit conficts are resolved by modaction=approve.
-
-	Note: unresolvable edit conflicts are tested by ModerationMergeTest.
+ * Verifies that edit conficts are resolved by modaction=approve.
+ *
+ * Note: unresolvable edit conflicts are tested by ModerationMergeTest.
 */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";

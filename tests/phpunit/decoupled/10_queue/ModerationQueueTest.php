@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Checks SQL table 'moderation' after the edit.
+ * Checks SQL table 'moderation' after the edit.
  */
 
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
@@ -34,7 +34,7 @@ class ModerationQueueTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Provide datasets for testQueueEdit() runs.
+	 * Provide datasets for testQueueEdit() runs.
 	 */
 	public function dataProvider() {
 		return [
@@ -112,7 +112,7 @@ class ModerationQueueTest extends MediaWikiTestCase {
 }
 
 /**
- * @brief Represents one TestSet for testQueue().
+ * Represents one TestSet for testQueue().
  */
 class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 
@@ -163,7 +163,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	protected $watch = null;
 
 	/**
-	 * @brief Initialize this TestSet from the input of dataProvider.
+	 * Initialize this TestSet from the input of dataProvider.
 	 */
 	protected function applyOptions( array $options ) {
 		foreach ( $options as $key => $value ) {
@@ -230,7 +230,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Assert the state of the database after the edit.
+	 * Assert the state of the database after the edit.
 	 */
 	protected function assertResults( MediaWikiTestCase $testcase ) {
 		$row = $this->assertRowEquals( $this->getExpectedRow() );
@@ -241,7 +241,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Execute the TestSet, making an edit/upload/move with requested parameters.
+	 * Execute the TestSet, making an edit/upload/move with requested parameters.
 	 */
 	protected function makeChanges() {
 		$testcase = $this->getTestcase();
@@ -321,7 +321,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Returns array of expected post-edit values of all mod_* fields in the database.
+	 * Returns array of expected post-edit values of all mod_* fields in the database.
 	 * @note Values like "/value/" are treated as regular expressions.
 	 * @returns [ 'mod_user' => ..., 'mod_namespace' => ..., ... ]
 	 */
@@ -401,7 +401,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Assert the state of UploadStash after the test.
+	 * Assert the state of UploadStash after the test.
 	 * @param $stashKey Value of mod_stash_key (as found in the database after the test).
 	 */
 	protected function checkUpload( $stashKey ) {
@@ -422,7 +422,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Assert the state of Watchlist after the test.
+	 * Assert the state of Watchlist after the test.
 	 */
 	protected function checkWatchlist( $expected ) {
 		if ( $expected === null ) {
@@ -440,7 +440,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Assert that $title is watched/unwatched.
+	 * Assert that $title is watched/unwatched.
 	 * @param $expectedState True if $title should be watched, false if not.
 	 */
 	protected function assertWatched( $expectedState, Title $title ) {

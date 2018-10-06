@@ -17,14 +17,14 @@
 
 /**
  * @file
- * @brief Verifies compatibility with Extension:PageForms.
+ * Verifies compatibility with Extension:PageForms.
  */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 class ModerationPageFormsTest extends MediaWikiTestCase {
 	/**
-	 * @brief Is pending edit preloaded into the edit form of Special:FormEdit?
+	 * Is pending edit preloaded into the edit form of Special:FormEdit?
 	 * @covers ModerationPageForms
 	 * @dataProvider dataProviderPageFormsPreload
 	 */
@@ -86,7 +86,7 @@ class ModerationPageFormsTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Provide datasets for testPageFormsPreload() runs.
+	 * Provide datasets for testPageFormsPreload() runs.
 	 */
 	public function dataProviderPageFormsPreload() {
 		/* Sections are handled differently in API and non-API editing.

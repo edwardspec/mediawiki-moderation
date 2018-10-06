@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Helper script to run MediaWiki as a command line script.
+ * Helper script to run MediaWiki as a command line script.
 
  * @see ModerationTestsuiteCliEngine::cliExecute()
  * @note this runs before Setup.php, configuration is unknown,

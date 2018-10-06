@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Wrapper around the HTTP response of NonApiBot methods.
+ * Wrapper around the HTTP response of NonApiBot methods.
  *
  * Behaves like ModerationTestsuiteResponse, but also has ModerationTestsuiteBotResponse methods.
  */

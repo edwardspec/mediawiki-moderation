@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Performs database query that is not rolled back by MWException.
+ * Performs database query that is not rolled back by MWException.
  */
 
 class RollbackResistantQuery {
@@ -38,7 +38,7 @@ class RollbackResistantQuery {
 	protected $args;
 
 	/**
-	 * @brief Perform Database::insert() that won't be undone by Database::rollback().
+	 * Perform Database::insert() that won't be undone by Database::rollback().
 	 * @param IDatabase $dbw Database object.
 	 * @param array $args Arguments of Database::insert call.
 	 */
@@ -47,7 +47,7 @@ class RollbackResistantQuery {
 	}
 
 	/**
-	 * @brief Perform Database::update() that won't be undone by Database::rollback().
+	 * Perform Database::update() that won't be undone by Database::rollback().
 	 * @param IDatabase $dbw Database object.
 	 * @param array $args Arguments of Database::update call.
 	 */
@@ -56,7 +56,7 @@ class RollbackResistantQuery {
 	}
 
 	/**
-	 * @brief Perform Database::replace() that won't be undone by Database::rollback().
+	 * Perform Database::replace() that won't be undone by Database::rollback().
 	 * @param IDatabase $dbw Database object.
 	 * @param array $args Arguments of Database::replace call.
 	 */
@@ -65,7 +65,7 @@ class RollbackResistantQuery {
 	}
 
 	/**
-	 * @brief Perform Database::upsert() that won't be undone by Database::rollback().
+	 * Perform Database::upsert() that won't be undone by Database::rollback().
 	 * @param IDatabase $dbw Database object.
 	 * @param array $args Arguments of Database::upsert call.
 	 */
@@ -74,7 +74,7 @@ class RollbackResistantQuery {
 	}
 
 	/**
-	 * @brief Create and immediately execute a new query.
+	 * Create and immediately execute a new query.
 	 * @param string $methodName One of the following: 'insert', 'update' or 'replace'.
 	 * @param IDatabase $dbw Database object.
 	 * @param array $args Arguments of the method.
@@ -95,7 +95,7 @@ class RollbackResistantQuery {
 	}
 
 	/**
-	 * @brief Install hooks that can detect a database rollback.
+	 * Install hooks that can detect a database rollback.
 	 */
 	protected function initialize() {
 		if ( self::$initialized ) {
@@ -133,7 +133,7 @@ class RollbackResistantQuery {
 	}
 
 	/**
-	 * @brief Re-run all $performedQueries. Called after the database rollback.
+	 * Re-run all $performedQueries. Called after the database rollback.
 	 */
 	protected function onRollback() {
 		foreach ( self::$performedQueries as $query ) {
@@ -144,7 +144,7 @@ class RollbackResistantQuery {
 	}
 
 	/**
-	 * @brief Run the scheduled query immediately.
+	 * Run the scheduled query immediately.
 	 */
 	protected function executeNow() {
 		call_user_func_array(

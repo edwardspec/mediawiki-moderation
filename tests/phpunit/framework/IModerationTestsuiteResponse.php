@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Interface that represents HTTP response.
+ * Interface that represents HTTP response.
  */
 
 interface IModerationTestsuiteResponse {

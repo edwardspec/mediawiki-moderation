@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Hooks related to normal edits.
+ * Hooks related to normal edits.
  */
 
 class ModerationEditHooks {
@@ -123,7 +123,7 @@ class ModerationEditHooks {
 	}
 
 	/**
-	 * @brief Returns the URL to where the user is redirected after successful edit.
+	 * Returns the URL to where the user is redirected after successful edit.
 	 * @param Title $title Article that was edited.
 	 * @param IContextSource $context Any object that contains current context.
 	 */
@@ -245,7 +245,7 @@ class ModerationEditHooks {
 	}
 
 	/**
-	 * @brief Registers 'moderation-merged' ChangeTag.
+	 * Registers 'moderation-merged' ChangeTag.
 	 */
 	public static function onListDefinedTags( &$tags ) {
 		$tags[] = 'moderation-merged';

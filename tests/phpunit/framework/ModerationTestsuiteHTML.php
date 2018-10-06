@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Implements HTML parsing methods for the automated testsuite.
+ * Implements HTML parsing methods for the automated testsuite.
  */
 
 class ModerationTestsuiteHTML extends DOMDocument {
@@ -61,8 +61,8 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-	 * @brief Utility function to warn about Libxml errors.
-		Ignores the fact that some HTML5 tags are unknown to libxml2.
+	 * Utility function to warn about Libxml errors.
+	 * Ignores the fact that some HTML5 tags are unknown to libxml2.
 	 */
 	public static function checkLibxmlErrors() {
 		$errors = libxml_get_errors();
@@ -101,7 +101,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-	 * @brief Returns the text of the <title> tag.
+	 * Returns the text of the <title> tag.
 	 */
 	public function getTitle( $url = null ) {
 		$this->loadFromURL( $url );
@@ -111,7 +111,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-	 * @brief Returns HTML element of the error message shown by Moderation.
+	 * Returns HTML element of the error message shown by Moderation.
 	 */
 	public function getModerationError( $url = null ) {
 		$this->loadFromURL( $url );
@@ -125,7 +125,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-	 * @brief Returns HTML element of the main text of the page.
+	 * Returns HTML element of the main text of the page.
 	 */
 	public function getMainContent( $url = null ) {
 		$this->loadFromURL( $url );
@@ -134,7 +134,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-	 * @brief Returns main text of the page (without navigation, etc.).
+	 * Returns main text of the page (without navigation, etc.).
 	 */
 	public function getMainText( $url = null ) {
 		$elem = $this->getMainContent( $url );
@@ -143,7 +143,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-	 * @brief  Returns the text of the notice "You have new messages".
+	 *  Returns the text of the notice "You have new messages".
 	 */
 	public function getNewMessagesNotice( $url = null ) {
 		$this->loadFromURL( $url );
@@ -157,7 +157,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-	 * @brief  Returns the text of the notice "You have new messages".
+	 *  Returns the text of the notice "You have new messages".
 	 */
 	public function getSubmitButton( $url = null ) {
 		$this->loadFromURL( $url );
@@ -165,7 +165,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-	 * @brief Find the DOM element by XPath selector.
+	 * Find the DOM element by XPath selector.
 		E.g. $t->html->getElementsByXPath( '//row[@name="wpSummary"]' )
 	 * @return DOMElement
 	 */
@@ -175,8 +175,8 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-	 * @brief Find all DOM elements matching the XPath selector.
-		E.g. $t->html->getElementsByXPath( '//a[@class="new"]' )
+	 * Find all DOM elements matching the XPath selector.
+	 * E.g. $t->html->getElementsByXPath( '//a[@class="new"]' )
 	 * @return DOMNodeList
 	 */
 	public function getElementsByXPath( $selector ) {
@@ -185,7 +185,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-	 * @brief Fetch the edit form and return the text in #wpTextbox1.
+	 * Fetch the edit form and return the text in #wpTextbox1.
 	 * @param string $title The page to be opened for editing.
 	 */
 	public function getPreloadedText( $title ) {
@@ -203,8 +203,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-	 * @brief Return the list of ResourceLoader modules
-			which are used in the last fetched HTML.
+	 * Return the list of ResourceLoader modules which are used in the last fetched HTML.
 	 */
 	public function getLoaderModulesList( $url = null ) {
 		$this->loadFromURL( $url );
@@ -225,8 +224,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-	 * @brief Return the array of <input> elements in the form
-			(name => value).
+	 * Return the array of <input> elements in the form (name => value).
 	 */
 	public function getFormElements( $formElement = null, $url = null ) {
 		$this->loadFromURL( $url );
