@@ -17,11 +17,11 @@
 
 /**
  * @file
- * @brief API to preload edits which are pending moderation.
-
-	This can be used by API-based JavaScript editors,
-	for example Extension:VisualEditor or Extension:MobileFrontend.
-*/
+ * API to preload edits which are pending moderation.
+ *
+ * This can be used by API-based JavaScript editors,
+ * for example Extension:VisualEditor or Extension:MobileFrontend.
+ */
 class ApiQueryModerationPreload extends ApiQueryBase {
 
 	public function __construct( $query, $moduleName ) {
@@ -71,7 +71,7 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 	}
 
 	/**
-	 * @brief Parse $wikitext and return the results.
+	 * Parse $wikitext and return the results.
 	 * @return array with keys 'text', 'categorieshtml', 'displaytitle'
 	 */
 	protected function parse( Title $title, $wikitext ) {

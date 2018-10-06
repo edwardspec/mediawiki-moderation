@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Verifies that modactions work via api.php?action=moderation.
+ * Verifies that modactions work via api.php?action=moderation.
  */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
@@ -28,7 +28,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
 class ModerationApiTest extends MediaWikiTestCase {
 
 	/**
-	 * @brief Checks return value of api.php?action=moderation&modaction=...
+	 * Checks return value of api.php?action=moderation&modaction=...
 	 * @note Consequences of actions are checked by other tests (e.g. ModerationApproveTest).
 	 * @dataProvider dataProviderModerationApi
 	*/
@@ -65,7 +65,7 @@ class ModerationApiTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Provide datasets for testModerationApi() runs.
+	 * Provide datasets for testModerationApi() runs.
 	 */
 	public function dataProviderModerationApi() {
 		return [

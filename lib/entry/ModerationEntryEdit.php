@@ -17,12 +17,12 @@
 
 /**
  * @file
- * @brief Normal edit (modification of page text) that awaits moderation.
+ * Normal edit (modification of page text) that awaits moderation.
  */
 
 class ModerationEntryEdit extends ModerationApprovableEntry {
 	/**
-	 * @brief Approve this edit.
+	 * Approve this edit.
 	 * @return Status object.
 	 */
 	public function doApprove( User $moderator ) {

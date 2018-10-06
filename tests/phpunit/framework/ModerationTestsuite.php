@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Automated testsuite of Extension:Moderation.
+ * Automated testsuite of Extension:Moderation.
  */
 
 require_once __DIR__ . '/../../common/ModerationTestUtil.php';
@@ -81,7 +81,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Sets MediaWiki global variable. Not supported by RealHttpEngine.
+	 * Sets MediaWiki global variable. Not supported by RealHttpEngine.
 	 * @param string $name Name of variable without the $wg prefix.
 	 * @throws PHPUnit_Framework_SkippedTestError TestsuiteEngine doesn't support this method.
 	 */
@@ -89,27 +89,27 @@ class ModerationTestsuite {
 		$this->engine->setMwConfig( $name, $value );
 	}
 
-	/** @brief Add an arbitrary HTTP header to all outgoing requests. */
+	/** Add an arbitrary HTTP header to all outgoing requests. */
 	public function setHeader( $name, $value ) {
 		$this->engine->setHeader( $name, $value );
 	}
 
 	/**
-	 * @brief Set User-Agent header for all outgoing requests.
+	 * Set User-Agent header for all outgoing requests.
 	 */
 	public function setUserAgent( $ua ) {
 		$this->setHeader( 'User-Agent', $ua );
 	}
 
 	/**
-	 * @brief Don't throw exception when HTTP request returns $code.
+	 * Don't throw exception when HTTP request returns $code.
 	 */
 	public function ignoreHttpError( $code ) {
 		$this->engine->ignoreHttpError( $code );
 	}
 
 	/**
-	 * @brief Re-enable throwing an exception when HTTP request returns $code.
+	 * Re-enable throwing an exception when HTTP request returns $code.
 	 */
 	public function stopIgnoringHttpError( $code ) {
 		$this->engine->stopIgnoringHttpError( $code );
@@ -129,20 +129,19 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Delete the results of previous fetchSpecial().
-			If fetchSpecial() is then called, all entries
-			in this folder will be considered new entries.
+	 * Delete the results of previous fetchSpecial().
+	 * If fetchSpecial() is then called, all entries
+	 * in this folder will be considered new entries.
 	 */
 	public function assumeFolderIsEmpty( $folder = 'DEFAULT' ) {
 		$this->lastFetchedSpecial[$folder] = [];
 	}
 
 	/**
-	 * @brief Download and parse Special:Moderation. Diff its current
-			state with the previously downloaded/parsed state, and
-			populate the arrays \b $new_entries, \b $old_entries.
-
-	 * @remark Logs in as $moderator.
+	 * Download and parse Special:Moderation. Diff its current
+	 * state with the previously downloaded/parsed state, and
+	 * populate the arrays \b $new_entries, \b $old_entries.
+	 * @note Logs in as $moderator.
 	 */
 	public function fetchSpecial( $folder = 'DEFAULT' ) {
 		if ( !$this->isModerator() ) { /* Don't relogin in testModeratorNotAutomoderated() */
@@ -200,9 +199,9 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Create controlled environment before each test.
-		(as in "Destroy everything on testsuite's path")
-	*/
+	 * Create controlled environment before each test.
+	 * (as in "Destroy everything on testsuite's path")
+	 */
 	private function prepareDbForTests() {
 		if ( $this->mwVersionCompare( '1.28.0', '>=' ) ) {
 			/*
@@ -281,7 +280,7 @@ class ModerationTestsuite {
 		$this->purgeTagCache();
 	}
 
-	/** @brief Prevent tags set by the previous test from affecting the current test */
+	/** Prevent tags set by the previous test from affecting the current test */
 	public function purgeTagCache() {
 		ChangeTags::purgeTagCacheAll(); /* For RealHttpEngine tests */
 	}
@@ -340,7 +339,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Create an account and return User object.
+	 * Create an account and return User object.
 	 * @note Will not login automatically (loginAs must be called).
 	 */
 	public function createAccount( $username ) {
@@ -348,14 +347,14 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Perform a test move.
+	 * Perform a test move.
 	 */
 	public function doTestMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] ) {
 		return $this->getBot( 'nonApi' )->move( $oldTitle, $newTitle, $reason, $extraParams );
 	}
 
 	/**
-	 * @brief Place information about newly made change into lastEdit[] array.
+	 * Place information about newly made change into lastEdit[] array.
 	 */
 	public function setLastEdit( $title, $summary, array $extraData = [] ) {
 		$this->lastEdit = $extraData + [
@@ -366,7 +365,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Create a new bot.
+	 * Create a new bot.
 	 * @param string $method One of the following: 'api', 'nonApi'.
 	 * @return ModerationTestsuiteBot
 	 */
@@ -387,9 +386,9 @@ class ModerationTestsuite {
 	public $TEST_EDITS_COUNT = 3; /* See doNTestEditsWith() */
 
 	/**
-	 * @brief Do 2*N alternated edits - N by $user1 and N by $user2.
-			Number of edits is $TEST_EDITS_COUNT.
-			If $user2 is null, only makes N edits by $user1.
+	 * Do 2*N alternated edits - N by $user1 and N by $user2.
+	 * Number of edits is $TEST_EDITS_COUNT.
+	 * If $user2 is null, only makes N edits by $user1.
 	 */
 	public function doNTestEditsWith( $user1, $user2 = null,
 		$prefix1 = 'Page', $prefix2 = 'AnotherPage'
@@ -406,8 +405,8 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Makes one edit and returns its correct entry.
-	 * @remark Logs in as $moderator.
+	 * Makes one edit and returns its correct entry.
+	 * @note Logs in as $moderator.
 	 */
 	public function getSampleEntry( $title = null ) {
 		$this->fetchSpecial();
@@ -419,7 +418,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Perform a test upload.
+	 * Perform a test upload.
 	 */
 	public function doTestUpload(
 		$title = null,
@@ -431,7 +430,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Resolve $srcFilename into an absolute path.
+	 * Resolve $srcFilename into an absolute path.
 	 * Used in tests: '1.png' is found at [tests/resources/1.png].
 	 */
 	public static function findSourceFilename( $srcFilename ) {
@@ -447,7 +446,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Get up to $count moderation log entries via API
+	 * Get up to $count moderation log entries via API
 	 * (most recent first).
 	 */
 	public function apiLogEntries( $count = 100 ) {
@@ -461,8 +460,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Get up to $count moderation log entries NOT via API
-			(most recent first).
+	 * Get up to $count moderation log entries NOT via API (most recent first).
 	 */
 	public function nonApiLogEntries( $count = 100 ) {
 		$title = Title::newFromText( 'Log/moderation', NS_SPECIAL )->fixSpecialName();
@@ -490,7 +488,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Get the last revision of page $title via API.
+	 * Get the last revision of page $title via API.
 	 */
 	public function getLastRevision( $title ) {
 		$ret = $this->query( [
@@ -505,7 +503,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Remove "token=" from URL and return its new HTML title.
+	 * Remove "token=" from URL and return its new HTML title.
 	 */
 	public function noTokenTitle( $url ) {
 		$bad_url = preg_replace( '/token=[^&]*/', '', $url );
@@ -513,7 +511,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Corrupt "token=" in URL and return its new HTML title.
+	 * Corrupt "token=" in URL and return its new HTML title.
 	 */
 	public function badTokenTitle( $url ) {
 		$bad_url = preg_replace( '/(token=)([^&]*)/', '\1WRONG\2', $url );
@@ -521,7 +519,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Wait for "recentchanges" table to be updated by DeferredUpdates.
+	 * Wait for "recentchanges" table to be updated by DeferredUpdates.
 	 *
 	 * Usage:
 	 * 	$waiter = $t->waitForRecentChangesToAppear();
@@ -562,7 +560,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Queue an edis that would cause an edit conflict when approved.
+	 * Queue an edit that would cause an edit conflict when approved.
 	 * @return ModerationEntry
 	 */
 	public function causeEditConflict( $title, $origText, $textOfUser1, $textOfUser2 ) {
@@ -580,7 +578,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Get cuc_agent of the last entry in "cu_changes" table.
+	 * Get cuc_agent of the last entry in "cu_changes" table.
 	 * @return User-agent (string).
 	 */
 	public function getCUCAgent() {
@@ -589,7 +587,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Get cuc_agent of the last entries in "cu_changes" table.
+	 * Get cuc_agent of the last entries in "cu_changes" table.
 	 * @param int $limit How many entries to select.
 	 * @return Array of user-agents.
 	 */
@@ -606,7 +604,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Create AbuseFilter rule that will assign tags to all edits.
+	 * Create AbuseFilter rule that will assign tags to all edits.
 	 * @return ID of the newly created filter.
 	 */
 	public function addTagAllAbuseFilter( array $tags ) {
@@ -645,7 +643,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Disable AbuseFilter rule #$filterId.
+	 * Disable AbuseFilter rule #$filterId.
 	 */
 	public function disableAbuseFilter( $filterId ) {
 		$dbw = wfGetDB( DB_MASTER );
@@ -654,7 +652,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Assert that API response $ret contains error $expectedErrorCode.
+	 * Assert that API response $ret contains error $expectedErrorCode.
 	 */
 	public function assertApiError( $expectedErrorCode, array $ret, MediaWikiTestCase $tcase ) {
 		$tcase->assertArrayHasKey( 'error', $ret );
@@ -671,7 +669,7 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * @brief Call version_compare on $wgVersion.
+	 * Call version_compare on $wgVersion.
 	 */
 	public static function mwVersionCompare( $compareWith, $operator ) {
 		global $wgVersion;

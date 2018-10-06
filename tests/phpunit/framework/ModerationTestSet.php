@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Parent class for TestSet objects used in the Moderation testsuite.
+ * Parent class for TestSet objects used in the Moderation testsuite.
  */
 
 abstract class ModerationTestsuiteTestSet {
@@ -27,13 +27,13 @@ abstract class ModerationTestsuiteTestSet {
 	/** @var MediaWikiTestCase */
 	private $testcase;
 
-	/** @brief Returns ModerationTestsuite object. */
+	/** Returns ModerationTestsuite object. */
 	protected function getTestsuite() {
 		return $this->testsuite;
 	}
 
 	/**
-	 * @brief Returns current MediaWikiTestCase object.
+	 * Returns current MediaWikiTestCase object.
 	 * Used for calling assert*() methods.
 	 */
 	protected function getTestcase() {
@@ -41,7 +41,7 @@ abstract class ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Run this TestSet from input of dataProvider.
+	 * Run this TestSet from input of dataProvider.
 	 * @param array $options Parameters of test, e.g. [ 'user' => '...', 'title' => '...' ].
 	 * @param MediaWikiTestCase $testcase
 	 */
@@ -53,7 +53,7 @@ abstract class ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Construct TestSet from the input of dataProvider.
+	 * Construct TestSet from the input of dataProvider.
 	 */
 	final protected function __construct( array $options, MediaWikiTestCase $testcase ) {
 		$this->testsuite = new ModerationTestsuite; // Cleans the database
@@ -65,24 +65,24 @@ abstract class ModerationTestsuiteTestSet {
 	/*-------------------------------------------------------------------*/
 
 	/**
-	 * @brief Initialize this TestSet from the input of dataProvider.
+	 * Initialize this TestSet from the input of dataProvider.
 	 */
 	abstract protected function applyOptions( array $options );
 
 	/**
-	 * @brief Execute this TestSet, making the edit with requested parameters.
+	 * Execute this TestSet, making the edit with requested parameters.
 	 */
 	abstract protected function makeChanges();
 
 	/**
-	 * @brief Assert whether the situation after the edit is correct or not.
+	 * Assert whether the situation after the edit is correct or not.
 	 */
 	abstract protected function assertResults( MediaWikiTestCase $testcase );
 
 	/*-------------------------------------------------------------------*/
 
 	/**
-	 * @brief Assert that $timestamp is a realistic time for changes made during this test.
+	 * Assert that $timestamp is a realistic time for changes made during this test.
 	 * @param string $timestamp Timestamp in MediaWiki format (14 digits).
 	 */
 	protected function assertTimestampIsRecent( $timestamp ) {
@@ -107,7 +107,7 @@ abstract class ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Assert that recent row in 'moderation' SQL table consists of $expectedFields.
+	 * Assert that recent row in 'moderation' SQL table consists of $expectedFields.
 	 * @param array $expectedFields Key-value list of all mod_* fields.
 	 * @throws AssertionFailedError
 	 * @return stdClass $row
@@ -129,7 +129,7 @@ abstract class ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Create an existing page (or file) before the test.
+	 * Create an existing page (or file) before the test.
 	 * @param Title $title
 	 * @param string $initialText
 	 * @param string|null $filename If not null, upload another file (NOT $filename) before test.
@@ -163,7 +163,7 @@ abstract class ModerationTestsuiteTestSet {
 }
 
 /**
- * @brief Regular expression that can be used in assertRowEquals() as values of $expectedFields.
+ * Regular expression that can be used in assertRowEquals() as values of $expectedFields.
  */
 class ModerationTestSetRegex {
 	public $regex;

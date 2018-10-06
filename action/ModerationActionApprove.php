@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Implements modaction=approve(all) on [[Special:Moderation]].
+ * Implements modaction=approve(all) on [[Special:Moderation]].
  */
 
 class ModerationActionApprove extends ModerationAction {

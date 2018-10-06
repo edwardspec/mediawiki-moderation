@@ -17,13 +17,13 @@
 
 /**
  * @file
- * @brief Hooks related to edits/uploads via API.
+ * Hooks related to edits/uploads via API.
  */
 
 class ModerationApiHooks {
 
 	/**
-	 * @brief onApiCheckCanExecute() hook
+	 * onApiCheckCanExecute() hook
 	 *
 	 * Disable upload API for non-automoderated user in MediaWiki 1.27
 	 * (this feature is only supported in MediaWiki 1.28+).
@@ -131,7 +131,7 @@ class ModerationApiHooks {
 	}
 
 	/**
-	 * @brief Adds qppage=Moderation to api.php?action=query&list=querypage.
+	 * Adds qppage=Moderation to api.php?action=query&list=querypage.
 	 */
 	public static function onwgQueryPages( &$wgQueryPages ) {
 		$wgQueryPages[] = [ SpecialModeration::class, 'Moderation' ];

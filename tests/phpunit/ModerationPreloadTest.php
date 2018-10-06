@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Checks that user can continue editing their version of the page.
+ * Checks that user can continue editing their version of the page.
  */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";

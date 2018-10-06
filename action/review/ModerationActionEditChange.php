@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Implements modaction=editchange on [[Special:Moderation]].
+ * Implements modaction=editchange on [[Special:Moderation]].
  *
  * Here moderator can modify the pending change before approving it.
  * Note: this is disabled by default, because pending changes don't have edit history,

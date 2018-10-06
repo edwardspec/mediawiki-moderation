@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Checks rendering of moderation-related log entries on Special:Log.
+ * Checks rendering of moderation-related log entries on Special:Log.
  */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
@@ -34,7 +34,7 @@ class ModerationLogFormatterTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Provide datasets for testLogFormatter() runs.
+	 * Provide datasets for testLogFormatter() runs.
 	 */
 	public function dataProvider() {
 		return [
@@ -165,7 +165,7 @@ class ModerationLogFormatterTest extends MediaWikiTestCase {
 }
 
 /**
- * @brief Represents one TestSet for testLogFormatter().
+ * Represents one TestSet for testLogFormatter().
  */
 class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 
@@ -191,7 +191,7 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 	protected $resultHtml = '';
 
 	/**
-	 * @brief Initialize this TestSet from the input of dataProvider.
+	 * Initialize this TestSet from the input of dataProvider.
 	 */
 	protected function applyOptions( array $options ) {
 		foreach ( $options as $key => $value ) {
@@ -221,7 +221,7 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Get human-readable description of this TestSet (for error messages).
+	 * Get human-readable description of this TestSet (for error messages).
 	 * @return string
 	 */
 	protected function getErrorContext() {
@@ -229,7 +229,7 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Assert correctness of $this->resultHtml.
+	 * Assert correctness of $this->resultHtml.
 	 */
 	protected function assertResults( MediaWikiTestCase $testcase ) {
 		$errorContext = $this->getErrorContext();
@@ -284,7 +284,7 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Assert correctness of the parsed HTML of one LogEntry parameter.
+	 * Assert correctness of the parsed HTML of one LogEntry parameter.
 	 * @param array $expectedParam Expected text/tooltip/etc. of the parameter, see dataProvider().
 	 * @param string $paramHtml HTML to check.
 	 * @param int $idx Index of the parameter (for error messages).
@@ -378,7 +378,7 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Execute the TestSet. Populates $this->resultHtml by formatting a LogEntry.
+	 * Execute the TestSet. Populates $this->resultHtml by formatting a LogEntry.
 	 */
 	protected function makeChanges() {
 		$subtype = $this->subtype;
@@ -399,7 +399,7 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Asserts that $html is the userlink to certain user.
+	 * Asserts that $html is the userlink to certain user.
 	 * @param User $expectedUser
 	 * @param string $html
 	 * @param string $errorText

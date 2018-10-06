@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Verifies that editing works as usual.
+ * Verifies that editing works as usual.
  */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
@@ -39,7 +39,7 @@ class ModerationEditTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Provide datasets for testEditSections() runs.
+	 * Provide datasets for testEditSections() runs.
 	 */
 	public function dataProviderEditSections() {
 		/* Sections are handled differently in API and non-API editing.
@@ -52,7 +52,7 @@ class ModerationEditTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Ensure that single sections are edited correctly.
+	 * Ensure that single sections are edited correctly.
 	 * @dataProvider dataProviderEditSections
 	 */
 	public function testEditSections( $useApi ) {

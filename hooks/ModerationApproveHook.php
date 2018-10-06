@@ -17,9 +17,8 @@
 
 /**
  * @file
- * @brief Affects doEditContent() during modaction=approve(all).
-
-	Corrects rev_timestamp, rc_ip and checkuser logs when edit is approved.
+ * Affects doEditContent() during modaction=approve(all).
+ * Corrects rev_timestamp, rc_ip and checkuser logs when edit is approved.
 */
 
 class ModerationApproveHook implements DeferrableUpdate {
@@ -64,7 +63,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	}
 
 	/**
-	 * @brief Correct rev_timestamp, rc_ip and other fields (as requested by queueUpdate()).
+	 * Correct rev_timestamp, rc_ip and other fields (as requested by queueUpdate()).
 	 */
 	public function doUpdate() {
 		/* This DeferredUpdate is installed after every edit.
@@ -180,7 +179,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	}
 
 	/**
-	 * @brief Add revid parameter to LogEntry (if missing). See onFileUpload() for details.
+	 * Add revid parameter to LogEntry (if missing). See onFileUpload() for details.
 	 * @param int $logid
 	 * @param LogEntry $logEntry
 	 */
@@ -194,14 +193,14 @@ class ModerationApproveHook implements DeferrableUpdate {
 	/** @var int|null Revid of the last edit, populated in onNewRevisionFromEditComplete */
 	protected static $lastRevId = null;
 
-	/** @brief Returns revid of the last edit */
+	/** Returns revid of the last edit */
 	public static function getLastRevId() {
 		return self::$lastRevId;
 	}
 
 	/**
-	 * @brief NewRevisionFromEditComplete hook.
-		Here we determine $lastRevId.
+	 * NewRevisionFromEditComplete hook.
+	 * Here we determine $lastRevId.
 	 */
 	public function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
 		/* Remember ID of this revision for getLastRevId() */
@@ -210,7 +209,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	}
 
 	/**
-	 * @brief Calculate key in $tasks array for $title/$username/$type triplet.
+	 * Calculate key in $tasks array for $title/$username/$type triplet.
 	 * @param Title $title
 	 * @param string $username
 	 * @param string $type mod_type of this change.
@@ -227,7 +226,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	}
 
 	/**
-	 * @brief Find the task regarding edit by $username on $title.
+	 * Find the task regarding edit by $username on $title.
 	 * @param Title $title
 	 * @param string $username
 	 * @param int $type One of ModerationNewChange::MOD_TYPE_* values.
@@ -239,7 +238,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	}
 
 	/**
-	 * @brief Find the entry in $tasks about change $rc.
+	 * Find the entry in $tasks about change $rc.
 	 */
 	public function getTaskByRC( RecentChange $rc ) {
 		$type = ModerationNewChange::MOD_TYPE_EDIT;
@@ -285,7 +284,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	}
 
 	/**
-	 * @brief Fix approve LogEntry not having "revid" parameter (because it wasn't known before).
+	 * Fix approve LogEntry not having "revid" parameter (because it wasn't known before).
 	 * This happens when approving uploads (but NOT reuploads),
 	 * because creation of description page of newly uploaded images is delayed via DeferredUpdate,
 	 * so it happens AFTER the LogEntry has been added to the database.
@@ -319,7 +318,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	}
 
 	/**
-	 * @brief Schedule post-approval UPDATE SQL query.
+	 * Schedule post-approval UPDATE SQL query.
 	 * @param string $table Name of table, e.g. 'revision'.
 	 * @param int|array $ids One or several IDs (e.g. rev_id or rc_id).
 	 * @param array $values New values, as expected by $db->update,
@@ -409,7 +408,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	}
 
 	/**
-	 * @brief Prepare the approve hook. Called before doEditContent().
+	 * Prepare the approve hook. Called before doEditContent().
 	 */
 	public static function install( Title $title, User $user, $type, array $task ) {
 		$key = self::getTaskKey( $title, $user->getName(), $type );

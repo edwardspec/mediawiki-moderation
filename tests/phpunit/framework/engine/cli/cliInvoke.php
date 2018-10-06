@@ -17,20 +17,19 @@
 
 /**
  * @file
- * @brief Helper script to run MediaWiki as a command line script.
-
+ * Helper script to run MediaWiki as a command line script.
+ *
  * @see ModerationTestsuiteCliEngine::cliExecute()
  * @note this runs before Setup.php, configuration is unknown,
-	and we can't use any of the MediaWiki classes.
-	We just populate $_GET, $_POST, etc. and include "index.php".
-*/
+ * and we can't use any of the MediaWiki classes.
+ * We just populate $_GET, $_POST, etc. and include "index.php".
+ */
 
 $inputFilename = $argv[1];
 $resultFilename = $argv[2];
 
 if ( !$inputFilename || !$resultFilename ) {
 	throw new MWException( "cliInvoke.php: input/output files must be specified." );
-	exit( 1 );
 }
 
 $wgModerationTestsuiteCliDescriptor = unserialize( file_get_contents( $inputFilename ) );

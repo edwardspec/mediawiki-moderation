@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Formatter for displaying entry on Special:Moderation.
+ * Formatter for displaying entry on Special:Moderation.
  */
 
 class ModerationEntryFormatter extends ModerationEntry {
@@ -37,14 +37,14 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	/**
-	 * @brief Returns User object of moderator.
+	 * Returns User object of moderator.
 	 */
 	public function getModerator() {
 		return $this->getContext()->getUser();
 	}
 
 	/**
-	 * @brief Same as wfMessage(), but respects local context.
+	 * Same as wfMessage(), but respects local context.
 	 * @return Message
 	 */
 	public function msg() {
@@ -54,9 +54,9 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	/**
-	 * @brief Add all titles needed by getHTML() to $batch.
-		This method is for QueryPage::preprocessResults().
-		It optimizes Linker::link() calls by detecting all redlinks in one SQL query.
+	 * Add all titles needed by getHTML() to $batch.
+	 * This method is for QueryPage::preprocessResults().
+	 * It optimizes Linker::link() calls by detecting all redlinks in one SQL query.
 	 */
 	public static function addToLinkBatch( $row, LinkBatch $batch ) {
 		/* Check the affected article */
@@ -82,7 +82,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	/**
-	 * @brief Returns QueryInfo for $db->select(), as expected by QueryPage::getQueryInfo().
+	 * Returns QueryInfo for $db->select(), as expected by QueryPage::getQueryInfo().
 	 */
 	public static function getQueryInfo() {
 		return [
@@ -102,7 +102,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	/**
-	 * @brief Get the list of fields needed for selecting $row, as expected by newFromRow().
+	 * Get the list of fields needed for selecting $row, as expected by newFromRow().
 	 * @return array ($fields parameter for $db->select()).
 	 */
 	public static function getFields() {
@@ -145,7 +145,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	/**
-	 * @brief Returns HTML of formatted line for Special:Moderation.
+	 * Returns HTML of formatted line for Special:Moderation.
 	 */
 	public function getHTML() {
 		global $wgModerationPreviewLink, $wgModerationEnableEditChange;

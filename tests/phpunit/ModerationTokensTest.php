@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Verifies that moderation tokens are required.
+ * Verifies that moderation tokens are required.
  */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";

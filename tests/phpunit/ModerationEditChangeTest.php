@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Verifies that modaction=editchange works as expected.
+ * Verifies that modaction=editchange works as expected.
  * @note modaction=editchangesubmit is tested in ModerationActionTest.
  */
 
@@ -30,7 +30,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
 class ModerationEditChangeTest extends MediaWikiTestCase {
 
 	/**
-	 * @brief Check the edit form of modaction=editchange.
+	 * Check the edit form of modaction=editchange.
 	 * @covers ModerationActionEditChange
 	 */
 	public function testEditChangeForm() {

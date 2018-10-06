@@ -17,12 +17,12 @@
 
 /**
  * @file
- * @brief Utility functions used in both benchmark and PHPUnit Testsuite.
+ * Utility functions used in both benchmark and PHPUnit Testsuite.
  */
 
 class ModerationTestUtil {
 	/**
-	 * @brief Edit the page by directly modifying the database. Very fast.
+	 * Edit the page by directly modifying the database. Very fast.
 	 *
 	 * This is used for initialization of tests.
 	 * For example, if moveQueue benchmark needs 500 existing pages,
@@ -59,7 +59,7 @@ class ModerationTestUtil {
 	}
 
 	/**
-	 * @brief Render Special:Moderation with $params.
+	 * Render Special:Moderation with $params.
 	 * @return HTML of the result.
 	 */
 	public static function runSpecialModeration( User $user, array $params, $wasPosted = false ) {

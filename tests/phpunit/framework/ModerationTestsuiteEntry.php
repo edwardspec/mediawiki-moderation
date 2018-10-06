@@ -17,12 +17,12 @@
 
 /**
  * @file
- * @brief Methods to parse/analyze single entry on Special:Moderation.
+ * Methods to parse/analyze single entry on Special:Moderation.
  */
 
 /**
  * @class ModerationTestsuiteEntry
- * @brief Represents one line on [[Special:Moderation]]
+ * Represents one line on [[Special:Moderation]]
  */
 class ModerationTestsuiteEntry {
 	public $id = null;
@@ -219,7 +219,7 @@ class ModerationTestsuiteEntry {
 	}
 
 	/**
-	 * @brief Get any link, assuming at least one exists.
+	 * Get any link, assuming at least one exists.
 	 */
 	public function getAnyLink() {
 		/* Either Block or Unblock link always exists */
@@ -232,7 +232,7 @@ class ModerationTestsuiteEntry {
 	}
 
 	/**
-	 * @brief Get URL of the link $modaction.
+	 * Get URL of the link $modaction.
 	 * @param string $modaction Name of modaction (e.g. 'rejectall') or 'mergedDiff'.
 	 */
 	public function getActionLink( $modaction ) {
@@ -285,7 +285,7 @@ class ModerationTestsuiteEntry {
 	}
 
 	/**
-	 * @brief Populates both $e->blockLink and $e->unblockLink,
+	 * Populates both $e->blockLink and $e->unblockLink,
 			even though only one link exists on Special:Moderation
 	 */
 	public function fakeBlockLink() {
@@ -300,14 +300,14 @@ class ModerationTestsuiteEntry {
 	}
 
 	/**
-	 * @brief Returns the URL of modaction=showimg for this entry.
+	 * Returns the URL of modaction=showimg for this entry.
 	 */
 	public function expectedShowImgLink() {
 		return $this->expectedActionLink( 'showimg', false );
 	}
 
 	/**
-	 * @brief Returns the URL of modaction=$action for this entry.
+	 * Returns the URL of modaction=$action for this entry.
 	 */
 	public function expectedActionLink( $action, $needsToken = true ) {
 		/* Either block or unblock link always exists */
@@ -320,7 +320,7 @@ class ModerationTestsuiteEntry {
 	}
 
 	/**
-	 * @brief Fetches this entry from the database and returns $field.
+	 * Fetches this entry from the database and returns $field.
 	 * @param string $field Field name, e.g. "mod_len_new".
 	 */
 	public function getDbField( $field ) {
@@ -334,14 +334,14 @@ class ModerationTestsuiteEntry {
 	}
 
 	/**
-	 * @brief Returns mod_text of this entry (loaded from the database).
+	 * Returns mod_text of this entry (loaded from the database).
 	 */
 	public function getDbText() {
 		return $this->getDbField( 'mod_text' );
 	}
 
 	/**
-	 * @brief Modified this entry in the database.
+	 * Modified this entry in the database.
 	 * @param array $updates List of updates, as expected by Database::update
 	 */
 	public function updateDbRow( array $updates ) {

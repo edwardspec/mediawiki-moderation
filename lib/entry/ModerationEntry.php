@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Parent class for objects that represent one row in the 'moderation' SQL table.
+ * Parent class for objects that represent one row in the 'moderation' SQL table.
  */
 
 abstract class ModerationEntry implements IModerationEntry {
@@ -50,21 +50,21 @@ abstract class ModerationEntry implements IModerationEntry {
 	}
 
 	/**
-	 * @brief Returns true if this is a move, false otherwise.
+	 * Returns true if this is a move, false otherwise.
 	 */
 	public function isMove() {
 		return $this->row->type == ModerationNewChange::MOD_TYPE_MOVE;
 	}
 
 	/**
-	 * @brief Returns true if this is an upload, false otherwise.
+	 * Returns true if this is an upload, false otherwise.
 	 */
 	public function isUpload() {
 		return $this->row->stash_key ? true : false;
 	}
 
 	/**
-	 * @brief Returns true if this edit is recent enough to be reapproved after rejection.
+	 * Returns true if this edit is recent enough to be reapproved after rejection.
 	 */
 	public function canReapproveRejected() {
 		if ( self::$earliestReapprovableTimestamp === null ) {
@@ -78,7 +78,7 @@ abstract class ModerationEntry implements IModerationEntry {
 	}
 
 	/**
-	 * @brief Returns author of this change (User object).
+	 * Returns author of this change (User object).
 	 * @param int $flags User::READ_* constant bitfield.
 	 */
 	protected function getUser( $flags = 0 ) {
@@ -104,7 +104,7 @@ abstract class ModerationEntry implements IModerationEntry {
 	}
 
 	/**
-	 * @brief Returns Title of the page affected by this change.
+	 * Returns Title of the page affected by this change.
 	 */
 	public function getTitle() {
 		if ( is_null( $this->title ) ) {
@@ -116,9 +116,9 @@ abstract class ModerationEntry implements IModerationEntry {
 	}
 
 	/**
-	 * @brief Returns Title of the second affected page (if any).
-		E.g. new name of the article when renaming it.
-	 * @retval null Not applicable (e.g. mod_type=edit).
+	 * Returns Title of the second affected page (if any) or null (for mod_type=edit, etc.).
+	 * E.g. new name of the article when renaming it.
+	 * @return Title|null
 	 */
 	public function getPage2Title() {
 		$row = $this->getRow();
@@ -130,7 +130,7 @@ abstract class ModerationEntry implements IModerationEntry {
 	}
 
 	/**
-	 * @brief Load ModerationEntry from the database by mod_id.
+	 * Load ModerationEntry from the database by mod_id.
 	 * @param int $id
 	 * @param int $dbType DB_MASTER or DB_REPLICA.
 	 * @throws ModerationError
@@ -151,7 +151,7 @@ abstract class ModerationEntry implements IModerationEntry {
 	}
 
 	/**
-	 * @brief Construct new ModerationEntry from $row.
+	 * Construct new ModerationEntry from $row.
 	 * @throws ModerationError
 	 */
 	public static function newFromRow( $row ) {

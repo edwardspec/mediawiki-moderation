@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Checks how HTML of Special:Moderation is rendered from the 'moderation' SQL table.
+ * Checks how HTML of Special:Moderation is rendered from the 'moderation' SQL table.
  */
 
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
@@ -35,7 +35,7 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Provide datasets for testRenderSpecial() runs.
+	 * Provide datasets for testRenderSpecial() runs.
 	 */
 	public function dataProvider() {
 		global $wgModerationTimeToOverrideRejection, $wgRCChangedSizeThreshold;
@@ -130,7 +130,7 @@ class ModerationSpecialModerationTest extends MediaWikiTestCase {
 }
 
 /**
- * @brief Represents one TestSet for testRenderSpecial().
+ * Represents one TestSet for testRenderSpecial().
  */
 class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 
@@ -151,7 +151,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	protected $expectNotReapprovable = false;
 
 	/**
-	 * @brief Initialize this TestSet from the input of dataProvider.
+	 * Initialize this TestSet from the input of dataProvider.
 	 */
 	protected function applyOptions( array $options ) {
 		foreach ( $options as $key => $value ) {
@@ -170,7 +170,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Assert the state of the database after the edit.
+	 * Assert the state of the database after the edit.
 	 */
 	protected function assertResults( MediaWikiTestCase $testcase ) {
 		$t = $this->getTestsuite();
@@ -212,7 +212,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Check whether user, title, comment and ID of $entry are correct.
+	 * Check whether user, title, comment and ID of $entry are correct.
 	 */
 	protected function assertBasicInfo( ModerationTestsuiteEntry $entry ) {
 		$testcase = $this->getTestcase();
@@ -235,7 +235,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Check whether timestamp of $entry is correct.
+	 * Check whether timestamp of $entry is correct.
 	 */
 	protected function assertTimestamp( ModerationTestsuiteEntry $entry ) {
 		$testcase = $this->getTestcase();
@@ -260,7 +260,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Check whether minor/bot/newpage edits are properly marked.
+	 * Check whether minor/bot/newpage edits are properly marked.
 	 */
 	protected function assertFlags( ModerationTestsuiteEntry $entry ) {
 		$expectedFlags = [
@@ -279,7 +279,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Check whether the difference between len_old/len_new is properly shown.
+	 * Check whether the difference between len_old/len_new is properly shown.
 	 */
 	protected function assertLengthChange( ModerationTestsuiteEntry $entry ) {
 		global $wgRCChangedSizeThreshold;
@@ -297,7 +297,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Check whether the change is marked as edit conflict.
+	 * Check whether the change is marked as edit conflict.
 	 */
 	protected function assertConflictStatus( ModerationTestsuiteEntry $entry ) {
 		$this->getTestcase()->assertEquals( [
@@ -308,7 +308,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Assert that all folders (except expectedFolder) are empty.
+	 * Assert that all folders (except expectedFolder) are empty.
 	 */
 	protected function assertOtherFoldersAreEmpty() {
 		$knownFolders = [ 'DEFAULT', 'rejected', 'spam', 'merged' ];
@@ -326,7 +326,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Assert that Whois link is always shown for anonymous users,
+	 * Assert that Whois link is always shown for anonymous users,
 		and only to checkusers for registered users.
 	*/
 	protected function assertWhoisLink( ModerationTestsuiteEntry $entry ) {
@@ -346,7 +346,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Check that the formatting of "suggested move" entry is correct.
+	 * Check that the formatting of "suggested move" entry is correct.
 	 */
 	protected function assertMoveEntry( ModerationTestsuiteEntry $entry ) {
 		$testcase = $this->getTestcase();
@@ -361,7 +361,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Verify that only the needed action links are shown.
+	 * Verify that only the needed action links are shown.
 	 */
 	protected function assertActionLinks( ModerationTestsuiteEntry $entry ) {
 		$testcase = $this->getTestcase();
@@ -439,7 +439,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Check whether the URL of action link is correct.
+	 * Check whether the URL of action link is correct.
 	 * @param $action Name of modaction (e.g. 'rejectall') or 'mergedDiff'.
 	 */
 	protected function assertActionLinkURL( $action, $url ) {
@@ -468,7 +468,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Parse $url and assert the presence of needed QueryString parameters.
+	 * Parse $url and assert the presence of needed QueryString parameters.
 	 * @param $expectedQuery array( key1 => value1, ... )
 	 */
 	protected function assertQueryString( $url, array $expectedQuery ) {
@@ -492,7 +492,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
-	 * @brief Check information about who and how rejected this edit.
+	 * Check information about who and how rejected this edit.
 	 */
 	protected function assertRejectedBy( ModerationTestsuiteEntry $entry ) {
 		$testcase = $this->getTestcase();

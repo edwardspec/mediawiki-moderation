@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Verifies that modaction=reject(all) works as expected.
+ * Verifies that modaction=reject(all) works as expected.
  */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";

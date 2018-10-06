@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Methods to manage "moderation" SQL table.
+ * Methods to manage "moderation" SQL table.
  */
 
 class ModerationNewChange {
@@ -155,7 +155,7 @@ class ModerationNewChange {
 	/*-------------------------------------------------------------------*/
 
 	/**
-	 * @brief Replace things like "~~~~" in $content.
+	 * Replace things like "~~~~" in $content.
 	 * @return Content object.
 	 */
 	protected function preSaveTransform( Content $content ) {
@@ -170,7 +170,7 @@ class ModerationNewChange {
 	}
 
 	/**
-	 * @brief Add AbuseFilter tags to this change, if any.
+	 * Add AbuseFilter tags to this change, if any.
 	 */
 	protected function addChangeTags( $action ) {
 		if ( ModerationVersionCheck::areTagsSupported() ) {
@@ -183,7 +183,7 @@ class ModerationNewChange {
 	}
 
 	/**
-	 * @brief Calculate the value of mod_tags.
+	 * Calculate the value of mod_tags.
 	 * @param Title $title
 	 * @param User $user
 	 * @param string $action AbuseFilter action, e.g. 'edit' or 'delete'.
@@ -223,7 +223,7 @@ class ModerationNewChange {
 	}
 
 	/**
-	 * @brief Utility function: construct Content object from $text.
+	 * Utility function: construct Content object from $text.
 	 * @return Content object.
 	 */
 	protected function makeContent( $text, $model = null ) {
@@ -235,7 +235,7 @@ class ModerationNewChange {
 	}
 
 	/**
-	 * @brief Returns all mod_* fields for database INSERT.
+	 * Returns all mod_* fields for database INSERT.
 	 * @return array (as expected by $dbw->insert())
 	 */
 	public function getFields() {
@@ -243,7 +243,7 @@ class ModerationNewChange {
 	}
 
 	/**
-	 * @brief Returns one of the fields for database INSERT.
+	 * Returns one of the fields for database INSERT.
 	 * @param string $fieldName Field, e.g. "mod_timestamp".
 	 * @return string|false
 	 */
@@ -252,7 +252,7 @@ class ModerationNewChange {
 	}
 
 	/**
-	 * @brief Queue edit for moderation.
+	 * Queue edit for moderation.
 	 */
 	public function queue() {
 		self::$LastInsertId = ModerationVersionCheck::hasUniqueIndex() ?
@@ -275,7 +275,7 @@ class ModerationNewChange {
 	}
 
 	/**
-	 * @brief Insert this change into the moderation SQL table.
+	 * Insert this change into the moderation SQL table.
 	 * @return mod_id of affected row.
 	 */
 	protected function insert() {
@@ -303,7 +303,7 @@ class ModerationNewChange {
 	}
 
 	/**
-	 * @brief Legacy version of insert() for old databases without UNIQUE INDEX.
+	 * Legacy version of insert() for old databases without UNIQUE INDEX.
 	 * @return mod_id of affected row.
 	 */
 	protected function insertOld() {
@@ -331,7 +331,7 @@ class ModerationNewChange {
 	}
 
 	/**
-	 * @brief Send email to moderators that new change has appeared.
+	 * Send email to moderators that new change has appeared.
 	 */
 	public function sendNotificationEmail() {
 		global $wgModerationNotificationEnable,
@@ -357,7 +357,7 @@ class ModerationNewChange {
 	}
 
 	/**
-	 * @brief Deliver the deferred letter from sendNotificationEmail().
+	 * Deliver the deferred letter from sendNotificationEmail().
 	 */
 	public function sendNotificationEmailNow() {
 		global $wgModerationEmail, $wgPasswordSender;

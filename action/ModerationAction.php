@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Parent class for all moderation actions.
+ * Parent class for all moderation actions.
  */
 
 abstract class ModerationAction extends ContextSource {
@@ -56,32 +56,32 @@ abstract class ModerationAction extends ContextSource {
 
 	/* The following methods can be overridden in the subclass */
 
-	/** @brief Whether the URL of this action must contain CSRF token */
+	/** Whether the URL of this action must contain CSRF token */
 	public function requiresEditToken() {
 		return true;
 	}
 
-	/** @brief Whether this action requires the wiki not to be locked */
+	/** Whether this action requires the wiki not to be locked */
 	public function requiresWrite() {
 		return true;
 	}
 
 	/**
-	 * @brief Function called when the action is invoked.
+	 * Function called when the action is invoked.
 	 * @return Array containing API response.
 	 * @throws ModerationError
 	 */
 	abstract public function execute();
 
 	/**
-	 * @brief Print the result of execute() in a human-readable way.
+	 * Print the result of execute() in a human-readable way.
 	 * @param array $result Value returned by execute().
 	 * @param OutputPage &$out OutputPage object.
 	 */
 	abstract public function outputResult( array $result, OutputPage &$out );
 
 	/**
-	 * @brief Utility function. Get userpage of user who made this edit.
+	 * Utility function. Get userpage of user who made this edit.
 	 * @return Title object or false.
 	 */
 	protected function getUserpageOfPerformer() {
@@ -93,7 +93,7 @@ abstract class ModerationAction extends ContextSource {
 		return $username ? Title::makeTitle( NS_USER, $username ) : false;
 	}
 
-	/** @brief Construct new ModerationAction */
+	/** Construct new ModerationAction */
 	public static function factory( IContextSource $context ) {
 		$request = $context->getRequest();
 		$action = $request->getVal( 'modaction' );

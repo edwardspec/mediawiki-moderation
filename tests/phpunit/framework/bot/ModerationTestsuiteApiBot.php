@@ -17,12 +17,12 @@
 
 /**
  * @file
- * @brief Performs editing methods of the testsuite (edit/upload/move) via API.
+ * Performs editing methods of the testsuite (edit/upload/move) via API.
  */
 
 class ModerationTestsuiteApiBot extends ModerationTestsuiteBot {
 	/**
-	 * @brief Make an edit via API.
+	 * Make an edit via API.
 	 * @param ModerationTestsuite $t
 	 * @param string $title
 	 * @param string $text
@@ -50,7 +50,7 @@ class ModerationTestsuiteApiBot extends ModerationTestsuiteBot {
 	}
 
 	/**
-	 * @brief Make a move via API.
+	 * Make a move via API.
 	 * @param ModerationTestsuite $t
 	 * @param string $oldTitle
 	 * @param string $newTitle
@@ -73,7 +73,7 @@ class ModerationTestsuiteApiBot extends ModerationTestsuiteBot {
 	}
 
 	/**
-	 * @brief Perform an upload via API.
+	 * Perform an upload via API.
 	 * @param ModerationTestsuite $t
 	 * @param string $title
 	 * @param string $srcPath
@@ -81,7 +81,7 @@ class ModerationTestsuiteApiBot extends ModerationTestsuiteBot {
 	 * @param array $extraParams Bot-specific parameters.
 	 * @return ModerationTestsuiteApiBotResult
 	 */
-	/** @brief Bot-specific (e.g. API or non-API) implementation of upload(). */
+	/** Bot-specific (e.g. API or non-API) implementation of upload(). */
 	public function doUpload( ModerationTestsuite $t,
 		$title, $srcPath, $text, array $extraParams
 	) {
@@ -98,7 +98,7 @@ class ModerationTestsuiteApiBot extends ModerationTestsuiteBot {
 	}
 
 	/**
-	 * @brief Convenience method to create ModerationTestsuiteApiBotResponse object.
+	 * Convenience method to create ModerationTestsuiteApiBotResponse object.
 	 * @param array $ret Raw API result (value returned by $t->query()).
 	 * @param string $interceptCode "Action was intercepted" error, e.g. 'moderation-edit-queued'.
 	 * @return ModerationTestsuiteApiBotResponse

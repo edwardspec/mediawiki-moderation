@@ -17,13 +17,13 @@
 
 /**
  * @file
- * @brief Basic interface for working with one row in the 'moderation' SQL table.
+ * Basic interface for working with one row in the 'moderation' SQL table.
  */
 
 interface IModerationEntry {
 	/**
-	 * @brief Get the list of fields needed for selecting $row, as expected by newFromRow().
-	 * @returns array ($fields parameter for $db->select()).
+	 * Get the list of fields needed for selecting $row, as expected by newFromRow().
+	 * @return array ($fields parameter for $db->select()).
 	 */
 	public static function getFields();
-};
+}

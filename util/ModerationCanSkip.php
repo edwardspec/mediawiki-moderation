@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Checks if the user is allowed to skip moderation.
+ * Checks if the user is allowed to skip moderation.
  */
 
 class ModerationCanSkip {
@@ -25,7 +25,7 @@ class ModerationCanSkip {
 	protected static $inApprove = false;
 
 	/**
-	 * @brief Enters "approve mode", making all further calls of canSkip() return true.
+	 * Enters "approve mode", making all further calls of canSkip() return true.
 	 * This is used in modaction=approve, so that newly approved edit
 	 * wouldn't be stopped by Moderation again.
 	 */
@@ -34,7 +34,7 @@ class ModerationCanSkip {
 	}
 
 	/**
-	 * @brief Check if edits by $user can bypass moderation in namespace $namespaceNumber.
+	 * Check if edits by $user can bypass moderation in namespace $namespaceNumber.
 	 * @param User $user
 	 * @param int $namespaceNumber
 	 */
@@ -43,7 +43,7 @@ class ModerationCanSkip {
 	}
 
 	/**
-	 * @brief Check if uploads by $user can bypass moderation.
+	 * Check if uploads by $user can bypass moderation.
 	 * @param User $user
 	 */
 	public static function canUploadSkip( User $user ) {
@@ -51,7 +51,7 @@ class ModerationCanSkip {
 	}
 
 	/**
-	 * @brief Check if moves by $user can bypass moderation.
+	 * Check if moves by $user can bypass moderation.
 	 * @param User $user
 	 * @param int $fromNamespace Namespace of the old title.
 	 * @param int $toNamespace Namespace of the new title.
@@ -66,10 +66,11 @@ class ModerationCanSkip {
 	/*-------------------------------------------------------------------*/
 
 	/**
-	 * @brief Returns true if $user can skip moderation, false otherwise.
+	 * Returns true if $user can skip moderation, false otherwise.
 	 * @param User $user
 	 * @param string $permission Name of the user's right that allows to bypass moderation.
 	 * @param array $affectedNamespaces Array of namespace numbers of all affected pages.
+	 * @return bool
 	 */
 	protected static function canSkip( User $user, $permission, array $affectedNamespaces ) {
 		global $wgModerationEnable;
@@ -97,10 +98,11 @@ class ModerationCanSkip {
 	}
 
 	/**
-	 * @brief Check if moderation can be skipped in all $namespaces.
+	 * Check if moderation can be skipped in all $namespaces.
 	 * @param array $namespaces Array of namespace numbers.
-	 * @retval true All $namespaces are non-moderated.
-	 * @retval false At least one of $namespaces in moderated.
+	 * @return bool
+	 * True if all $namespaces are non-moderated,
+	 * false if at least one of $namespaces in moderated.
 	 */
 	protected static function canSkipInAllNamespaces( array $namespaces ) {
 		foreach ( array_unique( $namespaces ) as $ns ) {
@@ -113,7 +115,7 @@ class ModerationCanSkip {
 	}
 
 	/**
-	 * @brief Check if moderation can be skipped in namespace $namespaceNumber.
+	 * Check if moderation can be skipped in namespace $namespaceNumber.
 	 */
 	protected static function canSkipInNamespace( $namespaceNumber ) {
 		global $wgModerationOnlyInNamespaces,

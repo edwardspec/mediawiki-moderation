@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Verifies that modaction=merge works as expected.
+ * Verifies that modaction=merge works as expected.
  */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
@@ -195,7 +195,7 @@ class ModerationMergeTest extends MediaWikiTestCase {
 
 	/**
 	 * @covers ModerationEditHooks::PrepareEditForm
-	 * @brief Ensure that wpMergeID is preserved when user clicks Preview.
+	 * Ensure that wpMergeID is preserved when user clicks Preview.
 	 */
 	public function testPreserveMergeID() {
 		$t = new ModerationTestsuite();
@@ -233,7 +233,7 @@ class ModerationMergeTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Ensure that token is required for Merge action.
+	 * Ensure that token is required for Merge action.
 	 */
 	public function testMergeToken() {
 		$t = new ModerationTestsuite();

@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Proxy class for SpecialUpload.
+ * Proxy class for SpecialUpload.
  */
 
 /*

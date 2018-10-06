@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Implements [[Special:Moderation]].
+ * Implements [[Special:Moderation]].
  */
 
 class SpecialModeration extends QueryPage {

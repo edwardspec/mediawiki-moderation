@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Checks that automoderated users can bypass moderation and others can't.
+ * Checks that automoderated users can bypass moderation and others can't.
  */
 
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
@@ -34,7 +34,7 @@ class ModerationInterceptTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @brief Provide datasets for testIntercept() runs.
+	 * Provide datasets for testIntercept() runs.
 	 */
 	public function dataProvider() {
 		$sets = [
@@ -146,7 +146,7 @@ class ModerationInterceptTest extends MediaWikiTestCase {
 }
 
 /**
- * @brief Represents one TestSet for testIntercept().
+ * Represents one TestSet for testIntercept().
  */
 class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 
@@ -192,7 +192,7 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 	protected $result = null;
 
 	/**
-	 * @brief Initialize this TestSet from the input of dataProvider.
+	 * Initialize this TestSet from the input of dataProvider.
 	 */
 	protected function applyOptions( array $options ) {
 		foreach ( $options as $key => $value ) {
@@ -229,7 +229,7 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Assert the state of the database after the edit.
+	 * Assert the state of the database after the edit.
 	 */
 	protected function assertResults( MediaWikiTestCase $testcase ) {
 		$testcase->assertEquals(
@@ -247,7 +247,7 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 	}
 
 	/**
-	 * @brief Execute the TestSet, making an edit/upload/move with requested parameters.
+	 * Execute the TestSet, making an edit/upload/move with requested parameters.
 	 */
 	protected function makeChanges() {
 		$testcase = $this->getTestcase();

@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Implements modaction=preview on [[Special:Moderation]].
+ * Implements modaction=preview on [[Special:Moderation]].
  */
 
 class ModerationActionPreview extends ModerationAction {
@@ -67,7 +67,7 @@ class ModerationActionPreview extends ModerationAction {
 	}
 
 	/**
-	 * @brief Returns ParserOptions object to be used for parsing.
+	 * Returns ParserOptions object to be used for parsing.
 	 */
 	protected function getParserOptions() {
 		global $wgVersion;

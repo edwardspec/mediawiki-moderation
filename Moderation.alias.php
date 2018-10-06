@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Aliases of [[Special:Moderation]] in other languages.
+ * Aliases of [[Special:Moderation]] in other languages.
  */
 
 $specialPageAliases = [];

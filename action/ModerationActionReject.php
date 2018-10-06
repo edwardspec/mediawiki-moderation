@@ -17,7 +17,7 @@
 
 /**
  * @file
- * @brief Implements modaction=reject(all) on [[Special:Moderation]].
+ * Implements modaction=reject(all) on [[Special:Moderation]].
  */
 
 class ModerationActionReject extends ModerationAction {
