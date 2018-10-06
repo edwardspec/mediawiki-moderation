@@ -84,8 +84,8 @@ class ModerationPreload {
 	/**
 	 * Calculate value of mod_preload_id for the current user.
 	 * @param bool $create If true, new preload ID will be generated for first-time anonymous editors.
-	 * @return Preload ID (string).
-	 * @retval false Current user is anonymous AND hasn't edited before AND $create is false.
+	 * @return string|false Preload ID (string).
+	 * Returns false if current user is anonymous AND hasn't edited before AND $create is false.
 	 */
 	public function getId( $create = false ) {
 		$user = $this->getUser();
@@ -117,7 +117,8 @@ class ModerationPreload {
 
 	/**
 	 * Forget the fact that this user edited anonymously.
-	 * Used in LocalUserCreated hook, when user becomes registered and no longer needs anonymous preload.
+	 * Used in LocalUserCreated hook, when user becomes registered and
+	 * no longer needs anonymous preload.
 	 */
 	protected function forgetAnonId() {
 		$this->getRequest()->setSessionData( 'anon_id', '' );

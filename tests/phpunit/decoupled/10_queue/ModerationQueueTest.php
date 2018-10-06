@@ -323,7 +323,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	/**
 	 * Returns array of expected post-edit values of all mod_* fields in the database.
 	 * @note Values like "/value/" are treated as regular expressions.
-	 * @returns [ 'mod_user' => ..., 'mod_namespace' => ..., ... ]
+	 * @return array [ 'mod_user' => ..., 'mod_namespace' => ..., ... ]
 	 */
 	protected function getExpectedRow() {
 		$expectedContent = ContentHandler::makeContent( $this->text, null, CONTENT_MODEL_WIKITEXT );

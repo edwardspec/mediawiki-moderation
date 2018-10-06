@@ -129,8 +129,8 @@ class ModerationNotifyModerator {
 	}
 
 	/**
-	 * Get newest mod_timestamp seen by $user.
-	 * @retval false Unknown.
+	 * Get newest mod_timestamp seen by $user (if known) or false.
+	 * @return string|false
 	 */
 	protected static function getSeen( User $user ) {
 		$cache = wfGetMainCache();

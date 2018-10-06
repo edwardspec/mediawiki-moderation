@@ -175,7 +175,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 
 	/**
 	 * Approve this change.
-	 * @returns Status object.
+	 * @return Status
 	 */
 	abstract public function doApprove( User $moderator );
 }

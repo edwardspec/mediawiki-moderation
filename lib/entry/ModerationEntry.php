@@ -116,9 +116,9 @@ abstract class ModerationEntry implements IModerationEntry {
 	}
 
 	/**
-	 * Returns Title of the second affected page (if any).
-		E.g. new name of the article when renaming it.
-	 * @retval null Not applicable (e.g. mod_type=edit).
+	 * Returns Title of the second affected page (if any) or null (for mod_type=edit, etc.).
+	 * E.g. new name of the article when renaming it.
+	 * @return Title|null
 	 */
 	public function getPage2Title() {
 		$row = $this->getRow();

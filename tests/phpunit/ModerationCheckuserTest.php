@@ -48,8 +48,8 @@ class ModerationCheckuserTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * Returns mod_ip of the last edit, as provided to the current user by QueryPage API.
-	 * @retval null IP is not in the API response.
+	 * Returns mod_ip of the last edit (if provided to the current user by QueryPage API) or null.
+	 * @return string|null
 	 */
 	protected function getIpFromApi( ModerationTestsuite $t, User $user ) {
 		$t->loginAs( $user );

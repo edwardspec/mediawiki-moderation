@@ -23,7 +23,7 @@
 interface IModerationEntry {
 	/**
 	 * Get the list of fields needed for selecting $row, as expected by newFromRow().
-	 * @returns array ($fields parameter for $db->select()).
+	 * @return array ($fields parameter for $db->select()).
 	 */
 	public static function getFields();
-};
+}

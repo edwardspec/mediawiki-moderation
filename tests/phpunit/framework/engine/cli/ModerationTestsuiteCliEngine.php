@@ -18,10 +18,10 @@
 /**
  * @file
  * Testsuite engine that runs index.php/api.php in PHP CLI.
-
-	For now, we subclass from RealHttpEngine, because we want doQuery()
-	to be based on executeHttpRequest(), same as in RealHttpEngine.
-*/
+ *
+ * For now, we subclass from RealHttpEngine, because we want doQuery()
+ * to be based on executeHttpRequest(), same as in RealHttpEngine.
+ */
 
 class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 
@@ -230,4 +230,4 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 }
 
 class ModerationTestsuiteCliError extends ModerationTestsuiteException {
-};
+}

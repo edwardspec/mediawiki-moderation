@@ -28,8 +28,9 @@ class ModerationVersionCheck {
 	}
 
 	/**
-	 * @retval false mod_title contains spaces (obsolete behavior)
-	 * @retval true mod_title contains underscores (correct behavior)
+	 * True if mod_title contains underscores (correct behavior),
+	 * false if mod_title contains spaces (obsolete behavior).
+	 * @return bool
 	 */
 	public static function usesDbKeyAsTitle() {
 		return self::wasDbUpdatedAfter( '1.1.31' );
@@ -41,8 +42,9 @@ class ModerationVersionCheck {
 	}
 
 	/**
-	 * @retval false Field mod_preloadable is 0 or 1 (obsolete behavior)
-	 * @retval true Field mod_preloadable is unique for rejected edits (correct behavior)
+	 * True if field mod_preloadable is unique for rejected edits (correct behavior),
+	 * false if field mod_preloadable is 0 or 1 (obsolete behavior).
+	 * @return bool
 	 */
 	public static function hasUniqueIndex() {
 		return self::wasDbUpdatedAfter( '1.2.9' );
@@ -75,7 +77,7 @@ class ModerationVersionCheck {
 
 	/**
 	 * Determines how to mark edit as NOT preloadable in SQL UPDATE.
-	 * @return One element of $fields parameter for $db->update().
+	 * @return string One element of $fields parameter for $db->update().
 	 */
 	public static function setPreloadableToNo() {
 		if ( self::hasUniqueIndex() ) {
@@ -109,7 +111,7 @@ class ModerationVersionCheck {
 	/**
 	 * Check if update.php was called after $versionOfModeration was installed.
 	 * @param string $versionOfModeration Version of Extension:Moderation, as listed in extension.json.
-	 * @return True if update.php was called, false otherwise.
+	 * @return bool True if update.php was called, false otherwise.
 	 */
 	protected static function wasDbUpdatedAfter( $versionOfModeration ) {
 		return version_compare( $versionOfModeration, self::getDbUpdatedVersion(), '<=' );

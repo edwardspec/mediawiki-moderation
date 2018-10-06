@@ -141,7 +141,7 @@ class ModerationTestsuite {
 	 * Download and parse Special:Moderation. Diff its current
 	 * state with the previously downloaded/parsed state, and
 	 * populate the arrays \b $new_entries, \b $old_entries.
-	 * @remark Logs in as $moderator.
+	 * @note Logs in as $moderator.
 	 */
 	public function fetchSpecial( $folder = 'DEFAULT' ) {
 		if ( !$this->isModerator() ) { /* Don't relogin in testModeratorNotAutomoderated() */
@@ -406,7 +406,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Makes one edit and returns its correct entry.
-	 * @remark Logs in as $moderator.
+	 * @note Logs in as $moderator.
 	 */
 	public function getSampleEntry( $title = null ) {
 		$this->fetchSpecial();

@@ -70,6 +70,7 @@ class ModerationCanSkip {
 	 * @param User $user
 	 * @param string $permission Name of the user's right that allows to bypass moderation.
 	 * @param array $affectedNamespaces Array of namespace numbers of all affected pages.
+	 * @return bool
 	 */
 	protected static function canSkip( User $user, $permission, array $affectedNamespaces ) {
 		global $wgModerationEnable;
@@ -99,8 +100,9 @@ class ModerationCanSkip {
 	/**
 	 * Check if moderation can be skipped in all $namespaces.
 	 * @param array $namespaces Array of namespace numbers.
-	 * @retval true All $namespaces are non-moderated.
-	 * @retval false At least one of $namespaces in moderated.
+	 * @return bool
+	 * True if all $namespaces are non-moderated,
+	 * false if at least one of $namespaces in moderated.
 	 */
 	protected static function canSkipInAllNamespaces( array $namespaces ) {
 		foreach ( array_unique( $namespaces ) as $ns ) {
