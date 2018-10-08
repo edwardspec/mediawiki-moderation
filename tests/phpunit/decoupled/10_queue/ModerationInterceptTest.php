@@ -244,6 +244,37 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 			[ 'edit was queued' => $this->intercept ],
 			[ 'edit was queued' => (bool)$row ]
 		);
+
+		// Ensure that the target page is unmodified if the edit was supposed to be intercepted.
+		// This page didn't exist before the test, so we can just check whether it exists now.
+		$targetTitle = ( $this->action == 'move' ) ? $this->getPage2Title() : $this->getTitle();
+		$targetPageExists = (bool)$this->getTestsuite()->getLastRevision(
+			$targetTitle->getFullText()
+		);
+		$testcase->assertEquals(
+			[ 'target page was unchanged' => $this->intercept ],
+			[ 'target page was unchanged' => !$targetPageExists ]
+		);
+	}
+
+	/**
+	 * Get title of the affected page.
+	 * @return Title
+	 */
+	protected function getTitle() {
+		if ( $this->action == 'upload' ) {
+			return Title::makeTitle( NS_FILE, 'Test file 1.png' );
+		}
+
+		return Title::makeTitle( $this->namespace, 'Test page 1' );
+	}
+
+	/**
+	 * Get new title of the moved page.
+	 * @return Title
+	 */
+	protected function getPage2Title() {
+		return Title::makeTitle( $this->namespace2, 'Test page 2' );
 	}
 
 	/**
@@ -257,8 +288,8 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 			$t->setMwConfig( $name, $value );
 		}
 
-		$title = Title::makeTitle( $this->namespace, 'Test page 1' );
-		$page2Title = Title::makeTitle( $this->namespace2, 'Test page 2' );
+		$title = $this->getTitle();
+		$page2Title = $this->getPage2Title();
 
 		$user = User::newFromName( '127.0.0.1', false );
 		if ( !$this->anonymously ) {
