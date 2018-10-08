@@ -32,6 +32,9 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	/** @var array HTTP headers to add to all requests, e.g. [ 'User-Agent' => '...' ] */
 	protected $reqHeaders = [];
 
+	/** @var string|null Cached CSRF token, as obtained by getEditToken() */
+	protected $editToken = null;
+
 	/**
 	 * Create engine object.
 	 */
@@ -93,6 +96,10 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 			&& $this->ignoredHttpErrors[$code];
 	}
 
+	/**
+	 * Determine the current user.
+	 * @return User
+	 */
 	public function loggedInAs() {
 		$ret = $this->query( [
 			'action' => 'query',
@@ -105,23 +112,102 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 	/**
 	 * Perform API request and return the resulting structure.
+	 * @param array $apiQuery
+	 * @return array
 	 * @note If $apiQuery contains 'token' => 'null', then 'token'
-			will be set to the current value of $editToken.
+	 * will be set to the current value of $editToken.
 	 */
 	final public function query( array $apiQuery ) {
 		$apiQuery['format'] = 'json';
-		if ( array_key_exists( 'token', $apiQuery )
-			&& is_null( $apiQuery['token'] ) ) {
-				$apiQuery['token'] = $this->getEditToken();
+		if ( array_key_exists( 'token', $apiQuery ) && $apiQuery['token'] === null ) {
+			$apiQuery['token'] = $this->getEditToken();
 		}
 
-		return $this->doQuery( $apiQuery );
+		return $this->queryInternal( $apiQuery );
 	}
 
 	/**
-	 * Engine-specific implementation of query().
+	 * Default implementation of query(). Can be overridden in the engine subclass.
+	 * @param array $apiQuery
+	 * @return array
 	 */
-	abstract protected function doQuery( array $apiQuery );
+	protected function queryInternal( array $apiQuery ) {
+		$req = $this->httpPost( wfScript( 'api' ), $apiQuery );
+		return FormatJson::decode( $req->getContent(), true );
+	}
+
+	/**
+	 * Become a logged-in user. Can be overridden in the engine subclass.
+	 * @param User $user
+	 */
+	final public function loginAs( User $user ) {
+		$this->loginAsInternal( $user );
+		$this->forgetEditToken(); # It's different for a logged-in user
+	}
+
+	/**
+	 * Default implementation of loginAs(). Can be overridden in the engine subclass.
+	 * @param User $user
+	 */
+	protected function loginAsInternal( User $user ) {
+		# Step 1. Get the token.
+		$ret = $this->query( [
+			'action' => 'query',
+			'meta' => 'tokens',
+			'type' => 'login'
+		] );
+		$loginToken = $ret['query']['tokens']['logintoken'];
+
+		# Step 2. Actual login.
+		$ret = $this->query( [
+			'action' => 'clientlogin',
+			'username' => $user->getName(),
+			'password' => ModerationTestsuite::TEST_PASSWORD,
+			'loginreturnurl' => 'http://localhost/not.really.used',
+			'logintoken' => $loginToken
+		] );
+
+		if ( isset( $ret['error'] ) || $ret['clientlogin']['status'] != 'PASS' ) {
+			throw new MWException( 'Failed to login as [' . $user->getName() . ']: ' .
+				FormatJson::encode( $ret ) );
+		}
+	}
+
+	/**
+	 * Forget the login cookies, etc. and become an anonymous user.
+	 */
+	final public function logout() {
+		$this->logoutInternal();
+		$this->forgetEditToken(); # It's different for anonymous user
+	}
+
+	/**
+	 * Engine-specific implementation of logout().
+	 */
+	abstract protected function logoutInternal();
+
+	/**
+	 * Obtain edit token. Can be overridden in the engine subclass.
+	 */
+	public function getEditToken() {
+		if ( !$this->editToken ) {
+			$ret = $this->query( [
+				'action' => 'query',
+				'meta' => 'tokens',
+				'type' => 'csrf'
+			] );
+			$this->editToken = $ret['query']['tokens']['csrftoken'];
+		}
+
+		return $this->editToken;
+	}
+
+	/**
+	 * Invalidate the cache of getEditToken().
+	 */
+	protected function forgetEditToken() {
+		$this->editToken = null;
+	}
 
 	/**
 	 * Create an account and return User object.

@@ -21,72 +21,37 @@
  */
 
 class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
+	/**
+	 * @var CookieJar|null
+	 * Cookie storage (for login() and anonymous preloading).
+	 */
+	private $cookieJar = null;
 
-	const HTTP_REQUEST_CLASS = 'MWHttpRequest';
-
-	protected $apiUrl;
-	protected $editToken = false;
-
-	private $cookieJar = null; # Cookie storage (from login() and anonymous preloading)
-
-	function __construct() {
-		$this->apiUrl = wfScript( 'api' );
+	/**
+	 * Forget the login cookies (if any), thus becoming an anonymous user.
+	 */
+	protected function logoutInternal() {
+		$this->cookieJar = null;
 	}
 
-	protected function getCookieJar() {
+	/**
+	 * Execute HTTP request by sending it to the real HTTP server.
+	 * @param string $url
+	 * @param string $method
+	 * @param array $postData
+	 */
+	public function executeHttpRequest( $url, $method = 'GET', array $postData = [] ) {
 		if ( !$this->cookieJar ) {
 			$this->cookieJar = new CookieJar;
 		}
 
-		return $this->cookieJar;
-	}
-
-	/**
-	 * Perform API request and return the resulting structure.
-	 * @note If $apiQuery contains 'token' => 'null', then 'token'
-	 * will be set to the current value of $editToken.
-	 */
-	protected function doQuery( array $apiQuery ) {
-		$req = $this->httpPost( $this->apiUrl, $apiQuery );
-		return FormatJson::decode( $req->getContent(), true );
-	}
-
-	public function loginAs( User $user ) {
-		# Step 1. Get the token.
-		$ret = $this->query( [
-			'action' => 'query',
-			'meta' => 'tokens',
-			'type' => 'login'
-		] );
-		$loginToken = $ret['query']['tokens']['logintoken'];
-
-		# Step 2. Actual login.
-		$ret = $this->query( [
-			'action' => 'clientlogin',
-			'username' => $user->getName(),
-			'password' => ModerationTestsuite::TEST_PASSWORD,
-			'loginreturnurl' => 'http://localhost/not.really.used',
-			'logintoken' => $loginToken
-		] );
-
-		if ( isset( $ret['error'] ) || $ret['clientlogin']['status'] != 'PASS' ) {
-			throw new MWException( 'Failed to login as [' . $user->getName() . ']: ' .
-				FormatJson::encode( $ret ) );
-		}
-
-		$this->getEditToken( true ); # It's different for a logged-in user
-	}
-
-	public function executeHttpRequest( $url, $method = 'GET', array $postData = [] ) {
-		$requestClass = static::HTTP_REQUEST_CLASS;
-
-		$req = $requestClass::factory( $url, [
+		$req = MWHttpRequest::factory( $url, [
 			'method' => $method
 		] );
 		foreach ( $this->getRequestHeaders() as $name => $value ) {
 			$req->setHeader( $name, $value );
 		}
-		$req->setCookieJar( $this->getCookieJar() );
+		$req->setCookieJar( $this->cookieJar );
 		$req->setData( $postData );
 
 		if ( $method == 'POST' && function_exists( 'curl_init' ) ) {
@@ -103,23 +68,5 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 		}
 
 		return ModerationTestsuiteResponse::newFromMWHttpRequest( $req );
-	}
-
-	public function logout() {
-		$this->cookieJar = null;
-		$this->getEditToken( true );
-	}
-
-	public function getEditToken( $updateCache = false ) {
-		if ( $updateCache || !$this->editToken ) {
-			$ret = $this->query( [
-				'action' => 'query',
-				'meta' => 'tokens',
-				'type' => 'csrf'
-			] );
-			$this->editToken = $ret['query']['tokens']['csrftoken'];
-		}
-
-		return $this->editToken;
 	}
 }

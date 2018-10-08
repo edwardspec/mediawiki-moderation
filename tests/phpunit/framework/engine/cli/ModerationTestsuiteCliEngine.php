@@ -18,12 +18,9 @@
 /**
  * @file
  * Testsuite engine that runs index.php/api.php in PHP CLI.
- *
- * For now, we subclass from RealHttpEngine, because we want doQuery()
- * to be based on executeHttpRequest(), same as in RealHttpEngine.
  */
 
-class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
+class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 
 	/** @var array [ 'name' => 'value' ] */
 	protected $cookies = [];
@@ -31,8 +28,10 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 	/** @var array [ 'name' => 'value' ] - $wg* variables from setMwConfig() */
 	protected $config = [];
 
-	public function logout() {
-		parent::logout();
+	/**
+	 * Forget the login cookies (if any), thus becoming an anonymous user.
+	 */
+	protected function logoutInternal() {
 		$this->cookies = [];
 	}
 
@@ -44,21 +43,13 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 		$this->config[$name] = $value;
 	}
 
+	/**
+	 * Simulate HTTP request by running index.php/api.php of MediaWiki in a controlled environment.
+	 * @param string $url
+	 * @param string $method
+	 * @param array $postData
+	 */
 	public function executeHttpRequest( $url, $method = 'GET', array $postData = [] ) {
-		$result = $this->cliExecute(
-			$url,
-			$postData,
-			( $method == 'POST' ),
-			$this->getRequestHeaders()
-		);
-
-		return ModerationTestsuiteResponse::newFromFauxResponse(
-			$result['FauxResponse'],
-			$result['capturedContent']
-		);
-	}
-
-	protected function cliExecute( $url, array $postData, $isPosted, array $extraHttpHeaders = [] ) {
 		global $wgServerName, $IP;
 		$url = wfExpandURL( $url, PROTO_CANONICAL );
 
@@ -83,7 +74,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 			'_GET' => [],
 			'_POST' => $postData,
 			'files' => $files,
-			'httpHeaders' => $extraHttpHeaders + [
+			'httpHeaders' => $this->getRequestHeaders() + [
 				'Host' => $wgServerName
 			],
 			'config' => $this->config
@@ -117,7 +108,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 		*/
 		$env = [
 			'QUERY_STRING' => isset( $bits['query'] ) ? $bits['query'] : '',
-			'REQUEST_METHOD' => $isPosted ? 'POST' : 'GET',
+			'REQUEST_METHOD' => $method,
 			'SCRIPT_NAME' => $scriptName,
 			'SCRIPT_FILENAME' => $scriptFilename,
 			'REQUEST_URI' => $bits['path'] . ( isset( $bits['query'] ) ? '?' . $bits['query'] : '' ),
@@ -189,7 +180,10 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteRealHttpEngine {
 			return $info['value'];
 		}, $response->getCookies() ) + $this->cookies;
 
-		return $result;
+		return ModerationTestsuiteResponse::newFromFauxResponse(
+			$response,
+			$result['capturedContent']
+		);
 	}
 
 	/** Safely split $bits['path'] into SCRIPT_NAME and PATH_INFO */
