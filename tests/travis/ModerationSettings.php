@@ -67,5 +67,8 @@ $wgVirtualRestConfig['modules']['parsoid'] = [
 $wgDefaultUserOptions['visualeditor-enable'] = 1; # Enable VisualEditor for all users
 
 # Tested extension.
-# Note: Moderation must always be enabled LAST in LocalSettings.php.
+# Note: Moderation should always be enabled LAST in LocalSettings.php, after any other extension.
 wfLoadExtension( "Moderation" );
+
+# Debug log of the testsuite.
+$wgDebugLogGroups['ModerationTestsuite'] = getenv( 'TRAVIS_BUILD_DIR' ) . '/testsuite.log';

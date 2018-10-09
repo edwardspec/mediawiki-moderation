@@ -59,7 +59,9 @@ matrix:
         - php tests/phpunit/phpunit.php --use-normal-tables --reuse-db extensions/Moderation/
         # Run small benchmarks to detect performance regressions
         - for i in extensions/Moderation/tests/benchmarks/*; do php maintenance/runScript.php $i; done
-      after_script: ./vendor/bin/phpcs -ps extensions/Moderation/
+      after_script:
+        - if [ ${branch} = "REL1_31" ]; then ./vendor/bin/phpcs -ps extensions/Moderation/; fi
+        - cat $TRAVIS_BUILD_DIR/testsuite.log
     - <<: *phpunit-build
       if: branch IN (review-usecase)
       env: branch=REL1_30
