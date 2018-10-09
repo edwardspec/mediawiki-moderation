@@ -93,8 +93,13 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 		$req = $this->httpRequestInternal( $url, $method, $postData );
 
+		// Log results of the requests.
 		$loggedContent = $req->getContent();
-		if ( strpos( $req->getResponseHeader( 'Content-Type' ), 'text/html' ) !== false ) {
+		$contentType = $req->getResponseHeader( 'Content-Type' );
+
+		if ( $req->isRedirect() ) {
+			$loggedContent = 'HTTP redirect to [' . $req->getResponseHeader( 'Location' ) . ']';
+		} elseif ( strpos( $contentType, 'text/html' ) !== false ) {
 			// Log will be too large for Travis if we dump the entire HTML,
 			// so we only print main content and value of the <title> tag.
 			$html = new ModerationTestsuiteHTML;
@@ -102,6 +107,9 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 			$loggedContent = 'HTML page with title [' . $html->getTitle() . '] and main text [' .
 				$html->getMainText() . ']';
+		} elseif ( strpos( $contentType, 'image/' ) !== false ) {
+			$loggedContent = 'Omitted binary response of type [' . $contentType . '] and size ' .
+				strlen( $loggedContent ) . ' bytes';
 		}
 
 		$logger->info( "[http] Received HTTP {code} response:\n" .
