@@ -93,13 +93,24 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 		$req = $this->httpRequestInternal( $url, $method, $postData );
 
+		$loggedContent = $req->getContent();
+		if ( strpos( $req->getResponseHeader( 'Content-Type' ), 'text/html' ) !== false ) {
+			// Log will be too large for Travis if we dump the entire HTML,
+			// so we only print main content and value of the <title> tag.
+			$html = new ModerationTestsuiteHTML;
+			$html->loadFromString( $loggedContent );
+
+			$loggedContent = 'HTML page with title [' . $html->getTitle() . '] and main text [' .
+				$html->getMainText() . ']';
+		}
+
 		$logger->info( "[http] Received HTTP {code} response:\n" .
 			"----------------- BEGIN CONTENT ---------------\n" .
 			"{content}\n" .
 			"----------------- END OF CONTENT --------------",
 			[
 				'code' => $req->getStatus(),
-				'content' => $req->getContent()
+				'content' => $loggedContent
 			]
 		);
 
