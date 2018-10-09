@@ -110,6 +110,9 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 				// e.g. error 404 from showimg when simulating "missing-stash-image" error.
 				$loggedContent = 'HTML page with title [' . $html->getTitle() . '] and main text [' .
 					$html->getMainText() . ']';
+
+				// Strip excessive newlines in MainContent
+				$loggedContent = preg_replace( "/\n{3,}/", "\n\n", $loggedContent );
 			}
 
 		} elseif ( preg_match( '/^(image|application\/ogg)/', $contentType ) ) {

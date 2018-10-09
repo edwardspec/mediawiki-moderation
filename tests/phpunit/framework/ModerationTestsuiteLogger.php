@@ -39,10 +39,15 @@ class ModerationTestsuiteLogger extends MediaWiki\Logger\LegacyLogger {
 	 * Print all stored entries. Meant to be used in ModerationTestCase::onNotSuccessfulTest().
 	 */
 	public static function printBuffer() {
-		error_log( __CLASS__ . ": the log related to this test:\n" .
+		if ( !self::$buffer ) {
+			return; // No log entries
+		}
+
+		$messageCount = count( self::$buffer );
+		error_log( "\n" . __CLASS__ . ": events ($messageCount) related to the failed test:\n" .
 			"----------------- START OF LOG ----------------\n" .
-			implode( "\n", self::$buffer ) .
-			"\n----------------- END OF LOG ------------------\n" );
+			implode( '', self::$buffer ) .
+			"----------------- END OF LOG ------------------\n" );
 	}
 
 	/**
