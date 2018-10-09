@@ -105,9 +105,14 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 			$html = new ModerationTestsuiteHTML;
 			$html->loadFromString( $loggedContent );
 
-			$loggedContent = 'HTML page with title [' . $html->getTitle() . '] and main text [' .
-				$html->getMainText() . ']';
-		} elseif ( strpos( $contentType, 'image/' ) !== false ) {
+			if ( $html->getMainContent() ) {
+				// MainContent element can be unavailable if this is some non-standard HTML page,
+				// e.g. error 404 from showimg when simulating "missing-stash-image" error.
+				$loggedContent = 'HTML page with title [' . $html->getTitle() . '] and main text [' .
+					$html->getMainText() . ']';
+			}
+
+		} elseif ( preg_match( '/^(image|application\/ogg)/', $contentType ) ) {
 			$loggedContent = 'Omitted binary response of type [' . $contentType . '] and size ' .
 				strlen( $loggedContent ) . ' bytes';
 		}
