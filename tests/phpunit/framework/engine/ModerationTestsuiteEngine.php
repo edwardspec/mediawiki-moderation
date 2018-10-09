@@ -63,7 +63,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 * @return ModerationTestsuiteResponse object.
 	 */
 	public function httpGet( $url ) {
-		return $this->executeHttpRequest( $url, 'GET', [] );
+		return $this->httpRequest( $url, 'GET', [] );
 	}
 
 	/**
@@ -71,8 +71,45 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 * @return ModerationTestsuiteResponse object.
 	 */
 	public function httpPost( $url, array $postData = [] ) {
-		return $this->executeHttpRequest( $url, 'POST', $postData );
+		return $this->httpRequest( $url, 'POST', $postData );
 	}
+
+	/**
+	 * Execute HTTP request and return a result.
+	 * @param string $url
+	 * @param string $method
+	 * @param array $postData
+	 * @return ModerationTestsuiteResponse
+	 */
+	private function httpRequest( $url, $method = 'GET', array $postData = [] ) {
+		$logger = MediaWiki\Logger\LoggerFactory::getInstance( 'ModerationTestsuite' );
+		$logger->info( '[http] Sending {method} request to [{url}], postData={postData}',
+			[
+				'method' => $method,
+				'url' => $url,
+				'postData' => FormatJson::encode( $postData )
+			]
+		);
+
+		$req = $this->httpRequestInternal( $url, $method, $postData );
+
+		$logger->info( "[http] Received HTTP {code} response:\n" .
+			"----------------- BEGIN CONTENT ---------------\n" .
+			"{content}\n" .
+			"----------------- END OF CONTENT --------------",
+			[
+				'code' => $req->getStatus(),
+				'content' => $req->getContent()
+			]
+		);
+
+		return $req;
+	}
+
+	/**
+	 * Engine-specific implementation of httpRequest().
+	 */
+	abstract public function httpRequestInternal( $url, $method, array $postData );
 
 	/**
 	 * Don't throw exception when HTTP request returns $code.

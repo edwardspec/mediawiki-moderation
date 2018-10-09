@@ -78,7 +78,7 @@ class ModerationTestsuiteSelfTest extends MediaWikiTestCase {
 
 	/**
 	 * Ensures that non-API HTTP response is correct.
-	 * @covers ModerationTestsuiteEngine::executeHttpRequest
+	 * @covers ModerationTestsuiteEngine::httpRequest
 	 * @dataProvider engineAndMethodDataProvider
 	 */
 	public function testEngineNonApi( ModerationTestsuiteEngine $engine, $method ) {

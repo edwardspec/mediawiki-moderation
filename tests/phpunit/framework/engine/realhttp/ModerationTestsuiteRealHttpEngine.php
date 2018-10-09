@@ -40,7 +40,7 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 	 * @param string $method
 	 * @param array $postData
 	 */
-	public function executeHttpRequest( $url, $method = 'GET', array $postData = [] ) {
+	public function httpRequestInternal( $url, $method, array $postData ) {
 		if ( !$this->cookieJar ) {
 			$this->cookieJar = new CookieJar;
 		}
