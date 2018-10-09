@@ -24,8 +24,10 @@ require_once __DIR__ . '/../../common/ModerationTestUtil.php';
 
 require_once __DIR__ . '/ModerationTestsuiteEntry.php';
 require_once __DIR__ . '/ModerationTestsuiteHTML.php';
+require_once __DIR__ . '/ModerationTestsuiteLogger.php';
 require_once __DIR__ . '/IModerationTestsuiteResponse.php';
 require_once __DIR__ . '/ModerationTestsuiteResponse.php';
+require_once __DIR__ . '/ModerationTestCase.php';
 require_once __DIR__ . '/ModerationTestSet.php';
 require_once __DIR__ . '/ModerationPendingChangeTestSet.php';
 

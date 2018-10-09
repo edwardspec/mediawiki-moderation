@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2017 Edward Chernenko.
+	Copyright (C) 2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -17,18 +17,24 @@
 
 /**
  * @file
- * Ensures that only moderators can use Special:Moderation.
+ * Subclass of MediaWikiTestCase that prints TestsuiteLogger debug messages for failed tests.
  */
 
-require_once __DIR__ . "/framework/ModerationTestsuite.php";
+class ModerationTestCase extends MediaWikiTestCase {
+	/**
+	 * Dump the logs related to the current test.
+	 */
+	protected function onNotSuccessfulTest( Throwable $e ) {
+		ModerationTestsuiteLogger::printBuffer();
 
-class ModerationPermissionsTest extends ModerationTestCase {
-	public function testPermissions() {
-		$t = new ModerationTestsuite();
+		parent::onNotSuccessfulTest( $e );
+	}
 
-		$t->loginAs( $t->unprivilegedUser );
-		$title = $t->html->getTitle( $t->getSpecialURL() );
-
-		$this->assertRegExp( '/\(permissionserrors\)/', $title );
+	/**
+	 * Forget the logs related to previous tests.
+	 */
+	protected function setUp() {
+		ModerationTestsuiteLogger::cleanBuffer();
+		parent::setUp();
 	}
 }

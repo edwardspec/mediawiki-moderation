@@ -25,7 +25,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
 /**
  * @covers ModerationNotifyModerator
  */
-class ModerationNotifyModeratorTest extends MediaWikiTestCase {
+class ModerationNotifyModeratorTest extends ModerationTestCase {
 	public function testNotifyModerator() {
 		$t = new ModerationTestsuite();
 		$randomPageUrl = Title::newFromText( 'Can_Be_Any_Page' )->getFullURL();

@@ -82,7 +82,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 * @return ModerationTestsuiteResponse
 	 */
 	private function httpRequest( $url, $method = 'GET', array $postData = [] ) {
-		$logger = MediaWiki\Logger\LoggerFactory::getInstance( 'ModerationTestsuite' );
+		$logger = new ModerationTestsuiteLogger( 'ModerationTestsuite' );
 		$logger->info( '[http] Sending {method} request to [{url}], postData={postData}',
 			[
 				'method' => $method,

@@ -25,7 +25,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
 /**
  * @covers ModerationMoveHooks
  */
-class ModerationMoveTest extends MediaWikiTestCase {
+class ModerationMoveTest extends ModerationTestCase {
 	public $oldTitle = 'About dogs';
 	public $newTitle = 'About herding dogs';
 	public $text = 'Initial content of page "About dogs".';

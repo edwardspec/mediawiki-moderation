@@ -25,7 +25,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
 /**
  * @covers ModerationActionReject
  */
-class ModerationRejectTest extends MediaWikiTestCase {
+class ModerationRejectTest extends ModerationTestCase {
 	public function testRejectAll() {
 		$t = new ModerationTestsuite();
 

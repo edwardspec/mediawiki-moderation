@@ -22,7 +22,7 @@
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
-class ModerationPageFormsTest extends MediaWikiTestCase {
+class ModerationPageFormsTest extends ModerationTestCase {
 	/**
 	 * Is pending edit preloaded into the edit form of Special:FormEdit?
 	 * @covers ModerationPageForms

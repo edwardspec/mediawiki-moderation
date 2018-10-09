@@ -25,7 +25,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
 /**
  * @covers ModerationError
  */
-class ModerationErrorsTest extends MediaWikiTestCase {
+class ModerationErrorsTest extends ModerationTestCase {
 	/**
 	 * @requires extension curl
 	 * @note Only cURL version of MWHttpRequest supports uploads.

@@ -22,7 +22,7 @@
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
-class ModerationFileRevertTest extends MediaWikiTestCase {
+class ModerationFileRevertTest extends ModerationTestCase {
 	/**
 	 * Check that index.php?action=revert can't be used to bypass Moderation.
 	 * @covers ModerationUploadHooks::ongetUserPermissionsErrors

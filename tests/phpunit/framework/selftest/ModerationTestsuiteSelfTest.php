@@ -27,7 +27,7 @@ require_once __DIR__ . "/../ModerationTestsuite.php";
 /**
  * @group Utility
  */
-class ModerationTestsuiteSelfTest extends MediaWikiTestCase {
+class ModerationTestsuiteSelfTest extends ModerationTestCase {
 	/**
 	 * Ensures that API response is correct.
 	 * @covers ModerationTestsuiteEngine::query

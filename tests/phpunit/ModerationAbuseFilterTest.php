@@ -22,7 +22,7 @@
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
-class ModerationAbuseFilterTest extends MediaWikiTestCase {
+class ModerationAbuseFilterTest extends ModerationTestCase {
 	private $expectedTags = [
 		'Author of edit likes cats',
 		'Author of edit likes dogs'

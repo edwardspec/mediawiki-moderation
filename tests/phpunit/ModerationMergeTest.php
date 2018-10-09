@@ -25,7 +25,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
 /**
  * @covers ModerationActionMerge
  */
-class ModerationMergeTest extends MediaWikiTestCase {
+class ModerationMergeTest extends ModerationTestCase {
 	/*
 		This is how we create edit conflict:
 		1) The page has 4 lines of text,

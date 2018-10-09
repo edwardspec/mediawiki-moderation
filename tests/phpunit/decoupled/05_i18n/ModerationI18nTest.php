@@ -20,7 +20,7 @@
  * Checks i18n/*.json files for syntax errors.
  */
 
-class ModerationI18nTest extends MediaWikiTestCase {
+class ModerationI18nTest extends ModerationTestCase {
 	/**
 	 * Ensures that $path is a valid JSON file.
 	 * @dataProvider dataProvider

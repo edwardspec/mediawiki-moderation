@@ -25,7 +25,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
 /**
  * @covers ModerationPreload
  */
-class ModerationPreloadTest extends MediaWikiTestCase {
+class ModerationPreloadTest extends ModerationTestCase {
 	/** @covers ModerationPreload::onEditFormPreloadText */
 	public function testPreloadNewPage() {
 		$t = new ModerationTestsuite();

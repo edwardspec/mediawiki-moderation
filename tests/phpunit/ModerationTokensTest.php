@@ -22,7 +22,7 @@
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
-class ModerationTokensTest extends MediaWikiTestCase {
+class ModerationTokensTest extends ModerationTestCase {
 	public function testTokens() {
 		$t = new ModerationTestsuite();
 

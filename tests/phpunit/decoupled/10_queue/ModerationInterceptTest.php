@@ -25,7 +25,7 @@ require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 /**
  * @covers ModerationCanSkip
  */
-class ModerationInterceptTest extends MediaWikiTestCase {
+class ModerationInterceptTest extends ModerationTestCase {
 	/**
 	 * @dataProvider dataProvider
 	 */

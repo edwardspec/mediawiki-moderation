@@ -25,7 +25,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
 /**
  * @covers ModerationLogFormatter
  */
-class ModerationLogFormatterTest extends MediaWikiTestCase {
+class ModerationLogFormatterTest extends ModerationTestCase {
 	/**
 	 * @dataProvider dataProvider
 	 */

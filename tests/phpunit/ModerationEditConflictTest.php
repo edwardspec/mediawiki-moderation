@@ -24,7 +24,7 @@
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
-class ModerationEditConflictTest extends MediaWikiTestCase {
+class ModerationEditConflictTest extends ModerationTestCase {
 	public function testResolvableEditConflict() {
 		/*
 			Ensure that resolvable edit conflicts are automatically

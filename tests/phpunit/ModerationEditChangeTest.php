@@ -27,7 +27,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
  * @covers ModerationActionEditChange
  * @covers ModerationEditChangePage
  */
-class ModerationEditChangeTest extends MediaWikiTestCase {
+class ModerationEditChangeTest extends ModerationTestCase {
 
 	/**
 	 * Check the edit form of modaction=editchange.
