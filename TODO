@@ -1,10 +1,10 @@
 TODO:
 
+High-prio:
+* Ensure that Moderation works with Multi-Content Revisions from upcoming MediaWiki 1.32.
+
 Medium-prio:
 * (testsuite) Provide ~100% automated test coverage of all functionality.
-* (testsuite) Have as many checks as practical in the decoupled testsuite,
-	then remove the old tests if they are completely duplicating what
-	the decoupled testsuite already covers.
 * (feature) Show "you have N pending edits" link to non-automoderated users
 	("shopping cart" style), so that they would know to which pages
 	to return to continue editing.
@@ -36,6 +36,8 @@ Background-prio (may not be needed):
 * (meta) Display notification "Please run update.php" on Special:Moderation if
 some new feature (that requires DB update) is disabled because it wasn't done.
 * (feature) Add "rejected edits" link for moderators in ContributionsToolLinks hook.
+	It's not a simple UI change, because "moderation" SQL table currently
+	doesn't have an index for selecting edits by author.
 * (feature) Should ApproveHook update timestamps of upload/move logs?
 * (UX) Improve handling of zero edits. (having to reject them manually doesn't feel right)
 * (interface) For non-automoderated users: show a message on their
