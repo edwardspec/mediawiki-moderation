@@ -318,6 +318,12 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 			ModerationTestUtil::fastEdit( $title );
 		}
 
+		if ( $this->action == 'upload' ) {
+			// Workaround for archive name collisions when test image with the same name
+			// is uploaded by 2 consecutive tests during the same second.
+			$t->sleepUntilNextSecond();
+		}
+
 		$t->loginAs( $user );
 		$bot = $t->getBot( $this->viaApi ? 'api' : 'nonApi' );
 
