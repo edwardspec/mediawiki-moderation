@@ -677,6 +677,16 @@ class ModerationTestsuite {
 		global $wgVersion;
 		return version_compare( $wgVersion, $compareWith, $operator );
 	}
+
+	/**
+	 * Sleep before the reupload, so that it wouldn't fail due to archive name collision.
+	 *
+	 * Archived image names are based on time (up to the second), so if two uploads happen
+	 * within the same second, only the first would succeed.
+	 */
+	public function sleepUntilNextSecond() {
+		usleep( 1000 * 1000 - gettimeofday()['usec'] );
+	}
 }
 
 class ModerationTestsuiteException extends Exception {

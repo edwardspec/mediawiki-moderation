@@ -713,9 +713,8 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		}
 
 		if ( $this->existing && $this->filename && $this->expectApproved ) {
-			// Wait 1 second, because archived image names are based on time (up to the second),
-			// so if two uploads happen within the same second, only the first will succeed.
-			sleep( 1 );
+			/* Wait up to 1 second to avoid archived name collision */
+			$t->sleepUntilNextSecond();
 		}
 
 		// Execute the action, check HTML printed by the action

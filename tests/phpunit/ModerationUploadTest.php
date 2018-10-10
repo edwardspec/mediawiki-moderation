@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2017 Edward Chernenko.
+	Copyright (C) 2015-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -130,9 +130,8 @@ class ModerationUploadTest extends ModerationTestCase {
 		$this->assertNotNull( $entry->approveLink,
 			"testReupload(): Approve link not found" );
 
-		/* Wait 1 second, because archived image names are based on time (up to the second),
-			so if two uploads happen within the same second, only the first will succeed */
-		sleep( 1 );
+		/* Wait up to 1 second to avoid archived name collision */
+		$t->sleepUntilNextSecond();
 
 		$t->html->loadFromURL( $entry->approveLink );
 		$this->assertRegExp( '/\(moderation-approved-ok: 1\)/',
