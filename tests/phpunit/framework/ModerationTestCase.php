@@ -23,10 +23,12 @@
 class ModerationTestCase extends MediaWikiTestCase {
 	/**
 	 * Dump the logs related to the current test.
+	 *
+	 * FIXME: MediaWiki 1.27 uses PHPUnit 4, where $e is Exception, but modern PHPUnit 6
+	 * has "Throwable $e", which leads to PHP warning "Declaration [...] should be compatible".
 	 */
-	protected function onNotSuccessfulTest( Throwable $e ) {
+	protected function onNotSuccessfulTest( $e ) {
 		ModerationTestsuiteLogger::printBuffer();
-
 		parent::onNotSuccessfulTest( $e );
 	}
 
