@@ -185,7 +185,7 @@ class ModerationTestsuite {
 	#
 	private function createTestUser( $name, $groups = [] ) {
 		$user = User::createNew( $name );
-		$user->setPassword( self::TEST_PASSWORD );
+		TestUser::setPasswordForUser( $user, self::TEST_PASSWORD );
 
 		# With "qqx" language selected, messages are replaced with
 		# their names, so parsing process is translation-independent.
