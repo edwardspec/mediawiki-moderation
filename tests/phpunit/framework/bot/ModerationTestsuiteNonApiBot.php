@@ -45,7 +45,8 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 			'wpEditToken' => $t->getEditToken(),
 			'wpSave' => 'Save',
 			'wpIgnoreBlankSummary' => '',
-			'wpRecreate' => ''
+			'wpRecreate' => '',
+			'wpUltimateParam' => 1
 		];
 
 		if ( defined( 'EditPage::UNICODE_CHECK' ) ) { // MW 1.30+
