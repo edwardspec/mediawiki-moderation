@@ -64,6 +64,10 @@ class ModerationEditHooks {
 			return true;
 		}
 
+		if ( $summary instanceof CommentStoreComment ) {
+			$summary = $summary->text;
+		}
+
 		/*
 		 * Allow to intercept moderation process
 		 */
