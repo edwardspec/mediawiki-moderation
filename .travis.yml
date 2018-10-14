@@ -93,9 +93,9 @@ cache:
 before_script:
   - echo $TESTSUITE_TYPE
 
-  - phpenv config-rm xdebug.ini
+  - if [ ${TRAVIS_PHP_VERSION} != "nightly" ]; then phpenv config-rm xdebug.ini; fi
   - phpenv config-add tests/travis/phpconf/php.ini
-  - if [ ${TRAVIS_PHP_VERSION:0:1} = "7" ]; then phpenv config-add tests/travis/phpconf/php7.ini; fi
+  - if [ ${TRAVIS_PHP_VERSION:0:1} != "5" ]; then phpenv config-add tests/travis/phpconf/php7.ini; fi
   - php -i
 
   - if [ ${TESTSUITE_TYPE} = "selenium" ]; then bash -ex ./tests/travis/apache/run_apache.sh; fi
