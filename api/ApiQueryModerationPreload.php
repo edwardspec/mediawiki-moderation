@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2016-2017 Edward Chernenko.
+	Copyright (C) 2016-2018 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -122,7 +122,7 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 		return [
 			'action=query&prop=moderationpreload&mptitle=Cat'
 				=> 'apihelp-query+moderationpreload-wikitext-example',
-			'action=query&prop=moderationpreload&mptitle=Dog&mpmode=html'
+			'action=query&prop=moderationpreload&mptitle=Dog&mpmode=parsed'
 				=> 'apihelp-query+moderationpreload-parsed-example',
 			'action=query&prop=moderationpreload&mptitle=Cat&mpsection=2'
 				=> 'apihelp-query+moderationpreload-section-example',
