@@ -57,14 +57,13 @@ class ModerationEntryEdit extends ModerationApprovableEntry {
 
 		# Existing page
 		$latest = $page->getLatest();
-
 		if ( $latest == $row->last_oldid ) {
 			# Page hasn't changed since this edit was queued for moderation.
 			return $page->doEditContent(
 				$new_content,
 				$row->comment,
 				$flags,
-				$row->last_oldid,
+				$latest,
 				$user
 			);
 		}
