@@ -15,19 +15,22 @@ if [ ! -f buildcache/mediawiki/COMPLETE ]; then
 		rm -rf mediawiki
 		git clone $GITCLONE_OPTS https://gerrit.wikimedia.org/r/p/mediawiki/core.git mediawiki
 
-		for EXT in AbuseFilter CheckUser MobileFrontend PageForms VisualEditor; do
-			git clone $GITCLONE_OPTS \
-				https://gerrit.wikimedia.org/r/p/mediawiki/extensions/$EXT.git \
-				mediawiki/extensions/$EXT
-		done
-
-		for SKIN in MinervaNeue; do
-			git clone $GITCLONE_OPTS \
-				https://gerrit.wikimedia.org/r/p/mediawiki/skins/$SKIN.git \
-				mediawiki/skins/$SKIN
-		done
-
 		cd mediawiki
+
+		( cd extensions
+		for EXT in AbuseFilter CheckUser MobileFrontend PageForms VisualEditor; do
+			[[ -d $EXT ]] || git clone $GITCLONE_OPTS \
+				https://gerrit.wikimedia.org/r/p/mediawiki/extensions/$EXT.git $EXT
+		done
+		)
+
+		( cd skins
+		for SKIN in Vector MinervaNeue; do
+			[[ -d $SKIN ]] || git clone $GITCLONE_OPTS \
+				https://gerrit.wikimedia.org/r/p/mediawiki/skins/$SKIN.git $SKIN
+		done
+		)
+
 		[[ -f includes/DevelopmentSettings.php ]] || \
 			wget https://raw.githubusercontent.com/wikimedia/mediawiki/master/includes/DevelopmentSettings.php \
 				-O includes/DevelopmentSettings.php
