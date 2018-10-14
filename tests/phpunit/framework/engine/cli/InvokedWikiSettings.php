@@ -79,11 +79,9 @@ function efModerationTestsuiteSetup() {
 			that always prints the result, even in "internal mode".
 	*/
 	$wgHooks['ApiBeforeMain'][] = function ( ApiMain &$apiMain ) {
-		global $wgEnableWriteAPI;
-
 		$apiMain = new ModerationTestsuiteCliApiMain(
 			$apiMain->getContext(),
-			$wgEnableWriteAPI
+			true
 		);
 
 		return true;
