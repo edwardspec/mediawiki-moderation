@@ -100,12 +100,6 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 			$title = $this->getExpectedTitleObj();
 			$oldText = 'Old text';
 
-			$initialFilename = null;
-			if ( $this->filename !== null ) {
-				// Pre-upload another image (not the one that will be tested),
-				// otherwise
-			}
-
 			$this->precreatePage(
 				$title,
 				$oldText,
