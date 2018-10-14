@@ -212,7 +212,11 @@ class ModerationTestsuiteHTML extends DOMDocument {
 		$list = [];
 		foreach ( $scripts as $script ) {
 			$matches = null;
-			if ( preg_match( '/mw\.loader\.load\(\[([^]]+)\]/', $script->textContent, $matches ) ) {
+			if ( preg_match(
+				'/(?:mw\.loader\.load\(|RLPAGEMODULES=)\[([^]]+)\]/',
+				$script->textContent,
+				$matches
+			) ) {
 				$items = explode( ',', $matches[1] );
 
 				foreach ( $items as $item ) {
