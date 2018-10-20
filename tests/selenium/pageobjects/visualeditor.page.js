@@ -42,7 +42,12 @@ class VisualEditor extends Page {
 				return false;
 			}
 
-			$( parSelector ).click(); /* Trigger (1) selection of this <p>, (2) focusin event */
+			// Trigger (1) selection of this <p>, (2) focusin event.
+			browser.selectorExecute( parSelector, function ( paragraphs ) {
+				paragraphs[0].click();
+			} );
+
+			//$( parSelector ).click();
 			return browser.isExisting( '.ve-ce-surface-focused' );
 		} );
 
