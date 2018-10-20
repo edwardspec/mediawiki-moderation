@@ -261,17 +261,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 
 		if ( $this->modblocked ) {
 			/* Apply ModerationBlock to $this->user */
-			$dbw = wfGetDB( DB_MASTER );
-			$dbw->insert( 'moderation_block',
-				[
-					'mb_address' => $this->user->getName(),
-					'mb_user' => $this->user->getId(),
-					'mb_by' => 0,
-					'mb_by_text' => 'Some moderator',
-					'mb_timestamp' => $dbw->timestamp()
-				],
-				__METHOD__
-			);
+			$t->modblock( $this->user );
 		}
 
 		if ( $this->watch === false ) {

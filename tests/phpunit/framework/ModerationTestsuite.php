@@ -687,6 +687,21 @@ class ModerationTestsuite {
 	public function sleepUntilNextSecond() {
 		usleep( 1000 * 1000 - gettimeofday()['usec'] );
 	}
+
+	/** Apply ModerationBlock to $user */
+	public function modblock( User $user ) {
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->insert( 'moderation_block',
+			[
+				'mb_address' => $user->getName(),
+				'mb_user' => $user->getId(),
+				'mb_by' => 0,
+				'mb_by_text' => 'Some moderator',
+				'mb_timestamp' => $dbw->timestamp()
+			],
+			__METHOD__
+		);
+	}
 }
 
 class ModerationTestsuiteException extends Exception {

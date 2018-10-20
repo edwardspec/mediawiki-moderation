@@ -26,9 +26,11 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
  * @covers ModerationNotifyModerator
  */
 class ModerationNotifyModeratorTest extends ModerationTestCase {
+	/**
+	 * Ensure that moderator is notified about new pending changes.
+	 */
 	public function testNotifyModerator() {
 		$t = new ModerationTestsuite();
-		$randomPageUrl = Title::newFromText( 'Can_Be_Any_Page' )->getFullURL();
 
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit();
@@ -37,14 +39,14 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 		$t->loginAs( $t->moderator );
 		$this->assertEquals(
 			'(moderation-new-changes-appeared)',
-			$t->html->getNewMessagesNotice( $randomPageUrl ),
+			$this->getNotice( $t ),
 			"testNotifyModerator(): Notification not found"
 		);
 
 		/* ... but not shown to non-moderators */
 		$t->loginAs( $t->unprivilegedUser );
 		$this->assertNull(
-			$t->html->getNewMessagesNotice( $randomPageUrl ),
+			$this->getNotice( $t ),
 			"testNotifyModerator(): Notification shown to non-moderator"
 		);
 
@@ -59,7 +61,7 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 
 		/* ... and not shown to this moderator after Special:Moderation has already been visited */
 		$this->assertNull(
-			$t->html->getNewMessagesNotice( $randomPageUrl ),
+			$this->getNotice( $t ),
 			"testNotifyModerator(): Notification still shown after Special:Moderation has " .
 			"already been visited"
 		);
@@ -68,7 +70,7 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 		$t->loginAs( $t->moderatorButNotAutomoderated );
 		$this->assertEquals(
 			'(moderation-new-changes-appeared)',
-			$t->html->getNewMessagesNotice( $randomPageUrl ),
+			$this->getNotice( $t ),
 			"testNotifyModerator(): Notification not shown to the second moderator"
 		);
 
@@ -78,7 +80,7 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 
 		$t->httpGet( $t->new_entries[0]->rejectLink );
 		$this->assertNull(
-			$t->html->getNewMessagesNotice( $randomPageUrl ),
+			$this->getNotice( $t ),
 			"testNotifyModerator(): Notification still shown after all changes were rejected"
 		);
 
@@ -93,8 +95,35 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 
 		$t->loginAs( $t->moderatorButNotAutomoderated );
 		$this->assertNull(
-			$t->html->getNewMessagesNotice( $randomPageUrl ),
+			$this->getNotice( $t ),
 			"testNotifyModerator(): Notification still shown after all changes were approved"
 		);
+	}
+
+	/**
+	 * Ensure that moderator is NOT notified about new changes in the Spam folder.
+	 */
+	public function testNotifyModeratorExceptSpam() {
+		$t = new ModerationTestsuite();
+		$t->modblock( $t->unprivilegedUser );
+
+		$t->loginAs( $t->unprivilegedUser );
+		$t->doTestEdit(); // This edit is rejected automatically
+
+		/* Notification "New changes await!" is not shown */
+		$t->loginAs( $t->moderator );
+		$this->assertNull(
+			$this->getNotice( $t ),
+			"testNotifyModeratorExceptSpam(): Notification was shown for change in Spam folder."
+		);
+	}
+
+	/**
+	 * Find NewMessages notice in HTML of some randomly chosen page.
+	 * @return DomElement|null
+	 */
+	protected function getNotice( ModerationTestsuite $t ) {
+		$randomPageUrl = Title::newFromText( 'Can_Be_Any_Page' )->getFullURL();
+		return $t->html->getNewMessagesNotice( $randomPageUrl );
 	}
 }

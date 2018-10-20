@@ -46,3 +46,4 @@ some new feature (that requires DB update) is disabled because it wasn't done.
 
 Tests needed:
 * PageForms plugin ("continue editing" link in postedit notification)
+* Notification emails ($ModerationNotification{Enable,NewOnly}, $ModerationEmail)

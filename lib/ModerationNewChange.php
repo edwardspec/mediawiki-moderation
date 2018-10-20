@@ -265,13 +265,23 @@ class ModerationNewChange {
 			self::$LastInsertId
 		] );
 
-		// Notify administrator about pending changes
+		$this->notify();
+	}
+
+	/**
+	 * Notify moderators about this newly saved pending change.
+	 */
+	public function notify() {
+		if ( $this->getField( 'mod_rejected_auto' ) ) {
+			// This change was placed into the Spam folder. No need to notify.
+			return;
+		}
+
+		// Notify administrator by email
 		$this->sendNotificationEmail();
 
 		// Enable in-wiki notification "New changes await moderation" for moderators
-		ModerationNotifyModerator::setPendingTime(
-			$this->getField( 'mod_timestamp' )
-		);
+		ModerationNotifyModerator::setPendingTime( $this->getField( 'mod_timestamp' ) );
 	}
 
 	/**
