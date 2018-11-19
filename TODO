@@ -47,3 +47,13 @@ some new feature (that requires DB update) is disabled because it wasn't done.
 Tests needed:
 * PageForms plugin ("continue editing" link in postedit notification)
 * Notification emails ($ModerationNotification{Enable,NewOnly}, $ModerationEmail)
+
+FIXME:
+* Extension:Echo suppresses "You have new messages" box (which we need).
+	Notification "new edits are pending moderation" uses this box.
+	Note: making it into a flyout Echo notification would be worse for UX,
+	so a preferable fix is to prevent Echo from suppressing the usual box.
+* When approving, tags related to moderator (and unrelated to original author)
+	shouldn't be applied (e.g. if moderator clicks Approve in Mobile view,
+	approved edit shouldn't be tagged as "Mobile edit" - unless, of course,
+	the original author also used Mobile view and this tag is in mod_tags).
