@@ -49,6 +49,11 @@ wfLoadExtensions( [
 	'VisualEditor'
 ] );
 
+# ModerationNotifyModeratorTest should be tested with and without Extension:Echo
+if ( getenv( 'WITH_ECHO' ) ) {
+	wfLoadExtension( 'Echo' );
+}
+
 if ( version_compare( $wgVersion, '1.30.0', '>=' ) ) {
 	wfLoadExtension( 'PageForms' );
 }

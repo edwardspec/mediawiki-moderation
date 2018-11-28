@@ -59,6 +59,48 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 	}
 
 	/**
+	 * Ensure that "You have new messages" (which is more important) suppresses this notification.
+	 */
+	public function testNoNotificationIfHasMessages() {
+		$t = new ModerationTestsuite();
+		$t->loginAs( $t->unprivilegedUser );
+		$t->doTestEdit();
+
+		// Make sure that moderator has "You have new messages" notification (from MediaWiki core)
+		$t->loginAs( $t->automoderated );
+		$t->doTestEdit( 'User_talk:' . $t->moderator->getName(), "Hello, moderator! ~~~~" );
+
+		$t->loginAs( $t->moderator );
+
+		$noticeText = $this->getNotice( $t );
+		$this->assertNotEquals(
+			'(moderation-new-changes-appeared)',
+			$noticeText,
+			"Notification shown even when moderator should get \"You have new messages\" instead"
+		);
+
+		return $noticeText; // Pass to testEchoHookCalledIfHasMessages()
+	}
+
+	/**
+	 * Ensure that GetNewMessagesAlert hook of Extension:Echo is not suppressed
+	 * when showing "You have new messages" instead of our notification.
+	 * @depends testNoNotificationIfHasMessages
+	 */
+	public function testEchoHookCalledIfHasMessages( $noticeText ) {
+		if ( !class_exists( 'EchoHooks' ) ) {
+			$this->markTestSkipped( 'Test skipped: Echo extension must be installed to run it.' );
+		}
+
+		// Extension:Echo suppresses "You have new messages" notice in GetNewMessagesAlert hook,
+		// so if the hook handlers were correctly invoked, then $noticeText will be null.
+		$this->assertNull(
+			$noticeText,
+			"GetNewMessagesAlert hook handlers weren't called for \"You have new messages\" notice"
+		);
+	}
+
+	/**
 	 * Ensure that notification isn't shown on Special:Moderation itself.
 	 */
 	public function testNoNotificationOnSpecialModeration() {

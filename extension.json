@@ -254,7 +254,8 @@
 			"ModerationApiHooks::onApiCheckCanExecute"
 		],
 		"BeforeInitialize": [
-			"ModerationPlugins::install"
+			"ModerationPlugins::install",
+			"ModerationNotifyModerator::onBeforeInitialize"
 		],
 		"BeforePageDisplay": [
 			"ModerationEditHooks::onBeforePageDisplay"
@@ -270,9 +271,6 @@
 		],
 		"EditPage::showEditForm:fields": [
 			"ModerationEditHooks::PrepareEditForm"
-		],
-		"GetNewMessagesAlert": [
-			"ModerationNotifyModerator::onGetNewMessagesAlert"
 		],
 		"getUserPermissionsErrors": [
 			"ModerationUploadHooks::ongetUserPermissionsErrors"
