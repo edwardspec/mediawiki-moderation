@@ -28,9 +28,8 @@ class ModerationPageFormsTest extends ModerationTestCase {
 	 * @covers ModerationPageForms
 	 * @dataProvider dataProviderPageFormsPreload
 	 */
-	public function testPageFormsPreload( $isExistingPage ) {
+	public function testPageFormsPreload( $isExistingPage, ModerationTestsuite $t ) {
 		$this->skipIfNoPageForms();
-		$t = new ModerationTestsuite();
 
 		$page = "Test page 1";
 		$formName = 'Cat';

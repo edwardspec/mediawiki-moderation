@@ -172,7 +172,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	/**
 	 * Assert the state of the database after the edit.
 	 */
-	protected function assertResults( MediaWikiTestCase $testcase ) {
+	protected function assertResults( ModerationTestCase $testcase ) {
 		$t = $this->getTestsuite();
 
 		if ( $this->isCheckuser ) {

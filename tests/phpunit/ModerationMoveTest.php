@@ -31,12 +31,10 @@ class ModerationMoveTest extends ModerationTestCase {
 	public $text = 'Initial content of page "About dogs".';
 	public $reasonForMoving = 'renamed for whatever reason';
 
-	public function testMove() {
+	public function testMove( ModerationTestsuite $t ) {
 		/* Here we create the page $title and then rename it
 			to $this->newTitle as non-automoderated user.
 			This page move should be intercepted by Moderation. */
-		$t = new ModerationTestsuite();
-
 		$t->loginAs( $t->automoderated );
 		$t->doTestEdit( $this->oldTitle, $this->text );
 
@@ -141,9 +139,7 @@ class ModerationMoveTest extends ModerationTestCase {
 	 *
 	 * At this point we shouldn't attempt to queue the move for moderation.
 	*/
-	public function testNoPrematureMoveInShowForm() {
-		$t = new ModerationTestsuite();
-
+	public function testNoPrematureMoveInShowForm( ModerationTestsuite $t ) {
 		$t->loginAs( $t->automoderated );
 		$t->doTestEdit( $this->oldTitle, $this->text );
 

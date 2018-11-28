@@ -26,9 +26,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
  * @covers ModerationActionReject
  */
 class ModerationRejectTest extends ModerationTestCase {
-	public function testRejectAll() {
-		$t = new ModerationTestsuite();
-
+	public function testRejectAll( ModerationTestsuite $t ) {
 		# We edit with two users:
 		#	$t->unprivilegedUser (A)
 		#	and $t->unprivilegedUser2 (B)

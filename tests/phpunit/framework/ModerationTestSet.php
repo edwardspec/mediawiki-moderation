@@ -21,31 +21,28 @@
  */
 
 abstract class ModerationTestsuiteTestSet {
-	/** @var ModerationTestsuite */
-	private $testsuite;
-
-	/** @var MediaWikiTestCase */
+	/** @var ModerationTestCase */
 	private $testcase;
 
-	/** Returns ModerationTestsuite object. */
-	protected function getTestsuite() {
-		return $this->testsuite;
-	}
-
 	/**
-	 * Returns current MediaWikiTestCase object.
+	 * Returns current ModerationTestCase object.
 	 * Used for calling assert*() methods.
 	 */
 	protected function getTestcase() {
 		return $this->testcase;
 	}
 
+	/** Returns ModerationTestsuite object. */
+	protected function getTestsuite() {
+		return $this->getTestcase()->getTestsuite();
+	}
+
 	/**
 	 * Run this TestSet from input of dataProvider.
 	 * @param array $options Parameters of test, e.g. [ 'user' => '...', 'title' => '...' ].
-	 * @param MediaWikiTestCase $testcase
+	 * @param ModerationTestCase $testcase
 	 */
-	final public static function run( array $options, MediaWikiTestCase $testcase ) {
+	final public static function run( array $options, ModerationTestCase $testcase ) {
 		$set = new static( $options, $testcase );
 
 		$set->makeChanges();
@@ -55,10 +52,8 @@ abstract class ModerationTestsuiteTestSet {
 	/**
 	 * Construct TestSet from the input of dataProvider.
 	 */
-	final protected function __construct( array $options, MediaWikiTestCase $testcase ) {
-		$this->testsuite = new ModerationTestsuite; // Cleans the database
+	final protected function __construct( array $options, ModerationTestCase $testcase ) {
 		$this->testcase = $testcase;
-
 		$this->applyOptions( $options );
 	}
 
@@ -77,7 +72,7 @@ abstract class ModerationTestsuiteTestSet {
 	/**
 	 * Assert whether the situation after the edit is correct or not.
 	 */
-	abstract protected function assertResults( MediaWikiTestCase $testcase );
+	abstract protected function assertResults( ModerationTestCase $testcase );
 
 	/*-------------------------------------------------------------------*/
 

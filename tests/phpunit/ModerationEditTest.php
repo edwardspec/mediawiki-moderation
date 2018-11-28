@@ -23,9 +23,7 @@
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 class ModerationEditTest extends ModerationTestCase {
-	public function testPreSaveTransform() {
-		$t = new ModerationTestsuite();
-
+	public function testPreSaveTransform( ModerationTestsuite $t ) {
 		# Some substitutions (e.g. ~~~~) must be performed when
 		# the edit is queued for moderation, not when it is approved.
 		$text = '~~~~';
@@ -55,8 +53,7 @@ class ModerationEditTest extends ModerationTestCase {
 	 * Ensure that single sections are edited correctly.
 	 * @dataProvider dataProviderEditSections
 	 */
-	public function testEditSections( $useApi ) {
-		$t = new ModerationTestsuite();
+	public function testEditSections( $useApi, ModerationTestsuite $t ) {
 		$bot = $t->getBot( $useApi ? 'api' : 'nonApi' );
 
 		$sections = [
@@ -108,9 +105,7 @@ class ModerationEditTest extends ModerationTestCase {
 			"testEditSections(): When section header is deleted, resulting text doesn't match expected " );
 	}
 
-	public function testNewSizeAfterEditSection() {
-		$t = new ModerationTestsuite();
-
+	public function testNewSizeAfterEditSection( ModerationTestsuite $t ) {
 		/* Make sure that mod_new_len is properly recalculated when editing sections */
 		$title = 'Test page 1';
 		$sections = [
@@ -141,10 +136,8 @@ class ModerationEditTest extends ModerationTestCase {
 			"testNewSizeAfterEditSection(): Length changed after null edit in a section" );
 	}
 
-	public function testApiEditAppend() {
+	public function testApiEditAppend( ModerationTestsuite $t ) {
 		# Does api.php?action=edit&{append,prepend}text=[...] work properly?
-		$t = new ModerationTestsuite();
-
 		$todoPrepend = [ "B", "A" ];
 		$todoText = "C";
 		$todoAppend = [ "D", "E" ];
@@ -185,9 +178,7 @@ class ModerationEditTest extends ModerationTestCase {
 			"testApiEditAppend(): Resulting text doesn't match expected" );
 	}
 
-	public function testApiNoSuchSectionYet() {
-		$t = new ModerationTestsuite();
-
+	public function testApiNoSuchSectionYet( ModerationTestsuite $t ) {
 		# Does api.php?action=edit&section=N work if section #N doesn't exist
 		# in the article, but exists in the pending (preloaded) revision?
 

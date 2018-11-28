@@ -32,9 +32,8 @@ class ModerationApiTest extends ModerationTestCase {
 	 * @note Consequences of actions are checked by other tests (e.g. ModerationApproveTest).
 	 * @dataProvider dataProviderModerationApi
 	*/
-	public function testModerationApi( $action, array $expectedResult ) {
+	public function testModerationApi( $action, array $expectedResult, ModerationTestsuite $t ) {
 		/* Prepare a fake moderation entry */
-		$t = new ModerationTestsuite;
 		$entry = $t->getSampleEntry();
 
 		/* Replace {{ID}} and {{AUTHOR}} in $expectedResult */

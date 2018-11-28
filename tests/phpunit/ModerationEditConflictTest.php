@@ -25,7 +25,7 @@
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 class ModerationEditConflictTest extends ModerationTestCase {
-	public function testResolvableEditConflict() {
+	public function testResolvableEditConflict( ModerationTestsuite $t ) {
 		/*
 			Ensure that resolvable edit conflicts are automatically
 			resolved during modaction=approve.
@@ -35,8 +35,6 @@ class ModerationEditConflictTest extends ModerationTestCase {
 		*/
 		$title = 'Test page 1';
 		$expectedText = "Modified paragraph about dogs\n\nModified paragraph about cats";
-
-		$t = new ModerationTestsuite();
 
 		$entry = $t->causeEditConflict(
 			$title,

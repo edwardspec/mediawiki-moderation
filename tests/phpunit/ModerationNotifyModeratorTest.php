@@ -29,8 +29,7 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 	/**
 	 * Ensure that moderator is notified about new pending changes.
 	 */
-	public function testModeratorIsNotified() {
-		$t = new ModerationTestsuite();
+	public function testModeratorIsNotified( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit();
 
@@ -46,8 +45,7 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 	/**
 	 * Ensure that notification is not shown to non-moderators.
 	 **/
-	public function testNonModeratorIsNotNotified() {
-		$t = new ModerationTestsuite();
+	public function testNonModeratorIsNotNotified( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit();
 
@@ -61,8 +59,7 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 	/**
 	 * Ensure that "You have new messages" (which is more important) suppresses this notification.
 	 */
-	public function testNoNotificationIfHasMessages() {
-		$t = new ModerationTestsuite();
+	public function testNoNotificationIfHasMessages( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit();
 
@@ -103,8 +100,7 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 	/**
 	 * Ensure that notification isn't shown on Special:Moderation itself.
 	 */
-	public function testNoNotificationOnSpecialModeration() {
-		$t = new ModerationTestsuite();
+	public function testNoNotificationOnSpecialModeration( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit();
 
@@ -120,8 +116,7 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 	/**
 	 * Ensure that notification isn't shown to moderator who already was on Special:Moderation.
 	 */
-	public function testNoNotificationAfterSpecialModeration() {
-		$t = new ModerationTestsuite();
+	public function testNoNotificationAfterSpecialModeration( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit();
 
@@ -137,8 +132,7 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 	/**
 	 * Ensure that visiting Special:Moderation doesn't hide the notice for other moderators.
 	 */
-	public function testNotificationHiddenOnlyForThisModerator() {
-		$t = new ModerationTestsuite();
+	public function testNotificationHiddenOnlyForThisModerator( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit();
 
@@ -157,8 +151,7 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 	/**
 	 * Ensure that other moderators aren't notified if this new change has already been rejected.
 	 */
-	public function testNoNotificationIfRejected() {
-		$t = new ModerationTestsuite();
+	public function testNoNotificationIfRejected( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit();
 
@@ -176,8 +169,7 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 	/**
 	 * Ensure that other moderators aren't notified if this new change has already been approved.
 	 */
-	public function testNoNotificationIfApproved() {
-		$t = new ModerationTestsuite();
+	public function testNoNotificationIfApproved( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit();
 
@@ -195,8 +187,7 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 	/**
 	 * Ensure that moderator is NOT notified about new changes in the Spam folder.
 	 */
-	public function testNoNotificationIfSpam() {
-		$t = new ModerationTestsuite();
+	public function testNoNotificationIfSpam( ModerationTestsuite $t ) {
 		$t->modblock( $t->unprivilegedUser );
 
 		$t->loginAs( $t->unprivilegedUser );

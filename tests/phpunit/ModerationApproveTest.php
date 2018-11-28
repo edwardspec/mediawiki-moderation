@@ -26,9 +26,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
  * @covers ModerationActionApprove
  */
 class ModerationApproveTest extends ModerationTestCase {
-	public function testApproveAll() {
-		$t = new ModerationTestsuite();
-
+	public function testApproveAll( ModerationTestsuite $t ) {
 		# We edit with two users:
 		#	$t->unprivilegedUser (A)
 		#	and $t->unprivilegedUser2 (B)
@@ -98,9 +96,7 @@ class ModerationApproveTest extends ModerationTestCase {
 		$this->assertEquals( $t->TEST_EDITS_COUNT, $events[0]['params'][3] );
 	}
 
-	public function testApproveAllNotRejected() {
-		$t = new ModerationTestsuite();
-
+	public function testApproveAllNotRejected( ModerationTestsuite $t ) {
 		$t->TEST_EDITS_COUNT = 10;
 		$t->doNTestEditsWith( $t->unprivilegedUser );
 		$t->fetchSpecial();
@@ -127,7 +123,7 @@ class ModerationApproveTest extends ModerationTestCase {
 			"during modaction=approveall" );
 	}
 
-	public function testApproveAllTimestamp() {
+	public function testApproveAllTimestamp( ModerationTestsuite $t ) {
 		/*
 			Check that rev_timestamp and rc_ip are properly modified by modaction=approveall.
 		*/
@@ -145,8 +141,6 @@ class ModerationApproveTest extends ModerationTestCase {
 				'ip' => '127.0.0.12'
 			]
 		];
-
-		$t = new ModerationTestsuite();
 
 		$t->loginAs( $t->unprivilegedUser );
 

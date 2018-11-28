@@ -30,9 +30,7 @@ class ModerationErrorsTest extends ModerationTestCase {
 	 * @requires extension curl
 	 * @note Only cURL version of MWHttpRequest supports uploads.
 	 */
-	public function testMissingStashedImage() {
-		$t = new ModerationTestsuite();
-
+	public function testMissingStashedImage( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestUpload();
 		$t->fetchSpecial();
@@ -56,9 +54,7 @@ class ModerationErrorsTest extends ModerationTestCase {
 		);
 	}
 
-	public function testEditNoChange() {
-		$t = new ModerationTestsuite();
-
+	public function testEditNoChange( ModerationTestsuite $t ) {
 		$page = 'Test page 1';
 		$text = 'This is some ext';
 

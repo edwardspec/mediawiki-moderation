@@ -232,7 +232,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	/**
 	 * Assert the state of the database after the edit.
 	 */
-	protected function assertResults( MediaWikiTestCase $testcase ) {
+	protected function assertResults( ModerationTestCase $testcase ) {
 		$row = $this->assertRowEquals( $this->getExpectedRow() );
 
 		$this->assertTimestampIsRecent( $row->mod_timestamp );

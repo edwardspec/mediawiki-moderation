@@ -96,9 +96,9 @@ class ModerationRollbackResistantQueryTest extends ModerationTestCase {
 	 * Ensure that RollbackResistantQuery is not reverted after MWException.
 	 * @dataProvider dataProvider
 	 */
-	public function testRollbackResistantQuery( $isTrxAutomatic, $isExplicitTransaction, $isAtomic ) {
-		$t = new ModerationTestsuite();
-
+	public function testRollbackResistantQuery( $isTrxAutomatic, $isExplicitTransaction, $isAtomic,
+		ModerationTestsuite $t
+	) {
 		$dbw = wfGetDB( DB_MASTER );
 		$previousTrxFlagValue = $dbw->getFlag( DBO_TRX ); /* Will be restored after the test */
 

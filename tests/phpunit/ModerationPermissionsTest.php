@@ -23,9 +23,7 @@
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 class ModerationPermissionsTest extends ModerationTestCase {
-	public function testPermissions() {
-		$t = new ModerationTestsuite();
-
+	public function testPermissions( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$title = $t->html->getTitle( $t->getSpecialURL() );
 

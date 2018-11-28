@@ -53,12 +53,9 @@ class ModerationTestsuiteSelfTest extends ModerationTestCase {
 	 * @covers ModerationTestsuiteEngine::loginAs
 	 * @dataProvider engineDataProvider
 	 */
-	public function testEngineApiLogin( ModerationTestsuiteEngine $engine ) {
-		# Create test user.
-		$t = new ModerationTestsuite;
+	public function testEngineApiLogin( ModerationTestsuiteEngine $engine, ModerationTestsuite $t ) {
+		# Try to login as test user.
 		$user = $t->unprivilegedUser;
-
-		# Try to login.
 		$engine->loginAs( $user );
 
 		# Check information about current user.

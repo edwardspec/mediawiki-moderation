@@ -33,8 +33,7 @@ class ModerationCheckuserTest extends ModerationTestCase {
 	 * Verifies that checkusers can see the IP of registered users via API,
 	 * but non-checkusers can't.
 	 */
-	public function testApiModerationCheckuser() {
-		$t = new ModerationTestsuite();
+	public function testApiModerationCheckuser( ModerationTestsuite $t ) {
 		$t->doTestEdit();
 
 		$this->assertNull( $this->getIpFromApi( $t, $t->moderator ),
@@ -77,9 +76,8 @@ class ModerationCheckuserTest extends ModerationTestCase {
 	/**
 	 * Ensure that modaction=approve preserves user-agent of edits.
 	 */
-	public function testApproveEditPrevervesUA() {
+	public function testApproveEditPrevervesUA( ModerationTestsuite $t ) {
 		$this->skipIfNoCheckuser();
-		$t = new ModerationTestsuite();
 
 		# When the edit is approved, cu_changes.cuc_agent field should
 		# contain UserAgent of user who made the edit,
@@ -106,9 +104,8 @@ class ModerationCheckuserTest extends ModerationTestCase {
 	 * Ensure that modaction=approveall preserves user-agent of uploads.
 	 * @covers ModerationApproveHook::getTask()
 	 */
-	public function testApproveAllUploadPrevervesUA() {
+	public function testApproveAllUploadPrevervesUA( ModerationTestsuite $t ) {
 		$this->skipIfNoCheckuser();
-		$t = new ModerationTestsuite();
 
 		# Perform several uploads.
 		$NUMBER_OF_UPLOADS = 2;

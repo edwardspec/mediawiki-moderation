@@ -28,9 +28,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
  * @note Only cURL version of MWHttpRequest supports uploads.
  */
 class ModerationUploadTest extends ModerationTestCase {
-	public function testUpload() {
-		$t = new ModerationTestsuite();
-
+	public function testUpload( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$result = $t->doTestUpload();
 		$t->fetchSpecial();
@@ -74,9 +72,7 @@ class ModerationUploadTest extends ModerationTestCase {
 		$this->assertEquals( $t->lastEdit['SHA1'], $ii['sha1'] );
 	}
 
-	public function testUploadHookVerifies() {
-		$t = new ModerationTestsuite();
-
+	public function testUploadHookVerifies( ModerationTestsuite $t ) {
 		# Does upload hook call getVerificationErrorCode() to check
 		# the image before queueing the upload?
 
@@ -94,8 +90,7 @@ class ModerationUploadTest extends ModerationTestCase {
 	/**
 	 * @covers ModerationApproveHook::onNewRevisionFromEditComplete
 	 */
-	public function testReupload() {
-		$t = new ModerationTestsuite();
+	public function testReupload( ModerationTestsuite $t ) {
 		$title = "Test image 1.png";
 
 		# Upload the image first
@@ -193,13 +188,11 @@ class ModerationUploadTest extends ModerationTestCase {
 	/**
 	 * @covers ModerationApiHooks::onApiCheckCanExecute()
 	 */
-	public function testNoApiUploadBefore1_28() {
+	public function testNoApiUploadBefore1_28( ModerationTestsuite $t ) {
 		global $wgVersion;
 		if ( version_compare( $wgVersion, '1.28.0', '>=' ) ) {
 			$this->markTestSkipped( 'Test skipped: only applicable to MediaWiki 1.27.' );
 		}
-
-		$t = new ModerationTestsuite();
 
 		$t->loginAs( $t->unprivilegedUser );
 		$result = $t->getBot( 'api' )->upload();

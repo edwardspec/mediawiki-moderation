@@ -23,9 +23,7 @@
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 class ModerationReturntoTest extends ModerationTestCase {
-	public function testReturnto() {
-		$t = new ModerationTestsuite();
-
+	public function testReturnto( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit();
 		$t->fetchSpecial();

@@ -27,9 +27,7 @@ class ModerationFileRevertTest extends ModerationTestCase {
 	 * Check that index.php?action=revert can't be used to bypass Moderation.
 	 * @covers ModerationUploadHooks::ongetUserPermissionsErrors
 	 */
-	public function testFileRevert() {
-		$t = new ModerationTestsuite();
-
+	public function testFileRevert( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$req = $t->httpPost( wfScript( 'index' ), [
 			'action' => 'revert'
@@ -44,9 +42,7 @@ class ModerationFileRevertTest extends ModerationTestCase {
 	/**
 	 * Check that api.php?action=filerevert can't be used to bypass Moderation.
 	 */
-	public function testApiFileRevert() {
-		$t = new ModerationTestsuite();
-
+	public function testApiFileRevert( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$ret = $t->query( [
 			'action' => 'filerevert',

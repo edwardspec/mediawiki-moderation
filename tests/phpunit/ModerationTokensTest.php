@@ -23,9 +23,7 @@
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 class ModerationTokensTest extends ModerationTestCase {
-	public function testTokens() {
-		$t = new ModerationTestsuite();
-
+	public function testTokens( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit();
 		$t->fetchSpecial();

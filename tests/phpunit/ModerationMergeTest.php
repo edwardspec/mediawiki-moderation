@@ -51,9 +51,7 @@ class ModerationMergeTest extends ModerationTestCase {
 		);
 	}
 
-	public function testMerge() {
-		$t = new ModerationTestsuite();
-
+	public function testMerge( ModerationTestsuite $t ) {
 		# Done: attempt to approve the edit by $t->unprivilegedUser
 		# will cause an edit conflict.
 
@@ -197,8 +195,7 @@ class ModerationMergeTest extends ModerationTestCase {
 	 * @covers ModerationEditHooks::PrepareEditForm
 	 * Ensure that wpMergeID is preserved when user clicks Preview.
 	 */
-	public function testPreserveMergeID() {
-		$t = new ModerationTestsuite();
+	public function testPreserveMergeID( ModerationTestsuite $t ) {
 		$t->loginAs( $t->moderator );
 
 		$someID = 12345;
@@ -235,9 +232,7 @@ class ModerationMergeTest extends ModerationTestCase {
 	/**
 	 * Ensure that token is required for Merge action.
 	 */
-	public function testMergeToken() {
-		$t = new ModerationTestsuite();
-
+	public function testMergeToken( ModerationTestsuite $t ) {
 		$entry = $this->makeUnresolvableEditConflict( $t );
 		$t->httpGet( $entry->approveLink );
 
@@ -248,9 +243,7 @@ class ModerationMergeTest extends ModerationTestCase {
 		$this->assertRegExp( '/\(sessionfailure-title\)/', $t->badTokenTitle( $url ) );
 	}
 
-	public function testApproveAllConflicts() {
-		$t = new ModerationTestsuite();
-
+	public function testApproveAllConflicts( ModerationTestsuite $t ) {
 		$t->doNTestEditsWith( $t->unprivilegedUser, null, 'Page A' );
 		$this->makeUnresolvableEditConflict( $t );
 		$t->doNTestEditsWith( $t->unprivilegedUser, null, 'Page B' );

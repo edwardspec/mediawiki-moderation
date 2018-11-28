@@ -26,9 +26,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
  * @covers ModerationActionShow
  */
 class ModerationShowTest extends ModerationTestCase {
-	public function testShow() {
-		$t = new ModerationTestsuite();
-
+	public function testShow( ModerationTestsuite $t ) {
 		$page = 'Test page 1';
 		$text1 = "First string\nSecond string\nThird string\n";
 		$text2 = "First string\nAnother second string\nThird string\n";
@@ -93,9 +91,7 @@ class ModerationShowTest extends ModerationTestCase {
 	 * @requires extension curl
 	 * @note Only cURL version of MWHttpRequest supports uploads.
 	 */
-	public function testShowUpload() {
-		$t = new ModerationTestsuite();
-
+	public function testShowUpload( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestUpload( "Test image 1.png", "image640x50.png",
 			"" # Empty description: check for (moderation-diff-upload-notext)
@@ -158,9 +154,7 @@ class ModerationShowTest extends ModerationTestCase {
 	 * @requires extension curl
 	 * @note Only cURL version of MWHttpRequest supports uploads.
 	 */
-	public function testShowUploadNonImage() {
-		$t = new ModerationTestsuite();
-
+	public function testShowUploadNonImage( ModerationTestsuite $t ) {
 		/* Allow OGG files (music, i.e. not images) to be uploaded */
 		global $wgFileExtensions;
 		$t->setMwConfig( 'FileExtensions', array_merge( $wgFileExtensions, [ 'ogg' ] ) );

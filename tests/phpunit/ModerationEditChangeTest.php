@@ -33,8 +33,7 @@ class ModerationEditChangeTest extends ModerationTestCase {
 	 * Check the edit form of modaction=editchange.
 	 * @covers ModerationActionEditChange
 	 */
-	public function testEditChangeForm() {
-		$t = new ModerationTestsuite();
+	public function testEditChangeForm( ModerationTestsuite $t ) {
 		$t->setMwConfig( 'ModerationEnableEditChange', true );
 
 		$entry = $t->getSampleEntry();

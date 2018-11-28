@@ -231,7 +231,7 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 	/**
 	 * Assert the state of the database after the edit.
 	 */
-	protected function assertResults( MediaWikiTestCase $testcase ) {
+	protected function assertResults( ModerationTestCase $testcase ) {
 		$testcase->assertEquals(
 			[ 'edit was intercepted' => $this->intercept ],
 			[ 'edit was intercepted' => $this->result->isIntercepted() ]

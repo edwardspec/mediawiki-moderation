@@ -27,9 +27,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
  */
 class ModerationPreloadTest extends ModerationTestCase {
 	/** @covers ModerationPreload::onEditFormPreloadText */
-	public function testPreloadNewPage() {
-		$t = new ModerationTestsuite();
-
+	public function testPreloadNewPage( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit( null, null, "The quick brown fox jumps over the lazy dog" );
 
@@ -37,8 +35,7 @@ class ModerationPreloadTest extends ModerationTestCase {
 	}
 
 	/** @covers ModerationPreload::onEditFormInitialText */
-	public function testPreloadExistingPage() {
-		$t = new ModerationTestsuite();
+	public function testPreloadExistingPage( ModerationTestsuite $t ) {
 		$page = "Test page 1";
 
 		$t->loginAs( $t->automoderated ); /* Create the page first */
@@ -51,9 +48,7 @@ class ModerationPreloadTest extends ModerationTestCase {
 	}
 
 	/** @covers ModerationPreload::onLocalUserCreated */
-	public function testAnonymousPreload() {
-		$t = new ModerationTestsuite();
-
+	public function testAnonymousPreload( ModerationTestsuite $t ) {
 		$t->logout();
 		$t->doTestEdit();
 
@@ -80,9 +75,7 @@ class ModerationPreloadTest extends ModerationTestCase {
 	}
 
 	/** @covers ApiQueryModerationPreload */
-	public function testApiPreload() {
-		$t = new ModerationTestsuite();
-
+	public function testApiPreload( ModerationTestsuite $t ) {
 		/* We make an edit with '''bold''' and ''italic'' markup
 			and then check for <b> and <i> tags in "mpmode=parsed" mode.
 		*/

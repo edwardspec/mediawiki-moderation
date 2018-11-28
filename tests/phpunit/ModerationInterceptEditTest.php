@@ -26,9 +26,7 @@ require_once __DIR__ . "/framework/ModerationTestsuite.php";
  * @covers ModerationEditHooks
  */
 class ModerationInterceptEditTest extends ModerationTestCase {
-	public function testPostEditRedirect() {
-		$t = new ModerationTestsuite();
-
+	public function testPostEditRedirect( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$req = $t->doTestEdit();
 		$t->fetchSpecial();

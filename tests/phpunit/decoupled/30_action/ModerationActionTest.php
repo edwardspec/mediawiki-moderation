@@ -679,7 +679,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	/**
 	 * Assert the consequences of the action.
 	 */
-	protected function assertResults( MediaWikiTestCase $testcase ) {
+	protected function assertResults( ModerationTestCase $testcase ) {
 		// Add rejection-related fields to $this->expectedFields.
 		// It was too early to do in applyOptions(), because $this->fields['mod_id'] was unknown.
 		if ( $this->expectRejected ) {
@@ -744,7 +744,10 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * Check HTML output printed by the action URL.
 	 * @see assertBinaryOutput
 	 */
-	protected function assertHtmlOutput( MediaWikiTestCase $testcase, ModerationTestsuiteHTML $html ) {
+	protected function assertHtmlOutput(
+		ModerationTestCase $testcase,
+		ModerationTestsuiteHTML $html
+	) {
 		if ( $this->expectedHtmlTitle ) {
 			$testcase->assertEquals(
 				'(pagetitle: ' . $this->expectedHtmlTitle . ')',
@@ -799,7 +802,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * @see assertHtmlOutput
 	 */
 	protected function assertBinaryOutput(
-		MediaWikiTestCase $testcase,
+		ModerationTestCase $testcase,
 		ModerationTestsuiteResponse $req
 	) {
 		$testcase->assertEquals(
@@ -861,7 +864,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	/**
 	 * Check whether/how was the database row modified by this action.
 	 */
-	protected function assertDatabaseChanges( MediaWikiTestCase $testcase ) {
+	protected function assertDatabaseChanges( ModerationTestCase $testcase ) {
 		$dbw = wfGetDB( DB_MASTER );
 		if ( $this->expectApproved ) {
 			$row = $dbw->selectRow(
@@ -880,7 +883,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	/**
 	 * Check the necessary consequences of modaction=approve(all).
 	 */
-	protected function assertApproved( MediaWikiTestCase $testcase ) {
+	protected function assertApproved( ModerationTestCase $testcase ) {
 		if ( !$this->expectApproved ) {
 			return; // Not an Approve operation.
 		}
@@ -929,7 +932,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	/**
 	 * Check whether the moderation block was added/deleted.
 	 */
-	protected function assertBlockedStatus( MediaWikiTestCase $testcase ) {
+	protected function assertBlockedStatus( ModerationTestCase $testcase ) {
 		$expectedBlocker = $this->getModerator();
 		if ( $this->expectModblocked === null ) {
 			// Default: block status shouldn't change.
@@ -975,7 +978,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	/**
 	 * Check the log entry created by this action (if any).
 	 */
-	protected function assertLogEntry( MediaWikiTestCase $testcase ) {
+	protected function assertLogEntry( ModerationTestCase $testcase ) {
 		// Check the LogEntry, if any
 		$queryInfo = DatabaseLogEntry::getSelectQueryData();
 		$queryInfo['conds']['log_type'] = 'moderation';

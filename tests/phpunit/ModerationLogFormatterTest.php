@@ -231,7 +231,7 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 	/**
 	 * Assert correctness of $this->resultHtml.
 	 */
-	protected function assertResults( MediaWikiTestCase $testcase ) {
+	protected function assertResults( ModerationTestCase $testcase ) {
 		$errorContext = $this->getErrorContext();
 
 		// Split resultHtml into parameters

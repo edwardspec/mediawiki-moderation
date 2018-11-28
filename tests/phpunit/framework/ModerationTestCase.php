@@ -21,6 +21,30 @@
  */
 
 class ModerationTestCase extends MediaWikiTestCase {
+	/** @var ModerationTestsuite */
+	private $testsuite = null;
+
+	/**
+	 * Get the ModerationTestsuite object that should be used in the current test.
+	 * @return ModerationTestsuite
+	 */
+	public function getTestsuite() {
+		if ( !$this->testsuite ) {
+			$this->testsuite = new ModerationTestsuite;
+		}
+
+		return $this->testsuite;
+	}
+
+	/**
+	 * Get a newly initialized (completely clean) ModerationTestsuite object (empty DB, etc.).
+	 * @return ModerationTestsuite
+	 */
+	protected function makeNewTestsuite() {
+		$this->testsuite = null;
+		return $this->getTestsuite();
+	}
+
 	/**
 	 * Dump the logs related to the current test.
 	 *
@@ -38,5 +62,17 @@ class ModerationTestCase extends MediaWikiTestCase {
 	protected function setUp() {
 		ModerationTestsuiteLogger::cleanBuffer();
 		parent::setUp();
+
+		/*
+			Provide "ModerationTestsuite $t" to all test methods via Dependency Injection.
+			This also cleans the database, etc.
+
+			Tests with @depends are excluded, because they might need to inspect an existing
+			environment after the previous test, and creating new ModerationTestsuite object
+			would clean the database.
+		*/
+		if ( !$this->hasDependencies() ) {
+			$this->setDependencyInput( [ $this->makeNewTestsuite() ] );
+		}
 	}
 }

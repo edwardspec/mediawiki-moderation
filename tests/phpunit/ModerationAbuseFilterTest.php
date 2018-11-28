@@ -31,8 +31,7 @@ class ModerationAbuseFilterTest extends ModerationTestCase {
 	/**
 	 * Are AbuseFilter tags preserved for edits?
 	 */
-	public function testAFTagsEdit() {
-		$t = new ModerationTestsuite();
+	public function testAFTagsEdit( ModerationTestsuite $t ) {
 		$this->skipIfNoAbuseFilter();
 
 		$filterId = $t->addTagAllAbuseFilter( $this->expectedTags );
@@ -55,8 +54,7 @@ class ModerationAbuseFilterTest extends ModerationTestCase {
 	/**
 	 * Are AbuseFilter tags preserved for moves?
 	 */
-	public function testAFTagsMove() {
-		$t = new ModerationTestsuite();
+	public function testAFTagsMove( ModerationTestsuite $t ) {
 		$this->skipIfNoAbuseFilter();
 
 		$title = 'Cat';
@@ -84,8 +82,7 @@ class ModerationAbuseFilterTest extends ModerationTestCase {
 	/**
 	 * Are AbuseFilter tags preserved for uploads?
 	 */
-	public function testAFTagsUpload() {
-		$t = new ModerationTestsuite();
+	public function testAFTagsUpload( ModerationTestsuite $t ) {
 		$this->skipIfNoAbuseFilter();
 
 		$filterId = $t->addTagAllAbuseFilter( $this->expectedTags );
