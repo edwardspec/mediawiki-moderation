@@ -21,33 +21,42 @@
  */
 
 class ModerationNotifyModerator {
+	/**
+	 * Name of our hook that runs third-party handlers of GetNewMessagesAlert hook,
+	 * but only for "You have new messages" and NOT for "new edits are pending moderation".
+	 * See install() for details.
+	 */
+	const SAVED_HOOK_NAME = 'Moderation__SavedGetNewMessagesAlert';
 
-	/*
-		onGetNewMessagesAlert()
-		Show in-wiki notification "new edits are pending moderation" to moderators.
-	*/
-	public static function onGetNewMessagesAlert(
-		&$newMessagesAlert,
-		array $newtalks,
-		User $user,
-		OutputPage $out
-	) {
-		if ( $newtalks ) {
-			return true; /* Don't suppress "You have new messages" notification, it's more important */
-		}
+	/**
+	 * BeforeInitialize hook.
+	 * Here we install GetNewMessagesAlert hook and prevent Extension:Echo from suppressing it.
+	 */
+	public static function onBeforeInitialize( &$title, &$unused, &$out, &$user, $request, $mw ) {
+		$handler = new self;
+		$handler->considerInstall( $user, $title );
 
+		return true;
+	}
+
+	/**
+	 * Install GetNewMessagesAlert hook if "new edits are pending moderation" should be shown.
+	 * @param User $user
+	 * @param Title $title
+	 */
+	protected function considerInstall( User $user, Title $title ) {
 		if ( !$user->isAllowed( 'moderation' ) ) {
-			return true; /* Not a moderator */
+			return; /* Not a moderator */
 		}
 
-		if ( $out->getTitle()->isSpecial( 'Moderation' ) ) {
-			return true; /* No need to show on Special:Moderation */
+		if ( $title->isSpecial( 'Moderation' ) ) {
+			return; /* No need to show on Special:Moderation */
 		}
 
 		/* Determine the most recent mod_timestamp of pending edit */
 		$pendingTime = self::getPendingTime();
 		if ( !$pendingTime ) {
-			return true; /* No pending changes */
+			return; /* No pending changes */
 		}
 
 		/*
@@ -58,7 +67,46 @@ class ModerationNotifyModerator {
 		*/
 		$seenTime = self::getSeen( $user );
 		if ( $seenTime && $seenTime >= $pendingTime ) {
-			return true; /* No new changes appeared after this moderator last visited Special:Moderation */
+			return; /* No new changes appeared after this moderator last visited Special:Moderation */
+		}
+
+		$this->install();
+	}
+
+	/**
+	 * Install GetNewMessagesAlert hook. Prevent other handlers from interfering.
+	 */
+	protected function install() {
+		global $wgHooks;
+
+		// Assign existing handlers of GetNewMessagesAlert to SAVED_HOOK_NAME hook.
+		// We will call them in onGetNewMessagesAlert if/when we show "You have new messages"
+		// instead of our notification, but we won't allow them to hide/modify our notification.
+		// For example, Extension:Echo aborts GetNewMessagesAlert hook (always hides the notice).
+		$hookName = 'GetNewMessagesAlert';
+		if ( isset( $wgHooks[$hookName] ) ) {
+			$wgHooks[self::SAVED_HOOK_NAME] = $wgHooks[$hookName];
+			$wgHooks[$hookName] = []; // Delete existing handlers
+		}
+
+		Hooks::register( $hookName, $this ); // Install our own handler
+	}
+
+	/*
+	 * GetNewMessagesAlert hook.
+	 * Shows in-wiki notification "new edits are pending moderation" to moderators.
+	 */
+	public function onGetNewMessagesAlert(
+		&$newMessagesAlert,
+		array $newtalks,
+		User $user,
+		OutputPage $out
+	) {
+		if ( $newtalks ) {
+			// Don't suppress "You have new messages" notification, it's more important.
+			// Also call the hooks suppressed in install(), e.g. hook of Extension:Echo.
+			$args = [ &$newMessagesAlert, $newtalks, $user, $out ];
+			return Hooks::run( self::SAVED_HOOK_NAME, $args );
 		}
 
 		/* Need to notify */

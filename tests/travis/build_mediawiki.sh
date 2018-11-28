@@ -18,7 +18,7 @@ if [ ! -f buildcache/mediawiki/COMPLETE ]; then
 		cd mediawiki
 
 		( cd extensions
-		for EXT in AbuseFilter CheckUser MobileFrontend PageForms VisualEditor; do
+		for EXT in AbuseFilter CheckUser Echo MobileFrontend PageForms VisualEditor; do
 			[[ -d $EXT ]] || git clone $GITCLONE_OPTS \
 				https://gerrit.wikimedia.org/r/p/mediawiki/extensions/$EXT.git $EXT
 		done

@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.3.23",
+	"version": "1.3.24",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -254,7 +254,8 @@
 			"ModerationApiHooks::onApiCheckCanExecute"
 		],
 		"BeforeInitialize": [
-			"ModerationPlugins::install"
+			"ModerationPlugins::install",
+			"ModerationNotifyModerator::onBeforeInitialize"
 		],
 		"BeforePageDisplay": [
 			"ModerationEditHooks::onBeforePageDisplay"
@@ -270,9 +271,6 @@
 		],
 		"EditPage::showEditForm:fields": [
 			"ModerationEditHooks::PrepareEditForm"
-		],
-		"GetNewMessagesAlert": [
-			"ModerationNotifyModerator::onGetNewMessagesAlert"
 		],
 		"getUserPermissionsErrors": [
 			"ModerationUploadHooks::ongetUserPermissionsErrors"

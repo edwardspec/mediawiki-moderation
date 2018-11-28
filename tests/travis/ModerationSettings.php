@@ -49,6 +49,17 @@ wfLoadExtensions( [
 	'VisualEditor'
 ] );
 
+# ModerationNotifyModeratorTest should be tested with and without Extension:Echo
+if ( getenv( 'WITH_ECHO' ) ) {
+	if ( file_exists( "$IP/extensions/Echo/Echo.php" ) ) {
+		// Extension:Echo for MediaWiki 1.27 (old LTS) doesn't support wfLoadExtension()
+		require_once "$IP/extensions/Echo/Echo.php";
+	} else {
+		// MediaWiki 1.31+
+		wfLoadExtension( 'Echo' );
+	}
+}
+
 if ( version_compare( $wgVersion, '1.30.0', '>=' ) ) {
 	wfLoadExtension( 'PageForms' );
 }
