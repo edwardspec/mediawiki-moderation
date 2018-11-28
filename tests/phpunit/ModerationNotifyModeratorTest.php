@@ -29,9 +29,8 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 	/**
 	 * Ensure that moderator is notified about new pending changes.
 	 */
-	public function testNotifyModerator() {
+	public function testModeratorIsNotified() {
 		$t = new ModerationTestsuite();
-
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit();
 
@@ -40,70 +39,121 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 		$this->assertEquals(
 			'(moderation-new-changes-appeared)',
 			$this->getNotice( $t ),
-			"testNotifyModerator(): Notification not found"
+			"Notification not shown to moderator"
 		);
+	}
 
-		/* ... but not shown to non-moderators */
+	/**
+	 * Ensure that notification is not shown to non-moderators.
+	 **/
+	public function testNonModeratorIsNotNotified() {
+		$t = new ModerationTestsuite();
+		$t->loginAs( $t->unprivilegedUser );
+		$t->doTestEdit();
+
 		$t->loginAs( $t->unprivilegedUser );
 		$this->assertNull(
 			$this->getNotice( $t ),
-			"testNotifyModerator(): Notification shown to non-moderator"
+			"Notification shown to non-moderator"
 		);
+	}
 
-		/* ... but not shown to moderators on Special:Moderation itself */
+	/**
+	 * Ensure that notification isn't shown on Special:Moderation itself.
+	 */
+	public function testNoNotificationOnSpecialModeration() {
+		$t = new ModerationTestsuite();
+		$t->loginAs( $t->unprivilegedUser );
+		$t->doTestEdit();
+
 		$t->loginAs( $t->moderator );
 		$t->fetchSpecial();
 
 		$this->assertNull(
 			$t->html->getNewMessagesNotice(), /* Look on the current page, which is Special:Moderation */
-			"testNotifyModerator(): Notification shown when already on Special:Moderation"
+			"Notification shown when already on Special:Moderation"
 		);
+	}
 
-		/* ... and not shown to this moderator after Special:Moderation has already been visited */
-		$this->assertNull(
-			$this->getNotice( $t ),
-			"testNotifyModerator(): Notification still shown after Special:Moderation has " .
-			"already been visited"
-		);
-
-		/* ... but still shown to another moderator */
-		$t->loginAs( $t->moderatorButNotAutomoderated );
-		$this->assertEquals(
-			'(moderation-new-changes-appeared)',
-			$this->getNotice( $t ),
-			"testNotifyModerator(): Notification not shown to the second moderator"
-		);
-
-		/* ... if rejected by one moderator, not shown to another moderator. */
-		$t->assumeFolderIsEmpty();
-		$t->fetchSpecial();
-
-		$t->httpGet( $t->new_entries[0]->rejectLink );
-		$this->assertNull(
-			$this->getNotice( $t ),
-			"testNotifyModerator(): Notification still shown after all changes were rejected"
-		);
-
-		/* ... same if approved. */
+	/**
+	 * Ensure that notification isn't shown to moderator who already was on Special:Moderation.
+	 */
+	public function testNoNotificationAfterSpecialModeration() {
+		$t = new ModerationTestsuite();
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit();
 
 		$t->loginAs( $t->moderator );
-		$t->assumeFolderIsEmpty();
+		$t->fetchSpecial(); // Open Special:Moderation
+
+		$this->assertNull(
+			$this->getNotice( $t ),
+			"Notification still shown after Special:Moderation has already been visited"
+		);
+	}
+
+	/**
+	 * Ensure that visiting Special:Moderation doesn't hide the notice for other moderators.
+	 */
+	public function testNotificationHiddenOnlyForThisModerator() {
+		$t = new ModerationTestsuite();
+		$t->loginAs( $t->unprivilegedUser );
+		$t->doTestEdit();
+
+		$t->loginAs( $t->moderator );
+		$t->fetchSpecial(); // Moderator #1 opened Special:Moderation
+
+		/* ... notification should still be shown to another moderator #2 */
+		$t->loginAs( $t->moderatorButNotAutomoderated );
+		$this->assertEquals(
+			'(moderation-new-changes-appeared)',
+			$this->getNotice( $t ),
+			"Notification not shown to the second moderator"
+		);
+	}
+
+	/**
+	 * Ensure that other moderators aren't notified if this new change has already been rejected.
+	 */
+	public function testNoNotificationIfRejected() {
+		$t = new ModerationTestsuite();
+		$t->loginAs( $t->unprivilegedUser );
+		$t->doTestEdit();
+
+		$t->loginAs( $t->moderator );
+		$t->fetchSpecial();
+		$t->httpGet( $t->new_entries[0]->rejectLink );
+
+		$t->loginAs( $t->moderatorButNotAutomoderated );
+		$this->assertNull(
+			$this->getNotice( $t ),
+			"Notification still shown after all changes were rejected"
+		);
+	}
+
+	/**
+	 * Ensure that other moderators aren't notified if this new change has already been approved.
+	 */
+	public function testNoNotificationIfApproved() {
+		$t = new ModerationTestsuite();
+		$t->loginAs( $t->unprivilegedUser );
+		$t->doTestEdit();
+
+		$t->loginAs( $t->moderator );
 		$t->fetchSpecial();
 		$t->httpGet( $t->new_entries[0]->approveLink );
 
 		$t->loginAs( $t->moderatorButNotAutomoderated );
 		$this->assertNull(
 			$this->getNotice( $t ),
-			"testNotifyModerator(): Notification still shown after all changes were approved"
+			"Notification still shown after all changes were approved"
 		);
 	}
 
 	/**
 	 * Ensure that moderator is NOT notified about new changes in the Spam folder.
 	 */
-	public function testNotifyModeratorExceptSpam() {
+	public function testNoNotificationIfSpam() {
 		$t = new ModerationTestsuite();
 		$t->modblock( $t->unprivilegedUser );
 
@@ -114,7 +164,7 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 		$t->loginAs( $t->moderator );
 		$this->assertNull(
 			$this->getNotice( $t ),
-			"testNotifyModeratorExceptSpam(): Notification was shown for change in Spam folder."
+			"Notification was shown for change in Spam folder"
 		);
 	}
 
