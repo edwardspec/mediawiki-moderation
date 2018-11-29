@@ -677,6 +677,23 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	}
 
 	/**
+	 * Utility function to check if CACHE_MEMCACHED actually works.
+	 * This is used to skip ReadOnly tests when memcached is unavailable
+	 * (because CACHE_DB doesn't work in ReadOnly mode).
+	 * @return bool
+	 **/
+	private function doesMemcachedWork() {
+		$cache = wfGetCache( CACHE_MEMCACHED );
+
+		$testKey = $cache->makeKey( 'moderation-testsuite-check-memcached-availability' );
+		$testVal = 'it works ' . rand();
+
+		// Check whether the stored entry has actually been saved.
+		$cache->set( $testKey, $testVal );
+		return ( $cache->get( $testKey ) == $testVal );
+	}
+
+	/**
 	 * Assert the consequences of the action.
 	 */
 	protected function assertResults( ModerationTestCase $testcase ) {
@@ -692,6 +709,19 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		}
 
 		$t = $this->getTestsuite();
+
+		if ( $this->readonly ) {
+			// We can't use CACHE_DB for SessionCache in ReadOnly mode,
+			// because the database won't be writable.
+			$t->setMwConfig( 'SessionCacheType', CACHE_MEMCACHED );
+
+			if ( !$this->doesMemcachedWork() ) {
+				// No way to login when both Memcached and CACHE_DB are unavailable.
+				$testcase->markTestSkipped(
+					'Test skipped: Memcached is unavailable (ReadOnly tests need it for login to work)' );
+			}
+		}
+
 		$t->loginAs( $this->getModerator() );
 
 		if ( $this->readonly ) {
