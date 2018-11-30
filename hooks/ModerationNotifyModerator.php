@@ -54,7 +54,7 @@ class ModerationNotifyModerator {
 		}
 
 		/* Determine the most recent mod_timestamp of pending edit */
-		$pendingTime = self::getPendingTime();
+		$pendingTime = $this->getPendingTime();
 		if ( !$pendingTime ) {
 			return; /* No pending changes */
 		}
@@ -65,7 +65,7 @@ class ModerationNotifyModerator {
 			NOTE: $seenTime being false means that moderator hasn't visited
 			Special:Moderation for 7 days, so we always notify.
 		*/
-		$seenTime = self::getSeen( $user );
+		$seenTime = $this->getSeen( $user );
 		if ( $seenTime && $seenTime >= $pendingTime ) {
 			return; /* No new changes appeared after this moderator last visited Special:Moderation */
 		}
@@ -123,13 +123,13 @@ class ModerationNotifyModerator {
 	}
 
 	/** Returns most recent mod_timestamp of pending edit */
-	protected static function getPendingTime() {
+	protected function getPendingTime() {
 		$cache = wfGetMainCache();
 		$cacheKey = self::getPendingCacheKey();
 
 		$result = $cache->get( $cacheKey );
 		if ( $result === false ) { /* Not found in the cache */
-			$result = self::getPendingTimeUncached();
+			$result = $this->getPendingTimeUncached();
 			if ( !$result ) {
 				/* Situation "there are no pending edits" must also be cached */
 				$result = 0;
@@ -143,7 +143,7 @@ class ModerationNotifyModerator {
 	}
 
 	/** Uncached version of getPendingTime(). Shouldn't be used outside of getPendingTime() */
-	protected static function getPendingTimeUncached() {
+	protected function getPendingTimeUncached() {
 		$dbr = wfGetDB( DB_REPLICA );
 		return $dbr->selectField( 'moderation', 'mod_timestamp',
 			[
@@ -180,7 +180,7 @@ class ModerationNotifyModerator {
 	 * Get newest mod_timestamp seen by $user (if known) or false.
 	 * @return string|false
 	 */
-	protected static function getSeen( User $user ) {
+	protected function getSeen( User $user ) {
 		$cache = wfGetMainCache();
 		return $cache->get( self::getSeenCacheKey( $user ) );
 	}
