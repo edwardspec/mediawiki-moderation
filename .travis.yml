@@ -66,6 +66,8 @@ matrix:
       if: branch IN (review-usecase)
       env: branch=REL1_30
     - <<: *phpunit-build
+      env: branch=REL1_32
+    - <<: *phpunit-build
       env: branch=REL1_27
       php: 7.1
     - <<: *phpunit-build
