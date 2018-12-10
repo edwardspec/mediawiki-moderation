@@ -1,7 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"StanProg"
+			"StanProg",
+			"Vlad5250"
 		]
 	},
 	"action-moderation": "модериране на редакции",
@@ -44,7 +45,18 @@
 	"moderation-edit-conflict": "Конфликт при редактиране (изисква ръчно сливане).",
 	"moderation-editchange": "редактиране",
 	"moderation-editchange-not-edit": "Това не е редакция. Само редакциите могат да бъдат променяни.",
+	"moderation-folder-merged": "Слити",
+	"moderation-folder-rejected": "Отхвърлени",
 	"moderation-folder-spam": "Спам",
-	"moderation-log-diff": "редакция $1",
-	"moderation": "Модерация"
+	"moderation-log-change": "промяната $1",
+	"moderation-log-diff": "редакцията $1",
+	"moderation-merge-comment": "Сливане на редакция от [[Special:Contributions/$1|$1]]",
+	"moderation": "Модерация",
+	"moderation-move": "$1 е преместена на $2",
+	"moderation-preview": "преглед",
+	"moderation-rejectall": "Отхвърляне на всички",
+	"moderation-rejected-auto": "Автоматично отхвърлено",
+	"moderation-reject": "Отхвърляне",
+	"moderation-show": "разл",
+	"right-moderation": "Модериране на редакции"
 }
