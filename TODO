@@ -1,8 +1,5 @@
 TODO:
 
-High-prio:
-* Ensure that Moderation works with Multi-Content Revisions from upcoming MediaWiki 1.32.
-
 Medium-prio:
 * (testsuite) Provide ~100% automated test coverage of all functionality.
 * (feature) Show "you have N pending edits" link to non-automoderated users
@@ -40,9 +37,6 @@ some new feature (that requires DB update) is disabled because it wasn't done.
 	doesn't have an index for selecting edits by author.
 * (feature) Should ApproveHook update timestamps of upload/move logs?
 * (UX) Improve handling of zero edits. (having to reject them manually doesn't feel right)
-* (interface) For non-automoderated users: show a message on their
-	Special:Contributions ensuring them that their edits will
-	appear there when they are approved.
 
 Tests needed:
 * PageForms plugin ("continue editing" link in postedit notification)
