@@ -45,7 +45,9 @@ matrix:
     # wdio-testrunner sometimes throws an exception AFTER all tests have succeeded,
     # which leads to exit code 1 (failure). Until the cause is investigated, we don't
     # consider Selenium failures as fatal in Travis (but can always check the log).
+    # TODO: update Webdriverio to v5.
     - env: TESTSUITE_TYPE=selenium
+    - env: TESTSUITE_TYPE=selenium branch=REL1_32
   include:
     # PHPUnit tests
     - &phpunit-build
@@ -71,11 +73,11 @@ matrix:
       env: branch=REL1_27
       php: 7.1
     - <<: *phpunit-build
-      if: NOT branch IN (translatewiki,selenium,phpunit,investigate-1.32-MCR)
+      if: NOT branch IN (translatewiki,selenium,phpunit)
       env: branch=REL1_27
       php: 5.6
     - <<: *phpunit-build
-      if: branch IN (investigate-1.32-MCR,nightly)
+      if: branch IN (nightly)
       env: branch=master
       php: nightly
 
@@ -87,6 +89,8 @@ matrix:
       after_script:
         - cat $TRAVIS_BUILD_DIR/parsoid.log
         - sudo cat /var/log/apache2/error.log
+    - <<: *selenium-build
+      env: TESTSUITE_TYPE=selenium branch=REL1_32
 
 cache:
   directories:
