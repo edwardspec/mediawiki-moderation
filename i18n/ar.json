@@ -1,7 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"ديفيد"
+			"ديفيد",
+			"Meno25"
 		]
 	},
 	"action-moderation": "الإشراف على التعديلات",
@@ -89,7 +90,7 @@
 	"moderation-unblock": "لم يعد مرسل بريد مزعج",
 	"moderation-unblock-ok": "المستخدم [[Special:Contributions/$1|$1]] لم يعد يُعتبَر مرسل بريد مزعج.",
 	"moderation-unknown-modaction": "إجراء إشراف غير معروف.",
-	"right-moderation-checkuser": "القدرة على رؤية عناوين آيبي المحررين في واجهة الإشراف",
+	"right-moderation-checkuser": "القدرة على رؤية عناوين أيبي المحررين في واجهة الإشراف",
 	"right-moderation": "الإشراف على التعديلات",
 	"right-skip-moderation": "تعديلاتهم تتجاوز الإشراف",
 	"right-skip-move-moderation": "نقل الصفحات دون إشراف",
