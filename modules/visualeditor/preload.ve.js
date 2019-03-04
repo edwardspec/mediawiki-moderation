@@ -107,7 +107,7 @@
 					page: pageName,
 					wikitext: wikitext // Just preloaded from moderationpreload API
 				};
-				var promiseParseFragment = api.get( qParseFragment ).then();
+				var promiseParseFragment = api.post( qParseFragment ).then();
 
 				/* When both (2) and (3) are completed, combine their results and return */
 				return $.when( promiseMetadata, promiseParseFragment )
