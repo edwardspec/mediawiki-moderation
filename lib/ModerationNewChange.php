@@ -86,7 +86,7 @@ class ModerationNewChange {
 			newly added fields might not be present */
 		if ( ModerationVersionCheck::hasModType() ) {
 			$this->fields['mod_type'] = self::MOD_TYPE_EDIT; # Default, can be changed by move()
-			$this->fields['mod_page2_namespace'] = ''; # Unknown, set by move()
+			$this->fields['mod_page2_namespace'] = 0; # Unknown, set by move()
 			$this->fields['mod_page2_title'] = ''; # Unknown, set by move()
 		}
 	}
