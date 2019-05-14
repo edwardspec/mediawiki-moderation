@@ -90,7 +90,11 @@ abstract class ModerationAction extends ContextSource {
 			[ 'mod_id' => $this->id ],
 			__METHOD__
 		);
-		return $username ? Title::makeTitle( NS_USER, $username ) : false;
+		if ( strval( $username ) == '' ) {
+			return false;
+		}
+
+		return Title::makeTitle( NS_USER, $username );
 	}
 
 	/** Construct new ModerationAction */
