@@ -51,7 +51,7 @@ class ModerationActionShowImage extends ModerationAction {
 			FileBackend::makeContentDisposition( 'inline', $result['thumb-filename'] );
 
 		$repo = RepoGroup::singleton()->getLocalRepo();
-		$repo->streamFile( $result['thumb-path'], $headers );
+		$repo->streamFileWithStatus( $result['thumb-path'], $headers );
 	}
 
 	public function execute() {
