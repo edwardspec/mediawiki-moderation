@@ -53,7 +53,7 @@ class ModerationUpdater {
 		$updater->addExtensionField( 'moderation', 'mod_type',
 			"$base/../sql/patch-moderation-mod_type.sql" );
 
-		ModerationVersionCheck::markDbAsUpdated();
+		$updater->addExtensionUpdate( [ 'ModerationVersionCheck::markDbAsUpdated' ] );
 		return true;
 	}
 }
