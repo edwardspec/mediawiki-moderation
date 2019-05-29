@@ -161,13 +161,10 @@ class ModerationVersionCheck {
 	 * Returns current version of Moderation (string).
 	 */
 	protected static function getVersionOfModeration() {
-		global $wgExtensionCredits;
-		foreach ( $wgExtensionCredits as $group => $list ) {
-			foreach ( $list as $extension ) {
-				if ( $extension['name'] == self::EXTENSION_NAME ) {
-					return $extension['version'];
-				}
-			}
+		$status = FormatJson::parse( file_get_contents( __DIR__ . "/../extension.json" ) );
+		if ( $status->isOK() ) {
+			$extensionInfo = $status->getValue();
+			return $extensionInfo->version;
 		}
 
 		return '';
