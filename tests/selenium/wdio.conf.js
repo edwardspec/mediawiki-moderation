@@ -25,12 +25,15 @@ exports.config = {
 				args: ['-headless']
 			}
 		},
+		/*
 		{
 			browserName: 'chrome',
-			chromeOptions: {
+			'goog:chromeOptions': {
 				args: ['--headless', '--disable-gpu', '--window-size=1280,800']
 			}
 		}
+		*/
+
 	],
 	sync: true,
 	logLevel: 'silent',

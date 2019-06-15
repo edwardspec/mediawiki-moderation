@@ -28,7 +28,7 @@ describe( 'VisualEditor', function () {
 	it( 'should cause postedit notification "Success: your edit has been sent to moderation"', function () {
 		PostEdit.init();
 
-		expect( PostEdit.notification.isVisible(), 'notification.isVisible' ).to.be.true;
+		expect( PostEdit.notification.isDisplayed(), 'notification.isDisplayed' ).to.be.true;
 		expect( PostEdit.editLink.query.veaction, 'editLink.query.veaction' )
 			.to.equal( 'edit' );
 	} );
@@ -37,7 +37,7 @@ describe( 'VisualEditor', function () {
 		browser.refresh(); /* Make sure old VisualEditor form isn't still in the DOM */
 		VisualEditor.open( PageName );
 
-		VisualEditor.content.waitForText();
+		browser.waitUntil( () => VisualEditor.content.getText() );
 		expect( VisualEditor.content.getText(), 'VisualEditor.content' )
 			.to.equal( Content );
 	} );
@@ -57,7 +57,7 @@ describe( 'VisualEditor', function () {
 		EditPage.open( PageName );
 		VisualEditor.openSwitch();
 
-		VisualEditor.content.waitForText();
+		browser.waitUntil( () => VisualEditor.content.getText() );
 		expect( VisualEditor.content.getText(), 'VisualEditor.content' )
 			.to.equal( Content );
 	} );

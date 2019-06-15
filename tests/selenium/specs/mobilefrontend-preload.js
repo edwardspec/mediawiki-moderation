@@ -50,7 +50,10 @@ describe( 'When user opens MobileFrontend editor and has a pending edit', functi
 		it( 'section #' + idx + ' should be shown', function ( idx ) {
 			MobileFrontend.open( PageName, idx );
 
-			MobileFrontend.content.waitForValue();
+			browser.waitUntil( function() {
+				return MobileFrontend.content.getValue();
+			} );
+
 			return expect(
 				MobileFrontend.content.getValue(),
 				'MobileFrontend.content[' + idx +']' )

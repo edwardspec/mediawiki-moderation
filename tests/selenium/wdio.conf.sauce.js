@@ -10,6 +10,7 @@ conf = merge( conf, {
 	services: [ 'sauce' ],
 	user: process.env.SAUCE_USERNAME || '',
 	key: process.env.SAUCE_ACCESS_KEY || '',
+	region: 'us',
 	sauceConnect: true,
 
 	waitforTimeout: 40000,

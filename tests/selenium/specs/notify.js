@@ -44,7 +44,7 @@ describe( 'Postedit notification', function () {
 
 	it( 'should be visible', function () {
 		PostEdit.init();
-		expect( PostEdit.notification.isVisible(), 'notification.isVisible' ).to.be.true;
+		expect( PostEdit.notification.isDisplayed(), 'notification.isDisplayed' ).to.be.true;
 	} );
 
 	it( 'shouldn\'t contain default text (for wikis without Moderation)', function () {
@@ -57,7 +57,7 @@ describe( 'Postedit notification', function () {
 	} );
 
 	it ( 'should contain "Pending Review" icon', function () {
-		expect( PostEdit.pendingIcon.isVisible(), 'pendingIcon.isVisible' ).to.be.true;
+		expect( PostEdit.pendingIcon.isDisplayed(), 'pendingIcon.isDisplayed' ).to.be.true;
 	} );
 
 	it ( 'should say "your edit has been sent to moderation"', function () {
@@ -67,7 +67,7 @@ describe( 'Postedit notification', function () {
 
 	it ( 'should contain "continue editing" link', function() {
 
-		expect( PostEdit.editLink.isVisible(), 'editLink.isVisible' ).to.be.true;
+		expect( PostEdit.editLink.isDisplayed(), 'editLink.isDisplayed' ).to.be.true;
 
 		expect( PostEdit.editLink.query.title, 'editLink.query.title' )
 			.to.equal( PageName.replace( / /g, '_' ) );
@@ -76,7 +76,7 @@ describe( 'Postedit notification', function () {
 	} );
 
 	it ( 'shouldn\'t contain "sign up" link if the user is logged in', function () {
-		expect( PostEdit.signupLink.isVisible(), 'signupLink.isVisible' ).to.be.false;
+		expect( PostEdit.signupLink.isDisplayed(), 'signupLink.isDisplayed' ).to.be.false;
 	} );
 
 	it ( 'shouldn\'t disappear after 3.5 seconds', function () {
@@ -88,13 +88,13 @@ describe( 'Postedit notification', function () {
 			plus information about Moderation for first-time editors.
 		*/
 		PostEdit.waitUsualFadeTime();
-		expect( PostEdit.notification.isVisible(), 'notification.isVisible' ).to.be.true;
+		expect( PostEdit.notification.isDisplayed(), 'notification.isDisplayed' ).to.be.true;
 	} );
 
 	it ( 'should be removed when you click on it', function () {
 		/* Clicking on notification should remove it */
 		PostEdit.notification.click();
-		PostEdit.notification.waitForVisible( 500, true ); /* Wait for it to vanish */
+		PostEdit.notification.waitForDisplayed( 500, true ); /* Wait for it to vanish */
 	} );
 
 	it ( 'should be shown after editing the existing article', function () {
@@ -108,7 +108,7 @@ describe( 'Postedit notification', function () {
 		doTestEdit( ExistingPageName );
 		PostEdit.init();
 
-		expect( PostEdit.notification.isVisible(), 'notification.isVisible' ).to.be.true;
+		expect( PostEdit.notification.isDisplayed(), 'notification.isDisplayed' ).to.be.true;
 	} );
 
 /*---------------- Desktop/mobile subtest -----------------------------------*/

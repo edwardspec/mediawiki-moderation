@@ -18,14 +18,20 @@ var nodeUrl = require( 'url' ),
 */
 module.exports.install = function( browser ) {
 
+	// HACK: Compatibility with "wdio-mediawiki" package, which incorrectly looks for browser.options.password
+	// (which was correct for WDIO 4, but should be "browser.config.password" in WDIO 5)
+	browser.options.username = browser.config.username;
+	browser.options.password = browser.config.password;
+
 	/**
 		@brief Make browser.url() ignore "Are you sure you want to leave this page?" alerts.
 	*/
 	var oldUrlFunc = browser.url.bind( browser );
-	browser.url = function( url ) {
+
+	var newUrlFunc = function( url ) {
 		/* Try to suppress beforeunload events.
-			This doesn't work reliably in IE11, so there is a fallback alertAccept() below.
-			We can't remove this browser.execute(), because Safari doesn't support alertAccept().
+			This doesn't work reliably in IE11, so there is a fallback acceptAlert() below.
+			We can't remove this browser.execute(), because Safari doesn't support acceptAlert().
 		*/
 		browser.execute( function() {
 			window.onbeforeunload = null;
@@ -39,11 +45,16 @@ module.exports.install = function( browser ) {
 		try {
 			/* Fallback for IE11.
 				Not supported by SafariDriver, see browser.execute() above. */
-			browser.alertAccept();
+			browser.acceptAlert();
 		} catch( e ) {}
 
 		return ret;
 	};
+
+	Object.defineProperty( browser, 'url', {
+		writable: true,
+		value: newUrlFunc
+	} );
 
 	/**
 		@brief Returns random string which is unlikely to be the same in two different tests.
@@ -128,7 +139,7 @@ module.exports.install = function( browser ) {
 
 		for ( var cookie of cookieJar._jar.toJSON().cookies ) {
 			// Feed these login cookies to Selenium-controlled browser
-			browser.setCookie( {
+			browser.setCookies( {
 				name: cookie.key,
 				value: cookie.value
 			} );
@@ -178,6 +189,6 @@ module.exports.install = function( browser ) {
 		@note This preference is saved as a cookie. If the cookies are deleted, skin will revert to desktop.
 	*/
 	browser.switchToMobileSkin = function() {
-		browser.setCookie( { name: 'mf_useformat', value: 'true' } );
+		browser.setCookies( { name: 'mf_useformat', value: 'true' } );
 	};
 };

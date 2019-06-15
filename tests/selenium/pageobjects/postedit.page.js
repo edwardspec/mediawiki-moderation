@@ -10,7 +10,7 @@ class PostEdit extends Page {
 	get notification() { return $( '.postedit, .mw-notification' ); }
 
 	get isMobile() {
-		return !( browser.isExisting( '.postedit' ) );
+		return !( $( '.postedit' ).isExisting() );
 	}
 
 	get pendingIcon() { return $( '#pending-review' ); }
@@ -27,15 +27,15 @@ class PostEdit extends Page {
 
 	/** @brief Wait for postedit notification to appear */
 	init() {
-		this.notification.waitForVisible();
+		this.notification.waitForDisplayed();
 
 		if ( this.isMobile ) {
-			/* Mobile version has a rolling animation which may become isVisible()
+			/* Mobile version has a rolling animation which may become isDisplayed()
 				before some of its contents (leading to flaky tests when
-				checking signupLink.isVisible, etc.).
+				checking signupLink.isDisplayed, etc.).
 				Thus we must wait for CSS class which is added after the animation.
 			*/
-			browser.waitForExist( '.mw-notification-visible' );
+			$( '.mw-notification-visible' ).waitForExist();
 		}
 
 		this.inittime = new Date().getTime(); /* Used in waitUsualFadeTime() */

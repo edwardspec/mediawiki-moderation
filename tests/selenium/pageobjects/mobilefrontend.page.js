@@ -34,7 +34,7 @@ class MobileFrontend extends Page {
 		@retval null No error.
 	*/
 	get error() {
-		return this.errMsg.isVisible() ? this.errMsg.getText() : null;
+		return this.errMsg.isDisplayed() ? this.errMsg.getText() : null;
 	}
 
 	/**
@@ -60,19 +60,19 @@ class MobileFrontend extends Page {
 			This makes tests very flaky,
 			so we delete all overlays except the last one.
 		*/
-		$( '.editor-overlay' ).waitForVisible();
+		$( '.editor-overlay' ).waitForDisplayed();
 		browser.execute( function () {
 			$( '.editor-overlay' ).slice( 0, -1 ).remove();
 		} );
 
 		var self = this;
 		browser.waitUntil( function() {
-			if ( self.editAnonymouslyButton.isVisible() ) {
+			if ( self.editAnonymouslyButton.isDisplayed() ) {
 				self.editAnonymouslyButton.click();
 				return false;
 			}
 
-			return self.content.isVisible();
+			return self.content.isDisplayed();
 		} );
 	}
 
@@ -94,7 +94,7 @@ class MobileFrontend extends Page {
 
 		/* Suppress "Are you sure you want to create a new page?" dialog.
 			Overwriting window.confirm is not supported in IE11,
-			catching alert with alertAccept() - not supported in Safari.
+			catching alert with acceptAlert() - not supported in Safari.
 		*/
 		browser.execute( function() {
 			window.confirm = function() { return true; };

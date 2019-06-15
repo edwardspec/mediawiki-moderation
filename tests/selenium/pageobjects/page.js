@@ -14,7 +14,7 @@ class Page {
 	}
 
 	getWhenVisible( selector ) {
-		browser.waitForVisible( selector );
+		$( selector ).waitForDisplayed();
 		return $( selector );
 	}
 
@@ -29,7 +29,7 @@ class Page {
 		@retval null No error.
 	*/
 	get error() {
-		if ( !this.errMsg.isVisible() ) {
+		if ( !this.errMsg.isDisplayed() ) {
 			return null;
 		}
 
@@ -56,7 +56,7 @@ class Page {
 				It's also possible this is a FormSpecialPage
 				and it displayed "Success" message on the same URL. */
 			return (
-				self.errMsg.isVisible()
+				self.errMsg.isDisplayed()
 				||
 				$( '#mw-returnto' ).isExisting()
 			);

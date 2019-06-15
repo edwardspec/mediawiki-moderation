@@ -35,7 +35,7 @@ describe( 'Postedit notification (for anonymous user)', function () {
 	it ( 'should contain "sign up" link', function () {
 		PostEdit.init();
 
-		expect( PostEdit.signupLink.isVisible(), 'signupLink.isVisible' ).to.be.true;
+		expect( PostEdit.signupLink.isDisplayed(), 'signupLink.isDisplayed' ).to.be.true;
 		expect(
 			PostEdit.signupLink.query.title,
 			'signupLink.query.title'

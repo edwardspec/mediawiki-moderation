@@ -31,24 +31,24 @@ class VisualEditor extends Page {
 		$( '.ve-active' ).waitForExist();
 
 		var parSelector = '.ve-ce-documentNode p';
-		browser.waitForExist( parSelector );
+		$( parSelector ).waitForExist();
 
 		/* Try click() several times, because VisualEditor needs to install onclick() handler first */
 		var self = this;
 		browser.waitUntil( function() {
-			if ( self.closeNoticeButton.isVisible() ) {
+			if ( self.closeNoticeButton.isDisplayed() ) {
 				/* Close "Notice" popup, it may prevent us from clicking on parSelector. */
 				self.closeNoticeButton.click();
 				return false;
 			}
 
 			// Trigger (1) selection of this <p>, (2) focusin event.
-			browser.selectorExecute( parSelector, function ( paragraphs ) {
-				paragraphs[0].click();
-			} );
+			browser.execute( function ( selector ) {
+				$( selector ).click();
+			}, parSelector );
 
 			//$( parSelector ).click();
-			return browser.isExisting( '.ve-ce-surface-focused' );
+			return $( '.ve-ce-surface-focused' ).isExisting();
 		} );
 
 		return $( '.ve-ce-documentNode' );
@@ -104,7 +104,7 @@ class VisualEditor extends Page {
 		@retval null No error.
 	*/
 	get error() {
-		return this.errMsg.isVisible() ? this.errMsg.getText() : null;
+		return this.errMsg.isDisplayed() ? this.errMsg.getText() : null;
 	}
 
 	/**
@@ -131,7 +131,7 @@ class VisualEditor extends Page {
 		this.welcomeStartButton.click();
 
 		/* Wait for dialog to disappear */
-		this.welcomeDialog.waitForVisible( 3000, true );
+		this.welcomeDialog.waitForDisplayed( 3000, true );
 	}
 
 	/**

@@ -28,7 +28,7 @@ describe( 'browser.url()', function () {
 
 			/* There shouldn't be an alert "Do you really want to leave this page" */
 			expect( function() {
-				browser.alertText(); /* Throws exception when there is no alert */
+				browser.getAlertText(); /* Throws exception when there is no alert */
 			} ).to.throw();
 		} );
 	}
