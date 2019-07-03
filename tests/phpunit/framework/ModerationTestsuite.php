@@ -252,6 +252,10 @@ class ModerationTestsuite {
 			$dbw->delete( 'tag_summary', '*', __METHOD__ );
 		}
 
+		if ( $dbw->tableExists( 'actor' ) ) {
+			$dbw->delete( 'actor', '*', __METHOD__ );
+		}
+
 		if ( $dbw->tableExists( 'abuse_filter' ) ) {
 			$dbw->delete( 'abuse_filter', '*', __METHOD__ );
 			$dbw->delete( 'abuse_filter_action', '*', __METHOD__ );

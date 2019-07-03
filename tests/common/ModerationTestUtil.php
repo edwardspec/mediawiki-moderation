@@ -67,9 +67,9 @@ class ModerationTestUtil {
 
 		$context = new RequestContext;
 		$context->setRequest( new FauxRequest( $params, $wasPosted ) );
-		$context->setLanguage( Language::factory( 'qqx' ) );
 		$context->setTitle( $page->getPageTitle() );
 		$context->setUser( $user );
+		$context->setLanguage( Language::factory( 'qqx' ) );
 
 		$page->setContext( $context );
 		$page->execute( '' );

@@ -330,6 +330,8 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 		Engine like CliEngine can handle this properly (by actually using the sandbox).
 	 */
 	public function escapeDbSandbox() {
+		// FIXME: this approach below no longer works in MediaWiki 1.33+,
+		// therefore only CliEngine with --use-normal-tables is usable.
 		MediaWikiTestCase::teardownTestDB();
 	}
 }
