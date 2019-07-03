@@ -83,17 +83,6 @@ class ModerationApproveTest extends ModerationTestCase {
 			$this->assertEquals( 'approve', $le['action'] );
 			$this->assertEquals( $t->moderator->getName(), $le['user'] );
 		}
-
-		# Only the formatting of 'approveall' line needs to be checked,
-		# formatting of 'approve' lines already tested in testApprove()
-		$events = $t->nonApiLogEntries( 1 );
-		$this->assertEquals( 'approveall', $events[0]['type'] );
-
-		$this->assertEquals( $t->moderator->getName(),
-			$events[0]['params'][1] );
-		$this->assertEquals( $t->unprivilegedUser->getUserPage()->getText(),
-			$events[0]['params'][2] );
-		$this->assertEquals( $t->TEST_EDITS_COUNT, $events[0]['params'][3] );
 	}
 
 	public function testApproveAllNotRejected( ModerationTestsuite $t ) {
