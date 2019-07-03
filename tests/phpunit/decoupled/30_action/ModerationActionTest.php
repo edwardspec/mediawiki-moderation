@@ -733,6 +733,18 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		}
 
 		if ( $this->simulateDeletedAuthor ) {
+			global $wgActorTableSchemaMigrationStage;
+			if ( isset( $wgActorTableSchemaMigrationStage ) && defined( 'SCHEMA_COMPAT_NEW' ) ) {
+				// Approving edits of deleted users is not supported with SCHEMA_COMPAT_NEW mode
+				// (which is default in MW 1.33+),
+				// because User::getActorId() won't allow a non-registered user to have a usable username.
+				// FIXME: Can probably workaround this by appending a non-allowed symbol to username.
+				if ( $wgActorTableSchemaMigrationStage == SCHEMA_COMPAT_NEW ) {
+					$testcase->markTestSkipped(
+						'Test skipped: approving edits of deleted users is not supported in MediaWiki 1.33+' );
+				}
+			}
+
 			// Delete the author from the database (similar to Extension:UserMerge)
 			$dbw = wfGetDB( DB_MASTER );
 			$dbw->delete( 'user', [
