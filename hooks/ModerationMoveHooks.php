@@ -63,6 +63,23 @@ class ModerationMoveHooks {
 			return true;
 		}
 
+		if ( method_exists( 'AbuseFilterHooks', 'onTitleMove' ) ) {
+			/* Since MediaWiki 1.33, AbuseFilter uses TitleMove hook to filter the moves,
+				and this hook never gets called,
+				because Moderation aborts the move earlier (in MovePageCheckPermissions hook).
+
+				Workaround is to call TitleMove handler of Extension:AbuseFilter right here.
+
+				NOTE: Moderation can't use TitleMove hook yet, because this hook can abort the move
+				only in MediaWiki 1.33+, and we need backward compatibility with earlier MediaWiki.
+			*/
+			AbuseFilterHooks::onTitleMove( $oldTitle, $newTitle, $user, $reason, $status );
+			if ( !$status->isOK() ) {
+				// AbuseFilter prohibited the move.
+				return true;
+			}
+		}
+
 		$change = new ModerationNewChange( $oldTitle, $user );
 		$fields = $change->move( $newTitle )
 			->setSummary( $reason )

@@ -247,7 +247,14 @@ class ModerationTestsuite {
 		$dbw->delete( 'recentchanges', '*', __METHOD__ );
 		$dbw->delete( 'watchlist', '*', __METHOD__ );
 		$dbw->delete( 'change_tag', '*', __METHOD__ );
-		$dbw->delete( 'tag_summary', '*', __METHOD__ );
+
+		if ( $dbw->tableExists( 'tag_summary' ) ) {
+			$dbw->delete( 'tag_summary', '*', __METHOD__ );
+		}
+
+		if ( $dbw->tableExists( 'actor' ) ) {
+			$dbw->delete( 'actor', '*', __METHOD__ );
+		}
 
 		if ( $dbw->tableExists( 'abuse_filter' ) ) {
 			$dbw->delete( 'abuse_filter', '*', __METHOD__ );

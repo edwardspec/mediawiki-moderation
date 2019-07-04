@@ -48,6 +48,7 @@ matrix:
     # TODO: update Webdriverio to v5.
     - env: TESTSUITE_TYPE=selenium
     - env: TESTSUITE_TYPE=selenium branch=REL1_32
+    - env: TESTSUITE_TYPE=selenium branch=REL1_33
   include:
     # PHPUnit tests
     - &phpunit-build
@@ -70,6 +71,8 @@ matrix:
     - <<: *phpunit-build
       env: branch=REL1_32
     - <<: *phpunit-build
+      env: branch=REL1_33
+    - <<: *phpunit-build
       env: branch=REL1_27
       php: 7.1
     - <<: *phpunit-build
@@ -91,6 +94,8 @@ matrix:
         - sudo cat /var/log/apache2/error.log
     - <<: *selenium-build
       env: TESTSUITE_TYPE=selenium branch=REL1_32
+    - <<: *selenium-build
+      env: TESTSUITE_TYPE=selenium branch=REL1_33
 
 cache:
   directories:
@@ -122,6 +127,7 @@ before_script:
   - echo -en "\n\nrequire_once __DIR__ . '/includes/DevelopmentSettings.php';\n" >> ./LocalSettings.php
   - echo -en "\n\nrequire_once __DIR__ . '/extensions/Moderation/tests/travis/ModerationSettings.php';\n" >> ./LocalSettings.php
   - php -l ./LocalSettings.php
+  - mysql -D traviswiki -u "$DBUSER" -e 'DELETE FROM recentchanges;' # Workaround for Extension:CheckUser's updater issue (which is unrelated to Moderation)
   - WITH_ECHO=1 php maintenance/update.php --quick
   - php maintenance/createAndPromote.php "$MEDIAWIKI_USER" "$MEDIAWIKI_PASSWORD" --custom-groups moderator,automoderated
   - if [ ${TESTSUITE_TYPE} = "selenium" ]; then ( cd extensions/Moderation/tests/selenium && npm install ); fi

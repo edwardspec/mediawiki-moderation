@@ -52,7 +52,15 @@ class ModerationTestCase extends MediaWikiTestCase {
 	 * has "Throwable $e", which leads to PHP warning "Declaration [...] should be compatible".
 	 */
 	protected function onNotSuccessfulTest( $e ) {
-		ModerationTestsuiteLogger::printBuffer();
+		switch ( get_class( $e ) ) {
+			case 'PHPUnit_Framework_SkippedTestError':
+			case 'PHPUnit\Framework\SkippedTestError':
+				break; // Don't need logs of skipped tests
+
+			default:
+				ModerationTestsuiteLogger::printBuffer();
+		}
+
 		parent::onNotSuccessfulTest( $e );
 	}
 
