@@ -2,7 +2,8 @@
 	"@metadata": {
 		"authors": [
 			"Gomoko",
-			"Wladek92"
+			"Wladek92",
+			"Thibaut120094"
 		]
 	},
 	"action-moderation": "modérer les modifications",
@@ -75,10 +76,10 @@
 	"moderation-notification-subject": "[Modération] De nouvelles modifications attendent une modération",
 	"moderation-pending-review": "Relecture en attente",
 	"moderation-preview": "aperçu",
-	"moderation-preview-title": "La révision de « $1 » attend une modération",
+	"moderation-preview-title": "La révision de « $1 » attend une modération",
 	"moderation-rejectall": "Tout rejeter",
 	"moderation-rejected-auto": "Rejeté automatiquement",
-	"moderation-rejected-batch": "Rejeté via le bouton « Tout rejeter »",
+	"moderation-rejected-batch": "Rejeté via le bouton « Tout rejeter »",
 	"moderation-rejected-by": "{{GENDER:$2|Rejeté}} par $1",
 	"moderation-rejected-long-ago": "Cette modification a été rejetée il y a longtemps, elle ne peut plus être approuvée.",
 	"moderation-rejected-ok": "$1 {{plural:$1|modification rejetée|modifications rejetées}}.",
