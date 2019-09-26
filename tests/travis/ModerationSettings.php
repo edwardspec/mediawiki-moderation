@@ -25,6 +25,9 @@ $wgServer = "http://moderation.example.com";
 $wgScriptPath = "/mediawiki";
 $wgArticlePath = "/wiki/$1";
 
+# For localisation cache to not be stored in /, which is readonly on Travis.
+$wgCacheDirectory = "$IP/cache";
+
 # For upload-related tests
 $wgEnableUploads = true;
 
