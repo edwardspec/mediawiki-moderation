@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2018 Edward Chernenko.
+	Copyright (C) 2015-2019 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -183,22 +183,5 @@ class ModerationUploadTest extends ModerationTestCase {
 			"approved it (instead of the user who made the reupload)" );
 		$this->assertEquals( $t->lastEdit['User'], $rev1['user'],
 			"testReupload(): Image reupload wasn't attributed to the user who made it" );
-	}
-
-	/**
-	 * @covers ModerationApiHooks::onApiCheckCanExecute()
-	 */
-	public function testNoApiUploadBefore1_28( ModerationTestsuite $t ) {
-		global $wgVersion;
-		if ( version_compare( $wgVersion, '1.28.0', '>=' ) ) {
-			$this->markTestSkipped( 'Test skipped: only applicable to MediaWiki 1.27.' );
-		}
-
-		$t->loginAs( $t->unprivilegedUser );
-		$result = $t->getBot( 'api' )->upload();
-
-		/* Uploads via API are only supported in MediaWiki 1.28+,
-			older MediaWiki should return error. */
-		$this->assertEquals( '(nouploadmodule)', $result->getError() );
 	}
 }

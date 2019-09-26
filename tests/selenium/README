@@ -46,17 +46,7 @@ To run the tests:
 	2) run the following:
 		./node_modules/.bin/wdio --baseUrl 'http://hostname.of.your.wiki'
 
-NOTE: when testing locally, you shouldn't minimize Firefox during the tests,
-because Firefox requires the window to be in focus to simulate the clicks in it.
-
 == Customizing ==
 
 See http://webdriver.io/guide/testrunner/configurationfile.html
 Configuration file is [extensions/Moderation/tests/selenium/wdio.conf.js]
-
-== Known issues ==
-
-MobileFrontend for MediaWiki 1.29 has a bug that interferes with the testsuite.
-The following patch must be applied:
-	https://gerrit.wikimedia.org/r/#/c/363012/
-This is only needed for MediaWiki 1.29 (not <= 1.28 or 1.30+).

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2018 Edward Chernenko.
+	Copyright (C) 2015-2019 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -205,23 +205,20 @@ class ModerationTestsuite {
 	 * (as in "Destroy everything on testsuite's path")
 	 */
 	private function prepareDbForTests() {
-		if ( $this->mwVersionCompare( '1.28.0', '>=' ) ) {
-			/*
-				This is a workaround for the following problem:
-				https://gerrit.wikimedia.org/r/328718
+		/*
+			Workaround the following problem: https://gerrit.wikimedia.org/r/328718
 
-				Since MediaWiki 1.28, MediaWikiTestCase class
-				started to aggressively isolate us from the real database.
+			Since MediaWiki 1.28, MediaWikiTestCase class
+			started to aggressively isolate us from the real database.
 
-				However this entire testsuite does the blackbox testing
-				on the site, making HTTP queries as the users would do,
-				so we need to check/modify the real database.
+			However this entire testsuite does the blackbox testing
+			on the site, making HTTP queries as the users would do,
+			so we need to check/modify the real database.
 
-				Therefore we escape the "test DB" jail installed by MediaWikiTestCase.
-			*/
-			if ( class_exists( 'MediaWikiTestCase' ) ) { // Not in benchmark scripts
-				$this->engine->escapeDbSandbox();
-			}
+			Therefore we escape the "test DB" jail installed by MediaWikiTestCase.
+		*/
+		if ( class_exists( 'MediaWikiTestCase' ) ) { // Not in benchmark scripts
+			$this->engine->escapeDbSandbox();
 		}
 
 		$dbw = wfGetDB( DB_MASTER );
@@ -665,16 +662,7 @@ class ModerationTestsuite {
 	 */
 	public function assertApiError( $expectedErrorCode, array $ret, MediaWikiTestCase $tcase ) {
 		$tcase->assertArrayHasKey( 'error', $ret );
-
-		if ( $this->mwVersionCompare( '1.29.0', '>=' ) ) {
-			# MediaWiki 1.29+
-			$tcase->assertEquals( $expectedErrorCode, $ret['error']['code'] );
-		} else {
-			# MediaWiki 1.28 and older displayed "unknownerror" status code
-			# for some custom hook-returned errors (e.g. from PageContentSave).
-			$tcase->assertEquals( 'unknownerror', $ret['error']['code'] );
-			$tcase->assertContains( $expectedErrorCode, $ret['error']['info'] );
-		}
+		$tcase->assertEquals( $expectedErrorCode, $ret['error']['code'] );
 	}
 
 	/**

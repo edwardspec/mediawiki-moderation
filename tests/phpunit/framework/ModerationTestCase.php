@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2019 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -47,11 +47,8 @@ class ModerationTestCase extends MediaWikiTestCase {
 
 	/**
 	 * Dump the logs related to the current test.
-	 *
-	 * FIXME: MediaWiki 1.27 uses PHPUnit 4, where $e is Exception, but modern PHPUnit 6
-	 * has "Throwable $e", which leads to PHP warning "Declaration [...] should be compatible".
 	 */
-	protected function onNotSuccessfulTest( $e ) {
+	protected function onNotSuccessfulTest( Throwable $e ) {
 		switch ( get_class( $e ) ) {
 			case 'PHPUnit_Framework_SkippedTestError':
 			case 'PHPUnit\Framework\SkippedTestError':

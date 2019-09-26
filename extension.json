@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.4.0",
+	"version": "1.4.1",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -131,7 +131,6 @@
 		"ModerationPlugins": "plugins/ModerationPlugins.php",
 		"ModerationPreload": "hooks/ModerationPreload.php",
 		"ModerationQueuedSuccessException": "lib/exception/ModerationQueuedSuccessException.php",
-		"ModerationSpecialUpload": "ModerationSpecialUpload.php",
 		"ModerationUpdater": "hooks/ModerationUpdater.php",
 		"ModerationUploadHooks": "hooks/ModerationUploadHooks.php",
 		"ModerationVersionCheck": "util/ModerationVersionCheck.php",
@@ -299,9 +298,6 @@
 		],
 		"PageForms::EditFormPreloadText": [
 			"ModerationPageForms::preloadText"
-		],
-		"UploadVerifyFile": [
-			"ModerationUploadHooks::onUploadVerifyFile"
 		],
 		"UploadVerifyUpload": [
 			"ModerationUploadHooks::onUploadVerifyUpload"

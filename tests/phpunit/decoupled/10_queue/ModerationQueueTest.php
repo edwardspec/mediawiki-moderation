@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2019 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -213,13 +213,6 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 		if ( !$this->title ) {
 			$pageName = $this->filename ? 'File:Test image 1.png' : 'Test page 1';
 			$this->title = Title::newFromText( $pageName );
-		}
-
-		if ( $this->filename && $this->viaApi &&
-			ModerationTestsuite::mwVersionCompare( '1.28.0', '<' )
-		) {
-			$this->getTestcase()->markTestSkipped(
-				'Test skipped: MediaWiki 1.27 doesn\'t support upload via API.' );
 		}
 
 		/* Shouldn't contain PreSaveTransform-affected text, e.g. "~~~~" */
@@ -436,13 +429,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	protected function assertWatched( $expectedState, Title $title ) {
 		// Note: $user->isWatched() can't be used,
 		// because it would return cached results.
-		if ( method_exists( 'WatchedItemStore', 'getDefaultInstance' ) ) {
-			/* MediaWiki 1.27 */
-			$watchedItemStore = WatchedItemStore::getDefaultInstance();
-		} else {
-			/* MediaWiki 1.28+ */
-			$watchedItemStore = MediaWiki\MediaWikiServices::getInstance()->getWatchedItemStore();
-		}
+		$watchedItemStore = MediaWiki\MediaWikiServices::getInstance()->getWatchedItemStore();
 
 		$isWatched = (bool)$watchedItemStore->loadWatchedItem( $this->user, $title );
 		if ( $expectedState ) {

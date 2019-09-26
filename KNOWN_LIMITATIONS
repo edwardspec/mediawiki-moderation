@@ -2,22 +2,6 @@ List of known limitations:
 
 ===============================================================================
 Limitation:
-	In MediaWiki 1.27 (not 1.28+),
-	unless the user has 'skip-moderation' right:
-
-	1) only uploads via conventional Special:Upload are supported.
-	2) Upload via API is disabled.
-	3) All other uploading extensions (like Extension:MultipleUpload) won't
-	work, unless they are providing the very same fields as Special:Upload.
-Why:
-	Before UploadVerifyUpload hook appeared in MediaWiki 1.28, we used
-	pre-upload hook UploadVerifyFile, which didn't provide necessary
-	information like edit comment, text etc., so we had to get this
-	from $wgRequest. If $wgRequest doesn't have those fields, we abort.
-===============================================================================
-
-===============================================================================
-Limitation:
 	Unless the user has 'skip-moderation' right,
 	reverting image to previous version won't be allowed.
 Why:

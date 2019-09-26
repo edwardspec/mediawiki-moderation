@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2019 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -26,11 +26,8 @@ class ModerationEditChangePage extends EditPage {
 	 * When user clicks Submit, handle this back to Special:Moderation.
 	 */
 	protected function getActionURL( Title $title ) {
-		global $wgOut;
-		$context = $wgOut->getContext(); // MediaWiki 1.27 doesn't have EditPage::getContext()
-
 		return SpecialPage::getTitleFor( 'Moderation' )->getLocalURL( [
-			'modid' => $context->getRequest()->getVal( 'modid' ),
+			'modid' => $this->getContext()->getRequest()->getVal( 'modid' ),
 			'modaction' => 'editchangesubmit'
 		] );
 	}
@@ -39,10 +36,8 @@ class ModerationEditChangePage extends EditPage {
 	 * Add CSRF token.
 	 */
 	protected function showFormAfterText() {
-		global $wgOut; // MediaWiki 1.27 doesn't have EditPage::getContext()
-
-		$wgOut->addHTML(
-			Html::hidden( "token", $wgOut->getContext()->getUser()->getEditToken() )
+		$this->getContext()->getOutput()->addHTML(
+			Html::hidden( "token", $this->getContext()->getUser()->getEditToken() )
 		);
 	}
 

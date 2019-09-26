@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2019 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -112,14 +112,6 @@ class ModerationTestsuiteApiBot extends ModerationTestsuiteBot {
 			$isBypassed = false;
 
 			$code = $ret['error']['code'];
-			if ( $code == 'unknownerror' &&
-				ModerationTestsuite::mwVersionCompare( '1.29.0', '<' ) &&
-				strpos( $ret['error']['info'], $interceptCode ) !== false
-			) {
-				# MediaWiki 1.28 and older displayed "unknownerror" status code
-				# for some custom hook-returned errors (e.g. from PageContentSave).
-				$code = $interceptCode;
-			}
 
 			$isIntercepted = ( $code == $interceptCode );
 			if ( !$isIntercepted ) {

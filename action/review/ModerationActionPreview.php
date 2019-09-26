@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2018 Edward Chernenko.
+	Copyright (C) 2014-2019 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -57,26 +57,14 @@ class ModerationActionPreview extends ModerationAction {
 		$title = Title::makeTitle( $row->namespace, $row->title );
 
 		$content = ContentHandler::makeContent( $row->text, null, $title->getContentModel() );
-		$pout = $content->getParserOutput( $title, 0, $this->getParserOptions(), true );
+		$popts = $this->getOutput()->parserOptions();
+
+		$pout = $content->getParserOutput( $title, 0, $popts, true );
 
 		return [
 			'title' => $title->getPrefixedText(),
 			'html' => $pout->getText( [ 'enableSectionEditLinks' => false ] ),
 			'categories' => $pout->getCategories()
 		];
-	}
-
-	/**
-	 * Returns ParserOptions object to be used for parsing.
-	 */
-	protected function getParserOptions() {
-		global $wgVersion;
-
-		$popts = $this->getOutput()->parserOptions();
-		if ( version_compare( $wgVersion, '1.31.0', '<' ) ) {
-			/* Legacy approach, MediaWiki 1.30 and earlier */
-			$popts->setEditSection( false );
-		}
-		return $popts;
 	}
 }

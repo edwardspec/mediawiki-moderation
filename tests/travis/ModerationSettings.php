@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2019 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -54,13 +54,7 @@ wfLoadExtensions( [
 
 # ModerationNotifyModeratorTest should be tested with and without Extension:Echo
 if ( getenv( 'WITH_ECHO' ) ) {
-	if ( file_exists( "$IP/extensions/Echo/Echo.php" ) ) {
-		// Extension:Echo for MediaWiki 1.27 (old LTS) doesn't support wfLoadExtension()
-		require_once "$IP/extensions/Echo/Echo.php";
-	} else {
-		// MediaWiki 1.31+
-		wfLoadExtension( 'Echo' );
-	}
+	wfLoadExtension( 'Echo' );
 }
 
 if ( version_compare( $wgVersion, '1.30.0', '>=' ) ) {
@@ -68,10 +62,7 @@ if ( version_compare( $wgVersion, '1.30.0', '>=' ) ) {
 }
 
 # Default skin for Extension:MobileFrontend
-if ( version_compare( $wgVersion, '1.30.0', '>=' ) ) {
-	# MediaWiki 1.27-1.29 have this skin included into MobileFrontend
-	wfLoadSkin( 'MinervaNeue' );
-}
+wfLoadSkin( 'MinervaNeue' );
 
 # Parsoid configuration (used by Extension:VisualEditor)
 $wgVirtualRestConfig['modules']['parsoid'] = [

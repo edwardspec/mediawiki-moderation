@@ -95,18 +95,11 @@
 			self.timestamp = ""; /* Ok to leave empty */
 			self.originalContent = self.content;
 
-			if ( isMW31 ) {
-				/* MediaWiki 1.31+ */
-				$result.resolve( {
-					text: self.content,
-					user: data.query.userinfo,
-					block: data.query.blocks ? data.query.blocks[0] : {}
-				} );
-			}
-			else {
-				/* Legacy format, MediaWiki 1.27-1.30 */
-				$result.resolve( self.content, data.query.userinfo );
-			}
+			$result.resolve( {
+				text: self.content,
+				user: data.query.userinfo,
+				block: data.query.blocks ? data.query.blocks[0] : {}
+			} );
 		} );
 
 		return $result;

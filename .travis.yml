@@ -45,7 +45,6 @@ matrix:
     # wdio-testrunner sometimes throws an exception AFTER all tests have succeeded,
     # which leads to exit code 1 (failure). Until the cause is investigated, we don't
     # consider Selenium failures as fatal in Travis (but can always check the log).
-    # TODO: update Webdriverio to v5.
     - env: TESTSUITE_TYPE=selenium
     - env: TESTSUITE_TYPE=selenium branch=REL1_32
     - env: TESTSUITE_TYPE=selenium branch=REL1_33
@@ -66,19 +65,9 @@ matrix:
       after_script:
         - if [ ${branch} = "REL1_31" ]; then ./vendor/bin/phpcs -ps extensions/Moderation/; fi
     - <<: *phpunit-build
-      if: branch IN (review-usecase)
-      env: branch=REL1_30
-    - <<: *phpunit-build
       env: branch=REL1_32
     - <<: *phpunit-build
       env: branch=REL1_33
-    - <<: *phpunit-build
-      env: branch=REL1_27
-      php: 7.1
-    - <<: *phpunit-build
-      if: NOT branch IN (translatewiki,selenium,phpunit)
-      env: branch=REL1_27
-      php: 5.6
     - <<: *phpunit-build
       if: branch IN (nightly)
       env: branch=master

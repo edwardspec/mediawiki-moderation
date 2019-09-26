@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2019 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -47,10 +47,8 @@ class ModerationEntryFormatter extends ModerationEntry {
 	 * Same as wfMessage(), but respects local context.
 	 * @return Message
 	 */
-	public function msg() {
-		// We still support MediaWiki 1.27, which supports PHP 5.5.9,
-		// so we can't use ...$args syntax (appeared in PHP 5.6).
-		return call_user_func_array( [ $this->getContext(), 'msg' ], func_get_args() );
+	public function msg( ...$args ) {
+		return $this->getContext()->msg( ...$args );
 	}
 
 	/**

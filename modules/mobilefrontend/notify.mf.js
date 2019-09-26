@@ -27,18 +27,10 @@
 	/* Override Toast class to suppress default notification ("edit saved"),
 		because notifyQueued() already shows "edit queued for moderation" */
 	var $d = $.Deferred();
-	try {
-		/* MediaWiki 1.29+ */
-		mw.loader.using( 'mobile.startup', function() {
-			$d.resolve( M.require( 'mobile.startup/toast' ) );
-		} );
-	}
-	catch ( e ) {
-		/* MediaWiki 1.27-1.28 */
-		mw.loader.using( 'mobile.toast', function() {
-			$d.resolve( M.require( 'mobile.toast/toast' ) );
-		} );
-	}
+
+	mw.loader.using( 'mobile.startup', function() {
+		$d.resolve( M.require( 'mobile.startup/toast' ) );
+	} );
 
 	$d.done( function( toast ) {
 		var oldReload = toast.showOnPageReload;

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2018 Edward Chernenko.
+	Copyright (C) 2014-2019 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -95,68 +95,6 @@ class ModerationUploadHooks {
 		// Return machine-readable error if this is NOT Special:Upload.
 		$error = [ $errorMsg ];
 		return true;
-	}
-
-	/**
-	 * Returns true if UploadVerifyUpload hook exists, false otherwise.
-	 */
-	public static function haveUploadVerifyUpload() {
-		global $wgVersion;
-		return version_compare( $wgVersion, '1.28.0', '>=' );
-	}
-
-	/**
-	 * Polyfill to call onUploadVerifyUpload in MediaWiki 1.27.
-	 * Not needed in MediaWiki 1.28+.
-	 */
-	public static function onUploadVerifyFile( $upload, $mime, &$status ) {
-		if ( self::haveUploadVerifyUpload() ) {
-			return true;  /* Will be handled in UploadVerifyUpload hook (MediaWiki 1.28+) */
-		}
-
-		$context = RequestContext::getMain();
-		$user = $context->getUser();
-
-		if ( ModerationCanSkip::canUploadSkip( $user ) ) {
-			return true;
-		}
-
-		/* Run validateName() check that normally happens after UploadVerifyFile hook
-			(we abort this hook, therefore validateName() must be called here).
-		*/
-		$result = $upload->validateName();
-		if ( $result !== true ) {
-			$status = [ $upload->getVerificationErrorCode( $result['status'] ) ];
-			return true;
-		}
-
-		/* Determine parameters of the upload (e.g. description text of the uploaded image)
-			from HTTP request parameters.
-
-			This is a legacy approach for MediaWiki 1.27.
-			MediaWiki 1.28+ has UploadVerifyUpload hook which already knows this information.
-		*/
-		$special = new ModerationSpecialUpload( $context->getRequest() );
-		$special->publicLoadRequest();
-
-		$pageText = '';
-		if ( !$special->mForReUpload ) {
-			$pageText = $special->getInitialPageText(
-				$special->mComment,
-				$special->mLicense,
-				$special->mCopyrightStatus,
-				$special->mCopyrightSource
-			);
-		}
-
-		return self::onUploadVerifyUpload(
-			$upload,
-			$user,
-			[], /* $props - no need to calculate, because our onUploadVerifyUpload() doesn't use it */
-			$special->mComment,
-			$pageText,
-			$status
-		);
 	}
 
 	public static function ongetUserPermissionsErrors( $title, $user, $action, &$result ) {

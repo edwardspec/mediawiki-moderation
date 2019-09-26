@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2019 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -217,14 +217,6 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 				default:
 					throw new Exception( __CLASS__ . ": unknown key {$key} in options" );
 			}
-		}
-
-		/* Default options */
-		if ( $this->action == 'upload' &&
-			ModerationTestsuite::mwVersionCompare( '1.28.0', '<' )
-		) {
-			$this->getTestcase()->markTestSkipped(
-				'Test skipped: MediaWiki 1.27 doesn\'t support upload via API.' );
 		}
 	}
 

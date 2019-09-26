@@ -17,9 +17,7 @@
 
 		var api = new mw.Api();
 
-		var funcName = mw.libs.ve.targetLoader.requestParsoidData ?
-			'requestParsoidData' : /* Modern VisualEditor (after commit c452e13) */
-			'requestPageData'; /* Legacy version (1.27) */
+		var funcName = 'requestParsoidData';
 		var oldFunc = mw.libs.ve.targetLoader[funcName];
 
 		/* Override requestParsoidData() method */
@@ -36,17 +34,6 @@
 				console.log( "Moderation: not preloading: " + reason );
 
 				return oldFunc.apply( self, params );
-			}
-
-			if ( !( options instanceof Object ) ) {
-				/* Legacy syntax in MediaWiki 1.27-1.30: params[] were
-					pageName, oldid, targetName and modified.
-				*/
-				options = {
-					oldid: params[1],
-					targetName: params[2],
-					modified: params[3]
-				};
 			}
 
 			/* If user is editing some older revision,

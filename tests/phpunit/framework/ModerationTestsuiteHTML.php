@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2018 Edward Chernenko.
+	Copyright (C) 2015-2019 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -69,15 +69,6 @@ class ModerationTestsuiteHTML extends DOMDocument {
 		foreach ( $errors as $error ) {
 			if ( $error->code == self::XML_HTML_UNKNOWN_TAG ) {
 				/* Ignore: libxml considers modern tags like <bdi> to be errors */
-				continue;
-			}
-
-			if (
-				ModerationTestsuite::mwVersionCompare( '1.28.0', '<=' ) &&
-				$error->code == self::XML_ERR_TAG_NAME_MISMATCH &&
-				( strpos( $error->message, ': input' ) !== false )
-			) {
-				/* Ignore: "Unexpected end tag : input" in MediaWiki 1.27-1.28 */
 				continue;
 			}
 
