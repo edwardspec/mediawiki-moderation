@@ -39,8 +39,8 @@ Warnings fixed:
 * Replaced deprecated OutputPage::addWikiText()
 
 Refactoring, performance optimizations:
-* Replaced wfMessage() with $context->msg() whenever possible
-* Make some static methods non-static in NotifyModerator class
+* Replaced wfMessage() with $context->msg() whenever possible.
+* Made some static methods non-static in NotifyModerator class.
 
 == Moderation 1.3.0 ==
 
