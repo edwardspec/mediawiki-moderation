@@ -1,5 +1,47 @@
 List of changes between releases of Extension:Moderation.
 
+== Moderation 1.4.0 ==
+
+Features:
+* Support MediaWiki 1.32.
+* Support MediaWiki 1.33 (except MobileFrontend editor).
+* Support installation without update.php via web updater of MediaWiki.
+* When moderator manually resolves an edit conflict, resulting edit
+is now tagged as "merged edit of another user".
+* API: implement api.php?modaction=show
+* API: implement api.php?action=query&list=querypage&qppage=Moderation
+* Extension:Echo won't suppress "New changes are pending" notification.
+* (disabled by default) Allow moderator to modify text before approval.
+
+Bugfixes:
+* modaction=show now correctly shows non-image uploads (e.g. OGG file).
+* Two clicks on "Mark as spammer" link no longer create 2 log entries.
+* Log entry of "moderation/approve" now records "revid" for uploads.
+* Module "jquery.cookie" is now loaded before "ext.moderation.notify".
+* Default value of mod_page2_namespace is now 0, not empty string.
+* modaction=approveall now works for User:0 (where "0" is username).
+* VisualEditor: fixed bug that prevented preloading of long wikitext.
+* AbuseFilter: fixed AbuseFilter not being called for moves in MW 1.33.
+
+UI changes:
+* Notifications are no longer sent for edits in Spam folder.
+* Diffs on Special:Moderation are now properly colored in MW 1.31+.
+* If editor is anonymous, Whois link is now shown to non-checkusers.
+* Removed "external link" icon after Whois links on Special:Moderation.
+* CSS style of Special:Moderation is no longer lazy-loaded.
+* Log messages now use {{gender:}} syntax for non-English translations.
+* modaction=merge now warns if the change has already been merged.
+* Result of (un)blocking an already (un)blocked user is now "success".
+
+Warnings fixed:
+* Replaced deprecated ParserOptions::setEditSection()
+* Replaced deprecated FileRepo::streamFile()
+* Replaced deprecated OutputPage::addWikiText()
+
+Refactoring, performance optimizations:
+* Replaced wfMessage() with $context->msg() whenever possible
+* Make some static methods non-static in NotifyModerator class
+
 == Moderation 1.3.0 ==
 
 Note: please run update.php (there are changes to DB schema).
