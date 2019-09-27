@@ -333,12 +333,9 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 				/* Special:Upload copies text into summary */
 				$expectedSummary = $this->text;
 
-				if ( ModerationTestsuite::mwVersionCompare( '1.31.0', '>=' ) ) {
-					/* In MediaWiki 1.31+,
-						Special:Upload prepends InitialText with "== Summary ==" header */
-					$headerText = '== ' . wfMessage( 'filedesc' )->inContentLanguage()->text() . ' ==';
-					$expectedText = "$headerText\n$expectedText";
-				}
+				/* Special:Upload prepends InitialText with "== Summary ==" header */
+				$headerText = '== ' . wfMessage( 'filedesc' )->inContentLanguage()->text() . ' ==';
+				$expectedText = "$headerText\n$expectedText";
 			}
 		}
 

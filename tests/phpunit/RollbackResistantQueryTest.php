@@ -51,9 +51,6 @@ class ModerationRollbackResistantQueryTest extends ModerationTestCase {
 	 * Provide datasets for testRollbackResistantQuery() runs.
 	 */
 	public function dataProvider() {
-		global $wgVersion;
-		$is1_31 = version_compare( $wgVersion, '1.31.0', '>=' );
-
 		/* In MediaWiki, DBO_TRX flag can be enabled or disabled in $wgDBServers.
 			(default: DBO_TRX is enabled in non-CLI mode, disabled in CLI mode).
 			Because behavior of commit( ..., 'flush' ) varies when DBO_TRX is on/off,
@@ -66,8 +63,8 @@ class ModerationRollbackResistantQueryTest extends ModerationTestCase {
 
 			// with/without begin() before doEditContent()
 			foreach ( [ true, false ] as $isExplicitTransaction ) {
-				if ( $is1_31 && $isTrxAutomatic && $isExplicitTransaction ) {
-					// In MediaWiki 1.31+, $dbw->begin() is not allowed in DBO_TRX mode
+				if ( $isTrxAutomatic && $isExplicitTransaction ) {
+					// Since MediaWiki 1.31, $dbw->begin() is not allowed in DBO_TRX mode
 					continue;
 				}
 
