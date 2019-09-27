@@ -55,22 +55,17 @@
 
 			// MobileFrontend also needs block information for this user
 			meta: 'userinfo',
-			uiprop: 'blockinfo'
+			uiprop: 'blockinfo',
+
+			// MobileFrontend also needs to know whether this user (if blocked)
+			// is allowed to edit his/her talkpage.
+			list: 'blocks',
+			bkusers: mw.user.getName(),
+			bkprop: 'flags'
 		};
 
 		if ( $.isNumeric( this.sectionId ) ) {
 			qPreload.mpsection = this.sectionId;
-		}
-
-		/* MediaWiki 1.31+ expects different format of return value,
-			and also information on whether this user (if blocked)
-			is allowed to edit his/her talkpage.
-		*/
-		var isMW31 = mw.config.get( 'wgVersion' ).split( '.' )[1] >= 31;
-		if ( isMW31 ) {
-			qPreload.list = 'blocks';
-			qPreload.bkusers = mw.user.getName();
-			qPreload.bkprop = 'flags';
 		}
 
 		this.api.post( qPreload ).then( function( data ) {
