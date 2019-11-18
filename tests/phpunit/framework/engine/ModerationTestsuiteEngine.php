@@ -55,7 +55,9 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 	/** Returns array of all HTTP headers. */
 	protected function getRequestHeaders() {
-		return $this->reqHeaders;
+		return $this->reqHeaders + [
+			'Content-Type' => 'multipart/form-data'
+		];
 	}
 
 	/**
