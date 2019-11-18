@@ -33,12 +33,13 @@ class ModerationUploadHooks {
 		}
 
 		/* Step 1. Upload the file into the user's stash */
-		try {
-			$file = $upload->stashFile( $user );
-		} catch ( MWException $e ) {
+		$status = $upload->tryStashFile( $user, true /* Don't run UploadStashFile hook */ );
+		if ( !$status->isOK() ) {
 			$error = [ 'api-error-stashfailed' ];
 			return true;
 		}
+
+		$file = $status->getValue();
 
 		/* Step 2. Create a page in File namespace (it will be queued for moderation) */
 		$title = $upload->getTitle();
@@ -50,6 +51,8 @@ class ModerationUploadHooks {
 			$title->getLatestRevID(),
 			$user
 		);
+
+		// TODO: check whether $status from doEditContent() is successful
 
 		// Disable the HTTP redirect after doEditContent.
 		// (this redirect has just been added in ModerationEditHooks::onPageContentSave)
