@@ -69,6 +69,10 @@ matrix:
     - <<: *phpunit-build
       env: branch=REL1_33
     - <<: *phpunit-build
+      env: branch=REL1_34
+#    - <<: *phpunit-build
+#      env: branch=unknown_branch_will_be_treated_as_master
+    - <<: *phpunit-build
       if: branch IN (nightly)
       env: branch=master
       php: nightly
