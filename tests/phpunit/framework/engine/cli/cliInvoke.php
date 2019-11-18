@@ -52,7 +52,7 @@ foreach ( $wgModerationTestsuiteCliDescriptor['files'] as $uploadKey => $tmpFile
 	];
 }
 
-/* The point of [InvokedWikiSettings.php] is override $wgRequest
+/* The point of [InvokedWikiSettings.php] is to override $wgRequest
 	to be FauxRequest (not WebRequest),
 	because we can only extract headers from FauxResponse.
 
