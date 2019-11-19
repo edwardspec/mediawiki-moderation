@@ -43,7 +43,9 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 				'mod_namespace AS namespace',
 				'mod_title AS title',
 				'mod_user AS user',
-				'mod_user_text AS user_text'
+				'mod_user_text AS user_text',
+				'mod_text AS text',
+				'mod_comment AS comment'
 			],
 			$where,
 			__METHOD__
@@ -73,20 +75,23 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 			)
 		);
 
-		$dbw->update( 'moderation',
-			[
-				'mod_text' => $pstContent->getNativeData(),
-				'mod_new_len' => $pstContent->getSize(),
-				'mod_comment' => $request->getVal( 'wpSummary' )
-			],
-			[
-				'mod_id' => $this->id
-			],
-			__METHOD__
-		);
+		$newText = $pstContent->getNativeData();
+		$newComment = $request->getVal( 'wpSummary' );
 
-		$somethingChanged = ( $dbw->affectedRows() > 0 );
+		$somethingChanged = ( $newText != $row->text || $newComment != $row->comment );
 		if ( $somethingChanged ) {
+			$dbw->update( 'moderation',
+				[
+					'mod_text' => $newText,
+					'mod_new_len' => $pstContent->getSize(),
+					'mod_comment' => $newComment
+				],
+				[
+					'mod_id' => $this->id
+				],
+				__METHOD__
+			);
+
 			$logEntry = new ManualLogEntry( 'moderation', 'editchange' );
 			$logEntry->setPerformer( $this->moderator );
 			$logEntry->setTarget( $title );
