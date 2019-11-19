@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2019 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -733,20 +733,19 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		}
 
 		if ( $this->simulateDeletedAuthor ) {
-			global $wgActorTableSchemaMigrationStage;
-			if ( isset( $wgActorTableSchemaMigrationStage ) && defined( 'SCHEMA_COMPAT_NEW' ) ) {
-				// Approving edits of deleted users is not supported with SCHEMA_COMPAT_NEW mode
-				// (which is default in MW 1.33+),
-				// because User::getActorId() won't allow a non-registered user to have a usable username.
-				// FIXME: Can probably workaround this by appending a non-allowed symbol to username.
-				if ( $wgActorTableSchemaMigrationStage == SCHEMA_COMPAT_NEW ) {
-					$testcase->markTestSkipped(
-						'Test skipped: approving edits of deleted users is not supported in MediaWiki 1.33+' );
-				}
+			$dbw = wfGetDB( DB_MASTER );
+
+			// Approving edits of deleted users is not supported in most recent MediaWiki,
+			// because User::getActorId() won't allow a non-registered user to have a usable username.
+			// However, MW 1.31 can still have compatibility mode enabled (which supports this).
+			try {
+				User::newFromName( "There is no such user" )->getActorId( $dbw );
+			} catch ( CannotCreateActorException $e ) {
+				$testcase->markTestSkipped(
+					'Test skipped: approving edits of deleted users is not supported in MediaWiki 1.33+' );
 			}
 
 			// Delete the author from the database (similar to Extension:UserMerge)
-			$dbw = wfGetDB( DB_MASTER );
 			$dbw->delete( 'user', [
 				'user_id' => $this->fields['mod_user']
 			], __METHOD__ );
