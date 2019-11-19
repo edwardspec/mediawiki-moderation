@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017-2018 Edward Chernenko.
+	Copyright (C) 2017-2019 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,6 +18,9 @@
 /**
  * @file
  * Testsuite engine that sends real HTTP requests via the network, as users do.
+ *
+ * @deprecated
+ * This engine is obsolete (it doesn't work in MediaWiki 1.33+), please use CliEngine.
  */
 
 class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
