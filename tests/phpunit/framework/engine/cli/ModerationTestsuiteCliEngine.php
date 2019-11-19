@@ -137,7 +137,6 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 
 		$cmd = wfEscapeShellArg(
 			PHP_BINARY,
-			"$IP/maintenance/runScript.php",
 			__DIR__ . "/cliInvoke.php",
 			$inputFilename,
 			$outputFilename

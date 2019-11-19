@@ -107,7 +107,7 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 			);
 
 			$this->fields['mod_new'] = 0;
-			$this->fields['mod_last_oldid'] = $title->getLatestRevID( Title::GAID_FOR_UPDATE );
+			$this->fields['mod_last_oldid'] = $title->getLatestRevID( IDBAccessObject::READ_LATEST );
 			$this->fields['mod_old_len'] = strlen( $oldText );
 
 			// Make sure that mod_timestamp is not earlier than the timestamp of precreated edit,

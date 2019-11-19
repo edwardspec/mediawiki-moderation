@@ -36,7 +36,7 @@ class ModerationActionShowImage extends ModerationAction {
 		$out->disable(); # No HTML output (image only)
 
 		if ( isset( $result['missing'] ) ) {
-			StreamFile::send404Message( '' ); // Send 404 Not Found
+			HTTPFileStreamer::send404Message( '' ); // Send 404 Not Found
 			return;
 		}
 

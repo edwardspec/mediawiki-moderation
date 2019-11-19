@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2017 Edward Chernenko.
+	Copyright (C) 2014-2019 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ class ModerationError extends ErrorPageError {
 
 	/* Completely override report() from ErrorPageError
 		in order to wrap the message in <div id='mw-mod-error'></div> */
-	public function report() {
+	public function report( $action = 0 ) {
 		global $wgOut;
 
 		$msg = ( $this->msg instanceof Message ) ?
@@ -51,5 +51,7 @@ class ModerationError extends ErrorPageError {
 		], $msg->parse() ) );
 		$wgOut->addReturnTo( $wgOut->getTitle() );
 		$wgOut->output();
+
+		$wgOut->disable();
 	}
 }

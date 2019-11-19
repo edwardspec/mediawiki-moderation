@@ -41,6 +41,11 @@ $wgMemCachedServers = [ "127.0.0.1:11211" ];
 # Don't trigger $wgRateLimits in simultaneous Selenium tests
 $wgGroupPermissions['*']['noratelimit'] = true;
 
+if ( version_compare( $wgVersion, '1.34-rc.0', '>=' ) ) {
+	# Allow testsuite accounts to have "123456" as a password.
+	$wgPasswordPolicy['policies']['default']['PasswordNotInLargeBlacklist'] = false;
+}
+
 # These extensions are needed for some tests of Extension:Moderation
 wfLoadExtensions( [
 	# For PHPUnit testsuite

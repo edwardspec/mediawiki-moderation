@@ -351,7 +351,8 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			'mod_minor' => 0,
 			'mod_bot' => 0,
 			'mod_new' => ( $this->existing || $this->newTitle ) ? 0 : 1,
-			'mod_last_oldid' => $this->existing ? $this->title->getLatestRevID( Title::GAID_FOR_UPDATE ) : 0,
+			'mod_last_oldid' => $this->existing ?
+				$this->title->getLatestRevID( IDBAccessObject::READ_LATEST ) : 0,
 			'mod_ip' => '127.0.0.1',
 			'mod_old_len' => $this->existing ? strlen( $this->oldText ) : 0,
 			'mod_new_len' => $this->newTitle ? 0 : strlen( $expectedText ),
