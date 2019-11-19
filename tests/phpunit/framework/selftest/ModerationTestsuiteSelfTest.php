@@ -25,7 +25,7 @@
 require_once __DIR__ . "/../ModerationTestsuite.php";
 
 /**
- * @group Utility
+ * @group SelfTest
  */
 class ModerationTestsuiteSelfTest extends ModerationTestCase {
 	/**
