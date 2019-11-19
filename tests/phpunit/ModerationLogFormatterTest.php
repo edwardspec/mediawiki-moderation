@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2019 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -385,6 +385,7 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 
 		$context = new DerivativeContext( RequestContext::getMain() );
 		$context->setLanguage( 'qqx' );
+		$context->setUser( $this->getTestsuite()->moderator );
 
 		$entry = new ManualLogEntry( 'moderation', $subtype );
 		$entry->setPerformer( $this->performer );
