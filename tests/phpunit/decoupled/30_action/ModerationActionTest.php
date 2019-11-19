@@ -315,7 +315,7 @@ class ModerationActionTest extends ModerationTestCase {
 				],
 				'expectedLogAction' => 'editchange'
 			] ],
-			'no-op EditChangSubmit (the original text hasnt\'t been changed)' => [ [
+			'no-op EditChangeSubmit (the original text hasnt\'t been changed)' => [ [
 				'modaction' => 'editchangesubmit',
 				'enableEditChange' => true,
 				'mod_text' => 'Original Text 1',
