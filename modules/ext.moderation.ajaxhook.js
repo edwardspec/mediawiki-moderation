@@ -90,11 +90,16 @@
 	function rewriteAjaxResponse( query, ret ) {
 
 		/* Check whether we need to overwrite this AJAX response or not */
-		if ( !ret.error ) {
+		var errorCode;
+		if ( ret.error ) {
+			errorCode = ret.error.code; // MediaWiki 1.33 and older
+		} else if ( ret.errors ) {
+			errorCode = ret.errors[0].code; // MediaWiki 1.34+
+		} else {
 			return false; /* Nothing to overwrite */
 		}
 
-		if ( ret.error.code == 'moderation-edit-queued' ) {
+		if ( errorCode == 'moderation-edit-queued' ) {
 			/* Set cookie for [ext.moderation.notify.js].
 				It means "edit was just queued for moderation".
 			*/
