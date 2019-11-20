@@ -107,6 +107,8 @@
 							ret.visualeditor.content = '<body>' + ret2.visualeditor.content + '</body>';
 						}
 
+						ret.visualeditor.canEdit = true;
+
 						/* Return metadata + HTML (like api.php?action=visualeditor&paction=parse) */
 						return ret;
 
