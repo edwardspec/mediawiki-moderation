@@ -151,11 +151,10 @@
 			"position": "bottom",
 			"styles": "ext.moderation.edit.css"
 		},
-		"ext.moderation.mf": {
+		"ext.moderation.mf.notify": {
 			"position": "bottom",
 			"scripts": [
-				"mobilefrontend/notify.mf.js",
-				"mobilefrontend/preload.mf.js"
+				"mobilefrontend/notify.mf.js"
 			],
 			"styles": [
 				"mobilefrontend/notify.mf.css"
@@ -164,10 +163,7 @@
 				"mobile"
 			],
 			"dependencies": [
-				"mediawiki.api",
 				"mediawiki.notification",
-				"mediawiki.util",
-				"mobile.editor.api",
 				"ext.moderation.ajaxhook",
 				"mobile.startup"
 			],
@@ -175,6 +171,20 @@
 				"mobile-frontend-editor-success-new-page",
 				"mobile-frontend-editor-success-landmark-1",
 				"mobile-frontend-editor-success"
+			]
+		},
+		"ext.moderation.mf.preload31": {
+			"position": "bottom",
+			"scripts": [
+				"mobilefrontend/preload31.mf.js"
+			],
+			"targets": [
+				"mobile"
+			],
+			"dependencies": [
+				"mediawiki.api",
+				"mediawiki.util",
+				"mobile.editor.api"
 			]
 		},
 		"ext.moderation.notify": {
