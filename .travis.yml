@@ -48,6 +48,7 @@ matrix:
     - env: TESTSUITE_TYPE=selenium
     - env: TESTSUITE_TYPE=selenium branch=REL1_32
     - env: TESTSUITE_TYPE=selenium branch=REL1_33
+    - env: TESTSUITE_TYPE=selenium branch=REL1_34
   include:
     # PHPUnit tests
     - &phpunit-build
@@ -89,6 +90,8 @@ matrix:
       env: TESTSUITE_TYPE=selenium branch=REL1_32
     - <<: *selenium-build
       env: TESTSUITE_TYPE=selenium branch=REL1_33
+    - <<: *selenium-build
+      env: TESTSUITE_TYPE=selenium branch=REL1_34
 
 cache:
   directories:

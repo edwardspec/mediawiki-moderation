@@ -73,8 +73,19 @@ class ModerationAjaxHook {
 			$modules[] = 'ext.moderation.mf.notify';
 
 			if ( version_compare( $wgVersion, '1.33.0', '>=' ) ) {
-				// FIXME: must support preload in MobileFrontend for MediaWiki 1.33
 				$modules[] = 'ext.moderation.mf.preload33';
+
+				$title = $out->getTitle();
+				if ( !$title->exists() &&
+					ModerationPreload::singleton()->loadUnmoderatedEdit( $title )
+				) {
+					// This user has a pending revision in $title, but $title doesn't exist.
+					// Non-existent pages have wgArticleId=0, and MobileFrontend won't even try
+					// to load their text.
+					// HACK: fake wgArticleId makes MobileFrontend think that this page exists.
+					$out->addJsConfigVars( 'wgArticleId', -1 ); // Not 0 means "page exists"
+				}
+
 			} else {
 				// For MediaWiki 1.31-1.32
 				$modules[] = 'ext.moderation.mf.preload31';

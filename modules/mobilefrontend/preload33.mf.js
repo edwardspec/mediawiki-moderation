@@ -43,7 +43,17 @@
 			return; // There is no pending revision (nothing to preload)
 		}
 
-		ret.query.pages[0].revisions[0].content = ret.query.moderationpreload.wikitext
+		if ( !ret.query.pages[0].revisions ) {
+			// Page doesn't exist yet (non-automoderated user is creating it)
+			ret.query.pages[0].revisions = [ {
+				timestamp: new Date().toISOString(), // Fake timestamp (irrelevant)
+				contentformat: "text/x-wiki",
+				contentmodel: "wikitext"
+			} ];
+			delete ret.query.pages[0].missing;
+		}
+
+		ret.query.pages[0].revisions[0].content = ret.query.moderationpreload.wikitext;
 		ret.modified = true; // Notify rewriteAjaxResponse() that rewrite is needed
 
 		// Preload the summary.
@@ -56,8 +66,5 @@
 		summary = summary.replace( /\s*\/\*.*\*\/\s*/g, '' );
 		$( '.summary' ).val( summary );
 	} );
-
-	// TODO: support preloading in pages that don't exist yet (when this user is creating a new page),
-	// (MobileFrontend doesn't send an API query if the page doesn't exist. Need a workaround)
 
 }( mediaWiki, jQuery ) );
