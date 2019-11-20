@@ -80,7 +80,7 @@ matrix:
 
     # Selenium tests
     - &selenium-build
-      if: branch IN (master,selenium,travis-sandbox)
+      if: branch IN (selenium,travis-sandbox)
       env: TESTSUITE_TYPE=selenium
       script: ( cd extensions/Moderation/tests/selenium && ./node_modules/.bin/wdio wdio.conf.sauce.js --baseUrl 'http://moderation.example.com/mediawiki/' )
       after_script:
