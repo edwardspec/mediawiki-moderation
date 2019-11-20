@@ -35,6 +35,10 @@
 		apiObj.prototype.ajax = function( parameters, ajaxOptions ) {
 			var lastQuery = parameters;
 
+			ajaxOptions.beforeSend = function( jqXHR, settings ) {
+				mw.hook( 'ajaxhook.beforeSend' ).fire( jqXHR, settings );
+			};
+
 			ajaxOptions.dataFilter = function( rawData, dataType ) {
 				if ( dataType != 'json' ) {
 					return rawData;
@@ -88,6 +92,12 @@
 		@returns New API response (if overwrite is needed) or false (if no need to overwrite).
 	*/
 	function rewriteAjaxResponse( query, ret ) {
+		// Allow the hook to modify the response (used by [preload33.mf.js])
+		mw.hook( 'ajaxhook.rewriteAjaxResponse' ).fire( query, ret );
+		if ( ret.modified ) { // If the hook sets this field, then "ret" is the new response.
+			delete ret.modified;
+			return ret;
+		}
 
 		/* Check whether we need to overwrite this AJAX response or not */
 		var errorCode;

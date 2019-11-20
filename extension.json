@@ -187,6 +187,19 @@
 				"mobile.editor.api"
 			]
 		},
+		"ext.moderation.mf.preload33": {
+			"position": "bottom",
+			"scripts": [
+				"mobilefrontend/preload33.mf.js"
+			],
+			"targets": [
+				"mobile"
+			],
+			"dependencies": [
+				"mediawiki.api",
+				"mediawiki.Uri"
+			]
+		},
 		"ext.moderation.notify": {
 			"position": "bottom",
 			"scripts": "ext.moderation.notify.js",

@@ -74,6 +74,7 @@ class ModerationAjaxHook {
 
 			if ( version_compare( $wgVersion, '1.33.0', '>=' ) ) {
 				// FIXME: must support preload in MobileFrontend for MediaWiki 1.33
+				$modules[] = 'ext.moderation.mf.preload33';
 			} else {
 				// For MediaWiki 1.31-1.32
 				$modules[] = 'ext.moderation.mf.preload31';
