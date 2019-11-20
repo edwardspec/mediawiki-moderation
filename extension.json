@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.4.4",
+	"version": "1.4.5",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -185,6 +185,19 @@
 				"mediawiki.api",
 				"mediawiki.util",
 				"mobile.editor.api"
+			]
+		},
+		"ext.moderation.mf.preload33": {
+			"position": "bottom",
+			"scripts": [
+				"mobilefrontend/preload33.mf.js"
+			],
+			"targets": [
+				"mobile"
+			],
+			"dependencies": [
+				"mediawiki.api",
+				"mediawiki.Uri"
 			]
 		},
 		"ext.moderation.notify": {
