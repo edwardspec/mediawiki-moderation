@@ -62,9 +62,11 @@
 		// e.g. "/* Section 1 */ /* Section 3 */ /* Section 6 */ fix typo".
 		// To avoid that, we simply remove /* SectionName */
 		// from the preloaded edit comment.
-		var summary = ret.query.moderationpreload.comment;
-		summary = summary.replace( /\s*\/\*.*\*\/\s*/g, '' );
-		$( '.summary' ).val( summary );
+		mw.hook( 'mobileFrontend.editorOpened' ).add( function() {
+			var summary = ret.query.moderationpreload.comment;
+			summary = summary.replace( /\s*\/\*.*\*\/\s*/g, '' );
+			$( '.summary' ).val( summary );
+		} );
 	} );
 
 }( mediaWiki, jQuery ) );
