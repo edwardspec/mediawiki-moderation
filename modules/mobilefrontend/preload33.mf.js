@@ -28,6 +28,10 @@
 		q.prop += '|moderationpreload';
 		q.mptitle = q.titles;
 
+		if ( $.isNumeric( q.rvsection ) ) { // Only one section is needed
+			q.mpsection = q.rvsection;
+		}
+
 		// Modify the URL of this Ajax request
 		requestUri.query = q;
 		settings.url = requestUri.toString();
