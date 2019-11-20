@@ -76,6 +76,11 @@ describe( 'VisualEditor', function () {
 		VisualEditor.edit( ExistingPageName, 'Suggested content: ' + Content );
 		PostEdit.init();
 
+		// Wait for text to appear, it happens in onload event
+		browser.waitUntil( function() {
+			return PostEdit.pageContent.getText();
+		} );
+
 		expect( PostEdit.pageContent.getText(), 'PostEdit.pageContent' )
 			.to.not.equal( '' );
 	} );

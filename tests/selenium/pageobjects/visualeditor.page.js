@@ -61,7 +61,7 @@ class VisualEditor extends Page {
 
 	/** @brief "Save page" button in the editor */
 	get saveButton() {
-		var $submit = this.getWhenVisible( '.ve-ui-toolbar-saveButton a' );
+		var $submit = this.getWhenVisible( '.ve-ui-toolbar-saveButton a, a.ve-ui-toolbar-saveButton' );
 
 		browser.waitUntil( function() {
 			return ( $submit.getAttribute( 'aria-disabled' ) === 'false' );

@@ -14,7 +14,7 @@
 	function show( $div ) {
 
 		var $d = $.Deferred(),
-			module = ( isMobile ? 'ext.moderation.mf' : 'ext.moderation.notify.desktop' );
+			module = ( isMobile ? 'ext.moderation.mf.notify' : 'ext.moderation.notify.desktop' );
 
 		mw.loader.using( module, function() {
 			mw.moderation.notifyCb( $div, function() {

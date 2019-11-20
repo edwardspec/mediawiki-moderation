@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2016-2017 Edward Chernenko.
+	Copyright (C) 2016-2019 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -62,6 +62,7 @@ class ModerationAjaxHook {
 	 * Add needed modules to $out.
 	 */
 	public static function add( OutputPage &$out ) {
+		global $wgVersion;
 		$modules = [];
 
 		if ( self::need( 'ModerationSupportVisualEditor', self::guessVE() ) ) {
@@ -69,7 +70,14 @@ class ModerationAjaxHook {
 		}
 
 		if ( self::need( 'ModerationSupportMobileFrontend', self::isMobile() ) ) {
-			$modules[] = 'ext.moderation.mf';
+			$modules[] = 'ext.moderation.mf.notify';
+
+			if ( version_compare( $wgVersion, '1.33.0', '>=' ) ) {
+				// FIXME: must support preload in MobileFrontend for MediaWiki 1.33
+			} else {
+				// For MediaWiki 1.31-1.32
+				$modules[] = 'ext.moderation.mf.preload31';
+			}
 		}
 
 		if ( $modules || $out->getConfig()->get( 'ModerationForceAjaxHook' ) ) {
