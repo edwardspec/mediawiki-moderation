@@ -1,3 +1,5 @@
+// This configuration uses SauceLabs (third-party service) to run remote Selenium for us.
+
 'use strict';
 
 var merge = require( 'deepmerge' ),

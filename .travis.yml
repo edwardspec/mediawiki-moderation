@@ -82,7 +82,13 @@ matrix:
     - &selenium-build
       if: branch IN (selenium,travis-sandbox)
       env: TESTSUITE_TYPE=selenium
-      script: ( cd extensions/Moderation/tests/selenium && ./node_modules/.bin/wdio wdio.conf.sauce.js --baseUrl 'http://moderation.example.com/mediawiki/' )
+      addons:
+          firefox: latest
+          chrome: stable
+          hosts:
+            - moderation.example.com
+          mariadb: "10.3"
+      script: ( cd extensions/Moderation/tests/selenium && ./node_modules/.bin/wdio wdio.conf.standalone.js --baseUrl 'http://moderation.example.com/mediawiki/' )
       after_script:
         - cat $TRAVIS_BUILD_DIR/parsoid.log
         - sudo cat /var/log/apache2/error.log
