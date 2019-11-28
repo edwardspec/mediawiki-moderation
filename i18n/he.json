@@ -1,7 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"Guycn2"
+			"Guycn2",
+			"Amire80"
 		]
 	},
 	"action-moderation": "לנהל עריכות",
@@ -38,7 +39,7 @@
 	"moderation-desc": "שליחת כל העריכות וההעלאות של משתמשים חדשים למערכת ניהול",
 	"moderation-diff-header-after": "אחרי",
 	"moderation-diff-header-before": "לפני",
-	"moderation-diff-no-changes": "אין שינויים בטקסט הדף (העריכה לא שינתה דבר).",
+	"moderation-diff-no-changes": "אין שינויים בטקסט הדף (העריכה לא שינתה ריקה).",
 	"moderation-diff-reupload": "זוהי העלאת גרסה חדשה של תמונה (פעולה זו לא משנה את טקסט הדף).",
 	"moderation-diff-upload-notext": "תמונה זו הועלתה ללא תיאור.",
 	"moderation-edit-conflict": "התנגשות עריכה (יש למזג באופן ידני).",
