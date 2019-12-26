@@ -1,7 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"Hedda"
+			"Hedda",
+			"BaRaN6161 TURK"
 		]
 	},
 	"action-moderation": "moderasyon düzenlemeleri",
@@ -21,7 +22,9 @@
 	"logentry-moderation-approveall": "$1, $3 tarafından yapılan $4 düzenlemeyi {{GENDER:$2|onayladı}}",
 	"logentry-moderation-approve-move": "$1, $5 tarafından yapılan $3 sayfasının $4 sayfasına taşıma işlemini {{GENDER:$2|onayladı}}",
 	"logentry-moderation-block": "$1, $3 kişisini spam yapan olarak {{GENDER:$2|işaretledi}}",
+	"logentry-moderation-editchange": "$1, $4 manüel olarak $3 {{GENDER:$2|olarak değiştirdi}}",
 	"logentry-moderation-merge": "$1 tarafından $3 sayfasında $4 ile $5 {{GENDER:$2|birleştirildi}}",
+	"logentry-moderation-reject": "$1, $4 $5 tarafından yapılan $3 {{GENDER:$2|reddetti}}",
 	"logentry-moderation-rejectall": "$1, $3 tarafından yapılan $4 düzenlemeyi {{GENDER:$2|reddetti}}",
 	"logentry-moderation-unblock": "$1, $3 kişisini spam yapanlar listesinden {{GENDER:$2|çıkardı}}",
 	"log-name-moderation": "Moderasyon günlüğü",
@@ -44,6 +47,10 @@
 	"moderation-editing-your-version": "Bu maddenin size ait sürümünü değiştiriyorsunuz. Sayfa şu anda moderasyon işlemini bekliyor.<br>Onaylanır onaylanmaz diğer kullanıcılara görünür olacaktır.",
 	"moderation-edit-not-found": "Düzenleme bulunamadı. Muhtemelen onaylanmıştır.",
 	"moderation-edit-queued": "Başarılı: Düzenlemeniz moderasyona gönderildi.<br>Düzenleme  <a href='$1'>bu sayfanın size ait sürümünde</a> devam edebilirsiniz.",
+	"moderation-editchange": "düzenle",
+	"moderation-editchange-not-edit": "Bu bir düzenleme değil. Yalnızca düzenlemeler değiştirilebilir.",
+	"moderation-editchange-ok": "Bekleyen düzeltme değişti.",
+	"moderation-editchange-title": "Bekleyen \"$1\" düzeltmesi",
 	"moderation-folder-merged": "Birleştirilmiş",
 	"moderation-folder-pending": "Moderasyon işlemi bekleniyor",
 	"moderation-folder-rejected": "Reddedildi",
@@ -64,6 +71,7 @@
 	"moderation-no-merge-link-not-automoderated": "Birleştirilemez (otomatik moderasyon değil)",
 	"moderation-nothing-to-approveall": "Moderasyonu bekleyen değişiklik yok: onaylanacak bir şey yok.",
 	"moderation-nothing-to-rejectall": "Moderasyonu bekleyen değişiklik yok: reddedilecek bir şey yok.",
+	"moderation-notification-content": "'$2' kullanıcısı tarafından '$1' sayfasında yeni düzenleme denetlenmeyi bekliyor, görmek için tıklayın: $3",
 	"moderation-notification-subject": "[Moderasyon] Yeni değişiklik moderasyonu bekliyor",
 	"moderation-pending-review": "Bekleyen yorum",
 	"moderation-preview": "ön izleme",
@@ -78,8 +86,30 @@
 	"moderation-revert-not-allowed": "Yalnızca otomatik kayıtlı moderatörler görüntüleri önceki düzeltmelere geri döndürebilir.",
 	"moderation-show": "fark",
 	"moderation-suggest-signup": "Gelecekte moderasyonu geçmek için lütfen [[Special:CreateAccount|kaydolun]].",
+	"moderation-text": "Bu özel sayfa, denetlemeyi bekleyen tüm düzenlemeleri (onaylama veya reddetme) listeler.<br>Ayrıca bkz: [[Special:Log/moderation|denetleme günlüğü]].",
 	"moderation-unblock": "Artık spam yapan yok",
+	"moderation-unblock-ok": "[[Special:Contributions/$1|$1]] kullanıcısı artık spam gönderici olarak değerlendirilmiyor.",
 	"moderation-unknown-modaction": "Bilinmeyen moderasyon eylemi.",
 	"right-moderation-checkuser": "Moderasyon arabirimindeki editörlerin IP'lerini görebilir",
-	"right-moderation": "Mderasyon düzenlemeleri"
+	"right-moderation": "Mderasyon düzenlemeleri",
+	"right-skip-moderation": "Düzenlemelerini denetlemeyi atlatın",
+	"right-skip-move-moderation": "Sayfaları denetlenmeden taşı",
+	"tag-moderation-merged": "başka bir kullanıcının birleştirilmiş düzenlemesi",
+	"tag-moderation-merged-description": "Başka bir kullanıcının düzenlemesi (moderatör, düzenlemedeki çakışmayı çözdü).",
+	"tooltip-moderation-approveall": "Bu kullanıcı/IP'deki tüm düzenlemeleri onayla",
+	"tooltip-moderation-approve": "Bu tek düzenlemeyi onayla",
+	"tooltip-moderation-approved-diff": "Onaylanan düzenlemeyi görüntüle",
+	"tooltip-moderation-block": "Bu kullanıcının diğer düzenlemelerini Spam klasörüne gönder",
+	"tooltip-moderation-editchange": "Bu bekleyen değişikliğin metnini değiştirin (veya özeti düzenleyin)",
+	"tooltip-moderation-folder-merged": "Bir moderatör tarafından manüel olarak birleştirilen düzenlemeler",
+	"tooltip-moderation-folder-pending": "Henüz onaylanmayan veya reddedilmeyen düzenlemeler",
+	"tooltip-moderation-folder-rejected": "Bir moderatör tarafından reddedilen düzenlemeler",
+	"tooltip-moderation-folder-spam": "Düzenlemeler otomatik olarak reddedildi",
+	"tooltip-moderation-merged-link": "Birleştirilmiş düzenlemeyi görüntüle",
+	"tooltip-moderation-merge": "Düzenleme çakışmasını elle düzeltin",
+	"tooltip-moderation-rejectall": "Bu kullanıcı/IP'deki tüm düzenlemeleri reddet",
+	"tooltip-moderation-rejected-change": "Reddedilen düzenlemeyi görüntüle",
+	"tooltip-moderation-reject": "Bu tek düzenlemeyi reddet",
+	"tooltip-moderation-show": "Önerilen değişiklikleri görüntüle",
+	"tooltip-moderation-unblock": "Artık bu kullanıcının düzenlemelerini Spam klasörüne göndermiyor"
 }
