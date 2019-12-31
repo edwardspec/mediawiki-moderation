@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2018 Edward Chernenko.
+	Copyright (C) 2015-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -38,8 +38,8 @@ class ModerationErrorsTest extends ModerationTestCase {
 		$entry = $t->new_entries[0];
 		$stashKey = $entry->getDbField( 'mod_stash_key' );
 
-		$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash();
-		$stash->removeFileNoAuth( $stashKey );
+		$stash = ModerationUploadStorage::getStash();
+		$stash->removeFile( $stashKey );
 
 		$error = $t->html->getModerationError( $entry->approveLink );
 		$this->assertEquals( '(moderation-missing-stashed-image)', $error );

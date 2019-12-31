@@ -1,9 +1,25 @@
 <?php
 
+/*
+	Extension:Moderation - MediaWiki extension.
+	Copyright (C) 2018-2020 Edward Chernenko.
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+*/
 
 /**
+ * @file
  * Basic TestSet for tests which precreate a change that awaits moderation.
- */
+*/
+
 abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsuiteTestSet {
 
 	/** @var array All mod_* fields of one row in the 'moderation' SQL table */
@@ -83,7 +99,7 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 			$uploader = User::newFromName( $this->fields['mod_user_text'], false );
 
 			// Store the image in UploadStash.
-			$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash( $uploader );
+			$stash = ModerationUploadStorage::getStash();
 			$this->fields['mod_stash_key'] = $stash->stashFile( $srcPath )->getFileKey();
 
 			// Default value of mod_title for uploads: same as filename.

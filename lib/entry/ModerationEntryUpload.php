@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,8 +30,7 @@ class ModerationEntryUpload extends ModerationApprovableEntry {
 		$user = $this->getUser();
 
 		# This is the upload from stash.
-
-		$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash( $user );
+		$stash = ModerationUploadStorage::getStash();
 		$upload = new UploadFromStash( $user, $stash );
 
 		try {

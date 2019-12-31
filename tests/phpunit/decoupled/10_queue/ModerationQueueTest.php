@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2019 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -73,6 +73,7 @@ class ModerationQueueTest extends ModerationTestCase {
 				] ],
 			'edit in existing page' => [ [ 'existing' => true ] ],
 			'image reupload' => [ [ 'existing' => true, 'filename' => 'image100x100.png' ] ],
+			'anonymous upload' => [ [ 'filename' => 'image100x100.png', 'anonymously' => true ] ],
 			'page move (new title with spaces)' =>
 				[ [ 'title' => 'Old title', 'newTitle' => 'New title with spaces' ] ],
 			'page move (new title with underscores)' =>
@@ -219,6 +220,12 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 		$this->oldText = wfTimestampNow() . '_' . rand() . '_OldText';
 		if ( $this->oldText == $this->text ) {
 			$this->oldText .= '+'; // Ensure that $oldText is different from $text
+		}
+
+		if ( $this->anonymously && $this->filename ) {
+			// Test of anonymous uploads: allow anonymous users to upload files
+			// (normally they are not permitted to do so).
+			$this->getTestcase()->setGroupPermissions( '*', 'upload', true );
 		}
 	}
 
@@ -394,7 +401,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 		$srcPath = ModerationTestsuite::findSourceFilename( $this->filename );
 		$expectedContents = file_get_contents( $srcPath );
 
-		$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash( $this->user );
+		$stash = ModerationUploadStorage::getStash();
 		$file = $stash->getFile( $stashKey );
 		$contents = file_get_contents( $file->getLocalRefPath() );
 

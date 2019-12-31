@@ -133,6 +133,7 @@
 		"ModerationQueuedSuccessException": "lib/exception/ModerationQueuedSuccessException.php",
 		"ModerationUpdater": "hooks/ModerationUpdater.php",
 		"ModerationUploadHooks": "hooks/ModerationUploadHooks.php",
+		"ModerationUploadStorage": "lib/ModerationUploadStorage.php",
 		"ModerationVersionCheck": "util/ModerationVersionCheck.php",
 		"ModerationViewableEntry": "lib/entry/ModerationViewableEntry.php",
 		"RollbackResistantQuery": "util/RollbackResistantQuery.php",
