@@ -33,10 +33,6 @@ class ModerationUploadHooks {
 		}
 
 		/* Step 1. Upload the file into the user's stash */
-		// FIXME: the tests didn't fail when the code below incorrectly used tryStashFile on $user
-		// instead of ModerationUploadStorage::getOwner(), because testsuite uses a clean database,
-		// and UploadStorage migration was happening (and fixing the error) every time.
-		// FIXME: Improve the tests, so that such things are caught!
 		$status = $upload->tryStashFile(
 			ModerationUploadStorage::getOwner(),
 			true /* Don't run UploadStashFile hook */

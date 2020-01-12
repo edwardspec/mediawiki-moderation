@@ -79,7 +79,15 @@ class ModerationUploadStorageTest extends ModerationTestCase {
 
 		$this->assertEquals( ModerationUploadStorage::USERNAME, $stashOwner->getName() );
 		$this->assertFalse( $stashOwner->isAnon() );
-		$this->assertTrue( $stashOwner->isSystemUser() );
+
+		if ( method_exists( 'User', 'isSystemUser' ) ) {
+			// MediaWiki 1.35+
+			$this->assertTrue( $stashOwner->isSystemUser() );
+		} else {
+			// MediaWiki 1.31-1.34
+			$authManager = MediaWiki\Auth\AuthManager::singleton();
+			$this->assertFalse( $authManager->userCanAuthenticate( $stashOwner->getName() ) );
+		}
 
 		$keys = $dbw->selectFieldValues( 'moderation', 'mod_stash_key', '', __METHOD__ );
 		$keys = array_filter( $keys );

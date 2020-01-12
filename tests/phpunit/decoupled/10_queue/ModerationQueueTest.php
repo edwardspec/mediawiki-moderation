@@ -64,7 +64,18 @@ class ModerationQueueTest extends ModerationTestCase {
 					'AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 ' .
 					'Mobile/14E304 Safari/602.1' ] ],
 			'image uploaded via Special:Upload' => [ [ 'filename' => 'image100x100.png' ] ],
+			'image uploaded via Special:Upload (stash owner precreated)' =>
+				[ [
+					'filename' => 'image100x100.png',
+					'precreateUploadStashOwner' => true
+				] ],
 			'image uploaded via API' => [ [ 'filename' => 'image100x100.png', 'viaApi' => true ] ],
+			'image uploaded via API (stash owner precreated)' =>
+				[ [
+					'filename' => 'image100x100.png',
+					'viaApi' => true,
+					'precreateUploadStashOwner' => true
+				] ],
 			'image with "~~~~" in its description (should be replaced by PreSaveTransform)' =>
 				[ [
 					'filename' => 'image100x100.png',
@@ -73,7 +84,19 @@ class ModerationQueueTest extends ModerationTestCase {
 				] ],
 			'edit in existing page' => [ [ 'existing' => true ] ],
 			'image reupload' => [ [ 'existing' => true, 'filename' => 'image100x100.png' ] ],
+			'image reupload (stash owner precreated)' =>
+				[ [
+					'existing' => true,
+					'filename' => 'image100x100.png',
+					'precreateUploadStashOwner' => true
+				] ],
 			'anonymous upload' => [ [ 'filename' => 'image100x100.png', 'anonymously' => true ] ],
+			'anonymous upload (stash owner precreated)' =>
+				[ [
+					'filename' => 'image100x100.png',
+					'anonymously' => true,
+					'precreateUploadStashOwner' => true
+				] ],
 			'page move (new title with spaces)' =>
 				[ [ 'title' => 'Old title', 'newTitle' => 'New title with spaces' ] ],
 			'page move (new title with underscores)' =>
@@ -141,6 +164,12 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	/** @var string Source filename, only used for uploads. */
 	protected $filename = null;
 
+	/**
+	 * @var string If true, system user that owns UploadStash will be precreated.
+	 * This setting allows to test uploads both with and without UploadStorage migration.
+	 */
+	protected $precreateUploadStashOwner = false;
+
 	/** @var bool If true, the edit will be anonymous. ($user will be ignored) */
 	protected $anonymously = false;
 
@@ -191,6 +220,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 				case 'userAgent':
 				case 'xff':
 				case 'filename':
+				case 'precreateUploadStashOwner':
 				case 'anonymously':
 				case 'viaApi':
 				case 'needPst':
@@ -226,6 +256,11 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			// Test of anonymous uploads: allow anonymous users to upload files
 			// (normally they are not permitted to do so).
 			$this->getTestcase()->setGroupPermissions( '*', 'upload', true );
+		}
+
+		if ( $this->precreateUploadStashOwner ) {
+			$user = User::newSystemUser( ModerationUploadStorage::USERNAME, [ 'steal' => true ] );
+			$this->getTestcase()->assertNotNull( $user );
 		}
 	}
 
