@@ -386,7 +386,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			'mod_timestamp' => new ModerationTestSetRegex( '/^[0-9]{14}$/' ),
 			'mod_user' => $this->user->getId(),
 			'mod_user_text' => $this->user->getName(),
-			'mod_cur_id' => $this->existing ? $this->title->getArticleId() : 0,
+			'mod_cur_id' => $this->existing ? $this->title->getArticleId( IDBAccessObject::READ_LATEST ) : 0,
 			'mod_namespace' => $this->title->getNamespace(),
 			'mod_title' => $this->title->getDBKey(),
 			'mod_comment' => $expectedSummary,

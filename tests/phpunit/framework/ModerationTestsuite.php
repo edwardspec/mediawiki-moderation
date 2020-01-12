@@ -60,7 +60,7 @@ class ModerationTestsuite {
 	/** @var array Misc. information about the last edit, as populated by setLastEdit() */
 	public $lastEdit = [];
 
-	function __construct() {
+	public function __construct() {
 		$this->engine = ModerationTestsuiteEngine::factory();
 
 		$this->prepareDbForTests();
@@ -284,6 +284,10 @@ class ModerationTestsuite {
 		$dbw->commit( __METHOD__ );
 
 		$this->purgeTagCache();
+
+		// Avoid stale data being reported by Title::getArticleId(), etc. on the test side
+		// when running multiple sequential tests, e.g. in ModerationQueueTest.
+		Title::clearCaches();
 	}
 
 	/** Prevent tags set by the previous test from affecting the current test */
@@ -399,7 +403,7 @@ class ModerationTestsuite {
 	public function doNTestEditsWith( $user1, $user2 = null,
 		$prefix1 = 'Page', $prefix2 = 'AnotherPage'
 	) {
-		for ( $i = 0; $i < $this->TEST_EDITS_COUNT; $i ++ ) {
+		for ( $i = 0; $i < $this->TEST_EDITS_COUNT; $i++ ) {
 			$this->loginAs( $user1 );
 			$this->doTestEdit( $prefix1 . $i );
 
@@ -548,7 +552,7 @@ class ModerationTestsuite {
 				$rcRowsFound = $dbw->selectRowCount(
 					'recentchanges', 'rc_id',
 					[ 'rc_id > ' . $dbw->addQuotes( $lastRcId ) ],
-					__METHOD__,
+					'waitForRecentChangesToAppear',
 					[ 'LIMIT' => $numberOfEdits ]
 				);
 				if ( $rcRowsFound >= $numberOfEdits ) {
