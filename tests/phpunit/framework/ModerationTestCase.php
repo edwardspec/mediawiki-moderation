@@ -46,6 +46,24 @@ class ModerationTestCase extends MediaWikiTestCase {
 	}
 
 	/**
+	 * Reimplementation of setMwGlobals() via ModerationTestsuite::setMwConfig().
+	 * This is indirectly used by QueueTest (via $testcase->setGroupPermissions())
+	 * to temporarily allow anonymous uploads.
+	 *
+	 * @inheritDoc
+	 */
+	protected function setMwGlobals( $pairs, $value = null ) {
+		if ( is_string( $pairs ) ) {
+			$pairs = [ $pairs => $value ];
+		}
+
+		foreach ( $pairs as $key => $value ) {
+			$key = preg_replace( '/^wg/', '', $key ); // setMwConfig() expects no "wg" prefix
+			$this->getTestsuite()->setMwConfig( $key, $value );
+		}
+	}
+
+	/**
 	 * Dump the logs related to the current test.
 	 */
 	protected function onNotSuccessfulTest( Throwable $e ) {
