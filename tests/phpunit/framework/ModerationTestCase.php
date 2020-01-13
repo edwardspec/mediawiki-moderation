@@ -75,6 +75,20 @@ class ModerationTestCase extends MediaWikiTestCase {
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public function setGroupPermissions( $newPerms, $newKey = null, $newValue = null ) {
+		parent::setGroupPermissions( $newPerms, $newKey, $newValue );
+
+		// Backward compatibility workaround: only needed for MediaWiki 1.31,
+		// where setGroupPermissions() wasn't calling setMWGlobals().
+		if ( $this->getTestsuite()->mwVersionCompare( '1.32.0', '<' ) ) {
+			global $wgGroupPermissions;
+			$this->setMWGlobals( 'wgGroupPermissions', $wgGroupPermissions );
+		}
+	}
+
+	/**
 	 * Dump the logs related to the current test.
 	 */
 	protected function onNotSuccessfulTest( Throwable $e ) {
