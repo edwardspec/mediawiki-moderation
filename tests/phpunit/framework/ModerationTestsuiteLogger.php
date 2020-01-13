@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ class ModerationTestsuiteLogger extends MediaWiki\Logger\LegacyLogger {
 	 * If the test succeeds, they are silently ignored.
 	 * If the test fails, they are printed (to help with troubleshooting).
 	 */
-	static protected $buffer = [];
+	protected static $buffer = [];
 
 	/**
 	 * Forget all stored entries. Meant to be used in ModerationTestCase::setUp().
@@ -43,17 +43,17 @@ class ModerationTestsuiteLogger extends MediaWiki\Logger\LegacyLogger {
 			return; // No log entries
 		}
 
-		$messageCount = count( self::$buffer );
-		error_log( "\n" . __CLASS__ . ": events ($messageCount) related to the failed test:\n" .
-			"----------------- START OF LOG ----------------\n" .
-			implode( '', self::$buffer ) .
-			"----------------- END OF LOG ------------------\n" );
+		$report = [
+			'eventCount' => count( self::$buffer ),
+			'events' => self::$buffer
+		];
+		error_log( FormatJson::encode( $report, true, FormatJson::ALL_OK ) );
 	}
 
 	/**
 	 * Add new log entry to accumulator.
 	 */
 	public function log( $level, $message, array $context = [] ) {
-		self::$buffer[] = self::format( $this->channel, $message, $context );
+		self::$buffer[] = [ 'event' => $message ] + $context;
 	}
 }
