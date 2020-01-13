@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017-2018 Edward Chernenko.
+	Copyright (C) 2017-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -59,6 +59,12 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 			'Content-Type' => 'multipart/form-data'
 		];
 	}
+
+	/**
+	 * Sets MediaWiki global variable. Implementation depends on the engine.
+	 * @param string $name Name of variable without the $wg prefix.
+	 */
+	abstract public function setMwConfig( $name, $value );
 
 	/**
 	 * Perform GET request.
@@ -305,19 +311,6 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 		}
 
 		return User::newFromName( $username, false );
-	}
-
-	/**
-	 * Sets MediaWiki global variable.
-	 * @param string $name Name of variable without the $wg prefix.
-	 * @throws PHPUnit_Framework_SkippedTestError
-	 */
-	public function setMwConfig( $name, $value ) {
-		/* Implementation depends on the engine.
-			RealHttpEngine can't implement this at all.
-		*/
-		throw new PHPUnit_Framework_SkippedTestError(
-			'Test skipped: ' . get_class( $this ) . ' doesn\'t support setMwConfig()' );
 	}
 
 	/**

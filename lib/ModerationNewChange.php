@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ class ModerationNewChange {
 			'mod_conflict' => 0,
 			'mod_merged_revid' => 0,
 			'mod_text' => '', # Unknown, set by edit()
-			'mod_stash_key' => '', # Never set during queue() - added via UPDATE later
+			'mod_stash_key' => null
 		];
 
 		/* If update.php hasn't been run for a while,

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2019 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -64,7 +64,18 @@ class ModerationQueueTest extends ModerationTestCase {
 					'AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 ' .
 					'Mobile/14E304 Safari/602.1' ] ],
 			'image uploaded via Special:Upload' => [ [ 'filename' => 'image100x100.png' ] ],
+			'image uploaded via Special:Upload (stash owner precreated)' =>
+				[ [
+					'filename' => 'image100x100.png',
+					'precreateUploadStashOwner' => true
+				] ],
 			'image uploaded via API' => [ [ 'filename' => 'image100x100.png', 'viaApi' => true ] ],
+			'image uploaded via API (stash owner precreated)' =>
+				[ [
+					'filename' => 'image100x100.png',
+					'viaApi' => true,
+					'precreateUploadStashOwner' => true
+				] ],
 			'image with "~~~~" in its description (should be replaced by PreSaveTransform)' =>
 				[ [
 					'filename' => 'image100x100.png',
@@ -73,6 +84,19 @@ class ModerationQueueTest extends ModerationTestCase {
 				] ],
 			'edit in existing page' => [ [ 'existing' => true ] ],
 			'image reupload' => [ [ 'existing' => true, 'filename' => 'image100x100.png' ] ],
+			'image reupload (stash owner precreated)' =>
+				[ [
+					'existing' => true,
+					'filename' => 'image100x100.png',
+					'precreateUploadStashOwner' => true
+				] ],
+			'anonymous upload' => [ [ 'filename' => 'image100x100.png', 'anonymously' => true ] ],
+			'anonymous upload (stash owner precreated)' =>
+				[ [
+					'filename' => 'image100x100.png',
+					'anonymously' => true,
+					'precreateUploadStashOwner' => true
+				] ],
 			'page move (new title with spaces)' =>
 				[ [ 'title' => 'Old title', 'newTitle' => 'New title with spaces' ] ],
 			'page move (new title with underscores)' =>
@@ -140,6 +164,12 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	/** @var string Source filename, only used for uploads. */
 	protected $filename = null;
 
+	/**
+	 * @var string If true, system user that owns UploadStash will be precreated.
+	 * This setting allows to test uploads both with and without UploadStorage migration.
+	 */
+	protected $precreateUploadStashOwner = false;
+
 	/** @var bool If true, the edit will be anonymous. ($user will be ignored) */
 	protected $anonymously = false;
 
@@ -190,6 +220,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 				case 'userAgent':
 				case 'xff':
 				case 'filename':
+				case 'precreateUploadStashOwner':
 				case 'anonymously':
 				case 'viaApi':
 				case 'needPst':
@@ -219,6 +250,17 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 		$this->oldText = wfTimestampNow() . '_' . rand() . '_OldText';
 		if ( $this->oldText == $this->text ) {
 			$this->oldText .= '+'; // Ensure that $oldText is different from $text
+		}
+
+		if ( $this->anonymously && $this->filename ) {
+			// Test of anonymous uploads: allow anonymous users to upload files
+			// (normally they are not permitted to do so).
+			$this->getTestcase()->setGroupPermissions( '*', 'upload', true );
+		}
+
+		if ( $this->precreateUploadStashOwner ) {
+			$user = User::newSystemUser( ModerationUploadStorage::USERNAME, [ 'steal' => true ] );
+			$this->getTestcase()->assertNotNull( $user );
 		}
 	}
 
@@ -334,7 +376,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 				$expectedSummary = $this->text;
 
 				/* Special:Upload prepends InitialText with "== Summary ==" header */
-				$headerText = '== ' . wfMessage( 'filedesc' )->inContentLanguage()->text() . ' ==';
+				$headerText = '== (filedesc) ==';
 				$expectedText = "$headerText\n$expectedText";
 			}
 		}
@@ -344,7 +386,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			'mod_timestamp' => new ModerationTestSetRegex( '/^[0-9]{14}$/' ),
 			'mod_user' => $this->user->getId(),
 			'mod_user_text' => $this->user->getName(),
-			'mod_cur_id' => $this->existing ? $this->title->getArticleId() : 0,
+			'mod_cur_id' => $this->existing ? $this->title->getArticleId( IDBAccessObject::READ_LATEST ) : 0,
 			'mod_namespace' => $this->title->getNamespace(),
 			'mod_title' => $this->title->getDBKey(),
 			'mod_comment' => $expectedSummary,
@@ -366,14 +408,14 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			'mod_rejected' => $this->modblocked ? 1 : 0,
 			'mod_rejected_by_user' => 0,
 			'mod_rejected_by_user_text' => $this->modblocked ?
-				wfMessage( 'moderation-blocker' )->inContentLanguage()->text() : null,
+				'(moderation-blocker)' : null,
 			'mod_rejected_batch' => 0,
 			'mod_rejected_auto' => $this->modblocked ? 1 : 0,
 			'mod_preloadable' => 0,
 			'mod_conflict' => 0,
 			'mod_merged_revid' => 0,
 			'mod_text' => $this->newTitle ? '' : $expectedText,
-			'mod_stash_key' => $this->filename ? new ModerationTestSetRegex( '/^[0-9a-z\.]+$/i' ) : '',
+			'mod_stash_key' => $this->filename ? new ModerationTestSetRegex( '/^[0-9a-z\.]+$/i' ) : null,
 			'mod_tags' => null,
 			'mod_type' => $this->newTitle ? 'move' : 'edit',
 			'mod_page2_namespace' => $this->newTitle ? $this->newTitle->getNamespace() : 0,
@@ -394,7 +436,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 		$srcPath = ModerationTestsuite::findSourceFilename( $this->filename );
 		$expectedContents = file_get_contents( $srcPath );
 
-		$stash = RepoGroup::singleton()->getLocalRepo()->getUploadStash( $this->user );
+		$stash = ModerationUploadStorage::getStash();
 		$file = $stash->getFile( $stashKey );
 		$contents = file_get_contents( $file->getLocalRefPath() );
 

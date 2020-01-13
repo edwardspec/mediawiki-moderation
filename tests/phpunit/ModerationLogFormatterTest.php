@@ -336,7 +336,7 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 			// Add "page does not exist" if this is NOT a customized tooltip
 			$trivialTooltip = str_replace( '_', ' ',  $expectedParam['query']['title'] );
 			if ( $expectedParam['tooltip'] == $trivialTooltip ) {
-				$expectedParam['tooltip'] .= ' (page does not exist)';
+				$expectedParam['tooltip'] = '(red-link-title: ' . $expectedParam['tooltip'] . ')';
 			}
 		}
 

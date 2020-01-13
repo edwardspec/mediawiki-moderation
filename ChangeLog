@@ -7,6 +7,10 @@ Note: this version requires MediaWiki 1.31+. MediaWiki 1.27 is no longer support
 Features:
 * Support MediaWiki 1.34.
 * Support MobileFrontend editor in MW 1.33-1.34.
+* Support anonymous uploads (if allowed in $wgGroupPermissions).
+
+Bugfixes:
+* Default value of mod_stash_key is now NULL, not empty string.
 
 Refactoring, performance optimizations:
 * Removed legacy code for MediaWiki 1.27-1.30.

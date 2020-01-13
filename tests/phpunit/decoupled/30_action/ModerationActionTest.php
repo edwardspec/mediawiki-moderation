@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2019 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -309,8 +309,8 @@ class ModerationActionTest extends ModerationTestCase {
 				],
 				'expectedOutput' => '(moderation-editchange-ok)',
 				'expectedFields' => [
-					'mod_text' => 'Modified text [[Special:Contributions/127.1.2.3|127.1.2.3]]',
-					'mod_new_len' => 59,
+					'mod_text' => 'Modified text (signature-anon: 127.1.2.3, 127.1.2.3)',
+					'mod_new_len' => 52,
 					'mod_comment' => 'Modified edit summary'
 				],
 				'expectedLogAction' => 'editchange'

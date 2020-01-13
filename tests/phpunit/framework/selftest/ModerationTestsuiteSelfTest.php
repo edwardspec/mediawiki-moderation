@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2019 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -98,10 +98,8 @@ class ModerationTestsuiteSelfTest extends ModerationTestCase {
 		$html->loadFromReq( $req );
 
 		/* Ensure that this is indeed an edit form */
-		$this->assertStringStartsWith(
-			wfMessage( 'creating' )
-				->params( str_replace( '_', ' ', $data['title'] ) )
-				->text(),
+		$this->assertRegExp(
+			'/\(creating: ' . str_replace( '_', ' ', $data['title'] ) . '\)/',
 			$html->getTitle()
 		);
 		$this->assertNotNull( $html->getElementById( 'wpSave' ),

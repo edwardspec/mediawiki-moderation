@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2019 Edward Chernenko.
+	Copyright (C) 2015-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -60,13 +60,20 @@ class ModerationTestsuite {
 	/** @var array Misc. information about the last edit, as populated by setLastEdit() */
 	public $lastEdit = [];
 
-	function __construct() {
+	public function __construct() {
 		$this->engine = ModerationTestsuiteEngine::factory();
 
 		$this->prepareDbForTests();
 
 		$this->html = new ModerationTestsuiteHTML( $this->engine );
 		$this->setUserAgent( self::DEFAULT_USER_AGENT );
+
+		# With "qqx" language selected, messages are replaced with
+		# their names, so parsing process is translation-independent.
+		# NOTE: this requires ModerationTestsuiteEngine subclass to support setMwConfig(),
+		# which was optional before (RealHttpEngine doesn't support it,
+		# but RealHttpEngine is incompatible with MW 1.28+, so it can be ignored for now).
+		$this->setMwConfig( 'LanguageCode', 'qqx' );
 	}
 
 	public function query( $apiQuery ) {
@@ -187,10 +194,6 @@ class ModerationTestsuite {
 		$user = User::createNew( $name );
 		TestUser::setPasswordForUser( $user, self::TEST_PASSWORD );
 
-		# With "qqx" language selected, messages are replaced with
-		# their names, so parsing process is translation-independent.
-		$user->setOption( 'language', 'qqx' );
-
 		$user->saveSettings();
 
 		foreach ( $groups as $g ) {
@@ -284,6 +287,10 @@ class ModerationTestsuite {
 		$dbw->commit( __METHOD__ );
 
 		$this->purgeTagCache();
+
+		// Avoid stale data being reported by Title::getArticleId(), etc. on the test side
+		// when running multiple sequential tests, e.g. in ModerationQueueTest.
+		Title::clearCaches();
 	}
 
 	/** Prevent tags set by the previous test from affecting the current test */
@@ -399,7 +406,7 @@ class ModerationTestsuite {
 	public function doNTestEditsWith( $user1, $user2 = null,
 		$prefix1 = 'Page', $prefix2 = 'AnotherPage'
 	) {
-		for ( $i = 0; $i < $this->TEST_EDITS_COUNT; $i ++ ) {
+		for ( $i = 0; $i < $this->TEST_EDITS_COUNT; $i++ ) {
 			$this->loginAs( $user1 );
 			$this->doTestEdit( $prefix1 . $i );
 
@@ -548,7 +555,7 @@ class ModerationTestsuite {
 				$rcRowsFound = $dbw->selectRowCount(
 					'recentchanges', 'rc_id',
 					[ 'rc_id > ' . $dbw->addQuotes( $lastRcId ) ],
-					__METHOD__,
+					'waitForRecentChangesToAppear',
 					[ 'LIMIT' => $numberOfEdits ]
 				);
 				if ( $rcRowsFound >= $numberOfEdits ) {

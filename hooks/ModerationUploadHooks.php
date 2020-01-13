@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2019 Edward Chernenko.
+	Copyright (C) 2014-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -33,7 +33,10 @@ class ModerationUploadHooks {
 		}
 
 		/* Step 1. Upload the file into the user's stash */
-		$status = $upload->tryStashFile( $user, true /* Don't run UploadStashFile hook */ );
+		$status = $upload->tryStashFile(
+			ModerationUploadStorage::getOwner(),
+			true /* Don't run UploadStashFile hook */
+		);
 		if ( !$status->isOK() ) {
 			$error = [ 'api-error-stashfailed' ];
 			return true;
