@@ -52,7 +52,7 @@ matrix:
   include:
     # PHPUnit tests
     - &phpunit-build
-      if: NOT branch IN (selenium)
+      if: NOT branch IN (selenium,troubleshooting)
       script:
         # Immediately fail if any of the PHP files contain syntax errors
         - composer lint extensions/Moderation/
@@ -77,6 +77,10 @@ matrix:
       if: branch IN (nightly)
       env: branch=master
       php: nightly
+    - <<: *phpunit-build
+      if: branch IN (troubleshooting)
+      env: branch=REL1_34 FLAKY_TEST="edit in existing page"
+      script: ./extensions/Moderation/tests/travis/troubleshoot_flaky_test.sh "${FLAKY_TEST}"
 
     # Selenium tests
     - &selenium-build
