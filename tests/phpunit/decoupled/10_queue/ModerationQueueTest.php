@@ -376,7 +376,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 				$expectedSummary = $this->text;
 
 				/* Special:Upload prepends InitialText with "== Summary ==" header */
-				$headerText = '== ' . wfMessage( 'filedesc' )->inContentLanguage()->text() . ' ==';
+				$headerText = '== (filedesc) ==';
 				$expectedText = "$headerText\n$expectedText";
 			}
 		}
@@ -408,7 +408,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			'mod_rejected' => $this->modblocked ? 1 : 0,
 			'mod_rejected_by_user' => 0,
 			'mod_rejected_by_user_text' => $this->modblocked ?
-				wfMessage( 'moderation-blocker' )->inContentLanguage()->text() : null,
+				'(moderation-blocker)' : null,
 			'mod_rejected_batch' => 0,
 			'mod_rejected_auto' => $this->modblocked ? 1 : 0,
 			'mod_preloadable' => 0,

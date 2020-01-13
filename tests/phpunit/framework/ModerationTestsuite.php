@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2019 Edward Chernenko.
+	Copyright (C) 2015-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -67,6 +67,13 @@ class ModerationTestsuite {
 
 		$this->html = new ModerationTestsuiteHTML( $this->engine );
 		$this->setUserAgent( self::DEFAULT_USER_AGENT );
+
+		# With "qqx" language selected, messages are replaced with
+		# their names, so parsing process is translation-independent.
+		# NOTE: this requires ModerationTestsuiteEngine subclass to support setMwConfig(),
+		# which was optional before (RealHttpEngine doesn't support it,
+		# but RealHttpEngine is incompatible with MW 1.28+, so it can be ignored for now).
+		$this->setMwConfig( 'LanguageCode', 'qqx' );
 	}
 
 	public function query( $apiQuery ) {
@@ -186,10 +193,6 @@ class ModerationTestsuite {
 	private function createTestUser( $name, $groups = [] ) {
 		$user = User::createNew( $name );
 		TestUser::setPasswordForUser( $user, self::TEST_PASSWORD );
-
-		# With "qqx" language selected, messages are replaced with
-		# their names, so parsing process is translation-independent.
-		$user->setOption( 'language', 'qqx' );
 
 		$user->saveSettings();
 

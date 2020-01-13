@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -143,6 +143,7 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 		&$failedReason = null
 	) {
 		if ( $req->getResponseHeader( 'Location' ) ) {
+
 			if ( $interceptMsg == 'moderation-image-queued' ) {
 				return 'bypassed'; // HTTP redirect from Special:Upload
 			}

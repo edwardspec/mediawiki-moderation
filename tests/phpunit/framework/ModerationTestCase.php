@@ -57,7 +57,18 @@ class ModerationTestCase extends MediaWikiTestCase {
 			$pairs = [ $pairs => $value ];
 		}
 
+		// Set the configuration "client-side" (in PHPUnit test).
+		parent::setMwGlobals( $pairs );
+
+		// Set the configuration "server-side" (via CliEngine::setMwConfig()).
 		foreach ( $pairs as $key => $value ) {
+			if ( $key == 'wgContLang' ) {
+				// We can't send Language object via CliEngine,
+				// because it can contain non-serializable parts (e.g. callbacks).
+				$key = 'wgLanguageCode';
+				$value = $value->getCode();
+			}
+
 			$key = preg_replace( '/^wg/', '', $key ); // setMwConfig() expects no "wg" prefix
 			$this->getTestsuite()->setMwConfig( $key, $value );
 		}
@@ -97,5 +108,10 @@ class ModerationTestCase extends MediaWikiTestCase {
 		if ( !$this->hasDependencies() ) {
 			$this->setDependencyInput( [ $this->makeNewTestsuite() ] );
 		}
+
+		// ModerationTestsuite already sets language to "qqx" when running tests "server-side"
+		// (via CliEngine). However, to double-check results of PreSaveTransform, etc.,
+		// it's necessary to lso set Content Language to 'qqx' on the PHPUnit side too.
+		$this->setContentLang( Language::factory( 'qqx' ) );
 	}
 }

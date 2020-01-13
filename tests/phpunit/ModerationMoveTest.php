@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -102,7 +102,10 @@ class ModerationMoveTest extends ModerationTestCase {
 		$rev = $t->getLastRevision( $this->oldTitle );
 		$this->assertEquals( $t->unprivilegedUser->getName(), $rev['user'] );
 		$this->assertNotEquals( $this->text, $rev['*'] );
-		$this->assertRegExp( '/^#[^ ]+ \[\[' . preg_quote( $this->newTitle ) . '\]\]$/', $rev['*'] );
+		$this->assertRegExp(
+			'/^#[^ ]+ \[\[' . preg_quote( $this->newTitle ) . '\]\]\n\(move-redirect-text\)$/',
+			$rev['*']
+		);
 
 		/* Check the log entry */
 		$events = $t->apiLogEntries();
