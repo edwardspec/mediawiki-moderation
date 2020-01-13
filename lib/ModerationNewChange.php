@@ -79,7 +79,7 @@ class ModerationNewChange {
 			'mod_conflict' => 0,
 			'mod_merged_revid' => 0,
 			'mod_text' => '', # Unknown, set by edit()
-			'mod_stash_key' => '', # Never set during queue() - added via UPDATE later. FIXME: should be NULL
+			'mod_stash_key' => null
 		];
 
 		/* If update.php hasn't been run for a while,

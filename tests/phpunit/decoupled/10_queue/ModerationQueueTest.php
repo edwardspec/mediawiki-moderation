@@ -415,7 +415,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			'mod_conflict' => 0,
 			'mod_merged_revid' => 0,
 			'mod_text' => $this->newTitle ? '' : $expectedText,
-			'mod_stash_key' => $this->filename ? new ModerationTestSetRegex( '/^[0-9a-z\.]+$/i' ) : '',
+			'mod_stash_key' => $this->filename ? new ModerationTestSetRegex( '/^[0-9a-z\.]+$/i' ) : null,
 			'mod_tags' => null,
 			'mod_type' => $this->newTitle ? 'move' : 'edit',
 			'mod_page2_namespace' => $this->newTitle ? $this->newTitle->getNamespace() : 0,
