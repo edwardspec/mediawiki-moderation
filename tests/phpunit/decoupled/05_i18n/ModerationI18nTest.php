@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,11 +18,14 @@
 /**
  * @file
  * Checks i18n/*.json files for syntax errors.
+ *
+ * TODO: replace I18nTest with a proper linter. No reason why it even has to be a PHPUnit test.
  */
 
-class ModerationI18nTest extends ModerationTestCase {
+class ModerationI18nTest extends MediaWikiTestCase {
 	/**
 	 * Ensures that $path is a valid JSON file.
+	 * @coversNothing
 	 * @dataProvider dataProvider
 	 */
 	public function testLanguageFile( $path ) {
