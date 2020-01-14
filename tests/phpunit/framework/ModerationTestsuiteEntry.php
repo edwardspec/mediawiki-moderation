@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2018 Edward Chernenko.
+	Copyright (C) 2015-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -321,7 +321,7 @@ class ModerationTestsuiteEntry {
 
 	/**
 	 * Fetches this entry from the database and returns $field.
-	 * @param string $field Field name, e.g. "mod_len_new".
+	 * @param string $field Field name, e.g. "mod_new_len".
 	 */
 	public function getDbField( $field ) {
 		$dbw = wfGetDB( DB_MASTER );
