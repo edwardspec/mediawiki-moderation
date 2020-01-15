@@ -254,15 +254,33 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 		$loginToken = $ret['query']['tokens']['logintoken'];
 
 		# Step 2. Actual login.
-		$ret = $this->query( [
-			'action' => 'clientlogin',
-			'username' => $user->getName(),
-			'password' => ModerationTestsuite::TEST_PASSWORD,
-			'loginreturnurl' => 'http://localhost/not.really.used',
-			'logintoken' => $loginToken
-		] );
+		$maxAttempts = 3;
+		for ( $attempt = 1; ; $attempt++ ) {
+			$ret = $this->query( [
+				'action' => 'clientlogin',
+				'username' => $user->getName(),
+				'password' => ModerationTestsuite::TEST_PASSWORD,
+				'loginreturnurl' => 'http://localhost/not.really.used',
+				'logintoken' => $loginToken
+			] );
 
-		if ( isset( $ret['error'] ) || $ret['clientlogin']['status'] != 'PASS' ) {
+			$error = isset( $ret['error'] ) ? $ret['error']['code'] : false;
+			if ( !$error && $ret['clientlogin']['status'] == 'PASS' ) {
+				// Success.
+				return;
+			}
+
+			if ( $error == 'badtoken' && $attempt < $maxAttempts ) {
+				// Sometimes logintoken that we just obtained gets rejected as "badtoken",
+				// so retry several times (after 0.5 seconds delay) if we get "badtoken" error.
+				$this->getLogger()->notice( '[login] Retrying login due to incorrect "badtoken"', [
+					'failedAttemptNumber' => $attempt,
+					'maxAttempts' => $maxAttempts
+				] );
+				time_nanosleep( 0, 500000000 );
+				continue;
+			}
+
 			throw new MWException( 'Failed to login as [' . $user->getName() . ']: ' .
 				FormatJson::encode( $ret ) );
 		}
