@@ -291,6 +291,20 @@ class ModerationTestsuite {
 		// Avoid stale data being reported by Title::getArticleId(), etc. on the test side
 		// when running multiple sequential tests, e.g. in ModerationQueueTest.
 		Title::clearCaches();
+
+		// Clear the memcached (NOTE: works only for one memcached server).
+		global $wgMemCachedServers;
+		if ( !empty( $wgMemCachedServers ) ) {
+			$memcClient = new MemcachedClient( [
+				'servers' => [ $wgMemCachedServers[0] ]
+			] );
+			$sock = $memcClient->get_sock( 'anyKey' ); // Only one Memcached server
+			$ret = $memcClient->run_command( $sock, "flush_all\r\n" );
+
+			if ( $ret[0] != "OK" ) {
+				throw new MWException( __METHOD__ . ": cleaning Memcached FAILED." );
+			}
+		}
 	}
 
 	/** Prevent tags set by the previous test from affecting the current test */
