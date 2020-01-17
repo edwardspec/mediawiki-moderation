@@ -113,13 +113,46 @@ abstract class ModerationTestsuiteTestSet {
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation', '*', '', __METHOD__ );
 
-		foreach ( $expectedFields as $key => $val ) {
-			if ( $val instanceof ModerationTestSetRegex ) {
-				$testcase->assertRegExp( $val->regex, $row->$key, "Field $key doesn't match regex" );
-			} else {
-				$testcase->assertEquals( $val, $row->$key, "Field $key doesn't match expected" );
+		// Create sorted arrays Expected and Actual and ensure no difference between them.
+
+		$expected = [];
+		$actual = [];
+
+		foreach ( $expectedFields as $key => $expectedValue ) {
+			$actualValue = $row->$key;
+
+			if ( is_numeric( $actualValue ) ) {
+				// DB::selectRow() returns numbers as strings, so we need to cast them to numbers,
+				// or else assertEquals() would fail.
+				// E.g. "1" => 1.
+				$actualValue += 0;
 			}
+
+			if ( $expectedValue instanceof ModerationTestSetRegex ) {
+				$regex = $expectedValue->regex;
+				if ( preg_match( $regex, $actualValue ) ) {
+					// This is a trick to display a simple diff of Expected/Actual arrays,
+					// even though some of the $expectedFields are regexes (not constants).
+					$actualValue .= " (regex: ${regex})";
+					$expected[$key] = $actualValue;
+				} else {
+					$actualValue .= " (DOESN'T MATCH REGEX)";
+					$expected[$key] = $regex;
+				}
+			} else {
+				$expected[$key] = $expectedValue;
+			}
+
+			$actual[$key] = $actualValue;
 		}
+
+		asort( $expected );
+		asort( $actual );
+
+		$this->getTestcase()->assertEquals( $expected, $actual,
+			"Database row doesn't match expected."
+		);
+
 		return $row;
 	}
 

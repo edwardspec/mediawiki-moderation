@@ -162,11 +162,9 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 			wfArrayToCgi( $descriptor['_POST'] ) . ']';
 
 		if ( $result['exceptionText'] ) {
-			throw new ModerationTestsuiteCliError( "Exception $errorContext: \n" .
-				"==== EXCEPTION START ====\n\n" .
-				$result['exceptionText'] .
-				"\n==== EXCEPTION END ====\n"
-			);
+			$this->getLogger()->error( '[CliEngine] Exception detected', [
+				'text' => $result['exceptionText']
+			] );
 		}
 
 		if ( !isset( $result['FauxResponse'] ) ) {

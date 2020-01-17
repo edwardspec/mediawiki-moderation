@@ -83,6 +83,14 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	}
 
 	/**
+	 * Obtain an aggregating Logger that doesn't print anything unless the test has failed.
+	 * @return ModerationTestsuiteLogger
+	 */
+	protected function getLogger() {
+		return new ModerationTestsuiteLogger( 'ModerationTestsuite' );
+	}
+
+	/**
 	 * Execute HTTP request and return a result.
 	 * @param string $url
 	 * @param string $method
@@ -90,50 +98,65 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 * @return ModerationTestsuiteResponse
 	 */
 	private function httpRequest( $url, $method = 'GET', array $postData = [] ) {
-		$logger = new ModerationTestsuiteLogger( 'ModerationTestsuite' );
-		$logger->info( '[http] Sending {method} request to [{url}], postData={postData}',
+		$logger = $this->getLogger();
+		$logger->info( '[http] Sending HTTP request',
 			[
 				'method' => $method,
 				'url' => $url,
-				'postData' => FormatJson::encode( $postData )
+				'postData' => $postData
 			]
 		);
 
 		$req = $this->httpRequestInternal( $url, $method, $postData );
 
 		// Log results of the requests.
-		$loggedContent = $req->getContent();
+		$content = $req->getContent();
 		$contentType = $req->getResponseHeader( 'Content-Type' );
 
+		$loggedContent = [];
+
 		if ( $req->isRedirect() ) {
-			$loggedContent = 'HTTP redirect to [' . $req->getResponseHeader( 'Location' ) . ']';
+			$loggedContent['redirect'] = $req->getResponseHeader( 'Location' );
 		} elseif ( strpos( $contentType, 'text/html' ) !== false ) {
 			// Log will be too large for Travis if we dump the entire HTML,
 			// so we only print main content and value of the <title> tag.
 			$html = new ModerationTestsuiteHTML;
-			$html->loadFromString( $loggedContent );
+			$html->loadFromString( $content );
+
+			$loggedContent['title'] = $html->getTitle();
 
 			if ( $html->getMainContent() ) {
+				$mainText = $html->getMainText();
+
+				// Strip excessive newlines in MainText
+				$loggedContent['mainText'] = preg_replace( "/\n{3,}/", "\n\n", $mainText );
+			} else {
 				// MainContent element can be unavailable if this is some non-standard HTML page,
 				// e.g. error 404 from showimg when simulating "missing-stash-image" error.
-				$loggedContent = 'HTML page with title [' . $html->getTitle() . '] and main text [' .
-					$html->getMainText() . ']';
-
-				// Strip excessive newlines in MainContent
-				$loggedContent = preg_replace( "/\n{3,}/", "\n\n", $loggedContent );
+				$loggedContent['noMainContent'] = true;
+				$loggedContent['rawContent'] = $content;
 			}
-
+		} elseif ( strpos( $contentType, 'application/json' ) !== false ) {
+			$status = FormatJson::parse( $content, FormatJson::FORCE_ASSOC );
+			if ( $status->isOK() ) {
+				$loggedContent['json'] = $status->getValue();
+			} else {
+				$loggedContent['invalidJson'] = $content;
+			}
 		} elseif ( preg_match( '/^(image|application\/ogg)/', $contentType ) ) {
-			$loggedContent = 'Omitted binary response of type [' . $contentType . '] and size ' .
-				strlen( $loggedContent ) . ' bytes';
+			$loggedContent['binaryResponseOmitted'] = true;
+			$loggedContent['sizeBytes'] = strlen( $content );
+		} else {
+			$loggedContent = [
+				'unknownContentType' => true,
+				'rawContent' => $content
+			];
 		}
 
-		$logger->info( "[http] Received HTTP {code} response:\n" .
-			"----------------- BEGIN CONTENT ---------------\n" .
-			"{content}\n" .
-			"----------------- END OF CONTENT --------------",
+		$logger->info( "[http] Received HTTP response",
 			[
 				'code' => $req->getStatus(),
+				'contentType' => $contentType,
 				'content' => $loggedContent
 			]
 		);
@@ -231,15 +254,33 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 		$loginToken = $ret['query']['tokens']['logintoken'];
 
 		# Step 2. Actual login.
-		$ret = $this->query( [
-			'action' => 'clientlogin',
-			'username' => $user->getName(),
-			'password' => ModerationTestsuite::TEST_PASSWORD,
-			'loginreturnurl' => 'http://localhost/not.really.used',
-			'logintoken' => $loginToken
-		] );
+		$maxAttempts = 3;
+		for ( $attempt = 1; ; $attempt++ ) {
+			$ret = $this->query( [
+				'action' => 'clientlogin',
+				'username' => $user->getName(),
+				'password' => ModerationTestsuite::TEST_PASSWORD,
+				'loginreturnurl' => 'http://localhost/not.really.used',
+				'logintoken' => $loginToken
+			] );
 
-		if ( isset( $ret['error'] ) || $ret['clientlogin']['status'] != 'PASS' ) {
+			$error = isset( $ret['error'] ) ? $ret['error']['code'] : false;
+			if ( !$error && $ret['clientlogin']['status'] == 'PASS' ) {
+				// Success.
+				return;
+			}
+
+			if ( $error == 'badtoken' && $attempt < $maxAttempts ) {
+				// Sometimes logintoken that we just obtained gets rejected as "badtoken",
+				// so retry several times (after 0.5 seconds delay) if we get "badtoken" error.
+				$this->getLogger()->notice( '[login] Retrying login due to incorrect "badtoken"', [
+					'failedAttemptNumber' => $attempt,
+					'maxAttempts' => $maxAttempts
+				] );
+				time_nanosleep( 0, 500000000 );
+				continue;
+			}
+
 			throw new MWException( 'Failed to login as [' . $user->getName() . ']: ' .
 				FormatJson::encode( $ret ) );
 		}
