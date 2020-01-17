@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2019 Edward Chernenko.
+	Copyright (C) 2015-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	/** @var ModerationTestsuiteEngine */
 	protected $engine;
 
-	function __construct( ModerationTestsuiteEngine $engine = null ) {
+	public function __construct( ModerationTestsuiteEngine $engine = null ) {
 		$this->engine = $engine;
 	}
 
@@ -97,8 +97,8 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	public function getTitle( $url = null ) {
 		$this->loadFromURL( $url );
 
-		return $this->
-			getElementsByTagName( 'title' )->item( 0 )->textContent;
+		$titleTag = $this->getElementsByTagName( 'title' )->item( 0 );
+		return $titleTag ? $titleTag->textContent : null;
 	}
 
 	/**
