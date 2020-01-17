@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2019 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -81,7 +81,6 @@ class ModerationTestsuiteApiBot extends ModerationTestsuiteBot {
 	 * @param array $extraParams Bot-specific parameters.
 	 * @return ModerationTestsuiteApiBotResult
 	 */
-	/** Bot-specific (e.g. API or non-API) implementation of upload(). */
 	public function doUpload( ModerationTestsuite $t,
 		$title, $srcPath, $text, array $extraParams
 	) {

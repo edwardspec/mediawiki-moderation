@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ abstract class ModerationTestsuiteBot {
 	/**
 	 * Create a new bot.
 	 * @param string $method One of the following: 'api', 'nonApi'.
+	 * @return ModerationTestsuiteBot
 	 */
 	public static function factory( $method, ModerationTestsuite $t ) {
 		switch ( $method ) {
@@ -122,7 +123,7 @@ abstract class ModerationTestsuiteBot {
 			$title = $this->generateRandomTitle() . '.png';
 		}
 
-		if ( is_null( $text ) ) { # Empty string (no description) is allowed
+		if ( $text === null ) { # Empty string (no description) is allowed
 			$text = $this->generateRandomText();
 		}
 

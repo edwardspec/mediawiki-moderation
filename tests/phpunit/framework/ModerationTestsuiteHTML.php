@@ -93,6 +93,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 	/**
 	 * Returns the text of the <title> tag.
+	 * @return string|null
 	 */
 	public function getTitle( $url = null ) {
 		$this->loadFromURL( $url );
@@ -103,6 +104,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 	/**
 	 * Returns HTML element of the error message shown by Moderation.
+	 * @return string
 	 */
 	public function getModerationError( $url = null ) {
 		$this->loadFromURL( $url );
@@ -117,6 +119,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 	/**
 	 * Returns HTML element of the main text of the page.
+	 * @return DomElement
 	 */
 	public function getMainContent( $url = null ) {
 		$this->loadFromURL( $url );
@@ -126,6 +129,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 	/**
 	 * Returns main text of the page (without navigation, etc.).
+	 * @return string
 	 */
 	public function getMainText( $url = null ) {
 		$elem = $this->getMainContent( $url );
@@ -134,7 +138,8 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-	 *  Returns the text of the notice "You have new messages".
+	 * Returns the text of the notice "You have new messages".
+	 * @return string
 	 */
 	public function getNewMessagesNotice( $url = null ) {
 		$this->loadFromURL( $url );
@@ -148,7 +153,8 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	}
 
 	/**
-	 *  Returns the text of the notice "You have new messages".
+	 * Returns the Submit button element.
+	 * @return DOMElement
 	 */
 	public function getSubmitButton( $url = null ) {
 		$this->loadFromURL( $url );
@@ -157,7 +163,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 	/**
 	 * Find the DOM element by XPath selector.
-		E.g. $t->html->getElementsByXPath( '//row[@name="wpSummary"]' )
+	 * E.g. $t->html->getElementsByXPath( '//row[@name="wpSummary"]' )
 	 * @return DOMElement
 	 */
 	public function getElementByXPath( $selector ) {
@@ -178,6 +184,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	/**
 	 * Fetch the edit form and return the text in #wpTextbox1.
 	 * @param string $title The page to be opened for editing.
+	 * @return string
 	 */
 	public function getPreloadedText( $title ) {
 		$url = wfAppendQuery( wfScript( 'index' ), [
@@ -195,6 +202,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 	/**
 	 * Return the list of ResourceLoader modules which are used in the last fetched HTML.
+	 * @return array
 	 */
 	public function getLoaderModulesList( $url = null ) {
 		$this->loadFromURL( $url );
@@ -220,6 +228,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 	/**
 	 * Return the array of <input> elements in the form (name => value).
+	 * @return array
 	 */
 	public function getFormElements( $formElement = null, $url = null ) {
 		$this->loadFromURL( $url );

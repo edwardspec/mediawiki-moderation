@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,10 +18,10 @@
 /**
  * @file
  * Benchmark: how fast is ApproveAll on Special:Moderation?
-
-	Usage:
-	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/approveAll.php
-*/
+ *
+ * Usage:
+ *	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/approveAll.php
+ */
 
 require_once __DIR__ . '/ModerationBenchmark.php';
 
@@ -31,6 +31,7 @@ class BenchmarkApproveAll extends ModerationBenchmark {
 
 	/**
 	 * Default number of loops.
+	 * @return int
 	 */
 	public function getDefaultLoops() {
 		return 10;
@@ -38,6 +39,7 @@ class BenchmarkApproveAll extends ModerationBenchmark {
 
 	/**
 	 * How many rows to approve with one approveall.
+	 * @return int
 	 */
 	public function getEditsPerUser() {
 		return 10;
@@ -48,14 +50,14 @@ class BenchmarkApproveAll extends ModerationBenchmark {
 		$dbw = wfGetDB( DB_MASTER );
 		$editsPerUser = $this->getEditsPerUser();
 
-		for ( $i = 0; $i < $numberOfUsers; $i ++ ) {
+		for ( $i = 0; $i < $numberOfUsers; $i++ ) {
 			$fakeIP = IP::formatHex( base_convert( $i, 10, 16 ) );
 			$user = User::newFromName( $fakeIP, false );
 
 			$dbw->delete( 'moderation', [ 'mod_user_text' => $fakeIP ], __METHOD__ );
 
 			$modid = false;
-			for ( $j = 0; $j < $editsPerUser; $j ++ ) {
+			for ( $j = 0; $j < $editsPerUser; $j++ ) {
 				$modid = $this->fastQueue(
 					$this->getTestTitle( $i + $j * $numberOfUsers ),
 					'Whatever',

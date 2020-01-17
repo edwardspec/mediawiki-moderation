@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017-2018 Edward Chernenko.
+	Copyright (C) 2017-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -48,6 +48,8 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 	 * @param string $url
 	 * @param string $method
 	 * @param array $postData
+	 * @return ModerationTestsuiteResponse
+	 * @throws ModerationTestsuiteCliError
 	 */
 	public function httpRequestInternal( $url, $method, array $postData ) {
 		global $wgServerName, $IP;
@@ -183,7 +185,10 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 		);
 	}
 
-	/** Safely split $bits['path'] into SCRIPT_NAME and PATH_INFO */
+	/**
+	 * Safely split $bits['path'] into SCRIPT_NAME and PATH_INFO
+	 * @return array that contains two strings: script name (e.g. "api.php") and pathinfo.
+	 */
 	protected function safelyExtractPathInfo( $relPath ) {
 		$allowedScripts = array_map( 'wfScript', [ 'index', 'api' ] );
 

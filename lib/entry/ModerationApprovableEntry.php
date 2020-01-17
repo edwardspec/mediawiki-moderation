@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -64,6 +64,8 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 
 	/**
 	 * Construct new ModerationApprovableEntry from $row.
+	 * @param stdClass $row
+	 * @return ModerationApprovableEntry
 	 * @throws ModerationError
 	 */
 	public static function newFromRow( $row ) {
@@ -112,6 +114,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 
 	/**
 	 * Approve this change.
+	 * @param User $moderator
 	 * @throws ModerationError
 	 */
 	final public function approve( User $moderator ) {
@@ -175,6 +178,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 
 	/**
 	 * Approve this change.
+	 * @param User $moderator
 	 * @return Status
 	 */
 	abstract public function doApprove( User $moderator );

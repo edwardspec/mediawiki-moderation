@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,7 +22,10 @@
 
 class ModerationVersionCheck {
 
-	/** Returns true if the database has mod_tags field, false otherwise */
+	/**
+	 * Returns true if the database has mod_tags field, false otherwise.
+	 * @return bool
+	 */
 	public static function areTagsSupported() {
 		return self::wasDbUpdatedAfter( '1.1.29' );
 	}
@@ -36,7 +39,10 @@ class ModerationVersionCheck {
 		return self::wasDbUpdatedAfter( '1.1.31' );
 	}
 
-	/** Returns true if the database has mod_type field, false otherwise */
+	/**
+	 * Returns true if the database has mod_type field, false otherwise.
+	 * @return bool
+	 */
 	public static function hasModType() {
 		return self::wasDbUpdatedAfter( '1.2.17' );
 	}
@@ -53,6 +59,8 @@ class ModerationVersionCheck {
 	/**
 	 * Calculate mod_title for $title.
 	 * Backward compatible with old Moderation databases that used spaces, not underscores.
+	 * @param Title $title
+	 * @return string
 	 */
 	public static function getModTitleFor( Title $title ) {
 		if ( self::usesDbKeyAsTitle() ) {
@@ -64,6 +72,7 @@ class ModerationVersionCheck {
 
 	/**
 	 * Returns value of mod_preloadable that means "YES, this change can be preloaded".
+	 * @return int
 	 */
 	public static function preloadableYes() {
 		if ( self::hasUniqueIndex() ) {
@@ -103,7 +112,10 @@ class ModerationVersionCheck {
 		'pp_propname' => 'moderation:lastDbUpdateVersion'
 	];
 
-	/** Returns memcached key used by getDbUpdatedVersion() and markDbAsUpdated() */
+	/**
+	 * Returns memcached key used by getDbUpdatedVersion() and markDbAsUpdated()
+	 * @return string
+	 */
 	protected static function getCacheKey() {
 		return wfMemcKey( 'moderation-lastDbUpdateVersion' );
 	}
@@ -119,6 +131,7 @@ class ModerationVersionCheck {
 
 	/**
 	 * Returns version that Moderation had during the latest invocation of update.php.
+	 * @return string Version number, e.g. "1.2.3".
 	 */
 	protected static function getDbUpdatedVersion() {
 		if ( self::$dbUpdatedVersion ) {
@@ -142,6 +155,7 @@ class ModerationVersionCheck {
 	/**
 	 * Uncached version of getDbUpdatedVersion().
 	 * @note Shouldn't be used outside of getDbUpdatedVersion()
+	 * @return string Version number, e.g. "1.2.3".
 	 */
 	protected static function getDbUpdatedVersionUncached() {
 		$dbr = wfGetDB( DB_REPLICA );
@@ -159,6 +173,7 @@ class ModerationVersionCheck {
 
 	/**
 	 * Returns current version of Moderation (string).
+	 * @return string Version number, e.g. "1.2.3".
 	 */
 	protected static function getVersionOfModeration() {
 		$status = FormatJson::parse( file_get_contents( __DIR__ . "/../extension.json" ) );

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2018 Edward Chernenko.
+	Copyright (C) 2014-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
  * @file
  * Affects doEditContent() during modaction=approve(all).
  * Corrects rev_timestamp, rc_ip and checkuser logs when edit is approved.
-*/
+ */
 
 class ModerationApproveHook implements DeferrableUpdate {
 
@@ -41,13 +41,13 @@ class ModerationApproveHook implements DeferrableUpdate {
 	/**
 	 * @var array Tasks which must be performed by postapprove hooks.
 	 * Format: [ key1 => [ 'ip' => ..., 'xff' => ..., 'ua' => ... ], key2 => ... ]
-	*/
+	 */
 	protected static $tasks = [];
 
 	/**
 	 * @var array Log entries to modify in FileUpload hook.
 	 * Format: [ log_id1 => ManualLogEntry, log_id2 => ... ]
-	*/
+	 */
 	protected static $logEntriesToFix = [];
 
 	protected function __construct() {
@@ -70,7 +70,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 			Only the last of these updates should run, because
 			all RecentChange_save hooks must be completed before it.
 		*/
-		if ( -- $this->useCount > 0 ) {
+		if ( --$this->useCount > 0 ) {
 			return;
 		}
 
@@ -193,7 +193,10 @@ class ModerationApproveHook implements DeferrableUpdate {
 	/** @var int|null Revid of the last edit, populated in onNewRevisionFromEditComplete */
 	protected static $lastRevId = null;
 
-	/** Returns revid of the last edit */
+	/**
+	 * Returns revid of the last edit.
+	 * @return int|null
+	 */
 	public static function getLastRevId() {
 		return self::$lastRevId;
 	}
@@ -201,6 +204,11 @@ class ModerationApproveHook implements DeferrableUpdate {
 	/**
 	 * NewRevisionFromEditComplete hook.
 	 * Here we determine $lastRevId.
+	 * @param Article $article
+	 * @param Revision $rev
+	 * @param string $baseID
+	 * @param User $user
+	 * @return bool
 	 */
 	public function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
 		/* Remember ID of this revision for getLastRevId() */
@@ -213,6 +221,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param Title $title
 	 * @param string $username
 	 * @param string $type mod_type of this change.
+	 * @return string
 	 */
 	protected static function getTaskKey( Title $title, $username, $type ) {
 		return implode( '[', /* Symbol "[" is not allowed in both titles and usernames */
@@ -230,7 +239,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param Title $title
 	 * @param string $username
 	 * @param int $type One of ModerationNewChange::MOD_TYPE_* values.
-	 * @return [ 'ip' => ..., 'xff' => ..., 'ua' => ..., ... ]
+	 * @return array|false [ 'ip' => ..., 'xff' => ..., 'ua' => ..., ... ]
 	 */
 	public function getTask( Title $title, $username, $type ) {
 		$key = self::getTaskKey( $title, $username, $type );
@@ -239,6 +248,8 @@ class ModerationApproveHook implements DeferrableUpdate {
 
 	/**
 	 * Find the entry in $tasks about change $rc.
+	 * @param RecentChange $rc
+	 * @return array|false
 	 */
 	public function getTaskByRC( RecentChange $rc ) {
 		$type = ModerationNewChange::MOD_TYPE_EDIT;
@@ -253,13 +264,16 @@ class ModerationApproveHook implements DeferrableUpdate {
 		);
 	}
 
-	/*
-		onCheckUserInsertForRecentChange()
-		This hook is temporarily installed when approving the edit.
-
-		It modifies the IP, user-agent and XFF in the checkuser database,
-		so that they match the user who made the edit, not the moderator.
-	*/
+	/**
+	 * onCheckUserInsertForRecentChange()
+	 * This hook is temporarily installed when approving the edit.
+	 * It modifies the IP, user-agent and XFF in the checkuser database,
+	 * so that they match the user who made the edit, not the moderator.
+	 *
+	 * @param RecentChange $rc
+	 * @param array &$fields
+	 * @return bool
+	 */
 	public function onCheckUserInsertForRecentChange( $rc, &$fields ) {
 		$task = $this->getTaskByRC( $rc );
 		if ( !$task ) {
@@ -294,6 +308,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param LocalFile $file
 	 * @param bool $reupload
 	 * @param bool $hasDescription
+	 * @return bool
 	 */
 	public function onFileUpload( LocalFile $file, $reupload, $hasDescription ) {
 		if ( $reupload ) {
@@ -344,13 +359,15 @@ class ModerationApproveHook implements DeferrableUpdate {
 		}
 	}
 
-	/*
-		onRecentChange_save()
-		This hook is temporarily installed when approving the edit.
-
-		It modifies the IP in the recentchanges table,
-		so that it matches the user who made the edit, not the moderator.
-	*/
+	/**
+	 * onRecentChange_save()
+	 * This hook is temporarily installed when approving the edit.
+	 * It modifies the IP in the recentchanges table,
+	 * so that it matches the user who made the edit, not the moderator.
+	 *
+	 * @param RecentChange &$rc
+	 * @return bool
+	 */
 	public function onRecentChange_save( &$rc ) {
 		global $wgPutIPinRC;
 
@@ -409,6 +426,10 @@ class ModerationApproveHook implements DeferrableUpdate {
 
 	/**
 	 * Prepare the approve hook. Called before doEditContent().
+	 * @param Title $title
+	 * @param User $user
+	 * @param string $type
+	 * @param array $task
 	 */
 	public static function install( Title $title, User $user, $type, array $task ) {
 		$key = self::getTaskKey( $title, $user->getName(), $type );

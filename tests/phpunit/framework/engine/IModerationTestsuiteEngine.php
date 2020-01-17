@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017 Edward Chernenko.
+	Copyright (C) 2017-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,11 +24,15 @@ interface IModerationTestsuiteEngine {
 	public function query( array $apiQuery );
 
 	public function setHeader( $name, $value );
+
 	public function ignoreHttpError( $code );
+
 	public function stopIgnoringHttpError( $code );
 
 	public function loginAs( User $user );
+
 	public function loggedInAs();
+
 	public function logout();
 
 	/**

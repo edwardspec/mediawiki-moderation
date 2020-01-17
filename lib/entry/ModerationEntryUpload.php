@@ -23,6 +23,7 @@
 class ModerationEntryUpload extends ModerationApprovableEntry {
 	/**
 	 * Approve this upload.
+	 * @param User $moderator
 	 * @return Status object.
 	 */
 	public function doApprove( User $moderator ) {

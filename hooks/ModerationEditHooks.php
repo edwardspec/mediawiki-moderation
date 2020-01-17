@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2018 Edward Chernenko.
+	Copyright (C) 2014-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -101,7 +101,7 @@ class ModerationEditHooks {
 			->setSummary( $summary )
 			->queue();
 
-		if ( !is_null( self::$watchthis ) ) {
+		if ( self::$watchthis !== null ) {
 			/* Watch/Unwatch the page immediately:
 				watchlist is the user's own business,
 				no reason to wait for approval of the edit */
@@ -130,6 +130,7 @@ class ModerationEditHooks {
 	 * Returns the URL to where the user is redirected after successful edit.
 	 * @param Title $title Article that was edited.
 	 * @param IContextSource $context Any object that contains current context.
+	 * @return string URL
 	 */
 	protected static function getRedirectURL( Title $title, IContextSource $context ) {
 		$query = [ 'modqueued' => 1 ];
@@ -250,6 +251,8 @@ class ModerationEditHooks {
 
 	/**
 	 * Registers 'moderation-merged' ChangeTag.
+	 * @param array &$tags
+	 * @return true
 	 */
 	public static function onListDefinedTags( &$tags ) {
 		$tags[] = 'moderation-merged';

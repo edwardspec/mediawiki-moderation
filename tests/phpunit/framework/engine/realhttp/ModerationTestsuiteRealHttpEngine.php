@@ -42,6 +42,8 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 	 * @param string $url
 	 * @param string $method
 	 * @param array $postData
+	 * @return ModerationTestsuiteResponse
+	 * @throws ModerationTestsuiteHttpError
 	 */
 	public function httpRequestInternal( $url, $method, array $postData ) {
 		if ( !$this->cookieJar ) {

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -51,20 +51,23 @@ abstract class ModerationEntry implements IModerationEntry {
 
 	/**
 	 * Returns true if this is a move, false otherwise.
+	 * @return bool
 	 */
 	public function isMove() {
 		return $this->row->type == ModerationNewChange::MOD_TYPE_MOVE;
 	}
 
 	/**
-	 * Returns true if this is an upload, false otherwise.
+	 * True if this is an upload, false otherwise.
+	 * @return bool
 	 */
 	public function isUpload() {
 		return $this->row->stash_key ? true : false;
 	}
 
 	/**
-	 * Returns true if this edit is recent enough to be reapproved after rejection.
+	 * True if this edit is recent enough to be reapproved after rejection, false otherwise.
+	 * @return bool
 	 */
 	public function canReapproveRejected() {
 		if ( self::$earliestReapprovableTimestamp === null ) {
@@ -80,9 +83,10 @@ abstract class ModerationEntry implements IModerationEntry {
 	/**
 	 * Returns author of this change (User object).
 	 * @param int $flags User::READ_* constant bitfield.
+	 * @return User
 	 */
 	protected function getUser( $flags = 0 ) {
-		if ( is_null( $this->user ) ) {
+		if ( $this->user === null ) {
 			$row = $this->getRow();
 			$user = $row->user ?
 				User::newFromId( $row->user ) :
@@ -104,10 +108,10 @@ abstract class ModerationEntry implements IModerationEntry {
 	}
 
 	/**
-	 * Returns Title of the page affected by this change.
+	 * @return Title of the page affected by this change.
 	 */
 	public function getTitle() {
-		if ( is_null( $this->title ) ) {
+		if ( $this->title === null ) {
 			$row = $this->getRow();
 			$this->title = Title::makeTitle( $row->namespace, $row->title );
 		}
@@ -133,6 +137,7 @@ abstract class ModerationEntry implements IModerationEntry {
 	 * Load ModerationEntry from the database by mod_id.
 	 * @param int $id
 	 * @param int $dbType DB_MASTER or DB_REPLICA.
+	 * @return ModerationEntry
 	 * @throws ModerationError
 	 */
 	public static function newFromId( $id, $dbType = DB_MASTER ) {
@@ -152,6 +157,8 @@ abstract class ModerationEntry implements IModerationEntry {
 
 	/**
 	 * Construct new ModerationEntry from $row.
+	 * @param stdClass $row
+	 * @return ModerationEntry
 	 * @throws ModerationError
 	 */
 	public static function newFromRow( $row ) {

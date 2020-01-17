@@ -220,6 +220,7 @@ class ModerationTestsuiteEntry {
 
 	/**
 	 * Get any link, assuming at least one exists.
+	 * @return string
 	 */
 	public function getAnyLink() {
 		/* Either Block or Unblock link always exists */
@@ -234,6 +235,7 @@ class ModerationTestsuiteEntry {
 	/**
 	 * Get URL of the link $modaction.
 	 * @param string $modaction Name of modaction (e.g. 'rejectall') or 'mergedDiff'.
+	 * @return string
 	 */
 	public function getActionLink( $modaction ) {
 		switch ( $modaction ) {
@@ -286,7 +288,7 @@ class ModerationTestsuiteEntry {
 
 	/**
 	 * Populates both $e->blockLink and $e->unblockLink,
-			even though only one link exists on Special:Moderation
+	 * even though only one link exists on Special:Moderation
 	 */
 	public function fakeBlockLink() {
 		$bl = $this->blockLink;
@@ -301,6 +303,7 @@ class ModerationTestsuiteEntry {
 
 	/**
 	 * Returns the URL of modaction=showimg for this entry.
+	 * @return string
 	 */
 	public function expectedShowImgLink() {
 		return $this->expectedActionLink( 'showimg', false );
@@ -308,6 +311,7 @@ class ModerationTestsuiteEntry {
 
 	/**
 	 * Returns the URL of modaction=$action for this entry.
+	 * @return string
 	 */
 	public function expectedActionLink( $action, $needsToken = true ) {
 		/* Either block or unblock link always exists */
@@ -322,6 +326,7 @@ class ModerationTestsuiteEntry {
 	/**
 	 * Fetches this entry from the database and returns $field.
 	 * @param string $field Field name, e.g. "mod_new_len".
+	 * @return string
 	 */
 	public function getDbField( $field ) {
 		$dbw = wfGetDB( DB_MASTER );
@@ -335,6 +340,7 @@ class ModerationTestsuiteEntry {
 
 	/**
 	 * Returns mod_text of this entry (loaded from the database).
+	 * @return string
 	 */
 	public function getDbText() {
 		return $this->getDbField( 'mod_text' );

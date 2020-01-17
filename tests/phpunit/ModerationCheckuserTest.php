@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2017 Edward Chernenko.
+	Copyright (C) 2015-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -111,7 +111,7 @@ class ModerationCheckuserTest extends ModerationTestCase {
 		$NUMBER_OF_UPLOADS = 2;
 
 		$t->loginAs( $t->unprivilegedUser );
-		for ( $i = 1; $i <= $NUMBER_OF_UPLOADS; $i ++ ) {
+		for ( $i = 1; $i <= $NUMBER_OF_UPLOADS; $i++ ) {
 			$t->setUserAgent( $this->userUA . '#' . $i );
 			$t->doTestUpload( "UA_Test_Upload${i}.png" );
 		}
@@ -137,7 +137,7 @@ class ModerationCheckuserTest extends ModerationTestCase {
 				"testApproveAllUploadPrevervesUA(): Upload #$i: UserAgent in checkuser " .
 				"tables doesn't match UserAgent of user who made the upload" );
 
-			$i --;
+			$i--;
 		}
 	}
 }

@@ -18,7 +18,7 @@
 /**
  * @file
  * Logger used by Moderation testsuite to dump the log of HTTP requests related to the failed test.
-*/
+ */
 class ModerationTestsuiteLogger extends MediaWiki\Logger\LegacyLogger {
 	/**
 	 * @var array[string]

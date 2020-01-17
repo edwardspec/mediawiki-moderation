@@ -18,7 +18,7 @@
 /**
  * @file
  * Basic TestSet for tests which precreate a change that awaits moderation.
-*/
+ */
 
 abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsuiteTestSet {
 
@@ -153,6 +153,7 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 	/**
 	 * Returns default value for $fields.
 	 * This represents situation when dataProvider provides an empty array.
+	 * @return array
 	 */
 	protected function getDefaultFields() {
 		$t = $this->getTestsuite();
@@ -195,6 +196,7 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 
 	/**
 	 * Returns Title object of the page mentioned in $this->fields.
+	 * @return Title
 	 */
 	protected function getExpectedTitleObj( $nsField = 'mod_namespace', $titleField = 'mod_title' ) {
 		return Title::makeTitle(
@@ -205,6 +207,7 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 
 	/**
 	 * Returns pagename (string) of the page mentioned in $this->fields.
+	 * @return string
 	 */
 	protected function getExpectedTitle( $nsField = 'mod_namespace', $titleField = 'mod_title' ) {
 		return $this->getExpectedTitleObj( $nsField, $titleField )->getFullText();
@@ -212,6 +215,7 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 
 	/**
 	 * Returns pagename (string) of the second page mentioned in $this->fields.
+	 * @return string
 	 */
 	protected function getExpectedPage2Title() {
 		return $this->getExpectedTitle(

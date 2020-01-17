@@ -681,7 +681,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * This is used to skip ReadOnly tests when memcached is unavailable
 	 * (because CACHE_DB doesn't work in ReadOnly mode).
 	 * @return bool
-	 **/
+	 */
 	private function doesMemcachedWork() {
 		$cache = wfGetCache( CACHE_MEMCACHED );
 

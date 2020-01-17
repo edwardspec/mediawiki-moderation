@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2018 Edward Chernenko.
+	Copyright (C) 2014-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -56,12 +56,18 @@ abstract class ModerationAction extends ContextSource {
 
 	/* The following methods can be overridden in the subclass */
 
-	/** Whether the URL of this action must contain CSRF token */
+	/**
+	 * Whether the URL of this action must contain CSRF token
+	 * @return bool
+	 */
 	public function requiresEditToken() {
 		return true;
 	}
 
-	/** Whether this action requires the wiki not to be locked */
+	/**
+	 * Whether this action requires the wiki not to be locked
+	 * @return bool
+	 */
 	public function requiresWrite() {
 		return true;
 	}
@@ -97,7 +103,11 @@ abstract class ModerationAction extends ContextSource {
 		return Title::makeTitle( NS_USER, $username );
 	}
 
-	/** Construct new ModerationAction */
+	/**
+	 * Construct new ModerationAction
+	 * @param IContextSource $context
+	 * @return ModerationAction
+	 */
 	public static function factory( IContextSource $context ) {
 		$request = $context->getRequest();
 		$action = $request->getVal( 'modaction' );

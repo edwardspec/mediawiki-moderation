@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2019 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,20 +24,26 @@ class ModerationEntryFormatter extends ModerationEntry {
 	/** @var IContextSource */
 	protected $context = null;
 
+	/**
+	 * @return IContextSource
+	 */
 	public function getContext() {
-		if ( is_null( $this->context ) ) {
+		if ( $this->context === null ) {
 			$this->context = RequestContext::getMain();
 		}
 
 		return $this->context;
 	}
 
+	/**
+	 * @param IContextSource $context
+	 */
 	public function setContext( IContextSource $context ) {
 		$this->context = $context;
 	}
 
 	/**
-	 * Returns User object of moderator.
+	 * @return User object of moderator.
 	 */
 	public function getModerator() {
 		return $this->getContext()->getUser();
@@ -45,6 +51,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 	/**
 	 * Same as wfMessage(), but respects local context.
+	 * @param mixed ...$args
 	 * @return Message
 	 */
 	public function msg( ...$args ) {
@@ -55,6 +62,8 @@ class ModerationEntryFormatter extends ModerationEntry {
 	 * Add all titles needed by getHTML() to $batch.
 	 * This method is for QueryPage::preprocessResults().
 	 * It optimizes Linker::link() calls by detecting all redlinks in one SQL query.
+	 * @param stdClass $row
+	 * @param LinkBatch $batch
 	 */
 	public static function addToLinkBatch( $row, LinkBatch $batch ) {
 		/* Check the affected article */
@@ -81,6 +90,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 	/**
 	 * Returns QueryInfo for $db->select(), as expected by QueryPage::getQueryInfo().
+	 * @return array
 	 */
 	public static function getQueryInfo() {
 		return [
@@ -144,6 +154,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 	/**
 	 * Returns HTML of formatted line for Special:Moderation.
+	 * @return string
 	 */
 	public function getHTML() {
 		global $wgModerationPreviewLink, $wgModerationEnableEditChange;

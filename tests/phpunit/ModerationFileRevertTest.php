@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017 Edward Chernenko.
+	Copyright (C) 2017-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ class ModerationFileRevertTest extends ModerationTestCase {
 
 	/**
 	 * Check that api.php?action=filerevert can't be used to bypass Moderation.
+	 * @covers ModerationApiHooks::onApiCheckCanExecute
 	 */
 	public function testApiFileRevert( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );

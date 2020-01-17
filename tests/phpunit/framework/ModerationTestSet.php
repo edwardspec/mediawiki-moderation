@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,14 +25,16 @@ abstract class ModerationTestsuiteTestSet {
 	private $testcase;
 
 	/**
-	 * Returns current ModerationTestCase object.
-	 * Used for calling assert*() methods.
+	 * Returns current ModerationTestCase object, useful for calling assert*() methods.
+	 * @return ModerationTestCase
 	 */
 	protected function getTestcase() {
 		return $this->testcase;
 	}
 
-	/** Returns ModerationTestsuite object. */
+	/**
+	 * @return ModerationTestsuite
+	 */
 	protected function getTestsuite() {
 		return $this->getTestcase()->getTestsuite();
 	}

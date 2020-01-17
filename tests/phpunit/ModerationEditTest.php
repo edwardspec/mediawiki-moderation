@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2018 Edward Chernenko.
+	Copyright (C) 2015-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,9 +23,12 @@
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 class ModerationEditTest extends ModerationTestCase {
+	/**
+	 * Ensure that some substitutions (e.g. ~~~~) are performed when and only when
+	 * the edit is queued for moderation, but not when it is approved.
+	 * @coversNothing
+	 */
 	public function testPreSaveTransform( ModerationTestsuite $t ) {
-		# Some substitutions (e.g. ~~~~) must be performed when
-		# the edit is queued for moderation, not when it is approved.
 		$text = '~~~~';
 
 		$t->loginAs( $t->unprivilegedUser );
@@ -52,6 +55,7 @@ class ModerationEditTest extends ModerationTestCase {
 	/**
 	 * Ensure that single sections are edited correctly.
 	 * @dataProvider dataProviderEditSections
+	 * @coversNothing
 	 */
 	public function testEditSections( $useApi, ModerationTestsuite $t ) {
 		$bot = $t->getBot( $useApi ? 'api' : 'nonApi' );
@@ -105,8 +109,11 @@ class ModerationEditTest extends ModerationTestCase {
 			"testEditSections(): When section header is deleted, resulting text doesn't match expected " );
 	}
 
+	/**
+	 * Verifies that mod_new_len is properly recalculated when editing sections.
+	 * @coversNothing
+	 */
 	public function testNewSizeAfterEditSection( ModerationTestsuite $t ) {
-		/* Make sure that mod_new_len is properly recalculated when editing sections */
 		$title = 'Test page 1';
 		$sections = [
 			"Text in zero section",
@@ -136,8 +143,12 @@ class ModerationEditTest extends ModerationTestCase {
 			"testNewSizeAfterEditSection(): Length changed after null edit in a section" );
 	}
 
+	/**
+	 * Verifies that api.php?action=edit&{append,prepend}text=[...] works correctly.
+	 * @covers ModerationApiHooks::onApiBeforeMain
+	 */
 	public function testApiEditAppend( ModerationTestsuite $t ) {
-		# Does api.php?action=edit&{append,prepend}text=[...] work properly?
+		# Does
 		$todoPrepend = [ "B", "A" ];
 		$todoText = "C";
 		$todoAppend = [ "D", "E" ];
@@ -178,10 +189,12 @@ class ModerationEditTest extends ModerationTestCase {
 			"testApiEditAppend(): Resulting text doesn't match expected" );
 	}
 
+	/**
+	 * Verifies that api.php?action=edit&section=N works when section #N doesn't exist
+	 * in the article, but already exists in the pending (preloaded) revision.
+	 * @covers ModerationApiHooks::onApiBeforeMain
+	 */
 	public function testApiNoSuchSectionYet( ModerationTestsuite $t ) {
-		# Does api.php?action=edit&section=N work if section #N doesn't exist
-		# in the article, but exists in the pending (preloaded) revision?
-
 		$title = 'Test page 1';
 		$text = "text 0\n== section 1 ==\ntext 1\n== section 2 ==\ntext 2\n== section 3 ==\ntext 3\n";
 		$sectionIdx = 2; /* This section exists in $text */

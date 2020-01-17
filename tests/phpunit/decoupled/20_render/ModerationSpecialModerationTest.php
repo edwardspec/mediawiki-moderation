@@ -146,8 +146,10 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	/** @var bool If true, $wgModerationEnableEditChange will be enabled. */
 	protected $editChangeEnabled = false;
 
-	/** @var bool If true, Approve link should be absent,
-		because the entry was rejected too long ago. */
+	/**
+	 * @var bool
+	 * If true, Approve link should be absent, because the entry was rejected too long ago.
+	 */
 	protected $expectNotReapprovable = false;
 
 	/**
@@ -327,8 +329,8 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 	/**
 	 * Assert that Whois link is always shown for anonymous users,
-		and only to checkusers for registered users.
-	*/
+	 * and only to checkusers for registered users.
+	 */
 	protected function assertWhoisLink( ModerationTestsuiteEntry $entry ) {
 		$testcase = $this->getTestcase();
 		if ( $this->fields['mod_user'] == 0 ) {

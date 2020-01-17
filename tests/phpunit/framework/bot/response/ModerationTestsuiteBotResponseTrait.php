@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ trait ModerationTestsuiteBotResponse {
 	 * @param bool $isIntercepted
 	 * @param bool $isBypassed
 	 * @param string|null $error
+	 * @return ModerationTestsuiteApiBotResponse|ModerationTestsuiteNonApiBotResponse
 	 */
 	public static function factory( $nativeResponse, $isIntercepted, $isBypassed, $error ) {
 		$r = new self( $nativeResponse );

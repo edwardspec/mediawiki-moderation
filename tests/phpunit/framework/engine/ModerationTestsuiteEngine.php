@@ -18,11 +18,11 @@
 /**
  * @file
  * Abstract parent class for sending requests (HTTP or API) to MediaWiki.
-
-	Possible subclasses:
-	1) send real HTTP requests via network (RealHttpEngine),
-	2) invoke MediaWiki as a command-line script (CliEngine).
-*/
+ *
+ * Possible subclasses:
+ * 1) send real HTTP requests via network (RealHttpEngine),
+ * 2) invoke MediaWiki as a command-line script (CliEngine).
+ */
 
 abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
@@ -37,6 +37,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 	/**
 	 * Create engine object.
+	 * @return ModerationTestsuiteEngine
 	 */
 	public static function factory() {
 		switch ( getenv( 'MODERATION_TEST_ENGINE' ) ) {
@@ -53,7 +54,10 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 		$this->reqHeaders[$name] = $value;
 	}
 
-	/** Returns array of all HTTP headers. */
+	/**
+	 * Returns array of all HTTP headers.
+	 * @return array
+	 */
 	protected function getRequestHeaders() {
 		return $this->reqHeaders + [
 			'Content-Type' => 'multipart/form-data'
@@ -185,6 +189,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 	/**
 	 * Re-enable throwing an exception when HTTP request returns $code.
+	 * @return bool
 	 */
 	protected function isHttpErrorIgnored( $code ) {
 		return isset( $this->ignoredHttpErrors[$code] )
@@ -301,6 +306,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 	/**
 	 * Obtain edit token. Can be overridden in the engine subclass.
+	 * @return string
 	 */
 	public function getEditToken() {
 		if ( !$this->editToken ) {
@@ -325,6 +331,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	/**
 	 * Create an account and return User object.
 	 * @note Will not login automatically (loginAs must be called).
+	 * @return User
 	 */
 	public function createAccount( $username ) {
 		# Step 1. Get the token.
@@ -356,14 +363,14 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 	/**
 	 * Handle the fact that MediaWikiTestCase tries to isolate us from the real database.
-
-		MediaWiki 1.28+ started to agressively isolate tests from the real database,
-		which means that executed HTTP requests must also be in the sandbox.
-
-		RealHttp engine can't instruct the HTTP server to use another database prefix
-		(which is how the sandbox is selected instead of the real database),
-		so its only choice is to break out of the sandbox.
-		Engine like CliEngine can handle this properly (by actually using the sandbox).
+	 *
+	 * MediaWiki 1.28+ started to agressively isolate tests from the real database,
+	 * which means that executed HTTP requests must also be in the sandbox.
+	 *
+	 * RealHttp engine can't instruct the HTTP server to use another database prefix
+	 * (which is how the sandbox is selected instead of the real database),
+	 * so its only choice is to break out of the sandbox.
+	 * Engine like CliEngine can handle this properly (by actually using the sandbox).
 	 */
 	public function escapeDbSandbox() {
 		// FIXME: this approach below no longer works in MediaWiki 1.33+,

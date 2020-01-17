@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,9 +30,10 @@
  */
 
 class ModerationQueuedSuccessException extends ErrorPageError {
-
 	/**
 	 * Throw this exception if the user is on a special page that needs it.
+	 * @param string $msg
+	 * @param array $params
 	 */
 	public static function throwIfNeeded( $msg, array $params = [] ) {
 		$title = RequestContext::getMain()->getTitle();

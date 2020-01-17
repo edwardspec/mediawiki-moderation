@@ -20,7 +20,7 @@
  * Tests the ModerationTestsuite itself.
  *
  * Used for debugging subclasses of ModerationTestsuiteEngine.
-*/
+ */
 
 require_once __DIR__ . "/../ModerationTestsuite.php";
 

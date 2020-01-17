@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -31,8 +31,13 @@ class ModerationNotifyModerator {
 	/**
 	 * BeforeInitialize hook.
 	 * Here we install GetNewMessagesAlert hook and prevent Extension:Echo from suppressing it.
+	 * @param Title &$title
+	 * @param mixed &$unused
+	 * @param OutputPage &$out
+	 * @param User &$user
+	 * @return true
 	 */
-	public static function onBeforeInitialize( &$title, &$unused, &$out, &$user, $request, $mw ) {
+	public static function onBeforeInitialize( &$title, &$unused, &$out, &$user ) {
 		$handler = new self;
 		$handler->considerInstall( $user, $title );
 
@@ -92,9 +97,14 @@ class ModerationNotifyModerator {
 		Hooks::register( $hookName, $this ); // Install our own handler
 	}
 
-	/*
+	/**
 	 * GetNewMessagesAlert hook.
 	 * Shows in-wiki notification "new edits are pending moderation" to moderators.
+	 * @param string &$newMessagesAlert
+	 * @param array $newtalks
+	 * @param User $user
+	 * @param OutputPage $out
+	 * @return bool
 	 */
 	public function onGetNewMessagesAlert(
 		&$newMessagesAlert,
@@ -117,12 +127,18 @@ class ModerationNotifyModerator {
 		return true;
 	}
 
-	/** Returns memcached key used by getPendingTime()/setPendingTime() */
+	/**
+	 * Returns memcached key used by getPendingTime()/setPendingTime()
+	 * @return string
+	 */
 	protected static function getPendingCacheKey() {
 		return wfMemcKey( 'moderation-newest-pending-timestamp' );
 	}
 
-	/** Returns most recent mod_timestamp of pending edit */
+	/**
+	 * Returns most recent mod_timestamp of pending edit.
+	 * @return string
+	 */
 	protected function getPendingTime() {
 		$cache = wfGetMainCache();
 		$cacheKey = self::getPendingCacheKey();
@@ -142,7 +158,10 @@ class ModerationNotifyModerator {
 		return $result;
 	}
 
-	/** Uncached version of getPendingTime(). Shouldn't be used outside of getPendingTime() */
+	/**
+	 * Uncached version of getPendingTime(). Shouldn't be used outside of getPendingTime().
+	 * @return string|false
+	 */
 	protected function getPendingTimeUncached() {
 		$dbr = wfGetDB( DB_REPLICA );
 		return $dbr->selectField( 'moderation', 'mod_timestamp',
@@ -155,7 +174,10 @@ class ModerationNotifyModerator {
 		);
 	}
 
-	/** Update the cache of getPendingTime() with more actual value. */
+	/**
+	 * Update the cache of getPendingTime() with more actual value.
+	 * @param string $newTimestamp
+	 */
 	public static function setPendingTime( $newTimestamp ) {
 		$cache = wfGetMainCache();
 		$cache->set( self::getPendingCacheKey(), $newTimestamp, 86400 ); /* 24 hours */
@@ -171,13 +193,18 @@ class ModerationNotifyModerator {
 		$cache->delete( self::getPendingCacheKey() );
 	}
 
-	/** Returns memcached key used by getSeen()/setSeen() */
+	/**
+	 * Returns memcached key used by getSeen()/setSeen()
+	 * @param User $user
+	 * @return string
+	 */
 	protected static function getSeenCacheKey( User $user ) {
 		return wfMemcKey( 'moderation-seen-timestamp', $user->getId() );
 	}
 
 	/**
 	 * Get newest mod_timestamp seen by $user (if known) or false.
+	 * @param User $user
 	 * @return string|false
 	 */
 	protected function getSeen( User $user ) {
@@ -187,6 +214,8 @@ class ModerationNotifyModerator {
 
 	/**
 	 * Remember the newest mod_timestamp seen by $user.
+	 * @param User $user
+	 * @param string $timestamp
 	 */
 	public static function setSeen( User $user, $timestamp ) {
 		$cache = wfGetMainCache();

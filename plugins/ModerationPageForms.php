@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,6 +32,11 @@ class ModerationPageForms {
 	 * This is used by two hooks:
 	 * PageForms::EditFormPreloadText (when creating new page)
 	 * PageForms::EditFormInitialText (when editing existing page)
+	 *
+	 * @param string &$preloadContent
+	 * @param Title $targetTitle
+	 * @param Title $formTitle
+	 * @return bool
 	 */
 	public static function preloadText( &$preloadContent, $targetTitle, $formTitle ) {
 		if ( !$targetTitle ) {
@@ -48,6 +53,11 @@ class ModerationPageForms {
 	/**
 	 * ModerationContinueEditingLink hook.
 	 * Here we point "continue editing" link to FormEdit after using FormEdit.
+	 * @param string &$returnto
+	 * @param array &$returntoquery
+	 * @param Title $title
+	 * @param IContextSource $context
+	 * @return bool
 	 */
 	public function onModerationContinueEditingLink(
 		&$returnto,

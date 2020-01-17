@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017 Edward Chernenko.
+	Copyright (C) 2017-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,11 +18,11 @@
 /**
  * @file
  * Ensure that changes to "moderation" table are NOT undone by database rollback.
-
-	Some third-party extension may call doEditContent(), mistakenly
-	assume "moderation-edit-queued" to be an error and call rollback().
-	In this situation new row in "moderation" table shouldn't be lost.
-*/
+ *
+ * Some third-party extension may call doEditContent(), mistakenly
+ * assume "moderation-edit-queued" to be an error and call rollback().
+ * In this situation new row in "moderation" table shouldn't be lost.
+ */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 

@@ -51,6 +51,7 @@ class ModerationViewableEntry extends ModerationEntry {
 	/**
 	 * Returns HTML of the diff.
 	 * @param IContextSource $context Any object that contains current context.
+	 * @return string
 	 */
 	public function getDiffHTML( IContextSource $context ) {
 		$row = $this->getRow();
@@ -107,6 +108,7 @@ class ModerationViewableEntry extends ModerationEntry {
 
 	/**
 	 * Returns false if this file is not an image (e.g. OGG file), true otherwise.
+	 * @return bool
 	 */
 	protected function isImage() {
 		$row = $this->getRow();
@@ -127,6 +129,7 @@ class ModerationViewableEntry extends ModerationEntry {
 	/**
 	 * Returns URL of modaction=showimg for this upload.
 	 * @param bool $isThumb True for thumbnail, false for full-sized image.
+	 * @return string
 	 */
 	public function getImageURL( $isThumb = false ) {
 		$row = $this->getRow();
@@ -145,6 +148,7 @@ class ModerationViewableEntry extends ModerationEntry {
 
 	/**
 	 * Returns HTML of the image thumbnail.
+	 * @return string
 	 */
 	public function getImageThumbHTML() {
 		$row = $this->getRow();

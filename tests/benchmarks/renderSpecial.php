@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,10 +18,10 @@
 /**
  * @file
  * Benchmark: how fast is HTML of Special:Moderation generated?
-
-	Usage:
-	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/renderSpecial.php
-*/
+ *
+ * Usage:
+ *	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/renderSpecial.php
+ */
 
 require_once __DIR__ . '/ModerationBenchmark.php';
 
@@ -29,6 +29,7 @@ class BenchmarkRenderSpecial extends ModerationBenchmark {
 
 	/**
 	 * Default number of loops.
+	 * @return int
 	 */
 	public function getDefaultLoops() {
 		return 50;
@@ -36,6 +37,7 @@ class BenchmarkRenderSpecial extends ModerationBenchmark {
 
 	/**
 	 * How many rows to show on Special:Moderation.
+	 * @return int
 	 */
 	public function getNumberOfEntries() {
 		return 200;
@@ -44,7 +46,7 @@ class BenchmarkRenderSpecial extends ModerationBenchmark {
 	public function beforeBenchmark( $numberOfLoops ) {
 		/* Prepopulate 'moderation' table */
 // phpcs:disable Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed
-		for ( $i = 0; $i <= $this->getNumberOfEntries(); $i ++ ) {
+		for ( $i = 0; $i <= $this->getNumberOfEntries(); $i++ ) {
 			$this->fastQueue( $this->getTestTitle( $i ) );
 		}
 // phpcs:enable

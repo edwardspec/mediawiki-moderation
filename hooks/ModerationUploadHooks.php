@@ -24,6 +24,13 @@ class ModerationUploadHooks {
 
 	/**
 	 * Intercept image uploads and queue them for moderation.
+	 * @param UploadBase $upload
+	 * @param User $user
+	 * @param mixed $__unused
+	 * @param string $comment
+	 * @param string $pageText
+	 * @param array &$error
+	 * @return bool
 	 */
 	public static function onUploadVerifyUpload( $upload, $user, $__unused,
 		$comment, $pageText, &$error

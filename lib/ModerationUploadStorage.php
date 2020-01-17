@@ -25,6 +25,7 @@ class ModerationUploadStorage {
 
 	/**
 	 * Move all old uploads from UploadStash of their uploader into a centralized UploadStash.
+	 * @param User $user
 	 */
 	protected static function migrateFromPerUploaderStashes( User $user ) {
 		$dbw = wfGetDB( DB_MASTER );

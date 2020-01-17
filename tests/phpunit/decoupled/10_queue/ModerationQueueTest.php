@@ -176,11 +176,13 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	/** @var bool If true, edits are made via API, if false, via the user interface. */
 	protected $viaApi = false;
 
-	/** @var bool If true, text is expected to be altered by PreSaveTransform
-		(e.g. contains "~~~~"). */
+	/** @var bool If true, text is expected to be altered by PreSaveTransform (e.g. contains "~~~~"). */
 	protected $needPst = false;
 
-	/** @var bool If true, existing page will be edited. If false, new page will be created. */
+	/**
+	 * @var bool
+	 * If true, existing page will be edited. If false, new page will be created.
+	 */
 	protected $existing = false;
 
 	/** @var string Text of existing article (if any) */

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2018 Edward Chernenko.
+	Copyright (C) 2014-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ class ModerationCanSkip {
 	 * Check if edits by $user can bypass moderation in namespace $namespaceNumber.
 	 * @param User $user
 	 * @param int $namespaceNumber
+	 * @return bool
 	 */
 	public static function canEditSkip( User $user, $namespaceNumber ) {
 		return self::canSkip( $user, 'skip-moderation', [ $namespaceNumber ] );
@@ -45,6 +46,7 @@ class ModerationCanSkip {
 	/**
 	 * Check if uploads by $user can bypass moderation.
 	 * @param User $user
+	 * @return bool
 	 */
 	public static function canUploadSkip( User $user ) {
 		return self::canEditSkip( $user, NS_FILE );
@@ -55,6 +57,7 @@ class ModerationCanSkip {
 	 * @param User $user
 	 * @param int $fromNamespace Namespace of the old title.
 	 * @param int $toNamespace Namespace of the new title.
+	 * @return bool
 	 */
 	public static function canMoveSkip( User $user, $fromNamespace, $toNamespace ) {
 		return self::canSkip( $user, 'skip-move-moderation', [
@@ -116,6 +119,8 @@ class ModerationCanSkip {
 
 	/**
 	 * Check if moderation can be skipped in namespace $namespaceNumber.
+	 * @param int $namespaceNumber
+	 * @return bool
 	 */
 	protected static function canSkipInNamespace( $namespaceNumber ) {
 		global $wgModerationOnlyInNamespaces,

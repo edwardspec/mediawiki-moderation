@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2016-2018 Edward Chernenko.
+	Copyright (C) 2016-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -72,6 +72,8 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 
 	/**
 	 * Parse $wikitext and return the results.
+	 * @param Title $title
+	 * @param string $wikitext
 	 * @return array with keys 'text', 'categorieshtml', 'displaytitle'
 	 */
 	protected function parse( Title $title, $wikitext ) {

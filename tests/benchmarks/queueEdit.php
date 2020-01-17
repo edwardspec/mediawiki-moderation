@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,10 +18,10 @@
 /**
  * @file
  * Benchmark: how fast are edits queued for moderation?
-
-	Usage:
-	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/queueEdit.php
-*/
+ *
+ * Usage:
+ *	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/queueEdit.php
+ */
 
 require_once __DIR__ . '/ModerationBenchmark.php';
 

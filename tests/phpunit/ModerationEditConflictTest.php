@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,17 +20,18 @@
  * Verifies that edit conficts are resolved by modaction=approve.
  *
  * Note: unresolvable edit conflicts are tested by ModerationMergeTest.
-*/
+ */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 class ModerationEditConflictTest extends ModerationTestCase {
+	/**
+	 * Ensure that resolvable edit conflicts are automatically resolved during modaction=approve.
+	 * @coversNothing
+	 */
 	public function testResolvableEditConflict( ModerationTestsuite $t ) {
 		/*
-			Ensure that resolvable edit conflicts are automatically
-			resolved during modaction=approve.
-
-			Here the two users edit different parts of the text,
+			Here the two users are modifying different parts of the text,
 			so that their changes can be merged automatically.
 		*/
 		$title = 'Test page 1';
@@ -51,5 +52,4 @@ class ModerationEditConflictTest extends ModerationTestCase {
 			"testResolvableEditConflict(): Unexpected text after approving both edits"
 		);
 	}
-
 }

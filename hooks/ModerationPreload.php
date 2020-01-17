@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2018 Edward Chernenko.
+	Copyright (C) 2014-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ class ModerationPreload {
 	 * @return ModerationPreload
 	 */
 	public static function singleton() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new self;
 		}
 
@@ -76,6 +76,7 @@ class ModerationPreload {
 
 	/**
 	 * Override the current user: preload for $user instead.
+	 * @param User $user
 	 */
 	public function setUser( User $user ) {
 		$this->user = $user;
@@ -98,6 +99,8 @@ class ModerationPreload {
 
 	/**
 	 * Calculate mod_preload_id for anonymous user.
+	 * @param bool $create If true, new preload ID will be generated for first-time anonymous editors.
+	 * @return string|false Preload ID (string), if already existed or just created.
 	 */
 	protected function getAnonId( $create ) {
 		$anonToken = $this->getRequest()->getSessionData( 'anon_id' );
@@ -170,11 +173,13 @@ class ModerationPreload {
 	 * Check if there is a pending-moderation edit of this user
 	 * to this page, and if such edit exists, then load its text and
 	 * edit comment.
+	 * @param Title $title
+	 * @return stdClass|null Database row.
 	 */
 	public function loadUnmoderatedEdit( $title ) {
 		$id = $this->getId();
 		if ( !$id ) { # This visitor never saved any edits
-			return;
+			return null;
 		}
 
 		$where = [

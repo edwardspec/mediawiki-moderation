@@ -79,12 +79,15 @@ class ModerationTestsuite {
 	public function query( $apiQuery ) {
 		return $this->engine->query( $apiQuery );
 	}
+
 	public function httpGet( $url ) {
 		return $this->engine->httpGet( $url );
 	}
+
 	public function httpPost( $url, array $postData = [] ) {
 		return $this->engine->httpPost( $url, $postData );
 	}
+
 	public function getEditToken() {
 		return $this->engine->getEditToken();
 	}
@@ -368,6 +371,7 @@ class ModerationTestsuite {
 	/**
 	 * Create an account and return User object.
 	 * @note Will not login automatically (loginAs must be called).
+	 * @return User
 	 */
 	public function createAccount( $username ) {
 		return $this->engine->createAccount( $username );
@@ -375,6 +379,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Perform a test move.
+	 * @return ModerationTestsuiteBotResponse
 	 */
 	public function doTestMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] ) {
 		return $this->getBot( 'nonApi' )->move( $oldTitle, $newTitle, $reason, $extraParams );
@@ -400,6 +405,10 @@ class ModerationTestsuite {
 		return ModerationTestsuiteBot::factory( $method, $this );
 	}
 
+	/**
+	 * Perform a test edit.
+	 * @return ModerationTestsuiteBotResponse
+	 */
 	public function doTestEdit(
 		$title = null,
 		$text = null,
@@ -434,6 +443,7 @@ class ModerationTestsuite {
 	/**
 	 * Makes one edit and returns its correct entry.
 	 * @note Logs in as $moderator.
+	 * @return ModerationTestsuiteEntry
 	 */
 	public function getSampleEntry( $title = null ) {
 		$this->fetchSpecial();
@@ -446,6 +456,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Perform a test upload.
+	 * @return ModerationTestsuiteBotResponse
 	 */
 	public function doTestUpload(
 		$title = null,
@@ -459,6 +470,7 @@ class ModerationTestsuite {
 	/**
 	 * Resolve $srcFilename into an absolute path.
 	 * Used in tests: '1.png' is found at [tests/resources/1.png].
+	 * @return string
 	 */
 	public static function findSourceFilename( $srcFilename ) {
 		if ( !$srcFilename ) {
@@ -473,8 +485,8 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * Get up to $count moderation log entries via API
-	 * (most recent first).
+	 * Get up to $count moderation log entries via API (most recent first).
+	 * @return array
 	 */
 	public function apiLogEntries( $count = 100 ) {
 		$ret = $this->query( [
@@ -488,6 +500,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Get up to $count moderation log entries NOT via API (most recent first).
+	 * @return array
 	 */
 	public function nonApiLogEntries( $count = 100 ) {
 		$title = Title::newFromText( 'Log/moderation', NS_SPECIAL )->fixSpecialName();
@@ -516,6 +529,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Get the last revision of page $title via API.
+	 * @return array
 	 */
 	public function getLastRevision( $title ) {
 		$ret = $this->query( [
@@ -531,6 +545,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Remove "token=" from URL and return its new HTML title.
+	 * @return string|null
 	 */
 	public function noTokenTitle( $url ) {
 		$bad_url = preg_replace( '/token=[^&]*/', '', $url );
@@ -539,6 +554,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Corrupt "token=" in URL and return its new HTML title.
+	 * @return string|null
 	 */
 	public function badTokenTitle( $url ) {
 		$bad_url = preg_replace( '/(token=)([^&]*)/', '\1WRONG\2', $url );
@@ -552,6 +568,7 @@ class ModerationTestsuite {
 	 * 	$waiter = $t->waitForRecentChangesToAppear();
 	 * 	// Do something that should create N recentchanges entries
 	 * 	$waiter( N );
+	 * @return callable
 	 */
 	public function waitForRecentChangesToAppear() {
 		$dbw = wfGetDB( DB_MASTER );
@@ -688,6 +705,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Call version_compare on $wgVersion.
+	 * @return bool
 	 */
 	public static function mwVersionCompare( $compareWith, $operator ) {
 		global $wgVersion;

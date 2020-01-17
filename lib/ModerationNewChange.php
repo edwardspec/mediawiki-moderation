@@ -156,6 +156,7 @@ class ModerationNewChange {
 
 	/**
 	 * Replace things like "~~~~" in $content.
+	 * @param Content $content
 	 * @return Content object.
 	 */
 	protected function preSaveTransform( Content $content ) {
@@ -171,6 +172,7 @@ class ModerationNewChange {
 
 	/**
 	 * Add AbuseFilter tags to this change, if any.
+	 * @param string $action
 	 */
 	protected function addChangeTags( $action ) {
 		if ( ModerationVersionCheck::areTagsSupported() ) {
@@ -187,6 +189,7 @@ class ModerationNewChange {
 	 * @param Title $title
 	 * @param User $user
 	 * @param string $action AbuseFilter action, e.g. 'edit' or 'delete'.
+	 * @return array|null
 	 */
 	public static function findAbuseFilterTags( Title $title, User $user, $action ) {
 		if ( !class_exists( 'AbuseFilter' ) || empty( AbuseFilter::$tagsToSet ) ) {
@@ -214,7 +217,7 @@ class ModerationNewChange {
 	}
 
 	protected function getPendingChange() {
-		if ( is_null( $this->pendingChange ) ) {
+		if ( $this->pendingChange === null ) {
 			$this->pendingChange = $this->getPreload()
 				->loadUnmoderatedEdit( $this->title );
 		}
@@ -224,6 +227,8 @@ class ModerationNewChange {
 
 	/**
 	 * Utility function: construct Content object from $text.
+	 * @param string $text
+	 * @param string|null $model Content model (e.g. CONTENT_MODEL_WIKITEXT).
 	 * @return Content object.
 	 */
 	protected function makeContent( $text, $model = null ) {

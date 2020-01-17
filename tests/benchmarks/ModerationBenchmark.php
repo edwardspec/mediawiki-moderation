@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ abstract class ModerationBenchmark extends Maintenance {
 	private $testUser = null;
 
 	/**
-	 * Returns User object of test account.
+	 * @return User object of test account.
 	 */
 	public function getUser() {
 		return $this->testUser;
@@ -47,6 +47,7 @@ abstract class ModerationBenchmark extends Maintenance {
 	/**
 	 * Returns Title object for testing.
 	 * @param string $suffix Full text of the title, e.g. "Talk:Welsh corgi".
+	 * @return Title
 	 *
 	 * During this benchmark, same value is returned for same $suffix,
 	 * but another benchmark will get a different Title.
@@ -84,6 +85,7 @@ abstract class ModerationBenchmark extends Maintenance {
 
 	/**
 	 * Default number of loops.
+	 * @return int
 	 */
 	public function getDefaultLoops() {
 		return 500;
@@ -92,7 +94,7 @@ abstract class ModerationBenchmark extends Maintenance {
 	/**
 	 * Main function: test the performance of doActualWork().
 	 */
-	function execute() {
+	public function execute() {
 		$user = User::newSystemUser( 'Benchmark User', [ 'steal' => true ] );
 		foreach ( $user->getGroups() as $existingGroup ) {
 			$user->removeGroup( $existingGroup );
@@ -109,7 +111,7 @@ abstract class ModerationBenchmark extends Maintenance {
 		$dbw->startAtomic( __METHOD__ );
 
 		$this->beforeBenchmark( $loops );
-		for ( $i = 0; $i <= $loops; $i ++ ) {
+		for ( $i = 0; $i <= $loops; $i++ ) {
 			$this->beforeBenchmarkPrepareLoop( $i );
 		}
 
@@ -119,7 +121,7 @@ abstract class ModerationBenchmark extends Maintenance {
 
 		/* Run doActualWork() several times */
 		$startTime = microtime( true );
-		for ( $i = 0; $i < $loops; $i ++ ) {
+		for ( $i = 0; $i < $loops; $i++ ) {
 			if ( $i % $loopsInPercent == 0 ) {
 				printf( "\r%.1f%%", ( 100 * $i / $loops ) );
 			}
@@ -216,7 +218,7 @@ abstract class ModerationBenchmark extends Maintenance {
 
 	/**
 	 * Render Special:Moderation with $params.
-	 * @return HTML of the result.
+	 * @return string HTML of the result.
 	 */
 	public function runSpecialModeration( array $params, $wasPosted = false ) {
 		return ModerationTestUtil::runSpecialModeration(

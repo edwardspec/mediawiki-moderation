@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2016-2019 Edward Chernenko.
+	Copyright (C) 2016-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,24 +18,26 @@
 /**
  * @file
  * Adds ajaxhook-related JavaScript modules when they are needed.
-
-	Default behavior: automatically check for presence of extension.
-	For example, if Extension:VisualEditor is detected,
-	then module 'ext.moderation.ve' will be attached.
-
-	This can be overridden in LocalSettings.php:
-	$wgModerationSupportVisualEditor = true; - attach even if not detected.
-	$wgModerationSupportVisualEditor = false; - don't attach even if detected.
-	$wgModerationSupportVisualEditor = "guess"; - default behavior.
-
-	If at least one module is attached (or if $wgModerationForceAjaxHook is
-	set to true), "ext.moderation.ajaxhook" will also be attached.
-*/
+ *
+ * Default behavior: automatically check for presence of extension.
+ * For example, if Extension:VisualEditor is detected,
+ * then module 'ext.moderation.ve' will be attached.
+ *
+ * This can be overridden in LocalSettings.php:
+ * $wgModerationSupportVisualEditor = true; - attach even if not detected.
+ * $wgModerationSupportVisualEditor = false; - don't attach even if detected.
+ * $wgModerationSupportVisualEditor = "guess"; - default behavior.
+ *
+ * If at least one module is attached (or if $wgModerationForceAjaxHook is
+ * set to true), "ext.moderation.ajaxhook" will also be attached.
+ */
 
 class ModerationAjaxHook {
 
 	/**
 	 * Depending on $configName being true/false/"guess", return true/false/$default.
+	 * @param string $configName
+	 * @param string $default
 	 * @return bool
 	 */
 	protected static function need( $configName, $default ) {
@@ -44,7 +46,10 @@ class ModerationAjaxHook {
 		return ( is_bool( $val ) ? $val : $default );
 	}
 
-	/** Convenience method: returns true if in Mobile skin, false otherwise */
+	/**
+	 * Convenience method: returns true if in Mobile skin, false otherwise
+	 * @return bool
+	 */
 	protected static function isMobile() {
 		return ( class_exists( 'MobileContext' ) &&
 			MobileContext::singleton()->shouldDisplayMobileView() );
@@ -60,6 +65,7 @@ class ModerationAjaxHook {
 
 	/**
 	 * Add needed modules to $out.
+	 * @param OutputPage &$out
 	 */
 	public static function add( OutputPage &$out ) {
 		global $wgVersion;

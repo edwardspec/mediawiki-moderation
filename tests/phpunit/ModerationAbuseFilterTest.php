@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ class ModerationAbuseFilterTest extends ModerationTestCase {
 
 	/**
 	 * Are AbuseFilter tags preserved for edits?
+	 * @covers ModerationNewChange::addChangeTags
 	 */
 	public function testAFTagsEdit( ModerationTestsuite $t ) {
 		$this->skipIfNoAbuseFilter();
@@ -53,6 +54,7 @@ class ModerationAbuseFilterTest extends ModerationTestCase {
 
 	/**
 	 * Are AbuseFilter tags preserved for moves?
+	 * @coversNothing
 	 */
 	public function testAFTagsMove( ModerationTestsuite $t ) {
 		$this->skipIfNoAbuseFilter();
@@ -81,6 +83,7 @@ class ModerationAbuseFilterTest extends ModerationTestCase {
 
 	/**
 	 * Are AbuseFilter tags preserved for uploads?
+	 * @covers ModerationNewChange::addChangeTags
 	 */
 	public function testAFTagsUpload( ModerationTestsuite $t ) {
 		$this->skipIfNoAbuseFilter();

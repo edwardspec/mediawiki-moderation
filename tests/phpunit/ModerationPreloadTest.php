@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2017 Edward Chernenko.
+	Copyright (C) 2015-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ class ModerationPreloadTest extends ModerationTestCase {
 		if ( !$user ) {
 			$this->markTestIncomplete( 'testAnonymousPreload(): Failed to create account, ".
 				"most likely the captcha is enabled.' );
-		};
+		}
 
 		$t->loginAs( $user );
 		$this->assertEquals(

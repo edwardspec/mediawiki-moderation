@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2019 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@ class ModerationEditChangePage extends EditPage {
 
 	/**
 	 * When user clicks Submit, handle this back to Special:Moderation.
+	 * @param Title $title
+	 * @return string URL
 	 */
 	protected function getActionURL( Title $title ) {
 		return SpecialPage::getTitleFor( 'Moderation' )->getLocalURL( [
@@ -43,6 +45,8 @@ class ModerationEditChangePage extends EditPage {
 
 	/**
 	 * Remove "Preview" and "Show changes" buttons (not yet implemented).
+	 * @param string &$tabindex
+	 * @return array
 	 */
 	public function getEditButtons( &$tabindex ) {
 		$buttons = parent::getEditButtons( $tabindex );
@@ -55,6 +59,7 @@ class ModerationEditChangePage extends EditPage {
 
 	/**
 	 * Point "Cancel" button to Special:Moderation, not to the nonexistent article.
+	 * @return Title
 	 */
 	public function getContextTitle() {
 		return SpecialPage::getTitleFor( 'Moderation' );

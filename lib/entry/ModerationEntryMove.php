@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 class ModerationEntryMove extends ModerationApprovableEntry {
 	/**
 	 * Approve this move.
+	 * @param User $moderator
 	 * @return Status object.
 	 */
 	public function doApprove( User $moderator ) {
@@ -64,6 +65,7 @@ class ModerationEntryMove extends ModerationApprovableEntry {
 
 	/**
 	 * Post-approval log subtype.
+	 * @return string
 	 */
 	protected function getApproveLogSubtype() {
 		return 'approve-move';
@@ -71,6 +73,7 @@ class ModerationEntryMove extends ModerationApprovableEntry {
 
 	/**
 	 * Parameters for post-approval log.
+	 * @return array
 	 */
 	protected function getApproveLogParameters() {
 		$row = $this->getRow();

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2019 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ class ModerationPageFormsTest extends ModerationTestCase {
 
 		$idx = 0;
 		foreach ( $sections as $name => $expectedContent ) {
-			$input = $inputs->item( $idx ++ );
+			$input = $inputs->item( $idx++ );
 
 			$this->assertEquals( "_section[$name]", $input->getAttribute( 'name' ),
 				"testPageFormsPreload(): name of the EditForm field doesn't match expected" );

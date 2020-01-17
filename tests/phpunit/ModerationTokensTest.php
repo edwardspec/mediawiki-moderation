@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2017 Edward Chernenko.
+	Copyright (C) 2015-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -17,12 +17,15 @@
 
 /**
  * @file
- * Verifies that moderation tokens are required.
  */
 
 require_once __DIR__ . "/framework/ModerationTestsuite.php";
 
 class ModerationTokensTest extends ModerationTestCase {
+	/**
+	 * Verifies that moderation tokens are required.
+	 * @coversNothing
+	 */
 	public function testTokens( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit();

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017-2019 Edward Chernenko.
+	Copyright (C) 2017-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -27,6 +27,10 @@ class ModerationApiHooks {
 	 *
 	 * Disable ApiFileRevert (this API doesn't run any pre-upload
 	 * hooks, thus allowing to bypass moderation).
+	 * @param string $module
+	 * @param User $user
+	 * @param string &$message
+	 * @return true
 	 */
 	public static function onApiCheckCanExecute( $module, $user, &$message ) {
 		if ( ModerationCanSkip::canUploadSkip( $user ) ) {
@@ -124,6 +128,8 @@ class ModerationApiHooks {
 
 	/**
 	 * Adds qppage=Moderation to api.php?action=query&list=querypage.
+	 * @param array &$wgQueryPages
+	 * @return bool
 	 */
 	public static function onwgQueryPages( &$wgQueryPages ) {
 		$wgQueryPages[] = [ SpecialModeration::class, 'Moderation' ];

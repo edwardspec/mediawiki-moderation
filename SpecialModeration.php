@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2018 Edward Chernenko.
+	Copyright (C) 2014-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -41,15 +41,15 @@ class SpecialModeration extends QueryPage {
 	];
 	public $default_folder = 'pending';
 
-	function __construct() {
+	public function __construct() {
 		parent::__construct( 'Moderation', 'moderation' );
 	}
 
-	function getGroupName() {
+	public function getGroupName() {
 		return 'spam';
 	}
 
-	function isSyndicated() {
+	public function isSyndicated() {
 		return false;
 	}
 
@@ -57,7 +57,7 @@ class SpecialModeration extends QueryPage {
 		return false;
 	}
 
-	function preprocessResults( $db, $res ) {
+	public function preprocessResults( $db, $res ) {
 		/* Check all pages for whether they exist or not -
 			improves performance of Linker::link() in formatResult() */
 		$batch = new LinkBatch();
@@ -69,11 +69,11 @@ class SpecialModeration extends QueryPage {
 		$res->seek( 0 );
 	}
 
-	function linkParameters() {
+	public function linkParameters() {
 		return [ 'folder' => $this->folder ];
 	}
 
-	function getPageHeader() {
+	public function getPageHeader() {
 		$folderLinks = [];
 		foreach ( array_keys( $this->folders_list ) as $f_name ) {
 			$label = $this->msg( 'moderation-folder-' . $f_name )->plain();
@@ -97,7 +97,7 @@ class SpecialModeration extends QueryPage {
 		);
 	}
 
-	function execute( $unused ) {
+	public function execute( $unused ) {
 		global $wgModerationUseAjax;
 
 		if ( !$this->getUser()->isAllowed( 'moderation' ) ) {
@@ -141,11 +141,11 @@ class SpecialModeration extends QueryPage {
 		$out->addReturnTo( SpecialPage::getTitleFor( 'Moderation' ) );
 	}
 
-	function getOrderFields() {
+	public function getOrderFields() {
 		return [ 'mod_timestamp' ];
 	}
 
-	function getQueryInfo() {
+	public function getQueryInfo() {
 		$this->folder = $this->getRequest()->getVal( 'folder', $this->default_folder );
 		if ( !array_key_exists( $this->folder, $this->folders_list ) ) {
 			$this->folder = $this->default_folder;
@@ -166,7 +166,7 @@ class SpecialModeration extends QueryPage {
 		);
 	}
 
-	function formatResult( $skin, $row ) {
+	public function formatResult( $skin, $row ) {
 		$formatter = ModerationEntryFormatter::newFromRow( $row );
 		$formatter->setContext( $this->getContext() );
 		return $formatter->getHTML();

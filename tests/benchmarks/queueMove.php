@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,10 +18,10 @@
 /**
  * @file
  * Benchmark: how fast are moves queued for moderation?
-
-	Usage:
-	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/queueMove.php
-*/
+ *
+ * Usage:
+ *	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/queueMove.php
+ */
 
 require_once __DIR__ . '/ModerationBenchmark.php';
 
@@ -37,7 +37,7 @@ class BenchmarkQueueMove extends ModerationBenchmark {
 
 	public function beforeBenchmark( $numberOfLoops ) {
 		/* Create $numberOfLoops pages to be moved */
-		for ( $i = 0; $i <= $numberOfLoops; $i ++ ) {
+		for ( $i = 0; $i <= $numberOfLoops; $i++ ) {
 			$this->fastEdit( $this->getOldTitle( $i ) );
 		}
 	}

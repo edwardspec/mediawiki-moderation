@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,6 +24,9 @@ class ModerationFormatTimestamp {
 
 	/**
 	 * Returns human-readable version of $timestamp.
+	 * @param mixed $timestamp
+	 * @param IContextSource $context
+	 * @return string
 	 */
 	public static function format( $timestamp, IContextSource $context ) {
 		$lang = $context->getLanguage();
@@ -42,6 +45,7 @@ class ModerationFormatTimestamp {
 	 * Returns true if $timestamp is today, false otherwise.
 	 * @param string $timestamp Timestamp in MediaWiki format (14 digits).
 	 * @param IContextSource $context Any object that contains current context.
+	 * @return bool
 	 */
 	protected static function isToday( $timestamp, IContextSource $context ) {
 		static $today = '',

@@ -141,7 +141,7 @@ class ModerationMoveTest extends ModerationTestCase {
 	 * not only on submit, but also in MovePageForm::showForm, i.e. before submit.
 	 *
 	 * At this point we shouldn't attempt to queue the move for moderation.
-	*/
+	 */
 	public function testNoPrematureMoveInShowForm( ModerationTestsuite $t ) {
 		$t->loginAs( $t->automoderated );
 		$t->doTestEdit( $this->oldTitle, $this->text );
