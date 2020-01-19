@@ -90,6 +90,8 @@
 	"moderation-unblock": "No longer a spammer",
 	"moderation-unblock-ok": "User [[Special:Contributions/$1|$1]] is no longer considered a spammer.",
 	"moderation-unknown-modaction": "Unknown moderation action.",
+	"moderation-whois-link-text": "?",
+	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
 	"right-moderation-checkuser": "Can see IPs of editors in the moderation interface",
 	"right-moderation": "Moderate edits",
 	"right-skip-moderation": "Have their edits bypass moderation",
