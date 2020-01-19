@@ -4,3 +4,7 @@
 # WebdriverIO configs
 **/wdio.conf.js
 **/wdio.conf.*.js
+
+# Noone really uses this script (it's disabled by default, see $wgModerationUseAjax),
+# so anything related to it is of low priority.
+**/modules/ext.moderation.special.ajax.js

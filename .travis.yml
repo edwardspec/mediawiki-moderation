@@ -48,9 +48,6 @@ matrix:
     - env: TESTSUITE_TYPE=selenium branch=REL1_32
     - env: TESTSUITE_TYPE=selenium branch=REL1_33
     - env: TESTSUITE_TYPE=selenium branch=REL1_34
-    # NOTE: for now, failures in linters are temporarily ignored,
-    # because not all codestyle warnings have been fixed yet in existing code.
-    - env: TESTSUITE_TYPE=linter-js
   include:
     # PHPUnit tests
     - &phpunit-build
@@ -112,6 +109,7 @@ matrix:
       script: composer test
 
     - &linter-js-build
+      if: NOT branch IN (phpunit)
       env: TESTSUITE_TYPE=linter-js
       language: node_js
       node_js: 10
