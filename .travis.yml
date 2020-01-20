@@ -2,7 +2,6 @@
 if: commit_message !~ /^\(doc\)/
 
 dist: trusty
-sudo: true
 language: php
 
 conditions: v1
@@ -52,7 +51,7 @@ matrix:
   include:
     # PHPUnit tests
     - &phpunit-build
-      if: NOT branch IN (selenium,troubleshooting)
+      if: NOT branch IN (selenium,troubleshooting,linters)
       script:
         # Immediately fail if any of the PHP files contain syntax errors
         - composer lint extensions/Moderation/
@@ -63,8 +62,6 @@ matrix:
         - WITH_ECHO=1 php tests/phpunit/phpunit.php --use-normal-tables --reuse-db extensions/Moderation/tests/phpunit/ModerationNotifyModeratorTest.php
         # Run small benchmarks to detect performance regressions
         - for i in extensions/Moderation/tests/benchmarks/*; do php maintenance/runScript.php $i; done
-      after_script:
-        - if [ ${branch} = "REL1_31" ]; then ./vendor/bin/phpcs -ps extensions/Moderation/; fi
     - <<: *phpunit-build
       env: branch=REL1_32
     - <<: *phpunit-build
@@ -103,6 +100,24 @@ matrix:
     - <<: *selenium-build
       env: TESTSUITE_TYPE=selenium branch=REL1_34
 
+    # Linters (phpcs, eslint, etc.)
+    - &linter-php-build
+      if: NOT branch IN (selenium)
+      env: TESTSUITE_TYPE=linter-php
+      addons:
+      before_script: composer install
+      script: composer test
+
+    - &linter-js-build
+      if: NOT branch IN (phpunit)
+      env: TESTSUITE_TYPE=linter-js
+      language: node_js
+      node_js: 10
+      php: false
+      addons:
+      before_script: npm install
+      script: npm test
+
 cache:
   directories:
     - buildcache
@@ -120,7 +135,7 @@ before_script:
   - if [ ${TESTSUITE_TYPE} = "selenium" ]; then bash -ex ./tests/travis/parsoid/run_parsoid.sh "$branch"; fi
   - bash -ex ./tests/travis/build_mediawiki.sh "$branch"
 
-  - rsync -a --exclude buildcache --exclude mediawiki --exclude .git --exclude node_modules * mediawiki/extensions/Moderation/
+  - rsync -a --exclude buildcache --exclude mediawiki --exclude .git . mediawiki/extensions/Moderation/
   - cd mediawiki
   - >
       php maintenance/install.php traviswiki admin
