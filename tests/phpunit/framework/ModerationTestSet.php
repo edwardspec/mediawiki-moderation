@@ -131,7 +131,7 @@ abstract class ModerationTestsuiteTestSet {
 			}
 
 			if ( $expectedValue instanceof ModerationTestSetRegex ) {
-				$regex = $expectedValue->regex;
+				$regex = (string)$expectedValue;
 				if ( preg_match( $regex, $actualValue ) ) {
 					// This is a trick to display a simple diff of Expected/Actual arrays,
 					// even though some of the $expectedFields are regexes (not constants).
@@ -189,16 +189,5 @@ abstract class ModerationTestsuiteTestSet {
 				$t->moderator
 			);
 		}
-	}
-}
-
-/**
- * Regular expression that can be used in assertRowEquals() as values of $expectedFields.
- */
-class ModerationTestSetRegex {
-	public $regex;
-
-	public function __construct( $regex ) {
-		$this->regex = $regex;
 	}
 }

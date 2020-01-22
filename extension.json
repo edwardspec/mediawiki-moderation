@@ -294,7 +294,7 @@
 			"ModerationPreload::onEditFormPreloadText"
 		],
 		"EditPage::showEditForm:fields": [
-			"ModerationEditHooks::PrepareEditForm"
+			"ModerationEditHooks::prepareEditForm"
 		],
 		"getUserPermissionsErrors": [
 			"ModerationUploadHooks::ongetUserPermissionsErrors"

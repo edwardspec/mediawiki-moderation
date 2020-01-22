@@ -29,6 +29,7 @@ require_once __DIR__ . '/IModerationTestsuiteResponse.php';
 require_once __DIR__ . '/ModerationTestsuiteResponse.php';
 require_once __DIR__ . '/ModerationTestCase.php';
 require_once __DIR__ . '/ModerationTestSet.php';
+require_once __DIR__ . '/ModerationTestSetRegex.php';
 require_once __DIR__ . '/ModerationPendingChangeTestSet.php';
 
 require_once __DIR__ . '/bot/ModerationTestsuiteBot.php';
@@ -44,8 +45,10 @@ require_once __DIR__ . '/engine/IModerationTestsuiteEngine.php';
 require_once __DIR__ . '/engine/ModerationTestsuiteEngine.php';
 
 /* Completely working Engine, used for pre-commit testing */
-require_once __DIR__ . '/engine/realhttp/ModerationTestsuiteRealHttpEngine.php';
 require_once __DIR__ . '/engine/cli/ModerationTestsuiteCliEngine.php';
+
+/* Deprecated Engine, incompatible with latest MediaWiki due to sandboxing of tests */
+require_once __DIR__ . '/engine/realhttp/ModerationTestsuiteRealHttpEngine.php';
 
 class ModerationTestsuite {
 	const TEST_PASSWORD = '123456';
@@ -736,10 +739,4 @@ class ModerationTestsuite {
 			__METHOD__
 		);
 	}
-}
-
-class ModerationTestsuiteException extends Exception {
-}
-
-class ModerationTestsuiteHttpError extends ModerationTestsuiteException {
 }

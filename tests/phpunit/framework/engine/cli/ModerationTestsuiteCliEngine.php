@@ -49,7 +49,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 	 * @param string $method
 	 * @param array $postData
 	 * @return ModerationTestsuiteResponse
-	 * @throws ModerationTestsuiteCliError
+	 * @throws MWException
 	 */
 	public function httpRequestInternal( $url, $method, array $postData ) {
 		global $wgServerName, $IP;
@@ -170,7 +170,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 		}
 
 		if ( !isset( $result['FauxResponse'] ) ) {
-			throw new ModerationTestsuiteCliError( "no FauxResponse $errorContext" );
+			throw new MWException( "no FauxResponse $errorContext" );
 		}
 
 		/* Remember the newly set cookies */
@@ -224,7 +224,4 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 			parent::escapeDbSandbox();
 		}
 	}
-}
-
-class ModerationTestsuiteCliError extends ModerationTestsuiteException {
 }

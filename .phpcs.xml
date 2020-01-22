@@ -5,19 +5,22 @@
 	<arg name="encoding" value="UTF-8" />
 
 	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki">
-		<!-- FIXME: this should be fixed -->
-		<exclude name="Generic.ControlStructures.InlineControlStructure.NotAllowed" />
-		<exclude name="Generic.Files.OneObjectStructurePerFile.MultipleFound" />
-		<exclude name="MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName" />
+		<!-- FIXME: this should be fixed by adding a wrapper function that returns $wgContLang.
+			In MediaWiki 1.32 it was deprecated in favor of MediaWikiServices::getInstance()->getContentLanguage(),
+			but we still support MediaWiki 1.31 (which didn't have this method).
+		-->
 		<exclude name="MediaWiki.Usage.DeprecatedGlobalVariables.Deprecated$wgContLang" />
-		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.SingleSpaceBeforeSingleLineComment" />
-		<exclude name="PSR12.Properties.ConstantVisibility.NotFound" />
 
 		<!-- TODO: missing documentation: this can be fixed -->
 		<exclude name="MediaWiki.Commenting.FunctionComment.MissingDocumentationProtected" />
 		<exclude name="MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic" />
 		<exclude name="MediaWiki.Commenting.FunctionComment.MissingParamTag" />
 		<exclude name="MediaWiki.Commenting.FunctionComment.WrongStyle" />
+
+		<!-- NOTE: can't fix this yet, because we still support MediaWiki 1.31 (LTS),
+			which supported PHP 7.0, while "visibility of constants" was only added in PHP 7.1.
+		-->
+		<exclude name="PSR12.Properties.ConstantVisibility.NotFound" />
 
 		<!-- Don't want to apply this -->
 		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment" />
@@ -34,6 +37,18 @@
 		<exclude-pattern>*/tests/phpunit/framework/ModerationPendingChangeTestSet\.php</exclude-pattern>
 		<exclude-pattern>*/tests/phpunit/framework/bot/response/ModerationTestsuiteBotResponseTrait\.php</exclude-pattern>
 		<exclude-pattern>*/tests/phpunit/framework/engine/cli/MockAutoLoader\.php</exclude-pattern>
+	</rule>
+
+	<rule ref="Generic.Files.OneObjectStructurePerFile.MultipleFound">
+		<!-- These are tests that use ModerationTestSet,
+			and because of that they have two classes: 1) TestCase itself, 2) subclass of ModerationTestSet.
+			There is no reason to place these into different files.
+			TODO: check if ModerationTestSet can be made into a trait (to add it directly to TestCase class) -->
+		<exclude-pattern>*/tests/phpunit/ModerationLogFormatterTest.php</exclude-pattern>
+		<exclude-pattern>*/tests/phpunit/decoupled/10_queue/ModerationInterceptTest.php</exclude-pattern>
+		<exclude-pattern>*/tests/phpunit/decoupled/10_queue/ModerationQueueTest.php</exclude-pattern>
+		<exclude-pattern>*/tests/phpunit/decoupled/20_render/ModerationSpecialModerationTest.php</exclude-pattern>
+		<exclude-pattern>*/tests/phpunit/decoupled/30_action/ModerationActionTest.php</exclude-pattern>
 	</rule>
 
 	<rule ref="MediaWiki.Usage.PHPUnitTypeHints">
