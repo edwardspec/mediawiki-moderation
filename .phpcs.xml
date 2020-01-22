@@ -5,12 +5,6 @@
 	<arg name="encoding" value="UTF-8" />
 
 	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki">
-		<!-- FIXME: this should be fixed by adding a wrapper function that returns $wgContLang.
-			In MediaWiki 1.32 it was deprecated in favor of MediaWikiServices::getInstance()->getContentLanguage(),
-			but we still support MediaWiki 1.31 (which didn't have this method).
-		-->
-		<exclude name="MediaWiki.Usage.DeprecatedGlobalVariables.Deprecated$wgContLang" />
-
 		<!-- TODO: missing documentation: this can be fixed -->
 		<exclude name="MediaWiki.Commenting.FunctionComment.MissingDocumentationProtected" />
 		<exclude name="MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic" />
@@ -25,6 +19,13 @@
 		<!-- Don't want to apply this -->
 		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment" />
 
+	</rule>
+
+	<rule ref="MediaWiki.Usage.DeprecatedGlobalVariables.Deprecated$wgContLang">
+		<!-- $wgContLang was deprecated in MediaWiki 1.32,
+			but we still support MediaWiki 1.31 (which didn't have a method that replaced it).
+		-->
+		<exclude-pattern>*/util/ModerationCompatTools.php</exclude-pattern>
 	</rule>
 
 	<rule ref="MediaWiki.Files.ClassMatchesFilename.NotMatch">

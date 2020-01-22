@@ -114,6 +114,7 @@
 		"ModerationApproveHook": "hooks/ModerationApproveHook.php",
 		"ModerationBlockCheck": "util/ModerationBlockCheck.php",
 		"ModerationCanSkip": "util/ModerationCanSkip.php",
+		"ModerationCompatTools": "util/ModerationCompatTools.php",
 		"ModerationEditHooks": "hooks/ModerationEditHooks.php",
 		"ModerationEditChangePage": "action/review/ModerationEditChangePage.php",
 		"ModerationEntryEdit": "lib/entry/ModerationEntryEdit.php",

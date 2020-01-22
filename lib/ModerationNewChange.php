@@ -160,8 +160,10 @@ class ModerationNewChange {
 	 * @return Content object.
 	 */
 	protected function preSaveTransform( Content $content ) {
-		global $wgContLang;
-		$popts = ParserOptions::newFromUserAndLang( $this->user, $wgContLang );
+		$popts = ParserOptions::newFromUserAndLang(
+			$this->user,
+			ModerationCompatTools::getContentLanguage()
+		);
 
 		return $content->preSaveTransform(
 			$this->title,
