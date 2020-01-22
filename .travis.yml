@@ -49,6 +49,24 @@ matrix:
     - env: TESTSUITE_TYPE=selenium branch=REL1_33
     - env: TESTSUITE_TYPE=selenium branch=REL1_34
   include:
+    # Linters (phpcs, eslint, etc.)
+    - &linter-php-build
+      if: NOT branch IN (selenium)
+      env: TESTSUITE_TYPE=linter-php
+      addons:
+      before_script: composer install
+      script: composer test
+
+    - &linter-js-build
+      if: NOT branch IN (phpunit)
+      env: TESTSUITE_TYPE=linter-js
+      language: node_js
+      node_js: 10
+      php: false
+      addons:
+      before_script: npm install
+      script: npm test
+
     # PHPUnit tests
     - &phpunit-build
       if: NOT branch IN (selenium,troubleshooting,linters)
@@ -99,24 +117,6 @@ matrix:
       env: TESTSUITE_TYPE=selenium branch=REL1_33
     - <<: *selenium-build
       env: TESTSUITE_TYPE=selenium branch=REL1_34
-
-    # Linters (phpcs, eslint, etc.)
-    - &linter-php-build
-      if: NOT branch IN (selenium)
-      env: TESTSUITE_TYPE=linter-php
-      addons:
-      before_script: composer install
-      script: composer test
-
-    - &linter-js-build
-      if: NOT branch IN (phpunit)
-      env: TESTSUITE_TYPE=linter-js
-      language: node_js
-      node_js: 10
-      php: false
-      addons:
-      before_script: npm install
-      script: npm test
 
 cache:
   directories:
