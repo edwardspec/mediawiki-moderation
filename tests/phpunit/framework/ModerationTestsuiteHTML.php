@@ -194,8 +194,9 @@ class ModerationTestsuiteHTML extends DOMDocument {
 		$this->loadFromURL( $url );
 
 		$elem = $this->getElementById( 'wpTextbox1' );
-		if ( !$elem )
+		if ( !$elem ) {
 			return null;
+		}
 
 		return trim( $elem->textContent );
 	}

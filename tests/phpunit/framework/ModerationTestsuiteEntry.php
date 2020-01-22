@@ -268,20 +268,23 @@ class ModerationTestsuiteEntry {
 
 	public static function findById( array $array, $id ) {
 		foreach ( $array as $e ) {
-			if ( $e->id == $id )
+			if ( $e->id == $id ) {
 				return $e;
+			}
 		}
 		return null;
 	}
 
 	public static function findByUser( array $array, $user ) {
-		if ( get_class( $user ) == 'User' )
+		if ( get_class( $user ) == 'User' ) {
 			$user = $user->getName();
+		}
 
 		$entries = [];
 		foreach ( $array as $entry ) {
-			if ( $entry->user == $user )
+			if ( $entry->user == $user ) {
 				$entries[] = $entry;
+			}
 		}
 		return $entries;
 	}

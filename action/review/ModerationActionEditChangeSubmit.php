@@ -25,8 +25,6 @@
 class ModerationActionEditChangeSubmit extends ModerationAction {
 
 	public function execute() {
-		global $wgContLang;
-
 		if ( !$this->getConfig()->get( 'ModerationEnableEditChange' ) ) {
 			throw new ModerationError( 'moderation-unknown-modaction' );
 		}
@@ -71,7 +69,7 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 			$originalAuthor,
 			ParserOptions::newFromUserAndLang(
 				$originalAuthor,
-				$wgContLang
+				ModerationCompatTools::getContentLanguage()
 			)
 		);
 

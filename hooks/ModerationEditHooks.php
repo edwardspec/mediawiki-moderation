@@ -233,7 +233,7 @@ class ModerationEditHooks {
 		return true;
 	}
 
-	public static function PrepareEditForm( $editpage, $out ) {
+	public static function prepareEditForm( $editpage, $out ) {
 		$mergeID = self::$NewMergeID;
 		if ( !$mergeID ) {
 			$mergeID = $out->getRequest()->getVal( 'wpMergeID' );

@@ -358,11 +358,11 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 			/* Not done for all tests to make tests faster.
 				DataSet must explicitly indicate that its text needs PreSaveTransform.
 			*/
-			global $wgContLang;
+			$lang = ModerationCompatTools::getContentLanguage();
 			$expectedContent = $expectedContent->preSaveTransform(
 				$this->title,
 				$this->user,
-				ParserOptions::newFromUserAndLang( $this->user, $wgContLang )
+				ParserOptions::newFromUserAndLang( $this->user, $lang )
 			);
 		}
 

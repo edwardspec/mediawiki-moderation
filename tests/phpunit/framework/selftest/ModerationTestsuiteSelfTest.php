@@ -112,7 +112,7 @@ class ModerationTestsuiteSelfTest extends ModerationTestCase {
 	public function engineDataProvider() {
 		return [
 			[ new ModerationTestsuiteCliEngine ],
-			//[ new ModerationTestsuiteRealHttpEngine ]
+			// [ new ModerationTestsuiteRealHttpEngine ]
 		];
 	}
 
