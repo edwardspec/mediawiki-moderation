@@ -3,7 +3,7 @@
 	See [ext.moderation.notify.js] for non-mobile-specific code.
 */
 
-( function ( mw, $ ) {
+( function () {
 	'use strict';
 
 	mw.moderation = mw.moderation || {};
@@ -15,9 +15,9 @@
 	*/
 	function shouldAllowMessage( msg ) {
 		switch ( msg ) {
-			case mw.msg( 'mobile-frontend-editor-success-new-page' ) :
-			case mw.msg( 'mobile-frontend-editor-success-landmark-1' ) :
-			case mw.msg( 'mobile-frontend-editor-success' ) :
+			case mw.msg( 'mobile-frontend-editor-success-new-page' ):
+			case mw.msg( 'mobile-frontend-editor-success-landmark-1' ):
+			case mw.msg( 'mobile-frontend-editor-success' ):
 				return false;
 		}
 
@@ -28,7 +28,7 @@
 		because notifyQueued() already shows "edit queued for moderation" */
 	var $d = $.Deferred();
 
-	mw.loader.using( 'mobile.startup', function() {
+	mw.loader.using( 'mobile.startup', function () {
 		var toast;
 		try {
 			// MediaWiki 1.33+
@@ -41,7 +41,7 @@
 		$d.resolve( toast );
 	} );
 
-	$d.done( function( toast ) {
+	$d.done( function ( toast ) {
 		var oldReload = toast.showOnPageReload;
 
 		/*
@@ -49,7 +49,7 @@
 			because _showPending() will be called before we have
 			a chance to override show().
 		*/
-		toast.showOnPageReload = function( msg, cssClass ) {
+		toast.showOnPageReload = function ( msg, cssClass ) {
 			if ( shouldAllowMessage( msg ) ) {
 				oldReload( msg, cssClass );
 			}
@@ -60,27 +60,27 @@
 		This callback is used by notifyQueued().
 		It displays $div as mw.notification.
 	*/
-	mw.moderation.notifyCb = function( $div, readyCallback ) {
+	mw.moderation.notifyCb = function ( $div, readyCallback ) {
 		mw.notify( $div, {
 			tag: 'modqueued',
 			autoHide: false,
 			type: 'info'
-		} ).done( function() {
+		} ).done( function () {
 			var $notif = $( '.mw-notification-tag-modqueued' );
 
 			/* Remove on click */
-			$notif.click( function() {
+			$notif.on( 'click', function () {
 				this.remove();
 			} );
 
 			/* Remove when moving to another page */
-			$( window ).one( 'hashchange', function() {
+			$( window ).one( 'hashchange', function () {
 				$notif.remove();
 			} );
 
 			readyCallback();
 		} );
-	}
+	};
 
 	/* Workaround for Google Chrome issue.
 		In Chrome, onSaveComplete() sometimes doesn't reload the page
@@ -92,10 +92,10 @@
 		Note: we can't use window.location.reload() in onhashchange
 		(it was causing flaky SauceLabs results in IE11 and Firefox).
 	*/
-	mw.hook( 'moderation.ajaxhook.edit' ).add( function() {
-		$( window ).one( 'hashchange', function() {
+	mw.hook( 'moderation.ajaxhook.edit' ).add( function () {
+		$( window ).one( 'hashchange', function () {
 			window.location.search = '?modqueued=1';
 		} );
 	} );
 
-}( mediaWiki, jQuery ) );
+}() );

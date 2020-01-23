@@ -21,26 +21,28 @@
 	See [visualeditor/preload.ve.js], [mobilefrontend/preload.mf.js] for details.
 */
 
-( function ( mw, $ ) {
+( function () {
 	'use strict';
 
 	mw.moderation = mw.moderation || {};
 	mw.moderation.ajaxhook = mw.moderation.ajaxhook || {};
 
+	var rewriteAjaxResponse; // Defined below
+
 	/*
 		Intercept all API calls made via mw.Api(), rewrite the response if needed.
 	*/
-	mw.moderation.trackAjax = function( apiObj ) {
+	mw.moderation.trackAjax = function ( apiObj ) {
 		var oldFunc = apiObj.prototype.ajax;
-		apiObj.prototype.ajax = function( parameters, ajaxOptions ) {
+		apiObj.prototype.ajax = function ( parameters, ajaxOptions ) {
 			var lastQuery = parameters;
 
-			ajaxOptions.beforeSend = function( jqXHR, settings ) {
+			ajaxOptions.beforeSend = function ( jqXHR, settings ) {
 				mw.hook( 'ajaxhook.beforeSend' ).fire( jqXHR, settings );
 			};
 
-			ajaxOptions.dataFilter = function( rawData, dataType ) {
-				if ( dataType != 'json' ) {
+			ajaxOptions.dataFilter = function ( rawData, dataType ) {
+				if ( dataType !== 'json' ) {
 					return rawData;
 				}
 
@@ -53,37 +55,37 @@
 			};
 
 			return oldFunc.apply( this, arguments );
-		}
+		};
 	};
 
-	mw.loader.using( 'mediawiki.api', function() {
+	mw.loader.using( 'mediawiki.api', function () {
 		mw.moderation.trackAjax( mw.Api );
 	} );
 
 	/* Make an API response for action=edit.
 		This affects most API-based JavaScript editors, including MobileFrontend.
 	*/
-	mw.moderation.ajaxhook['edit'] = function() {
+	mw.moderation.ajaxhook.edit = function () {
 		var ret = {},
-			timestamp = "2016-12-08T12:33:23Z"; /* TODO: recalculate */
+			timestamp = '2016-12-08T12:33:23Z'; /* TODO: recalculate */
 
 		ret.edit = {
-			"result": "Success", /* Uppercase */
-			"pageid": mw.config.get( 'wgArticleId' ),
-			"title": mw.config.get( 'wgTitle' ),
-			"contentmodel": mw.config.get( 'wgPageContentModel' ),
-			"oldrevid": mw.config.get( 'wgRevisionId' ),
-			"newrevid": 0, /* NOTE: change if this causes problems in any API-based editors */
-			"newtimestamp": timestamp
+			result: 'Success', /* Uppercase */
+			pageid: mw.config.get( 'wgArticleId' ),
+			title: mw.config.get( 'wgTitle' ),
+			contentmodel: mw.config.get( 'wgPageContentModel' ),
+			oldrevid: mw.config.get( 'wgRevisionId' ),
+			newrevid: 0, /* NOTE: change if this causes problems in any API-based editors */
+			newtimestamp: timestamp
 		};
 
 		if ( ret.edit.pageid ) {
-			ret.edit.new = "";
+			ret.edit.new = '';
 		}
 
 		mw.hook( 'moderation.ajaxhook.edit' ).fire();
 		return ret;
-	}
+	};
 
 	/**
 		@brief Main logic of AJAX response rewriting.
@@ -91,7 +93,7 @@
 		@param ret API response, e.g. { edit: { result: "success", ... } }.
 		@returns New API response (if overwrite is needed) or false (if no need to overwrite).
 	*/
-	function rewriteAjaxResponse( query, ret ) {
+	rewriteAjaxResponse = function ( query, ret ) {
 		// Allow the hook to modify the response (used by [preload33.mf.js])
 		mw.hook( 'ajaxhook.rewriteAjaxResponse' ).fire( query, ret );
 		if ( ret.modified ) { // If the hook sets this field, then "ret" is the new response.
@@ -104,12 +106,12 @@
 		if ( ret.error ) {
 			errorCode = ret.error.code; // MediaWiki 1.33 and older
 		} else if ( ret.errors ) {
-			errorCode = ret.errors[0].code; // MediaWiki 1.34+
+			errorCode = ret.errors[ 0 ].code; // MediaWiki 1.34+
 		} else {
 			return false; /* Nothing to overwrite */
 		}
 
-		if ( errorCode == 'moderation-edit-queued' ) {
+		if ( errorCode === 'moderation-edit-queued' ) {
 			/* Set cookie for [ext.moderation.notify.js].
 				It means "edit was just queued for moderation".
 			*/
@@ -119,7 +121,7 @@
 				Error from api.php?action=edit: edit was queued for moderation.
 				We must replace this response with "Edit saved successfully!".
 			*/
-			var func = mw.moderation.ajaxhook[query.action];
+			var func = mw.moderation.ajaxhook[ query.action ];
 			if ( !func ) {
 				/* Nothing to overwrite */
 			}
@@ -130,4 +132,4 @@
 		return false; /* Nothing to overwrite */
 	};
 
-}( mediaWiki, jQuery ) );
+}() );

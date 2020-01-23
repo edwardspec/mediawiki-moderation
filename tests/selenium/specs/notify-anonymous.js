@@ -44,7 +44,7 @@ describe( 'Postedit notification (for anonymous user)', function () {
 
 /*---------------- Desktop/mobile subtest -----------------------------------*/
 
-	} ) } );  // .forEach( function( subTest ) { describe( ...
+	} ); } );  // .forEach( function( subTest ) { describe( ...
 
 } ); /* describe( ..., function { */
 

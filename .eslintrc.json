@@ -5,11 +5,6 @@
 		"wikimedia/jquery",
 		"wikimedia/mediawiki"
 	],
-	"globals": {
-		// FIXME: these are valid aliases of $ and mw, but rename them to modern names nevertheless.
-		"jQuery": "readonly",
-		"mediaWiki": "writable"
-	},
 	"rules": {
 		// These rules are not applicable,
 		// because some of our scripts MUST interfere with third-party widgets.
@@ -19,30 +14,9 @@
 		// (this information is helpful for users who are trying to determine why).
 		"no-console": "off",
 
-		// FIXME: this should be fixed
-		"space-before-function-paren": "warn",
-		"quotes": "warn",
-		"computed-property-spacing": "warn",
-		"eqeqeq": "warn",
-		"vars-on-top": "warn",
-		"one-var": "warn",
-		"space-in-parens": "warn",
-		"quote-props": "warn",
-		"no-jquery/no-event-shorthand": "warn",
-		"no-jquery/no-parse-html-literal": "warn",
-		"indent": "warn",
-		"semi": "warn",
-		"switch-colon-spacing": "warn",
-		"no-multiple-empty-lines": "warn",
-		"no-jquery/no-is-numeric": "warn",
-		"no-extra-semi": "warn",
-		"dot-notation": "warn",
-		"brace-style": "warn",
-		"operator-linebreak": "warn",
-		"no-use-before-define": "warn",
-		"no-unused-vars": "warn",
-		"mediawiki/msg-doc": "warn",
-		"comma-dangle": "warn",
+		// Don't want to apply this. Current placement of "var" significantly improves readability.
+		"vars-on-top": "off",
+		"one-var": "off",
 
 		// TODO: missing documentation: this can be fixed
 		"mediawiki/msg-doc": "warn",

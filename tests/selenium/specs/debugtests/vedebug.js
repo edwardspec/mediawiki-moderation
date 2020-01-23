@@ -12,7 +12,7 @@ const VisualEditor = require( '../../pageobjects/visualeditor.page' );
 
 describe( 'VisualEditor PageObject', function () {
 
-	for ( var i = 1; i <= 10; i ++ ) {
+	for ( var i = 1; i <= 10; i++ ) {
 		it( 'should edit without errors: attempt ' + i, function () {
 
 			this.timeout( 10000 );

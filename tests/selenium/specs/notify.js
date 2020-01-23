@@ -28,7 +28,7 @@ var PageName = 'Test ' + browser.getTestString(),
 
 describe( 'Postedit notification', function () {
 
-	before( function() {
+	before( function () {
 		ExistingPagePromise = browser.precreatePageAsync();
 		browser.loginIntoNewAccount();
 	} );
@@ -65,7 +65,7 @@ describe( 'Postedit notification', function () {
 			.to.contain( 'Success: your edit has been sent to moderation' );
 	} );
 
-	it ( 'should contain "continue editing" link', function() {
+	it ( 'should contain "continue editing" link', function () {
 
 		expect( PostEdit.editLink.isDisplayed(), 'editLink.isDisplayed' ).to.be.true;
 
@@ -113,7 +113,7 @@ describe( 'Postedit notification', function () {
 
 /*---------------- Desktop/mobile subtest -----------------------------------*/
 
-	} ) } );  // .forEach( function( subTest ) { describe( ...
+	} ); } );  // .forEach( function( subTest ) { describe( ...
 
 } ); /* describe( ..., function { */
 

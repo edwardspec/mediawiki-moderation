@@ -7,43 +7,47 @@
 	has a pending change, it won't be preloaded at all.
 */
 
-( function ( mw, $ ) {
+( function () {
 	'use strict';
 
 	var preloadedSummary = '';
 
 	/* Supply VisualEditor with preloaded pending edit, if there is one */
-	mw.loader.using( 'ext.visualEditor.targetLoader', function() {
+	mw.loader.using( 'ext.visualEditor.targetLoader', function () {
 
 		var api = new mw.Api();
 
 		var funcName = 'requestParsoidData';
-		var oldFunc = mw.libs.ve.targetLoader[funcName];
+		var oldFunc = mw.libs.ve.targetLoader[ funcName ];
 
 		/* Override requestParsoidData() method */
-		mw.libs.ve.targetLoader[funcName] = function ( pageName, options ) {
+		mw.libs.ve.targetLoader[ funcName ] = function ( pageName, options ) {
 
 			/*
 				useDefault() - call the original (unmodified) method from mw.libs.ve.
-				Example: return useDefault( "no change is awaiting moderation, so nothing to preload!" );
+				Example:
+				return useDefault( "no change is awaiting moderation, so nothing to preload!" );
 			*/
 			var self = this,
 				params = arguments;
 
 			function useDefault( reason ) {
-				console.log( "Moderation: not preloading: " + reason );
+				console.log( 'Moderation: not preloading: ' + reason );
 
 				return oldFunc.apply( self, params );
 			}
 
 			/* If user is editing some older revision,
 				then preloading is not needed here */
-			if ( options.oldId !== undefined && options.oldId != mw.config.get('wgCurRevisionId' ) ) {
-				return useDefault( "user is editing an older revision" );
+			if ( options.oldId !== undefined &&
+				options.oldId !== mw.config.get( 'wgCurRevisionId' )
+			) {
+				return useDefault( 'user is editing an older revision' );
 			}
 
 			if ( options.wikitext !== undefined ) {
-				return useDefault( "requestParsoidData() is parsing custom wikitext, not the current revision" );
+				return useDefault(
+					'requestParsoidData() is parsing custom wikitext, not the current revision' );
 			}
 
 			/* We need to get the following information:
@@ -65,13 +69,13 @@
 				mptitle: pageName,
 				mpmode: 'wikitext'
 			};
-			return api.post( qPreload ).then( function( data ) {
+			return api.post( qPreload ).then( function ( data ) {
 
 				var wikitext = data.query.moderationpreload.wikitext;
 				if ( !wikitext ) {
 					/* Nothing to preload.
 						Call the original requestPageData() from VisualEditor. */
-					return useDefault( "no pending change found" );
+					return useDefault( 'no pending change found' );
 				}
 
 				/* Preload summary.
@@ -100,34 +104,35 @@
 				return $.when( promiseMetadata, promiseParseFragment )
 					.then( function ( metadata, parsefragment ) {
 
-						var ret = metadata[0];
-						var ret2 = parsefragment[0];
+						var ret = metadata[ 0 ];
+						var ret2 = parsefragment[ 0 ];
 
 						if ( ret.visualeditor && ret2.visualeditor ) {
-							ret.visualeditor.content = '<body>' + ret2.visualeditor.content + '</body>';
+							ret.visualeditor.content = '<body>' +
+								ret2.visualeditor.content + '</body>';
 						}
 
 						ret.visualeditor.canEdit = true;
 
-						/* Return metadata + HTML (like api.php?action=visualeditor&paction=parse) */
+						// Return metadata + HTML (like api.php?action=visualeditor&paction=parse)
 						return ret;
 
 					} ).promise();
 
-			}).promise();
+			} ).promise();
 		};
-	});
+	} );
 
 	/* Supply VisualEditor with preloaded summary.
 		NOTE: we can't simply create #wpSummary (which causes VE to use
 		its contents as initialEditSummary), because initialEditSummary
 		is lost when editing a section (in restoreEditSection()).
 	*/
-	mw.hook( 've.saveDialog.stateChanged' ).add( function() {
+	mw.hook( 've.saveDialog.stateChanged' ).add( function () {
 		var $input = $( '.ve-ui-mwSaveDialog-summary' ).find( 'textarea' ),
 			oldSummary = $input.val();
 
-		if ( oldSummary.replace( /\s*\/\*.*\*\/\s*/, '' ) == '' ) {
+		if ( oldSummary.replace( /\s*\/\*.*\*\/\s*/, '' ) === '' ) {
 			// Either this summary is empty, or this is an
 			// automatic edit summary like this: /* SectionName */
 			// We can safely replace it with preloaded summary.
@@ -136,5 +141,4 @@
 		}
 	} );
 
-}( mediaWiki, jQuery ) );
-
+}() );

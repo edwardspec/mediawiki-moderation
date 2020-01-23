@@ -2,10 +2,10 @@
 	Fire "postEdit" hook to show "moderation-edit-queued" to the user.
 */
 
-( function ( mw, $ ) {
+( function () {
 	'use strict';
 
-	var isMobile = ( mw.config.get( 'skin' ) == 'minerva' ),
+	var isMobile = ( mw.config.get( 'skin' ) === 'minerva' ),
 		containerSel = '.postedit-container, .mw-notification-tag-modqueued';
 
 	mw.moderation = mw.moderation || {};
@@ -16,8 +16,8 @@
 		var $d = $.Deferred(),
 			module = ( isMobile ? 'ext.moderation.mf.notify' : 'ext.moderation.notify.desktop' );
 
-		mw.loader.using( module, function() {
-			mw.moderation.notifyCb( $div, function() {
+		mw.loader.using( module, function () {
+			mw.moderation.notifyCb( $div, function () {
 				$d.resolve();
 			} );
 		} );
@@ -37,8 +37,7 @@
 		var q = {};
 		if ( !isMobile && $.cookie( 'VEE' ) === 'visualeditor' ) {
 			q.veaction = 'edit';
-		}
-		else {
+		} else {
 			q.action = 'edit';
 		}
 		return mw.util.getUrl( null, q );
@@ -47,7 +46,7 @@
 	/* Show "your edit was queued for moderation" to user.
 		May be called from [ext.moderation.ajaxhook.js].
 	*/
-	mw.moderation.notifyQueued = function( options ) {
+	mw.moderation.notifyQueued = function ( options ) {
 		if ( !options ) {
 			options = {};
 		}
@@ -59,15 +58,15 @@
 			return;
 		}
 
-		var $div = $( '<div/>' ).attr( 'id', 'postedit-modqueued' );
+		var $div = $( '<div>' ).attr( 'id', 'postedit-modqueued' );
 
 		/* "Pending review" icon */
-		$div.append( $( '<div/>' )
+		$div.append( $( '<div>' )
 			.attr( 'id', 'pending-review' )
 			.append( mw.msg( 'moderation-pending-review' ) ) );
 
 		/* "Success: your edit has been sent to moderation" */
-		$div.append( $( '<p/>' ).append(
+		$div.append( $( '<p>' ).append(
 			mw.message(
 				'moderation-edit-queued',
 				getEditUrl()
@@ -75,13 +74,13 @@
 		) );
 
 		/* ""To skip moderation in the future, please sign up" */
-		if ( mw.user.getId() == 0 ) {
-			$div.append( $( '<p/>' ).append(
+		if ( mw.user.getId() === 0 ) {
+			$div.append( $( '<p>' ).append(
 				mw.message( 'moderation-suggest-signup' ).parse()
 			) );
 		}
 
-		show( $div ).done( function() {
+		show( $div ).done( function () {
 			/* Remove the cookie from [ext.moderation.ajaxhook.js] */
 			$.cookie( 'modqueued', null, { path: '/' } );
 
@@ -93,10 +92,10 @@
 					prop: 'moderationpreload',
 					mptitle: mw.config.get( 'wgPageName' ),
 					mpmode: 'parsed'
-				} ).done( function( ret ) {
+				} ).done( function ( ret ) {
 					var parsed = ret.query.moderationpreload.parsed;
 					if ( parsed ) {
-						var $div = $( '<div/>').html( parsed.text );
+						var $div = $( '<div>' ).html( parsed.text );
 						mw.hook( 'wikipage.content' ).fire(
 							$( '#mw-content-text' ).empty().append( $div )
 						);
@@ -106,18 +105,17 @@
 				} );
 			}
 		} );
-	}
+	};
 
 	var justQueued = (
 		/* 1. From the normal edit form: redirect contains ?modqueued=1 */
-		mw.util.getParamValue('modqueued') == 1
+		mw.util.getParamValue( 'modqueued' ) === '1' ||
 		/* 2. From [ext.moderation.ajaxhook.js]: page was edited via API */
-		|| $.cookie( 'modqueued' ) == 1
+		$.cookie( 'modqueued' ) === '1'
 	);
 
-
-	if ( justQueued && ( mw.config.get('wgAction') == 'view' ) ) {
+	if ( justQueued && ( mw.config.get( 'wgAction' ) === 'view' ) ) {
 		mw.moderation.notifyQueued();
 	}
 
-}( mediaWiki, jQuery ) );
+}() );

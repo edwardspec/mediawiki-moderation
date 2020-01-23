@@ -9,8 +9,8 @@ const expect = require( 'chai' ).expect,
 var PageName = 'Test ' + browser.getTestString(),
 	Sections = [
 		'Beginning of the article ' + browser.getTestString(),
-		"== Header 1 ==\n" + browser.getTestString(),
-		"== Header 2 ==\n" + browser.getTestString()
+		'== Header 1 ==\n' + browser.getTestString(),
+		'== Header 2 ==\n' + browser.getTestString()
 	];
 
 // When saving the edit, MobileFrontend adds /* Section name */ to the
@@ -29,7 +29,7 @@ describe( 'When user opens MobileFrontend editor and has a pending edit', functi
 			// this edit will be queued for moderation
 			return bot.edit(
 				PageName,
-				Sections.join( "\n\n" ),
+				Sections.join( '\n\n' ),
 				SavedSummary
 			).catch( function ( error ) {
 				expect( error.code, 'error.code' ).to.equal( 'moderation-edit-queued' );
@@ -42,14 +42,14 @@ describe( 'When user opens MobileFrontend editor and has a pending edit', functi
 		it( 'section #' + idx + ' should be shown', function ( idx ) {
 			MobileFrontend.open( PageName, idx );
 
-			browser.waitUntil( function() {
+			browser.waitUntil( function () {
 				return MobileFrontend.content.getValue();
 			} );
 
 			return expect(
 				MobileFrontend.content.getValue(),
-				'MobileFrontend.content[' + idx +']' )
-			.to.equal( Sections[idx] );
+				'MobileFrontend.content[' + idx + ']' )
+			.to.equal( Sections[ idx ] );
 		}.bind( null, idx ) );
 	}
 

@@ -77,7 +77,7 @@ describe( 'VisualEditor', function () {
 		PostEdit.init();
 
 		// Wait for text to appear, it happens in onload event
-		browser.waitUntil( function() {
+		browser.waitUntil( function () {
 			return PostEdit.pageContent.getText();
 		} );
 

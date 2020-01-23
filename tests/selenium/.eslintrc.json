@@ -28,6 +28,14 @@
 		"spaced-comment": "off",
 		"vars-on-top": "off",
 
+		// Relaxed line length limit for Mocha tests:
+		// to avoid splitting the test name in it() calls, comments, etc.
+		"max-len": [ "warn", {
+			"code": 100,
+			"ignoreComments": true,
+			"ignoreStrings": true
+		} ],
+
 		// These global exceptions should be replaced by local eslint-disable comment
 		"no-underscore-dangle": "warn",
 

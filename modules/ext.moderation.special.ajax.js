@@ -2,7 +2,7 @@
 	@brief Makes links on Special:Moderation work via Ajax.
 */
 
-( function ( mw, $ ) {
+( function () {
 	'use strict';
 
 	var api = new mw.Api(),
@@ -280,4 +280,4 @@
 			} )
 			.click( runModaction );
 
-}( mediaWiki, jQuery ) );
+}() );
