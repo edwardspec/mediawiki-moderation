@@ -2,7 +2,7 @@
 	Fire "postEdit" hook to show "moderation-edit-queued" to the user.
 */
 
-( function ( mw, $ ) {
+( function () {
 	'use strict';
 
 	var isMobile = ( mw.config.get( 'skin' ) === 'minerva' ),
@@ -118,4 +118,4 @@
 		mw.moderation.notifyQueued();
 	}
 
-}( mediaWiki, jQuery ) );
+}() );

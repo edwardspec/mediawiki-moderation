@@ -3,7 +3,7 @@
 	See [ext.moderation.notify.js] for non-desktop-specific code.
 */
 
-( function ( mw, $ ) {
+( function () {
 	'use strict';
 
 	var containerClass = '.postedit-container';
@@ -46,4 +46,4 @@
 		} );
 	};
 
-}( mediaWiki, jQuery ) );
+}() );

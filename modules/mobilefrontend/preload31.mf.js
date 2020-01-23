@@ -7,10 +7,11 @@
 	has a pending change, it won't be preloaded at all.
 */
 
-( function ( M, $ ) {
+( function () {
 	'use strict';
 
-	var EditorGateway = M.require( 'mobile.editor.api/EditorGateway' ),
+	var M = mw.mobileFrontend,
+		EditorGateway = M.require( 'mobile.editor.api/EditorGateway' ),
 		oldGetContent = EditorGateway.prototype.getContent;
 
 	EditorGateway.prototype.getContent = function () {
@@ -100,4 +101,4 @@
 		return $result;
 	};
 
-}( mw.mobileFrontend, jQuery ) );
+}() );

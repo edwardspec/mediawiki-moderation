@@ -3,7 +3,7 @@
 	See [ext.moderation.ajaxhook.js] for details.
 */
 
-( function ( mw, $ ) {
+( function () {
 	'use strict';
 
 	/* Make an API response for action=visualeditoredit */
@@ -68,4 +68,4 @@
 		return ret;
 	};
 
-}( mediaWiki, jQuery ) );
+}() );

@@ -7,7 +7,7 @@
 	(which contains the same text/summary as this user's change that still awaits Moderation)
 */
 
-( function ( mw, $ ) {
+( function () {
 	'use strict';
 
 	// This hook is called by [ext.moderation.ajaxhook.js] (in beforeSend() callback of $.ajax)
@@ -73,4 +73,4 @@
 		} );
 	} );
 
-}( mediaWiki, jQuery ) );
+}() );

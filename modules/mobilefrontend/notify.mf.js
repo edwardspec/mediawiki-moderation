@@ -3,7 +3,7 @@
 	See [ext.moderation.notify.js] for non-mobile-specific code.
 */
 
-( function ( mw, $ ) {
+( function () {
 	'use strict';
 
 	mw.moderation = mw.moderation || {};
@@ -98,4 +98,4 @@
 		} );
 	} );
 
-}( mediaWiki, jQuery ) );
+}() );

@@ -7,7 +7,7 @@
 	has a pending change, it won't be preloaded at all.
 */
 
-( function ( mw, $ ) {
+( function () {
 	'use strict';
 
 	var preloadedSummary = '';
@@ -136,4 +136,4 @@
 		}
 	} );
 
-}( mediaWiki, jQuery ) );
+}() );

@@ -21,7 +21,7 @@
 	See [visualeditor/preload.ve.js], [mobilefrontend/preload.mf.js] for details.
 */
 
-( function ( mw, $ ) {
+( function () {
 	'use strict';
 
 	mw.moderation = mw.moderation || {};
@@ -132,4 +132,4 @@
 		return false; /* Nothing to overwrite */
 	};
 
-}( mediaWiki, jQuery ) );
+}() );
