@@ -14,14 +14,14 @@
 		This callback is used by notifyQueued().
 		Displays $div as postEdit notification.
 	*/
-	mw.moderation.notifyCb = function( $div, readyCallback ) {
+	mw.moderation.notifyCb = function ( $div, readyCallback ) {
 
 		/* Don't remove $div when clicking on links */
-		$div.find( 'a' ).click( function( e ) {
+		$div.find( 'a' ).on( 'click', function ( e ) {
 			e.stopPropagation();
 		} );
 
-		mw.loader.using( 'mediawiki.action.view.postEdit', function() {
+		mw.loader.using( 'mediawiki.action.view.postEdit', function () {
 
 			/* Desktop version */
 			mw.hook( 'postEdit' ).fire( {
@@ -38,7 +38,7 @@
 			$cont.replaceWith( $newcont ); /* postEdit.js will remove $cont, but won't touch $newcont */
 
 			/* Remove on click */
-			$newcont.click( function() {
+			$newcont.on( 'click', function () {
 				$( containerClass ).remove();
 			} );
 

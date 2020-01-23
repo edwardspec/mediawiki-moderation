@@ -35,7 +35,7 @@ class VisualEditor extends Page {
 
 		/* Try click() several times, because VisualEditor needs to install onclick() handler first */
 		var self = this;
-		browser.waitUntil( function() {
+		browser.waitUntil( function () {
 			if ( self.closeNoticeButton.isDisplayed() ) {
 				/* Close "Notice" popup, it may prevent us from clicking on parSelector. */
 				self.closeNoticeButton.click();
@@ -63,7 +63,7 @@ class VisualEditor extends Page {
 	get saveButton() {
 		var $submit = this.getWhenVisible( '.ve-ui-toolbar-saveButton a, a.ve-ui-toolbar-saveButton' );
 
-		browser.waitUntil( function() {
+		browser.waitUntil( function () {
 			return ( $submit.getAttribute( 'aria-disabled' ) === 'false' );
 		} );
 

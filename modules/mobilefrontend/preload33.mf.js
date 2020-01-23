@@ -11,7 +11,7 @@
 	'use strict';
 
 	// This hook is called by [ext.moderation.ajaxhook.js] (in beforeSend() callback of $.ajax)
-	mw.hook( 'ajaxhook.beforeSend' ).add( function( jqXHR, settings ) {
+	mw.hook( 'ajaxhook.beforeSend' ).add( function ( jqXHR, settings ) {
 		var requestUri = new mw.Uri( settings.url ),
 			q = requestUri.query;
 
@@ -38,7 +38,7 @@
 	} );
 
 	// This hook is called by [ext.moderation.ajaxhook.js] (in dataFilter() callback of $.ajax)
-	mw.hook( 'ajaxhook.rewriteAjaxResponse' ).add( function( query, ret ) {
+	mw.hook( 'ajaxhook.rewriteAjaxResponse' ).add( function ( query, ret ) {
 		if ( !ret.query || !ret.query.pages || !ret.query.moderationpreload ) {
 			return; // Unrelated API query
 		}
@@ -47,17 +47,17 @@
 			return; // There is no pending revision (nothing to preload)
 		}
 
-		if ( !ret.query.pages[0].revisions ) {
+		if ( !ret.query.pages[ 0 ].revisions ) {
 			// Page doesn't exist yet (non-automoderated user is creating it)
-			ret.query.pages[0].revisions = [ {
+			ret.query.pages[ 0 ].revisions = [ {
 				timestamp: new Date().toISOString(), // Fake timestamp (irrelevant)
-				contentformat: "text/x-wiki",
-				contentmodel: "wikitext"
+				contentformat: 'text/x-wiki',
+				contentmodel: 'wikitext'
 			} ];
-			delete ret.query.pages[0].missing;
+			delete ret.query.pages[ 0 ].missing;
 		}
 
-		ret.query.pages[0].revisions[0].content = ret.query.moderationpreload.wikitext;
+		ret.query.pages[ 0 ].revisions[ 0 ].content = ret.query.moderationpreload.wikitext;
 		ret.modified = true; // Notify rewriteAjaxResponse() that rewrite is needed
 
 		// Preload the summary.
@@ -66,7 +66,7 @@
 		// e.g. "/* Section 1 */ /* Section 3 */ /* Section 6 */ fix typo".
 		// To avoid that, we simply remove /* SectionName */
 		// from the preloaded edit comment.
-		mw.hook( 'mobileFrontend.editorOpened' ).add( function() {
+		mw.hook( 'mobileFrontend.editorOpened' ).add( function () {
 			var summary = ret.query.moderationpreload.comment;
 			summary = summary.replace( /\s*\/\*.*\*\/\s*/g, '' );
 			$( '.summary' ).val( summary );

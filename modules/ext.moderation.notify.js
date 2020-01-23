@@ -16,8 +16,8 @@
 		var $d = $.Deferred(),
 			module = ( isMobile ? 'ext.moderation.mf.notify' : 'ext.moderation.notify.desktop' );
 
-		mw.loader.using( module, function() {
-			mw.moderation.notifyCb( $div, function() {
+		mw.loader.using( module, function () {
+			mw.moderation.notifyCb( $div, function () {
 				$d.resolve();
 			} );
 		} );
@@ -37,8 +37,7 @@
 		var q = {};
 		if ( !isMobile && $.cookie( 'VEE' ) === 'visualeditor' ) {
 			q.veaction = 'edit';
-		}
-		else {
+		} else {
 			q.action = 'edit';
 		}
 		return mw.util.getUrl( null, q );
@@ -47,7 +46,7 @@
 	/* Show "your edit was queued for moderation" to user.
 		May be called from [ext.moderation.ajaxhook.js].
 	*/
-	mw.moderation.notifyQueued = function( options ) {
+	mw.moderation.notifyQueued = function ( options ) {
 		if ( !options ) {
 			options = {};
 		}
@@ -81,7 +80,7 @@
 			) );
 		}
 
-		show( $div ).done( function() {
+		show( $div ).done( function () {
 			/* Remove the cookie from [ext.moderation.ajaxhook.js] */
 			$.cookie( 'modqueued', null, { path: '/' } );
 
@@ -93,10 +92,10 @@
 					prop: 'moderationpreload',
 					mptitle: mw.config.get( 'wgPageName' ),
 					mpmode: 'parsed'
-				} ).done( function( ret ) {
+				} ).done( function ( ret ) {
 					var parsed = ret.query.moderationpreload.parsed;
 					if ( parsed ) {
-						var $div = $( '<div/>').html( parsed.text );
+						var $div = $( '<div/>' ).html( parsed.text );
 						mw.hook( 'wikipage.content' ).fire(
 							$( '#mw-content-text' ).empty().append( $div )
 						);
@@ -106,17 +105,16 @@
 				} );
 			}
 		} );
-	}
+	};
 
 	var justQueued = (
 		/* 1. From the normal edit form: redirect contains ?modqueued=1 */
-		mw.util.getParamValue('modqueued') == 1
+		mw.util.getParamValue( 'modqueued' ) == 1 ||
 		/* 2. From [ext.moderation.ajaxhook.js]: page was edited via API */
-		|| $.cookie( 'modqueued' ) == 1
+		$.cookie( 'modqueued' ) == 1
 	);
 
-
-	if ( justQueued && ( mw.config.get('wgAction') == 'view' ) ) {
+	if ( justQueued && ( mw.config.get( 'wgAction' ) == 'view' ) ) {
 		mw.moderation.notifyQueued();
 	}
 

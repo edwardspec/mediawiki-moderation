@@ -66,7 +66,7 @@ class MobileFrontend extends Page {
 		} );
 
 		var self = this;
-		browser.waitUntil( function() {
+		browser.waitUntil( function () {
 			if ( self.editAnonymouslyButton.isDisplayed() ) {
 				self.editAnonymouslyButton.click();
 				return false;
@@ -96,8 +96,8 @@ class MobileFrontend extends Page {
 			Overwriting window.confirm is not supported in IE11,
 			catching alert with acceptAlert() - not supported in Safari.
 		*/
-		browser.execute( function() {
-			window.confirm = function() { return true; };
+		browser.execute( function () {
+			window.confirm = function () { return true; };
 			return true;
 		} );
 

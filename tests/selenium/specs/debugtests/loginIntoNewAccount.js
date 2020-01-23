@@ -5,14 +5,14 @@ const expect = require( 'chai' ).expect,
 
 describe( 'Utility function browser.loginIntoNewAccount()', function () {
 
-	before( function() {
+	before( function () {
 		browser.loginIntoNewAccount();
 	} );
 
 	it( 'should add login cookies to the Selenium-controlled browser', function () {
 		EditPage.open( 'Whatever' );
 
-		var loggedInAs = browser.execute( function() {
+		var loggedInAs = browser.execute( function () {
 			return mw.config.get( 'wgUserName' );
 		} ).value;
 

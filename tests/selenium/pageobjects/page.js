@@ -45,9 +45,9 @@ class Page {
 
 		$submitElem.click();
 
-		browser.waitUntil( function() {
+		browser.waitUntil( function () {
 			if ( browser.getUrl() != currentUrl ) {
-				return browser.execute( function() {
+				return browser.execute( function () {
 					return document.readyState === 'complete';
 				} );
 			}
@@ -56,8 +56,7 @@ class Page {
 				It's also possible this is a FormSpecialPage
 				and it displayed "Success" message on the same URL. */
 			return (
-				self.errMsg.isDisplayed()
-				||
+				self.errMsg.isDisplayed() ||
 				$( '#mw-returnto' ).isExisting()
 			);
 		} );

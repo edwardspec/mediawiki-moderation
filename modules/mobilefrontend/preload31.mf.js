@@ -13,7 +13,7 @@
 	var EditorGateway = M.require( 'mobile.editor.api/EditorGateway' ),
 		oldGetContent = EditorGateway.prototype.getContent;
 
-	EditorGateway.prototype.getContent = function() {
+	EditorGateway.prototype.getContent = function () {
 
 		var self = this;
 
@@ -22,27 +22,27 @@
 			Example: return useDefault( "no change is awaiting moderation, so nothing to preload!" );
 		*/
 		function useDefault( reason, $deferred ) {
-			console.log( "Moderation: not preloading: " + reason );
+			console.log( 'Moderation: not preloading: ' + reason );
 
 			if ( $deferred === undefined ) {
 				$deferred = $.Deferred();
 			}
 
-			oldGetContent.call( self ).then( function() {
+			oldGetContent.call( self ).then( function () {
 				$deferred.resolve.apply( null, arguments );
-			});
+			} );
 			return $deferred;
-		};
+		}
 
 		/* Only load once */
 		if ( this.content !== undefined && this.content !== '' ) {
-			return useDefault( "already loaded" );
+			return useDefault( 'already loaded' );
 		}
 
 		/* If user is editing some older revision,
 			then preloading is not needed here */
 		if ( this.oldId ) {
-			return useDefault( "user is editing an older revision" );
+			return useDefault( 'user is editing an older revision' );
 		}
 
 		/* Get the wikitext of pending change, if it exists */
@@ -68,12 +68,12 @@
 			qPreload.mpsection = this.sectionId;
 		}
 
-		this.api.post( qPreload ).then( function( data ) {
+		this.api.post( qPreload ).then( function ( data ) {
 			var wikitext = data.query.moderationpreload.wikitext;
 			if ( !wikitext ) {
 				/* Nothing to preload.
 					Call the original getContent() from EditorGateway. */
-				return useDefault( "no pending change found", $result );
+				return useDefault( 'no pending change found', $result );
 			}
 
 			// Preload summary.
@@ -87,13 +87,13 @@
 			$( '.summary' ).val( summary );
 
 			self.content = wikitext;
-			self.timestamp = ""; /* Ok to leave empty */
+			self.timestamp = ''; /* Ok to leave empty */
 			self.originalContent = self.content;
 
 			$result.resolve( {
 				text: self.content,
 				user: data.query.userinfo,
-				block: data.query.blocks ? data.query.blocks[0] : {}
+				block: data.query.blocks ? data.query.blocks[ 0 ] : {}
 			} );
 		} );
 

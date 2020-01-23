@@ -18,7 +18,7 @@ describe( 'browser.url()', function () {
 
 	this.timeout( 120000 );
 
-	for ( var i = 1; i <= 10; i ++ ) {
+	for ( var i = 1; i <= 10; i++ ) {
 		it( 'should ignore "Do you really want to leave" alert: attempt ' + i, function () {
 
 			MobileFrontend.open( PageName, 0 );
@@ -27,7 +27,7 @@ describe( 'browser.url()', function () {
 			BlankPage.open();
 
 			/* There shouldn't be an alert "Do you really want to leave this page" */
-			expect( function() {
+			expect( function () {
 				browser.getAlertText(); /* Throws exception when there is no alert */
 			} ).to.throw();
 		} );
