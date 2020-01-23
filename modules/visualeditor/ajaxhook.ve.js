@@ -52,7 +52,7 @@
 			and then call mw.moderation.notifyQueued().
 		*/
 		mw.hook( 'wikipage.content' ).add( function ( $content ) {
-			if ( $content.find( '#moderation-ajaxhook' ).length != 0 ) {
+			if ( $content.find( '#moderation-ajaxhook' ).length !== 0 ) {
 				mw.moderation.notifyQueued( {
 					/* Force re-rendering of #mw-content-text */
 					showParsed: true

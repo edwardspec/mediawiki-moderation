@@ -46,7 +46,7 @@ class Page {
 		$submitElem.click();
 
 		browser.waitUntil( function () {
-			if ( browser.getUrl() != currentUrl ) {
+			if ( browser.getUrl() !== currentUrl ) {
 				return browser.execute( function () {
 					return document.readyState === 'complete';
 				} );

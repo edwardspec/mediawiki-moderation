@@ -5,7 +5,7 @@
 ( function ( mw, $ ) {
 	'use strict';
 
-	var isMobile = ( mw.config.get( 'skin' ) == 'minerva' ),
+	var isMobile = ( mw.config.get( 'skin' ) === 'minerva' ),
 		containerSel = '.postedit-container, .mw-notification-tag-modqueued';
 
 	mw.moderation = mw.moderation || {};
@@ -58,15 +58,15 @@
 			return;
 		}
 
-		var $div = $( '<div/>' ).attr( 'id', 'postedit-modqueued' );
+		var $div = $( '<div>' ).attr( 'id', 'postedit-modqueued' );
 
 		/* "Pending review" icon */
-		$div.append( $( '<div/>' )
+		$div.append( $( '<div>' )
 			.attr( 'id', 'pending-review' )
 			.append( mw.msg( 'moderation-pending-review' ) ) );
 
 		/* "Success: your edit has been sent to moderation" */
-		$div.append( $( '<p/>' ).append(
+		$div.append( $( '<p>' ).append(
 			mw.message(
 				'moderation-edit-queued',
 				getEditUrl()
@@ -74,8 +74,8 @@
 		) );
 
 		/* ""To skip moderation in the future, please sign up" */
-		if ( mw.user.getId() == 0 ) {
-			$div.append( $( '<p/>' ).append(
+		if ( mw.user.getId() === 0 ) {
+			$div.append( $( '<p>' ).append(
 				mw.message( 'moderation-suggest-signup' ).parse()
 			) );
 		}
@@ -95,7 +95,7 @@
 				} ).done( function ( ret ) {
 					var parsed = ret.query.moderationpreload.parsed;
 					if ( parsed ) {
-						var $div = $( '<div/>' ).html( parsed.text );
+						var $div = $( '<div>' ).html( parsed.text );
 						mw.hook( 'wikipage.content' ).fire(
 							$( '#mw-content-text' ).empty().append( $div )
 						);
@@ -109,12 +109,12 @@
 
 	var justQueued = (
 		/* 1. From the normal edit form: redirect contains ?modqueued=1 */
-		mw.util.getParamValue( 'modqueued' ) == 1 ||
+		mw.util.getParamValue( 'modqueued' ) === '1' ||
 		/* 2. From [ext.moderation.ajaxhook.js]: page was edited via API */
-		$.cookie( 'modqueued' ) == 1
+		$.cookie( 'modqueued' ) === '1'
 	);
 
-	if ( justQueued && ( mw.config.get( 'wgAction' ) == 'view' ) ) {
+	if ( justQueued && ( mw.config.get( 'wgAction' ) === 'view' ) ) {
 		mw.moderation.notifyQueued();
 	}
 

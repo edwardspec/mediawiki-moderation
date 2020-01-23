@@ -38,7 +38,7 @@
 
 			/* If user is editing some older revision,
 				then preloading is not needed here */
-			if ( options.oldId !== undefined && options.oldId != mw.config.get( 'wgCurRevisionId' ) ) {
+			if ( options.oldId !== undefined && options.oldId !== mw.config.get( 'wgCurRevisionId' ) ) {
 				return useDefault( 'user is editing an older revision' );
 			}
 
@@ -127,7 +127,7 @@
 		var $input = $( '.ve-ui-mwSaveDialog-summary' ).find( 'textarea' ),
 			oldSummary = $input.val();
 
-		if ( oldSummary.replace( /\s*\/\*.*\*\/\s*/, '' ) == '' ) {
+		if ( oldSummary.replace( /\s*\/\*.*\*\/\s*/, '' ) === '' ) {
 			// Either this summary is empty, or this is an
 			// automatic edit summary like this: /* SectionName */
 			// We can safely replace it with preloaded summary.

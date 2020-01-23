@@ -112,7 +112,7 @@ module.exports.install = function ( browser ) {
 			} ).finally( () => {
 				fs.flockSync( lockfile, 'un' ); // Unlock
 			} ).then( ( apiResult ) => {
-				if ( apiResult.createaccount.status != 'PASS' ) {
+				if ( apiResult.createaccount.status !== 'PASS' ) {
 					return Promise.reject( new Error(
 						'loginIntoNewAccount(): failed to create account: ' +
 						apiResult.createaccount.message
@@ -129,7 +129,7 @@ module.exports.install = function ( browser ) {
 				loginreturnurl: browser.options.baseUrl,
 				logintoken: ret.query.tokens.logintoken
 			} ).then( ( apiResult ) => {
-				if ( apiResult.clientlogin.status != 'PASS' ) {
+				if ( apiResult.clientlogin.status !== 'PASS' ) {
 					return Promise.reject( new Error(
 						'loginIntoNewAccount(): failed to login: ' +
 						apiResult.clientlogin.message
@@ -150,7 +150,7 @@ module.exports.install = function ( browser ) {
 
 	/** @brief Logout from the currently used MediaWiki user account. */
 	browser.logout = function () {
-		if ( browser.desiredCapabilities.browserName == 'safari' ) {
+		if ( browser.desiredCapabilities.browserName === 'safari' ) {
 			/* With SafariDriver, HttpOnly cookies can't be deleted by deleteCookie() */
 			( new Page() ).openTitle( 'Special:UserLogout' );
 		}
@@ -172,7 +172,7 @@ module.exports.install = function ( browser ) {
 				if ( !query.title ) {
 					/* URL like "/wiki/Cat?action=edit" */
 					var title = url.pathname.split( '/' ).pop();
-					if ( title != 'index.php' ) {
+					if ( title !== 'index.php' ) {
 						query.title = title;
 					}
 				}

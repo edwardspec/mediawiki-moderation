@@ -27,6 +27,8 @@
 	mw.moderation = mw.moderation || {};
 	mw.moderation.ajaxhook = mw.moderation.ajaxhook || {};
 
+	var rewriteAjaxResponse; // Defined below
+
 	/*
 		Intercept all API calls made via mw.Api(), rewrite the response if needed.
 	*/
@@ -40,7 +42,7 @@
 			};
 
 			ajaxOptions.dataFilter = function ( rawData, dataType ) {
-				if ( dataType != 'json' ) {
+				if ( dataType !== 'json' ) {
 					return rawData;
 				}
 
@@ -91,7 +93,7 @@
 		@param ret API response, e.g. { edit: { result: "success", ... } }.
 		@returns New API response (if overwrite is needed) or false (if no need to overwrite).
 	*/
-	function rewriteAjaxResponse( query, ret ) {
+	rewriteAjaxResponse = function ( query, ret ) {
 		// Allow the hook to modify the response (used by [preload33.mf.js])
 		mw.hook( 'ajaxhook.rewriteAjaxResponse' ).fire( query, ret );
 		if ( ret.modified ) { // If the hook sets this field, then "ret" is the new response.
@@ -109,7 +111,7 @@
 			return false; /* Nothing to overwrite */
 		}
 
-		if ( errorCode == 'moderation-edit-queued' ) {
+		if ( errorCode === 'moderation-edit-queued' ) {
 			/* Set cookie for [ext.moderation.notify.js].
 				It means "edit was just queued for moderation".
 			*/
@@ -128,6 +130,6 @@
 		}
 
 		return false; /* Nothing to overwrite */
-	}
+	};
 
 }( mediaWiki, jQuery ) );

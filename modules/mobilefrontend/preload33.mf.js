@@ -16,11 +16,11 @@
 			q = requestUri.query;
 
 		// Is this a "load latest revision" query?
-		if ( q.action != 'query' || q.format != 'json' || q.formatversion != 2 || !q.prop ) {
+		if ( q.action !== 'query' || q.format !== 'json' || q.formatversion !== '2' || !q.prop ) {
 			return; // Unrelated API query
 		}
 
-		if ( q.prop.split( '|' ).indexOf( 'revisions' ) == -1 ) {
+		if ( q.prop.split( '|' ).indexOf( 'revisions' ) === -1 ) {
 			return; // Not a "load latest revision" query
 		}
 

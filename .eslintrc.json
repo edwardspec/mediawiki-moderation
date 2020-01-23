@@ -20,13 +20,12 @@
 		"no-console": "off",
 
 		// FIXME: this should be fixed
-		"eqeqeq": "warn",
-		"vars-on-top": "warn",
-		"one-var": "warn",
-		"no-jquery/no-parse-html-literal": "warn",
 		"no-jquery/no-is-numeric": "warn",
-		"no-use-before-define": "warn",
 		"no-unused-vars": "warn",
+
+		// Don't want to apply this. Current placement of "var" significantly improves readability.
+		"vars-on-top": "off",
+		"one-var": "off",
 
 		// TODO: missing documentation: this can be fixed
 		"mediawiki/msg-doc": "warn",
