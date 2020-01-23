@@ -61,7 +61,8 @@ class VisualEditor extends Page {
 
 	/** @brief "Save page" button in the editor */
 	get saveButton() {
-		var $submit = this.getWhenVisible( '.ve-ui-toolbar-saveButton a, a.ve-ui-toolbar-saveButton' );
+		var $submit = this.getWhenVisible(
+			'.ve-ui-toolbar-saveButton a, a.ve-ui-toolbar-saveButton' );
 
 		browser.waitUntil( function () {
 			return ( $submit.getAttribute( 'aria-disabled' ) === 'false' );
@@ -72,7 +73,8 @@ class VisualEditor extends Page {
 
 	/** @brief "Save page" button in "Describe what you changed" dialog */
 	get confirmButton() {
-		return this.getWhenVisible( '//*[@class="oo-ui-processDialog-navigation"]//a[contains(.,"Save")]' );
+		return this.getWhenVisible(
+			'//*[@class="oo-ui-processDialog-navigation"]//a[contains(.,"Save")]' );
 	}
 
 	/** @brief "Summary" field in "Describe what you changed" dialog */

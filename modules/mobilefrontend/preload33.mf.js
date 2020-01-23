@@ -28,6 +28,7 @@
 		q.prop += '|moderationpreload';
 		q.mptitle = q.titles;
 
+		// eslint-disable-next-line no-jquery/no-is-numeric
 		if ( $.isNumeric( q.rvsection ) ) { // Only one section is needed
 			q.mpsection = q.rvsection;
 		}

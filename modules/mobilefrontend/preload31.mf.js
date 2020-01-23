@@ -20,7 +20,8 @@
 
 		/*
 			useDefault() - call the original (unmodified) method from EditorGateway.
-			Example: return useDefault( "no change is awaiting moderation, so nothing to preload!" );
+			Example:
+			return useDefault( "no change is awaiting moderation, so nothing to preload!" );
 		*/
 		function useDefault( reason, $deferred ) {
 			console.log( 'Moderation: not preloading: ' + reason );
@@ -65,6 +66,7 @@
 			bkprop: 'flags'
 		};
 
+		// eslint-disable-next-line no-jquery/no-is-numeric
 		if ( $.isNumeric( this.sectionId ) ) {
 			qPreload.mpsection = this.sectionId;
 		}

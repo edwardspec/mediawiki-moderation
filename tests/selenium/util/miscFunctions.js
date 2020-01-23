@@ -10,6 +10,7 @@ var nodeUrl = require( 'url' ),
 	MWBot = require( 'mwbot' ),
 	Page = require( 'wdio-mediawiki/Page' ),
 	fs = require( 'fs-ext' ), // for fs.flock()
+	// eslint-disable-next-line no-redeclare
 	Promise = require( 'bluebird' ),
 	Api = require( 'wdio-mediawiki/Api' );
 
@@ -137,6 +138,7 @@ module.exports.install = function ( browser ) {
 				}
 			} ) ) ) ) );
 
+		// eslint-disable-next-line no-underscore-dangle
 		for ( var cookie of cookieJar._jar.toJSON().cookies ) {
 			// Feed these login cookies to Selenium-controlled browser
 			browser.setCookies( {

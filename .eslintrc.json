@@ -14,9 +14,6 @@
 		// (this information is helpful for users who are trying to determine why).
 		"no-console": "off",
 
-		// FIXME: this should be fixed
-		"no-jquery/no-is-numeric": "warn",
-
 		// Don't want to apply this. Current placement of "var" significantly improves readability.
 		"vars-on-top": "off",
 		"one-var": "off",

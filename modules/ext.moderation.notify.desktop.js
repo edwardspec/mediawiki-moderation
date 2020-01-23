@@ -35,7 +35,9 @@
 			*/
 			var $cont = $( containerClass );
 			var $newcont = $cont.clone();
-			$cont.replaceWith( $newcont ); /* postEdit.js will remove $cont, but won't touch $newcont */
+
+			/* postEdit.js will remove $cont, but won't touch $newcont */
+			$cont.replaceWith( $newcont );
 
 			/* Remove on click */
 			$newcont.on( 'click', function () {

@@ -25,7 +25,8 @@
 
 			/*
 				useDefault() - call the original (unmodified) method from mw.libs.ve.
-				Example: return useDefault( "no change is awaiting moderation, so nothing to preload!" );
+				Example:
+				return useDefault( "no change is awaiting moderation, so nothing to preload!" );
 			*/
 			var self = this,
 				params = arguments;
@@ -38,12 +39,15 @@
 
 			/* If user is editing some older revision,
 				then preloading is not needed here */
-			if ( options.oldId !== undefined && options.oldId !== mw.config.get( 'wgCurRevisionId' ) ) {
+			if ( options.oldId !== undefined &&
+				options.oldId !== mw.config.get( 'wgCurRevisionId' )
+			) {
 				return useDefault( 'user is editing an older revision' );
 			}
 
 			if ( options.wikitext !== undefined ) {
-				return useDefault( 'requestParsoidData() is parsing custom wikitext, not the current revision' );
+				return useDefault(
+					'requestParsoidData() is parsing custom wikitext, not the current revision' );
 			}
 
 			/* We need to get the following information:
@@ -104,12 +108,13 @@
 						var ret2 = parsefragment[ 0 ];
 
 						if ( ret.visualeditor && ret2.visualeditor ) {
-							ret.visualeditor.content = '<body>' + ret2.visualeditor.content + '</body>';
+							ret.visualeditor.content = '<body>' +
+								ret2.visualeditor.content + '</body>';
 						}
 
 						ret.visualeditor.canEdit = true;
 
-						/* Return metadata + HTML (like api.php?action=visualeditor&paction=parse) */
+						// Return metadata + HTML (like api.php?action=visualeditor&paction=parse)
 						return ret;
 
 					} ).promise();
