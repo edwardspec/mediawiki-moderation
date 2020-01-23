@@ -85,6 +85,8 @@
 	"moderation-unblock": "Inte längre en spammare",
 	"moderation-unblock-ok": "Användaren [[Special:Contributions/$1|$1]] anses inte längre vara en spammare.",
 	"moderation-unknown-modaction": "Okänd moderationshandling.",
+	"moderation-whois-link-text": "?",
+	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
 	"right-moderation-checkuser": "Kan se IP-adresser för skapare i moderationsgränssnittet",
 	"right-moderation": "Moderera redigeringar",
 	"right-skip-moderation": "Låta sina redigeringar kringgå moderation",

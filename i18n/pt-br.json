@@ -89,6 +89,8 @@
 	"moderation-unblock": "Deixou de ser criador de spam",
 	"moderation-unblock-ok": "O usuário [[Special:Contributions/$1|$1]] deixou de ser considerado criador de spam.",
 	"moderation-unknown-modaction": "Ação de moderação desconhecida.",
+	"moderation-whois-link-text": "?",
+	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
 	"right-moderation-checkuser": "Pode ver os IP dos editores na interface de moderação",
 	"right-moderation": "Moderar edições",
 	"right-skip-moderation": "Ter as suas edições não sujeitas a moderação",

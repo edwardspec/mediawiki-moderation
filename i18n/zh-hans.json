@@ -5,7 +5,8 @@
 			"Liuxinyu970226",
 			"Wxyveronica",
 			"Chixvv",
-			"Hanyanbo98"
+			"Hanyanbo98",
+			"VulpesVulpes825"
 		]
 	},
 	"action-moderation": "版主编辑",
@@ -93,6 +94,8 @@
 	"moderation-unblock": "不再是垃圾内容发送者",
 	"moderation-unblock-ok": "用户 [[Special:Contributions/$1|$1]] 已不再被视为垃圾内容发送者。",
 	"moderation-unknown-modaction": "未知的版主操作行为。",
+	"moderation-whois-link-text": "?",
+	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
 	"right-moderation-checkuser": "可以在批准界面上看到编辑者的IP地址",
 	"right-moderation": "审核编辑结果",
 	"right-skip-moderation": "让他们的编辑绕过审核",

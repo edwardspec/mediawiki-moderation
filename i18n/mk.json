@@ -90,6 +90,8 @@
 	"moderation-unblock": "Повеќе не е спамер",
 	"moderation-unblock-ok": "Корисникот [[Special:Contributions/$1|$1]] повеќе не се смета за спамер.",
 	"moderation-unknown-modaction": "Непознато модерациско дејство.",
+	"moderation-whois-link-text": "?",
+	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
 	"right-moderation-checkuser": "Можете да ги гледате IP-адресите на уредниците во посредникот за модерација.",
 	"right-moderation": "Модерација на уредувања",
 	"right-skip-moderation": "Уредувањата да заобиколуваат модерација",

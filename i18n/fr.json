@@ -91,6 +91,8 @@
 	"moderation-unblock": "N'est plus un spammeur",
 	"moderation-unblock-ok": "L’utilisateur [[Special:Contributions/$1|$1]] n’est plus considéré comme un spammeur.",
 	"moderation-unknown-modaction": "Action de modération inconnue.",
+	"moderation-whois-link-text": "?",
+	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
 	"right-moderation-checkuser": "Pouvoir voir les adresses IP des éditeurs dans l’interface de modération",
 	"right-moderation": "Modérer les modifications",
 	"right-skip-moderation": "Avoir ses modifications en évitant la modération",
