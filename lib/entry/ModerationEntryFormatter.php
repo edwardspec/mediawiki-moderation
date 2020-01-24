@@ -24,6 +24,9 @@ class ModerationEntryFormatter extends ModerationEntry {
 	/** @var IContextSource */
 	protected $context = null;
 
+	/** @var LinkRenderer|null */
+	private static $linkRenderer;
+
 	/**
 	 * @return IContextSource
 	 */
@@ -40,6 +43,18 @@ class ModerationEntryFormatter extends ModerationEntry {
 	 */
 	public function setContext( IContextSource $context ) {
 		$this->context = $context;
+	}
+
+	/**
+	 * @since 1.30
+	 * @return LinkRenderer
+	 */
+	protected static function getLinkRenderer() {
+		if ( self::$linkRenderer === null ) {
+			self::$linkRenderer = MediaWiki\MediaWikiServices::getInstance()->getLinkRenderer();
+		}
+
+		return self::$linkRenderer;
 	}
 
 	/**
@@ -61,7 +76,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 	/**
 	 * Add all titles needed by getHTML() to $batch.
 	 * This method is for QueryPage::preprocessResults().
-	 * It optimizes Linker::link() calls by detecting all redlinks in one SQL query.
+	 * It optimizes makeLink() calls by detecting all redlinks in one SQL query.
 	 * @param stdClass $row
 	 * @param LinkBatch $batch
 	 */
@@ -159,23 +174,23 @@ class ModerationEntryFormatter extends ModerationEntry {
 	public function getHTML() {
 		global $wgModerationPreviewLink, $wgModerationEnableEditChange;
 
+		$linkRenderer = self::getLinkRenderer();
 		$row = $this->getRow();
-
-		$class = 'modline';
 		$title = $this->getTitle();
 
+		$class = 'modline';
 		$line = '';
 
 		// Show/Preview links. Not needed for moves, because they don't change the text.
 		if ( !$this->isMove() ) {
-			$line .= '(' . $this->makeModerationLink( 'show', $row->id );
+			$line .= '(' . self::makeModerationLink( 'show', $row->id );
 
 			if ( $wgModerationPreviewLink ) {
-				$line .= ' | ' . $this->makeModerationLink( 'preview', $row->id );
+				$line .= ' | ' . self::makeModerationLink( 'preview', $row->id );
 			}
 
 			if ( $wgModerationEnableEditChange ) {
-				$line .= ' | ' . $this->makeModerationLink( 'editchange', $row->id );
+				$line .= ' | ' . self::makeModerationLink( 'editchange', $row->id );
 			}
 
 			$line .= ') . . ';
@@ -192,10 +207,10 @@ class ModerationEntryFormatter extends ModerationEntry {
 		}
 		$line .= ' ';
 
-		$pageLink = Linker::link( $title );
+		$pageLink = $linkRenderer->makeLink( $title );
 		if ( $this->isMove() ) {
 			/* "Page A renamed into B" */
-			$page2Link = Linker::link( $this->getPage2Title() );
+			$page2Link = $linkRenderer->makeLink( $this->getPage2Title() );
 
 			$line .= $this->msg( 'moderation-move' )->rawParams(
 				$pageLink,
@@ -244,14 +259,14 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 				// In order to merge, moderator must also be automoderated
 				if ( ModerationCanSkip::canEditSkip( $this->getModerator(), $row->namespace ) ) {
-					$line .= $this->makeModerationLink( 'merge', $row->id );
+					$line .= self::makeModerationLink( 'merge', $row->id );
 				} else {
 					$line .= $this->msg(
 						'moderation-no-merge-link-not-automoderated' )->plain();
 				}
 			} else {
 				if ( !$row->rejected || $this->canReapproveRejected() ) {
-					$line .= $this->makeModerationLink( 'approve', $row->id );
+					$line .= self::makeModerationLink( 'approve', $row->id );
 				}
 
 				# Note: you can use "Approve all" on rejected edit,
@@ -259,29 +274,29 @@ class ModerationEntryFormatter extends ModerationEntry {
 				# To avoid confusion, link "Approve all" is not shown for rejected edits.
 				if ( !$row->rejected ) {
 					$line .= ' ';
-					$line .= $this->makeModerationLink( 'approveall', $row->id );
+					$line .= self::makeModerationLink( 'approveall', $row->id );
 				}
 			}
 
 			if ( !$row->rejected ) {
 				$line .= ' . . ';
-				$line .= $this->makeModerationLink( 'reject', $row->id );
+				$line .= self::makeModerationLink( 'reject', $row->id );
 				$line .= ' ';
-				$line .= $this->makeModerationLink( 'rejectall', $row->id );
+				$line .= self::makeModerationLink( 'rejectall', $row->id );
 			}
 			$line .= ']';
 		} else {
-			$line .= ' [' . Linker::link(
+			$line .= ' [' . $linkRenderer->makePreloadedLink(
 				$title,
 				$this->msg( 'moderation-merged-link' )->plain(),
+				'',
 				[ 'title' => $this->msg( 'tooltip-moderation-merged-link' )->plain() ],
-				[ 'diff' => $row->merged_revid ],
-				[ 'known', 'noclasses' ]
+				[ 'diff' => $row->merged_revid ]
 			) . ']';
 		}
 
 		$line .= ' . . [';
-		$line .= $this->makeModerationLink(
+		$line .= self::makeModerationLink(
 			$row->blocked ? 'unblock' : 'block',
 			$row->id
 		);
@@ -317,13 +332,12 @@ class ModerationEntryFormatter extends ModerationEntry {
 			$params['token'] = $wgUser->getEditToken();
 		}
 
-		return Linker::link(
+		return self::getLinkRenderer()->makePreloadedLink(
 			SpecialPage::getTitleFor( 'Moderation' ),
 			wfMessage( 'moderation-' . $action )->plain(),
+			'',
 			[ 'title' => wfMessage( 'tooltip-moderation-' . $action )->plain() ],
-			$params,
-			[ 'known', 'noclasses' ]
+			$params
 		);
 	}
-
 }

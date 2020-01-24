@@ -59,7 +59,7 @@ class SpecialModeration extends QueryPage {
 
 	public function preprocessResults( $db, $res ) {
 		/* Check all pages for whether they exist or not -
-			improves performance of Linker::link() in formatResult() */
+			improves performance of makeLink() in ModerationEntryFormatter */
 		$batch = new LinkBatch();
 		foreach ( $res as $row ) {
 			ModerationEntryFormatter::addToLinkBatch( $row, $batch );
@@ -74,6 +74,8 @@ class SpecialModeration extends QueryPage {
 	}
 
 	public function getPageHeader() {
+		$linkRenderer = $this->getLinkRenderer();
+
 		$folderLinks = [];
 		foreach ( array_keys( $this->folders_list ) as $f_name ) {
 			$label = $this->msg( 'moderation-folder-' . $f_name )->plain();
@@ -81,12 +83,12 @@ class SpecialModeration extends QueryPage {
 			if ( $f_name == $this->folder ) {
 				$folderLinks[] = Xml::element( 'strong', [ 'class' => 'selflink' ], $label );
 			} else {
-				$folderLinks[] = Linker::link(
+				$folderLinks[] = $linkRenderer->makePreloadedLink(
 					$this->getPageTitle(),
 					$label,
+					'',
 					[ 'title' => $this->msg( 'tooltip-moderation-folder-' . $f_name )->plain() ],
-					[ 'folder' => $f_name ],
-					[ 'known', 'noclasses' ]
+					[ 'folder' => $f_name ]
 				);
 			}
 		}

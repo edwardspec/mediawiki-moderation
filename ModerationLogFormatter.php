@@ -27,9 +27,11 @@ class ModerationLogFormatter extends LogFormatter {
 		$type = $this->entry->getSubtype();
 		$entryParams = $this->entry->getParameters();
 
+		$linkRenderer = $this->getLinkRenderer();
+
 		if ( $type === 'approve' ) {
 			$revId = $entryParams['revid'];
-			$link = Linker::link(
+			$link = $linkRenderer->makeLink(
 				$this->entry->getTarget(),
 				$this->msg( 'moderation-log-diff' )->params( $revId )->text(),
 				[ 'title' => $this->msg( 'tooltip-moderation-approved-diff' )->plain() ],
@@ -38,14 +40,14 @@ class ModerationLogFormatter extends LogFormatter {
 			$params[3] = Message::rawParam( $link );
 		} elseif ( $type === 'approve-move' ) {
 			$title = Title::newFromText( $entryParams['4::target'] );
-			$params[3] = Message::rawParam( Linker::link( $title ) );
+			$params[3] = Message::rawParam( $linkRenderer->makeLink( $title ) );
 			$params[4] = Message::rawParam( Linker::userLink(
 				$entryParams['user'],
 				$entryParams['user_text']
 			) );
 		} elseif ( $type === 'reject' ) {
 			$modId = $entryParams['modid'];
-			$link = Linker::linkKnown(
+			$link = $linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor( 'Moderation' ),
 				$this->msg( 'moderation-log-change' )->params( $modId )->text(),
 				[ 'title' => $this->msg( 'tooltip-moderation-rejected-change' )->plain() ],
@@ -57,7 +59,7 @@ class ModerationLogFormatter extends LogFormatter {
 			$params[4] = Message::rawParam( $userLink );
 		} elseif ( $type === 'editchange' ) {
 			$modId = $entryParams['modid'];
-			$link = Linker::linkKnown(
+			$link = $linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor( 'Moderation' ),
 				$this->msg( 'moderation-log-change' )->params( $modId )->text(),
 				[], // TODO: add tooltip
@@ -68,7 +70,7 @@ class ModerationLogFormatter extends LogFormatter {
 			$revId = $entryParams['revid'];
 			$modId = $entryParams['modid'];
 
-			$link = Linker::linkKnown(
+			$link = $linkRenderer->makeKnownLink(
 				SpecialPage::getTitleFor( 'Moderation' ),
 				$this->msg( 'moderation-log-change' )->params( $modId )->text(),
 				[ 'title' => $this->msg( 'tooltip-moderation-rejected-change' )->plain() ],
@@ -76,7 +78,7 @@ class ModerationLogFormatter extends LogFormatter {
 			);
 			$params[3] = Message::rawParam( $link );
 
-			$link = Linker::link(
+			$link = $linkRenderer->makeLink(
 				$this->entry->getTarget(),
 				$this->msg( 'moderation-log-diff' )->params( $revId )->text(),
 				[ 'title' => $this->msg( 'tooltip-moderation-approved-diff' )->plain() ],

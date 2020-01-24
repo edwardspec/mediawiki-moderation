@@ -120,7 +120,8 @@ class ModerationNotifyModerator {
 		}
 
 		/* Need to notify */
-		$newMessagesAlert .= Linker::link(
+		$linkRenderer = MediaWiki\MediaWikiServices::getInstance()->getLinkRenderer();
+		$newMessagesAlert .= $linkRenderer->makeLink(
 			SpecialPage::getTitleFor( 'Moderation' ),
 			$out->msg( 'moderation-new-changes-appeared' )->plain()
 		);

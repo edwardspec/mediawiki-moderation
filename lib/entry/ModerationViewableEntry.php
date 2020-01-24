@@ -65,9 +65,10 @@ class ModerationViewableEntry extends ModerationEntry {
 
 		if ( $this->isMove() ) {
 			// "Page A moved into B"
+			$linkRenderer = MediaWiki\MediaWikiServices::getInstance()->getLinkRenderer();
 			return $context->msg( 'movepage-page-moved' )->rawParams(
-				Linker::link( $title ),
-				Linker::link( $this->getPage2Title() )
+				$linkRenderer->makeLink( $title ),
+				$linkRenderer->makeLink( $this->getPage2Title() )
 			)->parseAsBlock();
 		}
 
