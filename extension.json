@@ -6,6 +6,9 @@
 	"descriptionmsg": "moderation-desc",
 	"license-name": "GPL-3.0+",
 	"type": "antispam",
+	"requires": {
+		"MediaWiki": ">= 1.31.0"
+	},
 	"GroupPermissions": {
 		"automoderated": {
 			"skip-moderation": true,
@@ -142,7 +145,6 @@
 	},
 	"ResourceModules": {
 		"ext.moderation.ajaxhook": {
-			"position": "bottom",
 			"scripts": "ext.moderation.ajaxhook.js",
 			"targets": [
 				"desktop",
@@ -150,11 +152,9 @@
 			]
 		},
 		"ext.moderation.edit": {
-			"position": "bottom",
 			"styles": "ext.moderation.edit.css"
 		},
 		"ext.moderation.mf.notify": {
-			"position": "bottom",
 			"scripts": [
 				"mobilefrontend/notify.mf.js"
 			],
@@ -176,7 +176,6 @@
 			]
 		},
 		"ext.moderation.mf.preload31": {
-			"position": "bottom",
 			"scripts": [
 				"mobilefrontend/preload31.mf.js"
 			],
@@ -190,7 +189,6 @@
 			]
 		},
 		"ext.moderation.mf.preload33": {
-			"position": "bottom",
 			"scripts": [
 				"mobilefrontend/preload33.mf.js"
 			],
@@ -203,7 +201,6 @@
 			]
 		},
 		"ext.moderation.notify": {
-			"position": "bottom",
 			"scripts": "ext.moderation.notify.js",
 			"styles": "ext.moderation.notify.css",
 			"dependencies": [
@@ -224,7 +221,6 @@
 			]
 		},
 		"ext.moderation.notify.desktop": {
-			"position": "bottom",
 			"scripts": "ext.moderation.notify.desktop.js",
 			"styles": "ext.moderation.notify.desktop.css",
 			"targets": [
@@ -232,7 +228,6 @@
 			]
 		},
 		"ext.moderation.special.ajax": {
-			"position": "bottom",
 			"scripts": "ext.moderation.special.ajax.js",
 			"styles": "ext.moderation.special.ajax.css",
 			"dependencies": [
@@ -245,11 +240,9 @@
 			]
 		},
 		"ext.moderation.special.css": {
-			"position": "bottom",
 			"styles": "ext.moderation.special.css"
 		},
 		"ext.moderation.ve": {
-			"position": "top",
 			"scripts": [
 				"visualeditor/ajaxhook.ve.js",
 				"visualeditor/preload.ve.js"
@@ -332,44 +325,58 @@
 		]
 	},
 	"config": {
-		"@doc1": "If false, new edits are applied as usual (not sent to moderation).",
-		"ModerationEnable": true,
-
-		"@doc2": "Time (in seconds) after which rejected edit could no longer be approved.",
-		"ModerationTimeToOverrideRejection": 1209600,
-
-		"@doc3": "If true, Preview link is shown for pending edits. Normally you shouldn't enable this (when following Best Practices, approval/rejection depends on content, not formatting).",
-		"ModerationPreviewLink": false,
-
-		"@doc4": "If true, administrator is notified of new changes that await moderation.",
-		"ModerationNotificationEnable": false,
-
-		"@doc5": "If true, only notify about new pages, not all edits.",
-		"ModerationNotificationNewOnly": false,
-
-		"@doc6": "Email address to send notifications to.",
-		"ModerationEmail": "",
-
-		"@doc7": "If true/false, assume presence/absence of VisualEditor. Default: auto-detect.",
-		"ModerationSupportVisualEditor": "guess",
-
-		"@doc8": "If true/false, assume presence/absence of MobileFrontend. Default: auto-detect.",
-		"ModerationSupportMobileFrontend": "guess",
-
-		"@doc9": "If true, supports third-party JavaScript editors even if both VisualEditor and MobileFrontend are not installed.",
-		"ModerationForceAjaxHook": false,
-
-		"@doc10": "Experimental: if true, enable Ajax handling of links on Special:Moderation.",
-		"ModerationUseAjax": false,
-
-		"@doc11": "If set to an array of namespace numbers (e.g. NS_MAIN, NS_FILE), moderation is only enabled in these namespaces (edits in other namespaces will bypass moderation). Default (empty array): moderation is enabled everywhere.",
-		"ModerationOnlyInNamespaces": [],
-
-		"@doc12": "If set to an array of namespace numbers (e.g. NS_MAIN, NS_FILE), non-automoderated users can bypass moderation in these namespaces. Default (empty array): moderation can't be bypassed anywhere.",
-		"ModerationIgnoredInNamespaces": [],
-
-		"@doc13": "If true, moderators are allowed to edit pending changes before approving. DANGEROUS: moderator can accidentally delete the text of pending change. Enable this only when you use Moderation for pre-publish review.",
-		"ModerationEnableEditChange": false
+		"ModerationEnable": {
+			"value": true,
+			"description": "If false, new edits are applied as usual (not sent to moderation)."
+		},
+		"ModerationTimeToOverrideRejection": {
+			"value": 1209600,
+			"description": "Time (in seconds) after which rejected edit could no longer be approved."
+		},
+		"ModerationPreviewLink": {
+			"value": false,
+			"description": "If true, Preview link is shown for pending edits. Normally you shouldn't enable this (when following Best Practices, approval/rejection depends on content, not formatting)."
+		},
+		"ModerationNotificationEnable": {
+			"value": false,
+			"description": "If true, administrator is notified of new changes that await moderation."
+		},
+		"ModerationNotificationNewOnly": {
+			"value": false,
+			"description": "If true, only notify about new pages, not all edits."
+		},
+		"ModerationEmail": {
+			"value": "",
+			"description": "Email address to send notifications to."
+		},
+		"ModerationSupportVisualEditor": {
+			"value": "guess",
+			"description": "If true/false, assume presence/absence of VisualEditor. Default: auto-detect."
+		},
+		"ModerationSupportMobileFrontend":  {
+			"value": "guess",
+			"description":  "If true/false, assume presence/absence of MobileFrontend. Default: auto-detect."
+		},
+		"ModerationForceAjaxHook":  {
+			"value": false,
+			"description":  "If true, supports third-party JavaScript editors even if both VisualEditor and MobileFrontend are not installed."
+		},
+		"ModerationUseAjax":  {
+			"value": false,
+			"description": "Experimental: if true, enable Ajax handling of links on Special:Moderation."
+		},
+		"ModerationOnlyInNamespaces":  {
+			"value": [],
+			"description": "If set to an array of namespace numbers (e.g. NS_MAIN, NS_FILE), moderation is only enabled in these namespaces (edits in other namespaces will bypass moderation). Default (empty array): moderation is enabled everywhere."
+		},
+		"ModerationIgnoredInNamespaces":  {
+			"value": [],
+			"description": "If set to an array of namespace numbers (e.g. NS_MAIN, NS_FILE), non-automoderated users can bypass moderation in these namespaces. Default (empty array): moderation can't be bypassed anywhere."
+		},
+		"ModerationEnableEditChange":  {
+			"value": false,
+			"description": "If true, moderators are allowed to edit pending changes before approving. DANGEROUS: moderator can accidentally delete the text of pending change. Enable this only when you use Moderation for pre-publish review."
+		}
 	},
-	"manifest_version": 1
+	"manifest_version": 2
 }
