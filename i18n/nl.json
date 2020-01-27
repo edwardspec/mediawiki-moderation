@@ -2,7 +2,8 @@
 	"@metadata": {
 		"authors": [
 			"Mainframe98",
-			"SPQRobin"
+			"SPQRobin",
+			"Elroy"
 		]
 	},
 	"action-moderation": "bewerkingen te controleren",
@@ -83,6 +84,8 @@
 	"moderation-unblock": "Niet langer een spammer",
 	"moderation-unblock-ok": "Gebruiker [[Special:Contributions/$1|$1]] wordt niet langer als een spammer beschouwd.",
 	"moderation-unknown-modaction": "Onbekende bewerkingscontrole handeling.",
+	"moderation-whois-link-text": "?",
+	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
 	"right-moderation-checkuser": "Kan de IP-adressen van bewerkers in de bewerkingscontrole-interface bekijken",
 	"right-moderation": "Bewerkingen controleren",
 	"right-skip-moderation": "Mag de bewerkingscontrole overslaan",
