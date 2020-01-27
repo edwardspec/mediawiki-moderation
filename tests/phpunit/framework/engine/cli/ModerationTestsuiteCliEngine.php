@@ -212,7 +212,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 		global $argv;
 		if ( array_search( '--use-normal-tables', $argv ) !== false ) {
 			$dbw = wfGetDB( DB_MASTER );
-			$this->setMwConfig( 'DBPrefix', $dbw->tablePrefix() );
+			$this->setMwConfig( 'DBprefix', $dbw->tablePrefix() );
 
 			// Ensure that cloned 'page_props' table contains the
 			// version number of Moderation during the last update.php,

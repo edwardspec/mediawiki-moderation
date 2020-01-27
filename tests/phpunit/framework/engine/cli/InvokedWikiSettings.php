@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ require_once "$IP/LocalSettings.php";
 foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 	$GLOBALS["wg$name"] = $value;
 
-	if ( $name == 'DBPrefix' ) {
+	if ( $name == 'DBprefix' ) {
 		CloneDatabase::changePrefix( $value );
 	}
 }
