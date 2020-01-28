@@ -16,6 +16,7 @@ Refactoring, performance optimizations:
 * Removed legacy code for MediaWiki 1.27-1.30.
 
 Warnings fixed:
+* Replaced deprecated Linker::link()
 * Replaced deprecated StreamFile::send404Message()
 * Replaced deprecated Title::GAID_FOR_UPDATE
 * Replaced deprecated UploadBase::stashFile()

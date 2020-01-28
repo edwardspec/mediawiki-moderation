@@ -267,8 +267,9 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 				"$errorContext: incorrect userlink to the target user."
 			);
 		} else {
+			$linkRenderer = MediaWiki\MediaWikiServices::getInstance()->getLinkRenderer();
 			$testcase->assertEquals(
-				Linker::link( $this->target ),
+				$linkRenderer->makeLink( $this->target ),
 				$params[2],
 				"$errorContext: incorrect link to the target page."
 			);
