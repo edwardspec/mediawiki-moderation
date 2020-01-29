@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2019 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ class ModerationInterceptTest extends ModerationTestCase {
 	 * @dataProvider dataProvider
 	 */
 	public function testIntercept( array $options ) {
-		ModerationInterceptTestSet::run( $options, $this );
+		$this->runSet( $options );
 	}
 
 	/**
@@ -116,21 +116,21 @@ class ModerationInterceptTest extends ModerationTestCase {
 				'(both source and target must be excluded from moderation)' => [ [
 					'intercept' => true,
 					'action' => 'move',
-					'ModerationIgnoredInNamespaces' => [ ModerationInterceptTestSet::DEFAULT_NS1 ]
+					'ModerationIgnoredInNamespaces' => [ self::DEFAULT_NS1 ]
 				] ],
 			'target namespace being excluded is not enough for move to bypass moderation ' .
 				'(both source and target must be excluded from moderation)' => [ [
 					'intercept' => true,
 					'action' => 'move',
-					'ModerationIgnoredInNamespaces' => [ ModerationInterceptTestSet::DEFAULT_NS2 ]
+					'ModerationIgnoredInNamespaces' => [ self::DEFAULT_NS2 ]
 				] ],
 			'move should bypass moderation if both source and target namespaces are excluded' =>
 				[ [
 					'intercept' => false,
 					'action' => 'move',
 					'ModerationIgnoredInNamespaces' => [
-						ModerationInterceptTestSet::DEFAULT_NS1,
-						ModerationInterceptTestSet::DEFAULT_NS2
+						self::DEFAULT_NS1,
+						self::DEFAULT_NS2
 					]
 				] ]
 		];
@@ -143,12 +143,12 @@ class ModerationInterceptTest extends ModerationTestCase {
 		}
 		return $newSets;
 	}
-}
 
-/**
- * Represents one TestSet for testIntercept().
- */
-class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
+	/*-------------------------------------------------------------------*/
+	/* TestSet of this test                                              */
+	/*-------------------------------------------------------------------*/
+
+	use ModerationTestsuiteTestSet;
 
 	/**
 	 * @const Namespace which is used when not selected by the test.
@@ -223,8 +223,8 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 	/**
 	 * Assert the state of the database after the edit.
 	 */
-	protected function assertResults( ModerationTestCase $testcase ) {
-		$testcase->assertEquals(
+	protected function assertResults() {
+		$this->assertEquals(
 			[ 'edit was intercepted' => $this->intercept ],
 			[ 'edit was intercepted' => $this->result->isIntercepted() ]
 		);
@@ -232,7 +232,7 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation', '*', '', __METHOD__ );
 
-		$testcase->assertEquals(
+		$this->assertEquals(
 			[ 'edit was queued' => $this->intercept ],
 			[ 'edit was queued' => (bool)$row ]
 		);
@@ -243,7 +243,7 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 		$targetPageExists = (bool)$this->getTestsuite()->getLastRevision(
 			$targetTitle->getFullText()
 		);
-		$testcase->assertEquals(
+		$this->assertEquals(
 			[ 'target page was unchanged' => $this->intercept ],
 			[ 'target page was unchanged' => !$targetPageExists ]
 		);
@@ -273,7 +273,6 @@ class ModerationInterceptTestSet extends ModerationTestsuiteTestSet {
 	 * Execute the TestSet, making an edit/upload/move with requested parameters.
 	 */
 	protected function makeChanges() {
-		$testcase = $this->getTestcase();
 		$t = $this->getTestsuite();
 
 		foreach ( $this->configVars as $name => $value ) {

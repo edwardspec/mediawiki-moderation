@@ -31,7 +31,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 	 * @dataProvider dataProvider
 	 */
 	public function testRenderSpecial( array $options ) {
-		ModerationRenderTestSet::run( $options, $this );
+		$this->runSet( $options );
 	}
 
 	/**
@@ -127,12 +127,14 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 				] ]
 		];
 	}
-}
 
-/**
- * Represents one TestSet for testRenderSpecial().
- */
-class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
+	/*-------------------------------------------------------------------*/
+	/* TestSet of this test                                              */
+	/*-------------------------------------------------------------------*/
+
+	use ModerationTestsuitePendingChangeTestSet {
+		applyOptions as parentApplyOptions;
+	}
 
 	/** @var string Folder of Special:Moderation where this entry should appear */
 	protected $expectedFolder = 'DEFAULT';
@@ -168,13 +170,13 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 			}
 		}
 
-		parent::applyOptions( $options );
+		$this->parentApplyOptions( $options );
 	}
 
 	/**
 	 * Assert the state of the database after the edit.
 	 */
-	protected function assertResults( ModerationTestCase $testcase ) {
+	protected function assertResults() {
 		$t = $this->getTestsuite();
 
 		if ( $this->isCheckuser ) {
@@ -192,7 +194,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 		}
 
 		$t->fetchSpecial( $this->expectedFolder );
-		$testcase->assertCount( 1, $t->new_entries,
+		$this->assertCount( 1, $t->new_entries,
 			"Incorrect number of entries on Special:Moderation (folder " . $this->expectedFolder . ")."
 		);
 		$entry = $t->new_entries[0];
@@ -217,13 +219,11 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * Check whether user, title, comment and ID of $entry are correct.
 	 */
 	protected function assertBasicInfo( ModerationTestsuiteEntry $entry ) {
-		$testcase = $this->getTestcase();
-
-		$testcase->assertEquals( $this->fields['mod_id'], $entry->id,
+		$this->assertEquals( $this->fields['mod_id'], $entry->id,
 			"Special:Moderation: ID of the change doesn't match expected" );
-		$testcase->assertEquals( $this->getExpectedTitle(), $entry->title,
+		$this->assertEquals( $this->getExpectedTitle(), $entry->title,
 			"Special:Moderation: Title of the edited page doesn't match expected" );
-		$testcase->assertEquals( $this->fields['mod_user_text'], $entry->user,
+		$this->assertEquals( $this->fields['mod_user_text'], $entry->user,
 			"Special:Moderation: Username of the author doesn't match expected" );
 
 		LinkCache::singleton()->clear();
@@ -232,7 +232,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 			$this->fields['mod_comment'],
 			$this->getExpectedTitleObj()
 		);
-		$testcase->assertEquals( $expectedComment, $entry->commentHtml,
+		$this->assertEquals( $expectedComment, $entry->commentHtml,
 			"Special:Moderation: Edit summary doesn't match expected" );
 	}
 
@@ -240,7 +240,6 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * Check whether timestamp of $entry is correct.
 	 */
 	protected function assertTimestamp( ModerationTestsuiteEntry $entry ) {
-		$testcase = $this->getTestcase();
 		$timestamp = $this->fields['mod_timestamp'];
 
 		// When mod_timestamp is today, only time is shown.
@@ -255,9 +254,9 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 		$expectedDatetime = $expectTimeOnly ? $expectedTime :
 			$lang->userTimeAndDate( $timestamp, $user );
 
-		$testcase->assertEquals( $expectedTime, $entry->time,
+		$this->assertEquals( $expectedTime, $entry->time,
 			"Special:Moderation: time of the change doesn't match expected" );
-		$testcase->assertEquals( $expectedDatetime, $entry->datetime,
+		$this->assertEquals( $expectedDatetime, $entry->datetime,
 			"Special:Moderation: datetime of the change doesn't match expected" );
 	}
 
@@ -276,7 +275,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 			'is creation of new page' => $entry->new
 		];
 
-		$this->getTestcase()->assertEquals( $expectedFlags, $shownFlags,
+		$this->assertEquals( $expectedFlags, $shownFlags,
 			"Special:Moderation: Incorrect entry flags." );
 	}
 
@@ -288,7 +287,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 		$expectedChange = $this->fields['mod_new_len'] - $this->fields['mod_old_len'];
 
-		$this->getTestcase()->assertEquals( [
+		$this->assertEquals( [
 			'change in length' => $expectedChange,
 			'is length change hightlighted?' =>
 				( abs( $expectedChange ) >= $wgRCChangedSizeThreshold )
@@ -302,7 +301,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * Check whether the change is marked as edit conflict.
 	 */
 	protected function assertConflictStatus( ModerationTestsuiteEntry $entry ) {
-		$this->getTestcase()->assertEquals( [
+		$this->assertEquals( [
 			'shown as edit conflict?' => $this->fields['mod_conflict']
 		], [
 			'shown as edit conflict?' => $entry->conflict
@@ -319,7 +318,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 		foreach ( $knownFolders as $folder ) {
 			if ( $folder != $this->expectedFolder ) {
 				$t->fetchSpecial( $folder );
-				$this->getTestcase()->assertEmpty( $t->new_entries,
+				$this->assertEmpty( $t->new_entries,
 					"Unexpected entry found in folder \"$folder\" of Special:Moderation " .
 					"(this folder should be empty)."
 				);
@@ -332,16 +331,15 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * and only to checkusers for registered users.
 	 */
 	protected function assertWhoisLink( ModerationTestsuiteEntry $entry ) {
-		$testcase = $this->getTestcase();
 		if ( $this->fields['mod_user'] == 0 ) {
-			$testcase->assertEquals( $this->fields['mod_user_text'], $entry->ip,
+			$this->assertEquals( $this->fields['mod_user_text'], $entry->ip,
 				"Special:Moderation: incorrect Whois link for anonymous user." );
 		} else {
 			if ( $this->isCheckuser ) {
-				$testcase->assertEquals( $this->fields['mod_ip'], $entry->ip,
+				$this->assertEquals( $this->fields['mod_ip'], $entry->ip,
 					"Special:Moderation (viewed by checkuser): incorrect Whois link for registered user." );
 			} else {
-				$testcase->assertNull( $entry->ip,
+				$this->assertNull( $entry->ip,
 					"Special:Moderation: Whois link shown to non-checkuser." );
 			}
 		}
@@ -351,13 +349,11 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * Check that the formatting of "suggested move" entry is correct.
 	 */
 	protected function assertMoveEntry( ModerationTestsuiteEntry $entry ) {
-		$testcase = $this->getTestcase();
-
 		if ( $this->fields['mod_type'] == 'move' ) {
-			$testcase->assertTrue( $entry->isMove,
+			$this->assertTrue( $entry->isMove,
 				"Special:Moderation: incorrect formatting of the move entry." );
 
-			$testcase->assertEquals( $this->getExpectedPage2Title(), $entry->page2Title,
+			$this->assertEquals( $this->getExpectedPage2Title(), $entry->page2Title,
 				"Special:Moderation: New Title of suggested move doesn't match expected" );
 		}
 	}
@@ -366,8 +362,6 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * Verify that only the needed action links are shown.
 	 */
 	protected function assertActionLinks( ModerationTestsuiteEntry $entry ) {
-		$testcase = $this->getTestcase();
-
 		$expectedLinks = array_fill_keys( [
 			// Fields of $entry
 			'show', 'preview', 'approve', 'approveall',
@@ -401,7 +395,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 			$expectedLinks['approveall'] = false;
 
 			if ( $this->notAutomoderated ) {
-				$testcase->assertTrue( $entry->noMergeNotAutomoderated,
+				$this->assertTrue( $entry->noMergeNotAutomoderated,
 					"Special:Moderation: non-automoderated moderator doesn't see \"Can't merge\" message" );
 			} else {
 				$expectedLinks['merge'] = true;
@@ -430,11 +424,11 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 			$url = $entry->getActionLink( $action );
 
 			if ( $isExpected ) {
-				$testcase->assertNotNull( $url,
+				$this->assertNotNull( $url,
 					"Special:Moderation: expected link [$action] is not shown." );
 				$this->assertActionLinkURL( $action, $url );
 			} else {
-				$testcase->assertNull( $url,
+				$this->assertNull( $url,
 					"Special:Moderation: found unexpected [$action] link (it shouldn't be here)." );
 			}
 		}
@@ -480,7 +474,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 		if ( array_key_exists( 'token', $expectedQuery ) &&
 			$expectedQuery['token'] === null
 		) {
-			$this->getTestcase()->assertRegExp( '/[+0-9a-f]+/', $query['token'],
+			$this->assertRegExp( '/[+0-9a-f]+/', $query['token'],
 				"QueryString of [$url]: incorrect format of CSRF token." );
 			$expectedQuery['token'] = $query['token'];
 		}
@@ -488,7 +482,7 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 		asort( $query );
 		asort( $expectedQuery );
 
-		$this->getTestcase()->assertEquals( $expectedQuery, $query,
+		$this->assertEquals( $expectedQuery, $query,
 			"QueryString of [$url] doesn't match expected"
 		);
 	}
@@ -497,14 +491,12 @@ class ModerationRenderTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * Check information about who and how rejected this edit.
 	 */
 	protected function assertRejectedBy( ModerationTestsuiteEntry $entry ) {
-		$testcase = $this->getTestcase();
-
-		$testcase->assertEquals(
+		$this->assertEquals(
 			$this->fields['mod_rejected_by_user_text'],
 			$entry->rejected_by_user,
 			"Special:Moderation: incorrect name of moderator who rejected the edit" );
 
-		$testcase->assertEquals( [
+		$this->assertEquals( [
 			'rejected via RejectAll' => (bool)$this->fields['mod_rejected_batch'],
 			'rejected automatically' => (bool)$this->fields['mod_rejected_auto']
 		], [

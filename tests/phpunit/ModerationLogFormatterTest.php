@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2019 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ class ModerationLogFormatterTest extends ModerationTestCase {
 	 * @dataProvider dataProvider
 	 */
 	public function testLogFormatter( array $options ) {
-		ModerationLogFormatterTestSet::run( $options, $this );
+		$this->runSet( $options );
 	}
 
 	/**
@@ -162,12 +162,12 @@ class ModerationLogFormatterTest extends ModerationTestCase {
 			] ]
 		];
 	}
-}
 
-/**
- * Represents one TestSet for testLogFormatter().
- */
-class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
+	/*-------------------------------------------------------------------*/
+	/* TestSet of this test                                              */
+	/*-------------------------------------------------------------------*/
+
+	use ModerationTestsuiteTestSet;
 
 	/** @var array Expected parameters, see assertParam() for details */
 	protected $expectedParams = [];
@@ -231,7 +231,7 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 	/**
 	 * Assert correctness of $this->resultHtml.
 	 */
-	protected function assertResults( ModerationTestCase $testcase ) {
+	protected function assertResults() {
 		$errorContext = $this->getErrorContext();
 
 		// Split resultHtml into parameters
@@ -240,20 +240,20 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 			$this->resultHtml,
 			$matches
 		);
-		$testcase->assertEquals( 1, $isMatched,
+		$this->assertEquals( 1, $isMatched,
 			"$errorContext: malformed log line." );
 
 		list( , $subtype, $paramLine ) = $matches;
-		$testcase->assertEquals( $this->subtype, $subtype,
+		$this->assertEquals( $this->subtype, $subtype,
 			"$errorContext: incorrect subtype." );
 
 		// Now check $params for correctness
 		$params = [];
 		$params = explode( ', ', $paramLine );
 
-		$testcase->assertEquals( $this->performer->getName(), $params[1],
+		$this->assertEquals( $this->performer->getName(), $params[1],
 			"$errorContext: incorrect performer." );
-		$testcase->assertEquals(
+		$this->assertEquals(
 			Linker::userLink( $this->performer->getId(), $this->performer->getName() ),
 			$params[0],
 			"$errorContext: incorrect link to performer."
@@ -268,7 +268,7 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 			);
 		} else {
 			$linkRenderer = MediaWiki\MediaWikiServices::getInstance()->getLinkRenderer();
-			$testcase->assertEquals(
+			$this->assertEquals(
 				$linkRenderer->makeLink( $this->target ),
 				$params[2],
 				"$errorContext: incorrect link to the target page."
@@ -276,7 +276,7 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 		}
 
 		// Check other $params (aside from the already checked 3)
-		$testcase->assertCount( 3 + count( $this->expectedParams ), $params,
+		$this->assertCount( 3 + count( $this->expectedParams ), $params,
 			"$errorContext: incorrect number of parameters in i18n message of logentry." );
 
 		foreach ( $this->expectedParams as $idx => $expectedParam ) {
@@ -292,7 +292,6 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 	 */
 	protected function assertParamHtml( array $expectedParam, $paramHtml, $idx ) {
 		$errorContext = $this->getErrorContext();
-		$testcase = $this->getTestcase();
 
 		if ( !isset( $expectedParam['query'] ) ) {
 			$title = null;
@@ -309,7 +308,7 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 				unset( $expectedParam['pagelink'] );
 			} else {
 				// Plaintext parameter (not a link).
-				$testcase->assertEquals( $expectedParam['text'], $paramHtml,
+				$this->assertEquals( $expectedParam['text'], $paramHtml,
 					"$errorContext: incorrect text of parameter #$idx." );
 				return;
 			}
@@ -342,7 +341,7 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 		}
 
 		$param = $this->parseParam( $paramHtml );
-		$testcase->assertEquals( $expectedParam, $param,
+		$this->assertEquals( $expectedParam, $param,
 			"$errorContext: incorrect HTML of parameter #$idx." );
 	}
 
@@ -407,7 +406,7 @@ class ModerationLogFormatterTestSet extends ModerationTestsuiteTestSet {
 	 * @param string $errorText
 	 */
 	protected function assertIsUserLink( User $expectedUser, $html, $errorText ) {
-		$this->getTestcase()->assertEquals(
+		$this->assertEquals(
 			Linker::userLink( $expectedUser->getId(), $expectedUser->getName() ),
 			$html,
 			$errorText

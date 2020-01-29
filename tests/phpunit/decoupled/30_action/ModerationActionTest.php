@@ -30,7 +30,7 @@ class ModerationActionTest extends ModerationTestCase {
 	 * @dataProvider dataProvider
 	 */
 	public function testAction( array $options ) {
-		ModerationActionTestSet::run( $options, $this );
+		$this->runSet( $options );
 	}
 
 	/**
@@ -425,12 +425,14 @@ class ModerationActionTest extends ModerationTestCase {
 
 		return $sets;
 	}
-}
 
-/**
- * Represents one TestSet for testAction().
- */
-class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
+	/*-------------------------------------------------------------------*/
+	/* TestSet of this test                                              */
+	/*-------------------------------------------------------------------*/
+
+	use ModerationTestsuitePendingChangeTestSet {
+		applyOptions as parentApplyOptions;
+	}
 
 	const READONLY_REASON = 'Simulated ReadOnly mode';
 
@@ -622,7 +624,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			}
 		}
 
-		parent::applyOptions( $options );
+		$this->parentApplyOptions( $options );
 
 		if ( $this->simulateInvalidJsonContent ) {
 			$this->fields['mod_text'] = 'NOT A VALID JSON';
@@ -696,7 +698,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	/**
 	 * Assert the consequences of the action.
 	 */
-	protected function assertResults( ModerationTestCase $testcase ) {
+	protected function assertResults() {
 		// Add rejection-related fields to $this->expectedFields.
 		// It was too early to do in applyOptions(), because $this->fields['mod_id'] was unknown.
 		if ( $this->expectRejected ) {
@@ -717,7 +719,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 			if ( !$this->doesMemcachedWork() ) {
 				// No way to login when both Memcached and CACHE_DB are unavailable.
-				$testcase->markTestSkipped(
+				$this->markTestSkipped(
 					'Test skipped: Memcached is unavailable (ReadOnly tests need it for login to work)' );
 			}
 		}
@@ -741,7 +743,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			try {
 				User::newFromName( "There is no such user" )->getActorId( $dbw );
 			} catch ( CannotCreateActorException $e ) {
-				$testcase->markTestSkipped(
+				$this->markTestSkipped(
 					'Test skipped: approving edits of deleted users is not supported in MediaWiki 1.33+' );
 			}
 
@@ -769,28 +771,25 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		Title::clearCaches();
 
 		if ( $this->expectedContentType ) {
-			$this->assertBinaryOutput( $testcase, $req );
+			$this->assertBinaryOutput( $req );
 		} else {
-			$this->assertHtmlOutput( $testcase, $t->html->loadFromReq( $req ) );
+			$this->assertHtmlOutput( $t->html->loadFromReq( $req ) );
 		}
 
 		// Check the mod_* fields in the database after the action.
-		$this->assertDatabaseChanges( $testcase );
-		$this->assertApproved( $testcase );
-		$this->assertBlockedStatus( $testcase );
-		$this->assertLogEntry( $testcase );
+		$this->assertDatabaseChanges();
+		$this->assertApproved();
+		$this->assertBlockedStatus();
+		$this->assertLogEntry();
 	}
 
 	/**
 	 * Check HTML output printed by the action URL.
 	 * @see assertBinaryOutput
 	 */
-	protected function assertHtmlOutput(
-		ModerationTestCase $testcase,
-		ModerationTestsuiteHTML $html
-	) {
+	protected function assertHtmlOutput( ModerationTestsuiteHTML $html ) {
 		if ( $this->expectedHtmlTitle ) {
-			$testcase->assertEquals(
+			$this->assertEquals(
 				'(pagetitle: ' . $this->expectedHtmlTitle . ')',
 				$html->getTitle(),
 				"modaction={$this->modaction}: unexpected HTML title."
@@ -798,7 +797,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		}
 
 		if ( $this->expectedOutputHtml ) {
-			$testcase->assertContains(
+			$this->assertContains(
 				$this->expectedOutputHtml,
 				$html->saveHTML( $html->getMainContent() ),
 				"modaction={$this->modaction}: unexpected HTML output."
@@ -807,31 +806,31 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 		$output = $html->getMainText();
 		if ( $this->expectedOutput ) {
-			$testcase->assertContains( $this->expectedOutput, $output,
+			$this->assertContains( $this->expectedOutput, $output,
 				"modaction={$this->modaction}: unexpected output." );
 		}
 
 		$expectedReadOnlyText = '(readonlytext: ' . self::READONLY_REASON . ')';
 		if ( $this->expectReadOnlyError ) {
-			$testcase->assertContains( $expectedReadOnlyText, $output,
+			$this->assertContains( $expectedReadOnlyText, $output,
 				"modaction={$this->modaction}: no ReadOnlyError exception in ReadOnly mode." );
 		} else {
-			$testcase->assertNotContains( $expectedReadOnlyText, $output,
+			$this->assertNotContains( $expectedReadOnlyText, $output,
 				"modaction={$this->modaction}: unexpected ReadOnlyError exception." );
 		}
 
 		$error = $html->getModerationError();
 		if ( $this->expectedError ) {
-			$testcase->assertEquals( $this->expectedError, $error,
+			$this->assertEquals( $this->expectedError, $error,
 				"modaction={$this->modaction}: expected error not shown." );
 		} else {
-			$testcase->assertNull( $this->expectedError,
+			$this->assertNull( $this->expectedError,
 				"modaction={$this->modaction}: unexpected error." );
 		}
 
 		foreach ( $this->expectActionLinks as $action => $isExpected ) {
 			$link = $html->getElementByXPath( '//a[contains(@href,"modaction=' . $action . '")]' );
-			$testcase->assertEquals(
+			$this->assertEquals(
 				[ "action link [$action] exists" => $isExpected ],
 				[ "action link [$action] exists" => (bool)$link ]
 			);
@@ -842,11 +841,8 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	 * Check non-HTML output printed by the action URL.
 	 * @see assertHtmlOutput
 	 */
-	protected function assertBinaryOutput(
-		ModerationTestCase $testcase,
-		ModerationTestsuiteResponse $req
-	) {
-		$testcase->assertEquals(
+	protected function assertBinaryOutput( ModerationTestsuiteResponse $req ) {
+		$this->assertEquals(
 			$this->expectedContentType,
 			$req->getResponseHeader( 'Content-Type' ),
 			"modaction={$this->modaction}: wrong Content-Type header."
@@ -857,7 +853,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 			$downloadedFile = $req->getContent();
 
 			$testedMetric = "output matches contents of [{$this->filename}]";
-			$testcase->assertEquals(
+			$this->assertEquals(
 				[ $testedMetric => $this->expectOutputToEqualUploadedFile ],
 				[ $testedMetric => ( $origFile == $downloadedFile ) ]
 			);
@@ -866,13 +862,13 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				// Determine width/height of image in $req->getContent().
 				list( $width, $height ) = $this->getImageSize( $downloadedFile );
 
-				$testcase->assertEquals( $this->expectedImageWidth, $width,
+				$this->assertEquals( $this->expectedImageWidth, $width,
 					"modaction={$this->modaction}: thumbnail's width doesn't match expected" );
 
 				// Has the ratio been preserved?
 				list( $origWidth, $origHeight ) = $this->getImageSize( $origFile );
 
-				$testcase->assertEquals(
+				$this->assertEquals(
 					round( $origWidth / $origHeight, 2 ),
 					round( $width / $height, 2 ),
 					"modaction={$this->modaction}: thumbnail's ratio doesn't match original" );
@@ -880,7 +876,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		}
 
 		if ( $this->expectedContentDisposition ) {
-			$testcase->assertEquals(
+			$this->assertEquals(
 				$this->expectedContentDisposition,
 				$req->getResponseHeader( 'Content-Disposition' ),
 				"modaction={$this->modaction}: wrong Content-Disposition header."
@@ -905,7 +901,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	/**
 	 * Check whether/how was the database row modified by this action.
 	 */
-	protected function assertDatabaseChanges( ModerationTestCase $testcase ) {
+	protected function assertDatabaseChanges() {
 		$dbw = wfGetDB( DB_MASTER );
 		if ( $this->expectApproved ) {
 			$row = $dbw->selectRow(
@@ -914,7 +910,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				[ 'mod_id' => $this->fields['mod_id'] ],
 				__METHOD__
 			);
-			$testcase->assertFalse( $row,
+			$this->assertFalse( $row,
 				"modaction={$this->modaction}: database row wasn't deleted" );
 		} else {
 			$this->assertRowEquals( $this->expectedFields );
@@ -924,7 +920,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	/**
 	 * Check the necessary consequences of modaction=approve(all).
 	 */
-	protected function assertApproved( ModerationTestCase $testcase ) {
+	protected function assertApproved() {
 		if ( !$this->expectApproved ) {
 			return; // Not an Approve operation.
 		}
@@ -936,29 +932,29 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 
 		$rev = $this->getTestsuite()->getLastRevision( $this->getExpectedTitle() );
 
-		$testcase->assertEquals( $this->fields['mod_user_text'], $rev['user'] );
-		$testcase->assertEquals( $this->fields['mod_text'], $rev['*'] );
+		$this->assertEquals( $this->fields['mod_user_text'], $rev['user'] );
+		$this->assertEquals( $this->fields['mod_text'], $rev['*'] );
 
 		$isReupload = $this->existing && $this->filename;
 		if ( !$isReupload ) {
 			// Reuploads don't place edit comment into rev_comment.
-			$testcase->assertEquals( $this->fields['mod_comment'], $rev['comment'] );
+			$this->assertEquals( $this->fields['mod_comment'], $rev['comment'] );
 
 			// Changing rev_timestamp in ApproveHook is not yet implemented for reuploads.
 			$expectedTimestamp = wfTimestamp( TS_ISO_8601, $this->fields['mod_timestamp'] );
-			$testcase->assertEquals( $expectedTimestamp, $rev['timestamp'] );
+			$this->assertEquals( $expectedTimestamp, $rev['timestamp'] );
 		}
 
 		if ( $this->filename ) {
 			$file = wfFindFile( $this->getExpectedTitleObj() );
-			$testcase->assertTrue( $file->exists(), "Approved file doesn't exist in FileRepo" );
+			$this->assertTrue( $file->exists(), "Approved file doesn't exist in FileRepo" );
 
 			$srcPath = ModerationTestsuite::findSourceFilename( $this->filename );
 			$expectedContents = file_get_contents( $srcPath );
 
 			$contents = file_get_contents( $file->getLocalRefPath() );
 
-			$this->getTestcase()->assertEquals( $expectedContents, $contents,
+			$this->assertEquals( $expectedContents, $contents,
 				"Approved file is different from uploaded file" );
 		}
 
@@ -973,7 +969,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	/**
 	 * Check whether the moderation block was added/deleted.
 	 */
-	protected function assertBlockedStatus( ModerationTestCase $testcase ) {
+	protected function assertBlockedStatus() {
 		$expectedBlocker = $this->getModerator();
 		if ( $this->expectModblocked === null ) {
 			// Default: block status shouldn't change.
@@ -1009,9 +1005,9 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 				'mb_by' => $expectedBlocker->getId(),
 				'mb_by_text' => $expectedBlocker->getName()
 			];
-			$testcase->assertEquals( $expectedFields, $fields );
+			$this->assertEquals( $expectedFields, $fields );
 		} else {
-			$testcase->assertFalse( $row,
+			$this->assertFalse( $row,
 				"modaction={$this->modaction}: Author is unexpectedly blacklisted as spammer." );
 		}
 	}
@@ -1019,7 +1015,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 	/**
 	 * Check the log entry created by this action (if any).
 	 */
-	protected function assertLogEntry( ModerationTestCase $testcase ) {
+	protected function assertLogEntry() {
 		// Check the LogEntry, if any
 		$queryInfo = DatabaseLogEntry::getSelectQueryData();
 		$queryInfo['conds']['log_type'] = 'moderation';
@@ -1036,23 +1032,23 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 		);
 
 		if ( !$this->expectLogEntry ) {
-			$testcase->assertFalse( $row,
+			$this->assertFalse( $row,
 				"modaction={$this->modaction}: unexpected LogEntry appeared after readonly action" );
 		} else {
-			$testcase->assertNotFalse( $row,
+			$this->assertNotFalse( $row,
 				"modaction={$this->modaction}: logging table is empty after the action" );
 
 			$logEntry = DatabaseLogEntry::newFromRow( $row );
 
-			$testcase->assertEquals( 'moderation', $logEntry->getType(),
+			$this->assertEquals( 'moderation', $logEntry->getType(),
 				"modaction={$this->modaction}: incorrect LogEntry type" );
-			$testcase->assertEquals( $this->expectedLogAction, $logEntry->getSubtype(),
+			$this->assertEquals( $this->expectedLogAction, $logEntry->getSubtype(),
 				"modaction={$this->modaction}: incorrect LogEntry subtype" );
-			$testcase->assertEquals(
+			$this->assertEquals(
 				$this->getModerator()->getName(),
 				$logEntry->getPerformer()->getName(),
 				"modaction={$this->modaction}: incorrect name of moderator in LogEntry" );
-			$testcase->assertEquals( $this->getExpectedLogTarget(), $logEntry->getTarget(),
+			$this->assertEquals( $this->getExpectedLogTarget(), $logEntry->getTarget(),
 				"modaction={$this->modaction}: incorrect LogEntry target" );
 
 			$this->assertTimestampIsRecent( $logEntry->getTimestamp() );
@@ -1094,7 +1090,7 @@ class ModerationActionTestSet extends ModerationTestsuitePendingChangeTestSet {
 					];
 			}
 
-			$testcase->assertEquals( $expectedParams, $logEntry->getParameters(),
+			$this->assertEquals( $expectedParams, $logEntry->getParameters(),
 				"modaction={$this->modaction}: incorrect LogEntry parameters" );
 		}
 	}

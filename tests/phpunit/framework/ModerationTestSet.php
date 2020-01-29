@@ -20,43 +20,33 @@
  * Parent class for TestSet objects used in the Moderation testsuite.
  */
 
-abstract class ModerationTestsuiteTestSet {
-	/** @var ModerationTestCase */
-	private $testcase;
-
+trait ModerationTestsuiteTestSet {
 	/**
-	 * Returns current ModerationTestCase object, useful for calling assert*() methods.
-	 * @return ModerationTestCase
+	 * @var bool
+	 * True if this is a temporary set created in runSet(), false otherwise.
 	 */
-	protected function getTestcase() {
-		return $this->testcase;
-	}
-
-	/**
-	 * @return ModerationTestsuite
-	 */
-	protected function getTestsuite() {
-		return $this->getTestcase()->getTestsuite();
-	}
+	protected $cloned = false;
 
 	/**
 	 * Run this TestSet from input of dataProvider.
 	 * @param array $options Parameters of test, e.g. [ 'user' => '...', 'title' => '...' ].
-	 * @param ModerationTestCase $testcase
 	 */
-	final public static function run( array $options, ModerationTestCase $testcase ) {
-		$set = new static( $options, $testcase );
+	public function runSet( array $options ) {
+		// Clone the set before each test.
+		// This is needed to prevent properties from being preserved between runs.
+		$set = clone $this;
+		$set->cloned = true;
 
+		$set->applyOptions( $options );
 		$set->makeChanges();
-		$set->assertResults( $testcase );
+		$set->assertResults();
 	}
 
-	/**
-	 * Construct TestSet from the input of dataProvider.
-	 */
-	final protected function __construct( array $options, ModerationTestCase $testcase ) {
-		$this->testcase = $testcase;
-		$this->applyOptions( $options );
+	public function __destruct() {
+		// Destructor should be suppressed for cloned MediaWikiTestCase objects.
+		if ( !$this->cloned ) {
+			parent::__destruct();
+		}
 	}
 
 	/*-------------------------------------------------------------------*/
@@ -74,7 +64,7 @@ abstract class ModerationTestsuiteTestSet {
 	/**
 	 * Assert whether the situation after the edit is correct or not.
 	 */
-	abstract protected function assertResults( ModerationTestCase $testcase );
+	abstract protected function assertResults();
 
 	/*-------------------------------------------------------------------*/
 
@@ -86,7 +76,7 @@ abstract class ModerationTestsuiteTestSet {
 		// How many seconds ago are allowed without failing the assertion.
 		$allowedRangeInSeconds = 60;
 
-		$this->getTestcase()->assertLessThanOrEqual(
+		$this->assertLessThanOrEqual(
 			wfTimestampNow(),
 			$timestamp,
 			'assertTimestampIsRecent(): timestamp of existing change is in the future.'
@@ -96,7 +86,7 @@ abstract class ModerationTestsuiteTestSet {
 		$ts->timestamp->modify( "- $allowedRangeInSeconds seconds" );
 		$minTimestamp = $ts->getTimestamp( TS_MW );
 
-		$this->getTestcase()->assertGreaterThan(
+		$this->assertGreaterThan(
 			$minTimestamp,
 			$timestamp,
 			'assertTimestampIsRecent(): timestamp of recently made change is too far in the past.'
@@ -110,8 +100,6 @@ abstract class ModerationTestsuiteTestSet {
 	 * @return stdClass $row
 	 */
 	protected function assertRowEquals( array $expectedFields ) {
-		$testcase = $this->getTestcase();
-
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation', '*', '', __METHOD__ );
 
@@ -151,7 +139,7 @@ abstract class ModerationTestsuiteTestSet {
 		asort( $expected );
 		asort( $actual );
 
-		$this->getTestcase()->assertEquals( $expected, $actual,
+		$this->assertEquals( $expected, $actual,
 			"Database row doesn't match expected."
 		);
 

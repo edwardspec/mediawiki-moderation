@@ -20,7 +20,8 @@
  * Basic TestSet for tests which precreate a change that awaits moderation.
  */
 
-abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsuiteTestSet {
+trait ModerationTestsuitePendingChangeTestSet {
+	use ModerationTestsuiteTestSet;
 
 	/** @var array All mod_* fields of one row in the 'moderation' SQL table */
 	protected $fields;
@@ -241,7 +242,7 @@ abstract class ModerationTestsuitePendingChangeTestSet extends ModerationTestsui
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->insert( 'moderation', $this->fields, __METHOD__ );
 
-		$this->getTestcase()->assertEquals( 1, $dbw->affectedRows(),
+		$this->assertEquals( 1, $dbw->affectedRows(),
 			"Failed to insert a row into the 'moderation' SQL table."
 		);
 

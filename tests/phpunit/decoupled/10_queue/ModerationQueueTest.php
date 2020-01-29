@@ -30,11 +30,11 @@ class ModerationQueueTest extends ModerationTestCase {
 	 * @dataProvider dataProvider
 	 */
 	public function testQueue( array $options ) {
-		ModerationQueueTestSet::run( $options, $this );
+		$this->runSet( $options );
 	}
 
 	/**
-	 * Provide datasets for testQueueEdit() runs.
+	 * Provide datasets for testQueue() runs.
 	 */
 	public function dataProvider() {
 		return [
@@ -133,12 +133,12 @@ class ModerationQueueTest extends ModerationTestCase {
 				[ [ 'unwatch' => true, 'anonymously' => true ] ]
 		];
 	}
-}
 
-/**
- * Represents one TestSet for testQueue().
- */
-class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
+	/*-------------------------------------------------------------------*/
+	/* TestSet of this test                                              */
+	/*-------------------------------------------------------------------*/
+
+	use ModerationTestsuiteTestSet;
 
 	/** @var User */
 	protected $user = null;
@@ -257,19 +257,19 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 		if ( $this->anonymously && $this->filename ) {
 			// Test of anonymous uploads: allow anonymous users to upload files
 			// (normally they are not permitted to do so).
-			$this->getTestcase()->setGroupPermissions( '*', 'upload', true );
+			$this->setGroupPermissions( '*', 'upload', true );
 		}
 
 		if ( $this->precreateUploadStashOwner ) {
 			$user = User::newSystemUser( ModerationUploadStorage::USERNAME, [ 'steal' => true ] );
-			$this->getTestcase()->assertNotNull( $user );
+			$this->assertNotNull( $user );
 		}
 	}
 
 	/**
 	 * Assert the state of the database after the edit.
 	 */
-	protected function assertResults( ModerationTestCase $testcase ) {
+	protected function assertResults() {
 		$row = $this->assertRowEquals( $this->getExpectedRow() );
 
 		$this->assertTimestampIsRecent( $row->mod_timestamp );
@@ -281,8 +281,6 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 	 * Execute the TestSet, making an edit/upload/move with requested parameters.
 	 */
 	protected function makeChanges() {
-		$testcase = $this->getTestcase();
-
 		$t = $this->getTestsuite();
 		$t->setUserAgent( $this->userAgent );
 
@@ -322,7 +320,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 				$this->text,
 				$extraParams
 			);
-			$testcase->assertTrue( $result->isIntercepted(),
+			$this->assertTrue( $result->isIntercepted(),
 				"Upload wasn't intercepted by Moderation." );
 		} elseif ( $this->newTitle ) {
 			$result = $bot->move(
@@ -331,7 +329,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 				$this->summary,
 				$extraParams
 			);
-			$testcase->assertTrue( $result->isIntercepted(),
+			$this->assertTrue( $result->isIntercepted(),
 				"Move wasn't intercepted by Moderation." );
 		} else {
 			/* Normal edit */
@@ -342,7 +340,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 				'',
 				$extraParams
 			);
-			$testcase->assertTrue( $result->isIntercepted(),
+			$this->assertTrue( $result->isIntercepted(),
 				"Edit wasn't intercepted by Moderation." );
 		}
 	}
@@ -442,7 +440,7 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 		$file = $stash->getFile( $stashKey );
 		$contents = file_get_contents( $file->getLocalRefPath() );
 
-		$this->getTestcase()->assertEquals( $expectedContents, $contents,
+		$this->assertEquals( $expectedContents, $contents,
 			"Stashed file is different from uploaded file" );
 	}
 
@@ -475,10 +473,10 @@ class ModerationQueueTestSet extends ModerationTestsuiteTestSet {
 
 		$isWatched = (bool)$watchedItemStore->loadWatchedItem( $this->user, $title );
 		if ( $expectedState ) {
-			$this->getTestcase()->assertTrue( $isWatched,
+			$this->assertTrue( $isWatched,
 				"Page edited with \"Watch this page\" is not in watchlist" );
 		} else {
-			$this->getTestcase()->assertFalse( $isWatched,
+			$this->assertFalse( $isWatched,
 				"Page edited without \"Watch this page\" was not deleted from the watchlist" );
 		}
 	}
