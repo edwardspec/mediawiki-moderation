@@ -271,18 +271,74 @@ class ModerationTestsuite {
 		Title::clearCaches();
 
 		// Clear the memcached (NOTE: works only for one memcached server).
-		global $wgMemCachedServers;
-		if ( !empty( $wgMemCachedServers ) ) {
-			$memcClient = new MemcachedClient( [
-				'servers' => [ $wgMemCachedServers[0] ]
-			] );
-			$sock = $memcClient->get_sock( 'anyKey' ); // Only one Memcached server
-			$ret = $memcClient->run_command( $sock, "flush_all\r\n" );
+		$this->purgeMemcached();
+	}
 
-			if ( $ret[0] != "OK" ) {
-				throw new MWException( __METHOD__ . ": cleaning Memcached FAILED." );
+	/**
+	 * Clear the memcached keys related to this testwiki.
+	 */
+	public function purgeMemcached() {
+		global $wgMemCachedServers, $wgDBname;
+		if ( empty( $wgMemCachedServers ) ) {
+			return;
+		}
+
+		$startTime = microtime( true );
+
+		// NOTE: this works only for one memcached server.
+		$memcClient = new MemcachedClient( [
+			'servers' => [ $wgMemCachedServers[0] ]
+		] );
+		$sock = $memcClient->get_sock( 'anyKey' ); // Only one Memcached server
+
+		// Delete all memcached keys related to this wiki.
+		// NOTE: simpler alternative is $memcClient->run_command( $sock, "flush_all\r\n" ),
+		// but that wouldn't allow to run testsuite in multiple threads, where each thread
+		// uses a separate database (and therefore has different $wgDBname).
+		$keysToDelete = [];
+		$keysToSpare = []; // For debugging only
+
+		$ret = $memcClient->run_command( $sock, "lru_crawler metadump all\r\n" );
+		foreach ( $ret as $foundObject ) {
+			foreach ( explode( ' ', $foundObject ) as $param ) {
+				$pairs = explode( '=', $param );
+				if ( $pairs[0] === 'key' && isset( $pairs[1] ) ) {
+					$key = rawurldecode( $pairs[1] );
+
+					// Note: we shouldn't use wfWikiId() instead of $wgDBname,
+					// because "rdbms-server-readonly" key only contains $wgDBname,
+					// and it MUST be cleared after ReadOnly tests.
+					if ( strpos( $key, $wgDBname ) !== false ) {
+						$keysToDelete[] = $key;
+					} else {
+						$keysToSpare[] = $key;
+					}
+					break;
+				}
 			}
 		}
+
+		if ( method_exists( 'BagOStuff', 'deleteMulti' ) ) {
+			// MediaWiki 1.33+
+			$cache = wfGetMainCache();
+			$cache->deleteMulti( $keysToDelete );
+		} else {
+			// MediaWiki 1.31-1.32
+			foreach ( $keysToDelete as $key ) {
+				if ( !$memcClient->delete( $key ) ) {
+					throw new MWException( __METHOD__ . ": cleaning Memcached FAILED." );
+				}
+			}
+		}
+
+		$timeSpent = sprintf( '%.3f', ( microtime( true ) - $startTime ) );
+
+		$logger = new ModerationTestsuiteLogger( 'ModerationTestsuite' );
+		$logger->info( '[cleanup] Purged Memcached', [
+			'deletedKeys' => $keysToDelete,
+			'sparedKeys' => $keysToSpare,
+			'timeSpentOnPurge' => $timeSpent
+		] );
 	}
 
 	/** Prevent tags set by the previous test from affecting the current test */
