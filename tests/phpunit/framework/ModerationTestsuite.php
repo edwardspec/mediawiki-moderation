@@ -15,40 +15,12 @@
 	GNU General Public License for more details.
 */
 
+require_once __DIR__ . '/autoload.php';
+
 /**
  * @file
  * Automated testsuite of Extension:Moderation.
  */
-
-require_once __DIR__ . '/../../common/ModerationTestUtil.php';
-
-require_once __DIR__ . '/ModerationTestsuiteEntry.php';
-require_once __DIR__ . '/ModerationTestsuiteHTML.php';
-require_once __DIR__ . '/ModerationTestsuiteLogger.php';
-require_once __DIR__ . '/IModerationTestsuiteResponse.php';
-require_once __DIR__ . '/ModerationTestsuiteResponse.php';
-require_once __DIR__ . '/ModerationTestCase.php';
-require_once __DIR__ . '/ModerationTestSet.php';
-require_once __DIR__ . '/ModerationTestSetRegex.php';
-require_once __DIR__ . '/ModerationPendingChangeTestSet.php';
-
-require_once __DIR__ . '/bot/ModerationTestsuiteBot.php';
-require_once __DIR__ . '/bot/ModerationTestsuiteApiBot.php';
-require_once __DIR__ . '/bot/ModerationTestsuiteNonApiBot.php';
-
-require_once __DIR__ . '/bot/response/ModerationTestsuiteBotResponseTrait.php';
-require_once __DIR__ . '/bot/response/ModerationTestsuiteApiBotResponse.php';
-require_once __DIR__ . '/bot/response/ModerationTestsuiteNonApiBotResponse.php';
-
-/* FIXME: this can really use some autoloading, as only one engine is needed at a time */
-require_once __DIR__ . '/engine/IModerationTestsuiteEngine.php';
-require_once __DIR__ . '/engine/ModerationTestsuiteEngine.php';
-
-/* Completely working Engine, used for pre-commit testing */
-require_once __DIR__ . '/engine/cli/ModerationTestsuiteCliEngine.php';
-
-/* Deprecated Engine, incompatible with latest MediaWiki due to sandboxing of tests */
-require_once __DIR__ . '/engine/realhttp/ModerationTestsuiteRealHttpEngine.php';
 
 class ModerationTestsuite {
 	const TEST_PASSWORD = '123456';
