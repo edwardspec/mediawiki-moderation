@@ -324,11 +324,9 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	public static function makeModerationLink( $action, $id ) {
-		global $wgUser;
-
 		$params = [ 'modaction' => $action, 'modid' => $id ];
 		if ( $action != 'show' && $action != 'preview' ) {
-			$params['token'] = $wgUser->getEditToken();
+			$params['token'] = RequestContext::getMain()->getUser()->getEditToken();
 		}
 
 		return self::getLinkRenderer()->makePreloadedLink(

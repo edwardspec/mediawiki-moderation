@@ -19,7 +19,7 @@ Warnings fixed:
 * Replaced deprecated StreamFile::send404Message()
 * Replaced deprecated Title::GAID_FOR_UPDATE
 * Replaced deprecated UploadBase::stashFile()
-* Replaced deprecated $wgContLang
+* Replaced deprecated $wgContLang, $wgUser, $wgRequest
 * Replaced deprecated wfMemcKey()
 
 Refactoring, performance optimizations:

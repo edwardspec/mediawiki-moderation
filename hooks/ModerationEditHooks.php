@@ -179,8 +179,6 @@ class ModerationEditHooks {
 		$page, $user, $content, $summary, $is_minor, $is_watch,
 		$section, $flags, $revision, $status, $baseRevId
 	) {
-		global $wgRequest;
-
 		if ( !$revision ) { # Double edit - nothing to do on the second time
 			return true;
 		}
@@ -190,7 +188,7 @@ class ModerationEditHooks {
 			return true;
 		}
 
-		$mergeID = $wgRequest->getVal( 'wpMergeID' );
+		$mergeID = RequestContext::getMain()->getRequest()->getVal( 'wpMergeID' );
 		if ( !$mergeID ) {
 			return true;
 		}
