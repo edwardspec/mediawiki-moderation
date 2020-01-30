@@ -128,6 +128,11 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 			'HTTP_HOST' => "$wgServerName"
 		];
 
+		// This variable is needed for parallel builds via Fastest
+		// (it runs PHPUnit in multiple threads,
+		// and each thread uses its own database)
+		$env['ENV_TEST_CHANNEL'] = getenv( 'ENV_TEST_CHANNEL' );
+
 		/* Create temporary files to communicate with the script.
 			Script will read $data from $inputFilename,
 			then script will write $result into $outputFilename.
