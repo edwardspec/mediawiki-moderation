@@ -20,6 +20,7 @@ services:
   - memcached
 
 addons:
+  &common-addons
   hosts:
     - moderation.example.com
   mariadb: "10.3"
@@ -47,7 +48,7 @@ matrix:
     # wdio-testrunner sometimes throws an exception AFTER all tests have succeeded,
     # which leads to exit code 1 (failure). Until the cause is investigated, we don't
     # consider Selenium failures as fatal in Travis (but can always check the log).
-    - env: TESTSUITE_TYPE=selenium
+    - env: TESTSUITE_TYPE=selenium branch=REL1_31
     - env: TESTSUITE_TYPE=selenium branch=REL1_32
     - env: TESTSUITE_TYPE=selenium branch=REL1_33
     - env: TESTSUITE_TYPE=selenium branch=REL1_34
@@ -111,11 +112,9 @@ matrix:
       if: branch IN (master,selenium,travis-sandbox)
       env: TESTSUITE_TYPE=selenium branch=REL1_31
       addons:
+          <<: *common-addons
           firefox: latest
           chrome: stable
-          hosts:
-            - moderation.example.com
-          mariadb: "10.3"
       script: ( cd extensions/Moderation/tests/selenium && ./node_modules/.bin/wdio wdio.conf.standalone.js --baseUrl 'http://moderation.example.com/mediawiki/' )
       after_script:
         - cat $TRAVIS_BUILD_DIR/parsoid.log
