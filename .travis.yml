@@ -131,6 +131,7 @@ cache:
   directories:
     - buildcache
     - parsoid
+    - $HOME/.composer/cache
 
 before_script:
   - echo $TESTSUITE_TYPE
