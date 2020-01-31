@@ -135,4 +135,9 @@ class ModerationTestCase extends MediaWikiTestCase {
 		// it's necessary to lso set Content Language to 'qqx' on the PHPUnit side too.
 		$this->setContentLang( Language::factory( 'qqx' ) );
 	}
+
+	protected function addCoreDBData() {
+		// Do nothing. Normally this method creates test user, etc.,
+		// but we already do this in ModerationTestsuite::prepareDbForTests().
+	}
 }
