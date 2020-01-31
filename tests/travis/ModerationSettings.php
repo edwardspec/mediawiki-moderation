@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2019 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,6 +19,13 @@
  * @file
  * Additional LocalSettings.php for Travis testing of Extension:Moderation.
  */
+
+# Allow parallel runs via Fastest: each thread uses its own database.
+if ( getenv( 'ENV_TEST_CHANNEL' ) ) {
+	$wgDBname .= "_thread" . getenv( 'ENV_TEST_CHANNEL' );
+} elseif ( getenv( 'PARALLEL_PHPUNIT_TESTS' ) && class_exists( 'MediaWikiTestCase' ) ) {
+	throw new MWEXception( "ENV_TEST_CHANNEL not defined! Parallel testing is not possible." );
+}
 
 # URL of the testwiki (as configured in .travis.yml).
 $wgServer = "http://moderation.example.com";

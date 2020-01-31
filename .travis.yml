@@ -29,7 +29,6 @@ php:
 
 env:
   global:
-    - branch=REL1_31
     - TESTSUITE_TYPE=phpunit
     - DBTYPE=mysql
     - DBUSER=root
@@ -37,6 +36,10 @@ env:
     - MEDIAWIKI_PASSWORD="123456"
     - SAUCE_USERNAME=edwardspec
     - secure: "YzZDIDMvMH4xKsFC9f/Z5algUXnY9kMpBpD0i9k8Iew6ci6mCG73V0t+65MpTcUxLDEExMjjkdnzmKGULw1vgSLwwKya8BjmqT2GCHPwuiMvIAdpnXg0SES3QohR99C9OpF3g2LlSIZn3hPTt0SkfNPgE+tE+3PJnMtKNPMOMgyWIByRJFS9ZhAl+Z3paYhLg3iRJq0uRHfdxFEBwJQpv3WmqaKL5M4lnD5uzVNysvfK8pvxZUM/BdnAc6dPb62BjsySnv45TAbAsk2XOaFSdoldKNN1mw0bqxV8Bz0Ew4b6u7lafsoQgyISINJWkIEYTvGmZzV8AS5j7POyNtRG3Mzwlyt3mMV7EQNZh1fWmFXEoyIfu9k+5dmJkhoHM6qJlttvpKRPU7GThBAWJiN5pZ0s34yH2JdcvPtQ7pY3XWJjPfLxoX1WIRJe/XepzKOE3I5/c7ILcW/OsCFWDH55hFN2lGjNrp6X6DXcMfU+lrreRjx1qMi4l/oqieR7/j/cQQScqtMnIMp4jSmtMii0+Wc7mr9Mg5azrHJ3uwBRbWvtGppM0fuZsdTiBtvZQOEckAz2Zge33ZmMGcb8t+9AFLWH7PJAIQlK3SDzc9V0YAOrQfckZFcIARdy310hB0Pey5MWJHFOEpzffOtLWrde5C6vvNAgQJ29LeGPm7DG/pM="
+    # Number of parallel PHPUnit runs.
+    # Note: Travis uses 2 CPU cores, but these testsuite processes are often blocked on IO, etc.,
+    # so we are still seeing performance improvement when increasing it from 2 to 4.
+    - PARALLEL_PHPUNIT_TESTS=4
 
 matrix:
   fast_finish: true
@@ -70,15 +73,21 @@ matrix:
     # PHPUnit tests
     - &phpunit-build
       if: NOT branch IN (selenium,troubleshooting,linters)
+      env: branch=REL1_31
       script:
-        # Immediately fail if any of the PHP files contain syntax errors
-        - composer lint extensions/Moderation/
         # First run the smallest test without --reuse-db, so that the cloned database tables are created,
         # then run the remaining testsuite with --reuse-db to save time.
         - php tests/phpunit/phpunit.php --use-normal-tables extensions/Moderation/tests/phpunit/ModerationPermissionsTest.php
-        - php tests/phpunit/phpunit.php --exclude-group SelfTest --use-normal-tables --reuse-db extensions/Moderation/
+
+        # Run all tests in parallel via Fastest.
+        # Note: test files are sorted by filesize (from smallest to largest).
+        - find extensions/Moderation/tests/phpunit/ -name "*Test.php" -exec ls -1Sr {} + | grep -v selftest | ./extensions/Moderation/vendor/liuggio/fastest/fastest -p "$PARALLEL_PHPUNIT_TESTS" --before="./extensions/Moderation/tests/travis/fastest_init_thread.sh" --preserve-order --verbose "php tests/phpunit/phpunit.php --use-normal-tables --reuse-db {};"
+
+        # NotifyModeratorTest has already been completed without Echo, but it should also be tested with Echo.
         - WITH_ECHO=1 php tests/phpunit/phpunit.php --use-normal-tables --reuse-db extensions/Moderation/tests/phpunit/ModerationNotifyModeratorTest.php
+
         # Run small benchmarks to detect performance regressions
+        # TODO: move this into a separate Travis build stage and do this only on tags/releases.
         - for i in extensions/Moderation/tests/benchmarks/*; do php maintenance/runScript.php $i; done
     - <<: *phpunit-build
       env: branch=REL1_32
@@ -100,7 +109,7 @@ matrix:
     # Selenium tests
     - &selenium-build
       if: branch IN (master,selenium,travis-sandbox)
-      env: TESTSUITE_TYPE=selenium
+      env: TESTSUITE_TYPE=selenium branch=REL1_31
       addons:
           firefox: latest
           chrome: stable
@@ -122,6 +131,7 @@ cache:
   directories:
     - buildcache
     - parsoid
+    - $HOME/.composer/cache
 
 before_script:
   - echo $TESTSUITE_TYPE
@@ -152,3 +162,4 @@ before_script:
   - WITH_ECHO=1 php maintenance/update.php --quick
   - php maintenance/createAndPromote.php "$MEDIAWIKI_USER" "$MEDIAWIKI_PASSWORD" --custom-groups moderator,automoderated
   - if [ ${TESTSUITE_TYPE} = "selenium" ]; then ( cd extensions/Moderation/tests/selenium && npm install ); fi
+  - if [ ${TESTSUITE_TYPE} = "phpunit" ]; then ( cd extensions/Moderation && composer install ); fi

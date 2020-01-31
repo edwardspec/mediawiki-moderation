@@ -111,6 +111,13 @@ class ModerationTestCase extends MediaWikiTestCase {
 		ModerationTestsuiteLogger::cleanBuffer();
 		parent::setUp();
 
+		$name = $this->getName();
+		if ( $name == 'testValidCovers' || $name == 'testMediaWikiTestCaseParentSetupCalled' ) {
+			// These meta-tests are basically linters,
+			// they don't need ModerationTestsuite object or clean database.
+			return;
+		}
+
 		/*
 			Provide "ModerationTestsuite $t" to all test methods via Dependency Injection.
 			This also cleans the database, etc.
