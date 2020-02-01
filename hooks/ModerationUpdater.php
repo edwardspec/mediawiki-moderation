@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2018 Edward Chernenko.
+	Copyright (C) 2014-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,36 +22,42 @@
 
 class ModerationUpdater {
 	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
-		$base = __DIR__;
-		$dbw = $updater->getDB();
+		$db = $updater->getDB();
+		$dbType = $db->getType();
+
+		$sqlDir = __DIR__ . '/../sql' . ( $dbType == 'postgres' ? '/postgres' : '' );
 
 		/* Main database schema */
 		$updater->addExtensionTable( 'moderation',
-			"$base/../sql/patch-moderation.sql" );
+			"$sqlDir/patch-moderation.sql" );
 		$updater->addExtensionTable( 'moderation_block',
-			"$base/../sql/patch-moderation_block.sql" );
+			"$sqlDir/patch-moderation_block.sql" );
 
 		/* DB changes needed when updating Moderation from its previous version */
+		if ( $dbType == 'postgres' ) {
+			// PostgreSQL support was added in Moderation 1.4.12,
+			// there were no schema changes since then.
+		} else {
+			// ... to Moderation 1.1.29
+			$updater->addExtensionField( 'moderation', 'mod_tags',
+				"$sqlDir/patch-moderation-mod_tags.sql" );
 
-		// ... to Moderation 1.1.29
-		$updater->addExtensionField( 'moderation', 'mod_tags',
-			"$base/../sql/patch-moderation-mod_tags.sql" );
+			// ... to Moderation 1.1.31
+			$updater->modifyExtensionField( 'moderation', 'mod_title',
+				"$sqlDir/patch-fix-titledbkey.sql" );
 
-		// ... to Moderation 1.1.31
-		$updater->modifyExtensionField( 'moderation', 'mod_title',
-			"$base/../sql/patch-fix-titledbkey.sql" );
+			// ... to Moderation 1.2.9
+			if ( $db->tableExists( 'moderation' ) &&
+				!$db->indexUnique( 'moderation', 'moderation_load' )
+			) {
+				$updater->addExtensionUpdate( [ 'applyPatch',
+					"$sqlDir/patch-make-preload-unique.sql", true ] );
+			}
 
-		// ... to Moderation 1.2.9
-		if ( $dbw->tableExists( 'moderation' ) &&
-			!$dbw->indexUnique( 'moderation', 'moderation_load' )
-		) {
-			$updater->addExtensionUpdate( [ 'applyPatch',
-				"$base/../sql/patch-make-preload-unique.sql", true ] );
+			// ... to Moderation 1.2.17
+			$updater->addExtensionField( 'moderation', 'mod_type',
+				"$sqlDir/patch-moderation-mod_type.sql" );
 		}
-
-		// ... to Moderation 1.2.17
-		$updater->addExtensionField( 'moderation', 'mod_type',
-			"$base/../sql/patch-moderation-mod_type.sql" );
 
 		$updater->addExtensionUpdate( [ 'ModerationVersionCheck::markDbAsUpdated' ] );
 		return true;
