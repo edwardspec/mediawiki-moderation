@@ -59,7 +59,7 @@ class ModerationUpdater {
 				"$sqlDir/patch-moderation-mod_type.sql" );
 		}
 
-		$updater->addExtensionUpdate( [ 'ModerationVersionCheck::markDbAsUpdated' ] );
+		$updater->addExtensionUpdate( [ 'ModerationVersionCheck::invalidateCache' ] );
 		return true;
 	}
 }
