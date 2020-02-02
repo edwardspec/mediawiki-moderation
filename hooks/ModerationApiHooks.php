@@ -84,7 +84,7 @@ class ModerationApiHooks {
 			} else {
 				$content = $oldContent->getSection( $section );
 				if ( !$content ) {
-					$main->dieUsage( "There is no section {$section}.", 'nosuchsection' );
+					$main->dieWithError( "There is no section {$section}.", 'nosuchsection' );
 				}
 			}
 		}

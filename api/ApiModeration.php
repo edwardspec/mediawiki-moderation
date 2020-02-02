@@ -24,7 +24,7 @@ class ApiModeration extends ApiBase {
 
 	public function execute() {
 		if ( !$this->getUser()->isAllowed( 'moderation' ) ) {
-			$this->dieUsageMsg( 'badaccess-groups' );
+			$this->dieWithError( 'badaccess-groups' );
 		}
 
 		$A = ModerationAction::factory( $this->getContext() );
