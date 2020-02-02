@@ -170,6 +170,10 @@ class ModerationTestsuite {
 	#
 	private function createTestUser( $name, $groups = [] ) {
 		$user = User::createNew( $name );
+		if ( !$user ) {
+			throw new MWException( __METHOD__ . ": failed to create User:$name." );
+		}
+
 		TestUser::setPasswordForUser( $user, self::TEST_PASSWORD );
 
 		$user->saveSettings();
@@ -211,41 +215,52 @@ class ModerationTestsuite {
 		}
 
 		$dbw->begin( __METHOD__ );
-		$dbw->delete( 'moderation', '*', __METHOD__ );
-		$dbw->delete( 'moderation_block', '*', __METHOD__ );
-		$dbw->delete( 'user', '*', __METHOD__ );
-		$dbw->delete( 'user_groups', '*', __METHOD__ );
-		$dbw->delete( 'user_properties', '*', __METHOD__ );
-		$dbw->delete( 'page', '*', __METHOD__ );
-		$dbw->delete( 'revision', '*', __METHOD__ );
-		$dbw->delete( 'logging', '*', __METHOD__ );
-		$dbw->delete( 'text', '*', __METHOD__ );
-		$dbw->delete( 'image', '*', __METHOD__ );
-		$dbw->delete( 'uploadstash', '*', __METHOD__ );
-		$dbw->delete( 'recentchanges', '*', __METHOD__ );
-		$dbw->delete( 'watchlist', '*', __METHOD__ );
-		$dbw->delete( 'change_tag', '*', __METHOD__ );
 
-		if ( $dbw->tableExists( 'tag_summary' ) ) {
-			$dbw->delete( 'tag_summary', '*', __METHOD__ );
+		$tablesToTruncate = [
+			'moderation',
+			'moderation_block',
+			'user',
+			'user_groups',
+			'user_newtalk',
+			'user_properties',
+			'page',
+			'revision',
+			'revision_comment_temp',
+			'logging',
+			'log_search',
+			'text',
+			'image',
+			'uploadstash',
+			'recentchanges',
+			'watchlist',
+			'change_tag',
+			'tag_summary',
+			'actor',
+			'abuse_filter',
+			'abuse_filter_action',
+			'ip_changes',
+			'cu_changes',
+			'slots',
+			'objectcache'
+		];
+		if ( $dbw->getType() == 'postgres' ) {
+			$tablesToTruncate[] = 'mwuser';
+			$tablesToTruncate[] = 'pagecontent';
 		}
 
-		if ( $dbw->tableExists( 'actor' ) ) {
-			$dbw->delete( 'actor', '*', __METHOD__ );
+		foreach ( $tablesToTruncate as $table ) {
+			# Short version of MediaWikiIntegrationTestCase::truncateTable(),
+			# which doesn't exist in MW 1.31 and is a protected method.
+
+			if ( $dbw->tableExists( $table ) ) {
+				$dbw->delete( $table, '*', __METHOD__ );
+				if ( $dbw->getType() == 'postgres' ) {
+					$dbw->resetSequenceForTable( $table, __METHOD__ );
+				}
+			}
 		}
 
-		if ( $dbw->tableExists( 'abuse_filter' ) ) {
-			$dbw->delete( 'abuse_filter', '*', __METHOD__ );
-			$dbw->delete( 'abuse_filter_action', '*', __METHOD__ );
-		}
-
-		if ( $dbw->tableExists( 'ip_changes' ) ) {
-			$dbw->delete( 'ip_changes', '*', __METHOD__ );
-		}
-
-		if ( $dbw->tableExists( 'cu_changes' ) ) {
-			$dbw->delete( 'cu_changes', '*', __METHOD__ );
-		}
+		$dbw->commit( __METHOD__ );
 
 		$this->moderator =
 			$this->createTestUser( 'User 1', [ 'moderator', 'automoderated' ] );
@@ -261,8 +276,6 @@ class ModerationTestsuite {
 			$this->createTestUser( 'User 6', [] );
 		$this->moderatorAndCheckuser =
 			$this->createTestUser( 'User 7', [ 'moderator', 'checkuser' ] );
-
-		$dbw->commit( __METHOD__ );
 
 		$this->purgeTagCache();
 
