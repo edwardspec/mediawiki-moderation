@@ -82,9 +82,7 @@ include $wgModerationTestsuiteCliDescriptor[ 'isApi' ] ? 'api.php' : 'index.php'
 
 }
 catch ( Exception $e ) {
-	ob_start();
-	MWExceptionHandler::handleException( $e );
-	$exceptionText = ob_get_flush();
+	$exceptionText = (string)$e;
 }
 
 // Capture all output
@@ -95,10 +93,16 @@ fclose( $STDOUT );
 $capturedContent = file_get_contents( $stdoutFilename );
 
 $result = [
-	'FauxResponse' => RequestContext::getMain()->getRequest()->response(),
 	'capturedContent' => $capturedContent,
 	'exceptionText' => $exceptionText
 ];
+
+// If an exception happened before efModerationTestsuiteSetup(),
+// then $request wouldn't be a FauxResponse yet (and is therefore useless for CliEngine).
+$response = RequestContext::getMain()->getRequest()->response();
+if ( $response instanceof FauxResponse ) {
+	$result['FauxResponse'] = $response;
+}
 
 /*--------------------------------------------------------------*/
 

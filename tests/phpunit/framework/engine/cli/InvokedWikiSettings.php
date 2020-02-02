@@ -34,6 +34,12 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 
 function efModerationTestsuiteMockedHeader( $string, $replace = true, $http_response_code = null ) {
 	$response = RequestContext::getMain()->getRequest()->response();
+	if ( !( $response instanceof FauxResponse ) ) {
+		// This is WebRequest(), meaning header() was called before efModerationTestsuiteSetup(),
+		// typically due to some early initialization error.
+		return;
+	}
+
 	$response->header( $string, $replace, $http_response_code );
 }
 
@@ -89,7 +95,7 @@ function efModerationTestsuiteSetup() {
 
 	/*
 		HACK: call session_id() on ID from the session cookie (if such cookie exists).
-		FIXME: detemine why exactly didn't SessionManager do this automatically.
+		FIXME: determine why exactly didn't SessionManager do this automatically.
 	*/
 	$wgHooks['SetupAfterCache'][] = function () {
 		/* Earliest hook where $wgCookiePrefix (needed by getCookie())
