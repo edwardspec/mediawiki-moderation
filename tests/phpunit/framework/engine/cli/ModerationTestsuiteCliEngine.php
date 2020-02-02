@@ -175,6 +175,9 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 		}
 
 		if ( !isset( $result['FauxResponse'] ) ) {
+			$this->getLogger()->error( '[CliEngine] No FauxResponse', [
+				'capturedContent' => $result['capturedContent']
+			] );
 			throw new MWException( "no FauxResponse $errorContext" );
 		}
 
