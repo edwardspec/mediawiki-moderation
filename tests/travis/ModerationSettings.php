@@ -24,7 +24,7 @@
 if ( getenv( 'ENV_TEST_CHANNEL' ) ) {
 	$wgDBname .= "_thread" . getenv( 'ENV_TEST_CHANNEL' );
 } elseif ( getenv( 'PARALLEL_PHPUNIT_TESTS' ) && class_exists( 'MediaWikiTestCase' ) ) {
-	throw new MWEXception( "ENV_TEST_CHANNEL not defined! Parallel testing is not possible." );
+	throw new MWException( "ENV_TEST_CHANNEL not defined! Parallel testing is not possible." );
 }
 
 # URL of the testwiki (as configured in .travis.yml).
