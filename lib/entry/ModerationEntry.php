@@ -77,7 +77,11 @@ abstract class ModerationEntry implements IModerationEntry {
 			$ts->timestamp->modify( '-' . intval( $wgModerationTimeToOverrideRejection ) . ' seconds' );
 			self::$earliestReapprovableTimestamp = $ts->getTimestamp( TS_MW );
 		}
-		return $this->row->timestamp > self::$earliestReapprovableTimestamp;
+
+		$ts = new MWTimestamp( $this->row->timestamp );
+		$timestampOfEntry = $ts->getTimestamp( TS_MW );
+
+		return $timestampOfEntry > self::$earliestReapprovableTimestamp;
 	}
 
 	/**
