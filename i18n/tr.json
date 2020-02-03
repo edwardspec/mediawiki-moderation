@@ -90,6 +90,8 @@
 	"moderation-unblock": "Artık spam yapan yok",
 	"moderation-unblock-ok": "[[Special:Contributions/$1|$1]] kullanıcısı artık spam gönderici olarak değerlendirilmiyor.",
 	"moderation-unknown-modaction": "Bilinmeyen moderasyon eylemi.",
+	"moderation-whois-link-text": "?",
+	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
 	"right-moderation-checkuser": "Moderasyon arabirimindeki editörlerin IP'lerini görebilir",
 	"right-moderation": "Mderasyon düzenlemeleri",
 	"right-skip-moderation": "Düzenlemelerini denetlemeyi atlatın",
