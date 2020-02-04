@@ -23,12 +23,69 @@
 # Load the usual LocalSettings.php
 require_once "$IP/LocalSettings.php";
 
+use Wikimedia\Rdbms\DatabaseDomain;
+
 /* Apply variables requested by ModerationTestsuiteCliEngine::setMwConfig() */
 foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
-	$GLOBALS["wg$name"] = $value;
+	if ( $name == 'DBprefix' && $wgDBtype == 'postgres' ) {
+		// Setting $wgDBprefix with PostgreSQL is not allowed.
+		// So we have to wait for database to be initialized from configs
+		// (e.g. until SetupAfterCache hook, which is called after all configuration is read),
+		// and then redefine the prefix via LoadBalancerFactory.
 
-	if ( $name == 'DBprefix' ) {
-		CloneDatabase::changePrefix( $value );
+		if ( method_exists( 'WikiMap', 'getCurrentWikiDbDomain' ) ) {
+			// MediaWiki 1.33+
+			$oldDomain = WikiMap::getCurrentWikiDbDomain();
+		} else {
+			// MediaWiki 1.31-1.32
+			global $wgDBname, $wgDBmwschema, $wgDBprefix;
+			$oldDomain = new DatabaseDomain( $wgDBname, $wgDBmwschema, (string)$wgDBprefix );
+		}
+
+		$newDomain = new DatabaseDomain(
+			$oldDomain->getDatabase(),
+			$oldDomain->getSchema(),
+			$value // Typically "unittest_"
+		);
+		$GLOBALS['wgCachePrefix'] = $newDomain->getId();
+
+		Hooks::register( 'SetupAfterCache', function () use ( $newDomain, $value ) {
+			$lbFactory = MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancerFactory();
+			if ( method_exists( $lbFactory, 'redefineLocalDomain' ) ) {
+				// MediaWiki 1.32+
+				$lbFactory->redefineLocalDomain( $newDomain );
+			} else {
+				// MediaWiki 1.31
+				$lbFactory->closeAll();
+				$lbFactory->setDomainPrefix( $value );
+
+				// HACK: in MediaWiki 1.31, RevisionStore object compared wfWikiId() with $db->getDomainID(),
+				// however it fails, because wfWikiId() doesn't have prefix, and $db->getDomainID() does.
+				// Normally $wgPrefix adds prefix to wfWikiId(), but $wgPrefix can't be used with PostgreSQL.
+				// This is an unnecessary sanity check that makes running tests vs. PostgreSQL not possible.
+				// Workaround is to provide $newDomain->getId() to RevisionStore when it is constructed.
+				$services = MediaWiki\MediaWikiServices::getInstance();
+				$services->redefineService( 'RevisionStore', function () use ( $services, $newDomain ) {
+					// Based on [includes/ServiceWiring.php] in MediaWiki core.
+					$store = new MediaWiki\Storage\RevisionStore(
+						$services->getDBLoadBalancer(),
+						$services->getService( '_SqlBlobStore' ),
+						$services->getMainWANObjectCache(),
+						$services->getCommentStore(),
+						$services->getActorMigration(),
+						$newDomain->getId() // <----- what ModerationTestsuite is adding
+					);
+
+					$store->setLogger( MediaWiki\Logger\LoggerFactory::getInstance( 'RevisionStore' ) );
+					$config = $services->getMainConfig();
+					$store->setContentHandlerUseDB( $config->get( 'ContentHandlerUseDB' ) );
+
+					return $store;
+				} );
+			}
+		} );
+	} else {
+		$GLOBALS["wg$name"] = $value;
 	}
 }
 
