@@ -196,7 +196,7 @@ abstract class ModerationBenchmark extends Maintenance {
 				'mod_preload_id'
 			] ],
 			[
-				'mod_timestamp' => wfTimestampNow(),
+				'mod_timestamp' => $dbw->timestamp(),
 				'mod_user' => $user->getId(),
 				'mod_user_text' => $user->getName(),
 				'mod_namespace' => $title->getNamespace(),

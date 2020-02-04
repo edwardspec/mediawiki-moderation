@@ -702,7 +702,7 @@ class ModerationTestsuite {
 				'af_pattern' => 'true',
 				'af_user' => 0,
 				'af_user_text' => 'MediaWiki default',
-				'af_timestamp' => wfTimestampNow(),
+				'af_timestamp' => $dbw->timestamp(),
 				'af_enabled' => 1,
 				'af_comments' => '',
 				'af_public_comments' => 'Assign tags to all edits',

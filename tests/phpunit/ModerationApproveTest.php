@@ -137,11 +137,13 @@ class ModerationApproveTest extends ModerationTestCase {
 			$t->doTestEdit( $title );
 		}
 
+		$dbr = wfGetDB( DB_REPLICA ); // Only for $dbr->timestamp();
+
 		$t->fetchSpecial();
 		foreach ( $t->new_entries as $entry ) {
 			$task = $testPages[$entry->title];
 			$entry->updateDbRow( [
-				'mod_timestamp' => $task['timestamp'],
+				'mod_timestamp' => $dbr->timestamp( $task['timestamp'] ),
 				'mod_ip' => $task['ip']
 			] );
 		}
