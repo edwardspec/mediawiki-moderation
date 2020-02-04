@@ -312,7 +312,7 @@ class ModerationNewChange {
 		RollbackResistantQuery::upsert( $dbw, [
 			'moderation',
 			$fields,
-			$uniqueFields,
+			[ $uniqueFields ],
 			$fields,
 			__METHOD__
 		] );
