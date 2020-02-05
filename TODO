@@ -7,7 +7,6 @@ Medium-prio:
 	to return to continue editing.
 
 Low-prio:
-* (compat) Support PostgreSQL.
 * (feature) Special page to list users blocked via "Mark as spammer".
 * (feature) modaction=promote for quickly assigning "automoderated" flag.
 * (documentation) Ensure that testsuite and hooks have Doxygen-style comments.
@@ -36,7 +35,7 @@ some new feature (that requires DB update) is disabled because it wasn't done.
 	It's not a simple UI change, because "moderation" SQL table currently
 	doesn't have an index for selecting edits by author.
 * (feature) Should ApproveHook update timestamps of upload/move logs?
-* (UX) Improve handling of zero edits. (having to reject them manually doesn't feel right)
+* (UX) Improve handling of null edits. (having to reject them manually doesn't feel right)
 
 Tests needed:
 * PageForms plugin ("continue editing" link in postedit notification)
@@ -47,3 +46,6 @@ FIXME:
 	shouldn't be applied (e.g. if moderator clicks Approve in Mobile view,
 	approved edit shouldn't be tagged as "Mobile edit" - unless, of course,
 	the original author also used Mobile view and this tag is in mod_tags).
+* When modaction=merge results in null edit (because some other user previously
+	modified the target page to have exactly the same text),
+	edit of this other user shouldn't be tagged as [moderation-merged].
