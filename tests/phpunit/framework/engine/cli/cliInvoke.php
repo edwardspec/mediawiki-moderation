@@ -24,90 +24,170 @@
  * and we can't use any of the MediaWiki classes.
  * We just populate $_GET, $_POST, etc. and include "index.php".
  */
-
 $wgModerationTestsuiteCliDescriptor = unserialize( stream_get_contents( STDIN ) );
 
-/* Unpack all variables known from descriptor, e.g. $_POST */
-foreach ( [ '_GET', '_POST', '_COOKIE' ] as $var ) {
-	$GLOBALS[$var] = $wgModerationTestsuiteCliDescriptor[$var];
-}
+CliInvoke::singleton()->prepareEverything();
 
-/* Unpack $_FILES */
-foreach ( $wgModerationTestsuiteCliDescriptor['files'] as $uploadKey => $tmpFilename ) {
-	$curlFile = new CURLFile( $tmpFilename );
-
-	$_FILES[$uploadKey] = [
-		'name' => 'whatever', # Not used anywhere
-		'type' => $curlFile->getMimeType(),
-		'tmp_name' => $curlFile->getFilename(),
-		'size' => filesize( $curlFile->getFilename() ),
-		'error' => 0
-	];
-}
-
-/* The point of [InvokedWikiSettings.php] is to override $wgRequest
-	to be FauxRequest (not WebRequest),
-	because we can only extract headers from FauxResponse.
-
-	NOTE: this consumes $wgModerationTestsuiteCliDescriptor['httpHeaders']
-*/
-define( 'MW_CONFIG_FILE', __DIR__ . '/InvokedWikiSettings.php' );
-
-# Turn off display_errors (enabled by DevelopmentSettings.php),
-# we don't need PHP errors to be mixed with the response.
-ini_set( 'display_errors', 0 );
-ini_set( 'log_errors', 1 );
-
-require_once __DIR__ . '/MockAutoLoader.php'; # Intercepts header() calls
-
-// Redirect STDOUT into the file
-$originalStdout = fopen( "php://stdout", "w" ); // Save it (will write the result here)
-
-$tmpFilename = tempnam( sys_get_temp_dir(), 'testsuite.stdout' );
-fclose( STDOUT );
-$STDOUT = fopen( $tmpFilename, 'a' );
-
-$exceptionText = '';
-
-function wfCliInvokeOnCompletion() {
-	// FIXME: this whole script should be wrapped in a class to avoid global variables, etc.
-	// phpcs:ignore MediaWiki.NamingConventions.ValidGlobalName.allowedPrefix
-	global $originalStdout, $tmpFilename, $exceptionText, $STDOUT;
-
-	// Capture all output
-	while ( ob_get_status() ) {
-		ob_end_flush();
-	}
-	fclose( $STDOUT );
-
-	$capturedContent = file_get_contents( $tmpFilename );
-	unlink( $tmpFilename ); // No longer needed
-
-	$result = [
-		'capturedContent' => $capturedContent,
-		'exceptionText' => $exceptionText
-	];
-
-	// If an exception happened before efModerationTestsuiteSetup(),
-	// then $request wouldn't be a FauxResponse yet (and is therefore useless for CliEngine).
-	$response = RequestContext::getMain()->getRequest()->response();
-	if ( $response instanceof FauxResponse ) {
-		$result['FauxResponse'] = $response;
-	}
-
-	fwrite( $originalStdout, serialize( $result ) );
-}
-
-// Because MWLBFactory calls exit() instead of throwing an exception.
-register_shutdown_function( 'wfCliInvokeOnCompletion' );
-
+// Actually run MediaWiki. This can't be done from within the class.
 try {
-
 /*--------------------------------------------------------------*/
-include $wgModerationTestsuiteCliDescriptor[ 'isApi' ] ? 'api.php' : 'index.php';
+include $wgModerationTestsuiteCliDescriptor['isApi'] ? 'api.php' : 'index.php';
 /*--------------------------------------------------------------*/
-
 }
 catch ( Exception $e ) {
-	$exceptionText = (string)$e;
+	CliInvoke::singleton()->handleException( $e );
+}
+
+/*---------------------------------------------------------------------------*/
+
+// phpcs:ignore MediaWiki.Files.ClassMatchesFilename.WrongCase
+class CliInvoke {
+	/** @var CliInvoke Singleton instance */
+	protected static $instance = null;
+
+	/** @var string */
+	protected $exceptionText = '';
+
+	/** */
+	protected function __construct() {
+	}
+
+	/**
+	 * Returns a singleton instance of CliInvoke
+	 * @return CliInvoke
+	 */
+	public static function singleton() {
+		if ( self::$instance === null ) {
+			self::$instance = new self;
+		}
+
+		return self::$instance;
+	}
+
+	/**
+	 * Returns request parameters received from CliEngine.
+	 * @param string $key
+	 * @return mixed
+	 */
+	protected function getDescriptor( $key ) {
+		global $wgModerationTestsuiteCliDescriptor;
+		return $wgModerationTestsuiteCliDescriptor[$key];
+	}
+
+	/** Unpack all variables known from descriptor, e.g. $_POST */
+	protected function unpackVars() {
+		foreach ( [ '_GET', '_POST', '_COOKIE' ] as $var ) {
+			$GLOBALS[$var] = $this->getDescriptor( $var );
+		}
+	}
+
+	/** Unpack $_FILES */
+	protected function unpackFiles() {
+		foreach ( $this->getDescriptor( 'files' ) as $uploadKey => $tmpFilename ) {
+			$curlFile = new CURLFile( $tmpFilename );
+
+			$_FILES[$uploadKey] = [
+				'name' => 'whatever', # Not used anywhere
+				'type' => $curlFile->getMimeType(),
+				'tmp_name' => $curlFile->getFilename(),
+				'size' => filesize( $curlFile->getFilename() ),
+				'error' => 0
+			];
+		}
+	}
+
+	/**
+	 * Use [InvokedWikiSettings.php] instead of [LocalSettings.php].
+	 * The point of this file is to override $wgRequest to be FauxRequest (not WebRequest),
+	 * because we can only extract headers from FauxResponse.
+	 * @note this consumes $wgModerationTestsuiteCliDescriptor['httpHeaders']
+	 */
+	protected function overrideLocalSettings() {
+		define( 'MW_CONFIG_FILE', __DIR__ . '/InvokedWikiSettings.php' );
+
+		require_once __DIR__ . '/MockAutoLoader.php'; # Intercepts header() calls
+	}
+
+	/**
+	 * Turn off display_errors (enabled by DevelopmentSettings.php),
+	 * we don't need PHP errors to be mixed with the response.
+	 */
+	protected function configurePhp() {
+		ini_set( 'display_errors', 0 );
+		ini_set( 'log_errors', 1 );
+	}
+
+	/**
+	 * Redirect STDOUT into a newly created temporary file.
+	 * @return string Name of the temporary file.
+	 * @see getOriginalStdout()
+	 */
+	protected function redirectStdoutToTemporaryFile() {
+		// phpcs:ignore MediaWiki.NamingConventions.ValidGlobalName.allowedPrefix
+		global $STDOUT;
+		$tmpFileName = tempnam( sys_get_temp_dir(), 'testsuite.stdout' );
+
+		fclose( STDOUT );
+		$STDOUT = fopen( $tmpFileName, 'a' );
+
+		return $tmpFileName;
+	}
+
+	/**
+	 * Configure and run everything.
+	 */
+	public function prepareEverything() {
+		$this->unpackVars();
+		$this->unpackFiles();
+		$this->overrideLocalSettings();
+		$this->configurePhp();
+
+		$originalStdout = fopen( "php://stdout", "w" );
+		$tmpFileName = $this->redirectStdoutToTemporaryFile();
+
+		// Because MWLBFactory calls exit() instead of throwing an exception.
+		register_shutdown_function( [ $this, 'onCompletion' ], $tmpFileName, $originalStdout );
+	}
+
+	/**
+	 * Remember the fact that exception has happened.
+	 * @param Exception $e
+	 */
+	public function handleException( Exception $e ) {
+		$this->exceptionText = (string)$e;
+	}
+
+	/**
+	 * Shutdown function (called when the script is about to exit).
+	 * @param string $tmpFileName Temporary file where STDOUT has been redirected.
+	 * @param resource $originalStdout The result should be written here.
+	 */
+	public function onCompletion( $tmpFileName, $originalStdout ) {
+		// phpcs:ignore MediaWiki.NamingConventions.ValidGlobalName.allowedPrefix
+		global $STDOUT;
+
+		// Capture all output
+		while ( ob_get_status() ) {
+			ob_end_flush();
+		}
+
+		fclose( $STDOUT );
+
+		$capturedContent = file_get_contents( $tmpFileName );
+		unlink( $tmpFileName ); // No longer needed
+
+		$result = [
+			'capturedContent' => $capturedContent,
+			'exceptionText' => $this->exceptionText
+		];
+
+		// If an exception happened before efModerationTestsuiteSetup(),
+		// then $request wouldn't be a FauxResponse yet (and is therefore useless for CliEngine).
+		$response = RequestContext::getMain()->getRequest()->response();
+		if ( $response instanceof FauxResponse ) {
+			$result['FauxResponse'] = $response;
+		}
+
+		fwrite( $originalStdout, serialize( $result ) );
+	}
 }
