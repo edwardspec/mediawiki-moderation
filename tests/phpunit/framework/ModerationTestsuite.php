@@ -165,6 +165,28 @@ class ModerationTestsuite {
 		$this->lastFetchedSpecial[$folder] = $entries;
 	}
 
+	/**
+	 * Profiling assist function: make a profiling timer.
+	 * Usage:
+	 *	$timeSpent = $t->profiler();
+	 *	// So something
+	 *	echo "It took $timeSpent seconds";
+	 * @return mixed Value that can be cast to "seconds spent" formatted string.
+	 */
+	protected function profiler() {
+		return new class() {
+			protected $startTime;
+
+			public function __construct() {
+				$this->startTime = microtime( true );
+			}
+
+			public function __toString() {
+				return sprintf( '%.3f', ( microtime( true ) - $this->startTime ) );
+			}
+		};
+	}
+
 	#
 	# Database-related functions.
 	#
@@ -262,20 +284,8 @@ class ModerationTestsuite {
 
 		$dbw->commit( __METHOD__ );
 
-		$this->moderator =
-			$this->createTestUser( 'User 1', [ 'moderator', 'automoderated' ] );
-		$this->moderatorButNotAutomoderated =
-			$this->createTestUser( 'User 2', [ 'moderator' ] );
-		$this->automoderated =
-			$this->createTestUser( 'User 3', [ 'automoderated' ] );
-		$this->rollback =
-			$this->createTestUser( 'User 4', [ 'rollback' ] );
-		$this->unprivilegedUser =
-			$this->createTestUser( 'User 5', [] );
-		$this->unprivilegedUser2 =
-			$this->createTestUser( 'User 6', [] );
-		$this->moderatorAndCheckuser =
-			$this->createTestUser( 'User 7', [ 'moderator', 'checkuser' ] );
+		// Create test users like $t->moderator.
+		$this->prepopulateDb();
 
 		$this->purgeTagCache();
 
@@ -285,6 +295,120 @@ class ModerationTestsuite {
 
 		// Clear the memcached (NOTE: works only for one memcached server).
 		$this->purgeMemcached();
+	}
+
+	/**
+	 * @var array
+	 * Cache created in makePrepopulateDbCache() and used in prepopulateDb().
+	 */
+	protected static $prepopulateDbCache;
+
+	/**
+	 * @var array
+	 * Names of database tables that should be cached in makePrepopulateDbCache().
+	 */
+	public static $prepopulateDbNeededTables = [
+		// Caching these tables ("before the test" state) allows us to avoid User::createNew()
+		// and addGroup() calls. These calls were doing exactly the same before every test.
+		'actor',
+		'user',
+		'user_groups'
+	];
+
+	/**
+	 * Create users like $t->moderator and $t->unprivilegedUser.
+	 */
+	private function prepopulateDb() {
+		if ( !self::$prepopulateDbCache ) {
+			$this->makePrepopulateDbCache();
+		}
+
+		// Load from cache.
+		$timeSpent = $this->profiler();
+
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->begin( __METHOD__ );
+
+		foreach ( self::$prepopulateDbCache as $table => $rows ) {
+			// For PostgreSQL only, it's necessary to exclude the primary key field (e.g. user_id)
+			// from INSERT query. Otherwise the sequence won't be incremented, and this happens:
+			// 1) we insert multiple rows with user_id=1, user_id=2, etc.
+			// 2) sequence thinks that next user_id should be 1.
+			// 3) User::createNew() does INSERT without user_id, and sequence picks user_id=1.
+			// 4) Because row with user_id=1 already exists, INSERT from User::createNew() fails.
+			$keyField = false;
+			if ( $dbw->getType() == 'postgres' ) {
+				$keyField = ( $table == 'mwuser' ) ? 'user_id' : "${table}_id";
+				if ( !$dbw->fieldExists( $table, $keyField ) ) {
+					$keyField = false;
+				}
+			}
+
+			foreach ( $rows as $row ) {
+				if ( $keyField ) {
+					// See above, needed for PostgreSQL sequence to be incremented.
+					unset( $row[$keyField] );
+				}
+
+				$dbw->insert( $table, $row, __METHOD__ );
+				if ( $dbw->affectedRows() != 1 ) {
+					throw new MWException( 'createTestUsers: loading from cache failed.' );
+				}
+			}
+		}
+		$dbw->commit( __METHOD__ );
+
+		$this->moderator = User::newFromName( 'User 1' );
+		$this->moderatorButNotAutomoderated = User::newFromName( 'User 2' );
+		$this->automoderated = User::newFromName( 'User 3' );
+		$this->rollback = User::newFromName( 'User 4' );
+		$this->unprivilegedUser = User::newFromName( 'User 5' );
+		$this->unprivilegedUser2 = User::newFromName( 'User 6' );
+		$this->moderatorAndCheckuser = User::newFromName( 'User 7' );
+
+		error_log( __METHOD__ . ": loading from cache took $timeSpent seconds." );
+	}
+
+	/**
+	 * Creates the test users via the proper MediaWiki functions (without $prepopulateDbCache).
+	 * Results are placed into $prepopulateDbCache. They are later used in prepopulateDb().
+	 */
+	private function makePrepopulateDbCache() {
+		$timeSpent = $this->profiler();
+
+		$this->createTestUser( 'User 1', [ 'moderator', 'automoderated' ] );
+		$this->createTestUser( 'User 2', [ 'moderator' ] );
+		$this->createTestUser( 'User 3', [ 'automoderated' ] );
+		$this->createTestUser( 'User 4', [ 'rollback' ] );
+		$this->createTestUser( 'User 5', [] );
+		$this->createTestUser( 'User 6', [] );
+		$this->createTestUser( 'User 7', [ 'moderator', 'checkuser' ] );
+
+		error_log( __METHOD__ . "() took $timeSpent seconds." );
+
+		$timeSpent = $this->profiler();
+
+		$dbw = wfGetDB( DB_MASTER );
+		self::$prepopulateDbCache = [];
+		foreach ( self::$prepopulateDbNeededTables as $table ) {
+			if ( $table == 'user' && $dbw->getType() == 'postgres' ) {
+				$table = 'mwuser';
+			}
+
+			self::$prepopulateDbCache[$table] = [];
+			foreach ( $dbw->select( $table, '*', '', __METHOD__ ) as $row ) {
+				$fields = get_object_vars( $row );
+				self::$prepopulateDbCache[$table][] = $fields;
+			}
+
+			// Truncate the table. prepopulateDb() will load it from cache.
+			$dbw->delete( $table, '*', __METHOD__ );
+			if ( $dbw->getType() == 'postgres' ) {
+				$dbw->resetSequenceForTable( $table, __METHOD__ );
+			}
+		}
+
+		error_log( "createTestUsers(): making a cache took $timeSpent seconds." );
 	}
 
 	/**
