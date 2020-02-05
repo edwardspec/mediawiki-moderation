@@ -70,11 +70,14 @@ trait ModerationTestsuiteTestSet {
 
 	/**
 	 * Assert that $timestamp is a realistic time for changes made during this test.
-	 * @param string $timestamp Timestamp in MediaWiki format (14 digits).
+	 * @param string $timestamp Timestamp in any format that is understood by MWTimestamp.
 	 */
 	protected function assertTimestampIsRecent( $timestamp ) {
 		// How many seconds ago are allowed without failing the assertion.
 		$allowedRangeInSeconds = 60;
+
+		$ts = new MWTimestamp();
+		$timestamp = $ts->getTimestamp( TS_MW );
 
 		$this->assertLessThanOrEqual(
 			wfTimestampNow(),
@@ -94,6 +97,21 @@ trait ModerationTestsuiteTestSet {
 	}
 
 	/**
+	 * Convert timestamp from TS_DB format (needed for PostgreSQL) to MediaWiki format.
+	 * @param string $fieldName Name of the field, e.g. "mod_timestamp".
+	 * @param string $rawValue Value of the field.
+	 * @return string Converted value.
+	 */
+	private static function convertField( $fieldName, $rawValue ) {
+		if ( $fieldName != 'mod_timestamp' ) {
+			return $rawValue;
+		}
+
+		$ts = new MWTimestamp( $rawValue );
+		return $ts->getTimestamp( TS_MW );
+	}
+
+	/**
 	 * Assert that recent row in 'moderation' SQL table consists of $expectedFields.
 	 * @param array $expectedFields Key-value list of all mod_* fields.
 	 * @throws AssertionFailedError
@@ -109,7 +127,7 @@ trait ModerationTestsuiteTestSet {
 		$actual = [];
 
 		foreach ( $expectedFields as $key => $expectedValue ) {
-			$actualValue = $row->$key;
+			$actualValue = self::convertField( $key, $row->$key );
 
 			if ( is_numeric( $actualValue ) ) {
 				// DB::selectRow() returns numbers as strings, so we need to cast them to numbers,
@@ -130,7 +148,13 @@ trait ModerationTestsuiteTestSet {
 					$expected[$key] = $regex;
 				}
 			} else {
-				$expected[$key] = $expectedValue;
+				if ( $key == 'mod_timestamp' ) {
+					// Convert from database format (different in PostgreSQL) to MediaWiki format.
+					$ts = new MWTimestamp( $actualValue );
+					$actualValue = $ts->getTimestamp( TS_MW );
+				}
+
+				$expected[$key] = self::convertField( $key, $expectedValue );
 			}
 
 			$actual[$key] = $actualValue;

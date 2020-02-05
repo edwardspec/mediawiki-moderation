@@ -50,7 +50,7 @@ class ModerationTestUtil {
 			'text'       => $newText, # No preSaveTransform or serialization
 			'user'       => $user->getId(),
 			'user_text'  => $user->getName(),
-			'timestamp'  => wfTimestampNow(),
+			'timestamp'  => $dbw->timestamp(),
 			'content_model' => CONTENT_MODEL_WIKITEXT
 		] );
 

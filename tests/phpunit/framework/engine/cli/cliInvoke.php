@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -74,6 +74,36 @@ $STDOUT = fopen( $stdoutFilename, 'a' );
 
 $exceptionText = '';
 
+function wfCliInvokeOnCompletion() {
+	// FIXME: this whole script should be wrapped in a class to avoid global variables, etc.
+	// phpcs:ignore MediaWiki.NamingConventions.ValidGlobalName.allowedPrefix
+	global $stdoutFilename, $exceptionText, $resultFilename, $STDOUT;
+
+	// Capture all output
+	while ( ob_get_status() ) {
+		ob_end_flush();
+	}
+	fclose( $STDOUT );
+	$capturedContent = file_get_contents( $stdoutFilename );
+
+	$result = [
+		'capturedContent' => $capturedContent,
+		'exceptionText' => $exceptionText
+	];
+
+	// If an exception happened before efModerationTestsuiteSetup(),
+	// then $request wouldn't be a FauxResponse yet (and is therefore useless for CliEngine).
+	$response = RequestContext::getMain()->getRequest()->response();
+	if ( $response instanceof FauxResponse ) {
+		$result['FauxResponse'] = $response;
+	}
+
+	file_put_contents( $resultFilename, serialize( $result ) );
+}
+
+// Because MWLBFactory calls exit() instead of throwing an exception.
+register_shutdown_function( 'wfCliInvokeOnCompletion' );
+
 try {
 
 /*--------------------------------------------------------------*/
@@ -82,24 +112,5 @@ include $wgModerationTestsuiteCliDescriptor[ 'isApi' ] ? 'api.php' : 'index.php'
 
 }
 catch ( Exception $e ) {
-	ob_start();
-	MWExceptionHandler::handleException( $e );
-	$exceptionText = ob_get_flush();
+	$exceptionText = (string)$e;
 }
-
-// Capture all output
-while ( ob_get_status() ) {
-	ob_end_flush();
-}
-fclose( $STDOUT );
-$capturedContent = file_get_contents( $stdoutFilename );
-
-$result = [
-	'FauxResponse' => RequestContext::getMain()->getRequest()->response(),
-	'capturedContent' => $capturedContent,
-	'exceptionText' => $exceptionText
-];
-
-/*--------------------------------------------------------------*/
-
-file_put_contents( $resultFilename, serialize( $result ) );

@@ -64,6 +64,8 @@ trait ModerationTestsuitePendingChangeTestSet {
 			}
 		}
 
+		$dbr = wfGetDB( DB_REPLICA ); // Only for $dbr->timestamp();
+
 		/* Anonymous users have mod_user_text=mod_ip, so we don't want mod_ip in $options
 			(for better readability of dataProvider and to avoid typos).
 		*/
@@ -129,7 +131,7 @@ trait ModerationTestsuitePendingChangeTestSet {
 
 			// Make sure that mod_timestamp is not earlier than the timestamp of precreated edit,
 			// otherwise the order of history will be wrong.
-			$this->fields['mod_timestamp'] = wfTimestampNow();
+			$this->fields['mod_timestamp'] = $dbr->timestamp();
 		}
 
 		if ( $this->nullEdit || ( $this->existing && $this->filename ) ) {
@@ -141,6 +143,9 @@ trait ModerationTestsuitePendingChangeTestSet {
 			$this->fields['mod_text'] = $oldContent ? $oldContent->getNativeData() : "";
 			$this->fields['mod_new_len'] = $oldContent ? $oldContent->getSize() : 0;
 		}
+
+		// Encode the timestamp (needed for PostgreSQL)
+		$this->fields['mod_timestamp'] = $dbr->timestamp( $this->fields['mod_timestamp'] );
 	}
 
 	/**
@@ -160,8 +165,10 @@ trait ModerationTestsuitePendingChangeTestSet {
 		$t = $this->getTestsuite();
 		$user = $t->unprivilegedUser;
 
+		$dbr = wfGetDB( DB_REPLICA ); // Only for $dbr->timestamp();
+
 		return [
-			'mod_timestamp' => wfTimestampNow(),
+			'mod_timestamp' => $dbr->timestamp(),
 			'mod_user' => $user->getId(),
 			'mod_user_text' => $user->getName(),
 			'mod_cur_id' => 0,

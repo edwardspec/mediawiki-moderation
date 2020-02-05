@@ -152,12 +152,22 @@ class ModerationApproveHook implements DeferrableUpdate {
 					/* Need WHEN...THEN conditional */
 					$caseSql = '';
 					foreach ( $whenThen as $when => $then ) {
-						$caseSql .=
-						'WHEN ' .
-						$dbw->addQuotes( $when ) .
-						' THEN ' .
-						$dbw->addQuotes( $then ) .
-						' ';
+						$whenQuoted = $dbw->addQuotes( $when );
+						$thenQuoted = $dbw->addQuotes( $then );
+
+						if ( $dbw->getType() == 'postgres' ) {
+							if ( $field == 'rc_ip' ) {
+								// In PostgreSQL, rc_ip is of type CIDR, and we can't insert strings into it.
+								$thenQuoted .= '::cidr';
+							} elseif ( $field == 'rev_timestamp' ) {
+								// In PostgreSQL, rc_timestamp is of type TIMESTAMPZ,
+								// and we can't insert strings into it.
+								$thenQuoted = 'to_timestamp(' . $thenQuoted .
+									', \'YYYY-MM-DD HH24:MI:SS\' )';
+							}
+						}
+
+						$caseSql .= 'WHEN ' . $whenQuoted . ' THEN ' . $thenQuoted . ' ';
 					}
 
 					$set[] = $field . '=(CASE ' . $idFieldName . ' ' . $caseSql . 'END)';

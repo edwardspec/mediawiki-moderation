@@ -106,14 +106,8 @@ class ModerationVersionCheck {
 	/** @var string|null Local cache used by getDbUpdatedVersion() */
 	protected static $dbUpdatedVersion = null;
 
-	/** @var array WHERE conditions used in getDbUpdatedVersionUncached(), markDbAsUpdated() */
-	protected static $where = [
-		'pp_page' => -1,
-		'pp_propname' => 'moderation:lastDbUpdateVersion'
-	];
-
 	/**
-	 * Returns memcached key used by getDbUpdatedVersion() and markDbAsUpdated()
+	 * Returns memcached key used by getDbUpdatedVersion() and invalidateCache()
 	 * @return string
 	 */
 	protected static function getCacheKey() {
@@ -159,16 +153,33 @@ class ModerationVersionCheck {
 	 */
 	protected static function getDbUpdatedVersionUncached() {
 		$dbr = wfGetDB( DB_REPLICA );
-		$version = $dbr->selectField( 'page_props', 'pp_value', self::$where, __METHOD__ );
 
-		if ( !$version ) {
-			/* Assume that update.php hasn't been called for a very long time.
-				This will disable all features that check wasDbUpdatedAfter().
-			*/
-			$version = '1.0.0';
+		// These checks are sorted "most recent changes first",
+		// so that the wiki with the most recent schema would only need one check.
+
+		if ( $dbr->getType() == 'postgres' ) {
+			return '1.4.12';
 		}
 
-		return $version;
+		if ( $dbr->fieldExists( 'moderation', 'mod_type', __METHOD__ ) ) {
+			return '1.2.17';
+		}
+
+		if ( $dbr->indexUnique( 'moderation', 'moderation_load', __METHOD__ ) ) {
+			return '1.2.9';
+		}
+
+		if ( !$dbr->fieldExists( 'moderation', 'mod_tags', __METHOD__ ) ) {
+			return '1.0.0';
+		}
+
+		$titlesWithSpace = $dbr->selectRowCount(
+			'moderation',
+			'*',
+			[ 'mod_title LIKE "% %"' ],
+			__METHOD__
+		);
+		return $titlesWithSpace ? '1.1.29' : '1.1.31';
 	}
 
 	/**
@@ -186,17 +197,11 @@ class ModerationVersionCheck {
 	}
 
 	/**
-	 * Remember the current version of Moderation for use in wasDbUpdatedAfter().
+	 * Invalidate cache of wasDbUpdatedAfter().
 	 * Called from update.php.
+	 * Note: this won't affect CACHE_ACCEL, update.php has no access to it.
 	 */
-	public static function markDbAsUpdated() {
-		$fields = self::$where + [ 'pp_value' => self::getVersionOfModeration() ];
-
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->replace( 'page_props', [ 'pp_page', 'pp_propname' ], $fields, __METHOD__ );
-
-		/* Invalidate cache of wasDbUpdatedAfter()
-			Note: won't affect CACHE_ACCEL, update.php has no access to it */
+	public static function invalidateCache() {
 		$cache = wfGetMainCache();
 		$cache->delete( self::getCacheKey() );
 	}

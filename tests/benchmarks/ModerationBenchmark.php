@@ -188,15 +188,15 @@ abstract class ModerationBenchmark extends Maintenance {
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->replace( 'moderation',
-			[
+			[ [
 				'mod_preloadable',
 				'mod_type',
 				'mod_namespace',
 				'mod_title',
 				'mod_preload_id'
-			],
+			] ],
 			[
-				'mod_timestamp' => wfTimestampNow(),
+				'mod_timestamp' => $dbw->timestamp(),
 				'mod_user' => $user->getId(),
 				'mod_user_text' => $user->getName(),
 				'mod_namespace' => $title->getNamespace(),

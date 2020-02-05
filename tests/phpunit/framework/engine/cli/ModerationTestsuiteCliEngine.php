@@ -175,6 +175,9 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 		}
 
 		if ( !isset( $result['FauxResponse'] ) ) {
+			$this->getLogger()->error( '[CliEngine] No FauxResponse', [
+				'capturedContent' => $result['capturedContent']
+			] );
 			throw new MWException( "no FauxResponse $errorContext" );
 		}
 
@@ -219,10 +222,9 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 			$dbw = wfGetDB( DB_MASTER );
 			$this->setMwConfig( 'DBprefix', $dbw->tablePrefix() );
 
-			// Ensure that cloned 'page_props' table contains the
-			// version number of Moderation during the last update.php,
+			// Ensure that ModerationVersionCheck doesn't have an old version number in cache,
 			// otherwise Moderation will assume that DB schema is outdated.
-			ModerationVersionCheck::markDbAsUpdated();
+			ModerationVersionCheck::invalidateCache();
 		} else {
 			// If temporary tables were used, then cliInvoked script can't access them.
 			// Fallback to "break out of the sandbox" workaround.

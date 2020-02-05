@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2018 Edward Chernenko.
+	Copyright (C) 2015-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -137,11 +137,13 @@ class ModerationApproveTest extends ModerationTestCase {
 			$t->doTestEdit( $title );
 		}
 
+		$dbr = wfGetDB( DB_REPLICA ); // Only for $dbr->timestamp();
+
 		$t->fetchSpecial();
 		foreach ( $t->new_entries as $entry ) {
 			$task = $testPages[$entry->title];
 			$entry->updateDbRow( [
-				'mod_timestamp' => $task['timestamp'],
+				'mod_timestamp' => $dbr->timestamp( $task['timestamp'] ),
 				'mod_ip' => $task['ip']
 			] );
 		}
@@ -172,10 +174,18 @@ class ModerationApproveTest extends ModerationTestCase {
 				]
 			);
 
-			$this->assertEquals( $task['timestamp'], $row->rev_timestamp,
+			$ts = new MWTimestamp( $row->rev_timestamp );
+			$foundTimestamp = $ts->getTimestamp( TS_MW );
+
+			$this->assertEquals( $task['timestamp'], $foundTimestamp,
 				"testApproveAllTimestamp(): approved edit has incorrect timestamp in the page history" );
 
-			$this->assertEquals( $task['ip'], $row->rc_ip,
+			$expectedIP = $task['ip'];
+			if ( $dbw->getType() == 'postgres' ) {
+				$expectedIP .= '/32';
+			}
+
+			$this->assertEquals( $expectedIP, $row->rc_ip,
 				"testApproveAllTimestamp(): approved edit has incorrect IP in recentchanges" );
 		}
 	}

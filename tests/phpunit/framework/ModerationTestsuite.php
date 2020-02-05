@@ -170,6 +170,10 @@ class ModerationTestsuite {
 	#
 	private function createTestUser( $name, $groups = [] ) {
 		$user = User::createNew( $name );
+		if ( !$user ) {
+			throw new MWException( __METHOD__ . ": failed to create User:$name." );
+		}
+
 		TestUser::setPasswordForUser( $user, self::TEST_PASSWORD );
 
 		$user->saveSettings();
@@ -211,41 +215,52 @@ class ModerationTestsuite {
 		}
 
 		$dbw->begin( __METHOD__ );
-		$dbw->delete( 'moderation', '*', __METHOD__ );
-		$dbw->delete( 'moderation_block', '*', __METHOD__ );
-		$dbw->delete( 'user', '*', __METHOD__ );
-		$dbw->delete( 'user_groups', '*', __METHOD__ );
-		$dbw->delete( 'user_properties', '*', __METHOD__ );
-		$dbw->delete( 'page', '*', __METHOD__ );
-		$dbw->delete( 'revision', '*', __METHOD__ );
-		$dbw->delete( 'logging', '*', __METHOD__ );
-		$dbw->delete( 'text', '*', __METHOD__ );
-		$dbw->delete( 'image', '*', __METHOD__ );
-		$dbw->delete( 'uploadstash', '*', __METHOD__ );
-		$dbw->delete( 'recentchanges', '*', __METHOD__ );
-		$dbw->delete( 'watchlist', '*', __METHOD__ );
-		$dbw->delete( 'change_tag', '*', __METHOD__ );
 
-		if ( $dbw->tableExists( 'tag_summary' ) ) {
-			$dbw->delete( 'tag_summary', '*', __METHOD__ );
+		$tablesToTruncate = [
+			'moderation',
+			'moderation_block',
+			'user',
+			'user_groups',
+			'user_newtalk',
+			'user_properties',
+			'page',
+			'revision',
+			'revision_comment_temp',
+			'logging',
+			'log_search',
+			'text',
+			'image',
+			'uploadstash',
+			'recentchanges',
+			'watchlist',
+			'change_tag',
+			'tag_summary',
+			'actor',
+			'abuse_filter',
+			'abuse_filter_action',
+			'ip_changes',
+			'cu_changes',
+			'slots',
+			'objectcache'
+		];
+		if ( $dbw->getType() == 'postgres' ) {
+			$tablesToTruncate[] = 'mwuser';
+			$tablesToTruncate[] = 'pagecontent';
 		}
 
-		if ( $dbw->tableExists( 'actor' ) ) {
-			$dbw->delete( 'actor', '*', __METHOD__ );
+		foreach ( $tablesToTruncate as $table ) {
+			# Short version of MediaWikiIntegrationTestCase::truncateTable(),
+			# which doesn't exist in MW 1.31 and is a protected method.
+
+			if ( $dbw->tableExists( $table ) ) {
+				$dbw->delete( $table, '*', __METHOD__ );
+				if ( $dbw->getType() == 'postgres' ) {
+					$dbw->resetSequenceForTable( $table, __METHOD__ );
+				}
+			}
 		}
 
-		if ( $dbw->tableExists( 'abuse_filter' ) ) {
-			$dbw->delete( 'abuse_filter', '*', __METHOD__ );
-			$dbw->delete( 'abuse_filter_action', '*', __METHOD__ );
-		}
-
-		if ( $dbw->tableExists( 'ip_changes' ) ) {
-			$dbw->delete( 'ip_changes', '*', __METHOD__ );
-		}
-
-		if ( $dbw->tableExists( 'cu_changes' ) ) {
-			$dbw->delete( 'cu_changes', '*', __METHOD__ );
-		}
+		$dbw->commit( __METHOD__ );
 
 		$this->moderator =
 			$this->createTestUser( 'User 1', [ 'moderator', 'automoderated' ] );
@@ -262,8 +277,6 @@ class ModerationTestsuite {
 		$this->moderatorAndCheckuser =
 			$this->createTestUser( 'User 7', [ 'moderator', 'checkuser' ] );
 
-		$dbw->commit( __METHOD__ );
-
 		$this->purgeTagCache();
 
 		// Avoid stale data being reported by Title::getArticleId(), etc. on the test side
@@ -275,14 +288,32 @@ class ModerationTestsuite {
 	}
 
 	/**
+	 * Utility function to check if CACHE_MEMCACHED actually works.
+	 * This is used to skip ReadOnly tests when memcached is unavailable
+	 * (because CACHE_DB doesn't work in ReadOnly mode).
+	 * @return bool
+	 */
+	public function doesMemcachedWork() {
+		$cache = wfGetCache( CACHE_MEMCACHED );
+
+		$testKey = $cache->makeKey( 'moderation-testsuite-check-memcached-availability' );
+		$testVal = 'it works ' . rand();
+
+		// Check whether the stored entry has actually been saved.
+		$cache->set( $testKey, $testVal );
+		return ( $cache->get( $testKey ) == $testVal );
+	}
+
+	/**
 	 * Clear the memcached keys related to this testwiki.
 	 */
-	public function purgeMemcached() {
-		global $wgMemCachedServers, $wgDBname;
+	protected function purgeMemcached() {
+		global $wgMemCachedServers;
 		if ( empty( $wgMemCachedServers ) ) {
 			return;
 		}
 
+		$logger = new ModerationTestsuiteLogger( 'ModerationTestsuite' );
 		$startTime = microtime( true );
 
 		// NOTE: this works only for one memcached server.
@@ -291,24 +322,72 @@ class ModerationTestsuite {
 		] );
 		$sock = $memcClient->get_sock( 'anyKey' ); // Only one Memcached server
 
+		if ( getenv( 'PARALLEL_PHPUNIT_TESTS' ) == 1 ) {
+			// Only one test is running at a time (no parallel testing): can afford to
+			// flush all keys without impacting other tests.
+			$ret = $memcClient->run_command( $sock, "flush_all\r\n" );
+			if ( $ret[0] == 'ERROR' ) {
+				throw new MWException( __METHOD__ . ": cleaning Memcached FAILED." );
+			}
+			return; // Cleared
+		}
+
 		// Delete all memcached keys related to this wiki.
-		// NOTE: simpler alternative is $memcClient->run_command( $sock, "flush_all\r\n" ),
-		// but that wouldn't allow to run testsuite in multiple threads, where each thread
-		// uses a separate database (and therefore has different $wgDBname).
+		list( $keysToDelete, $keysToSpare ) = $this->crawlMemcached( $memcClient, $sock );
+		foreach ( $keysToDelete as $key ) {
+			if ( !$memcClient->delete( $key ) ) {
+				throw new MWException( __METHOD__ . ": deleting Memcached key $key FAILED." );
+			}
+		}
+
+		$timeSpent = sprintf( '%.3f', ( microtime( true ) - $startTime ) );
+		$logger->info( '[cleanup] Purged Memcached', [
+			'deletedKeys' => count( $keysToDelete ),
+			'sparedKeys' => count( $keysToSpare ),
+			'timeSpentOnPurge' => $timeSpent
+		] );
+
+		// Sanity check: were there silently ignored timeouts when communicating with Memcached?
+		if ( $timeSpent * 1000000 > $memcClient->_timeout_microseconds ) {
+			throw new MWException( __METHOD__ .
+				": it took suspiciously long to purge Memcached keys, was there a timeout?." );
+		}
+	}
+
+	/**
+	 * Scan Memcached server and return all keys that are used by ObjectCache of this wiki.
+	 * @param MemcachedClient $memcClient PHP-based client
+	 * @param resource $sock Result of $memcClient->get_sock()
+	 * @return array Contains two arrays of strings: keysToDelete and keysToSpare.
+	 */
+	protected function crawlMemcached( MemcachedClient $memcClient, $sock ) {
+		// Note: we shouldn't use wfWikiId() instead of $wgDBname,
+		// because "rdbms-server-readonly" key only contains $wgDBname (without prefix),
+		// and it MUST be cleared after ReadOnly tests.
+		global $wgDBname;
+		$keyPrefixOfThisWiki = $wgDBname;
+
+		// Gather all the keys
 		$keysToDelete = [];
 		$keysToSpare = []; // For debugging only
 
 		$ret = $memcClient->run_command( $sock, "lru_crawler metadump all\r\n" );
+		if ( count( $ret ) > 0 && $ret[0] == 'ERROR' ) {
+			$logger = new ModerationTestsuiteLogger( 'ModerationTestsuite' );
+			$logger->error( '[cleanup] Memcached failed to run "lru_crawler" command', [
+				'server' => $memcClient->_servers,
+				'doesMemcachedWork' => $this->doesMemcachedWork()
+			] );
+			throw new MWException( __METHOD__ . ": cleaning Memcached FAILED." );
+		}
+
 		foreach ( $ret as $foundObject ) {
 			foreach ( explode( ' ', $foundObject ) as $param ) {
 				$pairs = explode( '=', $param );
 				if ( $pairs[0] === 'key' && isset( $pairs[1] ) ) {
 					$key = rawurldecode( $pairs[1] );
 
-					// Note: we shouldn't use wfWikiId() instead of $wgDBname,
-					// because "rdbms-server-readonly" key only contains $wgDBname,
-					// and it MUST be cleared after ReadOnly tests.
-					if ( strpos( $key, $wgDBname ) !== false ) {
+					if ( strpos( $key, $keyPrefixOfThisWiki ) !== false ) {
 						$keysToDelete[] = $key;
 					} else {
 						$keysToSpare[] = $key;
@@ -318,27 +397,7 @@ class ModerationTestsuite {
 			}
 		}
 
-		if ( method_exists( 'BagOStuff', 'deleteMulti' ) ) {
-			// MediaWiki 1.33+
-			$cache = wfGetMainCache();
-			$cache->deleteMulti( $keysToDelete );
-		} else {
-			// MediaWiki 1.31-1.32
-			foreach ( $keysToDelete as $key ) {
-				if ( !$memcClient->delete( $key ) ) {
-					throw new MWException( __METHOD__ . ": cleaning Memcached FAILED." );
-				}
-			}
-		}
-
-		$timeSpent = sprintf( '%.3f', ( microtime( true ) - $startTime ) );
-
-		$logger = new ModerationTestsuiteLogger( 'ModerationTestsuite' );
-		$logger->info( '[cleanup] Purged Memcached', [
-			'deletedKeys' => $keysToDelete,
-			'sparedKeys' => $keysToSpare,
-			'timeSpentOnPurge' => $timeSpent
-		] );
+		return [ $keysToDelete, $keysToSpare ];
 	}
 
 	/** Prevent tags set by the previous test from affecting the current test */
@@ -689,7 +748,7 @@ class ModerationTestsuite {
 				'af_pattern' => 'true',
 				'af_user' => 0,
 				'af_user_text' => 'MediaWiki default',
-				'af_timestamp' => wfTimestampNow(),
+				'af_timestamp' => $dbw->timestamp(),
 				'af_enabled' => 1,
 				'af_comments' => '',
 				'af_public_comments' => 'Assign tags to all edits',

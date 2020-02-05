@@ -39,7 +39,7 @@ class ModerationUploadStorage {
 				'us_key IN ' . $dbw->buildSelectSubquery(
 					'moderation',
 					'DISTINCT mod_stash_key',
-					'1',
+					'',
 					__METHOD__
 				),
 			],
