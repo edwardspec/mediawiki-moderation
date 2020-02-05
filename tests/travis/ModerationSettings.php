@@ -53,11 +53,23 @@ if ( version_compare( $wgVersion, '1.34-rc.0', '>=' ) ) {
 	$wgPasswordPolicy['policies']['default']['PasswordNotInLargeBlacklist'] = false;
 }
 
-# These extensions are needed for some tests of Extension:Moderation
+# Extensions below are needed for some tests of Extension:Moderation.
+
+if ( $wgDBtype != 'postgres' ) {
+	// FIXME: what AbuseFilter does in its "UnitTestsAfterDatabaseSetup" and
+	// "UnitTestsBeforeDatabaseTeardown" hooks interferes with CliEngine.
+	// Until a workaround is found, we can't test with it.
+	wfLoadExtension( 'AbuseFilter' ); # For PHPUnit testsuite
+}
+
+if ( $wgDBtype != 'postgres' ) {
+	// Extension:CheckUser itself doesn't support PostgreSQL, so we can't test with it.
+	// (see T241827)
+	wfLoadExtension( 'CheckUser' ); # For PHPUnit testsuite
+}
+
 wfLoadExtensions( [
 	# For PHPUnit testsuite
-	'AbuseFilter',
-	'CheckUser',
 	'PageForms',
 
 	# For Selenium testsuite
@@ -65,8 +77,10 @@ wfLoadExtensions( [
 	'VisualEditor'
 ] );
 
-# ModerationNotifyModeratorTest should be tested with and without Extension:Echo
-if ( getenv( 'WITH_ECHO' ) ) {
+# ModerationNotifyModeratorTest should be tested with and without Extension:Echo.
+# NOTE: Extension:Echo doesn't support PostgreSQL yet.
+# gerrit:565045 adds such support, but it's unlikely to be backported to MediaWiki 1.31, etc.
+if ( getenv( 'WITH_ECHO' ) && $wgDBtype != 'postgres' ) {
 	wfLoadExtension( 'Echo' );
 }
 

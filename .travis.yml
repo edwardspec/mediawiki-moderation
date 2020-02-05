@@ -18,6 +18,7 @@ branches:
 
 services:
   - memcached
+  - postgresql
 
 addons:
   &common-addons
@@ -32,6 +33,7 @@ env:
   global:
     - TESTSUITE_TYPE=phpunit
     - DBTYPE=mysql
+    - DBNAME=traviswiki
     - DBUSER=root
     - MEDIAWIKI_USER="Moderator User"
     - MEDIAWIKI_PASSWORD="123456"
@@ -62,7 +64,7 @@ matrix:
       script: composer test
 
     - &linter-js-build
-      if: NOT branch IN (phpunit)
+      if: NOT branch IN (phpunit,postgres)
       env: TESTSUITE_TYPE=linter-js
       language: node_js
       node_js: 10
@@ -84,6 +86,14 @@ matrix:
         # (to avoid irrelevant "sparedKeys" logged by ModerationTestsuite::purgeMemcached())
         - echo -en "flush_all\r\n" | nc -v -w1 127.0.0.1 11211
 
+        # FIXME: due to some Memcached-cleaning-related issue (which needs more investigation),
+        # parallel tests with PostgreSQL are not currently supported.
+        # This is considered to be a bug in a testsuite itself,
+        # because even with "fastest -p 1", the tests: 1) succeed with flush_all, 2) fail with purging based on LRU crawler,
+        # and the difference between (1) and (2) is not related to actual operation of the extension.
+        # It means purging based on LRU crawler is somehow imperfect.
+        - if [ "$DBTYPE" = "postgres" ]; then PARALLEL_PHPUNIT_TESTS=1; fi
+
         # Run all tests in parallel via Fastest.
         # Note: test files are sorted by filesize (from smallest to largest).
         - find extensions/Moderation/tests/phpunit/ -name "*Test.php" -exec ls -1Sr {} + | grep -v selftest | ./extensions/Moderation/vendor/liuggio/fastest/fastest -p "$PARALLEL_PHPUNIT_TESTS" --before="./extensions/Moderation/tests/travis/fastest_init_thread.sh" --preserve-order --verbose "php tests/phpunit/phpunit.php --use-normal-tables --reuse-db {};"
@@ -100,6 +110,15 @@ matrix:
       env: branch=REL1_33
     - <<: *phpunit-build
       env: branch=REL1_34
+# FIXME: ModerationTestsuite is currently incompatible with 1.31+PostgreSQL combination.
+#    - <<: *phpunit-build
+#      env: branch=REL1_31 DBTYPE=postgres
+    - <<: *phpunit-build
+      env: branch=REL1_32 DBTYPE=postgres
+    - <<: *phpunit-build
+      env: branch=REL1_33 DBTYPE=postgres
+    - <<: *phpunit-build
+      env: branch=REL1_34 DBTYPE=postgres
 #    - <<: *phpunit-build
 #      env: branch=unknown_branch_will_be_treated_as_master
     - <<: *phpunit-build
@@ -150,18 +169,19 @@ before_script:
 
   - rsync -a --exclude buildcache --exclude mediawiki --exclude .git . mediawiki/extensions/Moderation/
   - cd mediawiki
+  - if [ "$DBTYPE" = "postgres" ]; then export DBUSER=postgres; fi
   - >
       php maintenance/install.php traviswiki admin
       --pass travis
       --dbtype "$DBTYPE"
-      --dbname traviswiki
+      --dbname "$DBNAME"
       --dbuser "$DBUSER"
       --dbpass ""
       --scriptpath "/w"
   - echo -en "\n\nrequire_once __DIR__ . '/includes/DevelopmentSettings.php';\n" >> ./LocalSettings.php
   - echo -en "\n\nrequire_once __DIR__ . '/extensions/Moderation/tests/travis/ModerationSettings.php';\n" >> ./LocalSettings.php
   - php -l ./LocalSettings.php
-  - mysql -D traviswiki -u "$DBUSER" -e 'DELETE FROM recentchanges;' # Workaround for Extension:CheckUser's updater issue (which is unrelated to Moderation)
+  - echo 'DELETE FROM recentchanges;' | php maintenance/sql.php # Workaround for Extension:CheckUser's updater issue (which is unrelated to Moderation)
   - WITH_ECHO=1 php maintenance/update.php --quick
   - php maintenance/createAndPromote.php "$MEDIAWIKI_USER" "$MEDIAWIKI_PASSWORD" --custom-groups moderator,automoderated
   - if [ ${TESTSUITE_TYPE} = "selenium" ]; then ( cd extensions/Moderation/tests/selenium && npm install ); fi
