@@ -1,7 +1,7 @@
 # Commit message convention: "(doc)" means README updates, etc. - they don't change any code.
 if: commit_message !~ /^\(doc\)/
 
-dist: trusty
+dist: bionic
 language: php
 
 conditions: v1
@@ -79,6 +79,10 @@ matrix:
         # First run the smallest test without --reuse-db, so that the cloned database tables are created,
         # then run the remaining testsuite with --reuse-db to save time.
         - php tests/phpunit/phpunit.php --use-normal-tables extensions/Moderation/tests/phpunit/ModerationPermissionsTest.php
+
+        # Ensure that Memcached is completely clear before starting the parallel tests.
+        # (to avoid irrelevant "sparedKeys" logged by ModerationTestsuite::purgeMemcached())
+        - echo -en "flush_all\r\n" | nc -v -w1 127.0.0.1 11211
 
         # Run all tests in parallel via Fastest.
         # Note: test files are sorted by filesize (from smallest to largest).
