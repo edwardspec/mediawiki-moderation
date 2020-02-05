@@ -25,14 +25,7 @@
  * We just populate $_GET, $_POST, etc. and include "index.php".
  */
 
-$inputFilename = $argv[1];
-$resultFilename = $argv[2];
-
-if ( !$inputFilename || !$resultFilename ) {
-	throw new MWException( "cliInvoke.php: input/output files must be specified." );
-}
-
-$wgModerationTestsuiteCliDescriptor = unserialize( file_get_contents( $inputFilename ) );
+$wgModerationTestsuiteCliDescriptor = unserialize( stream_get_contents( STDIN ) );
 
 /* Unpack all variables known from descriptor, e.g. $_POST */
 foreach ( [ '_GET', '_POST', '_COOKIE' ] as $var ) {
@@ -68,23 +61,27 @@ ini_set( 'log_errors', 1 );
 require_once __DIR__ . '/MockAutoLoader.php'; # Intercepts header() calls
 
 // Redirect STDOUT into the file
-$stdoutFilename = tempnam( sys_get_temp_dir(), 'testsuite.stdout' );
+$originalStdout = fopen( "php://stdout", "w" ); // Save it (will write the result here)
+
+$tmpFilename = tempnam( sys_get_temp_dir(), 'testsuite.stdout' );
 fclose( STDOUT );
-$STDOUT = fopen( $stdoutFilename, 'a' );
+$STDOUT = fopen( $tmpFilename, 'a' );
 
 $exceptionText = '';
 
 function wfCliInvokeOnCompletion() {
 	// FIXME: this whole script should be wrapped in a class to avoid global variables, etc.
 	// phpcs:ignore MediaWiki.NamingConventions.ValidGlobalName.allowedPrefix
-	global $stdoutFilename, $exceptionText, $resultFilename, $STDOUT;
+	global $originalStdout, $tmpFilename, $exceptionText, $STDOUT;
 
 	// Capture all output
 	while ( ob_get_status() ) {
 		ob_end_flush();
 	}
 	fclose( $STDOUT );
-	$capturedContent = file_get_contents( $stdoutFilename );
+
+	$capturedContent = file_get_contents( $tmpFilename );
+	unlink( $tmpFilename ); // No longer needed
 
 	$result = [
 		'capturedContent' => $capturedContent,
@@ -98,7 +95,7 @@ function wfCliInvokeOnCompletion() {
 		$result['FauxResponse'] = $response;
 	}
 
-	file_put_contents( $resultFilename, serialize( $result ) );
+	fwrite( $originalStdout, serialize( $result ) );
 }
 
 // Because MWLBFactory calls exit() instead of throwing an exception.

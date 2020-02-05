@@ -20,6 +20,8 @@
  * Testsuite engine that runs index.php/api.php in PHP CLI.
  */
 
+use MediaWiki\Shell\Shell;
+
 class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 
 	/** @var array [ 'name' => 'value' ] */
@@ -133,42 +135,37 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 		// and each thread uses its own database)
 		$env['ENV_TEST_CHANNEL'] = getenv( 'ENV_TEST_CHANNEL' );
 
-		/* Create temporary files to communicate with the script.
-			Script will read $data from $inputFilename,
-			then script will write $result into $outputFilename.
-		*/
-		$inputFilename = tempnam( sys_get_temp_dir(), 'testsuite.task' );
-		$outputFilename = tempnam( sys_get_temp_dir(), 'testsuite.out' );
-
-		file_put_contents( $inputFilename, serialize( $descriptor ) );
-
-		$cmd = wfEscapeShellArg(
-			PHP_BINARY,
-			__DIR__ . "/cliInvoke.php",
-			$inputFilename,
-			$outputFilename
-		);
-
 		$limits = [ 'memory' => -1, 'filesize' => -1, 'time' => -1, 'walltime' => -1 ];
 
-		$retval = false;
-		$unexpectedOutput = wfShellExecWithStderr( $cmd, $retval, $env, $limits );
+		$ret = Shell::command( [] )
+			->params( [ PHP_BINARY, __DIR__ . '/cliInvoke.php' ] )
+			->environment( $env )
+			->limits( $limits )
+			->restrict( Shell::NO_ROOT )
+			->input( serialize( $descriptor ) )
+			->execute();
 
-		if ( $unexpectedOutput ) {
+		$output = $ret->getStdout();
+		$errorOutput = $ret->getStderr();
+
+		if ( $errorOutput ) {
 			/* Allow PHPUnit to complain about this */
-			echo $unexpectedOutput;
+			print "\n" . $errorOutput;
 		}
-
-		$result = unserialize( file_get_contents( $outputFilename ) );
-
-		/* Delete the temporary files (no longer needed) */
-		unlink( $inputFilename );
-		unlink( $outputFilename );
 
 		$errorContext = "from $env[REQUEST_METHOD] [$url], postData=[" .
 			wfArrayToCgi( $descriptor['_POST'] ) . ']';
 
-		if ( $result['exceptionText'] ) {
+		try {
+			$result = unserialize( $output );
+		} catch ( Exception $e ) {
+			$this->getLogger()->error( '[CliEngine] Non-serialized text printed by cliInvoke.php', [
+				'printedOutput' => $output
+			] );
+			throw new MWException( "Non-serialized text printed by cliInvoke.php $errorContext" );
+		}
+
+		if ( !empty( $result['exceptionText'] ) ) {
 			$this->getLogger()->error( '[CliEngine] Exception detected', [
 				'text' => $result['exceptionText']
 			] );
