@@ -37,10 +37,12 @@ class ModerationUploadStorageTest extends ModerationTestCase {
 
 		// Queue several edits: some of them uploads, some non-uploads.
 		$t->loginAs( $t->unprivilegedUser );
-		for ( $i = 0; $i < $numberOfUploads * 2; $i++ ) {
-			$title = "Test_page_$i";
-
-			$result = ( $i % 2 ) ? $t->doTestUpload( $title ) : $t->doTestEdit( $title );
+		for ( $i = 1; $i <= $numberOfUploads * 2; $i++ ) {
+			if ( $i % 2 ) {
+				$result = $t->doTestUpload( "Test image $i.png" );
+			} else {
+				$result = $t->doTestEdit( "Test page $i" );
+			}
 			$this->assertTrue( $result->isIntercepted() );
 		}
 

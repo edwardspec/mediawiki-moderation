@@ -143,7 +143,13 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 		} elseif ( strpos( $contentType, 'application/json' ) !== false ) {
 			$status = FormatJson::parse( $content, FormatJson::FORCE_ASSOC );
 			if ( $status->isOK() ) {
-				$loggedContent['json'] = $status->getValue();
+				$json = $status->getValue();
+				if ( isset( $json['batchcomplete'] ) ) {
+					// Useless part of the response, hide it to make logs shorter.
+					unset( $json['batchcomplete'] );
+				}
+
+				$loggedContent['json'] = $json;
 			} else {
 				$loggedContent['invalidJson'] = $content;
 			}
@@ -259,7 +265,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 		$loginToken = $ret['query']['tokens']['logintoken'];
 
 		# Step 2. Actual login.
-		$maxAttempts = 3;
+		$maxAttempts = 1;
 		for ( $attempt = 1; ; $attempt++ ) {
 			$ret = $this->query( [
 				'action' => 'clientlogin',

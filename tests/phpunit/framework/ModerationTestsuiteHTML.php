@@ -104,7 +104,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 	/**
 	 * Returns HTML element of the error message shown by Moderation.
-	 * @return string
+	 * @return string|null
 	 */
 	public function getModerationError( $url = null ) {
 		$this->loadFromURL( $url );
@@ -129,17 +129,17 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 	/**
 	 * Returns main text of the page (without navigation, etc.).
-	 * @return string
+	 * @return string|null
 	 */
 	public function getMainText( $url = null ) {
 		$elem = $this->getMainContent( $url );
 
-		return trim( $elem->textContent );
+		return $elem ? trim( $elem->textContent ) : null;
 	}
 
 	/**
 	 * Returns the text of the notice "You have new messages".
-	 * @return string
+	 * @return string|null
 	 */
 	public function getNewMessagesNotice( $url = null ) {
 		$this->loadFromURL( $url );
