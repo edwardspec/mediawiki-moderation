@@ -110,6 +110,7 @@ matrix:
       env: branch=REL1_33
     - <<: *phpunit-build
       env: branch=REL1_34
+      php: 7.3
 # FIXME: ModerationTestsuite is currently incompatible with 1.31+PostgreSQL combination.
 #    - <<: *phpunit-build
 #      env: branch=REL1_31 DBTYPE=postgres
@@ -119,6 +120,7 @@ matrix:
       env: branch=REL1_33 DBTYPE=postgres
     - <<: *phpunit-build
       env: branch=REL1_34 DBTYPE=postgres
+      php: 7.3
 #    - <<: *phpunit-build
 #      env: branch=unknown_branch_will_be_treated_as_master
     - <<: *phpunit-build
