@@ -1,7 +1,7 @@
 # Commit message convention: "(doc)" means README updates, etc. - they don't change any code.
 if: commit_message !~ /^\(doc\)/
 
-dist: bionic
+dist: trusty
 language: php
 
 conditions: v1
@@ -17,7 +17,6 @@ branches:
   - REL1_23
 
 services:
-  - memcached
   - postgresql
 
 addons:
