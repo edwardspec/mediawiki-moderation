@@ -108,7 +108,7 @@ class ModerationTestCase extends MediaWikiTestCase {
 	 * Forget the logs related to previous tests.
 	 */
 	protected function setUp() {
-		ModerationTestsuiteLogger::cleanBuffer();
+		ModerationTestsuiteLogger::prepareCleanBuffer( $this->getName() );
 		parent::setUp();
 
 		$name = $this->getName();

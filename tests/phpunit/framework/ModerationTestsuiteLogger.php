@@ -21,6 +21,12 @@
  */
 class ModerationTestsuiteLogger extends MediaWiki\Logger\LegacyLogger {
 	/**
+	 * @var string
+	 * This name is mentioned by printBuffer() to avoid confusion "which test printed what".
+	 */
+	protected static $currentTestName = '';
+
+	/**
 	 * @var array[string]
 	 * Accumulator of log entries.
 	 * If the test succeeds, they are silently ignored.
@@ -30,9 +36,11 @@ class ModerationTestsuiteLogger extends MediaWiki\Logger\LegacyLogger {
 
 	/**
 	 * Forget all stored entries. Meant to be used in ModerationTestCase::setUp().
+	 * @param string $newTestName Name of the new test (will be used when printing a buffer later).
 	 */
-	public static function cleanBuffer() {
+	public static function prepareCleanBuffer( $newTestName = '' ) {
 		self::$buffer = [];
+		self::$currentTestName = $newTestName;
 	}
 
 	/**
@@ -44,6 +52,7 @@ class ModerationTestsuiteLogger extends MediaWiki\Logger\LegacyLogger {
 		}
 
 		$report = [
+			'testName' => self::$currentTestName,
 			'eventCount' => count( self::$buffer ),
 			'events' => self::$buffer
 		];
