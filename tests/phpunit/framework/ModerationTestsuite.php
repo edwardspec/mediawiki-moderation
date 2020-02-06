@@ -293,9 +293,6 @@ class ModerationTestsuite {
 		// when running multiple sequential tests, e.g. in ModerationQueueTest.
 		Title::clearCaches();
 
-		// Clear the memcached (NOTE: works only for one memcached server).
-		//$this->purgeMemcached();
-
 		# Clear our thread-aware cache before each test.
 		ModerationTestsuiteBagOStuff::flushAll();
 	}
@@ -421,110 +418,8 @@ class ModerationTestsuite {
 	 * @return bool
 	 */
 	public function doesMemcachedWork() {
-		$cache = wfGetCache( CACHE_MEMCACHED );
-
-		$testKey = $cache->makeKey( 'moderation-testsuite-check-memcached-availability' );
-		$testVal = 'it works ' . rand();
-
-		// Check whether the stored entry has actually been saved.
-		$cache->set( $testKey, $testVal );
-		return ( $cache->get( $testKey ) == $testVal );
-	}
-
-	/**
-	 * Clear the memcached keys related to this testwiki.
-	 */
-	protected function purgeMemcached() {
-		global $wgMemCachedServers;
-		if ( empty( $wgMemCachedServers ) ) {
-			return;
-		}
-
-		$logger = new ModerationTestsuiteLogger( 'ModerationTestsuite' );
-		$startTime = microtime( true );
-
-		// NOTE: this works only for one memcached server.
-		$memcClient = new MemcachedClient( [
-			'servers' => [ $wgMemCachedServers[0] ]
-		] );
-		$sock = $memcClient->get_sock( 'anyKey' ); // Only one Memcached server
-
-		if ( getenv( 'PARALLEL_PHPUNIT_TESTS' ) == 1 ) {
-			// Only one test is running at a time (no parallel testing): can afford to
-			// flush all keys without impacting other tests.
-			$ret = $memcClient->run_command( $sock, "flush_all\r\n" );
-			if ( $ret[0] == 'ERROR' ) {
-				throw new MWException( __METHOD__ . ": cleaning Memcached FAILED." );
-			}
-			return; // Cleared
-		}
-
-		// Delete all memcached keys related to this wiki.
-		list( $keysToDelete, $keysToSpare ) = $this->crawlMemcached( $memcClient, $sock );
-		foreach ( $keysToDelete as $key ) {
-			if ( !$memcClient->delete( $key ) ) {
-				throw new MWException( __METHOD__ . ": deleting Memcached key $key FAILED." );
-			}
-		}
-
-		$timeSpent = sprintf( '%.3f', ( microtime( true ) - $startTime ) );
-		$logger->info( '[cleanup] Purged Memcached', [
-			'deletedKeys' => count( $keysToDelete ),
-			'sparedKeys' => count( $keysToSpare ),
-			'timeSpentOnPurge' => $timeSpent
-		] );
-
-		// Sanity check: were there silently ignored timeouts when communicating with Memcached?
-		if ( $timeSpent * 1000000 > $memcClient->_timeout_microseconds ) {
-			throw new MWException( __METHOD__ .
-				": it took suspiciously long to purge Memcached keys, was there a timeout?." );
-		}
-	}
-
-	/**
-	 * Scan Memcached server and return all keys that are used by ObjectCache of this wiki.
-	 * @param MemcachedClient $memcClient PHP-based client
-	 * @param resource $sock Result of $memcClient->get_sock()
-	 * @return array Contains two arrays of strings: keysToDelete and keysToSpare.
-	 */
-	protected function crawlMemcached( MemcachedClient $memcClient, $sock ) {
-		// Note: we shouldn't use wfWikiId() instead of $wgDBname,
-		// because "rdbms-server-readonly" key only contains $wgDBname (without prefix),
-		// and it MUST be cleared after ReadOnly tests.
-		global $wgDBname;
-		$keyPrefixOfThisWiki = $wgDBname;
-
-		// Gather all the keys
-		$keysToDelete = [];
-		$keysToSpare = []; // For debugging only
-
-		$ret = $memcClient->run_command( $sock, "lru_crawler metadump all\r\n" );
-		if ( count( $ret ) > 0 && $ret[0] == 'ERROR' ) {
-			$logger = new ModerationTestsuiteLogger( 'ModerationTestsuite' );
-			$logger->error( '[cleanup] Memcached failed to run "lru_crawler" command', [
-				'server' => $memcClient->_servers,
-				'doesMemcachedWork' => $this->doesMemcachedWork()
-			] );
-			throw new MWException( __METHOD__ . ": cleaning Memcached FAILED." );
-		}
-
-		foreach ( $ret as $foundObject ) {
-			foreach ( explode( ' ', $foundObject ) as $param ) {
-				$pairs = explode( '=', $param );
-				if ( $pairs[0] === 'key' && isset( $pairs[1] ) ) {
-					$key = rawurldecode( $pairs[1] );
-
-					if ( strpos( $key, $keyPrefixOfThisWiki ) !== false ) {
-						$keysToDelete[] = $key;
-					} else {
-						$keysToSpare[] = $key;
-					}
-					break;
-				}
-			}
-		}
-
-		return [ $keysToDelete, $keysToSpare ];
+		// Obsolete: CliEngine now uses ModerationTestsuiteBagOStuff for CACHE_MEMCACHED.
+		return true;
 	}
 
 	/** Prevent tags set by the previous test from affecting the current test */

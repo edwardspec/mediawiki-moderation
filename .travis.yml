@@ -82,10 +82,6 @@ matrix:
         # then run the remaining testsuite with --reuse-db to save time.
         - php tests/phpunit/phpunit.php --use-normal-tables extensions/Moderation/tests/phpunit/ModerationPermissionsTest.php
 
-        # Ensure that Memcached is completely clear before starting the parallel tests.
-        # (to avoid irrelevant "sparedKeys" logged by ModerationTestsuite::purgeMemcached())
-        - echo -en "flush_all\r\n" | nc -v -w1 127.0.0.1 11211
-
         # FIXME: due to some Memcached-cleaning-related issue (which needs more investigation),
         # parallel tests with PostgreSQL are not currently supported.
         # This is considered to be a bug in a testsuite itself,
