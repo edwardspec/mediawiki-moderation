@@ -30,6 +30,7 @@ $wgAutoloadClasses += [
 	/* Moderation Testsuite framework */
 	'IModerationTestsuiteEngine' => __DIR__ . '/engine/IModerationTestsuiteEngine.php',
 	'IModerationTestsuiteResponse' => __DIR__ . '/IModerationTestsuiteResponse.php',
+	'ModerationTestsuiteBagOStuff' => __DIR__ . '/ModerationTestsuiteBagOStuff.php',
 	'ModerationPendingChangeTestSet' => __DIR__ . '/ModerationPendingChangeTestSet.php',
 	'ModerationTestCase' => __DIR__ . '/ModerationTestCase.php',
 	'ModerationTestSetRegex' => __DIR__ . '/ModerationTestSetRegex.php',

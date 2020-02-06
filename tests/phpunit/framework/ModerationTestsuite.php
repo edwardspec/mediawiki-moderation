@@ -294,7 +294,10 @@ class ModerationTestsuite {
 		Title::clearCaches();
 
 		// Clear the memcached (NOTE: works only for one memcached server).
-		$this->purgeMemcached();
+		//$this->purgeMemcached();
+
+		# Clear our thread-aware cache before each test.
+		ModerationTestsuiteBagOStuff::flushAll();
 	}
 
 	/**

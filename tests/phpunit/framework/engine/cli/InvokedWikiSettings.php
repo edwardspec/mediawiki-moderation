@@ -25,6 +25,15 @@ require_once "$IP/LocalSettings.php";
 
 use Wikimedia\Rdbms\DatabaseDomain;
 
+# Replace Memcached with our caching class. This is needed for Parallel PHPUnit testing,
+# where "flush_all" Memcached command is not applicable (it would delete keys of another thread).
+require_once __DIR__ . "/../../ModerationTestsuiteBagOStuff.php";
+$wgObjectCaches[CACHE_MEMCACHED] = [
+	'class' => ModerationTestsuiteBagOStuff::class,
+	'loggroup' => 'memcached',
+	'filename' => '/dev/shm/modtest.cache'
+];
+
 /* Apply variables requested by ModerationTestsuiteCliEngine::setMwConfig() */
 foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 	if ( $name == 'DBprefix' && $wgDBtype == 'postgres' ) {
