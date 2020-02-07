@@ -34,6 +34,9 @@ $wgObjectCaches[CACHE_MEMCACHED] = [
 	'filename' => '/dev/shm/modtest.cache'
 ];
 
+// Same as in [tests/common/TestSetup.php]. Makes tests faster.
+$wgSessionPbkdf2Iterations = 1;
+
 /* Apply variables requested by ModerationTestsuiteCliEngine::setMwConfig() */
 foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 	if ( $name == 'DBprefix' && $wgDBtype == 'postgres' ) {
