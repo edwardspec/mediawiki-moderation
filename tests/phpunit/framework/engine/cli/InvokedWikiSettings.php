@@ -112,6 +112,43 @@ function efModerationTestsuiteMockedHeader( $string, $replace = true, $http_resp
 	$response->header( $string, $replace, $http_response_code );
 }
 
+/**
+ * Sanity check: log "what user is currently logged in",
+ * and ensure that request is executed on behalf on an expected user.
+ */
+function efModerationTestsuiteLogSituation() {
+	global $wgModerationTestsuiteCliDescriptor;
+
+	$entrypoint = 'index';
+	if ( defined( 'MW_ENTRY_POINT' ) ) {
+		// MediaWiki 1.34+
+		$entrypoint = MW_ENTRY_POINT;
+	} else {
+		// MediaWiki 1.31-1.33
+		$entrypoint = defined( 'MW_API' ) ? 'api' : 'index';
+	}
+
+	$user = RequestContext::getMain()->getUser();
+	$event = array_merge(
+		[
+			'_entrypoint' => $entrypoint,
+			'_LoggedInAs' => $user->getName() . ' (#' . $user->getId() .
+				'), groups=[' . implode( ', ', $user->getGroups() ) . ']',
+		],
+		RequestContext::getMain()->getRequest()->getValues()
+	);
+	wfDebugLog( 'ModerationTestsuite', FormatJson::encode( $event, true, FormatJson::ALL_OK ) );
+
+	list( $expectedId, $expectedName ) = $wgModerationTestsuiteCliDescriptor['expectedUser'];
+	$actualId = $user->getId();
+	$actualName = $user->getName();
+	if ( $expectedId != $actualId || $expectedName != $actualName ) {
+		throw new MWException( "CliEngine: assertion failed: expected a request on behalf of " .
+			"User:$expectedName (#$expectedId), but are (incorrectly) logged in as " .
+			"User:$actualName (#$actualId)." );
+	}
+}
+
 function efModerationTestsuiteSetup() {
 	global $wgModerationTestsuiteCliDescriptor, $wgRequest, $wgHooks, $wgAutoloadClasses;
 
@@ -159,20 +196,26 @@ function efModerationTestsuiteSetup() {
 			true
 		);
 
+		efModerationTestsuiteLogSituation();
 		return true;
 	};
 
 	/*
-		HACK: call session_id() on ID from the session cookie (if such cookie exists).
+		Initialize the session from the session cookie (if such cookie exists).
 		FIXME: determine why exactly didn't SessionManager do this automatically.
 	*/
 	$wgHooks['SetupAfterCache'][] = function () {
 		/* Earliest hook where $wgCookiePrefix (needed by getCookie())
 			is available (when not set in LocalSettings.php)  */
-		$id = RequestContext::getMain()->getRequest()->getCookie( '_session' );
-		if ( $id ) {
-			session_id( $id );
+		$request = RequestContext::getMain()->getRequest();
+		$sessionId = $request->getCookie( '_session' );
+		if ( $sessionId ) {
+			session_id( $sessionId );
 		}
+	};
+
+	$wgHooks['BeforeInitialize'][] = function () {
+		efModerationTestsuiteLogSituation();
 	};
 }
 

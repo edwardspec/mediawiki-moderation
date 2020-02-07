@@ -81,7 +81,13 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 			'httpHeaders' => $this->getRequestHeaders() + [
 				'Host' => $wgServerName
 			],
-			'config' => $this->config
+			'config' => $this->config,
+
+			// For sanity checks only.
+			'expectedUser' => [
+				$this->getExpectedUser()->getId(),
+				$this->getExpectedUser()->getName()
+			]
 		];
 
 		/* We must parse $url here,
