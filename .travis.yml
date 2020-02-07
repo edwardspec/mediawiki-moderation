@@ -1,7 +1,7 @@
 # Commit message convention: "(doc)" means README updates, etc. - they don't change any code.
 if: commit_message !~ /^\(doc\)/
 
-dist: bionic
+dist: trusty
 language: php
 
 conditions: v1
@@ -17,7 +17,6 @@ branches:
   - REL1_23
 
 services:
-  - memcached
   - postgresql
 
 addons:
@@ -82,18 +81,6 @@ matrix:
         # then run the remaining testsuite with --reuse-db to save time.
         - php tests/phpunit/phpunit.php --use-normal-tables extensions/Moderation/tests/phpunit/ModerationPermissionsTest.php
 
-        # Ensure that Memcached is completely clear before starting the parallel tests.
-        # (to avoid irrelevant "sparedKeys" logged by ModerationTestsuite::purgeMemcached())
-        - echo -en "flush_all\r\n" | nc -v -w1 127.0.0.1 11211
-
-        # FIXME: due to some Memcached-cleaning-related issue (which needs more investigation),
-        # parallel tests with PostgreSQL are not currently supported.
-        # This is considered to be a bug in a testsuite itself,
-        # because even with "fastest -p 1", the tests: 1) succeed with flush_all, 2) fail with purging based on LRU crawler,
-        # and the difference between (1) and (2) is not related to actual operation of the extension.
-        # It means purging based on LRU crawler is somehow imperfect.
-        - if [ "$DBTYPE" = "postgres" ]; then PARALLEL_PHPUNIT_TESTS=1; fi
-
         # Run all tests in parallel via Fastest.
         # Note: test files are sorted by filesize (from smallest to largest).
         - find extensions/Moderation/tests/phpunit/ -name "*Test.php" -exec ls -1Sr {} + | grep -v selftest | ./extensions/Moderation/vendor/liuggio/fastest/fastest -p "$PARALLEL_PHPUNIT_TESTS" --before="./extensions/Moderation/tests/travis/fastest_init_thread.sh" --preserve-order --verbose "php tests/phpunit/phpunit.php --use-normal-tables --reuse-db {};"
@@ -110,6 +97,7 @@ matrix:
       env: branch=REL1_33
     - <<: *phpunit-build
       env: branch=REL1_34
+      php: 7.3
 # FIXME: ModerationTestsuite is currently incompatible with 1.31+PostgreSQL combination.
 #    - <<: *phpunit-build
 #      env: branch=REL1_31 DBTYPE=postgres
@@ -119,6 +107,7 @@ matrix:
       env: branch=REL1_33 DBTYPE=postgres
     - <<: *phpunit-build
       env: branch=REL1_34 DBTYPE=postgres
+      php: 7.3
 #    - <<: *phpunit-build
 #      env: branch=unknown_branch_will_be_treated_as_master
     - <<: *phpunit-build

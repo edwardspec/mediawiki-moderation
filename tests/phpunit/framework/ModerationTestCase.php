@@ -108,7 +108,7 @@ class ModerationTestCase extends MediaWikiTestCase {
 	 * Forget the logs related to previous tests.
 	 */
 	protected function setUp() {
-		ModerationTestsuiteLogger::cleanBuffer();
+		ModerationTestsuiteLogger::prepareCleanBuffer( $this->getName() );
 		parent::setUp();
 
 		$name = $this->getName();
@@ -134,5 +134,10 @@ class ModerationTestCase extends MediaWikiTestCase {
 		// (via CliEngine). However, to double-check results of PreSaveTransform, etc.,
 		// it's necessary to lso set Content Language to 'qqx' on the PHPUnit side too.
 		$this->setContentLang( Language::factory( 'qqx' ) );
+	}
+
+	protected function addCoreDBData() {
+		// Do nothing. Normally this method creates test user, etc.,
+		// but we already do this in ModerationTestsuite::prepareDbForTests().
 	}
 }

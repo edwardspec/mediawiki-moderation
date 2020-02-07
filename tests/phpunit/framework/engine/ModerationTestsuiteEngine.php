@@ -36,6 +36,14 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	protected $editToken = null;
 
 	/**
+	 * @var User|null
+	 * This variable is only used for sanity checks.
+	 * Engine should throw an exception if it discovers that a request is executing
+	 * on behalf of a different user (someone other than $expectedUser).
+	 */
+	private $expectedUser = null;
+
+	/**
 	 * Create engine object.
 	 * @return ModerationTestsuiteEngine
 	 */
@@ -243,12 +251,22 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	}
 
 	/**
+	 * Internal function for Engine subclasses.
+	 * They should throw an exception if httpRequestInternal() is called on behalf of another user.
+	 * @return User
+	 */
+	protected function getExpectedUser() {
+		return $this->expectedUser ?: User::newFromName( '127.0.0.1', false );
+	}
+
+	/**
 	 * Become a logged-in user. Can be overridden in the engine subclass.
 	 * @param User $user
 	 */
 	final public function loginAs( User $user ) {
 		$this->loginAsInternal( $user );
 		$this->forgetEditToken(); # It's different for a logged-in user
+		$this->expectedUser = $user;
 	}
 
 	/**
@@ -303,6 +321,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	final public function logout() {
 		$this->logoutInternal();
 		$this->forgetEditToken(); # It's different for anonymous user
+		$this->expectedUser = null;
 	}
 
 	/**

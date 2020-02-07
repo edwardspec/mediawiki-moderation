@@ -31,7 +31,7 @@ class ModerationTestsuiteResponse implements IModerationTestsuiteResponse {
 	/** @var int HTTP return code, e.g. 200 */
 	protected $httpCode;
 
-	/** @var callable Implementation-specific callaback used by getResponseHeader() */
+	/** @var callable Implementation-specific callback used by getResponseHeader() */
 	protected $getHeaderMethod;
 
 	protected function __construct( $content, $httpCode, callable $getHeaderMethod ) {

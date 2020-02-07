@@ -165,6 +165,28 @@ class ModerationTestsuite {
 		$this->lastFetchedSpecial[$folder] = $entries;
 	}
 
+	/**
+	 * Profiling assist function: make a profiling timer.
+	 * Usage:
+	 *	$timeSpent = $t->profiler();
+	 *	// So something
+	 *	echo "It took $timeSpent seconds";
+	 * @return mixed Value that can be cast to "seconds spent" formatted string.
+	 */
+	protected function profiler() {
+		return new class() {
+			protected $startTime;
+
+			public function __construct() {
+				$this->startTime = microtime( true );
+			}
+
+			public function __toString() {
+				return sprintf( '%.3f', ( microtime( true ) - $this->startTime ) );
+			}
+		};
+	}
+
 	#
 	# Database-related functions.
 	#
@@ -262,20 +284,8 @@ class ModerationTestsuite {
 
 		$dbw->commit( __METHOD__ );
 
-		$this->moderator =
-			$this->createTestUser( 'User 1', [ 'moderator', 'automoderated' ] );
-		$this->moderatorButNotAutomoderated =
-			$this->createTestUser( 'User 2', [ 'moderator' ] );
-		$this->automoderated =
-			$this->createTestUser( 'User 3', [ 'automoderated' ] );
-		$this->rollback =
-			$this->createTestUser( 'User 4', [ 'rollback' ] );
-		$this->unprivilegedUser =
-			$this->createTestUser( 'User 5', [] );
-		$this->unprivilegedUser2 =
-			$this->createTestUser( 'User 6', [] );
-		$this->moderatorAndCheckuser =
-			$this->createTestUser( 'User 7', [ 'moderator', 'checkuser' ] );
+		// Create test users like $t->moderator.
+		$this->prepopulateDb();
 
 		$this->purgeTagCache();
 
@@ -283,8 +293,157 @@ class ModerationTestsuite {
 		// when running multiple sequential tests, e.g. in ModerationQueueTest.
 		Title::clearCaches();
 
-		// Clear the memcached (NOTE: works only for one memcached server).
-		$this->purgeMemcached();
+		# Clear our thread-aware cache before each test.
+		ModerationTestsuiteBagOStuff::flushAll();
+	}
+
+	/**
+	 * @var array
+	 * Cache created in makePrepopulateDbCache() and used in prepopulateDb().
+	 */
+	protected static $prepopulateDbCache;
+
+	/**
+	 * @var array
+	 * Names of database tables that should be cached in makePrepopulateDbCache().
+	 */
+	public static $prepopulateDbNeededTables = [
+		// Caching these tables ("before the test" state) allows us to avoid User::createNew()
+		// and addGroup() calls. These calls were doing exactly the same before every test.
+		'actor',
+		'user',
+		'user_groups'
+	];
+
+	/**
+	 * Determine primary key field of the table.
+	 * @param string $table
+	 * @return string|false Name of the field.
+	 */
+	private function getKeyField( $table ) {
+		$keyField = "${table}_id";
+
+		$dbw = wfGetDB( DB_MASTER );
+		if ( $dbw->getType() == 'postgres' && $table == 'mwuser' ) {
+			$keyField = 'user_id';
+		}
+
+		if ( !$dbw->fieldExists( $table, $keyField ) ) {
+			return false;
+		}
+
+		return $keyField;
+	}
+
+	/**
+	 * Create users like $t->moderator and $t->unprivilegedUser.
+	 */
+	private function prepopulateDb() {
+		if ( !self::$prepopulateDbCache ) {
+			$this->makePrepopulateDbCache();
+		}
+
+		// Load from cache.
+		$timeSpent = $this->profiler();
+
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->begin( __METHOD__ );
+
+		foreach ( self::$prepopulateDbCache as $table => $rows ) {
+			// For PostgreSQL only, it's necessary to exclude the primary key field (e.g. user_id)
+			// from INSERT query. Otherwise the sequence won't be incremented, and this happens:
+			// 1) we insert multiple rows with user_id=1, user_id=2, etc.
+			// 2) sequence thinks that next user_id should be 1.
+			// 3) User::createNew() does INSERT without user_id, and sequence picks user_id=1.
+			// 4) Because row with user_id=1 already exists, INSERT from User::createNew() fails.
+			$keyField = false;
+			if ( $dbw->getType() == 'postgres' ) {
+				$keyField = $this->getKeyField( $table );
+			}
+
+			foreach ( $rows as $row ) {
+				if ( $keyField ) {
+					// See above, needed for PostgreSQL sequence to be incremented.
+					$valueSaved = $row[$keyField];
+					unset( $row[$keyField] );
+				}
+
+				$dbw->insert( $table, $row, __METHOD__ );
+				if ( $dbw->affectedRows() != 1 ) {
+					throw new MWException( 'createTestUsers: loading from cache failed.' );
+				}
+
+				if ( $keyField ) {
+					// Sanity check: since we removed the primary key from INSERT query,
+					// make sure that automatically picked values are correct.
+					// What should makes them correct is how $prepopulateDbCache is sorted
+					// with "SELECT .. ORDER BY" in makePrepopulateDbCache()).
+					$insertId = $dbw->insertId();
+					if ( $dbw->insertId() != $valueSaved ) {
+						throw new MWException( "PostgreSQL: incorrect field ID: insertId=$insertId, " .
+							"expected $keyField=$valueSaved." );
+					}
+				}
+			}
+		}
+		$dbw->commit( __METHOD__ );
+
+		$this->moderator = User::newFromName( 'User 1' );
+		$this->moderatorButNotAutomoderated = User::newFromName( 'User 2' );
+		$this->automoderated = User::newFromName( 'User 3' );
+		$this->rollback = User::newFromName( 'User 4' );
+		$this->unprivilegedUser = User::newFromName( 'User 5' );
+		$this->unprivilegedUser2 = User::newFromName( 'User 6' );
+		$this->moderatorAndCheckuser = User::newFromName( 'User 7' );
+
+		error_log( __METHOD__ . ": loading from cache took $timeSpent seconds." );
+	}
+
+	/**
+	 * Creates the test users via the proper MediaWiki functions (without $prepopulateDbCache).
+	 * Results are placed into $prepopulateDbCache. They are later used in prepopulateDb().
+	 */
+	private function makePrepopulateDbCache() {
+		$timeSpent = $this->profiler();
+
+		$this->createTestUser( 'User 1', [ 'moderator', 'automoderated' ] );
+		$this->createTestUser( 'User 2', [ 'moderator' ] );
+		$this->createTestUser( 'User 3', [ 'automoderated' ] );
+		$this->createTestUser( 'User 4', [ 'rollback' ] );
+		$this->createTestUser( 'User 5', [] );
+		$this->createTestUser( 'User 6', [] );
+		$this->createTestUser( 'User 7', [ 'moderator', 'checkuser' ] );
+
+		error_log( __METHOD__ . "() took $timeSpent seconds." );
+
+		$timeSpent = $this->profiler();
+
+		$dbw = wfGetDB( DB_MASTER );
+		self::$prepopulateDbCache = [];
+		foreach ( self::$prepopulateDbNeededTables as $table ) {
+			if ( $table == 'user' && $dbw->getType() == 'postgres' ) {
+				$table = 'mwuser';
+			}
+
+			self::$prepopulateDbCache[$table] = [];
+
+			$keyField = $this->getKeyField( $table );
+			$options = $keyField ? [ 'ORDER BY' => $keyField ] : [];
+
+			$res = $dbw->select( $table, '*', '', __METHOD__, $options );
+			foreach ( $res as $row ) {
+				$fields = get_object_vars( $row );
+				self::$prepopulateDbCache[$table][] = $fields;
+			}
+
+			// Truncate the table. prepopulateDb() will load it from cache.
+			$dbw->delete( $table, '*', __METHOD__ );
+			if ( $dbw->getType() == 'postgres' ) {
+				$dbw->resetSequenceForTable( $table, __METHOD__ );
+			}
+		}
+
+		error_log( "createTestUsers(): making a cache took $timeSpent seconds." );
 	}
 
 	/**
@@ -294,110 +453,8 @@ class ModerationTestsuite {
 	 * @return bool
 	 */
 	public function doesMemcachedWork() {
-		$cache = wfGetCache( CACHE_MEMCACHED );
-
-		$testKey = $cache->makeKey( 'moderation-testsuite-check-memcached-availability' );
-		$testVal = 'it works ' . rand();
-
-		// Check whether the stored entry has actually been saved.
-		$cache->set( $testKey, $testVal );
-		return ( $cache->get( $testKey ) == $testVal );
-	}
-
-	/**
-	 * Clear the memcached keys related to this testwiki.
-	 */
-	protected function purgeMemcached() {
-		global $wgMemCachedServers;
-		if ( empty( $wgMemCachedServers ) ) {
-			return;
-		}
-
-		$logger = new ModerationTestsuiteLogger( 'ModerationTestsuite' );
-		$startTime = microtime( true );
-
-		// NOTE: this works only for one memcached server.
-		$memcClient = new MemcachedClient( [
-			'servers' => [ $wgMemCachedServers[0] ]
-		] );
-		$sock = $memcClient->get_sock( 'anyKey' ); // Only one Memcached server
-
-		if ( getenv( 'PARALLEL_PHPUNIT_TESTS' ) == 1 ) {
-			// Only one test is running at a time (no parallel testing): can afford to
-			// flush all keys without impacting other tests.
-			$ret = $memcClient->run_command( $sock, "flush_all\r\n" );
-			if ( $ret[0] == 'ERROR' ) {
-				throw new MWException( __METHOD__ . ": cleaning Memcached FAILED." );
-			}
-			return; // Cleared
-		}
-
-		// Delete all memcached keys related to this wiki.
-		list( $keysToDelete, $keysToSpare ) = $this->crawlMemcached( $memcClient, $sock );
-		foreach ( $keysToDelete as $key ) {
-			if ( !$memcClient->delete( $key ) ) {
-				throw new MWException( __METHOD__ . ": deleting Memcached key $key FAILED." );
-			}
-		}
-
-		$timeSpent = sprintf( '%.3f', ( microtime( true ) - $startTime ) );
-		$logger->info( '[cleanup] Purged Memcached', [
-			'deletedKeys' => count( $keysToDelete ),
-			'sparedKeys' => count( $keysToSpare ),
-			'timeSpentOnPurge' => $timeSpent
-		] );
-
-		// Sanity check: were there silently ignored timeouts when communicating with Memcached?
-		if ( $timeSpent * 1000000 > $memcClient->_timeout_microseconds ) {
-			throw new MWException( __METHOD__ .
-				": it took suspiciously long to purge Memcached keys, was there a timeout?." );
-		}
-	}
-
-	/**
-	 * Scan Memcached server and return all keys that are used by ObjectCache of this wiki.
-	 * @param MemcachedClient $memcClient PHP-based client
-	 * @param resource $sock Result of $memcClient->get_sock()
-	 * @return array Contains two arrays of strings: keysToDelete and keysToSpare.
-	 */
-	protected function crawlMemcached( MemcachedClient $memcClient, $sock ) {
-		// Note: we shouldn't use wfWikiId() instead of $wgDBname,
-		// because "rdbms-server-readonly" key only contains $wgDBname (without prefix),
-		// and it MUST be cleared after ReadOnly tests.
-		global $wgDBname;
-		$keyPrefixOfThisWiki = $wgDBname;
-
-		// Gather all the keys
-		$keysToDelete = [];
-		$keysToSpare = []; // For debugging only
-
-		$ret = $memcClient->run_command( $sock, "lru_crawler metadump all\r\n" );
-		if ( count( $ret ) > 0 && $ret[0] == 'ERROR' ) {
-			$logger = new ModerationTestsuiteLogger( 'ModerationTestsuite' );
-			$logger->error( '[cleanup] Memcached failed to run "lru_crawler" command', [
-				'server' => $memcClient->_servers,
-				'doesMemcachedWork' => $this->doesMemcachedWork()
-			] );
-			throw new MWException( __METHOD__ . ": cleaning Memcached FAILED." );
-		}
-
-		foreach ( $ret as $foundObject ) {
-			foreach ( explode( ' ', $foundObject ) as $param ) {
-				$pairs = explode( '=', $param );
-				if ( $pairs[0] === 'key' && isset( $pairs[1] ) ) {
-					$key = rawurldecode( $pairs[1] );
-
-					if ( strpos( $key, $keyPrefixOfThisWiki ) !== false ) {
-						$keysToDelete[] = $key;
-					} else {
-						$keysToSpare[] = $key;
-					}
-					break;
-				}
-			}
-		}
-
-		return [ $keysToDelete, $keysToSpare ];
+		// Obsolete: CliEngine now uses ModerationTestsuiteBagOStuff for CACHE_MEMCACHED.
+		return true;
 	}
 
 	/** Prevent tags set by the previous test from affecting the current test */
