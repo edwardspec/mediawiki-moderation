@@ -169,7 +169,7 @@ class ModerationTestsuite {
 	 * Profiling assist function: make a profiling timer.
 	 * Usage:
 	 *	$timeSpent = $t->profiler();
-	 *	// So something
+	 *	// Do something
 	 *	echo "It took $timeSpent seconds";
 	 * @return mixed Value that can be cast to "seconds spent" formatted string.
 	 */
@@ -344,8 +344,6 @@ class ModerationTestsuite {
 		}
 
 		// Load from cache.
-		$timeSpent = $this->profiler();
-
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->begin( __METHOD__ );
 
@@ -395,8 +393,6 @@ class ModerationTestsuite {
 		$this->unprivilegedUser = User::newFromName( 'User 5' );
 		$this->unprivilegedUser2 = User::newFromName( 'User 6' );
 		$this->moderatorAndCheckuser = User::newFromName( 'User 7' );
-
-		error_log( __METHOD__ . ": loading from cache took $timeSpent seconds." );
 	}
 
 	/**
@@ -404,8 +400,6 @@ class ModerationTestsuite {
 	 * Results are placed into $prepopulateDbCache. They are later used in prepopulateDb().
 	 */
 	private function makePrepopulateDbCache() {
-		$timeSpent = $this->profiler();
-
 		$this->createTestUser( 'User 1', [ 'moderator', 'automoderated' ] );
 		$this->createTestUser( 'User 2', [ 'moderator' ] );
 		$this->createTestUser( 'User 3', [ 'automoderated' ] );
@@ -413,10 +407,6 @@ class ModerationTestsuite {
 		$this->createTestUser( 'User 5', [] );
 		$this->createTestUser( 'User 6', [] );
 		$this->createTestUser( 'User 7', [ 'moderator', 'checkuser' ] );
-
-		error_log( __METHOD__ . "() took $timeSpent seconds." );
-
-		$timeSpent = $this->profiler();
 
 		$dbw = wfGetDB( DB_MASTER );
 		self::$prepopulateDbCache = [];
@@ -442,8 +432,6 @@ class ModerationTestsuite {
 				$dbw->resetSequenceForTable( $table, __METHOD__ );
 			}
 		}
-
-		error_log( "createTestUsers(): making a cache took $timeSpent seconds." );
 	}
 
 	/**
