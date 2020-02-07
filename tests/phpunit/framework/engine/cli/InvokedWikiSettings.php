@@ -37,6 +37,9 @@ $wgObjectCaches[CACHE_MEMCACHED] = [
 // Same as in [tests/common/TestSetup.php]. Makes tests faster.
 $wgSessionPbkdf2Iterations = 1;
 
+// Sanity check: disallow deprecated session management via session_id(), etc.
+$wgPHPSessionHandling = 'disable';
+
 /* Apply variables requested by ModerationTestsuiteCliEngine::setMwConfig() */
 foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 	if ( $name == 'DBprefix' && $wgDBtype == 'postgres' ) {
@@ -210,7 +213,20 @@ function efModerationTestsuiteSetup() {
 		$request = RequestContext::getMain()->getRequest();
 		$sessionId = $request->getCookie( '_session' );
 		if ( $sessionId ) {
-			session_id( $sessionId );
+			if ( !method_exists( MediaWiki\MediaWikiServices::class, 'getContentLanguage' ) ) {
+				// For MediaWiki 1.31 only (not needed for MW 1.32+):
+				// creating a user (which happens when loading a session) needs $wgContLang,
+				// which is not yet defined in SetupAfterCache hook.
+				global $wgContLang, $wgLanguageCode;
+				$wgContLang = Language::factory( $wgLanguageCode );
+				$wgContLang->initContLang();
+			}
+
+			$manager = MediaWiki\Session\SessionManager::singleton();
+			$session = $manager->getSessionById( $sessionId, true )
+				?: $manager->getEmptySession();
+			$request->setSessionId( $session->getSessionId() );
+
 		}
 	};
 
