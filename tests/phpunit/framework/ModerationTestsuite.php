@@ -316,6 +316,26 @@ class ModerationTestsuite {
 	];
 
 	/**
+	 * Determine primary key field of the table.
+	 * @param string $table
+	 * @return string|false Name of the field.
+	 */
+	private function getKeyField( $table ) {
+		$keyField = "${table}_id";
+
+		$dbw = wfGetDB( DB_MASTER );
+		if ( $dbw->getType() == 'postgres' && $table == 'mwuser' ) {
+			$keyField = 'user_id';
+		}
+
+		if ( !$dbw->fieldExists( $table, $keyField ) ) {
+			return false;
+		}
+
+		return $keyField;
+	}
+
+	/**
 	 * Create users like $t->moderator and $t->unprivilegedUser.
 	 */
 	private function prepopulateDb() {
@@ -338,10 +358,7 @@ class ModerationTestsuite {
 			// 4) Because row with user_id=1 already exists, INSERT from User::createNew() fails.
 			$keyField = false;
 			if ( $dbw->getType() == 'postgres' ) {
-				$keyField = ( $table == 'mwuser' ) ? 'user_id' : "${table}_id";
-				if ( !$dbw->fieldExists( $table, $keyField ) ) {
-					$keyField = false;
-				}
+				$keyField = $this->getKeyField( $table );
 			}
 
 			foreach ( $rows as $row ) {
@@ -356,10 +373,16 @@ class ModerationTestsuite {
 					throw new MWException( 'createTestUsers: loading from cache failed.' );
 				}
 
-				$insertId = $dbw->insertId();
-				if ( $keyField && $insertId != $valueSaved ) {
-					throw new MWException( "PostgreSQL: incorrect field ID: insertId=$insertId, " .
-						"expected $keyField=$valueSaved." );
+				if ( $keyField ) {
+					// Sanity check: since we removed the primary key from INSERT query,
+					// make sure that automatically picked values are correct.
+					// What should makes them correct is how $prepopulateDbCache is sorted
+					// with "SELECT .. ORDER BY" in makePrepopulateDbCache()).
+					$insertId = $dbw->insertId();
+					if ( $dbw->insertId() != $valueSaved ) {
+						throw new MWException( "PostgreSQL: incorrect field ID: insertId=$insertId, " .
+							"expected $keyField=$valueSaved." );
+					}
 				}
 			}
 		}
@@ -403,7 +426,12 @@ class ModerationTestsuite {
 			}
 
 			self::$prepopulateDbCache[$table] = [];
-			foreach ( $dbw->select( $table, '*', '', __METHOD__ ) as $row ) {
+
+			$keyField = $this->getKeyField( $table );
+			$options = $keyField ? [ 'ORDER BY' => $keyField ] : [];
+
+			$res = $dbw->select( $table, '*', '', __METHOD__, $options );
+			foreach ( $res as $row ) {
 				$fields = get_object_vars( $row );
 				self::$prepopulateDbCache[$table][] = $fields;
 			}
