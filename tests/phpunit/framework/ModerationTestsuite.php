@@ -347,12 +347,19 @@ class ModerationTestsuite {
 			foreach ( $rows as $row ) {
 				if ( $keyField ) {
 					// See above, needed for PostgreSQL sequence to be incremented.
+					$valueSaved = $row[$keyField];
 					unset( $row[$keyField] );
 				}
 
 				$dbw->insert( $table, $row, __METHOD__ );
 				if ( $dbw->affectedRows() != 1 ) {
 					throw new MWException( 'createTestUsers: loading from cache failed.' );
+				}
+
+				$insertId = $dbw->insertId();
+				if ( $keyField && $insertId != $valueSaved ) {
+					throw new MWException( "PostgreSQL: incorrect field ID: insertId=$insertId, " .
+						"expected $keyField=$valueSaved." );
 				}
 			}
 		}
