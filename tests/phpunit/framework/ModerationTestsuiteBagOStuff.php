@@ -18,14 +18,7 @@
 /**
  * @file
  * Selectively cleanable BagOStuff. Used for parallel PHPUnit testing.
- *
- * NOTE: this is highly inefficient in terms of SET performance (the entire file is rewritten),
- * but it's OK enough for unit tests (where there aren't enough cache keys to begin with),
- * because it allows us to utilize 2 CPU cores instead of 1 during the Travis tests.
  */
-
-use Cdb\Reader as CdbReader;
-use Cdb\Writer as CdbWriter;
 
 if ( !class_exists( 'MediumSpecificBagOStuff' ) ) {
 	// For MediaWiki 1.31-1.33.
@@ -33,17 +26,30 @@ if ( !class_exists( 'MediumSpecificBagOStuff' ) ) {
 }
 
 class ModerationTestsuiteBagOStuff extends MediumSpecificBagOStuff {
-	/** @var string */
-	protected $filename;
+	/**
+	 * @var HashBagOStuff
+	 * Singleton: no matter how many TestsuiteBagOStuff instances are made,
+	 * there will be only one store.
+	 */
+	protected static $store = null;
 
 	public function __construct( $params = [] ) {
-		$this->filename = self::defaultFileName();
+		parent::__construct( $params );
 
-		if ( !file_exists( $this->filename ) ) {
-			CdbWriter::open( $this->filename )->close();
+		if ( self::$store ) {
+			// Already loaded.
+			return;
 		}
 
-		parent::__construct( $params );
+		// Load all entries into HashBagOStuff.
+		$filename = self::defaultFileName();
+		if ( file_exists( $filename ) ) {
+			self::$store = unserialize( file_get_contents( $filename ) );
+		} else {
+			self::$store = new HashBagOStuff();
+		}
+
+		register_shutdown_function( [ $this, 'saveOnShutdown' ] );
 	}
 
 	/**
@@ -64,122 +70,66 @@ class ModerationTestsuiteBagOStuff extends MediumSpecificBagOStuff {
 	}
 
 	/**
-	 * Empty the CDB file. This is used by ModerationTestsuite for cache invalidation.
+	 * Empty the on-disk cache. This is used by ModerationTestsuite for cache invalidation.
 	 */
 	public static function flushAll() {
-		CdbWriter::open( self::defaultFileName() )->close();
+		$filename = self::defaultFileName();
+		if ( file_exists( $filename ) ) {
+			unlink( $filename );
+		}
+
+		self::$store = null;
 	}
 
+	/**
+	 * Save this in-memory HashBagOStuff into the on-disk file.
+	 */
+	public static function saveOnShutdown() {
+		// SessionManager also uses register_shutdown_function() to save all active sessions,
+		// and it's possible that SessionManager's shutdown handler would get called later.
+		// So we must call save() explicitly to place session data info self::$store immediately.
+		$session = MediaWiki\Session\SessionManager::getGlobalSession();
+		$session->save();
+
+		file_put_contents( self::defaultFileName(), serialize( self::$store ) );
+	}
+
+	// Proxy all get/set/delete methods to a singleton HashBagOStuff
 	protected function doGet( $key, $flags = 0, &$casToken = null ) {
-		$casToken = null;
-
-		$reader = CdbReader::open( $this->filename );
-		$ret = $reader->get( $key );
-		$reader->close();
-
-		return $ret === false ? false : $this->unserialize( $ret );
+		return self::$store->get( $key, $flags, $casToken );
 	}
 
 	protected function doSet( $key, $value, $exptime = 0, $flags = 0 ) {
-		$this->modifyAndSave( function ( array &$data ) use ( $key, $value ) {
-			$data[$key] = $value;
-		} );
-		return true;
+		return self::$store->set( $key, $value, $exptime, $flags );
 	}
 
-	// Same as doSet(), but if the key already exist, then do nothing.
 	protected function doAdd( $key, $value, $exptime = 0, $flags = 0 ) {
-		return $this->modifyAndSave( function ( array &$data ) use ( $key, $value, &$added ) {
-			if ( isset( $data[$key] ) ) {
-				return false;
-			}
-
-			$data[$key] = $value;
-			return true;
-		} );
+		return self::$store->add( $key, $value, $exptime, $flags );
 	}
 
 	protected function doDelete( $key, $flags = 0 ) {
-		$this->modifyAndSave( function ( array &$data ) use ( $key ) {
-			unset( $data[$key] );
-		} );
-		return true;
+		return self::$store->delete( $key, $flags );
 	}
 
 	public function incr( $key, $value = 1, $flags = 0 ) {
-		$this->modifyAndSave( function ( array &$data ) use ( $key, $value ) {
-			// Unserializing is not needed, because integer-only values were not serialized.
-			if ( !isset( $data[$key] ) ) {
-				$data[$key] = 0;
-			}
-			$data[$key] += $value;
-		} );
-		return true;
+		return self::$store->incr( $key, $value, $flags );
 	}
 
 	public function decr( $key, $value = 1, $flags = 0 ) {
-		$this->modifyAndSave( function ( array &$data ) use ( $key, $value ) {
-			if ( !isset( $data[$key] ) ) {
-				$data[$key] = 0;
-			}
-			$data[$key] -= $value;
-		} );
-		return true;
+		return self::$store->decr( $key, $value, $flags );
 	}
 
-	// Backward compatibility methods for MediaWiki 1.31-1.33: delete(), add(), set().
+	// Backward compatibility methods for MediaWiki 1.31-1.33: set(), add(), delete().
 	// Not needed in MediaWiki 1.34+ (MediumSpecificBagOStuff class implements them for us).
-	public function delete( $key, $flags = 0 ) {
-		return $this->doDelete( $key, $flags );
+	public function set( $key, $value, $exptime = 0, $flags = 0 ) {
+		return $this->doSet( $key, $value, $exptime, $flags );
 	}
 
 	public function add( $key, $value, $exptime = 0, $flags = 0 ) {
 		return $this->doAdd( $key, $value, $exptime, $flags );
 	}
 
-	public function set( $key, $value, $exptime = 0, $flags = 0 ) {
-		return $this->doSet( $key, $value, $exptime, $flags );
-	}
-
-	// Backward compatibility methods for MediaWiki 1.31-1.33: serialize(), unserialize().
-	// These are only used in our modifyAndSave() and doGet().
-	// Not needed in MediaWiki 1.34+ (MediumSpecificBagOStuff class implements them for us).
-	protected function serialize( $value ) {
-		return is_int( $value ) ? $value : serialize( $value );
-	}
-
-	protected function unserialize( $value ) {
-		return $this->isInteger( $value ) ? (int)$value : unserialize( $value );
-	}
-
-	/**
-	 * A highly inefficient procedure (see disclaimer comment at the top of this class)
-	 * that reads the entire CDB file into memory, calls $modifyCallback( &$keyValueArray ),
-	 * and then writes the modified $keyValueArray into the CDB file.
-	 * Normally we'd want to use QDBM or something, but should the testsuite require DBA?
-	 * @param callable $modifyCallback
-	 * @return mixed Return value of $modifyCallback
-	 */
-	private function modifyAndSave( callable $modifyCallback ) {
-		// Obtain all stored data as [ key => value ] array.
-		// This is needed because CdbWriter overwrites the file completely (can't append).
-		$keyval = [];
-		$reader = CdbReader::open( $this->filename );
-		for ( $key = $reader->firstkey(); $key !== false; $key = $reader->nextkey() ) {
-			$keyval[$key] = $this->unserialize( $reader->get( $key ) );
-		}
-		$reader->close();
-
-		// Give the callback a chance to add/modify/delete some key/value pairs.
-		$callbackResult = call_user_func_array( $modifyCallback, [ &$keyval ] );
-
-		// Write the modified key-value pairs back into the CDB file.
-		$writer = CdbWriter::open( $this->filename );
-		foreach ( $keyval as $key => $value ) {
-			$writer->set( $key, $this->serialize( $value ) );
-		}
-		$writer->close();
-
-		return $callbackResult;
+	public function delete( $key, $flags = 0 ) {
+		return $this->doDelete( $key, $flags );
 	}
 }
