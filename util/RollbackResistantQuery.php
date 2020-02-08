@@ -110,8 +110,7 @@ class RollbackResistantQuery {
 				if ( $trigger == Database::TRIGGER_ROLLBACK ) {
 					$query->onRollback();
 				}
-			},
-			__METHOD__
+			}
 		);
 	}
 
