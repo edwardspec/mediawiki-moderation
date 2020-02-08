@@ -94,7 +94,8 @@ class ModerationNotifyModerator {
 			$wgHooks[$hookName] = []; // Delete existing handlers
 		}
 
-		Hooks::register( $hookName, $this ); // Install our own handler
+		$hook = [ $this, 'onGetNewMessagesAlert' ];
+		Hooks::register( $hookName, $hook ); // Install our own handler
 	}
 
 	/**
@@ -200,7 +201,7 @@ class ModerationNotifyModerator {
 	 * @return string
 	 */
 	protected static function getSeenCacheKey( User $user ) {
-		return wfMemcKey( 'moderation-seen-timestamp', $user->getId() );
+		return wfMemcKey( 'moderation-seen-timestamp', (string)$user->getId() );
 	}
 
 	/**

@@ -248,7 +248,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * Find the task regarding edit by $username on $title.
 	 * @param Title $title
 	 * @param string $username
-	 * @param int $type One of ModerationNewChange::MOD_TYPE_* values.
+	 * @param string $type One of ModerationNewChange::MOD_TYPE_* values.
 	 * @return array|false [ 'ip' => ..., 'xff' => ..., 'ua' => ..., ... ]
 	 */
 	public function getTask( Title $title, $username, $type ) {

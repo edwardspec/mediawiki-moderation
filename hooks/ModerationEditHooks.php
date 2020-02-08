@@ -243,7 +243,7 @@ class ModerationEditHooks {
 			return;
 		}
 
-		$out->addHTML( Html::hidden( 'wpMergeID', $mergeID ) );
+		$out->addHTML( Html::hidden( 'wpMergeID', (string)$mergeID ) );
 		$out->addHTML( Html::hidden( 'wpIgnoreBlankSummary', '1' ) );
 
 		return true;

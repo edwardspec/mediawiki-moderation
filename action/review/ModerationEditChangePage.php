@@ -45,7 +45,7 @@ class ModerationEditChangePage extends EditPage {
 
 	/**
 	 * Remove "Preview" and "Show changes" buttons (not yet implemented).
-	 * @param string &$tabindex
+	 * @param int &$tabindex
 	 * @return array
 	 */
 	public function getEditButtons( &$tabindex ) {

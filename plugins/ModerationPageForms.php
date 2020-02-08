@@ -23,7 +23,8 @@
 class ModerationPageForms {
 
 	public static function install() {
-		Hooks::register( 'ModerationContinueEditingLink', new self );
+		$hook = [ new self, 'onModerationContinueEditingLink' ];
+		Hooks::register( 'ModerationContinueEditingLink', $hook );
 	}
 
 	/**
