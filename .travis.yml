@@ -56,14 +56,14 @@ matrix:
   include:
     # Linters (phpcs, eslint, etc.)
     - &linter-php-build
-      if: NOT branch IN (selenium)
+      if: NOT branch IN (selenium,phan)
       env: TESTSUITE_TYPE=linter-php
       addons:
       before_script: composer install
       script: composer test
 
     - &linter-js-build
-      if: NOT branch IN (phpunit,postgres)
+      if: NOT branch IN (phpunit,postgres,phan)
       env: TESTSUITE_TYPE=linter-js
       language: node_js
       node_js: 10
@@ -72,9 +72,24 @@ matrix:
       before_script: npm install
       script: npm test
 
+    - &phan-build
+      if: branch IN (phan,master)
+      env: TESTSUITE_TYPE=phan branch=REL1_34
+      php: 7.3
+      before_script:
+        - pecl install ast
+        - phpenv config-rm xdebug.ini
+        - php -i
+        - bash -ex ./tests/travis/build_mediawiki.sh "$branch"
+        - rsync -a --exclude buildcache --exclude mediawiki --exclude .git . mediawiki/extensions/Moderation/
+        - cd mediawiki
+        - ( cd extensions/Moderation && composer install )
+      script:
+        - ( cd extensions/Moderation && ./vendor/bin/phan -j2 )
+
     # PHPUnit tests
     - &phpunit-build
-      if: NOT branch IN (selenium,troubleshooting,linters)
+      if: NOT branch IN (selenium,troubleshooting,linters,phan)
       env: branch=REL1_31
       script:
         # First run the smallest test without --reuse-db, so that the cloned database tables are created,
@@ -96,6 +111,7 @@ matrix:
     - <<: *phpunit-build
       env: branch=REL1_33
     - <<: *phpunit-build
+      if: NOT branch IN (selenium,troubleshooting,linters)
       env: branch=REL1_34
       php: 7.3
 # FIXME: ModerationTestsuite is currently incompatible with 1.31+PostgreSQL combination.
