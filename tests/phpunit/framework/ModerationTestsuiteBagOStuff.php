@@ -96,7 +96,8 @@ class ModerationTestsuiteBagOStuff extends MediumSpecificBagOStuff {
 
 	// Proxy all get/set/delete methods to a singleton HashBagOStuff
 	protected function doGet( $key, $flags = 0, &$casToken = null ) {
-		return self::$store->get( $key, $flags, $casToken );
+		$casToken = null;
+		return self::$store->get( $key, $flags );
 	}
 
 	protected function doSet( $key, $value, $exptime = 0, $flags = 0 ) {

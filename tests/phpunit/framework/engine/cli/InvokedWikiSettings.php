@@ -72,6 +72,8 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 			} else {
 				// MediaWiki 1.31
 				$lbFactory->closeAll();
+
+				// @phan-suppress-next-line PhanUndeclaredMethod
 				$lbFactory->setDomainPrefix( $value );
 
 				// HACK: in MediaWiki 1.31, RevisionStore object compared wfWikiId() with $db->getDomainID(),
@@ -82,6 +84,7 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 				$services = MediaWiki\MediaWikiServices::getInstance();
 				$services->redefineService( 'RevisionStore', function () use ( $services, $newDomain ) {
 					// Based on [includes/ServiceWiring.php] in MediaWiki core.
+					// @phan-suppress-next-line PhanParamTooFew
 					$store = new MediaWiki\Storage\RevisionStore(
 						$services->getDBLoadBalancer(),
 						$services->getService( '_SqlBlobStore' ),
