@@ -25,6 +25,11 @@ if ( getenv( 'PHAN_CHECK_TESTSUITE' ) ) {
 	# Shouldn't be included by default, because Phan assumes all present files to be included,
 	# and we don't want it basing its assumptions on testsuite code when checking the main code.
 	$cfg['directory_list'][] = 'tests/phpunit/framework';
+	$cfg['directory_list'][] = 'tests/common';
+
+	# PHPUnit classes, etc. Should be parsed, but not analyzed.
+	$cfg['directory_list'][] = $IP . '/tests';
+	$cfg['exclude_analysis_directory_list'][] = $IP . '/tests';
 }
 
 # Parse the soft dependencies (like MobileFrontend), but don't analyze them.
