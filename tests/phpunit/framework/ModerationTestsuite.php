@@ -784,7 +784,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Create AbuseFilter rule that will assign tags to all edits.
-	 * @return ID of the newly created filter.
+	 * @return int ID of the newly created filter.
 	 */
 	public function addTagAllAbuseFilter( array $tags ) {
 		$dbw = wfGetDB( DB_MASTER );

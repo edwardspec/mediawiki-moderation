@@ -58,7 +58,7 @@ abstract class ModerationTestsuiteBot {
 	 * @param string|null $summary
 	 * @param string|int $section One of the following: section number, empty string or 'new'.
 	 * @param array $extraParams Bot-specific parameters.
-	 * @return ModerationTestsuiteApiBotResult|ModerationTestsuiteNonApiBotResult
+	 * @return ModerationTestsuiteApiBotResponse|ModerationTestsuiteNonApiBotResponse
 	 */
 	final public function edit(
 		$title = null,
@@ -93,7 +93,7 @@ abstract class ModerationTestsuiteBot {
 	 * @param string $newTitle
 	 * @param string $reason
 	 * @param array $extraParams Bot-specific parameters.
-	 * @return ModerationTestsuiteApiBotResult|ModerationTestsuiteNonApiBotResult
+	 * @return ModerationTestsuiteApiBotResponse|ModerationTestsuiteNonApiBotResponse
 	 */
 	final public function move( $oldTitle, $newTitle, $reason = '', array $extraParams = [] ) {
 		$t = $this->getTestsuite();
@@ -109,7 +109,7 @@ abstract class ModerationTestsuiteBot {
 	 * @param string|null $srcFilename
 	 * @param string|null $text
 	 * @param array $extraParams Bot-specific parameters.
-	 * @return ModerationTestsuiteApiBotResult|ModerationTestsuiteNonApiBotResult
+	 * @return ModerationTestsuiteApiBotResponse|ModerationTestsuiteNonApiBotResponse
 	 */
 	final public function upload(
 		$title = null,

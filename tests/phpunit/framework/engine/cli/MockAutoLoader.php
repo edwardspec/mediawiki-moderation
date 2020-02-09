@@ -130,7 +130,7 @@ class ModerationTestsuiteMockAutoLoader {
 	/**
 	 * Rewrite the PHP code, replacing the calls to intercepted functions with mocks.
 	 * @param string $text Original PHP source code.
-	 * @return Modified source code (string).
+	 * @return string Modified source code.
 	 */
 	protected function rewriteFile( $text ) {
 		$functionNameRegex = implode( '|', array_map( 'preg_quote', array_keys( $this->replacements ) ) );

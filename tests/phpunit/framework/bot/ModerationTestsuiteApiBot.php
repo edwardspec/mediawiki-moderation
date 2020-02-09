@@ -79,7 +79,7 @@ class ModerationTestsuiteApiBot extends ModerationTestsuiteBot {
 	 * @param string $srcPath
 	 * @param string $text
 	 * @param array $extraParams Bot-specific parameters.
-	 * @return ModerationTestsuiteApiBotResult
+	 * @return ModerationTestsuiteApiBotResponse
 	 */
 	public function doUpload( ModerationTestsuite $t,
 		$title, $srcPath, $text, array $extraParams

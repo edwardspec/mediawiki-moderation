@@ -186,7 +186,7 @@ class ModerationInterceptTest extends ModerationTestCase {
 	protected $action = 'edit';
 
 	/**
-	 * @var ModerationTestsuiteApiBotResult|ModerationTestsuiteNonApiBotResult
+	 * @var ModerationTestsuiteApiBotResponse|ModerationTestsuiteNonApiBotResponse
 	 * Result of edit(), move() or upload().
 	 */
 	protected $result = null;
