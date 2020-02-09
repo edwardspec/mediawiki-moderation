@@ -758,7 +758,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Get cuc_agent of the last entry in "cu_changes" table.
-	 * @return User-agent (string).
+	 * @return string|null User-agent.
 	 */
 	public function getCUCAgent() {
 		$agents = $this->getCUCAgents( 1 );
@@ -768,7 +768,7 @@ class ModerationTestsuite {
 	/**
 	 * Get cuc_agent of the last entries in "cu_changes" table.
 	 * @param int $limit How many entries to select.
-	 * @return Array of user-agents.
+	 * @return string[] List of user-agents.
 	 */
 	public function getCUCAgents( $limit ) {
 		$dbw = wfGetDB( DB_MASTER );

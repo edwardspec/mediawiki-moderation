@@ -27,10 +27,12 @@ class ModerationTestsuiteLogger extends MediaWiki\Logger\LegacyLogger {
 	protected static $currentTestName = '';
 
 	/**
-	 * @var array[string]
+	 * @var array[]
 	 * Accumulator of log entries.
 	 * If the test succeeds, they are silently ignored.
 	 * If the test fails, they are printed (to help with troubleshooting).
+	 *
+	 * @phan-var list<array{event:string}>
 	 */
 	protected static $buffer = [];
 
