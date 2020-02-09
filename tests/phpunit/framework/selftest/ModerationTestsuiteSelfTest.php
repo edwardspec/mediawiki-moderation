@@ -95,7 +95,7 @@ class ModerationTestsuiteSelfTest extends ModerationTestCase {
 			'Incorrect HTTP response code.' );
 
 		$html = new ModerationTestsuiteHTML( $engine );
-		$html->loadFromReq( $req );
+		$html->loadReq( $req );
 
 		/* Ensure that this is indeed an edit form */
 		$this->assertRegExp(

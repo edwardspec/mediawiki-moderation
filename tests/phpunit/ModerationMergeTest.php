@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2017 Edward Chernenko.
+	Copyright (C) 2015-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ class ModerationMergeTest extends ModerationTestCase {
 		$this->assertFalse( $entry->conflict,
 			"testMerge(): Edit with not-yet-detected conflict is marked with class='modconflict'" );
 
-		$error = $t->html->getModerationError( $entry->approveLink );
+		$error = $t->html->loadUrl( $entry->approveLink )->getModerationError();
 		$this->assertEquals( '(moderation-edit-conflict)', $error,
 			"testMerge(): Edit conflict not detected by modaction=approve" );
 
@@ -106,7 +106,7 @@ class ModerationMergeTest extends ModerationTestCase {
 		$this->assertFalse( $entry->rejected_auto,
 			"testMerge(): Not yet rejected edit with detected conflict has rejected_auto flag ON" );
 
-		$title = $t->html->getTitle( $entry->mergeLink );
+		$title = $t->html->loadUrl( $entry->mergeLink )->getTitle();
 		$this->assertRegExp( '/\(editconflict: ' . $t->lastEdit['Title'] . '\)/', $title,
 			"testMerge(): Wrong HTML title from modaction=merge" );
 
@@ -210,7 +210,7 @@ class ModerationMergeTest extends ModerationTestCase {
 			'wpPreview' => '1',
 			'wpMergeID' => $someID
 		] );
-		$t->html->loadFromReq( $req );
+		$t->html->loadReq( $req );
 
 		$form = $t->html->getElementById( 'editform' );
 		$this->assertNotNull( $form,
@@ -252,7 +252,7 @@ class ModerationMergeTest extends ModerationTestCase {
 		# cause an edit conflict?
 
 		$t->fetchSpecial();
-		$t->html->loadFromURL( $t->new_entries[0]->approveAllLink );
+		$t->html->loadUrl( $t->new_entries[0]->approveAllLink );
 
 		$text = $t->html->getMainText();
 		$this->assertRegExp( '/\(moderation-approved-ok: ' .

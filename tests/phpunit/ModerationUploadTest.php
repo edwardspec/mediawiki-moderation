@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2019 Edward Chernenko.
+	Copyright (C) 2015-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ class ModerationUploadTest extends ModerationTestCase {
 		$this->assertNotNull( $entry->approveLink,
 			"testUpload(): Approve link not found" );
 
-		$t->html->loadFromURL( $entry->approveLink );
+		$t->html->loadUrl( $entry->approveLink );
 		$this->assertRegExp( '/\(moderation-approved-ok: 1\)/',
 			$t->html->getMainText(),
 			"testUpload(): Result page doesn't contain (moderation-approved-ok: 1)" );
@@ -118,7 +118,7 @@ class ModerationUploadTest extends ModerationTestCase {
 
 		# Does modaction=show display (moderation-diff-reupload) message?
 		$this->assertRegExp( '/\(moderation-diff-reupload\)/',
-			$t->html->getMainText( $entry->showLink ),
+			$t->html->loadUrl( $entry->showLink )->getMainText(),
 			"testReupload(): (moderation-diff-reupload) not found in the output of modaction=show" );
 
 		# Can we approve this reupload?
@@ -128,7 +128,7 @@ class ModerationUploadTest extends ModerationTestCase {
 		/* Wait up to 1 second to avoid archived name collision */
 		$t->sleepUntilNextSecond();
 
-		$t->html->loadFromURL( $entry->approveLink );
+		$t->html->loadUrl( $entry->approveLink );
 		$this->assertRegExp( '/\(moderation-approved-ok: 1\)/',
 			$t->html->getMainText(),
 			"testReupload(): Result page doesn't contain (moderation-approved-ok: 1)" );

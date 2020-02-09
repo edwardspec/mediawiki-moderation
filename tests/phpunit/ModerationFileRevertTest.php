@@ -32,7 +32,7 @@ class ModerationFileRevertTest extends ModerationTestCase {
 		$req = $t->httpPost( wfScript( 'index' ), [
 			'action' => 'revert'
 		] );
-		$t->html->loadFromReq( $req );
+		$t->html->loadReq( $req );
 
 		$this->assertRegExp( '/\(moderation-revert-not-allowed\)/',
 			$t->html->getMainText(),

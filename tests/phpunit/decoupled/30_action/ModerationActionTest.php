@@ -756,7 +756,7 @@ class ModerationActionTest extends ModerationTestCase {
 		if ( $this->expectedContentType ) {
 			$this->assertBinaryOutput( $req );
 		} else {
-			$this->assertHtmlOutput( $t->html->loadFromReq( $req ) );
+			$this->assertHtmlOutput( $t->html->loadReq( $req ) );
 		}
 
 		// Check the mod_* fields in the database after the action.

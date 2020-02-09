@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ class ModerationEditChangeTest extends ModerationTestCase {
 		$t->setMwConfig( 'ModerationEnableEditChange', true );
 
 		$entry = $t->getSampleEntry();
-		$t->html->loadFromURL( $entry->editChangeLink );
+		$t->html->loadUrl( $entry->editChangeLink );
 
 		$form = $t->html->getElementByXPath( '//form[contains(@action,"Special:Moderation")]' );
 		$this->assertNotNull( $form, 'testEditChangeForm(): <form> not found' );

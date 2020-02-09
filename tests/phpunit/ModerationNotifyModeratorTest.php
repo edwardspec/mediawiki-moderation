@@ -203,10 +203,10 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 
 	/**
 	 * Find NewMessages notice in HTML of some randomly chosen page.
-	 * @return DomElement|null
+	 * @return string|null
 	 */
 	protected function getNotice( ModerationTestsuite $t ) {
 		$randomPageUrl = Title::newFromText( 'Can_Be_Any_Page' )->getFullURL();
-		return $t->html->getNewMessagesNotice( $randomPageUrl );
+		return $t->html->loadUrl( $randomPageUrl )->getNewMessagesNotice();
 	}
 }

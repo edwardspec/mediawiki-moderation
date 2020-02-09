@@ -41,7 +41,7 @@ class ModerationErrorsTest extends ModerationTestCase {
 		$stash = ModerationUploadStorage::getStash();
 		$stash->removeFile( $stashKey );
 
-		$error = $t->html->getModerationError( $entry->approveLink );
+		$error = $t->html->loadUrl( $entry->approveLink )->getModerationError();
 		$this->assertEquals( '(moderation-missing-stashed-image)', $error );
 
 		/* Additionally check that ShowImg link returns "404 Not Found" */
@@ -67,7 +67,7 @@ class ModerationErrorsTest extends ModerationTestCase {
 
 		$entry = $t->new_entries[0];
 
-		$error = $t->html->getModerationError( $entry->approveLink );
+		$error = $t->html->loadUrl( $entry->approveLink )->getModerationError();
 		$this->assertEquals( '(edit-no-change)', $error );
 	}
 }

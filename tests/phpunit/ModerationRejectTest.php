@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2017 Edward Chernenko.
+	Copyright (C) 2015-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ class ModerationRejectTest extends ModerationTestCase {
 		$this->assertNotNull( $entries[0]->rejectAllLink,
 			"testRejectAll(): RejectAll link not found" );
 
-		$t->html->loadFromURL( $entries[0]->rejectAllLink );
+		$t->html->loadUrl( $entries[0]->rejectAllLink );
 		$this->assertRegExp( '/\(moderation-rejected-ok: ' . $t->TEST_EDITS_COUNT . '\)/',
 			$t->html->getMainText(),
 			"testRejectAll(): Result page doesn't contain (moderation-rejected-ok: N)" );

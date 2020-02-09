@@ -62,7 +62,7 @@ class ModerationPageFormsTest extends ModerationTestCase {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit( $page, $pageText );
 
-		$html = $t->html->loadFromURL( SpecialPage::getTitleFor( 'FormEdit' )->getFullURL( [
+		$html = $t->html->loadUrl( SpecialPage::getTitleFor( 'FormEdit' )->getFullURL( [
 			'form' => $formName,
 			'target' => $page
 		] ) );

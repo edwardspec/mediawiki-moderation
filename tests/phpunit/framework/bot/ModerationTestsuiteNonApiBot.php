@@ -154,7 +154,7 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 		}
 
 		$html = new ModerationTestsuiteHTML;
-		$div = $html->loadFromReq( $req )->getElementByXPath( '//div[@class="error"]' );
+		$div = $html->loadReq( $req )->getElementByXPath( '//div[@class="error"]' );
 
 		if ( $div ) {
 			// Error found

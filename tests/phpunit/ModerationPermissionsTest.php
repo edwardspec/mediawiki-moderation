@@ -28,7 +28,7 @@ class ModerationPermissionsTest extends ModerationTestCase {
 	 */
 	public function testPermissions( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
-		$title = $t->html->getTitle( $t->getSpecialURL() );
+		$title = $t->html->loadUrl( $t->getSpecialURL() )->getTitle();
 
 		$this->assertRegExp( '/\(permissionserrors\)/', $title );
 	}

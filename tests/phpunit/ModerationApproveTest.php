@@ -46,7 +46,7 @@ class ModerationApproveTest extends ModerationTestCase {
 		$this->assertNotNull( $entries[0]->approveAllLink,
 			"testApproveAll(): ApproveAll link not found" );
 
-		$t->html->loadFromURL( $entries[0]->approveAllLink );
+		$t->html->loadUrl( $entries[0]->approveAllLink );
 		$this->assertRegExp( '/\(moderation-approved-ok: ' . $t->TEST_EDITS_COUNT . '\)/',
 			$t->html->getMainText(),
 			"testApproveAll(): Result page doesn't contain (moderation-approved-ok: N)" );

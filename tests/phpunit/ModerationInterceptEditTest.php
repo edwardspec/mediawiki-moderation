@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2017 Edward Chernenko.
+	Copyright (C) 2015-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -52,14 +52,14 @@ class ModerationInterceptEditTest extends ModerationTestCase {
 
 		# Check the page where the user is being redirected to
 		$t->loginAs( $t->unprivilegedUser );
-		$list = $t->html->getLoaderModulesList( $url );
+		$list = $t->html->loadUrl( $url )->getLoaderModulesList();
 
 		$this->assertContains( 'ext.moderation.notify', $list,
 			"testPostEditRedirect(): Module ext.moderation.notify wasn't loaded" );
 
 		# [ext.moderation.notify] shouldn't be loaded for automoderated users.
 		$t->loginAs( $t->automoderated );
-		$list = $t->html->getLoaderModulesList( $url );
+		$list = $t->html->loadUrl( $url )->getLoaderModulesList();
 
 		$this->assertNotContains( 'ext.moderation.notify', $list,
 			"testPostEditRedirect(): Module ext.moderation.notify was shown to automoderated users" );

@@ -43,14 +43,14 @@ class ModerationReturntoTest extends ModerationTestCase {
 		$url = $t->new_entries[0]->rejectLink;
 
 		/* 1) check if "Return to" link is present after successful action */
-		$html = $t->html->getMainText( $url );
+		$html = $t->html->loadUrl( $url )->getMainText();
 		$this->assertRegExp( '/\(moderation-rejected-ok: 1\)/', $html,
 			"testReturnto(): Result page doesn't contain (moderation-rejected-ok: 1)" );
 		$this->assertRegExp( '/\(returnto: Special:Moderation\)/', $html,
 			"testReturnto(): Result page doesn't contain (returnto: Special:Moderation)" );
 
 		/* 2) check if "Return to" link is present after error */
-		$t->html->loadFromURL( $url );
+		$t->html->loadUrl( $url );
 		$this->assertEquals( '(moderation-already-rejected)', $t->html->getModerationError(),
 			"testReturnto(): Error page doesn't contain (moderation-already-rejected)"
 		);

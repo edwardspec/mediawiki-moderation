@@ -82,10 +82,10 @@ class ModerationMoveTest extends ModerationTestCase {
 
 		$showLink = $entry->expectedActionLink( 'show', false );
 		$this->assertContains( '(movepage-page-moved: ' . $this->oldTitle . ', ' . $this->newTitle . ')',
-			$t->html->getMainText( $showLink ) );
+			$t->html->loadUrl( $showLink )->getMainText() );
 
 		/* Check if we can approve this move */
-		$t->html->loadFromURL( $t->new_entries[0]->approveLink );
+		$t->html->loadUrl( $t->new_entries[0]->approveLink );
 		$this->assertRegExp( '/\(moderation-approved-ok: 1\)/',
 			$t->html->getMainText(),
 			"testMove(): Result page doesn't contain (moderation-approved-ok: 1)" );
@@ -154,7 +154,7 @@ class ModerationMoveTest extends ModerationTestCase {
 			'wpOldTitle' => $this->oldTitle,
 			'wpNewTitle' => $this->newTitle
 		] ) );
-		$html = $t->html->loadFromReq( $req );
+		$html = $t->html->loadReq( $req );
 
 		$this->assertNotContains( '(moderation-move-queued)', $html->getMainText(),
 			"testNoPrematureMoveInShowForm(): Special:MovePage has queued the move " .

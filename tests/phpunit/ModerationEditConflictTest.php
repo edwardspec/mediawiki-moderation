@@ -44,7 +44,7 @@ class ModerationEditConflictTest extends ModerationTestCase {
 			"Modified paragraph about dogs\n\nOriginal paragraph about cats"
 		);
 
-		$this->assertNull( $t->html->getModerationError( $entry->approveLink ),
+		$this->assertNull( $t->html->loadUrl( $entry->approveLink )->getModerationError(),
 			"testResolvableEditConflict(): Approval failed" );
 
 		$rev = $t->getLastRevision( $title );

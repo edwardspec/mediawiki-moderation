@@ -141,7 +141,7 @@ class ModerationTestsuite {
 		}
 		$url = $this->getSpecialURL( $query );
 
-		$html = $this->html->loadFromURL( $url );
+		$html = $this->html->loadUrl( $url );
 		$spans = $html->getElementsByTagName( 'span' );
 
 		$entries = [];
@@ -643,7 +643,7 @@ class ModerationTestsuite {
 		$url = wfAppendQuery( $title->getLocalURL(), [
 			'limit' => $count
 		] );
-		$html = $this->html->loadFromURL( $url );
+		$html = $this->html->loadUrl( $url );
 
 		$events = [];
 		$list_items = $html->getElementsByTagName( 'li' );
@@ -685,7 +685,7 @@ class ModerationTestsuite {
 	 */
 	public function noTokenTitle( $url ) {
 		$bad_url = preg_replace( '/token=[^&]*/', '', $url );
-		return $this->html->getTitle( $bad_url );
+		return $this->html->loadUrl( $bad_url )->getTitle();
 	}
 
 	/**
@@ -694,7 +694,7 @@ class ModerationTestsuite {
 	 */
 	public function badTokenTitle( $url ) {
 		$bad_url = preg_replace( '/(token=)([^&]*)/', '\1WRONG\2', $url );
-		return $this->html->getTitle( $bad_url );
+		return $this->html->loadUrl( $bad_url )->getTitle();
 	}
 
 	/**

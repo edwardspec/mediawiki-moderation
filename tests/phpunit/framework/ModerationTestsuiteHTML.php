@@ -28,9 +28,6 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	 */
 	const XML_HTML_UNKNOWN_TAG = 801;
 
-	/** @const Libxml error code for "tag name mismatch" */
-	const XML_ERR_TAG_NAME_MISMATCH = 76;
-
 	/** @var ModerationTestsuiteEngine|null */
 	protected $engine;
 
@@ -38,14 +35,15 @@ class ModerationTestsuiteHTML extends DOMDocument {
 		$this->engine = $engine;
 	}
 
-	public function loadFromURL( $url ) {
-		if ( !$url ) {
-			return null;
-		}
-
+	/**
+	 * Load the HTML document from URL.
+	 * @param string $url
+	 * @return self
+	 */
+	public function loadUrl( $url ) {
 		if ( !$this->engine ) {
 			throw new MWException(
-				"This ModerationTestsuiteHTML object can't use loadFromUrl(), " .
+				"This ModerationTestsuiteHTML object can't use load(\$url), " .
 				"it was created without ModerationTestsuiteEngine." );
 		}
 
@@ -53,11 +51,16 @@ class ModerationTestsuiteHTML extends DOMDocument {
 		$req = $this->engine->httpGet( $url );
 		$this->engine->stopIgnoringHttpError( 404 );
 
-		return $this->loadFromReq( $req );
+		return $this->loadReq( $req );
 	}
 
-	public function loadFromReq( ModerationTestsuiteResponse $req ) {
-		return $this->loadFromString( $req->getContent() );
+	/**
+	 * Load the HTML document from the result of $t->httpGet(), $t->httpPost()
+	 * @param ModerationTestsuiteResponse $req
+	 * @return self
+	 */
+	public function loadReq( ModerationTestsuiteResponse $req ) {
+		return $this->loadString( $req->getContent() );
 	}
 
 	/**
@@ -78,7 +81,12 @@ class ModerationTestsuiteHTML extends DOMDocument {
 		libxml_clear_errors();
 	}
 
-	public function loadFromString( $string ) {
+	/**
+	 * Load the HTML document from string that contains the HTML.
+	 * @param string $string
+	 * @return self
+	 */
+	public function loadString( $string ) {
 		// Forget any unhandled errors from previous LibXML parse attempts.
 		libxml_clear_errors();
 
@@ -95,9 +103,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	 * Returns the text of the <title> tag.
 	 * @return string|null
 	 */
-	public function getTitle( $url = null ) {
-		$this->loadFromURL( $url );
-
+	public function getTitle() {
 		$titleTag = $this->getElementsByTagName( 'title' )->item( 0 );
 		return $titleTag ? $titleTag->textContent : null;
 	}
@@ -106,24 +112,16 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	 * Returns HTML element of the error message shown by Moderation.
 	 * @return string|null
 	 */
-	public function getModerationError( $url = null ) {
-		$this->loadFromURL( $url );
-
+	public function getModerationError() {
 		$elem = $this->getElementById( 'mw-mod-error' );
-		if ( !$elem ) {
-			return null;
-		}
-
-		return $elem->textContent;
+		return $elem ? $elem->textContent : null;
 	}
 
 	/**
 	 * Returns HTML element of the main text of the page.
 	 * @return DomElement|null
 	 */
-	public function getMainContent( $url = null ) {
-		$this->loadFromURL( $url );
-
+	public function getMainContent() {
 		return $this->getElementById( 'mw-content-text' );
 	}
 
@@ -131,9 +129,8 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	 * Returns main text of the page (without navigation, etc.).
 	 * @return string|null
 	 */
-	public function getMainText( $url = null ) {
-		$elem = $this->getMainContent( $url );
-
+	public function getMainText() {
+		$elem = $this->getMainContent();
 		return $elem ? trim( $elem->textContent ) : null;
 	}
 
@@ -141,23 +138,16 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	 * Returns the text of the notice "You have new messages".
 	 * @return string|null
 	 */
-	public function getNewMessagesNotice( $url = null ) {
-		$this->loadFromURL( $url );
+	public function getNewMessagesNotice() {
 		$elem = $this->getElementByXPath( '//*[@class="usermessage"]' );
-
-		if ( !$elem ) {
-			return null;
-		}
-
-		return $elem->textContent;
+		return $elem ? $elem->textContent : null;
 	}
 
 	/**
 	 * Returns the Submit button element.
 	 * @return DOMElement
 	 */
-	public function getSubmitButton( $url = null ) {
-		$this->loadFromURL( $url );
+	public function getSubmitButton() {
 		return $this->getElementByXPath( '//*[@id="mw-content-text"]//*[@type="submit"]' );
 	}
 
@@ -191,26 +181,17 @@ class ModerationTestsuiteHTML extends DOMDocument {
 			'title' => $title,
 			'action' => 'edit'
 		] );
-		$this->loadFromURL( $url );
-
-		$elem = $this->getElementById( 'wpTextbox1' );
-		if ( !$elem ) {
-			return null;
-		}
-
-		return trim( $elem->textContent );
+		$elem = $this->loadUrl( $url )->getElementById( 'wpTextbox1' );
+		return $elem ? trim( $elem->textContent ) : null;
 	}
 
 	/**
 	 * Return the list of ResourceLoader modules which are used in the last fetched HTML.
-	 * @return array
+	 * @return string[]
 	 */
-	public function getLoaderModulesList( $url = null ) {
-		$this->loadFromURL( $url );
-		$scripts = $this->getElementsByTagName( 'script' );
-
+	public function getLoaderModulesList() {
 		$list = [];
-		foreach ( $scripts as $script ) {
+		foreach ( $this->getElementsByTagName( 'script' ) as $script ) {
 			$matches = null;
 			if ( preg_match(
 				'/(?:mw\.loader\.load\(|RLPAGEMODULES=)\[([^]]+)\]/',
@@ -229,18 +210,15 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 	/**
 	 * Return the array of <input> elements in the form (name => value).
-	 * @return array
+	 * @return DomElement[]
 	 */
-	public function getFormElements( $formElement = null, $url = null ) {
-		$this->loadFromURL( $url );
-
+	public function getFormElements( $formElement = null ) {
 		if ( !$formElement ) {
 			$formElement = $this;
 		}
 
-		$inputs = $formElement->getElementsByTagName( 'input' );
 		$result = [];
-		foreach ( $inputs as $input ) {
+		foreach ( $formElement->getElementsByTagName( 'input' ) as $input ) {
 			$name = $input->getAttribute( 'name' );
 			$value = $input->getAttribute( 'value' );
 

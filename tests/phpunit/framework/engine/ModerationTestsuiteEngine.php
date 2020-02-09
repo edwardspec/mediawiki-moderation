@@ -133,7 +133,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 			// Log will be too large for Travis if we dump the entire HTML,
 			// so we only print main content and value of the <title> tag.
 			$html = new ModerationTestsuiteHTML;
-			$html->loadFromString( $content );
+			$html->loadString( $content );
 
 			$loggedContent['title'] = $html->getTitle();
 

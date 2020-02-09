@@ -347,7 +347,7 @@ class ModerationLogFormatterTest extends ModerationTestCase {
 
 	protected function parseParam( $paramHtml ) {
 		$html = new ModerationTestsuiteHTML;
-		$html->loadFromString( $paramHtml );
+		$html->loadString( $paramHtml );
 
 		$parsed = [
 			'text' => $html->textContent
