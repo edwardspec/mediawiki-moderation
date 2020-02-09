@@ -356,7 +356,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	/**
 	 * Create an account and return User object.
 	 * @note Will not login automatically (loginAs must be called).
-	 * @return User
+	 * @return User|null
 	 */
 	public function createAccount( $username ) {
 		# Step 1. Get the token.
@@ -380,7 +380,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 		$ret = $this->query( $q );
 
 		if ( $ret['createaccount']['status'] != 'PASS' ) {
-			return false;
+			return null;
 		}
 
 		return User::newFromName( $username, false );

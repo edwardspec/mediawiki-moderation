@@ -664,7 +664,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Get the last revision of page $title via API.
-	 * @return array
+	 * @return array|false
 	 */
 	public function getLastRevision( $title ) {
 		$ret = $this->query( [

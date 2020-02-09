@@ -119,7 +119,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 	/**
 	 * Returns HTML element of the main text of the page.
-	 * @return DomElement
+	 * @return DomElement|null
 	 */
 	public function getMainContent( $url = null ) {
 		$this->loadFromURL( $url );
@@ -164,7 +164,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	/**
 	 * Find the DOM element by XPath selector.
 	 * E.g. $t->html->getElementsByXPath( '//row[@name="wpSummary"]' )
-	 * @return DOMElement
+	 * @return DOMElement|null
 	 */
 	public function getElementByXPath( $selector ) {
 		$result = $this->getElementsByXPath( $selector );
@@ -184,7 +184,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	/**
 	 * Fetch the edit form and return the text in #wpTextbox1.
 	 * @param string $title The page to be opened for editing.
-	 * @return string
+	 * @return string|null
 	 */
 	public function getPreloadedText( $title ) {
 		$url = wfAppendQuery( wfScript( 'index' ), [
