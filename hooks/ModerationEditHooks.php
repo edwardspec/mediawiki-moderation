@@ -141,6 +141,7 @@ class ModerationEditHooks {
 		$returntoquery = [];
 		Hooks::run( 'ModerationContinueEditingLink', [ &$returnto, &$returntoquery, $title, $context ] );
 
+		// @phan-suppress-next-line PhanImpossibleCondition
 		if ( $returnto || $returntoquery ) {
 			/* Pack into one parameter to simplify the JavaScript part. */
 			$query['returnto'] = FormatJSON::encode( [
