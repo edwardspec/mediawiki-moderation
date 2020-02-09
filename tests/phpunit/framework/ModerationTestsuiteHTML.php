@@ -31,7 +31,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	/** @const Libxml error code for "tag name mismatch" */
 	const XML_ERR_TAG_NAME_MISMATCH = 76;
 
-	/** @var ModerationTestsuiteEngine */
+	/** @var ModerationTestsuiteEngine|null */
 	protected $engine;
 
 	public function __construct( ModerationTestsuiteEngine $engine = null ) {
