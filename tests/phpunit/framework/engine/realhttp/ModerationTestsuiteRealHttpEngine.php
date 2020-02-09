@@ -78,13 +78,13 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 	/**
 	 * Sets MediaWiki global variable.
 	 * @param string $name Name of variable without the $wg prefix.
-	 * @throws PHPUnit_Framework_SkippedTestError
+	 * @throws PHPUnit\Framework\SkippedTestError
 	 */
 	public function setMwConfig( $name, $value ) {
 		/* Implementation depends on the engine.
 			RealHttpEngine can't implement this at all.
 		*/
-		throw new PHPUnit_Framework_SkippedTestError(
+		throw new PHPUnit\Framework\SkippedTestError(
 			'Test skipped: ' . get_class( $this ) . ' doesn\'t support setMwConfig()' );
 	}
 }

@@ -93,7 +93,6 @@ class ModerationTestCase extends MediaWikiTestCase {
 	 */
 	protected function onNotSuccessfulTest( Throwable $e ) {
 		switch ( get_class( $e ) ) {
-			case 'PHPUnit_Framework_SkippedTestError':
 			case 'PHPUnit\Framework\SkippedTestError':
 				break; // Don't need logs of skipped tests
 
