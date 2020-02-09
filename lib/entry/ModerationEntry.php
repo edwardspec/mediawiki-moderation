@@ -166,6 +166,7 @@ abstract class ModerationEntry implements IModerationEntry {
 	 * @throws ModerationError
 	 */
 	public static function newFromRow( $row ) {
+		// @phan-suppress-next-line PhanTypeInstantiateAbstractStatic
 		return new static( $row );
 	}
 }
