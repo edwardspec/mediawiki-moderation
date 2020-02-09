@@ -255,7 +255,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 */
 	public function getTask( Title $title, $username, $type ) {
 		$key = self::getTaskKey( $title, $username, $type );
-		return isset( self::$tasks[$key] ) ? self::$tasks[$key] : false;
+		return self::$tasks[$key] ?? false;
 	}
 
 	/**

@@ -260,7 +260,7 @@ class ModerationNewChange {
 	 * @return string|false
 	 */
 	public function getField( $fieldName ) {
-		return isset( $this->fields[$fieldName] ) ? $this->fields[$fieldName] : false;
+		return $this->fields[$fieldName] ?? false;
 	}
 
 	/**
