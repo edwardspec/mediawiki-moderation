@@ -507,7 +507,7 @@ class ModerationTestsuite {
 	/**
 	 * Create an account and return User object.
 	 * @note Will not login automatically (loginAs must be called).
-	 * @return User
+	 * @return User|null
 	 */
 	public function createAccount( $username ) {
 		return $this->engine->createAccount( $username );
@@ -515,7 +515,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Perform a test move.
-	 * @return ModerationTestsuiteBotResponse
+	 * @return ModerationTestsuiteNonApiBotResponse
 	 */
 	public function doTestMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] ) {
 		return $this->getBot( 'nonApi' )->move( $oldTitle, $newTitle, $reason, $extraParams );
@@ -543,7 +543,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Perform a test edit.
-	 * @return ModerationTestsuiteBotResponse
+	 * @return ModerationTestsuiteNonApiBotResponse
 	 */
 	public function doTestEdit(
 		$title = null,
@@ -592,7 +592,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Perform a test upload.
-	 * @return ModerationTestsuiteBotResponse
+	 * @return ModerationTestsuiteNonApiBotResponse
 	 */
 	public function doTestUpload(
 		$title = null,
@@ -741,7 +741,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Queue an edit that would cause an edit conflict when approved.
-	 * @return ModerationEntry
+	 * @return ModerationTestsuiteEntry
 	 */
 	public function causeEditConflict( $title, $origText, $textOfUser1, $textOfUser2 ) {
 		$this->loginAs( $this->automoderated );

@@ -60,7 +60,7 @@ class ModerationCheckuserTest extends ModerationTestCase {
 		] );
 
 		$row = $ret['query']['querypage']['results'][0]['databaseResult'];
-		return isset( $row['ip'] ) ? $row['ip'] : null;
+		return $row['ip'] ?? null;
 	}
 
 	public function skipIfNoCheckuser() {

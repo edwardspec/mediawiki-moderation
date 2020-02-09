@@ -67,6 +67,8 @@ class ModerationPreloadTest extends ModerationTestCase {
 				"most likely the captcha is enabled.' );
 		}
 
+		// Note: phan doesn't know that markTestIncomplete() unconditionally throws an exception.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
 		$t->loginAs( $user );
 		$this->assertEquals(
 			$t->lastEdit['Text'],

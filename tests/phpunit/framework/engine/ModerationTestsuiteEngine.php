@@ -383,7 +383,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 			return null;
 		}
 
-		return User::newFromName( $username, false );
+		return User::newFromName( $username, false ) ?: null;
 	}
 
 	/**

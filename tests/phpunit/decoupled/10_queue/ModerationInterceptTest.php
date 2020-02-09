@@ -339,7 +339,7 @@ class ModerationInterceptTest extends ModerationTestCase {
 				break;
 
 			default:
-				throw MWException( 'Unknown "action" requested in TestSet of ' . __CLASS__ );
+				throw new MWException( 'Unknown "action" requested in TestSet of ' . __CLASS__ );
 		}
 	}
 }

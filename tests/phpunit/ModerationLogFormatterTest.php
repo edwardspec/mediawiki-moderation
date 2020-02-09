@@ -354,7 +354,7 @@ class ModerationLogFormatterTest extends ModerationTestCase {
 		];
 
 		$link = $html->getElementsByTagName( 'a' )->item( 0 );
-		if ( !$link ) {
+		if ( !( $link instanceof DOMElement ) ) {
 			return $parsed;
 
 		}

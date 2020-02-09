@@ -158,14 +158,14 @@ class ModerationQueueTest extends ModerationTestCase {
 	/** @var string */
 	protected $userAgent = ModerationTestsuite::DEFAULT_USER_AGENT;
 
-	/** @var string X-Forwarded-For header */
+	/** @var string|null X-Forwarded-For header */
 	protected $xff = null;
 
-	/** @var string Source filename, only used for uploads. */
+	/** @var string|null Source filename, only used for uploads. */
 	protected $filename = null;
 
 	/**
-	 * @var string If true, system user that owns UploadStash will be precreated.
+	 * @var bool If true, system user that owns UploadStash will be precreated.
 	 * This setting allows to test uploads both with and without UploadStorage migration.
 	 */
 	protected $precreateUploadStashOwner = false;

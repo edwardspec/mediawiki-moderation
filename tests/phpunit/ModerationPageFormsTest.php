@@ -76,6 +76,7 @@ class ModerationPageFormsTest extends ModerationTestCase {
 		foreach ( $sections as $name => $expectedContent ) {
 			$input = $inputs->item( $idx++ );
 
+			// @phan-suppress-next-line PhanUndeclaredMethod
 			$this->assertEquals( "_section[$name]", $input->getAttribute( 'name' ),
 				"testPageFormsPreload(): name of the EditForm field doesn't match expected" );
 

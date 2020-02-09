@@ -44,6 +44,7 @@ trait ModerationTestsuitePendingChangeTestSet {
 	/**
 	 * Initialize this TestSet from the input of dataProvider.
 	 */
+	// @phan-suppress-next-line PhanUnanalyzableInheritance - github.com/phan/phan/issues/3695
 	protected function applyOptions( array $options ) {
 		$this->fields = $this->getDefaultFields();
 		foreach ( $options as $key => $value ) {
