@@ -27,7 +27,7 @@ class ModerationApiHooks {
 	 *
 	 * Disable ApiFileRevert (this API doesn't run any pre-upload
 	 * hooks, thus allowing to bypass moderation).
-	 * @param string $module
+	 * @param ApiBase $module
 	 * @param User $user
 	 * @param string &$message
 	 * @return bool
