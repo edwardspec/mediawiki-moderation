@@ -104,7 +104,9 @@ class ModerationLogFormatter extends LogFormatter {
 
 	/**
 	 * List of Titles to be fed to LinkBatch (to check their existence).
-	 * @return array[Title]
+	 * @return array
+	 *
+	 * @phan-return array<Title>
 	 */
 	public function getPreloadTitles() {
 		$type = $this->entry->getSubtype();
