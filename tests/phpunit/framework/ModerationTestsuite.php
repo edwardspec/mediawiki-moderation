@@ -360,6 +360,7 @@ class ModerationTestsuite {
 			}
 
 			foreach ( $rows as $row ) {
+				$valueSaved = false;
 				if ( $keyField ) {
 					// See above, needed for PostgreSQL sequence to be incremented.
 					$valueSaved = $row[$keyField];
@@ -371,7 +372,7 @@ class ModerationTestsuite {
 					throw new MWException( 'createTestUsers: loading from cache failed.' );
 				}
 
-				if ( $keyField ) {
+				if ( $valueSaved ) {
 					// Sanity check: since we removed the primary key from INSERT query,
 					// make sure that automatically picked values are correct.
 					// What should makes them correct is how $prepopulateDbCache is sorted
