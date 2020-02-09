@@ -72,6 +72,7 @@ matrix:
       before_script: npm install
       script: npm test
 
+    # Phan (PHP static analyzer)
     - &phan-build
       if: branch IN (phan,master)
       env: TESTSUITE_TYPE=phan branch=REL1_34
@@ -86,6 +87,11 @@ matrix:
         - ( cd extensions/Moderation && composer install )
       script:
         - ( cd extensions/Moderation && ./vendor/bin/phan -j2 )
+
+    # Phan for ModerationTestsuite framework
+    - <<: *phan-build
+      if: branch IN (phan,phpunit)
+      env: TESTSUITE_TYPE=phan branch=REL1_34 PHAN_CHECK_TESTSUITE=1
 
     # PHPUnit tests
     - &phpunit-build
