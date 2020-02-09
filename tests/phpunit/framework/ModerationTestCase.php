@@ -21,7 +21,7 @@
  */
 
 class ModerationTestCase extends MediaWikiTestCase {
-	/** @var ModerationTestsuite */
+	/** @var ModerationTestsuite|null */
 	private $testsuite = null;
 
 	/**

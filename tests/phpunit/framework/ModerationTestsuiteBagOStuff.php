@@ -28,7 +28,7 @@ if ( !class_exists( 'MediumSpecificBagOStuff' ) ) {
 
 class ModerationTestsuiteBagOStuff extends MediumSpecificBagOStuff {
 	/**
-	 * @var HashBagOStuff
+	 * @var HashBagOStuff|null
 	 * Singleton: no matter how many TestsuiteBagOStuff instances are made,
 	 * there will be only one store.
 	 */

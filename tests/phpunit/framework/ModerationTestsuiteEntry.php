@@ -112,7 +112,7 @@ class ModerationTestsuiteEntry {
 
 			$matches = null;
 			if ( preg_match( '/\(rc-change-size: ([\-0-9,]+)\)/', $text, $matches ) ) {
-				$this->charChange = str_replace( ',', '', $matches[1] );
+				$this->charChange = (int)( str_replace( ',', '', $matches[1] ) );
 				$this->charChangeBold = ( $child->tagName != 'span' );
 			}
 
