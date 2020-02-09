@@ -18,6 +18,9 @@
 /**
  * @file
  * Replacement of LocalSettings.php loaded by [cliInvoke.php].
+ *
+ * @phan-file-suppress PhanUndeclaredGlobalVariable
+ * @phan-file-suppress PhanUndeclaredVariableDim
  */
 
 # Load the usual LocalSettings.php
@@ -82,24 +85,27 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 				// This is an unnecessary sanity check that makes running tests vs. PostgreSQL not possible.
 				// Workaround is to provide $newDomain->getId() to RevisionStore when it is constructed.
 				$services = MediaWiki\MediaWikiServices::getInstance();
-				$services->redefineService( 'RevisionStore', function () use ( $services, $newDomain ) {
-					// Based on [includes/ServiceWiring.php] in MediaWiki core.
-					// @phan-suppress-next-line PhanParamTooFew
-					$store = new MediaWiki\Storage\RevisionStore(
-						$services->getDBLoadBalancer(),
-						$services->getService( '_SqlBlobStore' ),
-						$services->getMainWANObjectCache(),
-						$services->getCommentStore(),
-						$services->getActorMigration(),
-						$newDomain->getId() // <----- what ModerationTestsuite is adding
-					);
+				$services->redefineService( 'RevisionStore',
+					function () use ( $services, $newDomain ) {
+						// @phan-suppress-next-line PhanParamTooFew
+						$store = new MediaWiki\Storage\RevisionStore(
+							$services->getDBLoadBalancer(),
+							$services->getService( '_SqlBlobStore' ),
+							$services->getMainWANObjectCache(),
+							$services->getCommentStore(),
+							// @phan-suppress-next-line PhanTypeMismatchArgument
+							$services->getActorMigration(),
+							// @phan-suppress-next-line PhanTypeMismatchArgument
+							$newDomain->getId() // <----- what ModerationTestsuite is adding
+						);
 
-					$store->setLogger( MediaWiki\Logger\LoggerFactory::getInstance( 'RevisionStore' ) );
-					$config = $services->getMainConfig();
-					$store->setContentHandlerUseDB( $config->get( 'ContentHandlerUseDB' ) );
+						$store->setLogger( MediaWiki\Logger\LoggerFactory::getInstance( 'RevisionStore' ) );
+						$config = $services->getMainConfig();
+						$store->setContentHandlerUseDB( $config->get( 'ContentHandlerUseDB' ) );
 
-					return $store;
-				} );
+						return $store;
+					}
+				);
 			}
 		} );
 	} else {
