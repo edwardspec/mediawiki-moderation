@@ -17,7 +17,9 @@
 
 /**
  * @file
- * Parent class for TestSet objects used in the Moderation testsuite.
+ * Parent trait for TestSet objects used in the Moderation testsuite.
+ *
+ * This trait must be included into ModerationTestCase subclasses.
  */
 
 trait ModerationTestsuiteTestSet {
@@ -45,11 +47,13 @@ trait ModerationTestsuiteTestSet {
 	public function __destruct() {
 		// Destructor should be suppressed for cloned MediaWikiTestCase objects.
 		if ( !$this->cloned ) {
+			// @phan-suppress-next-line PhanTraitParentReference
 			parent::__destruct();
 		}
 	}
 
-	/*-------------------------------------------------------------------*/
+	/*--------------------------------------------------------------------------------------*/
+	/* These abstract methods should be implemented in TestCase the uses ModerationTestSet. */
 
 	/**
 	 * Initialize this TestSet from the input of dataProvider.
@@ -65,6 +69,18 @@ trait ModerationTestsuiteTestSet {
 	 * Assert whether the situation after the edit is correct or not.
 	 */
 	abstract protected function assertResults();
+
+	/*----------------------------------------------------------------------------------------*/
+	/* These abstract methods are provided by ModerationTestCase and PHPUnit-related classes. */
+
+	/** @return ModerationTestsuite */
+	abstract public function getTestsuite();
+
+	abstract public function assertEquals( $expected, $actual, $message = '' );
+
+	abstract public function assertLessThanOrEqual( $expected, $actual, $message = '' );
+
+	abstract public function assertGreaterThan( $expected, $actual, $message = '' );
 
 	/*-------------------------------------------------------------------*/
 

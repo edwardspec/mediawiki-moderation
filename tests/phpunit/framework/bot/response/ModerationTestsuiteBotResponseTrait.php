@@ -40,7 +40,8 @@ trait ModerationTestsuiteBotResponse {
 	 * @return ModerationTestsuiteApiBotResponse|ModerationTestsuiteNonApiBotResponse
 	 */
 	public static function factory( $nativeResponse, $isIntercepted, $isBypassed, $error ) {
-		$r = new self( $nativeResponse );
+		// @phan-suppress-next-line PhanUndeclaredMethod
+		$r = new static( $nativeResponse );
 		$r->isIntercepted = $isIntercepted;
 		$r->isBypassed = $isBypassed;
 		$r->error = $error;
