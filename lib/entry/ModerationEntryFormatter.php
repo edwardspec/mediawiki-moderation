@@ -24,7 +24,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 	/** @var IContextSource */
 	protected $context = null;
 
-	/** @var LinkRenderer|null */
+	/** @var \MediaWiki\Linker\LinkRenderer|null */
 	private static $linkRenderer;
 
 	/**

@@ -30,7 +30,7 @@ abstract class ModerationEntry implements IModerationEntry {
 	/** @var Title Page affected by this change */
 	private $title = null;
 
-	/** @var bool Cache used by canReapproveRejected() */
+	/** @var string|null Cache used by canReapproveRejected() */
 	protected static $earliestReapprovableTimestamp = null;
 
 	protected function getRow() {

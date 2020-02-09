@@ -37,7 +37,10 @@ class ModerationNewChange {
 	/** @var array All mod_* database fields */
 	protected $fields = [];
 
-	/** @var array|false [ 'mod_id' => ..., 'mod_text' => ... ] */
+	/**
+	 * @var stdClass|false|null
+	 * Database row (with keys like mod_id, mod_text), as returned by loadUnmoderatedEdit().
+	 */
 	private $pendingChange = null;
 
 	public function __construct( Title $title, User $user ) {
