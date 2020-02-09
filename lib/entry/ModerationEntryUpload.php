@@ -40,6 +40,6 @@ class ModerationEntryUpload extends ModerationApprovableEntry {
 			return Status::newFatal( 'moderation-missing-stashed-image' );
 		}
 
-		return $upload->performUpload( $row->comment, $row->text, 0, $user );
+		return $upload->performUpload( $row->comment, $row->text, false, $user );
 	}
 }

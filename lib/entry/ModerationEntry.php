@@ -30,7 +30,7 @@ abstract class ModerationEntry implements IModerationEntry {
 	/** @var Title Page affected by this change */
 	private $title = null;
 
-	/** @var bool Cache used by canReapproveRejected() */
+	/** @var string|null Cache used by canReapproveRejected() */
 	protected static $earliestReapprovableTimestamp = null;
 
 	protected function getRow() {
@@ -141,7 +141,7 @@ abstract class ModerationEntry implements IModerationEntry {
 	 * Load ModerationEntry from the database by mod_id.
 	 * @param int $id
 	 * @param int $dbType DB_MASTER or DB_REPLICA.
-	 * @return ModerationEntry
+	 * @return static
 	 * @throws ModerationError
 	 */
 	public static function newFromId( $id, $dbType = DB_MASTER ) {
@@ -162,10 +162,11 @@ abstract class ModerationEntry implements IModerationEntry {
 	/**
 	 * Construct new ModerationEntry from $row.
 	 * @param stdClass $row
-	 * @return ModerationEntry
+	 * @return static
 	 * @throws ModerationError
 	 */
 	public static function newFromRow( $row ) {
+		// @phan-suppress-next-line PhanTypeInstantiateAbstractStatic
 		return new static( $row );
 	}
 }

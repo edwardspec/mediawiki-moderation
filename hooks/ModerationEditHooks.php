@@ -141,6 +141,7 @@ class ModerationEditHooks {
 		$returntoquery = [];
 		Hooks::run( 'ModerationContinueEditingLink', [ &$returnto, &$returntoquery, $title, $context ] );
 
+		// @phan-suppress-next-line PhanImpossibleCondition
 		if ( $returnto || $returntoquery ) {
 			/* Pack into one parameter to simplify the JavaScript part. */
 			$query['returnto'] = FormatJSON::encode( [
@@ -243,7 +244,7 @@ class ModerationEditHooks {
 			return;
 		}
 
-		$out->addHTML( Html::hidden( 'wpMergeID', $mergeID ) );
+		$out->addHTML( Html::hidden( 'wpMergeID', (string)$mergeID ) );
 		$out->addHTML( Html::hidden( 'wpIgnoreBlankSummary', '1' ) );
 
 		return true;

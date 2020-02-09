@@ -37,7 +37,7 @@ class ModerationAjaxHook {
 	/**
 	 * Depending on $configName being true/false/"guess", return true/false/$default.
 	 * @param string $configName
-	 * @param string $default
+	 * @param bool $default
 	 * @return bool
 	 */
 	protected static function need( $configName, $default ) {

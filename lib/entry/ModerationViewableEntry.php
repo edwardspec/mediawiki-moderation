@@ -90,7 +90,7 @@ class ModerationViewableEntry extends ModerationEntry {
 
 		$de = ContentHandler::getForModelID( $model )->createDifferenceEngine(
 			$context,
-			$row->last_oldid, 0, 0, 0, 0
+			$row->last_oldid, 0, 0, false, false
 		);
 		$newContent = ContentHandler::makeContent( $row->text, null, $model );
 
@@ -137,10 +137,10 @@ class ModerationViewableEntry extends ModerationEntry {
 
 		$q = [
 			'modaction' => 'showimg',
-			'modid' => $row->id
+			'modid' => (string)$row->id
 		];
 		if ( $isThumb ) {
-			$q['thumb'] = 1;
+			$q['thumb'] = '1';
 		}
 
 		$specialTitle = SpecialPage::getTitleFor( 'Moderation' );

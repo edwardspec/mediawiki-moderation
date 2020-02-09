@@ -27,10 +27,10 @@ class ModerationApiHooks {
 	 *
 	 * Disable ApiFileRevert (this API doesn't run any pre-upload
 	 * hooks, thus allowing to bypass moderation).
-	 * @param string $module
+	 * @param ApiBase $module
 	 * @param User $user
 	 * @param string &$message
-	 * @return true
+	 * @return bool
 	 */
 	public static function onApiCheckCanExecute( $module, $user, &$message ) {
 		if ( ModerationCanSkip::canUploadSkip( $user ) ) {
@@ -115,6 +115,7 @@ class ModerationApiHooks {
 			$newSectionContent = ContentHandler::makeContent( $query['text'], $title );
 			$newContent = $oldContent->replaceSection( $section, $newSectionContent );
 
+			// @phan-suppress-next-line PhanNonClassMethodCall <-- false positive, see gerrit:571030
 			$query['text'] = $newContent->getNativeData();
 			unset( $query['section'] );
 		}

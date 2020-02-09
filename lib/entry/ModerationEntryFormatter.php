@@ -24,7 +24,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 	/** @var IContextSource */
 	protected $context = null;
 
-	/** @var LinkRenderer|null */
+	/** @var \MediaWiki\Linker\LinkRenderer|null */
 	private static $linkRenderer;
 
 	/**
@@ -46,8 +46,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	/**
-	 * @since 1.30
-	 * @return LinkRenderer
+	 * @return \MediaWiki\Linker\LinkRenderer
 	 */
 	protected static function getLinkRenderer() {
 		if ( self::$linkRenderer === null ) {

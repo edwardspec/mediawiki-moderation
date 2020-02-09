@@ -37,7 +37,10 @@ class ModerationNewChange {
 	/** @var array All mod_* database fields */
 	protected $fields = [];
 
-	/** @var array|false [ 'mod_id' => ..., 'mod_text' => ... ] */
+	/**
+	 * @var stdClass|false|null
+	 * Database row (with keys like mod_id, mod_text), as returned by loadUnmoderatedEdit().
+	 */
 	private $pendingChange = null;
 
 	public function __construct( Title $title, User $user ) {
@@ -120,6 +123,7 @@ class ModerationNewChange {
 			}
 		}
 
+		// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
 		$pstContent = $this->preSaveTransform( $newContent );
 		$this->fields['mod_text'] = $pstContent->getNativeData();
 		$this->fields['mod_new_len'] = $pstContent->getSize();
@@ -191,7 +195,7 @@ class ModerationNewChange {
 	 * @param Title $title
 	 * @param User $user
 	 * @param string $action AbuseFilter action, e.g. 'edit' or 'delete'.
-	 * @return array|null
+	 * @return string|null
 	 */
 	public static function findAbuseFilterTags( Title $title, User $user, $action ) {
 		if ( !class_exists( 'AbuseFilter' ) || empty( AbuseFilter::$tagsToSet ) ) {
@@ -207,9 +211,11 @@ class ModerationNewChange {
 			$action
 		] );
 
-		if ( isset( AbuseFilter::$tagsToSet[$afActionID] ) ) {
-			return implode( "\n", AbuseFilter::$tagsToSet[$afActionID] );
+		if ( !isset( AbuseFilter::$tagsToSet[$afActionID] ) ) {
+			return null;
 		}
+
+		return implode( "\n", AbuseFilter::$tagsToSet[$afActionID] );
 	}
 
 	protected function getPreload() {
@@ -255,7 +261,7 @@ class ModerationNewChange {
 	 * @return string|false
 	 */
 	public function getField( $fieldName ) {
-		return isset( $this->fields[$fieldName] ) ? $this->fields[$fieldName] : false;
+		return $this->fields[$fieldName] ?? false;
 	}
 
 	/**
@@ -293,7 +299,7 @@ class ModerationNewChange {
 
 	/**
 	 * Insert this change into the moderation SQL table.
-	 * @return mod_id of affected row.
+	 * @return int mod_id of affected row.
 	 */
 	protected function insert() {
 		$fields = $this->getFields();
@@ -321,7 +327,7 @@ class ModerationNewChange {
 
 	/**
 	 * Legacy version of insert() for old databases without UNIQUE INDEX.
-	 * @return mod_id of affected row.
+	 * @return int mod_id of affected row.
 	 */
 	protected function insertOld() {
 		$row = $this->getPendingChange();

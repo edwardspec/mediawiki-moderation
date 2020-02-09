@@ -47,6 +47,8 @@ class ModerationApproveHook implements DeferrableUpdate {
 	/**
 	 * @var array Log entries to modify in FileUpload hook.
 	 * Format: [ log_id1 => ManualLogEntry, log_id2 => ... ]
+	 *
+	 * @phan-var array<int,ManualLogEntry>
 	 */
 	protected static $logEntriesToFix = [];
 
@@ -189,11 +191,11 @@ class ModerationApproveHook implements DeferrableUpdate {
 	}
 
 	/**
-	 * Add revid parameter to LogEntry (if missing). See onFileUpload() for details.
+	 * Add revid parameter to ManualLogEntry (if missing). See onFileUpload() for details.
 	 * @param int $logid
-	 * @param LogEntry $logEntry
+	 * @param ManualLogEntry $logEntry
 	 */
-	public static function checkLogEntry( $logid, LogEntry $logEntry ) {
+	public static function checkLogEntry( $logid, ManualLogEntry $logEntry ) {
 		$params = $logEntry->getParameters();
 		if ( array_key_exists( 'revid', $params ) && $params['revid'] === null ) {
 			self::$logEntriesToFix[$logid] = $logEntry;
@@ -248,12 +250,12 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * Find the task regarding edit by $username on $title.
 	 * @param Title $title
 	 * @param string $username
-	 * @param int $type One of ModerationNewChange::MOD_TYPE_* values.
+	 * @param string $type One of ModerationNewChange::MOD_TYPE_* values.
 	 * @return array|false [ 'ip' => ..., 'xff' => ..., 'ua' => ..., ... ]
 	 */
 	public function getTask( Title $title, $username, $type ) {
 		$key = self::getTaskKey( $title, $username, $type );
-		return isset( self::$tasks[$key] ) ? self::$tasks[$key] : false;
+		return self::$tasks[$key] ?? false;
 	}
 
 	/**

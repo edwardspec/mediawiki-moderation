@@ -74,7 +74,7 @@ abstract class ModerationAction extends ContextSource {
 
 	/**
 	 * Function called when the action is invoked.
-	 * @return Array containing API response.
+	 * @return array Array containing API response.
 	 * @throws ModerationError
 	 */
 	abstract public function execute();
@@ -88,7 +88,7 @@ abstract class ModerationAction extends ContextSource {
 
 	/**
 	 * Utility function. Get userpage of user who made this edit.
-	 * @return Title object or false.
+	 * @return Title|false
 	 */
 	protected function getUserpageOfPerformer() {
 		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag

@@ -59,10 +59,12 @@ class ModerationFormatTimestamp {
 		}
 
 		$lang = $context->getLanguage();
-		$timestamp = $lang->userAdjust( $timestamp ); /* Respect the timezone selected by current user */
+
+		// Respect the timezone selected by current user.
+		$timestamp = (string)$lang->userAdjust( $timestamp );
 
 		if ( !$today ) {
-			$today = substr( $lang->userAdjust( wfTimestampNow() ), 0, 8 );
+			$today = substr( (string)$lang->userAdjust( wfTimestampNow() ), 0, 8 );
 		}
 
 		$isToday = ( substr( $timestamp, 0, 8 ) == $today );
