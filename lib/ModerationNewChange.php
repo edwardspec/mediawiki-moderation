@@ -123,6 +123,7 @@ class ModerationNewChange {
 			}
 		}
 
+		// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
 		$pstContent = $this->preSaveTransform( $newContent );
 		$this->fields['mod_text'] = $pstContent->getNativeData();
 		$this->fields['mod_new_len'] = $pstContent->getSize();
