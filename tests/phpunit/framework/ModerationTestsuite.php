@@ -729,7 +729,7 @@ class ModerationTestsuite {
 				}
 
 				/* Continue polling */
-				usleep( $pollRetryPeriodSeconds * 1000 * 1000 );
+				usleep( (int)( $pollRetryPeriodSeconds * 1000 * 1000 ) );
 			} while ( time() < $maxTime );
 
 			throw new MWException(

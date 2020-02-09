@@ -113,8 +113,8 @@ class CliInvoke {
 	 * we don't need PHP errors to be mixed with the response.
 	 */
 	protected function configurePhp() {
-		ini_set( 'display_errors', 0 );
-		ini_set( 'log_errors', 1 );
+		ini_set( 'display_errors', '0' );
+		ini_set( 'log_errors', '1' );
 	}
 
 	/**

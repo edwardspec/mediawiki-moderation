@@ -145,6 +145,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 
 		$ret = Shell::command( [] )
 			->params( [ PHP_BINARY, __DIR__ . '/cliInvoke.php' ] )
+			// @phan-suppress-next-line PhanTypeMismatchArgument
 			->environment( $env )
 			->limits( $limits )
 			->restrict( Shell::NO_ROOT )
