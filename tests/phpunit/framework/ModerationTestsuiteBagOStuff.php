@@ -22,6 +22,7 @@
 
 if ( !class_exists( 'MediumSpecificBagOStuff' ) ) {
 	// For MediaWiki 1.31-1.33.
+	// @phan-suppress-next-line PhanRedefineClassAlias
 	class_alias( BagOStuff::class, 'MediumSpecificBagOStuff' );
 }
 
