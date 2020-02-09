@@ -115,6 +115,7 @@ class ModerationApiHooks {
 			$newSectionContent = ContentHandler::makeContent( $query['text'], $title );
 			$newContent = $oldContent->replaceSection( $section, $newSectionContent );
 
+			// @phan-suppress-next-line PhanNonClassMethodCall <-- false positive, see gerrit:571030
 			$query['text'] = $newContent->getNativeData();
 			unset( $query['section'] );
 		}
