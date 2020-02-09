@@ -117,7 +117,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 			because the child process populates $_POST directly).
 		*/
 		$env = [
-			'QUERY_STRING' => isset( $bits['query'] ) ? $bits['query'] : '',
+			'QUERY_STRING' => $bits['query'] ?? '',
 			'REQUEST_METHOD' => $method,
 			'SCRIPT_NAME' => $scriptName,
 			'SCRIPT_FILENAME' => $scriptFilename,
