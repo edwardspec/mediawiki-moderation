@@ -30,7 +30,7 @@ class ModerationApiHooks {
 	 * @param string $module
 	 * @param User $user
 	 * @param string &$message
-	 * @return true
+	 * @return bool
 	 */
 	public static function onApiCheckCanExecute( $module, $user, &$message ) {
 		if ( ModerationCanSkip::canUploadSkip( $user ) ) {

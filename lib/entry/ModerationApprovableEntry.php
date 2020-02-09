@@ -162,7 +162,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 
 	/**
 	 * Post-approval log subtype. May be overridden in subclass.
-	 * @return String (e.g. "approve" for "moderation/approve" log).
+	 * @return string (e.g. "approve" for "moderation/approve" log).
 	 */
 	protected function getApproveLogSubtype() {
 		return 'approve';
