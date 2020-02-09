@@ -216,23 +216,4 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 
 		return [ $scriptName, $pathInfo ];
 	}
-
-	/**
-	 * Run subrequests in the DB sandbox imposed by MediaWikiTestCase.
-	 */
-	public function escapeDbSandbox() {
-		global $argv;
-		if ( array_search( '--use-normal-tables', $argv ) !== false ) {
-			$dbw = wfGetDB( DB_MASTER );
-			$this->setMwConfig( 'DBprefix', $dbw->tablePrefix() );
-
-			// Ensure that ModerationVersionCheck doesn't have an old version number in cache,
-			// otherwise Moderation will assume that DB schema is outdated.
-			ModerationVersionCheck::invalidateCache();
-		} else {
-			// If temporary tables were used, then cliInvoked script can't access them.
-			// Fallback to "break out of the sandbox" workaround.
-			parent::escapeDbSandbox();
-		}
-	}
 }

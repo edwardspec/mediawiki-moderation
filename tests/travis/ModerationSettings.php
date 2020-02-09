@@ -53,8 +53,12 @@ if ( version_compare( $wgVersion, '1.34-rc.0', '>=' ) ) {
 	$wgPasswordPolicy['policies']['default']['PasswordNotInLargeBlacklist'] = false;
 }
 
-# Extensions below are needed for some tests of Extension:Moderation.
+if ( getenv( 'MODERATION_TEST_ENGINE' ) == 'realhttp' ) {
+	// phpcs:ignore Generic.Files.LineLength.TooLong
+	require_once "$IP/extensions/Moderation/tests/phpunit/framework/engine/realhttp/SandboxWikiSettings.php";
+}
 
+# Extensions below are needed for some tests of Extension:Moderation.
 if ( $wgDBtype != 'postgres' ) {
 	// FIXME: what AbuseFilter does in its "UnitTestsAfterDatabaseSetup" and
 	// "UnitTestsBeforeDatabaseTeardown" hooks interferes with CliEngine.

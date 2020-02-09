@@ -398,8 +398,17 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 * Engine like CliEngine can handle this properly (by actually using the sandbox).
 	 */
 	public function escapeDbSandbox() {
-		// FIXME: this approach below no longer works in MediaWiki 1.33+,
-		// therefore only CliEngine with --use-normal-tables is usable.
-		MediaWikiTestCase::teardownTestDB();
+		global $argv;
+		if ( array_search( '--use-normal-tables', $argv ) === false ) {
+			throw new MWException(
+				"To run Moderation testsuite, PHPUnit should be called with --use-normal-tables flag." );
+		}
+
+		$dbw = wfGetDB( DB_MASTER );
+		$this->setMwConfig( 'DBprefix', $dbw->tablePrefix() );
+
+		// Ensure that ModerationVersionCheck doesn't have an old version number in cache,
+		// otherwise Moderation will assume that DB schema is outdated.
+		ModerationVersionCheck::invalidateCache();
 	}
 }

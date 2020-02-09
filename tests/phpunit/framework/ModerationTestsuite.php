@@ -212,19 +212,10 @@ class ModerationTestsuite {
 	 * (as in "Destroy everything on testsuite's path")
 	 */
 	private function prepareDbForTests() {
-		/*
-			Workaround the following problem: https://gerrit.wikimedia.org/r/328718
-
-			Since MediaWiki 1.28, MediaWikiTestCase class
-			started to aggressively isolate us from the real database.
-
-			However this entire testsuite does the blackbox testing
-			on the site, making HTTP queries as the users would do,
-			so we need to check/modify the real database.
-
-			Therefore we escape the "test DB" jail installed by MediaWikiTestCase.
-		*/
 		if ( class_exists( 'MediaWikiTestCase' ) ) { // Not in benchmark scripts
+			// Handle the fact that MediaWikiTestCase tries to isolate us from the real database,
+			// which we must examine, because this entire testsuite does the blackbox testing,
+			// making HTTP queries as the users would do.
 			$this->engine->escapeDbSandbox();
 		}
 

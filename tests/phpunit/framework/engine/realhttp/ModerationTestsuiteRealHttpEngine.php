@@ -64,6 +64,11 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 			$req->setHeader( 'Content-Type', 'multipart/form-data' );
 		}
 
+		// This variable is needed for parallel builds via Fastest
+		// (it runs PHPUnit in multiple threads,
+		// and each thread uses its own database)
+		$req->setHeader( 'X-ENV-Test-Channel', getenv( 'ENV_TEST_CHANNEL' ) );
+
 		$status = $req->execute();
 
 		if ( !$status->isOK()
@@ -81,10 +86,30 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 	 * @throws PHPUnit\Framework\SkippedTestError
 	 */
 	public function setMwConfig( $name, $value ) {
+		if ( $name == 'LanguageCode' || $name == 'DBprefix' ) { // Special handling
+			return;
+		}
+
 		/* Implementation depends on the engine.
 			RealHttpEngine can't implement this at all.
 		*/
 		throw new PHPUnit\Framework\SkippedTestError(
 			'Test skipped: ' . get_class( $this ) . ' doesn\'t support setMwConfig()' );
+	}
+
+	/**
+	 * Run subrequests in the DB sandbox imposed by MediaWikiTestCase.
+	 */
+	public function escapeDbSandbox() {
+		if ( !defined( 'MODERATION_TESTSUITE_REALHTTP_CONFIGURED' ) ) {
+			throw new MWException( "To use RealHttpEngine, add the following line to LocalSettings.php:\n" .
+				'require_once("' . __DIR__ . '/SandboxWikiSettings.php");' );
+		}
+
+		if ( wfGetDB( DB_MASTER )->getType() == 'postgres' ) {
+			throw new MWException( "RealHttpEngine doesn't support PostgreSQL yet.\n" );
+		}
+
+		parent::escapeDbSandbox();
 	}
 }
