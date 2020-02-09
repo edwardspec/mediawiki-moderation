@@ -58,6 +58,10 @@ class ModerationUploadStorage {
 			// This is a one-time moment to migrate from old per-uploader Stash storage
 			// to a modern approach (one UploadStash that belongs to our reserved user).
 			$user = User::newSystemUser( self::USERNAME, [ 'steal' => true ] );
+			if ( !$user ) {
+				throw new MWException( __METHOD__ . ': unable to create user.' );
+			}
+
 			self::migrateFromPerUploaderStashes( $user );
 		}
 
