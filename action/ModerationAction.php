@@ -21,9 +21,20 @@
  */
 
 abstract class ModerationAction extends ContextSource {
+	/**
+	 * @var int Value of modid= request parameter.
+	 */
 	protected $id;
 
+	/**
+	 * @var string Name of modaction, e.g. "reject" or "approveall".
+	 */
 	public $actionName;
+
+	/**
+	 * @var User
+	 * Moderator who is enacting this action.
+	 */
 	public $moderator;
 
 	protected function __construct( IContextSource $context ) {
@@ -36,6 +47,11 @@ abstract class ModerationAction extends ContextSource {
 		$this->id = $request->getInt( 'modid' );
 	}
 
+	/**
+	 * @return array Action-specific API-friendly response, e.g. [ 'rejected' => '3' ].
+	 *
+	 * @phan-return array<string,mixed>
+	 */
 	final public function run() {
 		if ( $this->requiresWrite() ) {
 			if ( wfReadOnly() ) {
@@ -76,6 +92,8 @@ abstract class ModerationAction extends ContextSource {
 	 * Function called when the action is invoked.
 	 * @return array Array containing API response.
 	 * @throws ModerationError
+	 *
+	 * @phan-return array<string,mixed>
 	 */
 	abstract public function execute();
 
@@ -83,6 +101,8 @@ abstract class ModerationAction extends ContextSource {
 	 * Print the result of execute() in a human-readable way.
 	 * @param array $result Value returned by execute().
 	 * @param OutputPage &$out OutputPage object.
+	 *
+	 * @phan-param array<string,mixed> $result
 	 */
 	abstract public function outputResult( array $result, OutputPage &$out );
 
@@ -107,6 +127,7 @@ abstract class ModerationAction extends ContextSource {
 	 * Construct new ModerationAction
 	 * @param IContextSource $context
 	 * @return ModerationAction
+	 * @throws ModerationError
 	 */
 	public static function factory( IContextSource $context ) {
 		$request = $context->getRequest();

@@ -21,6 +21,10 @@
  */
 
 class ModerationUpdater {
+	/**
+	 * @param DatabaseUpdater $updater
+	 * @return bool
+	 */
 	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
 		$db = $updater->getDB();
 		$dbType = $db->getType();

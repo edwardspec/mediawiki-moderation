@@ -33,7 +33,7 @@ class ModerationPreload {
 	/** @var ModerationPreload Singleton instance */
 	protected static $instance = null;
 
-	/** @var EditPage Editor object passed from onAlternateEdit() to onEditFormPreloadText() */
+	/** @var EditPage|null Editor object passed from onAlternateEdit() to onEditFormPreloadText() */
 	protected $editPage = null;
 
 	/** @var User|null Current user. If not set, $wgUser will be used. */
@@ -56,7 +56,7 @@ class ModerationPreload {
 
 	/**
 	 * Get the request.
-	 * @return WebRequest object.
+	 * @return WebRequest
 	 */
 	protected function getRequest() {
 		return RequestContext::getMain()->getRequest();
@@ -64,7 +64,7 @@ class ModerationPreload {
 
 	/**
 	 * Get the user.
-	 * @return User object.
+	 * @return User
 	 */
 	protected function getUser() {
 		if ( $this->user ) {
@@ -133,20 +133,21 @@ class ModerationPreload {
 		$session->persist();
 	}
 
-	/*
-		onLocalUserCreated() - called when user creates an account.
-
-		If the user did some anonymous edits before registering,
-		this hook makes them non-anonymous, so that they could
-		be preloaded.
-	*/
+	/**
+	 * LocalUserCreated hook handler - called when user creates an account.
+	 * If the user did some anonymous edits before registering,
+	 * this hook makes them non-anonymous, so that they could be preloaded.
+	 * @param User $user
+	 * @param bool $autocreated
+	 * @return true
+	 */
 	public static function onLocalUserCreated( $user, $autocreated ) {
 		$preload = self::singleton();
 		$preload->setUser( $user );
 
 		$anonId = $preload->getAnonId( false );
 		if ( !$anonId ) { # This visitor never saved any edits
-			return;
+			return true;
 		}
 
 		$dbw = wfGetDB( DB_MASTER );
@@ -174,12 +175,12 @@ class ModerationPreload {
 	 * to this page, and if such edit exists, then load its text and
 	 * edit comment.
 	 * @param Title $title
-	 * @return stdClass|null Database row.
+	 * @return stdClass|false Database row.
 	 */
 	public function loadUnmoderatedEdit( $title ) {
 		$id = $this->getId();
 		if ( !$id ) { # This visitor never saved any edits
-			return null;
+			return false;
 		}
 
 		$where = [
@@ -209,12 +210,15 @@ class ModerationPreload {
 		return $row;
 	}
 
-	/*
-		If there is an edit (currently pending moderation) made by the
-		current user, inform EditPage object of its Text and Summary,
-		so that the user can continue editing its own revision.
-	*/
-	public static function showUnmoderatedEdit( &$text, &$title, &$editPage ) {
+	/**
+	 * If there is an edit (currently pending moderation) made by the
+	 * current user, inform EditPage object of its Text and Summary,
+	 * so that the user can continue editing its own revision.
+	 * @param string &$text
+	 * @param Title &$title
+	 * @param EditPage|null $editPage
+	 */
+	public static function showUnmoderatedEdit( &$text, &$title, $editPage ) {
 		$preload = self::singleton();
 		$section = $preload->getRequest()->getVal( 'section', '' );
 		if ( $section == 'new' ) {
@@ -247,30 +251,37 @@ class ModerationPreload {
 		}
 	}
 
-	/*
-		onAlternateEdit()
-		Remember EditPage object, which will then be used in onEditFormPreloadText.
-	*/
+	/**
+	 * AlternateEdit hook handler.
+	 * Remember EditPage object, which will then be used in onEditFormPreloadText.
+	 * @param EditPage $editPage
+	 * @return true
+	 */
 	public static function onAlternateEdit( $editPage ) {
 		self::singleton()->editPage = $editPage;
 
 		return true;
 	}
 
-	/*
-		onEditFormPreloadText()
-		Preloads text/summary when the article doesn't exist yet.
-	*/
+	/**
+	 * EditFormPreloadText hook handler.
+	 * Preloads text/summary when the article doesn't exist yet.
+	 * @param string &$text
+	 * @param Title &$title
+	 * @return true
+	 */
 	public static function onEditFormPreloadText( &$text, &$title ) {
 		self::showUnmoderatedEdit( $text, $title, self::singleton()->editPage );
 
 		return true;
 	}
 
-	/*
-		onEditFormPreloadText()
-		Preloads text/summary when the article already exists.
-	*/
+	/**
+	 * EditFormPreloadText hook handler.
+	 * Preloads text/summary when the article already exists.
+	 * @param EditPage $editPage
+	 * @return true
+	 */
 	public static function onEditFormInitialText( $editPage ) {
 		self::showUnmoderatedEdit( $editPage->textbox1, $editPage->mTitle, $editPage );
 

@@ -110,6 +110,14 @@ class ModerationUploadHooks {
 		return true;
 	}
 
+	/**
+	 * Prevent non-automoderated users from using action=revert.
+	 * @param Title $title
+	 * @param User $user
+	 * @param string $action
+	 * @param string &$result
+	 * @return bool
+	 */
 	public static function ongetUserPermissionsErrors( $title, $user, $action, &$result ) {
 		/*
 			action=revert bypasses doUpload(), so it is not intercepted

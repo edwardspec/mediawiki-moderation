@@ -75,6 +75,8 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 	 * @param Title $title
 	 * @param string $wikitext
 	 * @return array with keys 'text', 'categorieshtml', 'displaytitle'
+	 *
+	 * @phan-return array{text:string,categorieshtml:string,displaytitle:string}
 	 */
 	protected function parse( Title $title, $wikitext ) {
 		$apiParams = [

@@ -23,7 +23,7 @@
 class ModerationApiHooks {
 
 	/**
-	 * onApiCheckCanExecute() hook
+	 * ApiCheckCanExecute hook handler.
 	 *
 	 * Disable ApiFileRevert (this API doesn't run any pre-upload
 	 * hooks, thus allowing to bypass moderation).
@@ -47,13 +47,15 @@ class ModerationApiHooks {
 		return true;
 	}
 
-	/*
-		onApiBeforeMain()
-		Make sure that
-		1) api.php?action=edit&appendtext=... will append to the pending version.
-		2) api.php?action=edit&section=N won't complain 'nosuchsection' if
-		section N exists in the pending version.
-	*/
+	/**
+	 * ApiBeforeMain hook handler.
+	 * Make sure that
+	 * 1) api.php?action=edit&appendtext=... will append to the pending version.
+	 * 2) api.php?action=edit&section=N won't complain 'nosuchsection' if
+	 * section N exists in the pending version.
+	 * @param ApiMain &$main
+	 * @return true
+	 */
 	public static function onApiBeforeMain( &$main ) {
 		$request = $main->getRequest();
 		if ( $request->getVal( 'action' ) != 'edit' ) {
@@ -121,6 +123,10 @@ class ModerationApiHooks {
 		}
 
 		$req = new DerivativeRequest( $request, $query, true );
+
+		// FIXME: don't imply that getContext() returns DerivativeContext than knows setRequest(),
+		// use $main->setContext( new DerivativeContext( ... ) ) explicitly.
+		// @phan-suppress-next-line PhanUndeclaredMethod
 		$main->getContext()->setRequest( $req );
 
 		/* Let ApiEdit handle the rest */

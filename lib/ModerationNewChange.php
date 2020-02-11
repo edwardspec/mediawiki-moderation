@@ -94,6 +94,13 @@ class ModerationNewChange {
 		}
 	}
 
+	/**
+	 * @param WikiPage $wikiPage
+	 * @param Content $newContent
+	 * @param string $section
+	 * @param string $sectionText
+	 * @return self
+	 */
 	public function edit( WikiPage $wikiPage, Content $newContent, $section, $sectionText ) {
 		$this->fields['mod_cur_id'] = $wikiPage->getId();
 		$this->fields['mod_new'] = $wikiPage->exists() ? 0 : 1;
@@ -132,6 +139,10 @@ class ModerationNewChange {
 		return $this;
 	}
 
+	/**
+	 * @param Title $newTitle
+	 * @return self
+	 */
 	public function move( Title $newTitle ) {
 		$this->fields['mod_type'] = self::MOD_TYPE_MOVE;
 		$this->fields['mod_page2_namespace'] = $newTitle->getNamespace();
@@ -141,16 +152,28 @@ class ModerationNewChange {
 		return $this;
 	}
 
+	/**
+	 * @param bool $isMinor
+	 * @return self
+	 */
 	public function setMinor( $isMinor ) {
 		$this->fields['mod_minor'] = (int)$isMinor;
 		return $this;
 	}
 
+	/**
+	 * @param bool $isBot
+	 * @return self
+	 */
 	public function setBot( $isBot ) {
 		$this->fields['mod_bot'] = (int)$isBot;
 		return $this;
 	}
 
+	/**
+	 * @param string $summary
+	 * @return self
+	 */
 	public function setSummary( $summary ) {
 		$this->fields['mod_comment'] = $summary;
 		return $this;
@@ -178,7 +201,7 @@ class ModerationNewChange {
 
 	/**
 	 * Add AbuseFilter tags to this change, if any.
-	 * @param string $action
+	 * @param string $action AbuseFilter action, e.g. 'edit' or 'delete'.
 	 */
 	protected function addChangeTags( $action ) {
 		if ( ModerationVersionCheck::areTagsSupported() ) {
@@ -218,12 +241,18 @@ class ModerationNewChange {
 		return implode( "\n", AbuseFilter::$tagsToSet[$afActionID] );
 	}
 
+	/**
+	 * @return ModerationPreload
+	 */
 	protected function getPreload() {
 		$preload = ModerationPreload::singleton();
 		$preload->setUser( $this->user );
 		return $preload;
 	}
 
+	/**
+	 * @return stdClass|null
+	 */
 	protected function getPendingChange() {
 		if ( $this->pendingChange === null ) {
 			$this->pendingChange = $this->getPreload()

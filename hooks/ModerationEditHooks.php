@@ -31,15 +31,21 @@ class ModerationEditHooks {
 	protected static $section = '';
 
 	/** @var string Text of edited section, if any (populated in onEditFilter) */
-	protected static $sectionText = null;
+	protected static $sectionText = '';
 
 	/** @var bool|null Checkbox "Watch this page", if found (populated in onEditFilter) */
 	protected static $watchthis = null;
 
-	/*
-		onEditFilter()
-		Save sections-related information, which will then be used in onPageContentSave.
-	*/
+	/**
+	 * EditFilter hook handler.
+	 * Save sections-related information, which will then be used in onPageContentSave.
+	 * @param EditPage $editor
+	 * @param string $text
+	 * @param string $section
+	 * @param string &$error
+	 * @param string $summary
+	 * @return true
+	 */
 	public static function onEditFilter( $editor, $text, $section, &$error, $summary ) {
 		if ( $section != '' ) {
 			self::$section = $section;
@@ -51,10 +57,20 @@ class ModerationEditHooks {
 		return true;
 	}
 
-	/*
-		onPageContentSave()
-		Intercept normal edits and queue them for moderation.
-	*/
+	/**
+	 * PageContentSave hook handler.
+	 * Intercept normal edits and queue them for moderation.
+	 * @param WikiPage &$page
+	 * @param User &$user
+	 * @param Content &$content
+	 * @param string|CommentStoreComment &$summary
+	 * @param bool $is_minor
+	 * @param mixed $is_watch Unused.
+	 * @param mixed $section Unused.
+	 * @param int &$flags
+	 * @param Status &$status
+	 * @return bool
+	 */
 	public static function onPageContentSave(
 		&$page, &$user, &$content, &$summary, $is_minor,
 		$is_watch, $section, &$flags, &$status
@@ -96,7 +112,7 @@ class ModerationEditHooks {
 
 		$change = new ModerationNewChange( $title, $user );
 		$change->edit( $page, $content, self::$section, self::$sectionText )
-			->setBot( $flags & EDIT_FORCE_BOT )
+			->setBot( (bool)( $flags & EDIT_FORCE_BOT ) )
 			->setMinor( $is_minor )
 			->setSummary( $summary )
 			->queue();
@@ -153,6 +169,12 @@ class ModerationEditHooks {
 		return $title->getFullURL( $query );
 	}
 
+	/**
+	 * BeforePageDisplay hook handler.
+	 * @param OutputPage &$out
+	 * @param Skin &$skin
+	 * @return true
+	 */
 	public static function onBeforePageDisplay( &$out, &$skin ) {
 		$isAutomoderated = ModerationCanSkip::canEditSkip(
 			$out->getUser(),
@@ -169,12 +191,23 @@ class ModerationEditHooks {
 		return true;
 	}
 
-	/*
-		onPageContentSaveComplete()
-
-		If this is a merged edit, then 'wpMergeID' is the ID of moderation entry.
-		Here we mark this entry as merged.
-	*/
+	/**
+	 * PageContentSaveComplete hook handler.
+	 * If this is a merged edit, then 'wpMergeID' is the ID of moderation entry.
+	 * Here we mark this entry as merged.
+	 * @param WikiPage $page
+	 * @param User $user
+	 * @param Content $content
+	 * @param string|CommentStoreComment $summary
+	 * @param bool $is_minor
+	 * @param mixed $is_watch Unused
+	 * @param mixed $section Unused
+	 * @param int $flags
+	 * @param Revision $revision
+	 * @param Status $status
+	 * @param bool|int $baseRevId
+	 * @return true
+	 */
 	public static function onPageContentSaveComplete(
 		$page, $user, $content, $summary, $is_minor, $is_watch,
 		$section, $flags, $revision, $status, $baseRevId
@@ -232,6 +265,13 @@ class ModerationEditHooks {
 		return true;
 	}
 
+	/**
+	 * EditPage::showEditForm:fields hook handler.
+	 * Add wpMergeID field to edit form when moderator is doing a manual merge.
+	 * @param EditPage $editpage
+	 * @param OutputPage $out
+	 * @return true
+	 */
 	public static function prepareEditForm( $editpage, $out ) {
 		$mergeID = self::$NewMergeID;
 		if ( !$mergeID ) {
@@ -239,7 +279,7 @@ class ModerationEditHooks {
 		}
 
 		if ( !$mergeID ) {
-			return;
+			return true;
 		}
 
 		$out->addHTML( Html::hidden( 'wpMergeID', (string)$mergeID ) );
@@ -249,6 +289,7 @@ class ModerationEditHooks {
 	}
 
 	/**
+	 * ListDefinedTags hook handler.
 	 * Registers 'moderation-merged' ChangeTag.
 	 * @param array &$tags
 	 * @return true

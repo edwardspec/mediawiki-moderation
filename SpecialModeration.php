@@ -21,7 +21,19 @@
  */
 
 class SpecialModeration extends QueryPage {
-	public $folder; // Currently selected folder (when viewing the moderation table)
+
+	/**
+	 * @var string
+	 * Currently selected folder (when viewing the moderation table)
+	 */
+	public $folder;
+
+	/**
+	 * @var array
+	 * Maps folder names to their SQL filtering conditions for Database::select().
+	 *
+	 * @phan-var array<string,array>
+	 */
 	public $folders_list = [
 		'pending' => [ # Not yet moderated
 			'mod_rejected' => 0,
@@ -39,6 +51,11 @@ class SpecialModeration extends QueryPage {
 			'mod_rejected_auto' => 1
 		]
 	];
+
+	/**
+	 * @var string
+	 * Name of default folder.
+	 */
 	public $default_folder = 'pending';
 
 	public function __construct() {
