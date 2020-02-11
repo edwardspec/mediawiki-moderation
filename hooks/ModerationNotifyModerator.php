@@ -134,7 +134,7 @@ class ModerationNotifyModerator {
 	 * @return string
 	 */
 	protected static function getPendingCacheKey() {
-		return wfMemcKey( 'moderation-newest-pending-timestamp' );
+		return self::getCache()->makeKey( 'moderation-newest-pending-timestamp' );
 	}
 
 	/**
@@ -142,7 +142,7 @@ class ModerationNotifyModerator {
 	 * @return string
 	 */
 	protected function getPendingTime() {
-		$cache = wfGetMainCache();
+		$cache = self::getCache();
 		$cacheKey = self::getPendingCacheKey();
 
 		$result = $cache->get( $cacheKey );
@@ -181,8 +181,7 @@ class ModerationNotifyModerator {
 	 * @param string $newTimestamp
 	 */
 	public static function setPendingTime( $newTimestamp ) {
-		$cache = wfGetMainCache();
-		$cache->set( self::getPendingCacheKey(), $newTimestamp, 86400 ); /* 24 hours */
+		self::getCache()->set( self::getPendingCacheKey(), $newTimestamp, 86400 ); /* 24 hours */
 	}
 
 	/**
@@ -191,8 +190,15 @@ class ModerationNotifyModerator {
 	 * e.g. in modaction=rejectall.
 	 */
 	public static function invalidatePendingTime() {
-		$cache = wfGetMainCache();
-		$cache->delete( self::getPendingCacheKey() );
+		self::getCache()->delete( self::getPendingCacheKey() );
+	}
+
+	/**
+	 * Returns cache used by NotifyModerator methods.
+	 * @return BagOStuff
+	 */
+	protected static function getCache() {
+		return wfGetMainCache();
 	}
 
 	/**
@@ -201,7 +207,7 @@ class ModerationNotifyModerator {
 	 * @return string
 	 */
 	protected static function getSeenCacheKey( User $user ) {
-		return wfMemcKey( 'moderation-seen-timestamp', (string)$user->getId() );
+		return self::getCache()->makeKey( 'moderation-seen-timestamp', (string)$user->getId() );
 	}
 
 	/**
@@ -210,8 +216,7 @@ class ModerationNotifyModerator {
 	 * @return string|false
 	 */
 	protected function getSeen( User $user ) {
-		$cache = wfGetMainCache();
-		return $cache->get( self::getSeenCacheKey( $user ) );
+		return self::getCache()->get( self::getSeenCacheKey( $user ) );
 	}
 
 	/**
@@ -220,7 +225,6 @@ class ModerationNotifyModerator {
 	 * @param string $timestamp
 	 */
 	public static function setSeen( User $user, $timestamp ) {
-		$cache = wfGetMainCache();
-		$cache->set( self::getSeenCacheKey( $user ), $timestamp, 604800 ); /* 7 days */
+		self::getCache()->set( self::getSeenCacheKey( $user ), $timestamp, 604800 ); /* 7 days */
 	}
 }

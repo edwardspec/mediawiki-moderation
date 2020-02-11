@@ -14,12 +14,13 @@ Bugfixes:
 * Default value of mod_stash_key is now NULL, not empty string.
 
 Warnings fixed:
-* Replace deprecated ApiBase::dieUsage()
+* Replaced deprecated ApiBase::dieUsage()
 * Replaced deprecated Linker::link()
 * Replaced deprecated StreamFile::send404Message()
 * Replaced deprecated Title::GAID_FOR_UPDATE
 * Replaced deprecated UploadBase::stashFile()
 * Replaced deprecated $wgContLang
+* Replaced deprecated wfMemcKey()
 
 Refactoring, performance optimizations:
 * Removed legacy code for MediaWiki 1.27-1.30.

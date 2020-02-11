@@ -111,7 +111,15 @@ class ModerationVersionCheck {
 	 * @return string
 	 */
 	protected static function getCacheKey() {
-		return wfMemcKey( 'moderation-lastDbUpdateVersion' );
+		return self::getCache()->makeKey( 'moderation-lastDbUpdateVersion' );
+	}
+
+	/**
+	 * Returns cache used by getDbUpdatedVersion().
+	 * @return BagOStuff
+	 */
+	protected static function getCache() {
+		return wfGetMainCache();
 	}
 
 	/**
@@ -133,7 +141,7 @@ class ModerationVersionCheck {
 			return self::$dbUpdatedVersion;
 		}
 
-		$cache = wfGetMainCache();
+		$cache = self::getCache();
 		$cacheKey = self::getCacheKey();
 
 		$result = $cache->get( $cacheKey );
@@ -202,7 +210,6 @@ class ModerationVersionCheck {
 	 * Note: this won't affect CACHE_ACCEL, update.php has no access to it.
 	 */
 	public static function invalidateCache() {
-		$cache = wfGetMainCache();
-		$cache->delete( self::getCacheKey() );
+		self::getCache()->delete( self::getCacheKey() );
 	}
 }
