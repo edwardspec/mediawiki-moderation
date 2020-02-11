@@ -68,7 +68,7 @@ class ModerationActionEditChange extends ModerationAction {
 		];
 	}
 
-	public function outputResult( array $result, OutputPage &$out ) {
+	public function outputResult( array $result, OutputPage $out ) {
 		$title = Title::makeTitle( $result['namespace'], $result['title'] );
 		$article = new Article( $title );
 

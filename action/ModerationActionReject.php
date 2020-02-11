@@ -36,7 +36,7 @@ class ModerationActionReject extends ModerationAction {
 		return $ret;
 	}
 
-	public function outputResult( array $result, OutputPage &$out ) {
+	public function outputResult( array $result, OutputPage $out ) {
 		$out->addWikiMsg( 'moderation-rejected-ok', $result['rejected-count'] );
 	}
 

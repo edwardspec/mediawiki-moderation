@@ -32,7 +32,7 @@ class ModerationActionShowImage extends ModerationAction {
 		return false;
 	}
 
-	public function outputResult( array $result, OutputPage &$out ) {
+	public function outputResult( array $result, OutputPage $out ) {
 		$out->disable(); # No HTML output (image only)
 
 		if ( isset( $result['missing'] ) ) {

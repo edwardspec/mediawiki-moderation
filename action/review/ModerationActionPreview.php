@@ -30,7 +30,7 @@ class ModerationActionPreview extends ModerationAction {
 		return false;
 	}
 
-	public function outputResult( array $result, OutputPage &$out ) {
+	public function outputResult( array $result, OutputPage $out ) {
 		$out->setPageTitle( $this->msg(
 			'moderation-preview-title',
 			$result['title']

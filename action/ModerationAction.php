@@ -100,11 +100,11 @@ abstract class ModerationAction extends ContextSource {
 	/**
 	 * Print the result of execute() in a human-readable way.
 	 * @param array $result Value returned by execute().
-	 * @param OutputPage &$out OutputPage object.
+	 * @param OutputPage $out OutputPage object.
 	 *
 	 * @phan-param array<string,mixed> $result
 	 */
-	abstract public function outputResult( array $result, OutputPage &$out );
+	abstract public function outputResult( array $result, OutputPage $out );
 
 	/**
 	 * Utility function. Get userpage of user who made this edit.

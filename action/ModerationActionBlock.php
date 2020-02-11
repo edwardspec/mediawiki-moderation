@@ -22,7 +22,7 @@
 
 class ModerationActionBlock extends ModerationAction {
 
-	public function outputResult( array $result, OutputPage &$out ) {
+	public function outputResult( array $result, OutputPage $out ) {
 		/* Messages used here (for grep)
 			moderation-block-ok
 			moderation-unblock-ok
