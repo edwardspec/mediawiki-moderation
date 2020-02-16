@@ -27,10 +27,9 @@ class ModerationPageFormsTest extends ModerationTestCase {
 	 * Is pending edit preloaded into the edit form of Special:FormEdit?
 	 * @covers ModerationPageForms
 	 * @dataProvider dataProviderPageFormsPreload
+	 * @requires function PFHooks::initialize
 	 */
 	public function testPageFormsPreload( $isExistingPage, ModerationTestsuite $t ) {
-		$this->skipIfNoPageForms();
-
 		$page = "Test page 1";
 		$formName = 'Cat';
 		$sections = [
@@ -96,11 +95,5 @@ class ModerationPageFormsTest extends ModerationTestCase {
 			'new page' => [ false ],
 			'existing page' => [ true ]
 		];
-	}
-
-	public function skipIfNoPageForms() {
-		if ( !ExtensionRegistry::getInstance()->isLoaded( 'Page Forms' ) ) {
-			$this->markTestSkipped( 'Test skipped: PageForms extension must be installed to run it.' );
-		}
 	}
 }

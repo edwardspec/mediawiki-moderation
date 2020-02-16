@@ -31,10 +31,9 @@ class ModerationAbuseFilterTest extends ModerationTestCase {
 	/**
 	 * Are AbuseFilter tags preserved for edits?
 	 * @covers ModerationNewChange::addChangeTags
+	 * @requires function AbuseFilterHooks::filterEdit
 	 */
 	public function testAFTagsEdit( ModerationTestsuite $t ) {
-		$this->skipIfNoAbuseFilter();
-
 		$filterId = $t->addTagAllAbuseFilter( $this->expectedTags );
 
 		/* Perform the edit as non-automoderated user.
@@ -55,10 +54,9 @@ class ModerationAbuseFilterTest extends ModerationTestCase {
 	/**
 	 * Are AbuseFilter tags preserved for moves?
 	 * @coversNothing
+	 * @requires function AbuseFilterHooks::filterEdit
 	 */
 	public function testAFTagsMove( ModerationTestsuite $t ) {
-		$this->skipIfNoAbuseFilter();
-
 		$title = 'Cat';
 
 		$t->loginAs( $t->automoderated );
@@ -84,10 +82,9 @@ class ModerationAbuseFilterTest extends ModerationTestCase {
 	/**
 	 * Are AbuseFilter tags preserved for uploads?
 	 * @covers ModerationNewChange::addChangeTags
+	 * @requires function AbuseFilterHooks::filterEdit
 	 */
 	public function testAFTagsUpload( ModerationTestsuite $t ) {
-		$this->skipIfNoAbuseFilter();
-
 		$filterId = $t->addTagAllAbuseFilter( $this->expectedTags );
 
 		/* Perform the edit as non-automoderated user.
@@ -130,20 +127,6 @@ class ModerationAbuseFilterTest extends ModerationTestCase {
 			$this->assertContains( $tag, $rc['tags'],
 				"$caller(): expected tag [$tag] hasn't been assigned to RecentChange"
 			);
-		}
-	}
-
-	public function skipIfNoAbuseFilter() {
-		global $wgSpecialPages;
-
-		if ( !ModerationVersionCheck::areTagsSupported() ) {
-			$this->markTestSkipped( 'Test skipped: DB schema is outdated, please run update.php.' );
-		}
-
-		$dbw = wfGetDB( DB_MASTER );
-		if ( !array_key_exists( 'AbuseFilter', $wgSpecialPages )
-			|| !$dbw->tableExists( 'abuse_filter' ) ) {
-			$this->markTestSkipped( 'Test skipped: AbuseFilter extension must be installed to run it.' );
 		}
 	}
 }

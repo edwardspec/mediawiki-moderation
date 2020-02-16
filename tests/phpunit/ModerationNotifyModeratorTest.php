@@ -83,12 +83,9 @@ class ModerationNotifyModeratorTest extends ModerationTestCase {
 	 * Ensure that GetNewMessagesAlert hook of Extension:Echo is not suppressed
 	 * when showing "You have new messages" instead of our notification.
 	 * @depends testNoNotificationIfHasMessages
+	 * @requires function EchoHooks::initEchoExtension
 	 */
 	public function testEchoHookCalledIfHasMessages( $noticeText ) {
-		if ( !class_exists( 'EchoHooks' ) ) {
-			$this->markTestSkipped( 'Test skipped: Echo extension must be installed to run it.' );
-		}
-
 		// Extension:Echo suppresses "You have new messages" notice in GetNewMessagesAlert hook,
 		// so if the hook handlers were correctly invoked, then $noticeText will be null.
 		$this->assertNull(

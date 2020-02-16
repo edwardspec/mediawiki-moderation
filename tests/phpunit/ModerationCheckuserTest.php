@@ -63,22 +63,11 @@ class ModerationCheckuserTest extends ModerationTestCase {
 		return $row['ip'] ?? null;
 	}
 
-	public function skipIfNoCheckuser() {
-		global $wgSpecialPages;
-
-		$dbw = wfGetDB( DB_MASTER );
-		if ( !array_key_exists( 'CheckUser', $wgSpecialPages )
-			|| !$dbw->tableExists( 'cu_changes' ) ) {
-			$this->markTestSkipped( 'Test skipped: CheckUser extension must be installed to run it.' );
-		}
-	}
-
 	/**
 	 * Ensure that modaction=approve preserves user-agent of edits.
+	 * @requires function CheckUserHooks::updateCheckUserData
 	 */
 	public function testApproveEditPrevervesUA( ModerationTestsuite $t ) {
-		$this->skipIfNoCheckuser();
-
 		# When the edit is approved, cu_changes.cuc_agent field should
 		# contain UserAgent of user who made the edit,
 		# not UserAgent or the moderator who approved it.
@@ -103,10 +92,9 @@ class ModerationCheckuserTest extends ModerationTestCase {
 	/**
 	 * Ensure that modaction=approveall preserves user-agent of uploads.
 	 * @covers ModerationApproveHook::getTask()
+	 * @requires function CheckUserHooks::updateCheckUserData
 	 */
 	public function testApproveAllUploadPrevervesUA( ModerationTestsuite $t ) {
-		$this->skipIfNoCheckuser();
-
 		# Perform several uploads.
 		$NUMBER_OF_UPLOADS = 2;
 
