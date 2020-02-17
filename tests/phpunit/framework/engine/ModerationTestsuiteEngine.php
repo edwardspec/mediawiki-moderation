@@ -79,6 +79,21 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	abstract public function setMwConfig( $name, $value );
 
 	/**
+	 * Detect invocations of the hook and capture the parameters that were passed to it.
+	 * @param string $name Name of the hook, e.g. "ModerationPending".
+	 * @param callable $postfactumCallback Receives array of received parameter types and array
+	 * of received parameters. Non-serializable parameters will be empty.
+	 * @note This callback is called after httpRequest() has already been completed.
+	 * @note If there were several invocations of the hook, callback is called for each of them.
+	 *
+	 * @phan-param callable(string[],array) $postfactumCallback
+	 */
+	public function trackHook( $name, callable $postfactumCallback ) {
+		throw new PHPUnit\Framework\SkippedTestError(
+			'Test skipped: ' . __METHOD__ . ' is not yet implemented.' );
+	}
+
+	/**
 	 * Perform GET request.
 	 * @return ModerationTestsuiteResponse object.
 	 */

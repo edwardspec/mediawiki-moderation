@@ -76,6 +76,16 @@ class ModerationTestsuite {
 		$this->engine->setMwConfig( $name, $value );
 	}
 
+	/**
+	 * Detect invocations of the hook and capture the parameters that were passed to it.
+	 * @param string $name Name of the hook, e.g. "ModerationPending".
+	 * @param callable $postfactumCallback Receives array of received parameter types and array
+	 * of received parameters. Non-serializable parameters will be empty.
+	 */
+	public function trackHook( $name, $postfactumCallback ) {
+		$this->engine->trackHook( $name, $postfactumCallback );
+	}
+
 	/** Add an arbitrary HTTP header to all outgoing requests. */
 	public function setHeader( $name, $value ) {
 		$this->engine->setHeader( $name, $value );

@@ -242,6 +242,32 @@ function efModerationTestsuiteSetup() {
 	$wgHooks['BeforeInitialize'][] = function () {
 		efModerationTestsuiteLogSituation();
 	};
+
+	/*
+		Track hooks, as requested by ModerationTestsuiteCliEngine::trackHook()
+	*/
+	$wgModerationTestsuiteCliDescriptor['capturedHooks'] = [];
+	foreach ( $wgModerationTestsuiteCliDescriptor['trackedHooks'] as $hook ) {
+		$wgModerationTestsuiteCliDescriptor['capturedHooks'][$hook] = [];
+
+		$wgHooks[$hook][] = function () use ( $hook ) {
+			global $wgModerationTestsuiteCliDescriptor;
+
+			// The testsuite would want to analyze types of received parameters,
+			// and well as parameter values (assuming they can be serialized).
+			$params = func_get_args();
+			$paramTypes = array_map( function ( $param ) {
+				$type = gettype( $param );
+				return $type == 'object' ? get_class( $param ) : $type;
+			}, $params );
+			$paramsJson = FormatJson::encode( $params );
+
+			$wgModerationTestsuiteCliDescriptor['capturedHooks'][$hook][] = [
+				$paramTypes,
+				$paramsJson
+			];
+		};
+	}
 }
 
 efModerationTestsuiteSetup();

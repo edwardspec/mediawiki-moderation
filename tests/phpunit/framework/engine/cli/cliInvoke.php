@@ -178,7 +178,10 @@ class CliInvoke {
 
 		$result = [
 			'capturedContent' => $capturedContent,
-			'exceptionText' => $this->exceptionText
+			'exceptionText' => $this->exceptionText,
+
+			// Results of trackHook(). This is added to descriptor in InvokedWikiSettings.php.
+			'capturedHooks' => $this->getDescriptor( 'capturedHooks' )
 		];
 
 		// If an exception happened before efModerationTestsuiteSetup(),

@@ -30,6 +30,9 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 	/** @var array [ 'name' => 'value' ] - $wg* variables from setMwConfig() */
 	protected $config = [];
 
+	/** @var array [ 'name_of_hook' => postfactum_callback ] */
+	protected $trackedHooks = [];
+
 	/**
 	 * Forget the login cookies (if any), thus becoming an anonymous user.
 	 */
@@ -43,6 +46,15 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 	 */
 	public function setMwConfig( $name, $value ) {
 		$this->config[$name] = $value;
+	}
+
+	/**
+	 * Detect invocations of the hook and capture the parameters that were passed to it.
+	 * @param string $name Name of the hook, e.g. "ModerationPending".
+	 * @param callable $postfactumCallback Information about received parameters.
+	 */
+	public function trackHook( $name, callable $postfactumCallback ) {
+		$this->trackedHooks[$name] = $postfactumCallback;
 	}
 
 	/**
@@ -82,6 +94,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 				'Host' => $wgServerName
 			],
 			'config' => $this->config,
+			'trackedHooks' => array_keys( $this->trackedHooks ),
 
 			// For sanity checks only.
 			'expectedUser' => [
@@ -190,6 +203,17 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 		$this->cookies = array_map( function ( $info ) {
 			return $info['value'];
 		}, $response->getCookies() ) + $this->cookies;
+
+		/* Call any postfactum callbacks that were requested by trackHook() */
+		foreach ( $this->trackedHooks as $hook => $callback ) {
+			// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
+			foreach ( $result['capturedHooks'][$hook] as $invocation ) {
+				list( $paramTypes, $paramsJson ) = $invocation;
+				$params = FormatJson::decode( $paramsJson, true );
+
+				$callback( $paramTypes, $params );
+			}
+		}
 
 		return ModerationTestsuiteResponse::newFromFauxResponse(
 			$response,
