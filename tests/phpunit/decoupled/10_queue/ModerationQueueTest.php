@@ -275,6 +275,7 @@ class ModerationQueueTest extends ModerationTestCase {
 		$this->assertTimestampIsRecent( $row->mod_timestamp );
 		$this->checkUpload( $row->mod_stash_key );
 		$this->checkWatchlist( $this->watch );
+		$this->assertHooksWereCalled();
 	}
 
 	/**
@@ -312,29 +313,8 @@ class ModerationQueueTest extends ModerationTestCase {
 
 		$bot = $t->getBot( $this->viaApi ? 'api' : 'nonApi' );
 
-		$t->trackHook( 'ModerationIntercept', function ( array $paramTypes, array $params ) {
-			$this->assertEquals( 'WikiPage', $paramTypes[0] );
-			$this->assertEquals( 'User', $paramTypes[1] );
-			$this->assertTrue(
-				( new ReflectionClass( $paramTypes[2] ) )->implementsInterface( 'Content' ) );
-			$this->assertEquals( 'string', $paramTypes[3] ); // $summary
-			$this->assertEquals( 'integer', $paramTypes[4] ); // $is_minor: 0 or 1 (int, not bool)
-			$this->assertEquals( 'NULL', $paramTypes[5] ); // Unused
-			$this->assertEquals( 'NULL', $paramTypes[6] ); // Unused
-			$this->assertEquals( 'integer', $paramTypes[7] ); // $flags
-			$this->assertEquals( 'Status', $paramTypes[8] );
-
-			// TODO: check that $params are valid.
-			// TODO: verify that this hook is called expected number of times (1).
-		} );
-
-		$t->trackHook( 'ModerationPending', function ( array $paramTypes, array $params ) {
-			$this->assertEquals( 'array', $paramTypes[0] );
-			$this->assertEquals( 'integer', $paramTypes[1] );
-
-			// TODO: check that $params are valid.
-			// TODO: verify that this hook is called expected number of times (1).
-		} );
+		$t->trackHook( 'ModerationIntercept' );
+		$t->trackHook( 'ModerationPending' );
 
 		if ( $this->filename ) {
 			/* Upload */
@@ -367,6 +347,60 @@ class ModerationQueueTest extends ModerationTestCase {
 			$this->assertTrue( $result->isIntercepted(),
 				"Edit wasn't intercepted by Moderation." );
 		}
+	}
+
+	/**
+	 * Assert that necessary hooks were called during the test.
+	 */
+	protected function assertHooksWereCalled() {
+		$this->assertModerationInterceptWasCalled();
+		$this->assertModerationPendingWasCalled();
+	}
+
+	/**
+	 * Assert that ModerationIntercept hook was called during the test.
+	 */
+	protected function assertModerationInterceptWasCalled() {
+		$hooks = $this->getTestsuite()->getCapturedHooks( 'ModerationIntercept' );
+		if ( $this->newTitle ) {
+			// ModerationIntercept hook shouldn't be called when renaming a page.
+			$this->assertEmpty( $hooks,
+				"ModerationIntercept hook was called when renaming a page." );
+			return;
+		}
+
+		// Normal edit or upload.
+		$this->assertNotEmpty( $hooks, "ModerationIntercept hook wasn't called." );
+		$this->assertCount( 1, $hooks, "Number of times ModerationIntercept hook was called isn't 1." );
+
+		list( $paramTypes, $params ) = $hooks[0];
+		$this->assertEquals( 'WikiPage', $paramTypes[0] );
+		$this->assertEquals( 'User', $paramTypes[1] );
+		$this->assertTrue(
+			( new ReflectionClass( $paramTypes[2] ) )->implementsInterface( 'Content' ) );
+		$this->assertEquals( 'string', $paramTypes[3] ); // $summary
+		$this->assertEquals( 'integer', $paramTypes[4] ); // $is_minor: 0 or 1 (int, not bool)
+		$this->assertEquals( 'NULL', $paramTypes[5] ); // Unused
+		$this->assertEquals( 'NULL', $paramTypes[6] ); // Unused
+		$this->assertEquals( 'integer', $paramTypes[7] ); // $flags
+		$this->assertEquals( 'Status', $paramTypes[8] );
+
+		// TODO: check that $params are valid.
+	}
+
+	/**
+	 * Assert that ModerationPending hook was called during the test.
+	 */
+	protected function assertModerationPendingWasCalled() {
+		$hooks = $this->getTestsuite()->getCapturedHooks( 'ModerationPending' );
+		$this->assertNotEmpty( $hooks, "ModerationPending hook wasn't called." );
+		$this->assertCount( 1, $hooks, "Number of times ModerationPending hook was called isn't 1." );
+
+		list( $paramTypes, $params ) = $hooks[0];
+		$this->assertEquals( 'array', $paramTypes[0] );
+		$this->assertEquals( 'integer', $paramTypes[1] );
+
+		// TODO: check that $params are valid.
 	}
 
 	/**

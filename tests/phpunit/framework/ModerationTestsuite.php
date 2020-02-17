@@ -77,13 +77,34 @@ class ModerationTestsuite {
 	}
 
 	/**
+	 * @var array
+	 * @phan-var array<string,array<array{0:string[],1:mixed[]}>>
+	 */
+	protected $capturedHooks = [];
+
+	/**
 	 * Detect invocations of the hook and capture the parameters that were passed to it.
 	 * @param string $name Name of the hook, e.g. "ModerationPending".
-	 * @param callable $postfactumCallback Receives array of received parameter types and array
-	 * of received parameters. Non-serializable parameters will be empty.
+	 * @see getCapturedHooks()
 	 */
-	public function trackHook( $name, $postfactumCallback ) {
-		$this->engine->trackHook( $name, $postfactumCallback );
+	public function trackHook( $name ) {
+		$this->capturedHooks[$name] = [];
+		$this->engine->trackHook( $name, Closure::bind( function ( $paramTypes, $params ) use ( $name ) {
+			$this->capturedHooks[$name][] = [ $paramTypes, $params ];
+		}, $this ) );
+	}
+
+	/**
+	 * Return information about every call to the hook that happened since trackHook() was called.
+	 * @param string $name Name of the hook, e.g. "ModerationPending"
+	 * @return array Array of invocations, where each invocation is an array of two elements:
+	 * 1) array of received parameter types,
+	 * 2) array of received parameters. (Note: non-serializable parameters will be empty)
+	 *
+	 * @phan-return array<array{0:string[],1:mixed[]}>
+	 */
+	public function getCapturedHooks( $name ) {
+		return $this->capturedHooks[$name] ?? [];
 	}
 
 	/** Add an arbitrary HTTP header to all outgoing requests. */
@@ -296,6 +317,9 @@ class ModerationTestsuite {
 
 		# Clear our thread-aware cache before each test.
 		ModerationTestsuiteBagOStuff::flushAll();
+
+		// Clear the buffer of getCapturedHooks()
+		$this->capturedHooks = [];
 	}
 
 	/**
