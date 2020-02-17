@@ -312,6 +312,30 @@ class ModerationQueueTest extends ModerationTestCase {
 
 		$bot = $t->getBot( $this->viaApi ? 'api' : 'nonApi' );
 
+		$t->trackHook( 'ModerationIntercept', function ( array $paramTypes, array $params ) {
+			$this->assertEquals( 'WikiPage', $paramTypes[0] );
+			$this->assertEquals( 'User', $paramTypes[1] );
+			$this->assertTrue(
+				( new ReflectionClass( $paramTypes[2] ) )->implementsInterface( 'Content' ) );
+			$this->assertEquals( 'string', $paramTypes[3] ); // $summary
+			$this->assertEquals( 'integer', $paramTypes[4] ); // $is_minor: 0 or 1 (int, not bool)
+			$this->assertEquals( 'NULL', $paramTypes[5] ); // Unused
+			$this->assertEquals( 'NULL', $paramTypes[6] ); // Unused
+			$this->assertEquals( 'integer', $paramTypes[7] ); // $flags
+			$this->assertEquals( 'Status', $paramTypes[8] );
+
+			// TODO: check that $params are valid.
+			// TODO: verify that this hook is called expected number of times (1).
+		} );
+
+		$t->trackHook( 'ModerationPending', function ( array $paramTypes, array $params ) {
+			$this->assertEquals( 'array', $paramTypes[0] );
+			$this->assertEquals( 'integer', $paramTypes[1] );
+
+			// TODO: check that $params are valid.
+			// TODO: verify that this hook is called expected number of times (1).
+		} );
+
 		if ( $this->filename ) {
 			/* Upload */
 			$result = $bot->upload(
