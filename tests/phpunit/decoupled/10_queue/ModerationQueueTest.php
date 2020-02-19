@@ -480,7 +480,29 @@ class ModerationQueueTest extends ModerationTestCase {
 		$this->assertEquals( 'integer', $paramTypes[7] ); // $flags
 		$this->assertEquals( 'Status', $paramTypes[8] );
 
-		// TODO: check that $params are valid.
+		// FIXME: loss of types during JSON serialization is very inconvenient.
+		// serialize() is not currently used, because some classes have callbacks, etc.,
+		// and where json_encode would provide an empty value, serialize() would fail completely.
+
+		$this->assertTrue( $this->title->equals( Title::makeTitle(
+			$params[0]['mTitle']['mNamespace'],
+			$params[0]['mTitle']['mTextform']
+		) ) );
+
+		$this->assertEquals( $this->user->getName(), $params[1]['mName'] );
+		// $params[2] is not serialiable
+		$this->assertEquals( $this->getExpectedSummary(), $params[3] );
+		$this->assertSame( 0, $params[4] ); // TODO: add minor edits to the QueueTest
+		$this->assertNull( $params[5] ); // Unused parameter, always NULL
+		$this->assertNull( $params[6] ); // Unused parameter, always NULL
+
+		$expectedFlags = ( $this->existing ? EDIT_UPDATE : EDIT_NEW );
+		if ( !$this->filename ) {
+			$expectedFlags |= EDIT_AUTOSUMMARY;
+		}
+
+		$this->assertEquals( $expectedFlags, $params[7] );
+		$this->assertSame( 0, $params[8]['failCount'] );
 	}
 
 	/**
@@ -509,6 +531,25 @@ class ModerationQueueTest extends ModerationTestCase {
 	}
 
 	/**
+	 * Return expected post-edit edit summary (value of mod_comment DB field).
+	 * @return string
+	 */
+	protected function getExpectedSummary() {
+		if ( !$this->filename ) {
+			/* Normal edit (not an upload) */
+			return $this->summary;
+		}
+
+		if ( $this->viaApi ) {
+			/* API has different parameters for 'text' and 'summary' */
+			return '';
+		}
+
+		/* Special:Upload copies text into summary */
+		return $this->text;
+	}
+
+	/**
 	 * Returns array of expected post-edit values of all mod_* fields in the database.
 	 * @note Values like "/value/" are treated as regular expressions.
 	 * @return array [ 'mod_user' => ..., 'mod_namespace' => ..., ... ]
@@ -529,19 +570,10 @@ class ModerationQueueTest extends ModerationTestCase {
 
 		$expectedText = $expectedContent->getNativeData();
 
-		$expectedSummary = $this->summary;
-		if ( $this->filename ) {
-			if ( $this->viaApi ) {
-				/* API has different parameters for 'text' and 'summary' */
-				$expectedSummary = '';
-			} else {
-				/* Special:Upload copies text into summary */
-				$expectedSummary = $this->text;
-
-				/* Special:Upload prepends InitialText with "== Summary ==" header */
-				$headerText = '== (filedesc) ==';
-				$expectedText = "$headerText\n$expectedText";
-			}
+		if ( $this->filename && !$this->viaApi ) {
+			/* Special:Upload prepends InitialText with "== Summary ==" header */
+			$headerText = '== (filedesc) ==';
+			$expectedText = "$headerText\n$expectedText";
 		}
 
 		return [
@@ -552,7 +584,7 @@ class ModerationQueueTest extends ModerationTestCase {
 			'mod_cur_id' => $this->existing ? $this->title->getArticleId( IDBAccessObject::READ_LATEST ) : 0,
 			'mod_namespace' => $this->title->getNamespace(),
 			'mod_title' => $this->title->getDBKey(),
-			'mod_comment' => $expectedSummary,
+			'mod_comment' => $this->getExpectedSummary(),
 			'mod_minor' => 0,
 			'mod_bot' => 0,
 			'mod_new' => ( $this->existing || $this->newTitle ) ? 0 : 1,
