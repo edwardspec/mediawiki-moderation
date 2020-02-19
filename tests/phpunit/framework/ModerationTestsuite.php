@@ -697,7 +697,7 @@ class ModerationTestsuite {
 			'action' => 'query',
 			'prop' => 'revisions',
 			'rvlimit' => 1,
-			'rvprop' => 'user|timestamp|comment|content|ids|tags',
+			'rvprop' => 'user|timestamp|comment|content|ids|tags|flags',
 			'titles' => $title
 		] );
 		$retPage = array_shift( $ret['query']['pages'] );

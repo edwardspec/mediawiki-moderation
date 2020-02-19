@@ -65,6 +65,13 @@ class ModerationActionTest extends ModerationTestCase {
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true
 			] ],
+			'successful Approve (minor edit on the existing page)' => [ [
+				'modaction' => 'approve',
+				'mod_minor' => 1,
+				'existing' => true, // edit in existing page
+				'expectedOutput' => '(moderation-approved-ok: 1)',
+				'expectApproved' => true
+			] ],
 			'successful Approve (previously rejected change)' => [ [
 				'modaction' => 'approve',
 				'mod_rejected' => 1,
@@ -917,6 +924,11 @@ class ModerationActionTest extends ModerationTestCase {
 
 		$this->assertEquals( $this->fields['mod_user_text'], $rev['user'] );
 		$this->assertEquals( $this->fields['mod_text'], $rev['*'] );
+
+		$this->assertEquals(
+			[ "is minor edit" => (bool)$this->fields['mod_minor'] ],
+			[ "is minor edit" => array_key_exists( 'minor', $rev ) ]
+		);
 
 		$isReupload = $this->existing && $this->filename;
 		if ( !$isReupload ) {
