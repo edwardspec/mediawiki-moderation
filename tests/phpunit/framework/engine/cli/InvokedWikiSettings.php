@@ -266,8 +266,15 @@ function efModerationTestsuiteSetup() {
 				$paramTypes,
 				$paramsJson
 			];
+
+			return true;
 		};
 	}
+
+	$wgHooks['AlternateUserMailer'][] = function () {
+		// Prevent any emails from actually being sent during the testsuite runs.
+		return false;
+	};
 }
 
 efModerationTestsuiteSetup();

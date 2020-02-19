@@ -130,7 +130,39 @@ class ModerationQueueTest extends ModerationTestCase {
 			'anonymous non-API edit: enabled "Watch this page" checkbox should be ignored' =>
 				[ [ 'watch' => true, 'anonymously' => true ] ],
 			'anonymous non-API edit: disabled "Watch this page" checkbox should be ignored' =>
-				[ [ 'unwatch' => true, 'anonymously' => true ] ]
+				[ [ 'unwatch' => true, 'anonymously' => true ] ],
+
+			'email notification about anonymous edit' =>
+				[ [ 'anonymously' => true, 'notifyEmail' => 'noreply@localhost' ] ],
+			'email notification about edit by unprivileged user' =>
+				[ [ 'notifyEmail' => 'noreply@localhost' ] ],
+			'email notification about edit in existing page' =>
+				[ [ 'existing' => true, 'notifyEmail' => 'noreply@localhost' ] ],
+			'email notification about upload' =>
+				[ [ 'filename' => 'image100x100.png', 'notifyEmail' => 'noreply@localhost' ] ],
+			'email notification about page move' =>
+				[ [
+					'title' => 'Title 1',
+					'newTitle' => 'Title 2',
+					'notifyEmail' => 'noreply@localhost'
+				] ],
+			'absence of email for existing page when $wgModerationNotificationNewOnly=true' =>
+				[ [
+					'filename' => 'image100x100.png',
+					'notifyNewOnly' => true,
+					'notifyEmail' => 'noreply@localhost'
+				] ],
+			'absence of email for reupload when $wgModerationNotificationNewOnly=true' =>
+				[ [
+					'existing' => true,
+					'notifyNewOnly' => true,
+					'notifyEmail' => 'noreply@localhost'
+				] ],
+			'absence of email for edit by modblocked user' =>
+				[ [
+					'modblocked' => true,
+					'notifyEmail' => 'noreply@localhost'
+				] ],
 		];
 	}
 
@@ -194,6 +226,12 @@ class ModerationQueueTest extends ModerationTestCase {
 	/** @var bool|null If true/false, defines the state of "Watch this page" checkbox. */
 	protected $watch = null;
 
+	/** @var string|false Email address (to enable notifications about new edits) or false. */
+	protected $notifyEmail = false;
+
+	/** @var bool If true, $wgModerationNotificationNewOnly is set to true. */
+	protected $notifyNewOnly = false;
+
 	/**
 	 * Initialize this TestSet from the input of dataProvider.
 	 */
@@ -228,6 +266,8 @@ class ModerationQueueTest extends ModerationTestCase {
 				case 'needPst':
 				case 'existing':
 				case 'modblocked':
+				case 'notifyEmail':
+				case 'notifyNewOnly':
 					$this->$key = $value;
 					break;
 
@@ -289,6 +329,16 @@ class ModerationQueueTest extends ModerationTestCase {
 			$t->setHeader( 'X-Forwarded-For', $this->xff );
 		}
 
+		if ( $this->notifyEmail ) {
+			// Test emails that were sent to $wgModerationEmail about new edit being queued.
+			$t->setMwConfig( 'ModerationEmail', $this->notifyEmail );
+			$t->setMwConfig( 'ModerationNotificationEnable', true );
+		}
+
+		if ( $this->notifyNewOnly ) {
+			$t->setMwConfig( 'ModerationNotificationNewOnly', true );
+		}
+
 		if ( $this->existing || $this->newTitle ) {
 			$this->precreatePage( $this->title, $this->oldText, $this->filename );
 		}
@@ -315,6 +365,7 @@ class ModerationQueueTest extends ModerationTestCase {
 
 		$t->trackHook( 'ModerationIntercept' );
 		$t->trackHook( 'ModerationPending' );
+		$t->trackHook( 'AlternateUserMailer' ); // To check notification emails
 
 		if ( $this->filename ) {
 			/* Upload */
@@ -355,6 +406,50 @@ class ModerationQueueTest extends ModerationTestCase {
 	protected function assertHooksWereCalled() {
 		$this->assertModerationInterceptWasCalled();
 		$this->assertModerationPendingWasCalled();
+		$this->assertEmailWasSent();
+	}
+
+	/**
+	 * Assert that AlternateUserMailer hook has detected a "new change was queued" email.
+	 */
+	protected function assertEmailWasSent() {
+		$hooks = $this->getTestsuite()->getCapturedHooks( 'AlternateUserMailer' );
+		if ( !$this->notifyEmail ) {
+			$this->assertEmpty( $hooks,
+				"An email was sent, even though \$wgModerationNotificationEnable " .
+				"wasn't set to true." );
+			return;
+		}
+
+		if ( $this->modblocked ) {
+			$this->assertEmpty( $hooks,
+				"An email was sent after an edit from modblocked user." );
+			return;
+		}
+
+		if ( $this->notifyNewOnly && $this->existing ) {
+			$this->assertEmpty( $hooks,
+				"An email was sent for existing page, even though " .
+				"\$wgModerationNotificationNewOnly was set to true." );
+			return;
+		}
+
+		$this->assertCount( 1, $hooks, "Number of emails that were sent isn't 1." );
+		list( $headers, $to, $from, $subject, $body ) = $hooks[0][1];
+
+		global $wgPasswordSender;
+		$this->assertEquals( $wgPasswordSender, $from['address'] );
+		$this->assertEquals( $this->notifyEmail, $to[0]['address'] );
+		$this->assertEquals( '(moderation-notification-subject)', $subject );
+
+		$modid = wfGetDB( DB_MASTER )->selectField( 'moderation', 'mod_id', '', __METHOD__ );
+		$this->assertEquals( '(moderation-notification-content: ' .
+			$this->title->getFullText() . ', ' .
+			$this->user->getName() . ', ' .
+			SpecialPage::getTitleFor( 'Moderation' )->getCanonicalURL( [
+				'modaction' => 'show',
+				'modid' => $modid
+			] ) . ')', $body );
 	}
 
 	/**
