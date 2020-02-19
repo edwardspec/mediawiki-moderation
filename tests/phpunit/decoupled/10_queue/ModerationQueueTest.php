@@ -495,7 +495,17 @@ class ModerationQueueTest extends ModerationTestCase {
 		$this->assertEquals( 'array', $paramTypes[0] );
 		$this->assertEquals( 'integer', $paramTypes[1] );
 
-		// TODO: check that $params are valid.
+		list( $fields, $id ) = $params;
+		$this->assertArrayNotHasKey( 'mod_id', $fields );
+
+		// Compare parameters received by ModerationPending hook
+		// with what was actually inserted into the database.
+
+		$expectedRow = $fields;
+		$expectedRow['mod_id'] = $id;
+		unset( $expectedRow['mod_stash_key'] ); // This hook is called before stash_key is known
+
+		$this->assertRowEquals( $expectedRow );
 	}
 
 	/**
