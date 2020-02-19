@@ -12,6 +12,7 @@ Features:
 
 Bugfixes:
 * Default value of mod_stash_key is now NULL, not empty string.
+* mod_minor field is now 0 or 1 (not EDIT_MINOR, which is 4).
 
 Warnings fixed:
 * Replaced deprecated ApiBase::dieUsage()

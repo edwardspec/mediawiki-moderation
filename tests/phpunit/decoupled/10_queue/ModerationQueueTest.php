@@ -493,7 +493,10 @@ class ModerationQueueTest extends ModerationTestCase {
 		$this->assertTrue(
 			( new ReflectionClass( $paramTypes[2] ) )->implementsInterface( 'Content' ) );
 		$this->assertEquals( 'string', $paramTypes[3] ); // $summary
-		$this->assertEquals( 'integer', $paramTypes[4] ); // $is_minor: 0 or 1 (int, not bool)
+
+		// $is_minor: 0 or EDIT_MINOR (int, not bool), same as received in PageContentSave hook
+		$this->assertEquals( 'integer', $paramTypes[4] );
+
 		$this->assertEquals( 'NULL', $paramTypes[5] ); // Unused
 		$this->assertEquals( 'NULL', $paramTypes[6] ); // Unused
 		$this->assertEquals( 'integer', $paramTypes[7] ); // $flags
@@ -511,11 +514,14 @@ class ModerationQueueTest extends ModerationTestCase {
 		$this->assertEquals( $this->user->getName(), $params[1]['mName'] );
 		// $params[2] is not serialiable
 		$this->assertEquals( $this->getExpectedSummary(), $params[3] );
-		$this->assertSame( ( $this->minor && $this->existing ) ? 1 : 0, $params[4] );
+
+		$minorFlag = ( $this->minor && $this->existing ) ? EDIT_MINOR : 0;
+		$this->assertSame( $minorFlag, $params[4] );
+
 		$this->assertNull( $params[5] ); // Unused parameter, always NULL
 		$this->assertNull( $params[6] ); // Unused parameter, always NULL
 
-		$expectedFlags = ( $this->existing ? EDIT_UPDATE : EDIT_NEW );
+		$expectedFlags = $minorFlag | ( $this->existing ? EDIT_UPDATE : EDIT_NEW );
 		if ( !$this->filename ) {
 			$expectedFlags |= EDIT_AUTOSUMMARY;
 		}

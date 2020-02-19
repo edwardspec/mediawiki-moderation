@@ -64,7 +64,7 @@ class ModerationEditHooks {
 	 * @param User &$user
 	 * @param Content &$content
 	 * @param string|CommentStoreComment &$summary
-	 * @param bool $is_minor
+	 * @param int $is_minor
 	 * @param mixed $is_watch Unused.
 	 * @param mixed $section Unused.
 	 * @param int &$flags
@@ -113,7 +113,7 @@ class ModerationEditHooks {
 		$change = new ModerationNewChange( $title, $user );
 		$change->edit( $page, $content, self::$section, self::$sectionText )
 			->setBot( (bool)( $flags & EDIT_FORCE_BOT ) )
-			->setMinor( $is_minor )
+			->setMinor( (bool)$is_minor )
 			->setSummary( $summary )
 			->queue();
 
