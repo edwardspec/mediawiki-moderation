@@ -163,6 +163,16 @@ class ModerationQueueTest extends ModerationTestCase {
 					'modblocked' => true,
 					'notifyEmail' => 'noreply@localhost'
 				] ],
+
+			// Minor edits
+			'minor edit' => [ [ 'minor' => true, 'existing' => true ] ],
+			'minor edit via API' =>
+				[ [ 'minor' => true, 'existing' => true, 'viaApi' => true ] ],
+
+			// MediaWiki ignores "minor" flag for edits that create a new page.
+			'ignored minor edit flag (new page)' => [ [ 'minor' => true ] ],
+			'ignored minor edit flag (new page) via API' =>
+				[ [ 'minor' => true, 'viaApi' => true ] ],
 		];
 	}
 
@@ -204,6 +214,9 @@ class ModerationQueueTest extends ModerationTestCase {
 
 	/** @var bool If true, the edit will be anonymous. ($user will be ignored) */
 	protected $anonymously = false;
+
+	/** @var bool If true, edit will be marked as minor. */
+	protected $minor = false;
 
 	/** @var bool If true, edits are made via API, if false, via the user interface. */
 	protected $viaApi = false;
@@ -262,6 +275,7 @@ class ModerationQueueTest extends ModerationTestCase {
 				case 'filename':
 				case 'precreateUploadStashOwner':
 				case 'anonymously':
+				case 'minor':
 				case 'viaApi':
 				case 'needPst':
 				case 'existing':
@@ -388,6 +402,11 @@ class ModerationQueueTest extends ModerationTestCase {
 				"Move wasn't intercepted by Moderation." );
 		} else {
 			/* Normal edit */
+			if ( $this->minor ) {
+				$minorField = $this->viaApi ? 'minor' : 'wpMinoredit';
+				$extraParams[$minorField] = 1;
+			}
+
 			$result = $bot->edit(
 				$this->title->getFullText(),
 				$this->text,
@@ -492,7 +511,7 @@ class ModerationQueueTest extends ModerationTestCase {
 		$this->assertEquals( $this->user->getName(), $params[1]['mName'] );
 		// $params[2] is not serialiable
 		$this->assertEquals( $this->getExpectedSummary(), $params[3] );
-		$this->assertSame( 0, $params[4] ); // TODO: add minor edits to the QueueTest
+		$this->assertSame( ( $this->minor && $this->existing ) ? 1 : 0, $params[4] );
 		$this->assertNull( $params[5] ); // Unused parameter, always NULL
 		$this->assertNull( $params[6] ); // Unused parameter, always NULL
 
@@ -585,7 +604,7 @@ class ModerationQueueTest extends ModerationTestCase {
 			'mod_namespace' => $this->title->getNamespace(),
 			'mod_title' => $this->title->getDBKey(),
 			'mod_comment' => $this->getExpectedSummary(),
-			'mod_minor' => 0,
+			'mod_minor' => ( $this->minor && $this->existing ) ? 1 : 0,
 			'mod_bot' => 0,
 			'mod_new' => ( $this->existing || $this->newTitle ) ? 0 : 1,
 			'mod_last_oldid' => $this->existing ?
