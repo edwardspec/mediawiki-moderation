@@ -4,7 +4,6 @@ module.exports = function ( grunt ) {
 
 	grunt.loadNpmTasks( 'grunt-banana-checker' );
 	grunt.loadNpmTasks( 'grunt-eslint' );
-	grunt.loadNpmTasks( 'grunt-stylelint' );
 
 	grunt.initConfig( {
 		eslint: {
@@ -18,18 +17,9 @@ module.exports = function ( grunt ) {
 				'!{vendor,node_modules}/**'
 			]
 		},
-		stylelint: {
-			options: {
-				syntax: 'less'
-			},
-			all: [
-				'**/*.less',
-				'!{vendor,node_modules}/**'
-			]
-		},
 		banana: conf.MessagesDirs
 	} );
 
-	grunt.registerTask( 'test', [ 'eslint', 'stylelint', 'banana' ] );
+	grunt.registerTask( 'test', [ 'eslint', 'banana' ] );
 	grunt.registerTask( 'default', 'test' );
 };
