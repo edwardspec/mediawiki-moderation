@@ -20,6 +20,9 @@
  * Hooks related to normal edits.
  */
 
+use MediaWiki\Moderation\AddLogEntryConsequence;
+use MediaWiki\Moderation\ConsequenceUtils;
+
 class ModerationEditHooks {
 	/**
 	 * @var int
@@ -242,15 +245,11 @@ class ModerationEditHooks {
 		);
 
 		if ( $dbw->affectedRows() ) {
-			$logEntry = new ManualLogEntry( 'moderation', 'merge' );
-			$logEntry->setPerformer( $user );
-			$logEntry->setTarget( $page->getTitle() );
-			$logEntry->setParameters( [
+			$manager = ConsequenceUtils::getManager();
+			$manager->add( new AddLogEntryConsequence( 'merge', $user, $page->getTitle(), [
 				'modid' => $mergeID,
 				'revid' => $revision->getId()
-			] );
-			$logid = $logEntry->insert();
-			$logEntry->publish( $logid );
+			] ) );
 
 			/* Clear the cache of "Most recent mod_timestamp of pending edit"
 				- could have changed */

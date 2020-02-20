@@ -20,6 +20,9 @@
  * Implements modaction=(un)block on [[Special:Moderation]].
  */
 
+use MediaWiki\Moderation\AddLogEntryConsequence;
+use MediaWiki\Moderation\ConsequenceUtils;
+
 class ModerationActionBlock extends ModerationAction {
 
 	public function outputResult( array $result, OutputPage $out ) {
@@ -60,10 +63,8 @@ class ModerationActionBlock extends ModerationAction {
 				__METHOD__,
 				[ 'IGNORE' ]
 			);
-			$logEntry = new ManualLogEntry( 'moderation', 'block' );
 		} else {
 			$dbw->delete( 'moderation_block', [ 'mb_address' => $row->user_text ], __METHOD__ );
-			$logEntry = new ManualLogEntry( 'moderation', 'unblock' );
 		}
 
 		/*
@@ -74,10 +75,12 @@ class ModerationActionBlock extends ModerationAction {
 		*/
 		$somethingChanged = ( $dbw->affectedRows() > 0 );
 		if ( $somethingChanged ) {
-			$logEntry->setPerformer( $this->moderator );
-			$logEntry->setTarget( Title::makeTitle( NS_USER, $row->user_text ) );
-			$logid = $logEntry->insert();
-			$logEntry->publish( $logid );
+			$manager = ConsequenceUtils::getManager();
+			$manager->add( new AddLogEntryConsequence(
+				( $this->actionName == 'block' ) ? 'block' : 'unblock',
+				$this->moderator,
+				Title::makeTitle( NS_USER, $row->user_text )
+			) );
 		}
 
 		return [

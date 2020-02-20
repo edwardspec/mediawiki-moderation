@@ -20,6 +20,9 @@
  * Implements modaction=reject(all) on [[Special:Moderation]].
  */
 
+use MediaWiki\Moderation\AddLogEntryConsequence;
+use MediaWiki\Moderation\ConsequenceUtils;
+
 class ModerationActionReject extends ModerationAction {
 
 	public function execute() {
@@ -91,16 +94,12 @@ class ModerationActionReject extends ModerationAction {
 
 		$title = Title::makeTitle( $row->namespace, $row->title );
 
-		$logEntry = new ManualLogEntry( 'moderation', 'reject' );
-		$logEntry->setPerformer( $this->moderator );
-		$logEntry->setTarget( $title );
-		$logEntry->setParameters( [
+		$manager = ConsequenceUtils::getManager();
+		$manager->add( new AddLogEntryConsequence( 'reject', $this->moderator, $title, [
 			'modid' => $this->id,
 			'user' => $row->user,
 			'user_text' => $row->user_text
-		] );
-		$logid = $logEntry->insert();
-		$logEntry->publish( $logid );
+		] ) );
 
 		return [
 			'rejected-count' => $nrows
@@ -149,12 +148,10 @@ class ModerationActionReject extends ModerationAction {
 
 		$nrows = $dbw->affectedRows();
 		if ( $nrows ) {
-			$logEntry = new ManualLogEntry( 'moderation', 'rejectall' );
-			$logEntry->setPerformer( $this->moderator );
-			$logEntry->setTarget( $userpage );
-			$logEntry->setParameters( [ '4::count' => $nrows ] );
-			$logid = $logEntry->insert();
-			$logEntry->publish( $logid );
+			$manager = ConsequenceUtils::getManager();
+			$manager->add( new AddLogEntryConsequence( 'rejectall', $this->moderator, $userpage, [
+				'4::count' => $nrows
+			] ) );
 		}
 
 		return [

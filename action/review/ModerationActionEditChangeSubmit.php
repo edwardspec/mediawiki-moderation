@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,6 +21,9 @@
  *
  * @see ModerationActionEditChange - handles the edit form
  */
+
+use MediaWiki\Moderation\AddLogEntryConsequence;
+use MediaWiki\Moderation\ConsequenceUtils;
 
 class ModerationActionEditChangeSubmit extends ModerationAction {
 
@@ -90,14 +93,10 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 				__METHOD__
 			);
 
-			$logEntry = new ManualLogEntry( 'moderation', 'editchange' );
-			$logEntry->setPerformer( $this->moderator );
-			$logEntry->setTarget( $title );
-			$logEntry->setParameters( [
+			$manager = ConsequenceUtils::getManager();
+			$manager->add( new AddLogEntryConsequence( 'editchange', $this->moderator, $title, [
 				'modid' => $this->id
-			] );
-			$logid = $logEntry->insert();
-			$logEntry->publish( $logid );
+			] ) );
 		}
 
 		return [
