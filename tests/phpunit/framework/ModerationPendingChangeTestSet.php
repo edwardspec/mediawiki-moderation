@@ -100,7 +100,6 @@ trait ModerationTestsuitePendingChangeTestSet {
 		// Populate mod_stash_key for uploads.
 		if ( $this->filename ) {
 			$srcPath = $this->findSourceFilename();
-			$uploader = User::newFromName( $this->fields['mod_user_text'], false );
 
 			// Store the image in UploadStash.
 			$stash = ModerationUploadStorage::getStash();

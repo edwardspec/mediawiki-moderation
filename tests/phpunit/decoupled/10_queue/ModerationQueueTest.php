@@ -454,7 +454,7 @@ class ModerationQueueTest extends ModerationTestCase {
 		}
 
 		$this->assertCount( 1, $hooks, "Number of emails that were sent isn't 1." );
-		list( $headers, $to, $from, $subject, $body ) = $hooks[0][1];
+		list( , $to, $from, $subject, $body ) = $hooks[0][1];
 
 		global $wgPasswordSender;
 		$this->assertEquals( $wgPasswordSender, $from['address'] );

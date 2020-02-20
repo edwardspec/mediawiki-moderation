@@ -113,8 +113,6 @@ class ModerationViewableEntry extends ModerationEntry {
 	 */
 	protected function isImage() {
 		$row = $this->getRow();
-
-		$user = $this->getUser();
 		$stash = ModerationUploadStorage::getStash();
 
 		try {

@@ -87,7 +87,7 @@ class ModerationMoveHooks {
 		}
 
 		$change = new ModerationNewChange( $oldTitle, $user );
-		$fields = $change->move( $newTitle )
+		$change->move( $newTitle )
 			->setSummary( $reason )
 			->queue();
 

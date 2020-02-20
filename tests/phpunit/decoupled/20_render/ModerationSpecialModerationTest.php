@@ -445,11 +445,6 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 	 * @param $action Name of modaction (e.g. 'rejectall') or 'mergedDiff'.
 	 */
 	protected function assertActionLinkURL( $action, $url ) {
-		/* Parse the $url and check the presence
-		of needed query string parameters */
-		$bits = wfParseUrl( wfExpandUrl( $url ) );
-		$query = wfCgiToArray( $bits['query'] );
-
 		if ( $action == 'mergedDiff' ) {
 			$this->assertQueryString( $url, [
 				'title' => strtr( $this->getExpectedTitle(), ' ', '_' ),

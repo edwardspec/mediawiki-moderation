@@ -64,10 +64,6 @@ class ModerationActionShowImage extends ModerationAction {
 			throw new ModerationError( 'moderation-edit-not-found' );
 		}
 
-		$user = $row->user ?
-			User::newFromId( $row->user ) :
-			User::newFromName( $row->user_text, false );
-
 		$stash = ModerationUploadStorage::getStash();
 
 		try {
