@@ -54,6 +54,8 @@ class AddLogEntryConsequence implements IConsequence {
 
 	/**
 	 * Execute the consequence.
+	 * @return array
+	 * @phan-return array{0:int,1:ManualLogEntry}
 	 */
 	public function run() {
 		$logEntry = new ManualLogEntry( 'moderation', $this->subtype );
@@ -63,5 +65,7 @@ class AddLogEntryConsequence implements IConsequence {
 
 		$logid = $logEntry->insert();
 		$logEntry->publish( $logid );
+
+		return [ $logid, $logEntry ];
 	}
 }

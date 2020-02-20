@@ -20,6 +20,9 @@
  * Parent class for all entry types (edit, upload, move, etc.).
  */
 
+use MediaWiki\Moderation\AddLogEntryWithApproveHookConsequence;
+use MediaWiki\Moderation\ConsequenceUtils;
+
 abstract class ModerationApprovableEntry extends ModerationEntry {
 	/**
 	 * Get the list of fields needed for selecting $row, as expected by newFromRow().
@@ -144,14 +147,13 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 		}
 
 		# Create post-approval log entry ("successfully approved").
-		$logEntry = new ManualLogEntry( 'moderation', $this->getApproveLogSubtype() );
-		$logEntry->setPerformer( $moderator );
-		$logEntry->setTarget( $this->getTitle() );
-		$logEntry->setParameters( $this->getApproveLogParameters() );
-		$logid = $logEntry->insert();
-		$logEntry->publish( $logid );
-
-		ModerationApproveHook::checkLogEntry( $logid, $logEntry );
+		$manager = ConsequenceUtils::getManager();
+		$manager->add( new AddLogEntryWithApproveHookConsequence(
+			$this->getApproveLogSubtype(),
+			$moderator,
+			$this->getTitle(),
+			$this->getApproveLogParameters()
+		) );
 
 		# Approved edits are removed from "moderation" table,
 		# because they already exist in page history, recentchanges etc.
