@@ -244,6 +244,12 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 
 		// When mod_timestamp is today, only time is shown.
 		// Otherwise both time and date are shown.
+		/*
+			FIXME: this test can fail around 23:59 due to fetchSpecial() being called yesterday.
+			($expectTimeOnly would be false, but fetchSpecial() showing only the time is correct,
+			because yesterday $expectTimeOnly would be true)
+			This is the limitation of the test itself, not the code that is being tested.
+		*/
 		$expectTimeOnly = ( substr( $timestamp, 0, 8 ) ==
 			substr( wfTimestampNow(), 0, 8 ) );
 
