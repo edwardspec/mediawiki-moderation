@@ -43,24 +43,104 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	protected $title;
 
 	/** @var string[] */
-	protected $tablesUsed = [ 'moderation' ];
+	protected $tablesUsed = [ 'user', 'moderation', 'moderation_block' ];
 
 	/**
-	 * @coversNothing
+	 * Test consequences of modaction=reject.
+	 * @param string $modaction
+	 * @param Closure $getExpectedConsequences
+	 * @param array $extraParams
+	 * @covers ModerationActionReject::execute
+	 * @dataProvider dataProviderActionConsequences
 	 */
-	public function testReject() {
-		$this->assertConsequencesEqual( [
-			new AddLogEntryConsequence(
-				'reject',
-				$this->moderatorUser,
-				$this->title,
-				[
-					'modid' => $this->modid,
-					'user' => $this->authorUser->getId(),
-					'user_text' => $this->authorUser->getName()
-				]
-			)
-		], $this->getConsequences( 'reject' ) );
+	public function testActionConsequences(
+		$modaction,
+		Closure $getExpectedConsequences,
+		$extraParams = []
+	) {
+		if ( $modaction == 'editchangesubmit' ) {
+			$this->setMwGlobals( 'wgModerationEnableEditChange', true );
+		}
+
+		$expectedConsequences = $getExpectedConsequences->call( $this );
+
+		$this->assertConsequencesEqual(
+			$expectedConsequences,
+			$this->getConsequences( $modaction, $extraParams )
+		);
+	}
+
+	/**
+	 * Provide datasets for testActionConsequences() runs.
+	 */
+	public function dataProviderActionConsequences() {
+		$sets = [];
+
+		$sets['reject'] = [ 'reject', function () {
+			return [
+				new AddLogEntryConsequence(
+					'reject',
+					$this->moderatorUser,
+					$this->title,
+					[
+						'modid' => $this->modid,
+						'user' => $this->authorUser->getId(),
+						'user_text' => $this->authorUser->getName()
+					]
+				)
+			];
+		} ];
+
+		$sets['block'] = [ 'block', function () {
+			return [
+				new AddLogEntryConsequence(
+					'block',
+					$this->moderatorUser,
+					$this->authorUser->getUserPage()
+				)
+			];
+		} ];
+
+		// TODO: test block when user is already modblocked (shouldn't add any log entries),
+		// and similarly unblock for a modblocked and non-modblocked user.
+
+		$sets['rejectall'] = [ 'rejectall', function () {
+			return [
+				new AddLogEntryConsequence(
+					'rejectall',
+					$this->moderatorUser,
+					$this->authorUser->getUserPage(),
+					[
+						'4::count' => 1
+					]
+				)
+			];
+		} ];
+
+		$sets['editchangesubmit'] = [ 'editchangesubmit', function () {
+			return [
+				new AddLogEntryConsequence(
+					'editchange',
+					$this->moderatorUser,
+					$this->title,
+					[
+						'modid' => $this->modid
+					]
+				)
+			];
+		}, [
+			'wpTextbox1' => 'New text',
+			'wpSummary' => 'Edit comment'
+		] ];
+
+		// TODO: no-op editchangesubmit (when wpTextbox1 and wpSummary are exactly as before)
+
+		// TODO: test approve/approveall
+		// NOTE: running Approve without process isolation (like in ModerationTestsuite framework)
+		// would confuse ApproveHooks class. Need a way to clean ApproveHooks between tests.
+		// If ApproveHooks themselves use consequences, mocked Manager can be used too.
+
+		return $sets;
 	}
 
 	/**
@@ -109,9 +189,10 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	/**
 	 * Get an array of consequences after running $modaction on an edit that was queued in setUp().
 	 * @param string $modaction
+	 * @param array $extraParams Additional HTTP request parameters when running ModerationAction.
 	 * @return IConsequence[]
 	 */
-	private function getConsequences( $modaction ) {
+	private function getConsequences( $modaction, $extraParams = [] ) {
 		// Replace real ConsequenceManager with a mock.
 		$manager = new MockConsequenceManager();
 		ConsequenceUtils::installManager( $manager );
@@ -120,7 +201,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		$request = new FauxRequest( [
 			'modaction' => $modaction,
 			'modid' => $this->modid
-		] );
+		] + $extraParams );
 		$context = new DerivativeContext( RequestContext::getMain() );
 		$context->setRequest( $request );
 		$context->setUser( $this->moderatorUser );
