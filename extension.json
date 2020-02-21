@@ -102,7 +102,6 @@
 		"ApiQueryModerationPreload": "api/ApiQueryModerationPreload.php",
 		"IModerationEntry": "lib/entry/IModerationEntry.php",
 		"MediaWiki\\Moderation\\AddLogEntryConsequence": "lib/consequence/AddLogEntryConsequence.php",
-		"MediaWiki\\Moderation\\AddLogEntryWithApproveHookConsequence": "lib/consequence/AddLogEntryWithApproveHookConsequence.php",
 		"MediaWiki\\Moderation\\ConsequenceManager": "lib/consequence/manager/ConsequenceManager.php",
 		"MediaWiki\\Moderation\\ConsequenceUtils": "lib/consequence/manager/ConsequenceUtils.php",
 		"MediaWiki\\Moderation\\IConsequence": "lib/consequence/IConsequence.php",

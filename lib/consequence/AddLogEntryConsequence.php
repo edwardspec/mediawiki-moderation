@@ -23,6 +23,7 @@
 namespace MediaWiki\Moderation;
 
 use ManualLogEntry;
+use ModerationApproveHook;
 use Title;
 use User;
 
@@ -39,23 +40,28 @@ class AddLogEntryConsequence implements IConsequence {
 	/** @var array */
 	protected $params;
 
+	/** @var bool */
+	protected $runApproveHook;
+
 	/**
 	 * @param string $subtype
 	 * @param User $user
 	 * @param Title $title
 	 * @param array $params
+	 * @param bool $runApproveHook
 	 */
-	public function __construct( $subtype, User $user, Title $title, array $params = [] ) {
+	public function __construct( $subtype, User $user, Title $title, array $params = [],
+		$runApproveHook = false
+	) {
 		$this->subtype = $subtype;
 		$this->user = $user;
 		$this->title = $title;
 		$this->params = $params;
+		$this->runApproveHook = $runApproveHook;
 	}
 
 	/**
 	 * Execute the consequence.
-	 * @return array
-	 * @phan-return array{0:int,1:ManualLogEntry}
 	 */
 	public function run() {
 		$logEntry = new ManualLogEntry( 'moderation', $this->subtype );
@@ -66,6 +72,8 @@ class AddLogEntryConsequence implements IConsequence {
 		$logid = $logEntry->insert();
 		$logEntry->publish( $logid );
 
-		return [ $logid, $logEntry ];
+		if ( $this->runApproveHook ) {
+			ModerationApproveHook::checkLogEntry( $logid, $logEntry );
+		}
 	}
 }

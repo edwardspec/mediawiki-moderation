@@ -20,7 +20,7 @@
  * Parent class for all entry types (edit, upload, move, etc.).
  */
 
-use MediaWiki\Moderation\AddLogEntryWithApproveHookConsequence;
+use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ConsequenceUtils;
 
 abstract class ModerationApprovableEntry extends ModerationEntry {
@@ -148,11 +148,12 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 
 		# Create post-approval log entry ("successfully approved").
 		$manager = ConsequenceUtils::getManager();
-		$manager->add( new AddLogEntryWithApproveHookConsequence(
+		$manager->add( new AddLogEntryConsequence(
 			$this->getApproveLogSubtype(),
 			$moderator,
 			$this->getTitle(),
-			$this->getApproveLogParameters()
+			$this->getApproveLogParameters(),
+			true // Run ApproveHook on newly create log entry
 		) );
 
 		# Approved edits are removed from "moderation" table,

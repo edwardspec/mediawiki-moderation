@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
+use Wikimedia\TestingAccessWrapper;
 
 /**
  * @group Database
@@ -36,16 +37,26 @@ class AddLogEntryConsequenceTest extends MediaWikiTestCase {
 	 * @param string $username
 	 * @param string $pageName
 	 * @param array $params
+	 * @param bool $runApproveHook
 	 * @covers MediaWiki\Moderation\AddLogEntryConsequence
 	 * @dataProvider dataProviderAddLogEntry
 	 */
-	public function testAddLogEntry( $subtype, $username, $pageName, array $params ) {
+	public function testAddLogEntry( $subtype, $username, $pageName, array $params,
+		$runApproveHook
+	) {
 		$user = User::createNew( $username );
 		$title = Title::newFromText( $pageName );
 
-		$consequence = new AddLogEntryConsequence( $subtype, $user, $title, $params );
+		// Clean ApproveHook::$logEntriesToFix before the test.
+		$approveHook = TestingAccessWrapper::newFromClass( ModerationApproveHook::class );
+		$approveHook->logEntriesToFix = [];
+
+		// Create and run the Consequence.
+		$consequence = new AddLogEntryConsequence( $subtype, $user, $title, $params,
+			$runApproveHook );
 		$consequence->run();
 
+		// Test the new LogEntry that appeared in the database.
 		$dbw = wfGetDB( DB_MASTER );
 		$logid = $dbw->selectField( 'logging', 'log_id', '', __METHOD__ );
 
@@ -57,6 +68,17 @@ class AddLogEntryConsequenceTest extends MediaWikiTestCase {
 		$this->assertEquals( $title->getPrefixedText(),
 			$logEntry->getTarget()->getPrefixedText() );
 		$this->assertEquals( $params, $logEntry->getParameters() );
+
+		// Check whether ApproveHook has queued this LogEntry for modification.
+		$entriesToFix = $approveHook->logEntriesToFix;
+		if ( $runApproveHook && empty( $params['revid'] ) ) {
+			// ApproveHook must populate "revid" parameter of this LogEntry.
+			$this->assertArrayHasKey( $logid, $entriesToFix );
+			$this->assertInstanceOf( ManualLogEntry::class, $entriesToFix[$logid] );
+		} else {
+			// This logentry doesn't need ApproveHook.
+			$this->assertArrayNotHasKey( $logid, $entriesToFix );
+		}
 	}
 
 	/**
@@ -64,15 +86,31 @@ class AddLogEntryConsequenceTest extends MediaWikiTestCase {
 	 */
 	public function dataProviderAddLogEntry() {
 		return [
-			[
+			'normal LogEntry' => [
 				'reject',
 				'Some moderator',
 				'Talk:Title in non-main namespace, spaces_and_underscores',
 				[
 					'someparam' => 123,
 					'anotherparam' => 'anothervalue',
-					'nonscalar' => [ 'key1' => [ 11, 12 ], 'key2' => [ 'val21', 'val22' ] ]
-				]
+					'nonscalar' => [ 'key1' => [ 11, 12 ], 'key2' => [ 'val21', 'val22' ] ],
+					'revid' => null
+				],
+				false // Don't run ApproveHook
+			],
+			'logEntry with missing revid parameter (must be fixed by ApproveHook)' => [
+				'approve',
+				'AnotherModerator',
+				'SampleArticle',
+				[ 'revid' => null ],
+				true // Run ApproveHook
+			],
+			'logEntry that doesn\'t need to be fixed by ApproveHook' => [
+				'approve',
+				'AnotherModerator',
+				'SampleArticle',
+				[ 'revid' => 123 ],
+				true // Run ApproveHook
 			]
 		];
 	}
