@@ -47,6 +47,8 @@
 			(causing PHP error "Declaration of [method] should be compatible with [parent method]")
 		-->
 		<exclude-pattern>*/tests/phpunit/framework/ModerationTestCase.php</exclude-pattern>
+		<exclude-pattern>*/tests/phpunit/consequence/*</exclude-pattern>
+
 	</rule>
 
 	<rule ref="MediaWiki.NamingConventions.ValidGlobalName">
