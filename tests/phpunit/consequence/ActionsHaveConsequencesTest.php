@@ -61,8 +61,17 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		Closure $getExpectedConsequences,
 		$extraParams = []
 	) {
-		if ( $modaction == 'editchangesubmit' ) {
+		if ( $modaction == 'editchange' || $modaction == 'editchangesubmit' ) {
 			$this->setMwGlobals( 'wgModerationEnableEditChange', true );
+		}
+
+		if ( $modaction == 'merge' ) {
+			$dbw = wfGetDB( DB_MASTER );
+			$dbw->update( 'moderation',
+				[ 'mod_conflict' => 1 ],
+				[ 'mod_id' => $this->modid ],
+				__METHOD__
+			);
 		}
 
 		$expectedConsequences = $getExpectedConsequences->call( $this );
@@ -150,6 +159,14 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		// would confuse ApproveHooks class. Need a way to clean ApproveHooks between tests.
 		// If ApproveHooks themselves use consequences, mocked Manager can be used too.
 
+		// Ensure that readonly actions don't have any consequences.
+		$readOnlyActions = [ 'show', 'showimg', 'merge', 'preview', 'editchange' ];
+		foreach ( $readOnlyActions as $modaction ) {
+			$sets[$modaction] = [ $modaction, function () {
+				return []; // No consequences
+			} ];
+		}
+
 		return $sets;
 	}
 
@@ -213,6 +230,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			'modid' => $this->modid
 		] + $extraParams );
 		$context = new DerivativeContext( RequestContext::getMain() );
+		$context->setTitle( SpecialPage::getTitleFor( 'Moderation' ) );
 		$context->setRequest( $request );
 		$context->setUser( $this->moderatorUser );
 
@@ -237,7 +255,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		parent::setUp();
 
 		$this->authorUser = self::getTestUser()->getUser();
-		$this->moderatorUser = self::getTestUser( [ 'moderator' ] )->getUser();
+		$this->moderatorUser = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
 
 		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 
