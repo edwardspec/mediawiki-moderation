@@ -50,125 +50,141 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 
 	/**
 	 * Test consequences of modaction=reject.
-	 * @param string $modaction
-	 * @param Closure $getExpectedConsequences
-	 * @param array $extraParams
-	 * @covers ModerationActionReject::execute
-	 * @dataProvider dataProviderActionConsequences
+	 * @covers ModerationActionReject::executeRejectOne
 	 */
-	public function testActionConsequences(
-		$modaction,
-		Closure $getExpectedConsequences,
-		$extraParams = []
-	) {
-		if ( $modaction == 'editchange' || $modaction == 'editchangesubmit' ) {
-			$this->setMwGlobals( 'wgModerationEnableEditChange', true );
-		}
+	public function testReject() {
+		$expected = [
+			new RejectOneConsequence( $this->modid, $this->moderatorUser ),
+			new AddLogEntryConsequence(
+				'reject',
+				$this->moderatorUser,
+				$this->title,
+				[
+					'modid' => $this->modid,
+					'user' => $this->authorUser->getId(),
+					'user_text' => $this->authorUser->getName()
+				]
+			)
+		];
+		$actual = $this->getConsequences( 'reject', [ 1 ] );
 
-		if ( $modaction == 'merge' ) {
-			$dbw = wfGetDB( DB_MASTER );
-			$dbw->update( 'moderation',
-				[ 'mod_conflict' => 1 ],
-				[ 'mod_id' => $this->modid ],
-				__METHOD__
-			);
-		}
-
-		$expectedConsequences = $getExpectedConsequences->call( $this );
-
-		$this->assertConsequencesEqual(
-			$expectedConsequences,
-			$this->getConsequences( $modaction, $extraParams )
-		);
+		$this->assertConsequencesEqual( $expected, $actual );
 	}
 
 	/**
-	 * Provide datasets for testActionConsequences() runs.
+	 * Test consequences of modaction=block.
+	 * @covers ModerationActionBlock::execute
 	 */
-	public function dataProviderActionConsequences() {
-		$sets = [];
+	public function testBlock() {
+		$expected = [
+			new BlockUserConsequence(
+				$this->authorUser->getId(),
+				$this->authorUser->getName(),
+				$this->moderatorUser
+			),
+			new AddLogEntryConsequence(
+				'block',
+				$this->moderatorUser,
+				$this->authorUser->getUserPage()
+			)
+		];
+		$actual = $this->getConsequences( 'block', [ true ] );
 
-		$sets['reject'] = [ 'reject', function () {
-			return [
-				new RejectOneConsequence( $this->modid, $this->moderatorUser ),
-				new AddLogEntryConsequence(
-					'reject',
-					$this->moderatorUser,
-					$this->title,
-					[
-						'modid' => $this->modid,
-						'user' => $this->authorUser->getId(),
-						'user_text' => $this->authorUser->getName()
-					]
-				)
-			];
-		} ];
+		$this->assertConsequencesEqual( $expected, $actual );
+	}
 
-		$sets['block'] = [ 'block', function () {
-			return [
-				new BlockUserConsequence(
-					$this->authorUser->getId(),
-					$this->authorUser->getName(),
-					$this->moderatorUser
-				),
-				new AddLogEntryConsequence(
-					'block',
-					$this->moderatorUser,
-					$this->authorUser->getUserPage()
-				)
-			];
-		} ];
+	/**
+	 * Test consequences of modaction=editchangesubmit.
+	 * @covers ModerationActionEditChangeSubmit::execute
+	 */
+	public function testEditChangeSubmit() {
+		$expected = [
+			new AddLogEntryConsequence(
+				'editchange',
+				$this->moderatorUser,
+				$this->title,
+				[
+					'modid' => $this->modid
+				]
+			)
+		];
 
-		// TODO: test block when user is already modblocked (shouldn't add any log entries),
-		// and similarly unblock for a modblocked and non-modblocked user.
-
-		$sets['rejectall'] = [ 'rejectall', function () {
-			return [
-				new RejectBatchConsequence( [ $this->modid ], $this->moderatorUser ),
-				new AddLogEntryConsequence(
-					'rejectall',
-					$this->moderatorUser,
-					$this->authorUser->getUserPage(),
-					[
-						'4::count' => 1
-					]
-				)
-			];
-		} ];
-
-		$sets['editchangesubmit'] = [ 'editchangesubmit', function () {
-			return [
-				new AddLogEntryConsequence(
-					'editchange',
-					$this->moderatorUser,
-					$this->title,
-					[
-						'modid' => $this->modid
-					]
-				)
-			];
-		}, [
+		$this->setMwGlobals( 'wgModerationEnableEditChange', true );
+		$actual = $this->getConsequences( 'editchangesubmit', [], [
 			'wpTextbox1' => 'New text',
 			'wpSummary' => 'Edit comment'
-		] ];
+		] );
 
-		// TODO: no-op editchangesubmit (when wpTextbox1 and wpSummary are exactly as before)
+		$this->assertConsequencesEqual( $expected, $actual );
+	}
 
-		// TODO: test approve/approveall
-		// NOTE: running Approve without process isolation (like in ModerationTestsuite framework)
-		// would confuse ApproveHooks class. Need a way to clean ApproveHooks between tests.
-		// If ApproveHooks themselves use consequences, mocked Manager can be used too.
+	/**
+	 * Test consequences of modaction=rejectall.
+	 * @covers ModerationActionReject::executeRejectAll
+	 */
+	public function testRejectAll() {
+		$expected = [
+			new RejectBatchConsequence( [ $this->modid ], $this->moderatorUser ),
+			new AddLogEntryConsequence(
+				'rejectall',
+				$this->moderatorUser,
+				$this->authorUser->getUserPage(),
+				[
+					'4::count' => 1
+				]
+			)
+		];
+		$actual = $this->getConsequences( 'rejectall', [ 1 ] );
 
-		// Ensure that readonly actions don't have any consequences.
-		$readOnlyActions = [ 'show', 'showimg', 'merge', 'preview', 'editchange' ];
-		foreach ( $readOnlyActions as $modaction ) {
-			$sets[$modaction] = [ $modaction, function () {
-				return []; // No consequences
-			} ];
+		$this->assertConsequencesEqual( $expected, $actual );
+	}
+
+	/**
+	 * Ensure that readonly actions don't have any consequences.
+	 * @param string $modaction
+	 * @param Closure|null $beforeCallback Will be called before the test.
+	 * @dataProvider dataProviderNoConsequenceActions
+	 * @coversNothing
+	 */
+	public function testNoConsequenceActions( $modaction, Closure $beforeCallback = null ) {
+		if ( $beforeCallback ) {
+			$beforeCallback->call( $this );
 		}
 
-		return $sets;
+		$this->assertConsequencesEqual( [], $this->getConsequences( $modaction ) );
 	}
+
+	/**
+	 * Provide datasets for testNoConsequenceActions() runs.
+	 * @return array
+	 */
+	public function dataProviderNoConsequenceActions() {
+		return [
+			[ 'show', null ],
+			[ 'showimg', null ],
+			[ 'preview', null ],
+			[ 'merge', function () {
+				$dbw = wfGetDB( DB_MASTER );
+				$dbw->update( 'moderation',
+					[ 'mod_conflict' => 1 ],
+					[ 'mod_id' => $this->modid ]
+				);
+			} ],
+			[ 'editchange', function () {
+				$this->setMwGlobals( 'wgModerationEnableEditChange', true );
+			} ]
+		];
+	}
+
+	// TODO: test block when user is already modblocked (shouldn't add any log entries),
+	// and similarly unblock for a modblocked and non-modblocked user.
+
+	// TODO: no-op editchangesubmit (when wpTextbox1 and wpSummary are exactly as before)
+
+	// TODO: test approve/approveall
+	// NOTE: running Approve without process isolation (like in ModerationTestsuite framework)
+	// would confuse ApproveHooks class. Need a way to clean ApproveHooks between tests.
+	// If ApproveHooks themselves use consequences, mocked Manager can be used too.
 
 	/**
 	 * Assert that $expectedConsequences are exactly the same as $actualConsequences.
@@ -216,10 +232,11 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	/**
 	 * Get an array of consequences after running $modaction on an edit that was queued in setUp().
 	 * @param string $modaction
+	 * @param array $mockedResults Each of these values will be passed to $manager->mockResult().
 	 * @param array $extraParams Additional HTTP request parameters when running ModerationAction.
 	 * @return IConsequence[]
 	 */
-	private function getConsequences( $modaction, $extraParams = [] ) {
+	private function getConsequences( $modaction, array $mockedResults = [], $extraParams = [] ) {
 		// Replace real ConsequenceManager with a mock.
 		$manager = new MockConsequenceManager();
 		ConsequenceUtils::installManager( $manager );
@@ -234,12 +251,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		$context->setRequest( $request );
 		$context->setUser( $this->moderatorUser );
 
-		// FIXME: move this away from getConsequences() into its parameter,
-		// e.g. $mockedResults array.
-		if ( $modaction == 'block' || $modaction == 'unblock' || $modaction == 'reject'
-			|| $modaction == 'rejectall'
-		) {
-			$manager->mockResult( true );
+		foreach ( $mockedResults as $result ) {
+			$manager->mockResult( $result );
 		}
 
 		$action = ModerationAction::factory( $context );
