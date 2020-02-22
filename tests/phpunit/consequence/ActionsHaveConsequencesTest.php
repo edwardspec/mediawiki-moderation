@@ -25,6 +25,8 @@ use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
+use MediaWiki\Moderation\RejectBatchConsequence;
+use MediaWiki\Moderation\RejectOneConsequence;
 use Wikimedia\TestingAccessWrapper;
 
 /**
@@ -79,6 +81,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 
 		$sets['reject'] = [ 'reject', function () {
 			return [
+				new RejectOneConsequence( $this->modid, $this->moderatorUser ),
 				new AddLogEntryConsequence(
 					'reject',
 					$this->moderatorUser,
@@ -112,6 +115,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 
 		$sets['rejectall'] = [ 'rejectall', function () {
 			return [
+				new RejectBatchConsequence( [ $this->modid ], $this->moderatorUser ),
 				new AddLogEntryConsequence(
 					'rejectall',
 					$this->moderatorUser,
@@ -214,7 +218,9 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 
 		// FIXME: move this away from getConsequences() into its parameter,
 		// e.g. $mockedResults array.
-		if ( $modaction == 'block' || $modaction == 'unblock' ) {
+		if ( $modaction == 'block' || $modaction == 'unblock' || $modaction == 'reject'
+			|| $modaction == 'rejectall'
+		) {
 			$manager->mockResult( true );
 		}
 

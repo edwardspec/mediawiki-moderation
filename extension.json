@@ -108,6 +108,8 @@
 		"MediaWiki\\Moderation\\IConsequence": "lib/consequence/IConsequence.php",
 		"MediaWiki\\Moderation\\IConsequenceManager": "lib/consequence/manager/IConsequenceManager.php",
 		"MediaWiki\\Moderation\\MockConsequenceManager": "lib/consequence/manager/MockConsequenceManager.php",
+		"MediaWiki\\Moderation\\RejectOneConsequence": "lib/consequence/RejectOneConsequence.php",
+		"MediaWiki\\Moderation\\RejectBatchConsequence": "lib/consequence/RejectBatchConsequence.php",
 		"MediaWiki\\Moderation\\UnblockUserConsequence": "lib/consequence/UnblockUserConsequence.php",
 		"ModerationAction": "action/ModerationAction.php",
 		"ModerationActionApprove": "action/ModerationActionApprove.php",
