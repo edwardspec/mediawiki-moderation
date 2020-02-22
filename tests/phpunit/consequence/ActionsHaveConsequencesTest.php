@@ -27,6 +27,7 @@ use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\RejectBatchConsequence;
 use MediaWiki\Moderation\RejectOneConsequence;
+use MediaWiki\Moderation\UnblockUserConsequence;
 use Wikimedia\TestingAccessWrapper;
 
 /**
@@ -94,6 +95,64 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	}
 
 	/**
+	 * Test consequences of modaction=block when the user is already blocked.
+	 * @covers ModerationActionBlock::execute
+	 */
+	public function testNoopBlock() {
+		$expected = [
+			new BlockUserConsequence(
+				$this->authorUser->getId(),
+				$this->authorUser->getName(),
+				$this->moderatorUser
+			)
+			// No AddLogEntryConsequence, because the user was already modblocked.
+		];
+		$actual = $this->getConsequences( 'block', [
+			// Mocked manager won't run BlockUserConsequence and would instead return "false",
+			// which is what BlockUserConsequence does when the user is already modblocked.
+			// That fact should be checked by unit test of BlockUserConsequence itself, not here.
+			false
+		] );
+
+		$this->assertConsequencesEqual( $expected, $actual );
+	}
+
+	/**
+	 * Test consequences of modaction=unblock.
+	 * @covers ModerationActionBlock::execute
+	 */
+	public function testUnblock() {
+		$expected = [
+			new UnblockUserConsequence( $this->authorUser->getName() ),
+			new AddLogEntryConsequence(
+				'unblock',
+				$this->moderatorUser,
+				$this->authorUser->getUserPage()
+			)
+		];
+		$actual = $this->getConsequences( 'unblock', [ true ] );
+
+		$this->assertConsequencesEqual( $expected, $actual );
+	}
+
+	/**
+	 * Test consequences of modaction=unblock when the user is already not blocked.
+	 * @covers ModerationActionBlock::execute
+	 */
+	public function testNoopUnblock() {
+		$expected = [
+			new UnblockUserConsequence( $this->authorUser->getName() ),
+			// No AddLogEntryConsequence, because the user wasn't modblocked to begin with.
+		];
+		$actual = $this->getConsequences( 'unblock', [
+			// Mocked return value from UnblockUserConsequence: simulate "nothing changed".
+			false
+		] );
+
+		$this->assertConsequencesEqual( $expected, $actual );
+	}
+
+	/**
 	 * Test consequences of modaction=editchangesubmit.
 	 * @covers ModerationActionEditChangeSubmit::execute
 	 */
@@ -117,6 +176,10 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 
 		$this->assertConsequencesEqual( $expected, $actual );
 	}
+
+	// TODO: no-op editchangesubmit (when wpTextbox1 and wpSummary are exactly as before).
+	// It will be extremely easy if what editchangesubmit is also made into a Consequence object,
+	// see testNoopBlock() for an example.
 
 	/**
 	 * Test consequences of modaction=rejectall.
@@ -175,11 +238,6 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			} ]
 		];
 	}
-
-	// TODO: test block when user is already modblocked (shouldn't add any log entries),
-	// and similarly unblock for a modblocked and non-modblocked user.
-
-	// TODO: no-op editchangesubmit (when wpTextbox1 and wpSummary are exactly as before)
 
 	// TODO: test approve/approveall
 	// NOTE: running Approve without process isolation (like in ModerationTestsuite framework)
