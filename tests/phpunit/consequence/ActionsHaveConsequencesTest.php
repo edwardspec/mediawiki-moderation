@@ -25,6 +25,7 @@ use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
+use MediaWiki\Moderation\ModifyPendingChangeConsequence;
 use MediaWiki\Moderation\RejectBatchConsequence;
 use MediaWiki\Moderation\RejectOneConsequence;
 use MediaWiki\Moderation\UnblockUserConsequence;
@@ -157,7 +158,19 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	 * @covers ModerationActionEditChangeSubmit::execute
 	 */
 	public function testEditChangeSubmit() {
+		$dbw = wfGetDB( DB_MASTER );
+		$row = $dbw->selectRow( 'moderation', [ 'mod_text', 'mod_comment' ], '', __METHOD__ );
+
 		$expected = [
+			new ModifyPendingChangeConsequence(
+				$this->modid,
+				'Some new text',
+				'Some new summary',
+				$row->mod_text,
+				$row->mod_comment,
+				$this->title,
+				$this->authorUser
+			),
 			new AddLogEntryConsequence(
 				'editchange',
 				$this->moderatorUser,
@@ -169,17 +182,52 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		];
 
 		$this->setMwGlobals( 'wgModerationEnableEditChange', true );
-		$actual = $this->getConsequences( 'editchangesubmit', [], [
-			'wpTextbox1' => 'New text',
-			'wpSummary' => 'Edit comment'
-		] );
+		$actual = $this->getConsequences( 'editchangesubmit', [ true ],
+			[
+				'wpTextbox1' => 'Some new text',
+				'wpSummary' => 'Some new summary'
+			]
+		);
 
 		$this->assertConsequencesEqual( $expected, $actual );
 	}
 
-	// TODO: no-op editchangesubmit (when wpTextbox1 and wpSummary are exactly as before).
-	// It will be extremely easy if what editchangesubmit is also made into a Consequence object,
-	// see testNoopBlock() for an example.
+	/**
+	 * Test consequences of modaction=editchangesubmit when both text and summary are unchanged.
+	 * @covers ModerationActionEditChangeSubmit::execute
+	 */
+	public function testNoopEditChangeSubmit() {
+		$dbw = wfGetDB( DB_MASTER );
+		$row = $dbw->selectRow( 'moderation', [ 'mod_text', 'mod_comment' ], '', __METHOD__ );
+
+		$expected = [
+			new ModifyPendingChangeConsequence(
+				$this->modid,
+				'Some new text',
+				'Some new summary',
+				$row->mod_text,
+				$row->mod_comment,
+				$this->title,
+				$this->authorUser
+			),
+			// No AddLogEntryConsequence, because there were no changes.
+		];
+
+		$this->setMwGlobals( 'wgModerationEnableEditChange', true );
+		$actual = $this->getConsequences( 'editchangesubmit',
+			[
+				// Mocked return value from ModifyPendingChangeConsequence:
+				// simulate "nothing changed".
+				false
+			],
+			[
+				'wpTextbox1' => 'Some new text',
+				'wpSummary' => 'Some new summary'
+			]
+		);
+
+		$this->assertConsequencesEqual( $expected, $actual );
+	}
 
 	/**
 	 * Test consequences of modaction=rejectall.
@@ -262,29 +310,32 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			$this->assertInstanceof( $expectedClass, $actual,
 				"Class of consequence doesn't match expected" );
 
-			if ( $expected instanceof AddLogEntryConsequence ) {
-				// Remove optionally calculated fields from Title objects within both consequences.
-				$this->flattenTitle( $expected );
-				$this->flattenTitle( $actual );
-			}
+			// Remove optionally calculated fields from Title/User objects within both consequences
+			$this->flattenFields( $expected );
+			$this->flattenFields( $actual );
 
 			$this->assertEquals( $expected, $actual, "Parameters of consequence don't match expected" );
 		}, $expectedConsequences, $actualConsequences );
 	}
 
 	/**
-	 * Recalculate the Title field to ensure that no optionally calculated fields are calculated.
+	 * Recalculate Title/User fields to ensure that no optionally calculated fields are calculated.
 	 * This is needed to use assertEquals() of consequences: direct comparison of Title objects
 	 * would fail, because Title object has fields like mUserCaseDBKey (they must not be compared).
 	 */
-	private function flattenTitle( IConsequence $consequence ) {
+	private function flattenFields( IConsequence $consequence ) {
 		$wrapper = TestingAccessWrapper::newFromObject( $consequence );
-		if ( !$wrapper->title ) {
+		try {
+			$wrapper->title = Title::newFromText( (string)$wrapper->title );
+		} catch ( ReflectionException $e ) {
 			// Not applicable to this Consequence.
-			return;
 		}
 
-		$wrapper->title = Title::newFromText( (string)$wrapper->title );
+		try {
+			$wrapper->originalAuthor = User::newFromName( $wrapper->originalAuthor->getName() );
+		} catch ( ReflectionException $e ) {
+			// Not applicable to this Consequence.
+		}
 	}
 
 	/**
@@ -339,7 +390,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			$this->authorUser
 		);
 
-		$this->modid = wfGetDB( DB_MASTER )->selectField( 'moderation', 'mod_id', '', __METHOD__ );
-		$this->assertNotFalse( $this->modid );
+		$dbw = wfGetDB( DB_MASTER );
+		$this->modid = (int)$dbw->selectField( 'moderation', 'mod_id', '', __METHOD__ );
+		$this->assertNotSame( 0, $this->modid );
 	}
 }

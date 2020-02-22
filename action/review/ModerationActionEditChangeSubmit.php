@@ -24,6 +24,7 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\ModifyPendingChangeConsequence;
 
 class ModerationActionEditChangeSubmit extends ModerationAction {
 
@@ -57,43 +58,22 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 
 		$request = $this->getRequest();
 
-		/* Apply preSaveTransform to the submitted text */
 		$title = Title::makeTitle( $row->namespace, $row->title );
-		$newContent = ContentHandler::makeContent(
-			$request->getVal( 'wpTextbox1' ),
-			$title
-		);
-
 		$originalAuthor = $row->user ?
 			User::newFromId( $row->user ) :
 			User::newFromName( $row->user_text, false );
-		$pstContent = $newContent->preSaveTransform(
+
+		$manager = ConsequenceUtils::getManager();
+		$somethingChanged = $manager->add( new ModifyPendingChangeConsequence(
+			$this->id,
+			$request->getVal( 'wpTextbox1', '' ),
+			$request->getVal( 'wpSummary', '' ),
+			$row->text, // Old text
+			$row->comment, // Old comment
 			$title,
-			$originalAuthor,
-			ParserOptions::newFromUserAndLang(
-				$originalAuthor,
-				ModerationCompatTools::getContentLanguage()
-			)
-		);
-
-		$newText = $pstContent->getNativeData();
-		$newComment = $request->getVal( 'wpSummary' );
-
-		$somethingChanged = ( $newText != $row->text || $newComment != $row->comment );
+			$originalAuthor
+		) );
 		if ( $somethingChanged ) {
-			$dbw->update( 'moderation',
-				[
-					'mod_text' => $newText,
-					'mod_new_len' => $pstContent->getSize(),
-					'mod_comment' => $newComment
-				],
-				[
-					'mod_id' => $this->id
-				],
-				__METHOD__
-			);
-
-			$manager = ConsequenceUtils::getManager();
 			$manager->add( new AddLogEntryConsequence( 'editchange', $this->moderator, $title, [
 				'modid' => $this->id
 			] ) );
