@@ -29,10 +29,18 @@ class MockConsequenceManager implements IConsequenceManager {
 	protected $consequences = [];
 
 	/**
+	 * @var mixed[]
+	 */
+	protected $mockedResults = [];
+
+	/**
+	 * Mocked version of add(): record the Consequence without running it, return mocked result.
 	 * @param IConsequence $consequence
+	 * @return mixed|null Mocked return value (if mockResult() was used before add()), if any.
 	 */
 	public function add( IConsequence $consequence ) {
 		$this->consequences[] = $consequence;
+		return array_shift( $this->mockedResults );
 	}
 
 	/**
@@ -41,5 +49,13 @@ class MockConsequenceManager implements IConsequenceManager {
 	 */
 	public function getConsequences() {
 		return $this->consequences;
+	}
+
+	/**
+	 * Add $result into a queue of return values that are consequentially returned by add() calls.
+	 * @param mixed $result
+	 */
+	public function mockResult( $result ) {
+		$this->mockedResults[] = $result;
 	}
 }

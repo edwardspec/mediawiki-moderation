@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
+use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
@@ -93,6 +94,11 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 
 		$sets['block'] = [ 'block', function () {
 			return [
+				new BlockUserConsequence(
+					$this->authorUser->getId(),
+					$this->authorUser->getName(),
+					$this->moderatorUser
+				),
 				new AddLogEntryConsequence(
 					'block',
 					$this->moderatorUser,
@@ -205,6 +211,12 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		$context = new DerivativeContext( RequestContext::getMain() );
 		$context->setRequest( $request );
 		$context->setUser( $this->moderatorUser );
+
+		// FIXME: move this away from getConsequences() into its parameter,
+		// e.g. $mockedResults array.
+		if ( $modaction == 'block' || $modaction == 'unblock' ) {
+			$manager->mockResult( true );
+		}
 
 		$action = ModerationAction::factory( $context );
 		$action->run();

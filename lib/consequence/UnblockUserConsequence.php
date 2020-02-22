@@ -17,13 +17,30 @@
 
 /**
  * @file
- * Manager that runs all added consequences immediately.
+ * Consequence that removes ModerationBlock from the user.
  */
 
 namespace MediaWiki\Moderation;
 
-class ConsequenceManager implements IConsequenceManager {
-	public function add( IConsequence $consequence ) {
-		return $consequence->run();
+class UnblockUserConsequence implements IConsequence {
+	/** @var string */
+	protected $username;
+
+	/**
+	 * @param string $username
+	 */
+	public function __construct( $username ) {
+		$this->username = $username;
+	}
+
+	/**
+	 * Execute the consequence.
+	 * @return bool True if existing block was removed, false otherwise.
+	 */
+	public function run() {
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->delete( 'moderation_block', [ 'mb_address' => $this->username ], __METHOD__ );
+
+		return ( $dbw->affectedRows() > 0 );
 	}
 }
