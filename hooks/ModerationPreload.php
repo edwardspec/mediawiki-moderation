@@ -215,10 +215,10 @@ class ModerationPreload {
 	 * current user, inform EditPage object of its Text and Summary,
 	 * so that the user can continue editing its own revision.
 	 * @param string &$text
-	 * @param Title &$title
+	 * @param Title $title
 	 * @param EditPage|null $editPage
 	 */
-	public static function showUnmoderatedEdit( &$text, &$title, $editPage ) {
+	public static function showUnmoderatedEdit( &$text, $title, $editPage ) {
 		$preload = self::singleton();
 		$section = $preload->getRequest()->getVal( 'section', '' );
 		if ( $section == 'new' ) {
