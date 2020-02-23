@@ -283,7 +283,7 @@ class ModerationPreload {
 	 * @return true
 	 */
 	public static function onEditFormInitialText( $editPage ) {
-		self::showUnmoderatedEdit( $editPage->textbox1, $editPage->mTitle, $editPage );
+		self::showUnmoderatedEdit( $editPage->textbox1, $editPage->getTitle(), $editPage );
 
 		return true;
 	}

@@ -16,6 +16,7 @@ Bugfixes:
 
 Warnings fixed:
 * Replaced deprecated ApiBase::dieUsage()
+* Replaced deprecated EditPage::$mTitle
 * Replaced deprecated Linker::link()
 * Replaced deprecated StreamFile::send404Message()
 * Replaced deprecated Title::GAID_FOR_UPDATE
