@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\MarkAsMergedConsequence;
 
 class ModerationEditHooks {
 	/**
@@ -224,28 +225,17 @@ class ModerationEditHooks {
 			return true;
 		}
 
-		$mergeID = RequestContext::getMain()->getRequest()->getVal( 'wpMergeID' );
+		$mergeID = RequestContext::getMain()->getRequest()->getInt( 'wpMergeID' );
 		if ( !$mergeID ) {
 			return true;
 		}
 
 		$revid = $revision->getId();
 
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->update( 'moderation',
-			[
-				'mod_merged_revid' => $revid,
-				ModerationVersionCheck::setPreloadableToNo()
-			],
-			[
-				'mod_id' => $mergeID,
-				'mod_merged_revid' => 0 # No more than one merging
-			],
-			__METHOD__
-		);
+		$manager = ConsequenceUtils::getManager();
+		$somethingChanged = $manager->add( new MarkAsMergedConsequence( $mergeID, $revid ) );
 
-		if ( $dbw->affectedRows() ) {
-			$manager = ConsequenceUtils::getManager();
+		if ( $somethingChanged ) {
 			$manager->add( new AddLogEntryConsequence( 'merge', $user, $page->getTitle(), [
 				'modid' => $mergeID,
 				'revid' => $revision->getId()
