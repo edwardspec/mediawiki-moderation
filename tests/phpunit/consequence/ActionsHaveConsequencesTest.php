@@ -154,6 +154,60 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	}
 
 	/**
+	 * Test consequences of modaction=approve.
+	 * @covers ModerationActionApprove::executeApproveOne
+	 */
+	public function testApprove() {
+		$actual = $this->getConsequences( 'approve' );
+		$expected = [
+			new AddLogEntryConsequence(
+				'approve',
+				$this->moderatorUser,
+				$this->title,
+				[
+					'revid' => $this->title->getLatestRevID( IDBAccessObject::READ_LATEST )
+				],
+				true // ApproveHook enabled
+			)
+		];
+
+		$this->assertConsequencesEqual( $expected, $actual );
+	}
+
+	// NOTE: running Approve without process isolation (like in ModerationTestsuite framework)
+	// would confuse ApproveHooks class. Need a way to clean ApproveHooks between tests.
+	// If ApproveHooks themselves use consequences, mocked Manager can be used too.
+
+	/**
+	 * Test consequences of modaction=approveall.
+	 * @covers ModerationActionApprove::executeApproveAll
+	 */
+	public function testApproveAll() {
+		$actual = $this->getConsequences( 'approveall' );
+		$expected = [
+			new AddLogEntryConsequence(
+				'approve',
+				$this->moderatorUser,
+				$this->title,
+				[
+					'revid' => $this->title->getLatestRevID( IDBAccessObject::READ_LATEST )
+				],
+				true // ApproveHook enabled
+			),
+			new AddLogEntryConsequence(
+				'approveall',
+				$this->moderatorUser,
+				$this->authorUser->getUserPage(),
+				[
+					'4::count' => 1
+				]
+			)
+		];
+
+		$this->assertConsequencesEqual( $expected, $actual );
+	}
+
+	/**
 	 * Test consequences of modaction=editchangesubmit.
 	 * @covers ModerationActionEditChangeSubmit::execute
 	 */
@@ -287,11 +341,6 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		];
 	}
 
-	// TODO: test approve/approveall
-	// NOTE: running Approve without process isolation (like in ModerationTestsuite framework)
-	// would confuse ApproveHooks class. Need a way to clean ApproveHooks between tests.
-	// If ApproveHooks themselves use consequences, mocked Manager can be used too.
-
 	/**
 	 * Assert that $expectedConsequences are exactly the same as $actualConsequences.
 	 * @param IConsequence[] $expectedConsequences
@@ -375,6 +424,11 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
+
+		// If the previous test used Approve, it enabled "all edits should bypass moderation" mode.
+		// Disable it now.
+		$canSkip = TestingAccessWrapper::newFromClass( ModerationCanSkip::class );
+		$canSkip->inApprove = false;
 
 		$this->authorUser = self::getTestUser()->getUser();
 		$this->moderatorUser = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
