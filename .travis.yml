@@ -74,7 +74,7 @@ matrix:
 
     # Phan (PHP static analyzer)
     - &phan-build
-      if: branch IN (phan,master)
+      if: NOT branch IN (selenium,troubleshooting,linters)
       env: TESTSUITE_TYPE=phan branch=REL1_34
       php: 7.3
       before_script:
