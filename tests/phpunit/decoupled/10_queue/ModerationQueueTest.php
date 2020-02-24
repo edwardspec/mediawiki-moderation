@@ -148,13 +148,13 @@ class ModerationQueueTest extends ModerationTestCase {
 				] ],
 			'absence of email for existing page when $wgModerationNotificationNewOnly=true' =>
 				[ [
-					'filename' => 'image100x100.png',
+					'existing' => true,
 					'notifyNewOnly' => true,
 					'notifyEmail' => 'noreply@localhost'
 				] ],
 			'absence of email for reupload when $wgModerationNotificationNewOnly=true' =>
 				[ [
-					'existing' => true,
+					'filename' => 'image100x100.png',
 					'notifyNewOnly' => true,
 					'notifyEmail' => 'noreply@localhost'
 				] ],

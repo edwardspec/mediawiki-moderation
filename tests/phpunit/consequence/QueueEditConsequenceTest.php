@@ -20,6 +20,7 @@
  * Unit test of QueueEditConsequence.
  */
 
+use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
@@ -40,27 +41,61 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 	/**
 	 * Check the secondary consequences of running QueueEditConsequence.
 	 * @covers ModerationNewChange::sendNotificationEmail
+	 * @dataProvider dataProviderQueueEdit
 	 *
 	 * See also: ModerationQueueTest from the blackbox integration tests.
 	 */
-	public function testQueueEdit() {
-		$user = self::getTestUser()->getUser();
-		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) ); // TODO: test namespaces
+	public function testQueueEdit( array $params ) {
+		$opt = (object)$params;
+
+		$user = empty( $opt->anonymously ) ? self::getTestUser()->getUser() :
+			User::newFromName( '127.0.0.1', false );
+		$title = Title::newFromText( $opt->title ?? 'UTPage-' . rand( 0, 100000 ) );
 		$page = WikiPage::factory( $title );
 		$content = ContentHandler::makeContent( 'Some text' . rand( 0, 100000 ),
 			null, CONTENT_MODEL_WIKITEXT );
-		$summary = 'Some summary ' . rand( 0, 100000 );
-		$isBot = false; // TODO: test both
-		$isMinor = false; // TODO: test both
-		$pageExistedBefore = false; // TODO: test both
+		$summary = $opt->summary ?? 'Some summary ' . rand( 0, 100000 );
+		$opt->bot = $opt->bot ?? false;
+		$opt->minor = $opt->minor ?? false;
+		$opt->existing = $opt->existing ?? false;
+		$opt->modblocked = $opt->modblocked ?? false;
+		$opt->notifyEmail = $opt->notifyEmail ?? false;
+		$opt->notifyNewOnly = $opt->notifyNewOnly ?? false;
+
+		if ( $opt->existing ) {
+			// Precreate the page.
+			$status = $page->doEditContent(
+				ContentHandler::makeContent( 'Original text' . rand( 0, 100000 ),
+					null, CONTENT_MODEL_WIKITEXT
+				), '', 0, false,
+				self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser()
+			);
+			$this->assertTrue( $status->isOK() ); // Not intercepted and no other errors.
+		}
+
+		if ( $opt->modblocked ) {
+			$consequence = new BlockUserConsequence(
+				$user->getId(),
+				$user->getName(),
+				self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser()
+			);
+			$consequence->run();
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredMethod - Phan thinks it's not FauxRequest
+		$user->getRequest()->setHeaders( [
+			'User-Agent' => $opt->userAgent ?? '',
+			'X-Forwarded-For' => $opt->xff ?? ''
+		] );
 
 		// Replace real ConsequenceManager with a mock.
 		$manager = new MockConsequenceManager();
 		ConsequenceUtils::installManager( $manager );
 
 		$this->setMwGlobals( [
-			'wgModerationNotificationEnable' => true,
-			'wgModerationEmail' => 'noreply@localhost'
+			'wgModerationNotificationEnable' => $opt->notifyEmail ? true : false,
+			'wgModerationEmail' => $opt->notifyEmail,
+			'wgModerationNotificationNewOnly' => $opt->notifyNewOnly ?? false
 		] );
 
 		// No actual DB operations will be happening, so mock the returned mod_id.
@@ -69,7 +104,7 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 
 		// Create and run the Consequence.
 		$consequence = new QueueEditConsequence(
-			$page, $user, $content, $summary, '', '', $isBot, $isMinor );
+			$page, $user, $content, $summary, '', '', $opt->bot, $opt->minor );
 		$consequence->run();
 
 		// This is very similar to ModerationQueueTest::getExpectedRow().
@@ -79,31 +114,32 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 		$preload->setUser( $user );
 
 		$expectedFields = [
-			'mod_timestamp' => $dbr->timestamp(),
+			'mod_timestamp' => $dbr->timestamp(), // FIXME: flaky if run() was in another second
 			'mod_user' => $user->getId(),
 			'mod_user_text' => $user->getName(),
-			'mod_cur_id' => $pageExistedBefore ?
+			'mod_cur_id' => $opt->existing ?
 				$title->getArticleId( IDBAccessObject::READ_LATEST ) : 0,
 			'mod_namespace' => $title->getNamespace(),
 			'mod_title' => $title->getDBKey(),
 			'mod_comment' => $summary,
-			'mod_minor' => ( $isMinor && $pageExistedBefore ) ? 1 : 0,
-			'mod_bot' => $isBot ? 1 : 0,
-			'mod_new' => $pageExistedBefore ? 0 : 1,
-			'mod_last_oldid' => $pageExistedBefore ?
+			'mod_minor' => $opt->minor ? 1 : 0,
+			'mod_bot' => $opt->bot ? 1 : 0,
+			'mod_new' => $opt->existing ? 0 : 1,
+			'mod_last_oldid' => $opt->existing ?
 				$title->getLatestRevID( IDBAccessObject::READ_LATEST ) : 0,
 			'mod_ip' => '127.0.0.1',
-			'mod_old_len' => $pageExistedBefore ?
+			'mod_old_len' => $opt->existing ?
 				$title->getLength( IDBAccessObject::READ_LATEST ) : 0,
 			'mod_new_len' => $content->getSize(),
-			'mod_header_xff' => null,
-			'mod_header_ua' => null,
+			'mod_header_xff' => $opt->xff ?? null,
+			'mod_header_ua' => $opt->userAgent ?? null,
 			'mod_preload_id' => $preload->getId( false ),
-			'mod_rejected' => 0,
+			'mod_rejected' => $opt->modblocked ? 1 : 0,
 			'mod_rejected_by_user' => 0,
-			'mod_rejected_by_user_text' => null,
+			'mod_rejected_by_user_text' => $opt->modblocked ?
+				wfMessage( 'moderation-blocker' )->inContentLanguage()->text() : null,
 			'mod_rejected_batch' => 0,
-			'mod_rejected_auto' => 0,
+			'mod_rejected_auto' => $opt->modblocked ? 1 : 0,
 			'mod_preloadable' => 0,
 			'mod_conflict' => 0,
 			'mod_merged_revid' => 0,
@@ -116,13 +152,46 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 		];
 
 		// Check secondary consequences.
-		$this->assertConsequencesEqual( [
-			new InsertRowIntoModerationTableConsequence( $expectedFields ),
-			new SendNotificationEmailConsequence(
+		$expectedConsequences = [
+			new InsertRowIntoModerationTableConsequence( $expectedFields )
+		];
+		if ( !$opt->modblocked && $opt->notifyEmail && ( !$opt->notifyNewOnly || !$opt->existing ) ) {
+			$expectedConsequences[] = new SendNotificationEmailConsequence(
 				$title,
 				$user,
 				$modid
-			)
-		], $manager->getConsequences() );
+			);
+		}
+
+		$this->assertConsequencesEqual( $expectedConsequences, $manager->getConsequences() );
+	}
+
+	public function dataProviderQueueEdit() {
+		return [
+			'logged-in edit' => [ [] ],
+			'anonymous edit' => [ [ 'anonymously' => true ] ],
+			'edit in Project namespace' => [ [ 'title' => 'Project:Title in another namespace' ] ],
+			'edit in existing page' => [ [ 'existing' => true ] ],
+			'edit with edit summary' => [ [ 'summary' => 'Summary 1' ] ],
+			'edit with User-Agent' => [ [ 'userAgent' => 'UserAgent for Testing/1.0' ] ],
+			'edit with XFF' => [ [ 'xff' => '10.11.12.13' ] ],
+			'edit by modblocked user' => [ [ 'modblocked' => true ] ],
+			'bot edit' => [ [ 'bot' => true ] ],
+			'minor edit' => [ [ 'minor' => true, 'existing' => true ] ],
+			'email notification' => [ [ 'notifyEmail' => 'noreply@localhost' ] ],
+			'email notification for new page when $wgModerationNotificationNewOnly=true' =>
+				[ [ 'notifyEmail' => 'noreply@localhost', 'notifyNewOnly' => true ] ],
+			'absence of email for existing page when $wgModerationNotificationNewOnly=true' =>
+				[ [
+					'existing' => true,
+					'notifyNewOnly' => true,
+					'notifyEmail' => 'noreply@localhost'
+				] ],
+			'absence of email for edit by modblocked user' =>
+				[ [
+					'modblocked' => true,
+					'notifyEmail' => 'noreply@localhost'
+				] ],
+		];
 	}
 }
