@@ -23,6 +23,7 @@
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
+use MediaWiki\Moderation\QueueEditConsequence;
 
 class ModerationEditHooks {
 	/**
@@ -114,12 +115,13 @@ class ModerationEditHooks {
 			return true;
 		}
 
-		$change = new ModerationNewChange( $title, $user );
-		$change->edit( $page, $content, self::$section, self::$sectionText )
-			->setBot( (bool)( $flags & EDIT_FORCE_BOT ) )
-			->setMinor( (bool)$is_minor )
-			->setSummary( $summary )
-			->queue();
+		$manager = ConsequenceUtils::getManager();
+		$manager->add( new QueueEditConsequence(
+			$page, $user, $content, $summary,
+			self::$section, self::$sectionText,
+			(bool)( $flags & EDIT_FORCE_BOT ),
+			(bool)$is_minor
+		) );
 
 		if ( self::$watchthis !== null ) {
 			/* Watch/Unwatch the page immediately:

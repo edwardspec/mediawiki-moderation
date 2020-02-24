@@ -64,6 +64,14 @@ trait ConsequenceTestTrait {
 		}
 
 		try {
+			$wrapper->page = WikiPage::factory(
+				Title::newFromText( (string)$wrapper->page->getTitle() )
+			);
+		} catch ( ReflectionException $e ) {
+			// Not applicable to this Consequence.
+		}
+
+		try {
 			$wrapper->originalAuthor = User::newFromName( $wrapper->originalAuthor->getName() );
 		} catch ( ReflectionException $e ) {
 			// Not applicable to this Consequence.

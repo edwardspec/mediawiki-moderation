@@ -23,6 +23,7 @@
 use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
+use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 
 require_once __DIR__ . "/ConsequenceTestTrait.php";
@@ -42,6 +43,12 @@ class EditsHaveConsequencesTest extends MediaWikiTestCase {
 	/** @var Title */
 	protected $title;
 
+	/** @var Content */
+	protected $content;
+
+	/** @var string */
+	protected $summary;
+
 	/** @var MockConsequenceManager */
 	protected $manager;
 
@@ -54,7 +61,15 @@ class EditsHaveConsequencesTest extends MediaWikiTestCase {
 	 */
 	public function testEdit() {
 		$this->makeEdit();
-		$this->assertConsequences( [] );
+		$this->assertConsequences( [
+			new QueueEditConsequence(
+				WikiPage::factory( $this->title ), $this->user, $this->content, $this->summary,
+				'', // section
+				'', // sectionText
+				false, // isBot
+				false // isMinor
+			)
+		] );
 	}
 
 	/**
@@ -62,6 +77,8 @@ class EditsHaveConsequencesTest extends MediaWikiTestCase {
 	 * @covers ModerationNewChange::sendNotificationEmail
 	 */
 	public function testEditNotificationEmail() {
+		$this->markTestIncomplete( "Should be moved into the unit test of QueueEditConsequence." );
+
 		// Replace real ConsequenceManager with a mock.
 		$this->setMwGlobals( [
 			'wgModerationNotificationEnable' => true,
@@ -85,19 +102,17 @@ class EditsHaveConsequencesTest extends MediaWikiTestCase {
 	private function makeEdit() {
 		$this->user = self::getTestUser()->getUser();
 		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$this->content = ContentHandler::makeContent( 'Some text', null, CONTENT_MODEL_WIKITEXT );
+		$this->summary = 'Some edit summary';
 
 		$page = WikiPage::factory( $this->title );
 		$page->doEditContent(
-			ContentHandler::makeContent( 'Some text', null, CONTENT_MODEL_WIKITEXT ),
-			'',
+			$this->content,
+			$this->summary,
 			EDIT_INTERNAL,
 			false,
 			$this->user
 		);
-
-		$dbw = wfGetDB( DB_MASTER );
-		$this->modid = (int)$dbw->selectField( 'moderation', 'mod_id', '', __METHOD__ );
-		$this->assertNotSame( 0, $this->modid );
 	}
 
 	/**

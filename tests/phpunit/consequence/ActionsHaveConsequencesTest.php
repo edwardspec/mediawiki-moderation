@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\BlockUserConsequence;
+use MediaWiki\Moderation\ConsequenceManager;
 use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
@@ -383,11 +384,6 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		// If the previous test used Approve, it enabled "all edits should bypass moderation" mode.
-		// Disable it now.
-		$canSkip = TestingAccessWrapper::newFromClass( ModerationCanSkip::class );
-		$canSkip->inApprove = false;
-
 		$this->authorUser = self::getTestUser()->getUser();
 		$this->moderatorUser = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
 
@@ -405,5 +401,20 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		$dbw = wfGetDB( DB_MASTER );
 		$this->modid = (int)$dbw->selectField( 'moderation', 'mod_id', '', __METHOD__ );
 		$this->assertNotSame( 0, $this->modid );
+	}
+
+	/**
+	 * Queue an edit for moderation. Populate all fields ($this->modid, etc.) used by actual tests.
+	 */
+	public function tearDown() {
+		// If the previous test used Approve, it enabled "all edits should bypass moderation" mode.
+		// Disable it now.
+		$canSkip = TestingAccessWrapper::newFromClass( ModerationCanSkip::class );
+		$canSkip->inApprove = false;
+
+		// Restore the real (non-mocked) ConsequenceManager.
+		ConsequenceUtils::installManager( new ConsequenceManager() );
+
+		parent::tearDown();
 	}
 }

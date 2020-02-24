@@ -113,6 +113,7 @@
 		"MediaWiki\\Moderation\\RejectOneConsequence": "lib/consequence/RejectOneConsequence.php",
 		"MediaWiki\\Moderation\\RejectBatchConsequence": "lib/consequence/RejectBatchConsequence.php",
 		"MediaWiki\\Moderation\\SendNotificationEmailConsequence": "lib/consequence/SendNotificationEmailConsequence.php",
+		"MediaWiki\\Moderation\\QueueEditConsequence": "lib/consequence/QueueEditConsequence.php",
 		"MediaWiki\\Moderation\\UnblockUserConsequence": "lib/consequence/UnblockUserConsequence.php",
 		"ModerationAction": "action/ModerationAction.php",
 		"ModerationActionApprove": "action/ModerationActionApprove.php",
