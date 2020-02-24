@@ -76,6 +76,16 @@ trait ConsequenceTestTrait {
 		} catch ( ReflectionException $e ) {
 			// Not applicable to this Consequence.
 		}
+
+		try {
+			$fields = $wrapper->fields;
+			if ( isset( $fields['mod_timestamp'] ) ) {
+				$fields['mod_timestamp'] = '(mocked timestamp)';
+			}
+			$wrapper->fields = $fields;
+		} catch ( ReflectionException $e ) {
+			// Not applicable to this Consequence.
+		}
 	}
 
 	/*----------------------------------------------------------------------------------------*/

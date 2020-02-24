@@ -108,13 +108,11 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 		$consequence->run();
 
 		// This is very similar to ModerationQueueTest::getExpectedRow().
-		$dbr = wfGetDB( DB_REPLICA ); // Only for $dbr->timestamp()
-
 		$preload = ModerationPreload::singleton();
 		$preload->setUser( $user );
 
 		$expectedFields = [
-			'mod_timestamp' => $dbr->timestamp(), // FIXME: flaky if run() was in another second
+			'mod_timestamp' => 'ignored by assertConsequencesEqual()',
 			'mod_user' => $user->getId(),
 			'mod_user_text' => $user->getName(),
 			'mod_cur_id' => $opt->existing ?
