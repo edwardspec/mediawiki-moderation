@@ -20,6 +20,9 @@
  * Methods to manage "moderation" SQL table.
  */
 
+use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\SendNotificationEmailConsequence;
+
 class ModerationNewChange {
 
 	/** @var int|null mod_id of the last inserted row */
@@ -400,33 +403,11 @@ class ModerationNewChange {
 			return;
 		}
 
-		/* Sending may be slow, defer it
-			until the user receives HTTP response */
-		DeferredUpdates::addCallableUpdate( [
-			$this,
-			'sendNotificationEmailNow'
-		] );
-	}
-
-	/**
-	 * Deliver the deferred letter from sendNotificationEmail().
-	 */
-	public function sendNotificationEmailNow() {
-		global $wgModerationEmail, $wgPasswordSender;
-
-		$mailer = new UserMailer();
-		$to = new MailAddress( $wgModerationEmail );
-		$from = new MailAddress( $wgPasswordSender );
-		$subject = wfMessage( 'moderation-notification-subject' )->inContentLanguage()->text();
-		$content = wfMessage( 'moderation-notification-content',
-			$this->title->getPrefixedText(),
-			$this->user->getName(),
-			SpecialPage::getTitleFor( 'Moderation' )->getCanonicalURL( [
-				'modaction' => 'show',
-				'modid' => self::$LastInsertId
-			] )
-		)->inContentLanguage()->text();
-
-		$mailer->send( $to, $from, $subject, $content );
+		$manager = ConsequenceUtils::getManager();
+		$manager->add( new SendNotificationEmailConsequence(
+			$this->title,
+			$this->user,
+			self::$LastInsertId
+		) );
 	}
 }
