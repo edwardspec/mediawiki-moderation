@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
@@ -39,11 +40,19 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 	/**
 	 * Check the secondary consequences of running QueueEditConsequence.
 	 * @covers ModerationNewChange::sendNotificationEmail
+	 *
+	 * See also: ModerationQueueTest from the blackbox integration tests.
 	 */
 	public function testQueueEdit() {
 		$user = self::getTestUser()->getUser();
-		$page = WikiPage::factory( Title::newFromText( 'UTPage-' . rand( 0, 100000 ) ) );
-		$content = ContentHandler::makeContent( 'Some text', null, CONTENT_MODEL_WIKITEXT );
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) ); // TODO: test namespaces
+		$page = WikiPage::factory( $title );
+		$content = ContentHandler::makeContent( 'Some text' . rand( 0, 100000 ),
+			null, CONTENT_MODEL_WIKITEXT );
+		$summary = 'Some summary ' . rand( 0, 100000 );
+		$isBot = false; // TODO: test both
+		$isMinor = false; // TODO: test both
+		$pageExistedBefore = false; // TODO: test both
 
 		// Replace real ConsequenceManager with a mock.
 		$manager = new MockConsequenceManager();
@@ -54,15 +63,63 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 			'wgModerationEmail' => 'noreply@localhost'
 		] );
 
+		// No actual DB operations will be happening, so mock the returned mod_id.
+		$modid = 12345;
+		$manager->mockResult( $modid );
+
 		// Create and run the Consequence.
 		$consequence = new QueueEditConsequence(
-			$page, $user, $content, 'Some summary', '', '', false, false );
-		$modid = $consequence->run();
+			$page, $user, $content, $summary, '', '', $isBot, $isMinor );
+		$consequence->run();
+
+		// This is very similar to ModerationQueueTest::getExpectedRow().
+		$dbr = wfGetDB( DB_REPLICA ); // Only for $dbr->timestamp()
+
+		$preload = ModerationPreload::singleton();
+		$preload->setUser( $user );
+
+		$expectedFields = [
+			'mod_timestamp' => $dbr->timestamp(),
+			'mod_user' => $user->getId(),
+			'mod_user_text' => $user->getName(),
+			'mod_cur_id' => $pageExistedBefore ?
+				$title->getArticleId( IDBAccessObject::READ_LATEST ) : 0,
+			'mod_namespace' => $title->getNamespace(),
+			'mod_title' => $title->getDBKey(),
+			'mod_comment' => $summary,
+			'mod_minor' => ( $isMinor && $pageExistedBefore ) ? 1 : 0,
+			'mod_bot' => $isBot ? 1 : 0,
+			'mod_new' => $pageExistedBefore ? 0 : 1,
+			'mod_last_oldid' => $pageExistedBefore ?
+				$title->getLatestRevID( IDBAccessObject::READ_LATEST ) : 0,
+			'mod_ip' => '127.0.0.1',
+			'mod_old_len' => $pageExistedBefore ?
+				$title->getLength( IDBAccessObject::READ_LATEST ) : 0,
+			'mod_new_len' => $content->getSize(),
+			'mod_header_xff' => null,
+			'mod_header_ua' => null,
+			'mod_preload_id' => $preload->getId( false ),
+			'mod_rejected' => 0,
+			'mod_rejected_by_user' => 0,
+			'mod_rejected_by_user_text' => null,
+			'mod_rejected_batch' => 0,
+			'mod_rejected_auto' => 0,
+			'mod_preloadable' => 0,
+			'mod_conflict' => 0,
+			'mod_merged_revid' => 0,
+			'mod_text' => $content->getNativeData(), // Won't work if $content needs PST
+			'mod_stash_key' => null,
+			'mod_tags' => null,
+			'mod_type' => 'edit',
+			'mod_page2_namespace' => 0,
+			'mod_page2_title' => ''
+		];
 
 		// Check secondary consequences.
 		$this->assertConsequencesEqual( [
+			new InsertRowIntoModerationTableConsequence( $expectedFields ),
 			new SendNotificationEmailConsequence(
-				$page->getTitle(),
+				$title,
 				$user,
 				$modid
 			)

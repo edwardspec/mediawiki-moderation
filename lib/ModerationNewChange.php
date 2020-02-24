@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 
 class ModerationNewChange {
@@ -337,32 +338,16 @@ class ModerationNewChange {
 	 * @return int mod_id of affected row.
 	 */
 	protected function insert() {
-		$fields = $this->getFields();
-
-		$uniqueFields = [
-			'mod_preloadable',
-			'mod_namespace',
-			'mod_title',
-			'mod_preload_id'
-		];
-		if ( ModerationVersionCheck::hasModType() ) {
-			$uniqueFields[] = 'mod_type';
-		}
-
-		$dbw = wfGetDB( DB_MASTER );
-		RollbackResistantQuery::upsert( $dbw, [
-			'moderation',
-			$fields,
-			[ $uniqueFields ],
-			$fields,
-			__METHOD__
-		] );
-		return $dbw->insertId();
+		$manager = ConsequenceUtils::getManager();
+		return $manager->add(
+			new InsertRowIntoModerationTableConsequence( $this->getFields() )
+		);
 	}
 
 	/**
 	 * Legacy version of insert() for old databases without UNIQUE INDEX.
 	 * @return int mod_id of affected row.
+	 * NOTE: this B/C code will eventually be removed, no need to move this into Consequence class.
 	 */
 	protected function insertOld() {
 		$row = $this->getPendingChange();
