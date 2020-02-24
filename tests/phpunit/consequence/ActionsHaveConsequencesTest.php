@@ -22,8 +22,6 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\BlockUserConsequence;
-use MediaWiki\Moderation\ConsequenceManager;
-use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\ModifyPendingChangeConsequence;
@@ -355,8 +353,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	 */
 	private function getConsequences( $modaction, array $mockedResults = [], $extraParams = [] ) {
 		// Replace real ConsequenceManager with a mock.
-		$manager = new MockConsequenceManager();
-		ConsequenceUtils::installManager( $manager );
+		list( $scope, $manager ) = MockConsequenceManager::install();
 
 		// Invoke ModerationAction with requested modid.
 		$request = new FauxRequest( [
@@ -411,9 +408,6 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		// Disable it now.
 		$canSkip = TestingAccessWrapper::newFromClass( ModerationCanSkip::class );
 		$canSkip->inApprove = false;
-
-		// Restore the real (non-mocked) ConsequenceManager.
-		ConsequenceUtils::installManager( new ConsequenceManager() );
 
 		parent::tearDown();
 	}

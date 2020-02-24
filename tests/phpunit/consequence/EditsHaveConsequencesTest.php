@@ -20,7 +20,6 @@
  * Verifies that editing a page has consequences.
  */
 
-use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueEditConsequence;
@@ -50,6 +49,9 @@ class EditsHaveConsequencesTest extends MediaWikiTestCase {
 
 	/** @var MockConsequenceManager */
 	protected $manager;
+
+	/** @var Wikimedia\ScopedCallback Used to automatically uninstall $manager */
+	protected $managerScope;
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'moderation' ];
@@ -96,8 +98,7 @@ class EditsHaveConsequencesTest extends MediaWikiTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->manager = new MockConsequenceManager();
-		ConsequenceUtils::installManager( $this->manager );
+		list( $this->managerScope, $this->manager ) = MockConsequenceManager::install();
 	}
 
 	/**

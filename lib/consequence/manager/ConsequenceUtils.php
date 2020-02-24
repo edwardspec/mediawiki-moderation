@@ -24,16 +24,23 @@ namespace MediaWiki\Moderation;
 
 class ConsequenceUtils {
 	/**
-	 * @var IConsequenceManager
+	 * @var IConsequenceManager|null
 	 * Currently used ConsequenceManager.
 	 */
-	private static $manager;
+	private static $manager = null;
 
 	/**
 	 * @param IConsequenceManager $manager
 	 */
 	public static function installManager( IConsequenceManager $manager ) {
 		self::$manager = $manager;
+	}
+
+	/**
+	 * Restore the default ConsequenceManager. (e.g. to undo the mock)
+	 */
+	public static function resetManager() {
+		self::$manager = null;
 	}
 
 	/**
