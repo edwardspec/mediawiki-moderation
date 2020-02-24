@@ -105,10 +105,14 @@ class RollbackResistantQuery {
 		self::$initialized = true;
 		$query = $this;
 
-		$this->dbw->setTransactionListener( 'moderation-on-rollback',
+		$this->dbw->setTransactionListener( 'moderation-on-rollback-or-commit',
 			function ( $trigger ) use ( $query ) {
 				if ( $trigger == Database::TRIGGER_ROLLBACK ) {
 					$query->onRollback();
+				} elseif ( $trigger == Database::TRIGGER_COMMIT ) {
+					// COMMIT was successful (previous queries will no longer be rolled back),
+					// so there is no longer any need to repeat them.
+					self::$performedQueries = [];
 				}
 			}
 		);
