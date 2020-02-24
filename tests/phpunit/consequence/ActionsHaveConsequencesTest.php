@@ -31,10 +31,14 @@ use MediaWiki\Moderation\RejectOneConsequence;
 use MediaWiki\Moderation\UnblockUserConsequence;
 use Wikimedia\TestingAccessWrapper;
 
+require_once __DIR__ . "/ConsequenceTestTrait.php";
+
 /**
  * @group Database
  */
 class ActionsHaveConsequencesTest extends MediaWikiTestCase {
+	use ConsequenceTestTrait;
+
 	/** @var int */
 	protected $modid;
 
@@ -339,52 +343,6 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 				$this->setMwGlobals( 'wgModerationEnableEditChange', true );
 			} ]
 		];
-	}
-
-	/**
-	 * Assert that $expectedConsequences are exactly the same as $actualConsequences.
-	 * @param IConsequence[] $expectedConsequences
-	 * @param IConsequence[] $actualConsequences
-	 */
-	private function assertConsequencesEqual(
-		array $expectedConsequences,
-		array $actualConsequences
-	) {
-		$expectedCount = count( $expectedConsequences );
-		$this->assertCount( $expectedCount, $actualConsequences,
-			"Unexpected number of consequences" );
-
-		array_map( function ( $expected, $actual ) {
-			$expectedClass = get_class( $expected );
-			$this->assertInstanceof( $expectedClass, $actual,
-				"Class of consequence doesn't match expected" );
-
-			// Remove optionally calculated fields from Title/User objects within both consequences
-			$this->flattenFields( $expected );
-			$this->flattenFields( $actual );
-
-			$this->assertEquals( $expected, $actual, "Parameters of consequence don't match expected" );
-		}, $expectedConsequences, $actualConsequences );
-	}
-
-	/**
-	 * Recalculate Title/User fields to ensure that no optionally calculated fields are calculated.
-	 * This is needed to use assertEquals() of consequences: direct comparison of Title objects
-	 * would fail, because Title object has fields like mUserCaseDBKey (they must not be compared).
-	 */
-	private function flattenFields( IConsequence $consequence ) {
-		$wrapper = TestingAccessWrapper::newFromObject( $consequence );
-		try {
-			$wrapper->title = Title::newFromText( (string)$wrapper->title );
-		} catch ( ReflectionException $e ) {
-			// Not applicable to this Consequence.
-		}
-
-		try {
-			$wrapper->originalAuthor = User::newFromName( $wrapper->originalAuthor->getName() );
-		} catch ( ReflectionException $e ) {
-			// Not applicable to this Consequence.
-		}
 	}
 
 	/**
