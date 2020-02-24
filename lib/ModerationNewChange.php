@@ -298,6 +298,7 @@ class ModerationNewChange {
 
 	/**
 	 * Queue edit for moderation.
+	 * @return int mod_id of affected row.
 	 */
 	public function queue() {
 		self::$LastInsertId = ModerationVersionCheck::hasUniqueIndex() ?
@@ -311,6 +312,8 @@ class ModerationNewChange {
 		] );
 
 		$this->notify();
+
+		return self::$LastInsertId;
 	}
 
 	/**

@@ -24,7 +24,6 @@ use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueEditConsequence;
-use MediaWiki\Moderation\SendNotificationEmailConsequence;
 
 require_once __DIR__ . "/ConsequenceTestTrait.php";
 
@@ -68,30 +67,6 @@ class EditsHaveConsequencesTest extends MediaWikiTestCase {
 				'', // sectionText
 				false, // isBot
 				false // isMinor
-			)
-		] );
-	}
-
-	/**
-	 * Test that notification emails are sent when normal edit is queued for moderation.
-	 * @covers ModerationNewChange::sendNotificationEmail
-	 */
-	public function testEditNotificationEmail() {
-		$this->markTestIncomplete( "Should be moved into the unit test of QueueEditConsequence." );
-
-		// Replace real ConsequenceManager with a mock.
-		$this->setMwGlobals( [
-			'wgModerationNotificationEnable' => true,
-			'wgModerationEmail' => 'noreply@localhost'
-		] );
-
-		$this->makeEdit();
-
-		$this->assertConsequences( [
-			new SendNotificationEmailConsequence(
-				$this->title,
-				$this->user,
-				$this->modid
 			)
 		] );
 	}

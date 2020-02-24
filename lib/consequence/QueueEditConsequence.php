@@ -77,10 +77,11 @@ class QueueEditConsequence implements IConsequence {
 
 	/**
 	 * Execute the consequence.
+	 * @return int mod_id of affected row.
 	 */
 	public function run() {
 		$change = new ModerationNewChange( $this->page->getTitle(), $this->user );
-		$change->edit( $this->page, $this->content, $this->section, $this->sectionText )
+		return $change->edit( $this->page, $this->content, $this->section, $this->sectionText )
 			->setBot( $this->isBot )
 			->setMinor( $this->isMinor )
 			->setSummary( $this->summary )
