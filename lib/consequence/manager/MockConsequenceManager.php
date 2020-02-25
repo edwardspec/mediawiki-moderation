@@ -22,6 +22,7 @@
 
 namespace MediaWiki\Moderation;
 
+use MWException;
 use Wikimedia\ScopedCallback;
 
 class MockConsequenceManager implements IConsequenceManager {
@@ -31,7 +32,9 @@ class MockConsequenceManager implements IConsequenceManager {
 	protected $consequences = [];
 
 	/**
-	 * @var mixed[]
+	 * Mocked return values of run(). Populated by mockResult() and consumed by add().
+	 * @var array
+	 * @phan-var array<class-string,mixed[]>
 	 */
 	protected $mockedResults = [];
 
@@ -61,7 +64,12 @@ class MockConsequenceManager implements IConsequenceManager {
 	 */
 	public function add( IConsequence $consequence ) {
 		$this->consequences[] = $consequence;
-		return array_shift( $this->mockedResults );
+
+		// Return the mocked return value (if any).
+		$class = get_class( $consequence );
+		if ( isset( $this->mockedResults[$class] ) ) {
+			return array_shift( $this->mockedResults[$class] );
+		}
 	}
 
 	/**
@@ -74,9 +82,20 @@ class MockConsequenceManager implements IConsequenceManager {
 
 	/**
 	 * Add $result into a queue of return values that are consequentially returned by add() calls.
-	 * @param mixed $result
+	 * @param string $class Fully qualified class name of the Consequence, e.g. SomeConsequence::class.
+	 * @param mixed $result Value to return.
+	 *
+	 * @phan-param class-string $class
 	 */
-	public function mockResult( $result ) {
-		$this->mockedResults[] = $result;
+	public function mockResult( $class, $result ) {
+		if ( !class_exists( $class ) ) {
+			throw new MWException( __METHOD__ . ": unknown class $class." );
+		}
+
+		if ( !isset( $this->mockedResults[$class] ) ) {
+			$this->mockedResults[$class] = [];
+		}
+
+		$this->mockedResults[$class][] = $result;
 	}
 }

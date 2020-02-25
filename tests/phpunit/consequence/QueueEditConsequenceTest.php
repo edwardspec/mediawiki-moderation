@@ -98,7 +98,7 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 
 		// No actual DB operations will be happening, so mock the returned mod_id.
 		$modid = 12345;
-		$manager->mockResult( $modid );
+		$manager->mockResult( InsertRowIntoModerationTableConsequence::class, $modid );
 
 		// Create and run the Consequence.
 		$consequence = new QueueEditConsequence(

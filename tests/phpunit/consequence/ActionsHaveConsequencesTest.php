@@ -71,7 +71,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 				]
 			)
 		];
-		$actual = $this->getConsequences( 'reject', [ 1 ] );
+		$actual = $this->getConsequences( 'reject', [ RejectOneConsequence::class, 1 ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
 	}
@@ -93,7 +93,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 				$this->authorUser->getUserPage()
 			)
 		];
-		$actual = $this->getConsequences( 'block', [ true ] );
+		$actual = $this->getConsequences( 'block', [ BlockUserConsequence::class, true ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
 	}
@@ -115,6 +115,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			// Mocked manager won't run BlockUserConsequence and would instead return "false",
 			// which is what BlockUserConsequence does when the user is already modblocked.
 			// That fact should be checked by unit test of BlockUserConsequence itself, not here.
+			BlockUserConsequence::class,
 			false
 		] );
 
@@ -134,7 +135,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 				$this->authorUser->getUserPage()
 			)
 		];
-		$actual = $this->getConsequences( 'unblock', [ true ] );
+		$actual = $this->getConsequences( 'unblock', [ UnblockUserConsequence::class, true ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
 	}
@@ -150,6 +151,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		];
 		$actual = $this->getConsequences( 'unblock', [
 			// Mocked return value from UnblockUserConsequence: simulate "nothing changed".
+			UnblockUserConsequence::class,
 			false
 		] );
 
@@ -239,7 +241,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		];
 
 		$this->setMwGlobals( 'wgModerationEnableEditChange', true );
-		$actual = $this->getConsequences( 'editchangesubmit', [ true ],
+		$actual = $this->getConsequences( 'editchangesubmit',
+			[ ModifyPendingChangeConsequence::class, true ],
 			[
 				'wpTextbox1' => 'Some new text',
 				'wpSummary' => 'Some new summary'
@@ -275,6 +278,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			[
 				// Mocked return value from ModifyPendingChangeConsequence:
 				// simulate "nothing changed".
+				ModifyPendingChangeConsequence::class,
 				false
 			],
 			[
@@ -302,7 +306,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 				]
 			)
 		];
-		$actual = $this->getConsequences( 'rejectall', [ 1 ] );
+		$actual = $this->getConsequences( 'rejectall', [ RejectBatchConsequence::class, 1 ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
 	}
@@ -347,11 +351,13 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	/**
 	 * Get an array of consequences after running $modaction on an edit that was queued in setUp().
 	 * @param string $modaction
-	 * @param array $mockedResults Each of these values will be passed to $manager->mockResult().
+	 * @param array $mockedResult Parameters to pass to $manager->mockResult().
 	 * @param array $extraParams Additional HTTP request parameters when running ModerationAction.
 	 * @return IConsequence[]
+	 *
+	 * @phan-param array{0:class-string,1:mixed}|null $mockedResult
 	 */
-	private function getConsequences( $modaction, array $mockedResults = [], $extraParams = [] ) {
+	private function getConsequences( $modaction, array $mockedResult = null, $extraParams = [] ) {
 		// Replace real ConsequenceManager with a mock.
 		list( $scope, $manager ) = MockConsequenceManager::install();
 
@@ -365,8 +371,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		$context->setRequest( $request );
 		$context->setUser( $this->moderatorUser );
 
-		foreach ( $mockedResults as $result ) {
-			$manager->mockResult( $result );
+		if ( $mockedResult ) {
+			$manager->mockResult( ...$mockedResult );
 		}
 
 		$action = ModerationAction::factory( $context );
