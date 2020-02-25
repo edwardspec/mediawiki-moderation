@@ -21,7 +21,6 @@
  */
 
 use MediaWiki\Moderation\IConsequence;
-use Wikimedia\TestingAccessWrapper;
 
 trait ConsequenceTestTrait {
 	/**
@@ -42,50 +41,49 @@ trait ConsequenceTestTrait {
 			$this->assertInstanceOf( $expectedClass, $actual,
 				"Class of consequence doesn't match expected" );
 
-			// Remove optionally calculated fields from Title/User objects within both consequences
-			$this->flattenFields( $expected );
-			$this->flattenFields( $actual );
-
-			$this->assertEquals( $expected, $actual, "Parameters of consequence don't match expected" );
+			$this->assertEquals(
+				$this->toArray( $expected ),
+				$this->toArray( $actual ),
+				"Parameters of consequence don't match expected"
+			);
 		}, $expectedConsequences, $actualConsequences );
 	}
 
 	/**
-	 * Recalculate Title/User fields to ensure that no optionally calculated fields are calculated.
-	 * This is needed to use assertEquals() of consequences: direct comparison of Title objects
-	 * would fail, because Title object has fields like mUserCaseDBKey (they must not be compared).
+	 * Convert $consequence into a human-readable array of properties (for logging and comparison).
+	 * Properties with types like Title are replaced by [ className, mixed, ... ] arrays.
+	 * @param IConsequence $consequence
+	 * @return array
 	 */
-	private function flattenFields( IConsequence $consequence ) {
-		$wrapper = TestingAccessWrapper::newFromObject( $consequence );
-		try {
-			$wrapper->title = Title::newFromText( (string)$wrapper->title );
-		} catch ( ReflectionException $e ) {
-			// Not applicable to this Consequence.
-		}
+	protected function toArray( IConsequence $consequence ) {
+		$fields = [];
 
-		try {
-			$wrapper->page = WikiPage::factory(
-				Title::newFromText( (string)$wrapper->page->getTitle() )
-			);
-		} catch ( ReflectionException $e ) {
-			// Not applicable to this Consequence.
-		}
+		$rc = new ReflectionClass( $consequence );
+		foreach ( $rc->getProperties() as $prop ) {
+			$prop->setAccessible( true );
 
-		try {
-			$wrapper->originalAuthor = User::newFromName( $wrapper->originalAuthor->getName() );
-		} catch ( ReflectionException $e ) {
-			// Not applicable to this Consequence.
-		}
-
-		try {
-			$fields = $wrapper->fields;
-			if ( isset( $fields['mod_timestamp'] ) ) {
-				$fields['mod_timestamp'] = '(mocked timestamp)';
+			$value = $prop->getValue( $consequence );
+			$type = gettype( $value );
+			if ( $type == 'object' ) {
+				if ( $value instanceof Title ) {
+					$value = [ 'Title', (string)$value ];
+				} elseif ( $value instanceof WikiPage ) {
+					$value = [ 'WikiPage', (string)$value->getTitle() ];
+				} elseif ( $value instanceof User ) {
+					$value = [ 'User', $value->getId(), $value->getName() ];
+				}
+			} elseif ( $type == 'array' ) {
+				// Having timestamps in normalized form leads to flaky comparison results,
+				// because it's possible that "expected timestamp" was calculated
+				// in a different second than mod_timestamp in an actual Consequence.
+				unset( $value['mod_timestamp'] );
 			}
-			$wrapper->fields = $fields;
-		} catch ( ReflectionException $e ) {
-			// Not applicable to this Consequence.
+
+			$name = $prop->getName();
+			$fields[$name] = $value;
 		}
+
+		return [ get_class( $consequence ), $fields ];
 	}
 
 	/*----------------------------------------------------------------------------------------*/
