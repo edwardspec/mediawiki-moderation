@@ -127,6 +127,11 @@ class RejectOneConsequenceTest extends MediaWikiTestCase {
 	public function setUp() {
 		parent::setUp();
 
+		$name = $this->getName();
+		if ( $name == 'testValidCovers' || $name == 'testMediaWikiTestCaseParentSetupCalled' ) {
+			return;
+		}
+
 		$author = User::newFromName( "127.0.0.1", false );
 		$title = Title::newFromText( "Some page" );
 		$page = WikiPage::factory( $title );

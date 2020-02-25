@@ -387,6 +387,11 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	public function setUp() {
 		parent::setUp();
 
+		$name = $this->getName();
+		if ( $name == 'testValidCovers' || $name == 'testMediaWikiTestCaseParentSetupCalled' ) {
+			return;
+		}
+
 		$this->authorUser = self::getTestUser()->getUser();
 		$this->moderatorUser = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
 
