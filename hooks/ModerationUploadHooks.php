@@ -20,6 +20,9 @@
  * Hooks related to file uploads.
  */
 
+use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\QueueUploadConsequence;
+
 class ModerationUploadHooks {
 
 	/**
@@ -39,65 +42,21 @@ class ModerationUploadHooks {
 			return true;
 		}
 
-		/* Step 1. Upload the file into the user's stash */
-		$status = $upload->tryStashFile(
-			ModerationUploadStorage::getOwner(),
-			true /* Don't run UploadStashFile hook */
-		);
-		if ( !$status->isOK() ) {
-			$error = [ 'api-error-stashfailed' ];
+		$manager = ConsequenceUtils::getManager();
+		$error = $manager->add( new QueueUploadConsequence(
+			$upload, $user, $comment, $pageText
+		) );
+		if ( $error ) {
+			// Failed. Reason has been placed into &$error.
 			return true;
 		}
-
-		$file = $status->getValue();
-
-		/* Step 2. Create a page in File namespace (it will be queued for moderation) */
-		$title = $upload->getTitle();
-		$page = new WikiPage( $title );
-		$status = $page->doEditContent(
-			ContentHandler::makeContent( $pageText, $title ),
-			$comment,
-			0,
-			$title->getLatestRevID(),
-			$user
-		);
-
-		// TODO: check whether $status from doEditContent() is successful
-
-		// Disable the HTTP redirect after doEditContent.
-		// (this redirect has just been added in ModerationEditHooks::onPageContentSave)
-		RequestContext::getMain()->getOutput()->redirect( '' );
-
-		/*
-			Step 3. Populate mod_stash_key field in newly inserted row
-			of the moderation table (to indicate that this is an upload,
-			not just editing the text on the image page)
-		*/
-		$fields = [
-			'mod_stash_key' => $file->getFileKey()
-		];
-		if ( ModerationVersionCheck::areTagsSupported() ) {
-			/* Apply AbuseFilter tags, if any */
-			$fields['mod_tags'] = ModerationNewChange::findAbuseFilterTags(
-				$title,
-				$user,
-				'upload'
-			);
-		}
-
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->update( 'moderation',
-			$fields,
-			[ 'mod_id' => ModerationNewChange::$LastInsertId ],
-			__METHOD__
-		);
 
 		if ( $user->isLoggedIn() ) {
 			/* Watch/Unwatch this file immediately:
 				watchlist is the user's own business,
 				no reason to wait for approval of the upload */
 			$watch = $user->getRequest()->getBool( 'wpWatchthis' );
-			WatchAction::doWatchOrUnwatch( $watch, $title, $user );
+			WatchAction::doWatchOrUnwatch( $watch, $upload->getTitle(), $user );
 		}
 
 		/* Display user-friendly results page if the upload was caused
