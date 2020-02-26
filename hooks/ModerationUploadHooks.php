@@ -42,6 +42,13 @@ class ModerationUploadHooks {
 			return true;
 		}
 
+		// FIXME: ModerationIntercept hook was previously called here (via doEditContent).
+		// Now that doEditContent is no longer used, an upload-specific hook should be added here.
+		// (calling ModerationIntercept here is impractical, as it should receive many parameters
+		// that would be synthetic/irrelevant here).
+		// Note: skipping moderation for uploads via ModerationIntercept hook didn't work even
+		// before its invocation here was removed. It only worked for normal edits (non-uploads).
+
 		$manager = ConsequenceUtils::getManager();
 		$error = $manager->add( new QueueUploadConsequence(
 			$upload, $user, $comment, $pageText

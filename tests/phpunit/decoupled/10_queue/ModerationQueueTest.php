@@ -483,6 +483,13 @@ class ModerationQueueTest extends ModerationTestCase {
 			return;
 		}
 
+		if ( $this->filename ) {
+			// ModerationIntercept hook shouldn't be called for uploads.
+			$this->assertEmpty( $hooks,
+				"ModerationIntercept hook was called for upload." );
+			return;
+		}
+
 		// Normal edit or upload.
 		$this->assertNotEmpty( $hooks, "ModerationIntercept hook wasn't called." );
 		$this->assertCount( 1, $hooks, "Number of times ModerationIntercept hook was called isn't 1." );

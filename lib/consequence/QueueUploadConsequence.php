@@ -26,8 +26,6 @@ use ContentHandler;
 use ModerationNewChange;
 use ModerationUploadStorage;
 use ModerationVersionCheck;
-use MWException;
-use RequestContext;
 use UploadBase;
 use User;
 use WikiPage;
@@ -78,30 +76,14 @@ class QueueUploadConsequence implements IConsequence {
 
 		/* Step 2. Create a page in File namespace (it will be queued for moderation) */
 		$title = $this->upload->getTitle();
+
 		$page = new WikiPage( $title );
-		$status = $page->doEditContent(
-			ContentHandler::makeContent( $this->pageText, $title ),
-			$this->comment,
-			0,
-			$title->getLatestRevID(),
-			$this->user
-		);
-		if ( $status->isOK() ) {
-			// Sanity check: QueueUploadConsequence shouldn't even be called for those users
-			// who can bypass moderation in File namespace.
-			throw new MWException(
-				"QueueUploadConsequence can't be used with automoderated users." );
-		}
+		$content = ContentHandler::makeContent( $this->pageText, $title );
 
-		// Disable the HTTP redirect after doEditContent.
-		// (this redirect has just been added in ModerationEditHooks::onPageContentSave)
-		// FIXME: why not just trigger QueueEditConsequence here directly instead of doEditContent?
-		RequestContext::getMain()->getOutput()->redirect( '' );
-
-		if ( !$status->hasMessage( 'moderation-edit-queued' ) ) {
-			// Some error happened in doEditContent
-			return $status->getErrorsArray()[0];
-		}
+		$change = new ModerationNewChange( $title, $this->user );
+		$modid = $change->edit( $page, $content, '', '' )
+			->setSummary( $this->comment )
+			->queue();
 
 		/*
 			Step 3. Populate mod_stash_key field in newly inserted row
@@ -123,7 +105,7 @@ class QueueUploadConsequence implements IConsequence {
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'moderation',
 			$fields,
-			[ 'mod_id' => ModerationNewChange::$LastInsertId ],
+			[ 'mod_id' => $modid ],
 			__METHOD__
 		);
 
