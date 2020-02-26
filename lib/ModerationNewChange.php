@@ -157,6 +157,17 @@ class ModerationNewChange {
 	}
 
 	/**
+	 * @param string $stashKey
+	 * @return self
+	 */
+	public function upload( $stashKey ) {
+		$this->fields['mod_stash_key'] = $stashKey;
+		$this->addChangeTags( 'upload' );
+
+		return $this;
+	}
+
+	/**
 	 * @param bool $isMinor
 	 * @return self
 	 */
@@ -224,7 +235,7 @@ class ModerationNewChange {
 	 * @param string $action AbuseFilter action, e.g. 'edit' or 'delete'.
 	 * @return string|null
 	 */
-	public static function findAbuseFilterTags( Title $title, User $user, $action ) {
+	protected static function findAbuseFilterTags( Title $title, User $user, $action ) {
 		if ( !class_exists( 'AbuseFilter' ) || empty( AbuseFilter::$tagsToSet ) ) {
 			return null; /* No tags */
 		}

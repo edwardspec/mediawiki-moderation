@@ -25,7 +25,6 @@ namespace MediaWiki\Moderation;
 use ContentHandler;
 use ModerationNewChange;
 use ModerationUploadStorage;
-use ModerationVersionCheck;
 use UploadBase;
 use User;
 use WikiPage;
@@ -81,33 +80,10 @@ class QueueUploadConsequence implements IConsequence {
 		$content = ContentHandler::makeContent( $this->pageText, $title );
 
 		$change = new ModerationNewChange( $title, $this->user );
-		$modid = $change->edit( $page, $content, '', '' )
+		$change->edit( $page, $content, '', '' )
+			->upload( $file->getFileKey() )
 			->setSummary( $this->comment )
 			->queue();
-
-		/*
-			Step 3. Populate mod_stash_key field in newly inserted row
-			of the moderation table (to indicate that this is an upload,
-			not just editing the text on the image page)
-		*/
-		$fields = [
-			'mod_stash_key' => $file->getFileKey()
-		];
-		if ( ModerationVersionCheck::areTagsSupported() ) {
-			/* Apply AbuseFilter tags, if any */
-			$fields['mod_tags'] = ModerationNewChange::findAbuseFilterTags(
-				$title,
-				$this->user,
-				'upload'
-			);
-		}
-
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->update( 'moderation',
-			$fields,
-			[ 'mod_id' => $modid ],
-			__METHOD__
-		);
 
 		// Successfully queued for moderation (no errors)
 		return null;
