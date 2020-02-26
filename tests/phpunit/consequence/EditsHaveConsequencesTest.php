@@ -20,7 +20,9 @@
  * Verifies that editing a page has consequences.
  */
 
+use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\IConsequence;
+use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueEditConsequence;
 
@@ -61,6 +63,7 @@ class EditsHaveConsequencesTest extends MediaWikiTestCase {
 	 * @covers ModerationEditHooks::onPageContentSave
 	 */
 	public function testEdit() {
+		$this->user = self::getTestUser()->getUser();
 		$this->makeEdit();
 		$this->assertConsequences( [
 			new QueueEditConsequence(
@@ -74,16 +77,46 @@ class EditsHaveConsequencesTest extends MediaWikiTestCase {
 	}
 
 	/**
+	 * Test consequences when moderator saves a manually merged edit (resolving an edit conflict).
+	 * @covers ModerationEditHooks::onPageContentSaveComplete
+	 */
+	public function testMergedEdit() {
+		$modid = 12345;
+		RequestContext::getMain()->getRequest()->setVal( 'wpMergeID', $modid );
+
+		$this->user = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
+		$this->manager->mockResult( MarkAsMergedConsequence::class, true );
+
+		$status = $this->makeEdit();
+		$this->assertTrue( $status->isOK(), 'Failed to save an edit.' );
+
+		$revid = $status->value['revision']->getId();
+
+		$this->assertConsequences( [
+			new MarkAsMergedConsequence( $modid, $revid ),
+			new AddLogEntryConsequence(
+				'merge',
+				$this->user,
+				$this->title,
+				[
+					'modid' => $modid,
+					'revid' => $revid
+				]
+			)
+		] );
+	}
+
+	/**
 	 * Perform one edit that will be queued for moderation. (for use in different tests)
+	 * @return Status
 	 */
 	private function makeEdit() {
-		$this->user = self::getTestUser()->getUser();
 		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 		$this->content = ContentHandler::makeContent( 'Some text', null, CONTENT_MODEL_WIKITEXT );
 		$this->summary = 'Some edit summary';
 
 		$page = WikiPage::factory( $this->title );
-		$page->doEditContent(
+		return $page->doEditContent(
 			$this->content,
 			$this->summary,
 			EDIT_INTERNAL,
