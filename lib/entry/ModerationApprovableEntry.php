@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 
 abstract class ModerationApprovableEntry extends ModerationEntry {
 	/**
@@ -158,9 +159,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 
 		# Approved edits are removed from "moderation" table,
 		# because they already exist in page history, recentchanges etc.
-
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->delete( 'moderation', [ 'mod_id' => $row->id ], __METHOD__ );
+		$manager->add( new DeleteRowFromModerationTableConsequence( $row->id ) );
 	}
 
 	/**

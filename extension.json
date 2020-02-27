@@ -105,6 +105,7 @@
 		"MediaWiki\\Moderation\\BlockUserConsequence": "lib/consequence/BlockUserConsequence.php",
 		"MediaWiki\\Moderation\\ConsequenceManager": "lib/consequence/manager/ConsequenceManager.php",
 		"MediaWiki\\Moderation\\ConsequenceUtils": "lib/consequence/manager/ConsequenceUtils.php",
+		"MediaWiki\\Moderation\\DeleteRowFromModerationTableConsequence": "lib/consequence/DeleteRowFromModerationTableConsequence.php",
 		"MediaWiki\\Moderation\\IConsequence": "lib/consequence/IConsequence.php",
 		"MediaWiki\\Moderation\\IConsequenceManager": "lib/consequence/manager/IConsequenceManager.php",
 		"MediaWiki\\Moderation\\InsertRowIntoModerationTableConsequence": "lib/consequence/InsertRowIntoModerationTableConsequence.php",

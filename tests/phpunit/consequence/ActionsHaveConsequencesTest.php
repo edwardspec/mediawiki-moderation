@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\BlockUserConsequence;
+use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\ModifyPendingChangeConsequence;
@@ -173,7 +174,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 					'revid' => $this->title->getLatestRevID( IDBAccessObject::READ_LATEST )
 				],
 				true // ApproveHook enabled
-			)
+			),
+			new DeleteRowFromModerationTableConsequence( $this->modid )
 		];
 
 		$this->assertConsequencesEqual( $expected, $actual );
@@ -199,6 +201,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 				],
 				true // ApproveHook enabled
 			),
+			new DeleteRowFromModerationTableConsequence( $this->modid ),
 			new AddLogEntryConsequence(
 				'approveall',
 				$this->moderatorUser,
