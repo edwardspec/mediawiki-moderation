@@ -25,6 +25,7 @@ use MediaWiki\Moderation\ApproveEditConsequence;
 use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\IConsequence;
+use MediaWiki\Moderation\MarkAsConflictConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\ModifyPendingChangeConsequence;
 use MediaWiki\Moderation\RejectBatchConsequence;
@@ -57,6 +58,12 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 
 	/** @var string */
 	protected $summary;
+
+	/**
+	 * @var ModerationError|null
+	 * Exception that happened during getConsequences(), if any.
+	 */
+	protected $thrownException;
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'moderation', 'moderation_block' ];
@@ -197,6 +204,34 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		];
 
 		$this->assertConsequencesEqual( $expected, $actual );
+	}
+
+	/**
+	 * Test consequences of modaction=approve when it results in edit conflict.
+	 * @covers ModerationEntryEdit::doApprove
+	 */
+	public function testApproveEditConflict() {
+		$actual = $this->getConsequences( 'approve',
+			[ ApproveEditConsequence::class, Status::newFatal( 'moderation-edit-conflict' ) ]
+		);
+		$expected = [
+			new ApproveEditConsequence(
+				$this->authorUser,
+				$this->title,
+				$this->text,
+				$this->summary,
+				false, // isBot
+				false, // isMinor
+				0 // $baseRevId
+			),
+			new MarkAsConflictConsequence( $this->modid )
+		];
+
+		$this->assertConsequencesEqual( $expected, $actual );
+		$this->assertNotNull( $this->thrownException,
+			"Despite the edit conflict, modaction=approve didn't throw an exception." );
+		$this->assertTrue( $this->thrownException->status->hasMessage( 'moderation-edit-conflict' ),
+			"Status of modaction=approve doesn't have \"moderation-edit-conflict\" message." );
 	}
 
 	// NOTE: running Approve without process isolation (like in ModerationTestsuite framework)
@@ -407,8 +442,14 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			$manager->mockResult( ...$mockedResult );
 		}
 
+		$this->thrownException = null;
+
 		$action = ModerationAction::factory( $context );
-		$action->run();
+		try {
+			$action->run();
+		} catch ( ModerationError $exception ) {
+			$this->thrownException = $exception;
+		}
 
 		return $manager->getConsequences();
 	}
