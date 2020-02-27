@@ -138,8 +138,6 @@ class RejectOneConsequenceTest extends MediaWikiTestCase {
 		$content = ContentHandler::makeContent( 'Some text', null, CONTENT_MODEL_WIKITEXT );
 
 		$change = new ModerationNewChange( $title, $author );
-		$change->edit( $page, $content, '', '' )->queue();
-
-		$this->modid = ModerationNewChange::$LastInsertId;
+		$this->modid = $change->edit( $page, $content, '', '' )->queue();
 	}
 }

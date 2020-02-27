@@ -108,9 +108,7 @@ class RejectBatchConsequenceTest extends MediaWikiTestCase {
 			$page = WikiPage::factory( $title );
 
 			$change = new ModerationNewChange( $title, $author );
-			$change->edit( $page, $content, '', '' )->queue();
-
-			$ids[] = ModerationNewChange::$LastInsertId;
+			$ids[] = $change->edit( $page, $content, '', '' )->queue();
 		}
 
 		$this->assertCount( $count, $ids );

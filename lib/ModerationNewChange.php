@@ -25,10 +25,6 @@ use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 
 class ModerationNewChange {
-
-	/** @var int|null mod_id of the last inserted row */
-	public static $LastInsertId = null;
-
 	const MOD_TYPE_EDIT = 'edit';
 	const MOD_TYPE_MOVE = 'move';
 
@@ -313,32 +309,33 @@ class ModerationNewChange {
 	 * @return int mod_id of affected row.
 	 */
 	public function queue() {
-		self::$LastInsertId = ModerationVersionCheck::hasUniqueIndex() ?
+		$modid = ModerationVersionCheck::hasUniqueIndex() ?
 			$this->insert() :
 			$this->insertOld();
 
 		// Run hook to allow other extensions be notified about pending changes
 		Hooks::run( 'ModerationPending', [
 			$this->getFields(),
-			self::$LastInsertId
+			$modid
 		] );
 
-		$this->notify();
+		$this->notify( $modid );
 
-		return self::$LastInsertId;
+		return $modid;
 	}
 
 	/**
 	 * Notify moderators about this newly saved pending change.
+	 * @param int $modid mod_id of affected row.
 	 */
-	public function notify() {
+	public function notify( $modid ) {
 		if ( $this->getField( 'mod_rejected_auto' ) ) {
 			// This change was placed into the Spam folder. No need to notify.
 			return;
 		}
 
 		// Notify administrator by email
-		$this->sendNotificationEmail();
+		$this->sendNotificationEmail( $modid );
 
 		// Enable in-wiki notification "New changes await moderation" for moderators
 		ModerationNotifyModerator::setPendingTime( $this->getField( 'mod_timestamp' ) );
@@ -386,8 +383,9 @@ class ModerationNewChange {
 
 	/**
 	 * Send email to moderators that new change has appeared.
+	 * @param int $modid mod_id of affected row.
 	 */
-	public function sendNotificationEmail() {
+	public function sendNotificationEmail( $modid ) {
 		global $wgModerationNotificationEnable,
 			$wgModerationNotificationNewOnly,
 			$wgModerationEmail;
@@ -406,7 +404,7 @@ class ModerationNewChange {
 		$manager->add( new SendNotificationEmailConsequence(
 			$this->title,
 			$this->user,
-			self::$LastInsertId
+			$modid
 		) );
 	}
 }
