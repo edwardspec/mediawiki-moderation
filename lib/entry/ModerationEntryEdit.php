@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\ApproveEditConsequence;
 use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\MarkAsConflictConsequence;
 
 class ModerationEntryEdit extends ModerationApprovableEntry {
 	/**
@@ -34,8 +35,7 @@ class ModerationEntryEdit extends ModerationApprovableEntry {
 		$user = $this->getUser();
 
 		$manager = ConsequenceUtils::getManager();
-		return $manager->add( new ApproveEditConsequence(
-			$row->id,
+		$status = $manager->add( new ApproveEditConsequence(
 			$user,
 			$this->getTitle(),
 			$row->text,
@@ -44,5 +44,13 @@ class ModerationEntryEdit extends ModerationApprovableEntry {
 			(bool)$row->minor,
 			$row->last_oldid
 		) );
+
+		if ( $status->hasMessage( 'moderation-edit-conflict' ) ) {
+			/* Failed to merge automatically.
+				Can still be merged manually by moderator */
+			$manager->add( new MarkAsConflictConsequence( $row->id ) );
+		}
+
+		return $status;
 	}
 }

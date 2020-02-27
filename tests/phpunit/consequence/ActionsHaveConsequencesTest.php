@@ -176,7 +176,6 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		);
 		$expected = [
 			new ApproveEditConsequence(
-				$this->modid,
 				$this->authorUser,
 				$this->title,
 				$this->text,
@@ -214,7 +213,6 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		);
 		$expected = [
 			new ApproveEditConsequence(
-				$this->modid,
 				$this->authorUser,
 				$this->title,
 				$this->text,

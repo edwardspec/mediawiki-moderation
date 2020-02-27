@@ -30,9 +30,6 @@ use User;
 use WikiPage;
 
 class ApproveEditConsequence implements IConsequence {
-	/** @var int */
-	protected $modid;
-
 	/** @var User */
 	protected $user;
 
@@ -55,7 +52,6 @@ class ApproveEditConsequence implements IConsequence {
 	protected $baseRevId;
 
 	/**
-	 * @param int $modid
 	 * @param User $user
 	 * @param Title $title
 	 * @param string $newText
@@ -64,10 +60,9 @@ class ApproveEditConsequence implements IConsequence {
 	 * @param bool $isMinor
 	 * @param int $baseRevId
 	 */
-	public function __construct( $modid, User $user, Title $title, $newText, $comment,
+	public function __construct( User $user, Title $title, $newText, $comment,
 		$isBot, $isMinor, $baseRevId
 	) {
-		$this->modid = $modid;
 		$this->user = $user;
 		$this->title = $title;
 		$this->newText = $newText;
@@ -140,15 +135,6 @@ class ApproveEditConsequence implements IConsequence {
 				$this->user
 			);
 		}
-
-		/* Failed to merge automatically.
-			Can still be merged manually by moderator */
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->update( 'moderation',
-			[ 'mod_conflict' => 1 ],
-			[ 'mod_id' => $this->modid ],
-			__METHOD__
-		);
 
 		return Status::newFatal( 'moderation-edit-conflict' );
 	}
