@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
+use MediaWiki\Moderation\ApproveEditConsequence;
 use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\IConsequence;
@@ -50,6 +51,12 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 
 	/** @var Title */
 	protected $title;
+
+	/** @var string */
+	protected $text;
+
+	/** @var string */
+	protected $summary;
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'moderation', 'moderation_block' ];
@@ -164,8 +171,20 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	 * @covers ModerationActionApprove::executeApproveOne
 	 */
 	public function testApprove() {
-		$actual = $this->getConsequences( 'approve' );
+		$actual = $this->getConsequences( 'approve',
+			[ ApproveEditConsequence::class, Status::newGood() ]
+		);
 		$expected = [
+			new ApproveEditConsequence(
+				$this->modid,
+				$this->authorUser,
+				$this->title,
+				$this->text,
+				$this->summary,
+				false, // isBot
+				false, // isMinor
+				0 // $baseRevId
+			),
 			new AddLogEntryConsequence(
 				'approve',
 				$this->moderatorUser,
@@ -190,8 +209,20 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	 * @covers ModerationActionApprove::executeApproveAll
 	 */
 	public function testApproveAll() {
-		$actual = $this->getConsequences( 'approveall' );
+		$actual = $this->getConsequences( 'approveall',
+			[ ApproveEditConsequence::class, Status::newGood() ]
+		);
 		$expected = [
+			new ApproveEditConsequence(
+				$this->modid,
+				$this->authorUser,
+				$this->title,
+				$this->text,
+				$this->summary,
+				false, // isBot
+				false, // isMinor
+				0 // $baseRevId
+			),
 			new AddLogEntryConsequence(
 				'approve',
 				$this->moderatorUser,
@@ -399,11 +430,13 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		$this->moderatorUser = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
 
 		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$this->text = 'Some text ' . rand( 0, 100000 );
+		$this->summary = 'Sample edit summary ' . rand( 0, 100000 );
 
 		$page = WikiPage::factory( $this->title );
 		$page->doEditContent(
-			ContentHandler::makeContent( 'Some text', null, CONTENT_MODEL_WIKITEXT ),
-			'',
+			ContentHandler::makeContent( $this->text, null, CONTENT_MODEL_WIKITEXT ),
+			$this->summary,
 			EDIT_INTERNAL,
 			false,
 			$this->authorUser

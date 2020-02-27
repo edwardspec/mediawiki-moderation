@@ -20,6 +20,9 @@
  * Normal edit (modification of page text) that awaits moderation.
  */
 
+use MediaWiki\Moderation\ApproveEditConsequence;
+use MediaWiki\Moderation\ConsequenceUtils;
+
 class ModerationEntryEdit extends ModerationApprovableEntry {
 	/**
 	 * Approve this edit.
@@ -28,79 +31,18 @@ class ModerationEntryEdit extends ModerationApprovableEntry {
 	 */
 	public function doApprove( User $moderator ) {
 		$row = $this->getRow();
-
 		$user = $this->getUser();
-		$title = $this->getTitle();
-		$model = $title->getContentModel();
 
-		$flags = EDIT_AUTOSUMMARY;
-		if ( $row->bot && $user->isAllowed( 'bot' ) ) {
-			$flags |= EDIT_FORCE_BOT;
-		}
-		if ( $row->minor ) { # doEditContent() checks the right
-			$flags |= EDIT_MINOR;
-		}
-
-		# This is normal edit (not an upload).
-		$new_content = ContentHandler::makeContent( $row->text, null, $model );
-
-		$page = new WikiPage( $title );
-		if ( !$page->exists() ) {
-			# New page. No need to check for edit conflicts.
-			return $page->doEditContent(
-				$new_content,
-				$row->comment,
-				$flags,
-				false,
-				$user
-			);
-		}
-
-		# Existing page
-		$latest = $page->getLatest();
-		if ( $latest == $row->last_oldid ) {
-			# Page hasn't changed since this edit was queued for moderation.
-			return $page->doEditContent(
-				$new_content,
-				$row->comment,
-				$flags,
-				$latest,
-				$user
-			);
-		}
-
-		# Page has changed! (edit conflict)
-		# Let's try to merge this automatically (resolve the conflict),
-		# as MediaWiki does in private EditPage::mergeChangesIntoContent().
-
-		$base_content = $row->last_oldid ?
-			Revision::newFromId( $row->last_oldid )->getContent( Revision::RAW ) :
-			ContentHandler::makeContent( '', null, $model );
-
-		$latest_content = $page->getContent( Revision::RAW );
-
-		$handler = ContentHandler::getForModelID( $base_content->getModel() );
-		$merged_content = $handler->merge3( $base_content, $new_content, $latest_content );
-
-		if ( $merged_content ) {
-			return $page->doEditContent(
-				$merged_content,
-				$row->comment,
-				$flags,
-				$latest, # Because $merged_content goes after $latest
-				$user
-			);
-		}
-
-		/* Failed to merge automatically.
-			Can still be merged manually by moderator */
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->update( 'moderation',
-			[ 'mod_conflict' => 1 ],
-			[ 'mod_id' => $row->id ],
-			__METHOD__
-		);
-
-		return Status::newFatal( 'moderation-edit-conflict' );
+		$manager = ConsequenceUtils::getManager();
+		return $manager->add( new ApproveEditConsequence(
+			$row->id,
+			$user,
+			$this->getTitle(),
+			$row->text,
+			$row->comment,
+			( $row->bot && $user->isAllowed( 'bot' ) ),
+			(bool)$row->minor,
+			$row->last_oldid
+		) );
 	}
 }
