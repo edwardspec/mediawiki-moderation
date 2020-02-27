@@ -20,6 +20,9 @@
  * File upload that awaits moderation.
  */
 
+use MediaWiki\Moderation\ApproveUploadConsequence;
+use MediaWiki\Moderation\ConsequenceUtils;
+
 class ModerationEntryUpload extends ModerationApprovableEntry {
 	/**
 	 * Approve this upload.
@@ -28,18 +31,14 @@ class ModerationEntryUpload extends ModerationApprovableEntry {
 	 */
 	public function doApprove( User $moderator ) {
 		$row = $this->getRow();
-		$user = $this->getUser();
 
-		# This is the upload from stash.
-		$stash = ModerationUploadStorage::getStash();
-		$upload = new UploadFromStash( $user, $stash );
-
-		try {
-			$upload->initialize( $row->stash_key, $this->getTitle()->getText() );
-		} catch ( UploadStashFileNotFoundException $e ) {
-			return Status::newFatal( 'moderation-missing-stashed-image' );
-		}
-
-		return $upload->performUpload( $row->comment, $row->text, false, $user );
+		$manager = ConsequenceUtils::getManager();
+		return $manager->add( new ApproveUploadConsequence(
+			$row->stash_key,
+			$this->getTitle(),
+			$this->getUser(),
+			$row->comment,
+			$row->text
+		) );
 	}
 }
