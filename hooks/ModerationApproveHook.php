@@ -285,6 +285,8 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param RecentChange $rc
 	 * @param array &$fields
 	 * @return bool
+	 *
+	 * @phan-param array<string,string|int|null> &$fields
 	 */
 	public function onCheckUserInsertForRecentChange( $rc, &$fields ) {
 		$task = $this->getTaskByRC( $rc );
@@ -350,6 +352,8 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param int|array $ids One or several IDs (e.g. rev_id or rc_id).
 	 * @param array $values New values, as expected by $db->update,
 	 * e.g. [ 'rc_ip' => '1.2.3.4', 'rc_something' => '...' ].
+	 *
+	 * @phan-param array<string,string> $values
 	 */
 	public function queueUpdate( $table, $ids, array $values ) {
 		if ( !is_array( $ids ) ) {
@@ -442,6 +446,8 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param User $user
 	 * @param string $type
 	 * @param array $task
+	 *
+	 * @phan-param array{ip:?string,xff:?string,ua:?string,tags:?string,timestamp:?string} $task
 	 */
 	public static function install( Title $title, User $user, $type, array $task ) {
 		$key = self::getTaskKey( $title, $user->getName(), $type );

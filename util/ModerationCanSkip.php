@@ -72,7 +72,7 @@ class ModerationCanSkip {
 	 * Returns true if $user can skip moderation, false otherwise.
 	 * @param User $user
 	 * @param string $permission Name of the user's right that allows to bypass moderation.
-	 * @param array $affectedNamespaces Array of namespace numbers of all affected pages.
+	 * @param int[] $affectedNamespaces Array of namespace numbers of all affected pages.
 	 * @return bool
 	 */
 	protected static function canSkip( User $user, $permission, array $affectedNamespaces ) {
@@ -102,10 +102,10 @@ class ModerationCanSkip {
 
 	/**
 	 * Check if moderation can be skipped in all $namespaces.
-	 * @param array $namespaces Array of namespace numbers.
+	 * @param int[] $namespaces Array of namespace numbers.
 	 * @return bool
 	 * True if all $namespaces are non-moderated,
-	 * false if at least one of $namespaces in moderated.
+	 * false if at least one of $namespaces is moderated.
 	 */
 	protected static function canSkipInAllNamespaces( array $namespaces ) {
 		foreach ( array_unique( $namespaces ) as $ns ) {

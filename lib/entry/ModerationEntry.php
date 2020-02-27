@@ -43,7 +43,7 @@ abstract class ModerationEntry implements IModerationEntry {
 		}
 
 		if ( !isset( $row->tags ) ) { // !ModerationVersionCheck::areTagsSupported()
-			$row->tags = false;
+			$row->tags = null;
 		}
 
 		$this->row = $row;

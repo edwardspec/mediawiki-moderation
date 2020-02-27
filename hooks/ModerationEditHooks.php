@@ -282,7 +282,7 @@ class ModerationEditHooks {
 	/**
 	 * ListDefinedTags hook handler.
 	 * Registers 'moderation-merged' ChangeTag.
-	 * @param array &$tags
+	 * @param string[] &$tags
 	 * @return true
 	 */
 	public static function onListDefinedTags( &$tags ) {
