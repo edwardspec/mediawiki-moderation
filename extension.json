@@ -103,6 +103,7 @@
 		"IModerationEntry": "lib/entry/IModerationEntry.php",
 		"MediaWiki\\Moderation\\AddLogEntryConsequence": "lib/consequence/AddLogEntryConsequence.php",
 		"MediaWiki\\Moderation\\ApproveEditConsequence": "lib/consequence/ApproveEditConsequence.php",
+		"MediaWiki\\Moderation\\ApproveMoveConsequence": "lib/consequence/ApproveMoveConsequence.php",
 		"MediaWiki\\Moderation\\BlockUserConsequence": "lib/consequence/BlockUserConsequence.php",
 		"MediaWiki\\Moderation\\ConsequenceManager": "lib/consequence/manager/ConsequenceManager.php",
 		"MediaWiki\\Moderation\\ConsequenceUtils": "lib/consequence/manager/ConsequenceUtils.php",
