@@ -22,7 +22,7 @@
 
 use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\QueueUploadConsequence;
-use MediaWiki\Moderation\WatchOrUnwatchConsequence;
+use MediaWiki\Moderation\WatchCheckbox;
 
 class ModerationUploadHooks {
 
@@ -61,12 +61,7 @@ class ModerationUploadHooks {
 
 		/* Watch/Unwatch this file immediately:
 			watchlist is the user's own business, no reason to wait for approval of the upload */
-
-		// FIXME: this always causes Unwatch if we are not on Special:Upload,
-		// because other pages don't have wpWatchthis checkbox. Should do something similar to how
-		// this is handled in ModerationEditHooks (with $watchthis flag).
-		$watch = $user->getRequest()->getBool( 'wpWatchthis' );
-		$manager->add( new WatchOrUnwatchConsequence( $watch, $upload->getTitle(), $user ) );
+		WatchCheckbox::watchIfNeeded( $user, [ $upload->getTitle() ] );
 
 		/* Display user-friendly results page if the upload was caused
 			by Special:Upload (not API, other extension, etc.) */

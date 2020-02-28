@@ -22,7 +22,6 @@
 
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueUploadConsequence;
-use MediaWiki\Moderation\WatchOrUnwatchConsequence;
 
 require_once __DIR__ . "/ConsequenceTestTrait.php";
 
@@ -82,10 +81,7 @@ class UploadsHaveConsequencesTest extends MediaWikiTestCase {
 				$user,
 				$comment,
 				$pageText
-			),
-
-			// See FIXME comment in ModerationUploadHooks::onUploadVerifyUpload().
-			new WatchOrUnwatchConsequence( false, $title, $user )
+			)
 		], $manager->getConsequences() );
 	}
 

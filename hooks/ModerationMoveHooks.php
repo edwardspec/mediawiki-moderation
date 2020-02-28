@@ -22,7 +22,7 @@
 
 use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\QueueMoveConsequence;
-use MediaWiki\Moderation\WatchOrUnwatchConsequence;
+use MediaWiki\Moderation\WatchCheckbox;
 
 class ModerationMoveHooks {
 
@@ -97,13 +97,7 @@ class ModerationMoveHooks {
 
 		/* Watch/Unwatch $oldTitle/$newTitle immediately:
 			watchlist is the user's own business, no reason to wait for approval of the move */
-
-		// FIXME: this always causes Unwatch if we are not on Special:MovePage,
-		// because other pages don't have wpWatch checkbox. Should do something similar to how
-		// this is handled in ModerationEditHooks (with $watchthis flag).
-		$watch = $user->getRequest()->getCheck( 'wpWatch' );
-		$manager->add( new WatchOrUnwatchConsequence( $watch, $oldTitle, $user ) );
-		$manager->add( new WatchOrUnwatchConsequence( $watch, $newTitle, $user ) );
+		WatchCheckbox::watchIfNeeded( $user, [ $oldTitle, $newTitle ] );
 
 		$errorMsg = 'moderation-move-queued';
 		ModerationQueuedSuccessException::throwIfNeeded( $errorMsg );

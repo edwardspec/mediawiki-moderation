@@ -26,7 +26,7 @@ use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
-use MediaWiki\Moderation\WatchOrUnwatchConsequence;
+use MediaWiki\Moderation\WatchCheckbox;
 
 class ModerationEditHooks {
 	/**
@@ -40,9 +40,6 @@ class ModerationEditHooks {
 
 	/** @var string Text of edited section, if any (populated in onEditFilter) */
 	protected static $sectionText = '';
-
-	/** @var bool|null Checkbox "Watch this page", if found (populated in onEditFilter) */
-	protected static $watchthis = null;
 
 	/**
 	 * EditFilter hook handler.
@@ -60,8 +57,7 @@ class ModerationEditHooks {
 			self::$sectionText = $text;
 		}
 
-		self::$watchthis = (bool)$editor->watchthis;
-
+		WatchCheckbox::setWatch( (bool)$editor->watchthis );
 		return true;
 	}
 
@@ -126,12 +122,9 @@ class ModerationEditHooks {
 			(bool)$is_minor
 		) );
 
-		if ( self::$watchthis !== null ) {
-			/* Watch/Unwatch the page immediately:
-				watchlist is the user's own business,
-				no reason to wait for approval of the edit */
-			$manager->add( new WatchOrUnwatchConsequence( self::$watchthis, $title, $user ) );
-		}
+		/* Watch/Unwatch the page immediately:
+			watchlist is the user's own business, no reason to wait for approval of the edit */
+		WatchCheckbox::watchIfNeeded( $user, [ $title ] );
 
 		/*
 			We have queued this edit for moderation.
