@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 
 class ModerationActionApprove extends ModerationAction {
 
@@ -33,7 +34,8 @@ class ModerationActionApprove extends ModerationAction {
 		if ( $ret['approved'] ) {
 			/* Clear the cache of "Most recent mod_timestamp of pending edit"
 				- could have changed */
-			ModerationNotifyModerator::invalidatePendingTime();
+			$manager = ConsequenceUtils::getManager();
+			$manager->add( new InvalidatePendingTimeCacheConsequence() );
 		}
 
 		return $ret;

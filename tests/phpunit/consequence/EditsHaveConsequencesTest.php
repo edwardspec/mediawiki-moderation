@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\IConsequence;
+use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueEditConsequence;
@@ -102,7 +103,8 @@ class EditsHaveConsequencesTest extends MediaWikiTestCase {
 					'modid' => $modid,
 					'revid' => $revid
 				]
-			)
+			),
+			new InvalidatePendingTimeCacheConsequence()
 		] );
 	}
 

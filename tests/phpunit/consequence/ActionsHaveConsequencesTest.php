@@ -25,6 +25,7 @@ use MediaWiki\Moderation\ApproveEditConsequence;
 use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\IConsequence;
+use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsConflictConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\ModifyPendingChangeConsequence;
@@ -84,7 +85,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 					'user' => $this->authorUser->getId(),
 					'user_text' => $this->authorUser->getName()
 				]
-			)
+			),
+			new InvalidatePendingTimeCacheConsequence()
 		];
 		$actual = $this->getConsequences( 'reject', [ RejectOneConsequence::class, 1 ] );
 
@@ -200,7 +202,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 				],
 				true // ApproveHook enabled
 			),
-			new DeleteRowFromModerationTableConsequence( $this->modid )
+			new DeleteRowFromModerationTableConsequence( $this->modid ),
+			new InvalidatePendingTimeCacheConsequence()
 		];
 
 		$this->assertConsequencesEqual( $expected, $actual );
@@ -273,7 +276,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 				[
 					'4::count' => 1
 				]
-			)
+			),
+			new InvalidatePendingTimeCacheConsequence()
 		];
 
 		$this->assertConsequencesEqual( $expected, $actual );
@@ -371,7 +375,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 				[
 					'4::count' => 1
 				]
-			)
+			),
+			new InvalidatePendingTimeCacheConsequence()
 		];
 		$actual = $this->getConsequences( 'rejectall', [ RejectBatchConsequence::class, 1 ] );
 

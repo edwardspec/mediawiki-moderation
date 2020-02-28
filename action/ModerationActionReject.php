@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\RejectBatchConsequence;
 use MediaWiki\Moderation\RejectOneConsequence;
 
@@ -35,7 +36,8 @@ class ModerationActionReject extends ModerationAction {
 		if ( $ret['rejected-count'] ) {
 			/* Clear the cache of "Most recent mod_timestamp of pending edit"
 				- could have changed */
-			ModerationNotifyModerator::invalidatePendingTime();
+			$manager = ConsequenceUtils::getManager();
+			$manager->add( new InvalidatePendingTimeCacheConsequence() );
 		}
 
 		return $ret;

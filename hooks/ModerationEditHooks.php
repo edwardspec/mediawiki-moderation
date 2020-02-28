@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\QueueEditConsequence;
 
@@ -245,7 +246,7 @@ class ModerationEditHooks {
 
 			/* Clear the cache of "Most recent mod_timestamp of pending edit"
 				- could have changed */
-			ModerationNotifyModerator::invalidatePendingTime();
+			$manager->add( new InvalidatePendingTimeCacheConsequence() );
 
 			/* Tag this edit as "manually merged" */
 			DeferredUpdates::addCallableUpdate( function () use ( $revid ) {
