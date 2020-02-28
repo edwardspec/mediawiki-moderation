@@ -125,6 +125,7 @@
 		"MediaWiki\\Moderation\\SendNotificationEmailConsequence": "lib/consequence/SendNotificationEmailConsequence.php",
 		"MediaWiki\\Moderation\\TagRevisionAsMergedConsequence": "lib/consequence/TagRevisionAsMergedConsequence.php",
 		"MediaWiki\\Moderation\\UnblockUserConsequence": "lib/consequence/UnblockUserConsequence.php",
+		"MediaWiki\\Moderation\\WatchOrUnwatchConsequence": "lib/consequence/WatchOrUnwatchConsequence.php",
 		"ModerationAction": "action/ModerationAction.php",
 		"ModerationActionApprove": "action/ModerationActionApprove.php",
 		"ModerationActionBlock": "action/ModerationActionBlock.php",

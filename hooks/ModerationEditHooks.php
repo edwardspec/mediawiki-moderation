@@ -26,6 +26,7 @@ use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
+use MediaWiki\Moderation\WatchOrUnwatchConsequence;
 
 class ModerationEditHooks {
 	/**
@@ -59,7 +60,7 @@ class ModerationEditHooks {
 			self::$sectionText = $text;
 		}
 
-		self::$watchthis = $editor->watchthis;
+		self::$watchthis = (bool)$editor->watchthis;
 
 		return true;
 	}
@@ -129,8 +130,7 @@ class ModerationEditHooks {
 			/* Watch/Unwatch the page immediately:
 				watchlist is the user's own business,
 				no reason to wait for approval of the edit */
-			$watch = (bool)self::$watchthis;
-			WatchAction::doWatchOrUnwatch( $watch, $title, $user );
+			$manager->add( new WatchOrUnwatchConsequence( self::$watchthis, $title, $user ) );
 		}
 
 		/*
