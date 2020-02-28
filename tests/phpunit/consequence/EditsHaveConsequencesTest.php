@@ -26,6 +26,7 @@ use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueEditConsequence;
+use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
 
 require_once __DIR__ . "/ConsequenceTestTrait.php";
 
@@ -104,7 +105,8 @@ class EditsHaveConsequencesTest extends MediaWikiTestCase {
 					'revid' => $revid
 				]
 			),
-			new InvalidatePendingTimeCacheConsequence()
+			new InvalidatePendingTimeCacheConsequence(),
+			new TagRevisionAsMergedConsequence( $revid )
 		] );
 	}
 

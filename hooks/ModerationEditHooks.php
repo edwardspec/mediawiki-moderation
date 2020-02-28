@@ -25,6 +25,7 @@ use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\QueueEditConsequence;
+use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
 
 class ModerationEditHooks {
 	/**
@@ -249,9 +250,7 @@ class ModerationEditHooks {
 			$manager->add( new InvalidatePendingTimeCacheConsequence() );
 
 			/* Tag this edit as "manually merged" */
-			DeferredUpdates::addCallableUpdate( function () use ( $revid ) {
-				ChangeTags::addTags( 'moderation-merged', null, $revid, null );
-			} );
+			$manager->add( new TagRevisionAsMergedConsequence( $revid ) );
 		}
 
 		return true;
