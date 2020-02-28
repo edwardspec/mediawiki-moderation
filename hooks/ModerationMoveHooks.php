@@ -20,6 +20,9 @@
  * Hooks related to moving (renaming) pages.
  */
 
+use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\QueueMoveConsequence;
+
 class ModerationMoveHooks {
 
 	/**
@@ -86,10 +89,10 @@ class ModerationMoveHooks {
 			}
 		}
 
-		$change = new ModerationNewChange( $oldTitle, $user );
-		$change->move( $newTitle )
-			->setSummary( $reason )
-			->queue();
+		$manager = ConsequenceUtils::getManager();
+		$manager->add( new QueueMoveConsequence(
+			$oldTitle, $newTitle, $user, $reason
+		) );
 
 		if ( $user->isLoggedIn() ) {
 			/* Watch/Unwatch $oldTitle/$newTitle immediately:
