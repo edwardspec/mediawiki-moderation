@@ -22,12 +22,13 @@
 
 use MediaWiki\Moderation\RejectOneConsequence;
 
+require_once __DIR__ . "/ModifyDbRowTestTrait.php";
+
 /**
  * @group Database
  */
 class RejectOneConsequenceTest extends MediaWikiTestCase {
-	/** @var int */
-	protected $modid;
+	use ModifyDbRowTestTrait;
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'moderation', 'user' ];
@@ -45,7 +46,7 @@ class RejectOneConsequenceTest extends MediaWikiTestCase {
 
 		$this->assertEquals( 1, $rejectedCount );
 
-		// New row should have appeared in the database.
+		// Check the state of the database.
 		$this->assertWasRejected( $this->modid, $moderator );
 	}
 
@@ -119,25 +120,5 @@ class RejectOneConsequenceTest extends MediaWikiTestCase {
 				0, // mod_rejected_auto
 			] ]
 		);
-	}
-
-	/**
-	 * Create a row in "moderation" SQL table.
-	 */
-	public function setUp() {
-		parent::setUp();
-
-		$name = $this->getName();
-		if ( $name == 'testValidCovers' || $name == 'testMediaWikiTestCaseParentSetupCalled' ) {
-			return;
-		}
-
-		$author = User::newFromName( "127.0.0.1", false );
-		$title = Title::newFromText( "Some page" );
-		$page = WikiPage::factory( $title );
-		$content = ContentHandler::makeContent( 'Some text', null, CONTENT_MODEL_WIKITEXT );
-
-		$change = new ModerationNewChange( $title, $author );
-		$this->modid = $change->edit( $page, $content, '', '' )->queue();
 	}
 }

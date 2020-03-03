@@ -54,9 +54,6 @@ class EditsHaveConsequencesTest extends MediaWikiTestCase {
 	/** @var MockConsequenceManager */
 	protected $manager;
 
-	/** @var Wikimedia\ScopedCallback Used to automatically uninstall $manager */
-	protected $managerScope;
-
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'moderation' ];
 
@@ -65,6 +62,9 @@ class EditsHaveConsequencesTest extends MediaWikiTestCase {
 	 * @covers ModerationEditHooks::onPageContentSave
 	 */
 	public function testEdit() {
+		// Replace real ConsequenceManager with a mock.
+		list( $managerScope, $this->manager ) = MockConsequenceManager::install();
+
 		$this->user = self::getTestUser()->getUser();
 		$this->makeEdit();
 		$this->assertConsequences( [
@@ -83,6 +83,9 @@ class EditsHaveConsequencesTest extends MediaWikiTestCase {
 	 * @covers ModerationEditHooks::onPageContentSaveComplete
 	 */
 	public function testMergedEdit() {
+		// Replace real ConsequenceManager with a mock.
+		list( $managerScope, $this->manager ) = MockConsequenceManager::install();
+
 		$modid = 12345;
 		RequestContext::getMain()->getRequest()->setVal( 'wpMergeID', $modid );
 
@@ -127,15 +130,6 @@ class EditsHaveConsequencesTest extends MediaWikiTestCase {
 			false,
 			$this->user
 		);
-	}
-
-	/**
-	 * Replace real ConsequenceManager with a mock.
-	 */
-	public function setUp() {
-		parent::setUp();
-
-		list( $this->managerScope, $this->manager ) = MockConsequenceManager::install();
 	}
 
 	/**

@@ -46,7 +46,7 @@ class RejectBatchConsequenceTest extends MediaWikiTestCase {
 
 		$this->assertEquals( count( $idsToReject ), $rejectedCount );
 
-		// New row should have appeared in the database.
+		// Check the state of the database.
 		$this->assertWereBatchRejected( $idsToReject, $moderator );
 		$this->assertNotRejected( $idsToPreserve );
 	}
