@@ -23,7 +23,7 @@
 use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
-use MediaWiki\Moderation\QueueEditConsequence;
+use MediaWiki\Moderation\QueueMoveConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 
 require_once __DIR__ . "/ConsequenceTestTrait.php";
@@ -31,62 +31,52 @@ require_once __DIR__ . "/ConsequenceTestTrait.php";
 /**
  * @group Database
  */
-class QueueEditConsequenceTest extends MediaWikiTestCase {
+class QueueMoveConsequenceTest extends MediaWikiTestCase {
 	use ConsequenceTestTrait;
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'moderation', 'user' ];
 
 	/**
-	 * Check the secondary consequences of running QueueEditConsequence.
-	 * @covers MediaWiki\Moderation\QueueEditConsequence
+	 * Check the secondary consequences of running QueueMoveConsequence.
+	 * @covers MediaWiki\Moderation\QueueMoveConsequence
 	 * @covers ModerationNewChange::sendNotificationEmail
-	 * @dataProvider dataProviderQueueEdit
+	 * @dataProvider dataProviderQueueMove
 	 *
 	 * See also: ModerationQueueTest from the blackbox integration tests.
 	 */
-	public function testQueueEdit( array $params ) {
+	public function testQueueMove( array $params ) {
 		$opt = (object)$params;
 
 		$user = empty( $opt->anonymously ) ? self::getTestUser()->getUser() :
 			User::newFromName( '127.0.0.1', false );
 		$title = Title::newFromText( $opt->title ?? 'UTPage-' . rand( 0, 100000 ) );
 		$page = WikiPage::factory( $title );
-		$content = ContentHandler::makeContent( 'Some text' . rand( 0, 100000 ),
-			null, CONTENT_MODEL_WIKITEXT );
 		$summary = $opt->summary ?? 'Some summary ' . rand( 0, 100000 );
-		$opt->bot = $opt->bot ?? false;
-		$opt->minor = $opt->minor ?? false;
-		$opt->existing = $opt->existing ?? false;
 		$opt->modblocked = $opt->modblocked ?? false;
 		$opt->notifyEmail = $opt->notifyEmail ?? false;
 		$opt->notifyNewOnly = $opt->notifyNewOnly ?? false;
 
-		if ( $opt->existing ) {
-			// Precreate the page.
-			$status = $page->doEditContent(
-				ContentHandler::makeContent( 'Original text' . rand( 0, 100000 ),
-					null, CONTENT_MODEL_WIKITEXT
-				), '', 0, false,
-				self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser()
-			);
-			$this->assertTrue( $status->isOK() ); // Not intercepted and no other errors.
-		}
+		$newTitle = Title::newFromText( $opt->newTitle ?? 'UTPage-' . rand( 0, 100000 ) . '-new' );
+
+		// Precreate the page.
+		$moderator = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
+		$status = $page->doEditContent(
+			ContentHandler::makeContent( 'Original text' . rand( 0, 100000 ),
+				null, CONTENT_MODEL_WIKITEXT
+			), '', 0, false, $moderator
+
+		);
+		$this->assertTrue( $status->isOK() ); // Not intercepted and no other errors.
 
 		if ( $opt->modblocked ) {
 			$consequence = new BlockUserConsequence(
 				$user->getId(),
 				$user->getName(),
-				self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser()
+				$moderator
 			);
 			$consequence->run();
 		}
-
-		// @phan-suppress-next-line PhanUndeclaredMethod - Phan thinks it's not FauxRequest
-		$user->getRequest()->setHeaders( [
-			'User-Agent' => $opt->userAgent ?? '',
-			'X-Forwarded-For' => $opt->xff ?? ''
-		] );
 
 		// Replace real ConsequenceManager with a mock.
 		list( $scope, $manager ) = MockConsequenceManager::install();
@@ -102,8 +92,7 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 		$manager->mockResult( InsertRowIntoModerationTableConsequence::class, $modid );
 
 		// Create and run the Consequence.
-		$consequence = new QueueEditConsequence(
-			$page, $user, $content, $summary, '', '', $opt->bot, $opt->minor );
+		$consequence = new QueueMoveConsequence( $title, $newTitle, $user, $summary );
 		$consequence->run();
 
 		// This is very similar to ModerationQueueTest::getExpectedRow().
@@ -114,22 +103,19 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 			'mod_timestamp' => 'ignored by assertConsequencesEqual()',
 			'mod_user' => $user->getId(),
 			'mod_user_text' => $user->getName(),
-			'mod_cur_id' => $opt->existing ?
-				$title->getArticleId( IDBAccessObject::READ_LATEST ) : 0,
+			'mod_cur_id' => 0, // Not populated for moves
 			'mod_namespace' => $title->getNamespace(),
 			'mod_title' => $title->getDBKey(),
 			'mod_comment' => $summary,
-			'mod_minor' => $opt->minor ? 1 : 0,
-			'mod_bot' => $opt->bot ? 1 : 0,
-			'mod_new' => $opt->existing ? 0 : 1,
-			'mod_last_oldid' => $opt->existing ?
-				$title->getLatestRevID( IDBAccessObject::READ_LATEST ) : 0,
+			'mod_minor' => 0,
+			'mod_bot' => 0,
+			'mod_new' => 0,
+			'mod_last_oldid' => 0, // Not populated for moves
 			'mod_ip' => '127.0.0.1',
-			'mod_old_len' => $opt->existing ?
-				$title->getLength( IDBAccessObject::READ_LATEST ) : 0,
-			'mod_new_len' => $content->getSize(),
-			'mod_header_xff' => $opt->xff ?? null,
-			'mod_header_ua' => $opt->userAgent ?? null,
+			'mod_old_len' => 0, // Not populated for moves
+			'mod_new_len' => 0, // Not populated for moves
+			'mod_header_xff' => null,
+			'mod_header_ua' => null,
 			'mod_preload_id' => $preload->getId( false ),
 			'mod_rejected' => $opt->modblocked ? 1 : 0,
 			'mod_rejected_by_user' => 0,
@@ -140,19 +126,19 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 			'mod_preloadable' => 0,
 			'mod_conflict' => 0,
 			'mod_merged_revid' => 0,
-			'mod_text' => $content->getNativeData(), // Won't work if $content needs PST
+			'mod_text' => '', // Not populated for moves
 			'mod_stash_key' => null,
 			'mod_tags' => null,
-			'mod_type' => 'edit',
-			'mod_page2_namespace' => 0,
-			'mod_page2_title' => ''
+			'mod_type' => 'move',
+			'mod_page2_namespace' => $newTitle->getNamespace(),
+			'mod_page2_title' => $newTitle->getDBKey()
 		];
 
 		// Check secondary consequences.
 		$expectedConsequences = [
 			new InsertRowIntoModerationTableConsequence( $expectedFields )
 		];
-		if ( !$opt->modblocked && $opt->notifyEmail && ( !$opt->notifyNewOnly || !$opt->existing ) ) {
+		if ( !$opt->modblocked && $opt->notifyEmail && !$opt->notifyNewOnly ) {
 			$expectedConsequences[] = new SendNotificationEmailConsequence(
 				$title,
 				$user,
@@ -163,28 +149,21 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 		$this->assertConsequencesEqual( $expectedConsequences, $manager->getConsequences() );
 	}
 
-	public function dataProviderQueueEdit() {
+	public function dataProviderQueueMove() {
 		return [
-			'logged-in edit' => [ [] ],
-			'anonymous edit' => [ [ 'anonymously' => true ] ],
-			'edit in Project namespace' => [ [ 'title' => 'Project:Title in another namespace' ] ],
-			'edit in existing page' => [ [ 'existing' => true ] ],
-			'edit with edit summary' => [ [ 'summary' => 'Summary 1' ] ],
-			'edit with User-Agent' => [ [ 'userAgent' => 'UserAgent for Testing/1.0' ] ],
-			'edit with XFF' => [ [ 'xff' => '10.11.12.13' ] ],
-			'edit by modblocked user' => [ [ 'modblocked' => true ] ],
-			'bot edit' => [ [ 'bot' => true ] ],
-			'minor edit' => [ [ 'minor' => true, 'existing' => true ] ],
-			'email notification' => [ [ 'notifyEmail' => 'noreply@localhost' ] ],
-			'email notification for new page when $wgModerationNotificationNewOnly=true' =>
-				[ [ 'notifyEmail' => 'noreply@localhost', 'notifyNewOnly' => true ] ],
-			'absence of email for existing page when $wgModerationNotificationNewOnly=true' =>
+			'logged-in move' => [ [] ],
+			'anonymous move' => [ [ 'anonymously' => true ] ],
+			'move in non-Main namespaces' =>
 				[ [
-					'existing' => true,
-					'notifyNewOnly' => true,
-					'notifyEmail' => 'noreply@localhost'
+					'title' => 'Project:Title in another namespace',
+					'newTitle' => 'User:Another title'
 				] ],
-			'absence of email for edit by modblocked user' =>
+			'move with edit summary' => [ [ 'summary' => 'Summary 1' ] ],
+			'move by modblocked user' => [ [ 'modblocked' => true ] ],
+			'email notification' => [ [ 'notifyEmail' => 'noreply@localhost' ] ],
+			'abasence of email notification for move when $wgModerationNotificationNewOnly=true' =>
+				[ [ 'notifyEmail' => 'noreply@localhost', 'notifyNewOnly' => true ] ],
+			'absence of email for move by modblocked user' =>
 				[ [
 					'modblocked' => true,
 					'notifyEmail' => 'noreply@localhost'
