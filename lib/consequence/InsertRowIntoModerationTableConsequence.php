@@ -59,6 +59,14 @@ class InsertRowIntoModerationTableConsequence implements IConsequence {
 			$this->fields,
 			__METHOD__
 		] );
+
+		// FIXME: we can't rely on $dbw->insertId() for PostgreSQL, because $dbw->upsert()
+		// doesn't use native UPSERT, and instead does UPDATE and then INSERT IGNORE.
+		// Since values of PostgreSQL sequences always increase (even after no-op INSERT IGNORE),
+		// $dbw->insertId() will return the sequence number after INSERT.
+		// But if changes were caused by UPDATE (not by INSERT), then this number won't be correct
+		// (we would want insertId() from UPDATE, which is lost during $dbw->upsert()).
+
 		return $dbw->insertId();
 	}
 }
