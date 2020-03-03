@@ -291,15 +291,17 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation', [ 'mod_text', 'mod_comment' ], '', __METHOD__ );
 
+		// No "~~~" or other PST transformations for simplicity
+		$newText = $row->mod_text . ' plus some additional text';
+		$newComment = 'Some new summary';
+		$newLen = strlen( $newText );
+
 		$expected = [
 			new ModifyPendingChangeConsequence(
 				$this->modid,
-				'Some new text',
-				'Some new summary',
-				$row->mod_text,
-				$row->mod_comment,
-				$this->title,
-				$this->authorUser
+				$newText,
+				$newComment,
+				$newLen
 			),
 			new AddLogEntryConsequence(
 				'editchange',
@@ -315,8 +317,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		$actual = $this->getConsequences( 'editchangesubmit',
 			[ ModifyPendingChangeConsequence::class, true ],
 			[
-				'wpTextbox1' => 'Some new text',
-				'wpSummary' => 'Some new summary'
+				'wpTextbox1' => $newText,
+				'wpSummary' => $newComment
 			]
 		);
 
@@ -331,34 +333,17 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( 'moderation', [ 'mod_text', 'mod_comment' ], '', __METHOD__ );
 
-		$expected = [
-			new ModifyPendingChangeConsequence(
-				$this->modid,
-				'Some new text',
-				'Some new summary',
-				$row->mod_text,
-				$row->mod_comment,
-				$this->title,
-				$this->authorUser
-			),
-			// No AddLogEntryConsequence, because there were no changes.
-		];
-
 		$this->setMwGlobals( 'wgModerationEnableEditChange', true );
-		$actual = $this->getConsequences( 'editchangesubmit',
+		$actual = $this->getConsequences( 'editchangesubmit', null,
 			[
-				// Mocked return value from ModifyPendingChangeConsequence:
-				// simulate "nothing changed".
-				ModifyPendingChangeConsequence::class,
-				false
-			],
-			[
-				'wpTextbox1' => 'Some new text',
-				'wpSummary' => 'Some new summary'
+				// Same values as already present in the database.
+				'wpTextbox1' => $row->mod_text,
+				'wpSummary' => $row->mod_comment
 			]
 		);
 
-		$this->assertConsequencesEqual( $expected, $actual );
+		// Nothing changed, so ModifyPendingChangeConsequence wasn't added.
+		$this->assertConsequencesEqual( [], $actual );
 	}
 
 	/**

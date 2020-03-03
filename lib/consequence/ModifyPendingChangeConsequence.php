@@ -22,12 +22,6 @@
 
 namespace MediaWiki\Moderation;
 
-use ContentHandler;
-use ModerationCompatTools;
-use ParserOptions;
-use Title;
-use User;
-
 class ModifyPendingChangeConsequence implements IConsequence {
 	/** @var int */
 	protected $modid;
@@ -38,69 +32,31 @@ class ModifyPendingChangeConsequence implements IConsequence {
 	/** @var string */
 	protected $newComment;
 
-	/** @var string */
-	protected $oldText;
-
-	/** @var string */
-	protected $oldComment;
-
-	/** @var Title */
-	protected $title;
-
-	/** @var User */
-	protected $originalAuthor;
+	/** @var int */
+	protected $newLen;
 
 	/**
 	 * @param int $modid
 	 * @param string $newText
 	 * @param string $newComment
-	 * @param string $oldText
-	 * @param string $oldComment
-	 * @param Title $title
-	 * @param User $originalAuthor
+	 * @param int $newLen
 	 */
-	public function __construct( $modid, $newText, $newComment,
-		// FIXME: these parameters are only used to avoid an extra SQL query.
-		// Maybe just move select() from ModerationActionEditChangeSubmit to this Consequence?
-		$oldText, $oldComment,
-		Title $title, User $originalAuthor
-	) {
+	public function __construct( $modid, $newText, $newComment, $newLen ) {
 		$this->modid = $modid;
 		$this->newText = $newText;
 		$this->newComment = $newComment;
-		$this->oldText = $oldText;
-		$this->oldComment = $oldComment;
-		$this->title = $title;
-		$this->originalAuthor = $originalAuthor;
+		$this->newLen = $newLen;
 	}
 
 	/**
 	 * Execute the consequence.
-	 * @return bool True if something changed, false otherwise.
 	 */
 	public function run() {
-		/* Apply preSaveTransform to the submitted text */
-		$newContent = ContentHandler::makeContent( $this->newText, $this->title );
-		$pstContent = $newContent->preSaveTransform(
-			$this->title,
-			$this->originalAuthor,
-			ParserOptions::newFromUserAndLang(
-				$this->originalAuthor,
-				ModerationCompatTools::getContentLanguage()
-			)
-		);
-
-		$newText = $pstContent->getNativeData();
-		if ( $newText == $this->oldText && $this->newComment == $this->oldComment ) {
-			// Nothing to do
-			return false;
-		}
-
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'moderation',
 			[
-				'mod_text' => $newText,
-				'mod_new_len' => $pstContent->getSize(),
+				'mod_text' => $this->newText,
+				'mod_new_len' => $this->newLen,
 				'mod_comment' => $this->newComment
 			],
 			[
@@ -108,9 +64,5 @@ class ModifyPendingChangeConsequence implements IConsequence {
 			],
 			__METHOD__
 		);
-
-		// NOTE: MediaWiki sets MYSQLI_CLIENT_FOUND_ROWS flag, so affectedRows() is always 1,
-		// except for situation when the row that needs to be updated can't be found.
-		return ( $dbw->affectedRows() > 0 );
 	}
 }

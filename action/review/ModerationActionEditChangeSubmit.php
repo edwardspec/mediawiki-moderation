@@ -63,17 +63,34 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 			User::newFromId( $row->user ) :
 			User::newFromName( $row->user_text, false );
 
-		$manager = ConsequenceUtils::getManager();
-		$somethingChanged = $manager->add( new ModifyPendingChangeConsequence(
-			$this->id,
-			$request->getVal( 'wpTextbox1', '' ),
-			$request->getVal( 'wpSummary', '' ),
-			$row->text, // Old text
-			$row->comment, // Old comment
+		$newText = $request->getVal( 'wpTextbox1', '' );
+		$newComment = $request->getVal( 'wpSummary', '' );
+
+		/* Apply preSaveTransform to the submitted text */
+		$newContent = ContentHandler::makeContent( $newText, $title );
+		$pstContent = $newContent->preSaveTransform(
 			$title,
-			$originalAuthor
-		) );
+			$originalAuthor,
+			ParserOptions::newFromUserAndLang(
+				$originalAuthor,
+				ModerationCompatTools::getContentLanguage()
+			)
+		);
+
+		$newText = $pstContent->getNativeData();
+		$newLen = $pstContent->getSize();
+
+		$somethingChanged = ( $newText != $row->text || $newComment != $row->comment );
+
 		if ( $somethingChanged ) {
+			// Something changed.
+			$manager = ConsequenceUtils::getManager();
+			$manager->add( new ModifyPendingChangeConsequence(
+				$this->id,
+				$newText,
+				$newComment,
+				$newLen
+			) );
 			$manager->add( new AddLogEntryConsequence( 'editchange', $this->moderator, $title, [
 				'modid' => $this->id
 			] ) );
