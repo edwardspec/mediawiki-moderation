@@ -24,14 +24,14 @@ use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueUploadConsequence;
 
 require_once __DIR__ . "/ConsequenceTestTrait.php";
+require_once __DIR__ . "/UploadTestTrait.php";
 
 /**
  * @group Database
  */
 class UploadsHaveConsequencesTest extends MediaWikiTestCase {
 	use ConsequenceTestTrait;
-
-	protected $sampleImageFile = __DIR__ . '/../../resources/image100x100.png';
+	use UploadTestTrait;
 
 	/** @var Title */
 	protected $title;
@@ -47,23 +47,8 @@ class UploadsHaveConsequencesTest extends MediaWikiTestCase {
 	 * @covers ModerationUploadHooks::onUploadVerifyUpload
 	 */
 	public function testUpload() {
-		$curlFile = new CURLFile( $this->sampleImageFile );
-		$uploadKey = 'testUploadKey';
-		$_FILES['wpUploadFile'] = [
-			'name' => 'whatever', # Not used anywhere
-			'type' => $curlFile->getMimeType(),
-			'tmp_name' => $curlFile->getFilename(),
-			'size' => filesize( $curlFile->getFilename() ),
-			'error' => 0
-		];
 		$title = Title::newFromText( 'File:UTUpload-' . rand( 0, 100000 ) . '.png' );
-
-		$upload = new UploadFromFile();
-		$upload->initialize(
-			$title->getText(),
-			RequestContext::getMain()->getRequest()->getUpload( 'wpUploadFile' )
-		);
-		$this->assertEquals( [ 'status' => UploadBase::OK ], $upload->verifyUpload() );
+		$upload = $this->prepareTestUpload( $title );
 
 		$user = self::getTestUser()->getUser();
 		$comment = 'Edit comment when uploading the file';

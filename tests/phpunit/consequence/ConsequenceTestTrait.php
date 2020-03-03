@@ -89,9 +89,10 @@ trait ConsequenceTestTrait {
 	/*----------------------------------------------------------------------------------------*/
 	/* These abstract methods are provided by PHPUnit-related classes. */
 
-	abstract public function assertEquals( $expected, $actual, $message = '' );
+	abstract public static function assertEquals( $expected, $actual, $message = '',
+		$delta = 0.0, $maxDepth = 10, $canonicalize = null, $ignoreCase = null );
 
-	abstract public function assertInstanceOf( $expected, $actual, $message = '' );
+	abstract public static function assertInstanceOf( $expected, $actual, $message = '' );
 
-	abstract public function assertCount( $expectedCount, $haystack, $message = '' );
+	abstract public static function assertCount( $expectedCount, $haystack, $message = '' );
 }
