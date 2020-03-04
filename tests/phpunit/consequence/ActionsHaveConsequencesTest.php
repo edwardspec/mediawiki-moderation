@@ -32,15 +32,16 @@ use MediaWiki\Moderation\ModifyPendingChangeConsequence;
 use MediaWiki\Moderation\RejectBatchConsequence;
 use MediaWiki\Moderation\RejectOneConsequence;
 use MediaWiki\Moderation\UnblockUserConsequence;
-use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/ConsequenceTestTrait.php";
+require_once __DIR__ . "/PostApproveCleanupTrait.php";
 
 /**
  * @group Database
  */
 class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	use ConsequenceTestTrait;
+	use PostApproveCleanupTrait;
 
 	/** @var int */
 	protected $modid;
@@ -474,17 +475,5 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		$dbw = wfGetDB( DB_MASTER );
 		$this->modid = (int)$dbw->selectField( 'moderation', 'mod_id', '', __METHOD__ );
 		$this->assertNotSame( 0, $this->modid );
-	}
-
-	/**
-	 * Disable post-approval global state.
-	 */
-	public function tearDown() {
-		// If the previous test used Approve, it enabled "all edits should bypass moderation" mode.
-		// Disable it now.
-		$canSkip = TestingAccessWrapper::newFromClass( ModerationCanSkip::class );
-		$canSkip->inApprove = false;
-
-		parent::tearDown();
 	}
 }

@@ -21,12 +21,15 @@
  */
 
 use MediaWiki\Moderation\ApproveEditConsequence;
-use Wikimedia\TestingAccessWrapper;
+
+require_once __DIR__ . "/PostApproveCleanupTrait.php";
 
 /**
  * @group Database
  */
 class ApproveEditConsequenceTest extends MediaWikiTestCase {
+	use PostApproveCleanupTrait;
+
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'page', 'logging' ];
 
@@ -125,17 +128,5 @@ class ApproveEditConsequenceTest extends MediaWikiTestCase {
 			'bot edit' => [ [ 'bot' => true ] ],
 			'minor edit' => [ [ 'minor' => true, 'existing' => true ] ]
 		];
-	}
-
-	/**
-	 * Disable post-approval global state.
-	 */
-	public function tearDown() {
-		// If the previous test used Approve, it enabled "all edits should bypass moderation" mode.
-		// Disable it now.
-		$canSkip = TestingAccessWrapper::newFromClass( ModerationCanSkip::class );
-		$canSkip->inApprove = false;
-
-		parent::tearDown();
 	}
 }

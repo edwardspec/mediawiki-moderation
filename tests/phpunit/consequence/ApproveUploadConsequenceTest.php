@@ -21,14 +21,15 @@
  */
 
 use MediaWiki\Moderation\ApproveUploadConsequence;
-use Wikimedia\TestingAccessWrapper;
 
+require_once __DIR__ . "/PostApproveCleanupTrait.php";
 require_once __DIR__ . "/UploadTestTrait.php";
 
 /**
  * @group Database
  */
 class ApproveUploadConsequenceTest extends MediaWikiTestCase {
+	use PostApproveCleanupTrait;
 	use UploadTestTrait;
 
 	/** @var string[] */
@@ -93,17 +94,5 @@ class ApproveUploadConsequenceTest extends MediaWikiTestCase {
 			'upload (new image)' => [ false ],
 			'reupload' => [ true ],
 		];
-	}
-
-	/**
-	 * Disable post-approval global state.
-	 */
-	public function tearDown() {
-		// If the previous test used Approve, it enabled "all edits should bypass moderation" mode.
-		// Disable it now.
-		$canSkip = TestingAccessWrapper::newFromClass( ModerationCanSkip::class );
-		$canSkip->inApprove = false;
-
-		parent::tearDown();
 	}
 }
