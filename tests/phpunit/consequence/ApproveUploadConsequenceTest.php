@@ -37,15 +37,31 @@ class ApproveUploadConsequenceTest extends MediaWikiTestCase {
 	/**
 	 * Verify that ApproveUploadConsequence uploads a new file.
 	 * @covers MediaWiki\Moderation\ApproveUploadConsequence
+	 * @dataProvider dataProviderApproveUpload
+	 * @param bool $existing
 	 */
-	public function testApproveUpload() {
+	public function testApproveUpload( $existing ) {
 		$user = self::getTestUser()->getUser();
 		$title = Title::newFromText( 'File:UTUpload-' . rand( 0, 100000 ) . '.png' );
 		$comment = 'Upload comment';
-		$pageText = 'Initial description text';
+		$pageText = 'New description text';
+
+		if ( $existing ) {
+			// Precreate file with the same name.
+			$initialText = 'Description text of image that already exists';
+
+			$upload = $this->prepareTestUpload( $title );
+			$upload->performUpload( '', $initialText, false,
+				self::getTestUser( [ 'automoderated' ] )->getUser() // Will bypass moderation
+			);
+
+			$expectedText = $initialText; // Reuploads shouldn't modify the File: description page.
+		} else {
+			$expectedText = $pageText;
+		}
 
 		$stash = ModerationUploadStorage::getStash();
-		$stashKey = $stash->stashFile( $this->sampleImageFile )->getFileKey();
+		$stashKey = $stash->stashFile( $this->anotherSampleImageFile )->getFileKey();
 
 		// Enter approve mode, as ApprovUploadConsequence is not supposed to be used outside of it.
 		// Otherwise this upload will just get queued for moderation again.
@@ -65,10 +81,19 @@ class ApproveUploadConsequenceTest extends MediaWikiTestCase {
 		$this->assertEquals( $user->getId(), $file->getUser( 'id' ) );
 
 		$page = WikiPage::factory( $title );
-		$this->assertEquals( $pageText, $page->getContent()->getNativeData() );
+		$this->assertEquals( $expectedText, $page->getContent()->getNativeData() );
 	}
 
-	// TODO: add reupload test
+	/**
+	 * Provide datasets for testApproveUpload() runs.
+	 * @return array
+	 */
+	public function dataProviderApproveUpload() {
+		return [
+			'upload (new image)' => [ false ],
+			'reupload' => [ true ],
+		];
+	}
 
 	/**
 	 * Disable post-approval global state.

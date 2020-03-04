@@ -28,6 +28,13 @@ trait UploadTestTrait {
 	protected $sampleImageFile = __DIR__ . '/../../resources/image100x100.png';
 
 	/**
+	 * Path to another locally stored image, which is different from $sampleImageFile.
+	 * Can be used for reupload tests (to avoid "This is duplicate of existing file" upload error).
+	 * @var string
+	 */
+	protected $anotherSampleImageFile = __DIR__ . '/../../resources/image640x50.png';
+
+	/**
 	 * Prepare a test upload. It won't actually start until its performUpload() method is called.
 	 * @param Title $title
 	 * @return UploadBase
