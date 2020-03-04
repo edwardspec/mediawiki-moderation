@@ -21,7 +21,7 @@
  * Corrects rev_timestamp, rc_ip and checkuser logs when edit is approved.
  */
 
-class ModerationApproveHook implements DeferrableUpdate {
+class ModerationApproveHook {
 	/** @var ModerationApproveHook|null Singleton instance */
 	protected static $instance = null;
 
@@ -44,7 +44,10 @@ class ModerationApproveHook implements DeferrableUpdate {
 		self::$instance = null;
 	}
 
-	/** @var int How many times was this DeferrableUpdate queued */
+	/**
+	 * @var int
+	 * Counter used in onPageContentSaveComplete() to ensure that doUpdate() is called only once.
+	 */
 	protected $useCount = 0;
 
 	/**
@@ -76,33 +79,32 @@ class ModerationApproveHook implements DeferrableUpdate {
 	protected function __construct() {
 	}
 
-	public static function newDeferrableUpdate() {
-		$hook = self::singleton();
-		$hook->useCount ++;
-		return $hook;
-	}
-
+	/**
+	 * Schedule doUpdate() to run after all other DeferredUpdates that are caused by new edits.
+	 */
 	public static function onPageContentSaveComplete() {
-		DeferredUpdates::addUpdate( self::newDeferrableUpdate() );
+		self::singleton()->useCount ++;
+		DeferredUpdates::addCallableUpdate( __CLASS__ . '::doUpdate' );
 	}
 
 	/**
 	 * Correct rev_timestamp, rc_ip and other fields (as requested by queueUpdate()).
 	 */
-	public function doUpdate() {
+	public static function doUpdate() {
 		/* This DeferredUpdate is installed after every edit.
 			Only the last of these updates should run, because
 			all RecentChange_save hooks must be completed before it.
 		*/
-		if ( --$this->useCount > 0 ) {
+		$hook = self::singleton();
+		if ( --$hook->useCount > 0 ) {
 			return;
 		}
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->startAtomic( __METHOD__ );
 
-		foreach ( $this->dbUpdates as $table => $updates ) {
-			$idFieldName = $this->idFieldNames[$table]; /* e.g. "rev_id" */
+		foreach ( $hook->dbUpdates as $table => $updates ) {
+			$idFieldName = $hook->idFieldNames[$table]; /* e.g. "rev_id" */
 			$ids = array_keys( array_values( $updates )[0] ); /* All rev_ids/rc_ids of affected rows */
 
 			/*
