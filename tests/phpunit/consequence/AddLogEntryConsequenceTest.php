@@ -48,8 +48,7 @@ class AddLogEntryConsequenceTest extends MediaWikiTestCase {
 		$title = Title::newFromText( $pageName );
 
 		// Clean ApproveHook::$logEntriesToFix before the test.
-		$approveHook = TestingAccessWrapper::newFromClass( ModerationApproveHook::class );
-		$approveHook->logEntriesToFix = [];
+		ModerationApproveHook::destroySingleton();
 
 		// Create and run the Consequence.
 		$consequence = new AddLogEntryConsequence( $subtype, $user, $title, $params,
@@ -70,6 +69,7 @@ class AddLogEntryConsequenceTest extends MediaWikiTestCase {
 		$this->assertEquals( $params, $logEntry->getParameters() );
 
 		// Check whether ApproveHook has queued this LogEntry for modification.
+		$approveHook = TestingAccessWrapper::newFromObject( ModerationApproveHook::singleton() );
 		$entriesToFix = $approveHook->logEntriesToFix;
 		if ( $runApproveHook && empty( $params['revid'] ) ) {
 			// ApproveHook must populate "revid" parameter of this LogEntry.

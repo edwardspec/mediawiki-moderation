@@ -304,6 +304,9 @@
 		"BeforePageDisplay": [
 			"ModerationEditHooks::onBeforePageDisplay"
 		],
+		"CheckUserInsertForRecentChange": [
+			"ModerationApproveHook::onCheckUserInsertForRecentChange"
+		],
 		"EditFilter": [
 			"ModerationEditHooks::onEditFilter"
 		],
@@ -315,6 +318,9 @@
 		],
 		"EditPage::showEditForm:fields": [
 			"ModerationEditHooks::prepareEditForm"
+		],
+		"FileUpload": [
+			"ModerationApproveHook::onFileUpload"
 		],
 		"getUserPermissionsErrors": [
 			"ModerationUploadHooks::ongetUserPermissionsErrors"
@@ -331,10 +337,14 @@
 		"MovePageCheckPermissions": [
 			"ModerationMoveHooks::onMovePageCheckPermissions"
 		],
+		"NewRevisionFromEditComplete": [
+			"ModerationApproveHook::onNewRevisionFromEditComplete"
+		],
 		"PageContentSave": [
 			"ModerationEditHooks::onPageContentSave"
 		],
 		"PageContentSaveComplete": [
+			"ModerationApproveHook::onPageContentSaveComplete",
 			"ModerationEditHooks::onPageContentSaveComplete"
 		],
 		"PageForms::EditFormInitialText": [
@@ -342,6 +352,9 @@
 		],
 		"PageForms::EditFormPreloadText": [
 			"ModerationPageForms::preloadText"
+		],
+		"RecentChange_save": [
+			"ModerationApproveHook::onRecentChange_save"
 		],
 		"SpecialPageBeforeExecute": [
 			"MediaWiki\\Moderation\\WatchCheckbox::onSpecialPageBeforeExecute"

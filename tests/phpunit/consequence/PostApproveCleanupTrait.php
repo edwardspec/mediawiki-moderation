@@ -24,13 +24,16 @@ use Wikimedia\TestingAccessWrapper;
 
 trait PostApproveCleanupTrait {
 	/**
-	 * Exit "approve mode".
+	 * Exit "approve mode" and destroy the ApproveHook singleton.
 	 */
 	public function tearDown() {
 		// If the previous test used Approve, it enabled "all edits should bypass moderation" mode.
 		// Disable it now.
 		$canSkip = TestingAccessWrapper::newFromClass( ModerationCanSkip::class );
 		$canSkip->inApprove = false;
+
+		// Forget about previous ApproveHook tasks by destroying the object with their list.
+		ModerationApproveHook::destroySingleton();
 
 		// @phan-suppress-next-line PhanTraitParentReference
 		parent::tearDown();

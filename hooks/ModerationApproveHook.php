@@ -22,6 +22,27 @@
  */
 
 class ModerationApproveHook implements DeferrableUpdate {
+	/** @var ModerationApproveHook|null Singleton instance */
+	protected static $instance = null;
+
+	/**
+	 * Return a singleton instance of ModerationApproveHook
+	 * @return ModerationApproveHook
+	 */
+	public static function singleton() {
+		if ( self::$instance === null ) {
+			self::$instance = new self;
+		}
+
+		return self::$instance;
+	}
+
+	/**
+	 * Destroy the singleton instance
+	 */
+	public static function destroySingleton() {
+		self::$instance = null;
+	}
 
 	/** @var int How many times was this DeferrableUpdate queued */
 	protected $useCount = 0;
@@ -42,7 +63,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @var array Tasks which must be performed by postapprove hooks.
 	 * Format: [ key1 => [ 'ip' => ..., 'xff' => ..., 'ua' => ... ], key2 => ... ]
 	 */
-	protected static $tasks = [];
+	protected $tasks = [];
 
 	/**
 	 * @var array Log entries to modify in FileUpload hook.
@@ -50,18 +71,19 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 *
 	 * @phan-var array<int,ManualLogEntry>
 	 */
-	protected static $logEntriesToFix = [];
+	protected $logEntriesToFix = [];
 
 	protected function __construct() {
 	}
 
-	public function newDeferrableUpdate() {
-		$this->useCount ++;
-		return $this;
+	public static function newDeferrableUpdate() {
+		$hook = self::singleton();
+		$hook->useCount ++;
+		return $hook;
 	}
 
-	public function onPageContentSaveComplete() {
-		DeferredUpdates::addUpdate( $this->newDeferrableUpdate() );
+	public static function onPageContentSaveComplete() {
+		DeferredUpdates::addUpdate( self::newDeferrableUpdate() );
 	}
 
 	/**
@@ -198,19 +220,19 @@ class ModerationApproveHook implements DeferrableUpdate {
 	public static function checkLogEntry( $logid, ManualLogEntry $logEntry ) {
 		$params = $logEntry->getParameters();
 		if ( array_key_exists( 'revid', $params ) && $params['revid'] === null ) {
-			self::$logEntriesToFix[$logid] = $logEntry;
+			self::singleton()->logEntriesToFix[$logid] = $logEntry;
 		}
 	}
 
 	/** @var int|null Revid of the last edit, populated in onNewRevisionFromEditComplete */
-	protected static $lastRevId = null;
+	protected $lastRevId = null;
 
 	/**
 	 * Returns revid of the last edit.
 	 * @return int|null
 	 */
 	public static function getLastRevId() {
-		return self::$lastRevId;
+		return self::singleton()->lastRevId;
 	}
 
 	/**
@@ -222,9 +244,9 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param User $user
 	 * @return bool
 	 */
-	public function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
+	public static function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
 		/* Remember ID of this revision for getLastRevId() */
-		self::$lastRevId = $rev->getId();
+		self::singleton()->lastRevId = $rev->getId();
 		return true;
 	}
 
@@ -255,7 +277,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 */
 	public function getTask( Title $title, $username, $type ) {
 		$key = self::getTaskKey( $title, $username, $type );
-		return self::$tasks[$key] ?? false;
+		return self::singleton()->tasks[$key] ?? false;
 	}
 
 	/**
@@ -288,8 +310,8 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 *
 	 * @phan-param array<string,string|int|null> &$fields
 	 */
-	public function onCheckUserInsertForRecentChange( $rc, &$fields ) {
-		$task = $this->getTaskByRC( $rc );
+	public static function onCheckUserInsertForRecentChange( $rc, &$fields ) {
+		$task = self::singleton()->getTaskByRC( $rc );
 		if ( !$task ) {
 			return true;
 		}
@@ -324,13 +346,13 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param bool $hasDescription
 	 * @return bool
 	 */
-	public function onFileUpload( LocalFile $file, $reupload, $hasDescription ) {
+	public static function onFileUpload( LocalFile $file, $reupload, $hasDescription ) {
 		if ( $reupload ) {
 			return true; // rev_id is not missing for reuploads
 		}
 
 		$dbw = wfGetDB( DB_MASTER );
-		foreach ( self::$logEntriesToFix as $logid => $logEntry ) {
+		foreach ( self::singleton()->logEntriesToFix as $logid => $logEntry ) {
 			$title = $file->getTitle();
 			if ( $logEntry->getTarget()->equals( $title ) ) {
 				$params = $logEntry->getParameters();
@@ -384,16 +406,16 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param RecentChange &$rc
 	 * @return bool
 	 */
-	public function onRecentChange_save( &$rc ) {
+	public static function onRecentChange_save( &$rc ) {
 		global $wgPutIPinRC;
 
-		$task = $this->getTaskByRC( $rc );
+		$task = self::singleton()->getTaskByRC( $rc );
 		if ( !$task ) {
 			return true;
 		}
 
 		if ( $wgPutIPinRC ) {
-			$this->queueUpdate( 'recentchanges',
+			self::singleton()->queueUpdate( 'recentchanges',
 				$rc->mAttribs['rc_id'],
 				[ 'rc_ip' => IP::sanitizeIP( $task['ip'] ) ]
 			);
@@ -420,7 +442,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 			}
 		}
 
-		$this->queueUpdate( 'revision',
+		self::singleton()->queueUpdate( 'revision',
 			$revIdsToModify,
 			[ 'rev_timestamp' => $task['timestamp'] ]
 		);
@@ -451,20 +473,6 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 */
 	public static function install( Title $title, User $user, $type, array $task ) {
 		$key = self::getTaskKey( $title, $user->getName(), $type );
-		self::$tasks[$key] = $task;
-
-		static $installed = false;
-		if ( !$installed ) {
-			global $wgHooks;
-
-			$hook = new self;
-			$wgHooks['CheckUserInsertForRecentChange'][] = $hook;
-			$wgHooks['FileUpload'][] = $hook;
-			$wgHooks['NewRevisionFromEditComplete'][] = $hook;
-			$wgHooks['PageContentSaveComplete'][] = $hook;
-			$wgHooks['RecentChange_save'][] = $hook;
-
-			$installed = true;
-		}
+		self::singleton()->tasks[$key] = $task;
 	}
 }
