@@ -39,6 +39,7 @@ class ApproveEditConsequenceTest extends MediaWikiTestCase {
 	public function testApproveEdit( array $params ) {
 		$opt = (object)$params;
 
+		$opt->existing = $opt->existing ?? false;
 		$opt->bot = $opt->bot ?? false;
 		$opt->minor = $opt->minor ?? false;
 		$opt->summary = $opt->summary ?? 'Some summary ' . rand( 0, 100000 );
@@ -49,9 +50,22 @@ class ApproveEditConsequenceTest extends MediaWikiTestCase {
 		$title = Title::newFromText( $opt->title ?? 'UTPage-' . rand( 0, 100000 ) );
 		$newText = 'New text ' . rand( 0, 100000 );
 
-		// Creating the new page.
-		// TODO: test modification of existing page, including edit conflicts.
-		$baseRevId = 0;
+		if ( $opt->existing ) {
+			// Precreate the page.
+			$moderator = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
+			$page = WikiPage::factory( $title );
+			$page->doEditContent(
+				ContentHandler::makeContent( "Before $newText", null, CONTENT_MODEL_WIKITEXT ),
+				'',
+				EDIT_INTERNAL,
+				false,
+				$moderator // Should bypass moderation
+			);
+		}
+
+		// TODO: add tests for resolvable and non-resolvable edit conflicts.
+		$baseRevId = $opt->existing ?
+			$title->getLatestRevID( IDBAccessObject::READ_LATEST ) : 0;
 
 		// Monitor RecentChange_save hook.
 		// Note: we can't use $this->setTemporaryHook(), because it removes existing hook (if any),
