@@ -98,6 +98,7 @@ class BlockUserConsequenceTest extends MediaWikiTestCase {
 
 	/**
 	 * Provide datasets for testBlockUser() and testNoopBlockUser() runs.
+	 * @return array
 	 */
 	public function dataProviderBlockUser() {
 		return [

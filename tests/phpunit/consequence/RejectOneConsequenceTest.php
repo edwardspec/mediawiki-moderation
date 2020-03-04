@@ -87,6 +87,10 @@ class RejectOneConsequenceTest extends MediaWikiTestCase {
 		$this->assertSame( 0, $rejectedCount );
 	}
 
+	/**
+	 * Provide datasets for testNotApplicableRejectOne() runs.
+	 * @return array
+	 */
 	public function dataProviderNotApplicableRejectOne() {
 		return [
 			'already rejected' => [ [ 'mod_rejected' => 1 ] ],

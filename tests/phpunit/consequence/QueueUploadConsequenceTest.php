@@ -162,6 +162,10 @@ class QueueUploadConsequenceTest extends MediaWikiTestCase {
 		$this->assertConsequencesEqual( $expectedConsequences, $manager->getConsequences() );
 	}
 
+	/**
+	 * Provide datasets for testQueueUpload() runs.
+	 * @return array
+	 */
 	public function dataProviderQueueUpload() {
 		return [
 			'logged-in upload' => [ [] ],

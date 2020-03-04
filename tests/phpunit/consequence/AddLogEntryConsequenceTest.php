@@ -83,6 +83,7 @@ class AddLogEntryConsequenceTest extends MediaWikiTestCase {
 
 	/**
 	 * Provide datasets for testAddLogEntry() runs.
+	 * @return array
 	 */
 	public function dataProviderAddLogEntry() {
 		return [

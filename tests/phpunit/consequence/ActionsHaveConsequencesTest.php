@@ -477,7 +477,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * Queue an edit for moderation. Populate all fields ($this->modid, etc.) used by actual tests.
+	 * Disable post-approval global state.
 	 */
 	public function tearDown() {
 		// If the previous test used Approve, it enabled "all edits should bypass moderation" mode.

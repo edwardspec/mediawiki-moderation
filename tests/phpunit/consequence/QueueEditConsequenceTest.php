@@ -163,6 +163,10 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 		$this->assertConsequencesEqual( $expectedConsequences, $manager->getConsequences() );
 	}
 
+	/**
+	 * Provide datasets for testQueueEdit() runs.
+	 * @return array
+	 */
 	public function dataProviderQueueEdit() {
 		return [
 			'logged-in edit' => [ [] ],

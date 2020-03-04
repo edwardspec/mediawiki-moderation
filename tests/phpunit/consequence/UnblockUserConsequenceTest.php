@@ -80,6 +80,7 @@ class UnblockUserConsequenceTest extends MediaWikiTestCase {
 
 	/**
 	 * Provide datasets for testUnblockUser() and testNoopUnblockUser() runs.
+	 * @return array
 	 */
 	public function dataProviderUnblockUser() {
 		return [

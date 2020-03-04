@@ -149,6 +149,10 @@ class QueueMoveConsequenceTest extends MediaWikiTestCase {
 		$this->assertConsequencesEqual( $expectedConsequences, $manager->getConsequences() );
 	}
 
+	/**
+	 * Provide datasets for testQueueMove() runs.
+	 * @return array
+	 */
 	public function dataProviderQueueMove() {
 		return [
 			'logged-in move' => [ [] ],
