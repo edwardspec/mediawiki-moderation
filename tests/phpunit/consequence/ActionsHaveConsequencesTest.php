@@ -25,6 +25,7 @@ use MediaWiki\Moderation\ApproveEditConsequence;
 use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\IConsequence;
+use MediaWiki\Moderation\InstallApproveHookConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsConflictConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
@@ -60,6 +61,18 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 
 	/** @var string */
 	protected $summary;
+
+	/** @var string|null */
+	protected $xff;
+
+	/** @var string|null */
+	protected $userAgent;
+
+	/** @var string|null */
+	protected $tags;
+
+	/** @var string Value of mod_timestamp field. */
+	protected $timestamp;
 
 	/**
 	 * @var ModerationError|null
@@ -185,6 +198,13 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			[ ApproveEditConsequence::class, Status::newGood() ]
 		);
 		$expected = [
+			new InstallApproveHookConsequence( $this->title, $this->authorUser, 'edit', [
+				'ip' => '127.0.0.1',
+				'xff' => $this->xff,
+				'ua' => $this->userAgent,
+				'tags' => $this->tags,
+				'timestamp' => $this->timestamp
+			] ),
 			new ApproveEditConsequence(
 				$this->authorUser,
 				$this->title,
@@ -219,6 +239,13 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			[ ApproveEditConsequence::class, Status::newFatal( 'moderation-edit-conflict' ) ]
 		);
 		$expected = [
+			new InstallApproveHookConsequence( $this->title, $this->authorUser, 'edit', [
+				'ip' => '127.0.0.1',
+				'xff' => $this->xff,
+				'ua' => $this->userAgent,
+				'tags' => $this->tags,
+				'timestamp' => $this->timestamp
+			] ),
 			new ApproveEditConsequence(
 				$this->authorUser,
 				$this->title,
@@ -251,6 +278,13 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			[ ApproveEditConsequence::class, Status::newGood() ]
 		);
 		$expected = [
+			new InstallApproveHookConsequence( $this->title, $this->authorUser, 'edit', [
+				'ip' => '127.0.0.1',
+				'xff' => $this->xff,
+				'ua' => $this->userAgent,
+				'tags' => $this->tags,
+				'timestamp' => $this->timestamp
+			] ),
 			new ApproveEditConsequence(
 				$this->authorUser,
 				$this->title,
@@ -463,6 +497,15 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		$this->text = 'Some text ' . rand( 0, 100000 );
 		$this->summary = 'Sample edit summary ' . rand( 0, 100000 );
 
+		$request = $this->authorUser->getRequest();
+		'@phan-var FauxRequest $request';
+
+		$this->userAgent = 'SampleUserAgent/1.0.' . rand( 0, 100000 );
+		$request->setHeader( 'User-Agent', $this->userAgent );
+
+		$this->xff = '10.11.12.13';
+		$request->setHeader( 'X-Forwarded-For', $this->xff );
+
 		$page = WikiPage::factory( $this->title );
 		$page->doEditContent(
 			ContentHandler::makeContent( $this->text, null, CONTENT_MODEL_WIKITEXT ),
@@ -473,7 +516,16 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		);
 
 		$dbw = wfGetDB( DB_MASTER );
-		$this->modid = (int)$dbw->selectField( 'moderation', 'mod_id', '', __METHOD__ );
+		$row = $dbw->selectRow( 'moderation', [ 'mod_id', 'mod_timestamp' ], '', __METHOD__ );
+
+		$this->timestamp = $row->mod_timestamp;
+		$this->modid = (int)$row->mod_id;
 		$this->assertNotSame( 0, $this->modid );
+
+		$this->tags = "Sample tag1\nSample tag2";
+		$dbw->update( 'moderation',
+			[ 'mod_tags' => $this->tags ],
+			[ 'mod_id' => $this->modid ],
+			__METHOD__ );
 	}
 }

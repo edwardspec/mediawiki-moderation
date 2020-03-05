@@ -233,8 +233,8 @@ class ModerationApproveHook {
 	 * Returns revid of the last edit.
 	 * @return int|null
 	 */
-	public static function getLastRevId() {
-		return self::singleton()->lastRevId;
+	public function getLastRevId() {
+		return $this->lastRevId;
 	}
 
 	/**
@@ -259,7 +259,7 @@ class ModerationApproveHook {
 	 * @param string $type mod_type of this change.
 	 * @return string
 	 */
-	protected static function getTaskKey( Title $title, $username, $type ) {
+	protected function getTaskKey( Title $title, $username, $type ) {
 		return implode( '[', /* Symbol "[" is not allowed in both titles and usernames */
 			[
 				$username,
@@ -277,9 +277,23 @@ class ModerationApproveHook {
 	 * @param string $type One of ModerationNewChange::MOD_TYPE_* values.
 	 * @return array|false [ 'ip' => ..., 'xff' => ..., 'ua' => ..., ... ]
 	 */
-	public function getTask( Title $title, $username, $type ) {
-		$key = self::getTaskKey( $title, $username, $type );
-		return self::singleton()->tasks[$key] ?? false;
+	protected function getTask( Title $title, $username, $type ) {
+		$key = $this->getTaskKey( $title, $username, $type );
+		return $this->tasks[$key] ?? false;
+	}
+
+	/**
+	 * Add a new task. Called before doEditContent().
+	 * @param Title $title
+	 * @param User $user
+	 * @param string $type
+	 * @param array $task
+	 *
+	 * @phan-param array{ip:?string,xff:?string,ua:?string,tags:?string,timestamp:?string} $task
+	 */
+	public function addTask( Title $title, User $user, $type, array $task ) {
+		$key = $this->getTaskKey( $title, $user->getName(), $type );
+		$this->tasks[$key] = $task;
 	}
 
 	/**
@@ -287,7 +301,7 @@ class ModerationApproveHook {
 	 * @param RecentChange $rc
 	 * @return array|false
 	 */
-	public function getTaskByRC( RecentChange $rc ) {
+	protected function getTaskByRC( RecentChange $rc ) {
 		$type = ModerationNewChange::MOD_TYPE_EDIT;
 		if ( $rc->mAttribs['rc_log_action'] == 'move' ) {
 			$type = ModerationNewChange::MOD_TYPE_MOVE;
@@ -379,7 +393,7 @@ class ModerationApproveHook {
 	 *
 	 * @phan-param array<string,string> $values
 	 */
-	public function queueUpdate( $table, $ids, array $values ) {
+	protected function queueUpdate( $table, $ids, array $values ) {
 		if ( !is_array( $ids ) ) {
 			$ids = [ $ids ];
 		}
@@ -411,13 +425,14 @@ class ModerationApproveHook {
 	public static function onRecentChange_save( &$rc ) {
 		global $wgPutIPinRC;
 
-		$task = self::singleton()->getTaskByRC( $rc );
+		$hook = self::singleton();
+		$task = $hook->getTaskByRC( $rc );
 		if ( !$task ) {
 			return true;
 		}
 
 		if ( $wgPutIPinRC ) {
-			self::singleton()->queueUpdate( 'recentchanges',
+			$hook->queueUpdate( 'recentchanges',
 				$rc->mAttribs['rc_id'],
 				[ 'rc_ip' => IP::sanitizeIP( $task['ip'] ) ]
 			);
@@ -444,7 +459,7 @@ class ModerationApproveHook {
 			}
 		}
 
-		self::singleton()->queueUpdate( 'revision',
+		$hook->queueUpdate( 'revision',
 			$revIdsToModify,
 			[ 'rev_timestamp' => $task['timestamp'] ]
 		);
@@ -462,19 +477,5 @@ class ModerationApproveHook {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Prepare the approve hook. Called before doEditContent().
-	 * @param Title $title
-	 * @param User $user
-	 * @param string $type
-	 * @param array $task
-	 *
-	 * @phan-param array{ip:?string,xff:?string,ua:?string,tags:?string,timestamp:?string} $task
-	 */
-	public static function install( Title $title, User $user, $type, array $task ) {
-		$key = self::getTaskKey( $title, $user->getName(), $type );
-		self::singleton()->tasks[$key] = $task;
 	}
 }
