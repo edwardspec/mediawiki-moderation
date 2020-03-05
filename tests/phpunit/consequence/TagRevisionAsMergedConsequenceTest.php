@@ -26,6 +26,8 @@ use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
  * @group Database
  */
 class TagRevisionAsMergedConsequenceTest extends MediaWikiTestCase {
+	protected $tablesUsed = [ 'page', 'revision', 'change_tag' ];
+
 	/**
 	 * Verify that TagRevisionAsMergedConsequence adds a tag to selected revision.
 	 * @covers MediaWiki\Moderation\TagRevisionAsMergedConsequence
