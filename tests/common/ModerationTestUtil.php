@@ -63,7 +63,7 @@ class ModerationTestUtil {
 	 * @return string HTML of the result.
 	 */
 	public static function runSpecialModeration( User $user, array $params, $wasPosted = false ) {
-		$page = SpecialPageFactory::getPage( 'Moderation' );
+		$page = new SpecialModeration;
 
 		$context = new RequestContext;
 		$context->setRequest( new FauxRequest( $params, $wasPosted ) );
