@@ -35,24 +35,50 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 */
 	public function testInstallApproveHook() {
-		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
-		$user = self::getTestUser()->getUser();
-		$type = ModerationNewChange::MOD_TYPE_EDIT;
-		$timestamp = wfTimestamp( TS_MW, (int)wfTimestamp() - 12345 );
+		$titles = array_map(
+			function ( $pageName ) {
+				return Title::newFromText( $pageName );
+			}, [
+				'UTPage1-' . rand( 0, 100000 ),
+				'Project:UTPage 2-' . rand( 0, 100000 ),
+				'UTPage 3-' . rand( 0, 100000 )
+			] );
+		$users = array_map(
+			function ( $username ) {
+				return User::createNew( $username );
+			}, [
+				'UTPage1-' . rand( 0, 100000 ),
+				'Project:UTPage 2-' . rand( 0, 100000 ),
+				'UTPage 3-' . rand( 0, 100000 )
+			] );
+
+		$timestamp = wfTimestamp( TS_MW, (int)wfTimestamp() - rand( 12345, 100000 ) );
 
 		$dbw = wfGetDB( DB_MASTER );
 
+		// TODO: request different $task for different edits,
+		// and check that correct User+Title pairs got correct results.
 		$task = [
 			'ip' => '10.11.12.13',
 			'xff' => '10.20.30.40',
 			'ua' => 'Some-User-Agent/1.0.' . rand( 0, 100000 ),
 			'tags' => "Sample tag 1\nSample tag 2",
+
+			// FIXME: this should really be done in InstallApproveHookConsequence or ApproveHook.
+			// Requiring "string" parameter to be encoded like this is counter-intuitive.
 			'timestamp' => $dbw->timestamp( $timestamp )
 		];
 
 		// Create and run the Consequence.
-		$consequence = new InstallApproveHookConsequence( $title, $user, $type, $task );
-		$consequence->run();
+		// TODO: while testing installed InstallApproveHookConsequence followed by multiple edits,
+		// also test that ApproveHook doesn't affect edits of another $title OR $user OR $type.
+		$type = ModerationNewChange::MOD_TYPE_EDIT;
+		foreach ( $titles as $title ) {
+			foreach ( $users as $user ) {
+				$consequence = new InstallApproveHookConsequence( $title, $user, $type, $task );
+				$consequence->run();
+			}
+		}
 
 		// Now make a new edit and double-check that all changes from $task were applied to it.
 		$this->setMwGlobals( 'wgModerationEnable', false ); // Edit shouldn't be intercepted
@@ -68,29 +94,35 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 			$this->assertEquals( explode( "\n", $task['tags'] ), $tagsToAdd );
 			$this->assertEquals( [], $tagsToRemove );
 
-			$taggedRevIds[] = $rev_id;
-			$taggedLogIds[] = $log_id;
-			$taggedRcIds[] = $rc_id;
+			if ( $rev_id !== false ) {
+				$taggedRevIds[] = $rev_id;
+			}
+
+			if ( $log_id !== false ) {
+				$taggedLogIds[] = $log_id;
+			}
+
+			if ( $rc_id !== false ) {
+				$taggedRcIds[] = $rc_id;
+			}
 
 			return true;
 		} );
 
-		$page = WikiPage::factory( $title );
-		$status = $page->doEditContent(
-			ContentHandler::makeContent( 'Some text', null, CONTENT_MODEL_WIKITEXT ),
-			'Some edit summary',
-			EDIT_INTERNAL,
-			false,
-			$user
-		);
-		$this->assertTrue( $status->isOK(), "Edit failed: " . $status->getMessage()->plain() );
+		$revIds = [];
+		foreach ( $titles as $title ) {
+			foreach ( $users as $user ) {
+				$revIds[] = $this->makeEdit( $title, $user );
+			}
+		}
 
-		$revid = $status->value['revision']->getId();
+		// TODO: test moves: both redirect revision and "page moves" null revision should be affected.
 
+		$count = count( $revIds );
 		$this->assertSelect( 'revision',
 			[ 'rev_timestamp' ],
-			[ 'rev_id' => $revid ],
-			[ [ $task['timestamp'] ] ]
+			[ 'rev_id' => $revIds ],
+			array_fill( 0, $count, [ $task['timestamp'] ] )
 		);
 
 		$expectedIP = $task['ip'];
@@ -100,8 +132,8 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 
 		$this->assertSelect( 'recentchanges',
 			[ 'rc_ip' ],
-			[ 'rc_this_oldid' => $revid ],
-			[ [ $expectedIP ] ]
+			[ 'rc_this_oldid' => $revIds ],
+			array_fill( 0, $count, [ $expectedIP ] )
 		);
 
 		// FIXME: if the method from Extension:CheckUser gets renamed in some future version,
@@ -115,28 +147,37 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 					'cuc_ip_hex',
 					'cuc_agent'
 				],
-				[ 'cuc_this_oldid' => $revid ],
-				[ [
+				[ 'cuc_this_oldid' => $revIds ],
+				array_fill( 0, $count, [
 					$task['ip'],
 					IP::toHex( $task['ip'] ),
 					$task['ua']
-				] ]
+				] )
 			);
 		}
 
 		// @phan-suppress-next-line PhanRedundantCondition
 		if ( $task['tags'] ) {
-			$row = $dbw->selectRow( 'recentchanges',
-				[ 'rc_id', 'rc_logid' ],
-				[ 'rc_this_oldid' => $revid ],
-				__METHOD__
-			);
-			$this->assertEquals( [ $revid ], $taggedRevIds );
-			$this->assertEquals( [ $row->rc_id ], $taggedRcIds );
+			$this->assertEquals( $revIds, $taggedRevIds );
 
-			// FIXME: aside from $row->rc_logid, these can also be "create/create" LogEntry,
-			// which doesn't have a row in RecentChanges.
-			// $this->assertEquals( array_filter( [ $row->rc_logid ] ), $taggedLogIds );
+			$this->assertSelect( 'recentchanges',
+				[ 'rc_id', 'rc_this_oldid' ],
+				[ 'rc_this_oldid' => $revIds ],
+				array_map( function ( $rc_id, $rev_id ) {
+					return [
+						$rc_id,
+						$rev_id,
+					];
+				}, $taggedRcIds, $revIds )
+			);
+
+			$this->assertSelect( 'logging',
+				[ 'log_id' ],
+				'',
+				array_map( function ( $log_id ) {
+					return [ $log_id ];
+				}, $taggedLogIds )
+			);
 		} else {
 			$this->assertEmpty( $taggedRevIds );
 			$this->assertEmpty( $taggedLogIds );
@@ -144,11 +185,28 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		}
 	}
 
-	// TODO: test of multiple installed InstallApproveHookConsequence followed by multiple edits.
+	/**
+	 * Make one test edit on behalf of $user in page $title.
+	 * @param Title $title
+	 * @param User $user
+	 * @return int rev_id of the newly created edit.
+	 */
+	private function makeEdit( Title $title, User $user ) {
+		$text = 'Some text ' . rand( 0, 100000 ) . ' in page ' .
+			$title->getFullText() . ' by ' . $user->getName();
 
-	// TODO: test that ApproveHook doesn't affect edits of another $title OR $user OR $type.
+		$page = WikiPage::factory( $title );
+		$status = $page->doEditContent(
+			ContentHandler::makeContent( $text, null, CONTENT_MODEL_WIKITEXT ),
+			'Some edit summary',
+			EDIT_INTERNAL,
+			false,
+			$user
+		);
+		$this->assertTrue( $status->isGood(), "Edit failed: " . $status->getMessage()->plain() );
 
-	// TODO: test moves: both redirect revision and "page moves" null revision should be affected.
+		return $status->value['revision']->getId();
+	}
 
 	/**
 	 * Destroy ApproveHook object after the test.
@@ -168,5 +226,13 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				$this->db->delete( $this->db->tableName( $table ), '*', __METHOD__ );
 			}
 		}
+	}
+
+	/**
+	 * Override the parent method, so that UTSysop and UTPage are not created.
+	 * This test doesn't use them, and having to filter them out complicates assertSelect() calls.
+	 */
+	protected function addCoreDBData() {
+		// Nothing
 	}
 }
