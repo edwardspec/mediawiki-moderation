@@ -52,36 +52,49 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				'UTPage 3-' . rand( 0, 100000 )
 			] );
 
-		$timestamp = wfTimestamp( TS_MW, (int)wfTimestamp() - rand( 12345, 100000 ) );
-
 		$dbw = wfGetDB( DB_MASTER );
 
-		// TODO: request different $task for different edits,
-		// and check that correct User+Title pairs got correct results.
-		$task = [
-			'ip' => '10.11.12.13',
-			'xff' => '10.20.30.40',
-			'ua' => 'Some-User-Agent/1.0.' . rand( 0, 100000 ),
-			'tags' => "Sample tag 1\nSample tag 2",
+		$tasks = [];
 
-			// FIXME: this should really be done in InstallApproveHookConsequence or ApproveHook.
-			// Requiring "string" parameter to be encoded like this is counter-intuitive.
-			'timestamp' => $dbw->timestamp( $timestamp )
-		];
-
-		// Create and run the Consequence.
 		// TODO: while testing installed InstallApproveHookConsequence followed by multiple edits,
 		// also test that ApproveHook doesn't affect edits of another $title OR $user OR $type.
+
+		// TODO: currently timestamps are ordered from older to newer on purpose,
+		// because changing ApproveHook purposely ignores rev_timestamp if it is earlier
+		// than timestamp of already existing revision in this page.
+		// However, this behavior should be tested too!
+		// Provide an array of fixed (non-randomized) timestamps which would check exactly that.
+		$timestamp = wfTimestamp( TS_MW, (int)wfTimestamp() - 100000 );
+
 		$type = ModerationNewChange::MOD_TYPE_EDIT;
 		foreach ( $titles as $title ) {
 			foreach ( $users as $user ) {
+				$timestamp = wfTimestamp( TS_MW, (int)wfTimestamp( TS_UNIX, $timestamp ) + rand( 0, 12345 ) );
+				$task = [
+					'ip' => '10.11.' . rand( 0, 255 ) . '.' . rand( 0, 254 ),
+					'xff' => '10.20.' . rand( 0, 255 ) . '.' . rand( 0, 254 ),
+					'ua' => 'Some-User-Agent/1.0.' . rand( 0, 100000 ),
+
+					// TODO: test some changes WITHOUT any tags.
+					'tags' => implode( "\n", [
+						"Sample tag 1 " . rand( 0, 100000 ),
+						"Sample tag 2 " . rand( 0, 100000 ),
+					] ),
+
+					// FIXME: wrapping this in $dbw->timestamp() should really be done in
+					// either InstallApproveHookConsequence or ApproveHook.
+					// Requiring "string" parameter to be encoded like this is counter-intuitive.
+					'timestamp' => $dbw->timestamp( $timestamp )
+				];
+
+				// Remember this task for use in assertSelect() checks below.
+				$tasks[$this->taskKey( $title, $user, $type )] = $task;
+
+				// Create and run the Consequence.
 				$consequence = new InstallApproveHookConsequence( $title, $user, $type, $task );
 				$consequence->run();
 			}
 		}
-
-		// Now make a new edit and double-check that all changes from $task were applied to it.
-		$this->setMwGlobals( 'wgModerationEnable', false ); // Edit shouldn't be intercepted
 
 		// Track ChangeTagsAfterUpdateTags hook to ensure that $task['tags'] are actually added.
 		$taggedRevIds = [];
@@ -90,7 +103,13 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		$this->setTemporaryHook( 'ChangeTagsAfterUpdateTags', function (
 			$tagsToAdd, $tagsToRemove, $prevTags,
 			$rc_id, $rev_id, $log_id, $params, $rc, $user
-		) use ( $task, &$taggedRevIds, &$taggedLogIds, &$taggedRcIds ) {
+		) use ( $tasks, $type, &$taggedRevIds, &$taggedLogIds, &$taggedRcIds ) {
+			$task = $tasks[$this->taskKey(
+				$rc->getTitle(),
+				$rc->getPerformer(),
+				$type
+			)];
+
 			$this->assertEquals( explode( "\n", $task['tags'] ), $tagsToAdd );
 			$this->assertEquals( [], $tagsToRemove );
 
@@ -109,6 +128,9 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 			return true;
 		} );
 
+		// Now make new edits and double-check that all changes from $task were applied to them.
+		$this->setMwGlobals( 'wgModerationEnable', false ); // Edits shouldn't be intercepted
+
 		$revIds = [];
 		foreach ( $titles as $title ) {
 			foreach ( $users as $user ) {
@@ -117,23 +139,29 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		}
 
 		// TODO: test moves: both redirect revision and "page moves" null revision should be affected.
+		// TODO: check that correct User+Title pairs got correct results.
 
 		$count = count( $revIds );
 		$this->assertSelect( 'revision',
 			[ 'rev_timestamp' ],
 			[ 'rev_id' => $revIds ],
-			array_fill( 0, $count, [ $task['timestamp'] ] )
+			array_map( function ( $task ) {
+				return [ $task['timestamp'] ];
+			}, $tasks ),
+			[ 'ORDER BY' => 'rev_id' ]
 		);
-
-		$expectedIP = $task['ip'];
-		if ( $dbw->getType() == 'postgres' ) {
-			$expectedIP .= '/32';
-		}
 
 		$this->assertSelect( 'recentchanges',
 			[ 'rc_ip' ],
 			[ 'rc_this_oldid' => $revIds ],
-			array_fill( 0, $count, [ $expectedIP ] )
+			array_map( function ( $task ) use ( $dbw ) {
+				$expectedIP = $task['ip'];
+				if ( $dbw->getType() == 'postgres' ) {
+					$expectedIP .= '/32';
+				}
+				return [ $expectedIP ];
+			}, $tasks ),
+			[ 'ORDER BY' => 'rc_id' ]
 		);
 
 		// FIXME: if the method from Extension:CheckUser gets renamed in some future version,
@@ -148,41 +176,37 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 					'cuc_agent'
 				],
 				[ 'cuc_this_oldid' => $revIds ],
-				array_fill( 0, $count, [
-					$task['ip'],
-					IP::toHex( $task['ip'] ),
-					$task['ua']
-				] )
-			);
-		}
-
-		// @phan-suppress-next-line PhanRedundantCondition
-		if ( $task['tags'] ) {
-			$this->assertEquals( $revIds, $taggedRevIds );
-
-			$this->assertSelect( 'recentchanges',
-				[ 'rc_id', 'rc_this_oldid' ],
-				[ 'rc_this_oldid' => $revIds ],
-				array_map( function ( $rc_id, $rev_id ) {
+				array_map( function ( $task ) {
 					return [
-						$rc_id,
-						$rev_id,
+						$task['ip'],
+						IP::toHex( $task['ip'] ),
+						$task['ua']
 					];
-				}, $taggedRcIds, $revIds )
+				}, $tasks ),
+				[ 'ORDER BY' => 'cuc_id' ]
 			);
-
-			$this->assertSelect( 'logging',
-				[ 'log_id' ],
-				'',
-				array_map( function ( $log_id ) {
-					return [ $log_id ];
-				}, $taggedLogIds )
-			);
-		} else {
-			$this->assertEmpty( $taggedRevIds );
-			$this->assertEmpty( $taggedLogIds );
-			$this->assertEmpty( $taggedRcIds );
 		}
+
+		// Check that ChangeTagsAfterUpdateTags hook was called for all revisions, etc.
+		// Note: ChangeTagsAfterUpdateTags hook (see above) checks "were added tags valid or not".
+		$this->assertEquals( $revIds, $taggedRevIds );
+		$this->assertSelect( 'recentchanges',
+			[ 'rc_id', 'rc_this_oldid' ],
+			[ 'rc_this_oldid' => $revIds ],
+			array_map( function ( $rc_id, $rev_id ) {
+				return [
+					$rc_id,
+					$rev_id,
+				];
+			}, $taggedRcIds, $revIds )
+		);
+		$this->assertSelect( 'logging',
+			[ 'log_id' ],
+			'',
+			array_map( function ( $log_id ) {
+				return [ $log_id ];
+			}, $taggedLogIds )
+		);
 	}
 
 	/**
@@ -206,6 +230,18 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		$this->assertTrue( $status->isGood(), "Edit failed: " . $status->getMessage()->plain() );
 
 		return $status->value['revision']->getId();
+	}
+
+	/**
+	 * Returns key for $tasks array.
+	 * Note: this is test-specific, it is NOT the same as ModerationApproveHook::getTaskKey().
+	 * @param Title $title
+	 * @param User $user
+	 * @param string $type
+	 * @return string
+	 */
+	private function taskKey( Title $title, User $user, $type ) {
+		return $title->getPrefixedDBKey() . '|' . $user->getName() . '|' . $type;
 	}
 
 	/**
