@@ -20,6 +20,9 @@
  * Hooks/methods to preload edits which are pending moderation.
  */
 
+use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence;
+
 /*
 	Calculating 'mod_preload_id':
 	1) For anonymous user: ']' + hex string in the session.
@@ -150,20 +153,10 @@ class ModerationPreload {
 			return true;
 		}
 
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->update( 'moderation',
-			[
-				'mod_user' => $user->getId(),
-				'mod_user_text' => $user->getName(),
-				'mod_preload_id' => $preload->getId()
-			],
-			[
-				'mod_preload_id' => $anonId,
-				'mod_preloadable' => ModerationVersionCheck::preloadableYes()
-			],
-			__METHOD__,
-			[ 'USE INDEX' => 'moderation_signup' ]
-		);
+		$manager = ConsequenceUtils::getManager();
+		$manager->add( new GiveAnonChangesToNewUserConsequence(
+			$user, $anonId, $preload->getId()
+		) );
 
 		$preload->forgetAnonId();
 
