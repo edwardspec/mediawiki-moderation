@@ -115,6 +115,7 @@ class ModerationApproveHook {
 			*/
 			$set = [];
 			foreach ( $updates as $field => $whenThen ) {
+				$skippedIds = 0;
 				if ( $table == 'revision' && $field == 'rev_timestamp' ) {
 					/*
 						IMPORTANT: sometimes we DON'T update rev_timestamp
@@ -155,17 +156,18 @@ class ModerationApproveHook {
 					);
 					foreach ( $res as $row ) {
 						if ( $row->prev_timestamp > $whenThen[$row->id] ) {
-							/* Skip this revision,
-								because updating its timestamp would be
-								resulting in incorrect order of history. */
-							unset( $whenThen[$row->id] );
+							/* Don't modify timestamp of this revision,
+								because doing so would be resulting
+								in incorrect order of history. */
+							$whenThen[$row->id] = 'rev_timestamp';
+							$skippedIds++;
 						}
 					}
 				}
 
-				if ( empty( $whenThen ) ) {
-					/* Nothing to do.
-						This can happen when we skip rev_timestamp update (see above) */
+				if ( count( $ids ) == $skippedIds ) {
+					/* Nothing to do:
+						we decided to skip rev_timestamp update for all rows. */
 					continue;
 				}
 
@@ -179,17 +181,24 @@ class ModerationApproveHook {
 					$caseSql = '';
 					foreach ( $whenThen as $when => $then ) {
 						$whenQuoted = $dbw->addQuotes( $when );
-						$thenQuoted = $dbw->addQuotes( $then );
 
-						if ( $dbw->getType() == 'postgres' ) {
-							if ( $field == 'rc_ip' ) {
-								// In PostgreSQL, rc_ip is of type CIDR, and we can't insert strings into it.
-								$thenQuoted .= '::cidr';
-							} elseif ( $field == 'rev_timestamp' ) {
-								// In PostgreSQL, rc_timestamp is of type TIMESTAMPZ,
-								// and we can't insert strings into it.
-								$thenQuoted = 'to_timestamp(' . $thenQuoted .
-									', \'YYYY-MM-DD HH24:MI:SS\' )';
+						if ( $then == 'rev_timestamp' ) {
+							// Default value for rev_timestamp=(CASE ... ) when certain rows were skipped:
+							// leave the previous value of rev_timestamp unchanged.
+							$thenQuoted = 'rev_timestamp';
+						} else {
+							$thenQuoted = $dbw->addQuotes( $then );
+
+							if ( $dbw->getType() == 'postgres' ) {
+								if ( $field == 'rc_ip' ) {
+									// In PostgreSQL, rc_ip is of type CIDR, and we can't insert strings into it.
+									$thenQuoted .= '::cidr';
+								} elseif ( $field == 'rev_timestamp' ) {
+									// In PostgreSQL, rc_timestamp is of type TIMESTAMPZ,
+									// and we can't insert strings into it.
+									$thenQuoted = 'to_timestamp(' . $thenQuoted .
+										', \'YYYY-MM-DD HH24:MI:SS\' )';
+								}
 							}
 						}
 
