@@ -124,6 +124,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 
 		// Now make new edits and double-check that all changes from $task were applied to them.
 		$this->setMwGlobals( 'wgModerationEnable', false ); // Edits shouldn't be intercepted
+		$this->setMwGlobals( 'wgCommandLineMode', false ); // Delay any DeferredUpdates
 
 		$revIds = [];
 		foreach ( $titles as $title ) {
@@ -131,6 +132,12 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				$revIds[] = $this->makeEdit( $title, $user );
 			}
 		}
+
+		// Run any DeferredUpdates that may have been queued when making edits.
+		// Note: PRESEND must be first, as this is where RecentChanges_save hooks are called,
+		// and results of these hooks are used by ApproveHook, which is in POSTSEND.
+		DeferredUpdates::doUpdates( 'run', DeferredUpdates::PRESEND );
+		DeferredUpdates::doUpdates( 'run', DeferredUpdates::POSTSEND );
 
 		// TODO: test moves: both redirect revision and "page moves" null revision should be affected.
 		// TODO: check that correct User+Title pairs got correct results.
