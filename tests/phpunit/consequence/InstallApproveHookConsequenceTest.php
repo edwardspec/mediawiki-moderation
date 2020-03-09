@@ -31,7 +31,26 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		'change_tag', 'logging', 'log_search' ];
 
 	/**
-	 * Verify that InstallApproveHookConsequence modified rev_timestamp, etc. according to $task.
+	 * Verify that InstallApproveHookConsequence works with one edit.
+	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 */
+	public function testOneEdit() {
+		$this->runApproveHookTest( [ [
+			'UTPage-' . rand( 0, 100000 ),
+			'127.0.0.1',
+			'edit',
+			[
+				'ip' => '10.11.12.13',
+				'xff' => '10.20.30.40',
+				'ua' => 'Some-User-Agent/1.2.3',
+				'tags' => "Sample tag 1\nSample tag 2",
+				'timestamp' => wfTimestamp( TS_MW, (int)wfTimestamp() - 100000 )
+			]
+		] ] );
+	}
+
+	/**
+	 * Verify that InstallApproveHookConsequence modifies rev_timestamp, etc. according to $task.
 	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 */
 	public function testInstallApproveHook() {
@@ -42,22 +61,16 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		// situation where tags exist and don't exist,
 		// situation where some edits don't need ApproveHook installed and must be unchanged, etc.
 
-		$titles = array_map(
-			function ( $pageName ) {
-				return Title::newFromText( $pageName );
-			}, [
-				'UTPage1-' . rand( 0, 100000 ),
-				'Project:UTPage 2-' . rand( 0, 100000 ),
-				'UTPage 3-' . rand( 0, 100000 )
-			] );
-		$users = array_map(
-			function ( $username ) {
-				return User::createNew( $username );
-			}, [
-				'UTPage1-' . rand( 0, 100000 ),
-				'Project:UTPage 2-' . rand( 0, 100000 ),
-				'UTPage 3-' . rand( 0, 100000 )
-			] );
+		$pageNames = [
+			'UTPage1-' . rand( 0, 100000 ),
+			'Project:UTPage 2-' . rand( 0, 100000 ),
+			'UTPage 3-' . rand( 0, 100000 )
+		];
+		$usernames = [
+			'Test user1 ' . rand( 0, 100000 ),
+			'Test user2 ' . rand( 0, 100000 ),
+			'Test user3 ' . rand( 0, 100000 )
+		];
 
 		// TODO: while testing installed InstallApproveHookConsequence followed by multiple edits,
 		// also test that ApproveHook doesn't affect edits of another $title OR $user OR $type.
@@ -68,12 +81,11 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		// However, this behavior should be tested too!
 		// Provide an array of fixed (non-randomized) timestamps which would check exactly that.
 		$timestamp = wfTimestamp( TS_MW, (int)wfTimestamp() - 100000 );
+		$type = ModerationNewChange::MOD_TYPE_EDIT;
 
 		$todo = [];
-
-		$type = ModerationNewChange::MOD_TYPE_EDIT;
-		foreach ( $titles as $title ) {
-			foreach ( $users as $user ) {
+		foreach ( $pageNames as $pageName ) {
+			foreach ( $usernames as $username ) {
 				$timestamp = wfTimestamp( TS_MW, (int)wfTimestamp( TS_UNIX, $timestamp ) + rand( 0, 12345 ) );
 				$task = [
 					'ip' => '10.11.' . rand( 0, 255 ) . '.' . rand( 0, 254 ),
@@ -88,7 +100,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 					'timestamp' => $timestamp
 				];
 
-				$todo[] = [ $title, $user, $type, $task ];
+				$todo[] = [ $pageName, $username, $type, $task ];
 			}
 		}
 
@@ -101,11 +113,22 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	 * and also optional $task for ApproveHook itself (if null, then ApproveHook is NOT installed).
 	 *
 	 * @param array $todo
-	 * @phan-param list<array{0:Title,1:User,2:string,3:?array<string,string>}> $todo
+	 * @phan-param list<array{0:string,1:string,2:string,3:?array<string,string>}> $todo
 	 */
 	private function runApproveHookTest( array $todo ) {
-		$tasks = [];
+		// Convert pagename and username parameters (#0 and #1) to Title/User objects
+		$todo = array_map( function ( $testParameters ) {
+			list( $pageName, $username, $type, $task ) = $testParameters;
+			$title = Title::newFromText( $pageName );
 
+			$user = User::isIP( $username ) ?
+				User::newFromName( $username, false ) :
+				( new TestUser( $username ) )->getUser();
+
+			return [ $title, $user, $type, $task ];
+		}, $todo );
+
+		$tasks = [];
 		foreach ( $todo as $testParameters ) {
 			list( $title, $user, $type, $task ) = $testParameters;
 			if ( $task ) {

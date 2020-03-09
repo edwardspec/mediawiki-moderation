@@ -522,6 +522,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		$this->modid = (int)$row->mod_id;
 		$this->assertNotSame( 0, $this->modid );
 
+		// TODO: additionally check entries without any tags
+		// (important for testing InstallApproveHookConsequence)
 		$this->tags = "Sample tag1\nSample tag2";
 		$dbw->update( 'moderation',
 			[ 'mod_tags' => $this->tags ],
