@@ -52,8 +52,6 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				'UTPage 3-' . rand( 0, 100000 )
 			] );
 
-		$dbw = wfGetDB( DB_MASTER );
-
 		$tasks = [];
 
 		// TODO: while testing installed InstallApproveHookConsequence followed by multiple edits,
@@ -80,11 +78,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 						"Sample tag 1 " . rand( 0, 100000 ),
 						"Sample tag 2 " . rand( 0, 100000 ),
 					] ),
-
-					// FIXME: wrapping this in $dbw->timestamp() should really be done in
-					// either InstallApproveHookConsequence or ApproveHook.
-					// Requiring "string" parameter to be encoded like this is counter-intuitive.
-					'timestamp' => $dbw->timestamp( $timestamp )
+					'timestamp' => $timestamp
 				];
 
 				// Remember this task for use in assertSelect() checks below.
@@ -141,12 +135,11 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		// TODO: test moves: both redirect revision and "page moves" null revision should be affected.
 		// TODO: check that correct User+Title pairs got correct results.
 
-		$count = count( $revIds );
 		$this->assertSelect( 'revision',
 			[ 'rev_timestamp' ],
 			[ 'rev_id' => $revIds ],
 			array_map( function ( $task ) {
-				return [ $task['timestamp'] ];
+				return [ $this->db->timestamp( $task['timestamp'] ) ];
 			}, $tasks ),
 			[ 'ORDER BY' => 'rev_id' ]
 		);
@@ -154,9 +147,9 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		$this->assertSelect( 'recentchanges',
 			[ 'rc_ip' ],
 			[ 'rc_this_oldid' => $revIds ],
-			array_map( function ( $task ) use ( $dbw ) {
+			array_map( function ( $task ) {
 				$expectedIP = $task['ip'];
-				if ( $dbw->getType() == 'postgres' ) {
+				if ( $this->db->getType() == 'postgres' ) {
 					$expectedIP .= '/32';
 				}
 				return [ $expectedIP ];

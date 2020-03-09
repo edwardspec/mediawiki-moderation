@@ -459,9 +459,12 @@ class ModerationApproveHook {
 			}
 		}
 
+		$dbr = wfGetDB( DB_REPLICA );
+		$timestamp = $dbr->timestamp( $task['timestamp'] ); // Possibly in PostgreSQL format
+
 		$hook->queueUpdate( 'revision',
 			$revIdsToModify,
-			[ 'rev_timestamp' => $task['timestamp'] ]
+			[ 'rev_timestamp' => $timestamp ]
 		);
 
 		if ( $task['tags'] ) {
