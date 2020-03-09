@@ -31,10 +31,17 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		'change_tag', 'logging', 'log_search' ];
 
 	/**
-	 * Verify that InstallApproveHookConsequence marks the database row as conflict.
+	 * Verify that InstallApproveHookConsequence modified rev_timestamp, etc. according to $task.
 	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 */
 	public function testInstallApproveHook() {
+		// TODO: now that $this->runApproveHookTest() method exists,
+		// split this test into more specific tests: editing only 1 page, with DeferredUpdates,
+		// without DeferredUpdates, situation where CASE ... WHEN ... THEN is used,
+		// situation where rev_timestamp is ignored,
+		// situation where tags exist and don't exist,
+		// situation where some edits don't need ApproveHook installed and must be unchanged, etc.
+
 		$titles = array_map(
 			function ( $pageName ) {
 				return Title::newFromText( $pageName );
@@ -52,8 +59,6 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				'UTPage 3-' . rand( 0, 100000 )
 			] );
 
-		$tasks = [];
-
 		// TODO: while testing installed InstallApproveHookConsequence followed by multiple edits,
 		// also test that ApproveHook doesn't affect edits of another $title OR $user OR $type.
 
@@ -63,6 +68,8 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		// However, this behavior should be tested too!
 		// Provide an array of fixed (non-randomized) timestamps which would check exactly that.
 		$timestamp = wfTimestamp( TS_MW, (int)wfTimestamp() - 100000 );
+
+		$todo = [];
 
 		$type = ModerationNewChange::MOD_TYPE_EDIT;
 		foreach ( $titles as $title ) {
@@ -81,6 +88,27 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 					'timestamp' => $timestamp
 				];
 
+				$todo[] = [ $title, $user, $type, $task ];
+			}
+		}
+
+		$this->runApproveHookTest( $todo );
+	}
+
+	/**
+	 * Run the ApproveHook test with selected list of edits.
+	 * For each edit, Title, User and type ("edit" or "move") must be specified,
+	 * and also optional $task for ApproveHook itself (if null, then ApproveHook is NOT installed).
+	 *
+	 * @param array $todo
+	 * @phan-param list<array{0:Title,1:User,2:string,3:?array<string,string>}> $todo
+	 */
+	private function runApproveHookTest( array $todo ) {
+		$tasks = [];
+
+		foreach ( $todo as $testParameters ) {
+			list( $title, $user, $type, $task ) = $testParameters;
+			if ( $task ) {
 				// Remember this task for use in assertSelect() checks below.
 				$tasks[$this->taskKey( $title, $user, $type )] = $task;
 
@@ -97,11 +125,11 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		$this->setTemporaryHook( 'ChangeTagsAfterUpdateTags', function (
 			$tagsToAdd, $tagsToRemove, $prevTags,
 			$rc_id, $rev_id, $log_id, $params, $rc, $user
-		) use ( $tasks, $type, &$taggedRevIds, &$taggedLogIds, &$taggedRcIds ) {
+		) use ( $tasks, &$taggedRevIds, &$taggedLogIds, &$taggedRcIds ) {
 			$task = $tasks[$this->taskKey(
 				$rc->getTitle(),
 				$rc->getPerformer(),
-				$type
+				'edit' # TODO: support checking moves too
 			)];
 
 			$this->assertEquals( explode( "\n", $task['tags'] ), $tagsToAdd );
@@ -124,13 +152,15 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 
 		// Now make new edits and double-check that all changes from $task were applied to them.
 		$this->setMwGlobals( 'wgModerationEnable', false ); // Edits shouldn't be intercepted
-		$this->setMwGlobals( 'wgCommandLineMode', false ); // Delay any DeferredUpdates
+
+		// FIXME: Temporarily commented, because timestamps in testInstallApproveHook() are wrong
+		// for this test (with 3 edits per page, only one row would have rev_timestamp changed).
+		//$this->setMwGlobals( 'wgCommandLineMode', false ); // Delay any DeferredUpdates
 
 		$revIds = [];
-		foreach ( $titles as $title ) {
-			foreach ( $users as $user ) {
-				$revIds[] = $this->makeEdit( $title, $user );
-			}
+		foreach ( $todo as $testParameters ) {
+			list( $title, $user ) = $testParameters;
+			$revIds[] = $this->makeEdit( $title, $user );
 		}
 
 		// Run any DeferredUpdates that may have been queued when making edits.
