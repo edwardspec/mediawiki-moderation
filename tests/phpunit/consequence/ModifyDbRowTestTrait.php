@@ -24,6 +24,9 @@ trait ModifyDbRowTestTrait {
 	/** @var int */
 	protected $modid;
 
+	/** @var User */
+	protected $authorUser;
+
 	/**
 	 * Create a row in "moderation" SQL table.
 	 */
@@ -36,12 +39,12 @@ trait ModifyDbRowTestTrait {
 			return;
 		}
 
-		$author = User::newFromName( "127.0.0.1", false );
+		$this->authorUser = User::newFromName( "127.0.0.1", false );
 		$title = Title::newFromText( "Some page" );
 		$page = WikiPage::factory( $title );
 		$content = ContentHandler::makeContent( 'Some text', null, CONTENT_MODEL_WIKITEXT );
 
-		$change = new ModerationNewChange( $title, $author );
+		$change = new ModerationNewChange( $title, $this->authorUser );
 		$this->modid = $change->edit( $page, $content, '', '' )->queue();
 	}
 
