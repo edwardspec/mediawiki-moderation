@@ -53,16 +53,18 @@ class ApproveEditConsequenceTest extends MediaWikiTestCase {
 		$title = Title::newFromText( $opt->title ?? 'UTPage-' . rand( 0, 100000 ) );
 		$newText = 'New text ' . rand( 0, 100000 );
 
+		// Edits shouldn't be intercepted (including edit caused by approval).
+		$this->setMwGlobals( 'wgModerationEnable', false );
+
 		if ( $opt->existing ) {
 			// Precreate the page.
-			$moderator = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
 			$page = WikiPage::factory( $title );
 			$page->doEditContent(
 				ContentHandler::makeContent( "Before $newText", null, CONTENT_MODEL_WIKITEXT ),
 				'',
 				EDIT_INTERNAL,
 				false,
-				$moderator // Should bypass moderation
+				User::newFromName( '127.0.0.2', false )
 			);
 		}
 
@@ -99,10 +101,6 @@ class ApproveEditConsequenceTest extends MediaWikiTestCase {
 			return true;
 		};
 		$this->setMwGlobals( 'wgHooks', $hooks );
-
-		// Enter approve mode, as ApproveEditConsequence is not supposed to be used outside of it.
-		// Otherwise this edit will just get queued for moderation again.
-		ModerationCanSkip::enterApproveMode();
 
 		// Create and run the Consequence.
 		$consequence = new ApproveEditConsequence(

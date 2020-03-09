@@ -47,14 +47,15 @@ class ApproveUploadConsequenceTest extends MediaWikiTestCase {
 		$comment = 'Upload comment';
 		$pageText = 'New description text';
 
+		// Uploads shouldn't be intercepted (including upload caused by approval).
+		$this->setMwGlobals( 'wgModerationEnable', false );
+
 		if ( $existing ) {
 			// Precreate file with the same name.
 			$initialText = 'Description text of image that already exists';
 
 			$upload = $this->prepareTestUpload( $title );
-			$upload->performUpload( '', $initialText, false,
-				self::getTestUser( [ 'automoderated' ] )->getUser() // Will bypass moderation
-			);
+			$upload->performUpload( '', $initialText, false, $user );
 
 			$expectedText = $initialText; // Reuploads shouldn't modify the File: description page.
 		} else {
@@ -63,10 +64,6 @@ class ApproveUploadConsequenceTest extends MediaWikiTestCase {
 
 		$stash = ModerationUploadStorage::getStash();
 		$stashKey = $stash->stashFile( $this->anotherSampleImageFile )->getFileKey();
-
-		// Enter approve mode, as ApprovUploadConsequence is not supposed to be used outside of it.
-		// Otherwise this upload will just get queued for moderation again.
-		ModerationCanSkip::enterApproveMode();
 
 		// Create and run the Consequence.
 		$consequence = new ApproveUploadConsequence( $stashKey, $title, $user, $comment, $pageText );
