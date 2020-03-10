@@ -36,10 +36,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	 */
 	public function testOneEdit() {
 		$this->runApproveHookTest( [ [
-			'UTPage-' . rand( 0, 100000 ),
-			'127.0.0.1',
-			'edit',
-			[
+			'task' => [
 				'ip' => '10.11.12.13',
 				'xff' => '10.20.30.40',
 				'ua' => 'Some-User-Agent/1.2.3',
@@ -61,11 +58,6 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		// situation where tags exist and don't exist,
 		// situation where some edits don't need ApproveHook installed and must be unchanged, etc.
 
-		$pageNames = [
-			'UTPage1-' . rand( 0, 100000 ),
-			'Project:UTPage 2-' . rand( 0, 100000 ),
-			'UTPage 3-' . rand( 0, 100000 )
-		];
 		$usernames = [
 			'Test user1 ' . rand( 0, 100000 ),
 			'Test user2 ' . rand( 0, 100000 ),
@@ -84,24 +76,22 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		$type = ModerationNewChange::MOD_TYPE_EDIT;
 
 		$todo = [];
-		foreach ( $pageNames as $pageName ) {
-			foreach ( $usernames as $username ) {
-				$timestamp = wfTimestamp( TS_MW, (int)wfTimestamp( TS_UNIX, $timestamp ) + rand( 0, 12345 ) );
-				$task = [
-					'ip' => '10.11.' . rand( 0, 255 ) . '.' . rand( 0, 254 ),
-					'xff' => '10.20.' . rand( 0, 255 ) . '.' . rand( 0, 254 ),
-					'ua' => 'Some-User-Agent/1.0.' . rand( 0, 100000 ),
+		foreach ( $usernames as $username ) {
+			$timestamp = wfTimestamp( TS_MW, (int)wfTimestamp( TS_UNIX, $timestamp ) + rand( 0, 12345 ) );
+			$task = [
+				'ip' => '10.11.' . rand( 0, 255 ) . '.' . rand( 0, 254 ),
+				'xff' => '10.20.' . rand( 0, 255 ) . '.' . rand( 0, 254 ),
+				'ua' => 'Some-User-Agent/1.0.' . rand( 0, 100000 ),
 
-					// TODO: test some changes WITHOUT any tags.
-					'tags' => implode( "\n", [
-						"Sample tag 1 " . rand( 0, 100000 ),
-						"Sample tag 2 " . rand( 0, 100000 ),
-					] ),
-					'timestamp' => $timestamp
-				];
+				// TODO: test some changes WITHOUT any tags.
+				'tags' => implode( "\n", [
+					"Sample tag 1 " . rand( 0, 100000 ),
+					"Sample tag 2 " . rand( 0, 100000 ),
+				] ),
+				'timestamp' => $timestamp
+			];
 
-				$todo[] = [ $pageName, $username, $type, $task ];
-			}
+			$todo[] = [ 'user' => $username, 'task' => $task ];
 		}
 
 		$this->runApproveHookTest( $todo );
@@ -113,12 +103,19 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	 * and also optional $task for ApproveHook itself (if null, then ApproveHook is NOT installed).
 	 *
 	 * @param array $todo
-	 * @phan-param list<array{0:string,1:string,2:string,3:?array<string,string>}> $todo
+	 * @phan-param list<array{title?:string,user?:string,type?:string,task:?array<string,string>}> $todo
 	 */
 	private function runApproveHookTest( array $todo ) {
+		static $pageNameSuffix = 0; // Added to default titles of pages, incremented each time.
+
 		// Convert pagename and username parameters (#0 and #1) to Title/User objects
-		$todo = array_map( function ( $testParameters ) {
-			list( $pageName, $username, $type, $task ) = $testParameters;
+		$todo = array_map( function ( $testParameters ) use ( &$pageNameSuffix ) {
+			$pageName = $testParameters['title'] ??
+				'UTPage-' . ( ++$pageNameSuffix ) . '-' . rand( 0, 100000 );
+			$username = $testParameters['user'] ?? '127.0.0.1';
+			$type = $testParameters['type'] ?? ModerationNewChange::MOD_TYPE_EDIT;
+			$task = $testParameters['task'] ?? null;
+
 			$title = Title::newFromText( $pageName );
 
 			$user = User::isIP( $username ) ?
@@ -242,6 +239,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 
 		// Check that ChangeTagsAfterUpdateTags hook was called for all revisions, etc.
 		// Note: ChangeTagsAfterUpdateTags hook (see above) checks "were added tags valid or not".
+		// FIXME: don't assume that everything should be tagged
 		$this->assertEquals( $revIds, $taggedRevIds );
 		$this->assertSelect( 'recentchanges',
 			[ 'rc_id', 'rc_this_oldid' ],
