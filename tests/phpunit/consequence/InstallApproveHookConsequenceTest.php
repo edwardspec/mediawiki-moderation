@@ -31,6 +31,12 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		'change_tag', 'logging', 'log_search' ];
 
 	/**
+	 * @var list<array{0:Title,1:User,2:string,3:array<string,?string>}>
+	 * Parameters of currently running runApproveHookTest().
+	 */
+	protected $currentTestInfo;
+
+	/**
 	 * Verify that InstallApproveHookConsequence works with one edit.
 	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 */
@@ -41,6 +47,22 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				'xff' => '10.20.30.40',
 				'ua' => 'Some-User-Agent/1.2.3',
 				'tags' => "Sample tag 1\nSample tag 2",
+				'timestamp' => wfTimestamp( TS_MW, (int)wfTimestamp() - 100000 )
+			]
+		] ] );
+	}
+
+	/**
+	 * Verify that InstallApproveHookConsequence works with one edit.
+	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 */
+	public function testOneEditWithoutTags() {
+		$this->runApproveHookTest( [ [
+			'task' => [
+				'ip' => '10.11.12.13',
+				'xff' => '10.20.30.40',
+				'ua' => 'Some-User-Agent/1.2.3',
+				'tags' => null,
 				'timestamp' => wfTimestamp( TS_MW, (int)wfTimestamp() - 100000 )
 			]
 		] ] );
@@ -103,7 +125,10 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	 * and also optional $task for ApproveHook itself (if null, then ApproveHook is NOT installed).
 	 *
 	 * @param array $todo
-	 * @phan-param list<array{title?:string,user?:string,type?:string,task:?array<string,string>}> $todo
+	 *
+	 * @codingStandardsIgnoreStart
+	 * @phan-param list<array{title?:string,user?:string,type?:string,task:array<string,?string>}> $todo
+	 *  @codingStandardsIgnoreEnd
 	 */
 	private function runApproveHookTest( array $todo ) {
 		static $pageNameSuffix = 0; // Added to default titles of pages, incremented each time.
@@ -114,7 +139,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				'UTPage-' . ( ++$pageNameSuffix ) . '-' . rand( 0, 100000 );
 			$username = $testParameters['user'] ?? '127.0.0.1';
 			$type = $testParameters['type'] ?? ModerationNewChange::MOD_TYPE_EDIT;
-			$task = $testParameters['task'] ?? null;
+			$task = $testParameters['task'] ?? []; // Consequence won't be called for empty task
 
 			$title = Title::newFromText( $pageName );
 
@@ -125,13 +150,12 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 			return [ $title, $user, $type, $task ];
 		}, $todo );
 
-		$tasks = [];
+		// Make $todo available to findTaskInTodo()
+		$this->currentTestInfo = $todo;
+
 		foreach ( $todo as $testParameters ) {
 			list( $title, $user, $type, $task ) = $testParameters;
 			if ( $task ) {
-				// Remember this task for use in assertSelect() checks below.
-				$tasks[$this->taskKey( $title, $user, $type )] = $task;
-
 				// Create and run the Consequence.
 				$consequence = new InstallApproveHookConsequence( $title, $user, $type, $task );
 				$consequence->run();
@@ -145,14 +169,16 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		$this->setTemporaryHook( 'ChangeTagsAfterUpdateTags', function (
 			$tagsToAdd, $tagsToRemove, $prevTags,
 			$rc_id, $rev_id, $log_id, $params, $rc, $user
-		) use ( $tasks, &$taggedRevIds, &$taggedLogIds, &$taggedRcIds ) {
-			$task = $tasks[$this->taskKey(
-				$rc->getTitle(),
-				$rc->getPerformer(),
-				'edit' # TODO: support checking moves too
-			)];
+		) use ( &$taggedRevIds, &$taggedLogIds, &$taggedRcIds ) {
+			$task = $this->findTaskInTodo( $rc->getTitle(), $rc->getPerformer(), 'edit' );
 
-			$this->assertEquals( explode( "\n", $task['tags'] ), $tagsToAdd );
+			$this->assertNotEmpty( $task['tags'],
+				"Tags were changed for something that wasn't supposed to be tagged" );
+
+			// @phan-suppress-next-line PhanTypeMismatchArgumentNullableInternal
+			$expectedTags = explode( "\n", $task['tags'] );
+
+			$this->assertEquals( $expectedTags, $tagsToAdd );
 			$this->assertEquals( [], $tagsToRemove );
 
 			if ( $rev_id !== false ) {
@@ -172,15 +198,20 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 
 		// Now make new edits and double-check that all changes from $task were applied to them.
 		$this->setMwGlobals( 'wgModerationEnable', false ); // Edits shouldn't be intercepted
+		$this->setMwGlobals( 'wgCommandLineMode', false ); // Delay any DeferredUpdates
 
-		// FIXME: Temporarily commented, because timestamps in testInstallApproveHook() are wrong
-		// for this test (with 3 edits per page, only one row would have rev_timestamp changed).
-		//$this->setMwGlobals( 'wgCommandLineMode', false ); // Delay any DeferredUpdates
+		$expectedTaggedRevIds = [];
 
 		$revIds = [];
-		foreach ( $todo as $testParameters ) {
-			list( $title, $user ) = $testParameters;
-			$revIds[] = $this->makeEdit( $title, $user );
+		foreach ( $todo as &$testParameters ) {
+			list( $title, $user, $type, $task ) = $testParameters;
+			$revid = $this->makeEdit( $title, $user );
+
+			$revIds[] = $revid;
+
+			if ( !empty( $task['tags'] ) ) {
+				$expectedTaggedRevIds[] = $revid;
+			}
 		}
 
 		// Run any DeferredUpdates that may have been queued when making edits.
@@ -191,6 +222,10 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 
 		// TODO: test moves: both redirect revision and "page moves" null revision should be affected.
 		// TODO: check that correct User+Title pairs got correct results.
+
+		$tasks = array_filter( array_map( function ( $testParameters ) {
+			return $testParameters[3];
+		}, $todo ) );
 
 		$this->assertSelect( 'revision',
 			[ 'rev_timestamp' ],
@@ -214,11 +249,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 			[ 'ORDER BY' => 'rc_id' ]
 		);
 
-		// FIXME: if the method from Extension:CheckUser gets renamed in some future version,
-		// this part of test will be silently skipped, and we won't notice it.
-		// To avoid this, this check should be in a separate test method,
-		// which would be using proper @requires or markTestSkipped().
-		if ( method_exists( 'CheckUserHooks', 'updateCheckUserData' ) ) {
+		if ( ExtensionRegistry::getInstance()->isLoaded( 'CheckUser' ) ) {
 			$this->assertSelect( 'cu_changes',
 				[
 					'cuc_ip',
@@ -239,25 +270,30 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 
 		// Check that ChangeTagsAfterUpdateTags hook was called for all revisions, etc.
 		// Note: ChangeTagsAfterUpdateTags hook (see above) checks "were added tags valid or not".
-		// FIXME: don't assume that everything should be tagged
-		$this->assertEquals( $revIds, $taggedRevIds );
-		$this->assertSelect( 'recentchanges',
-			[ 'rc_id', 'rc_this_oldid' ],
-			[ 'rc_this_oldid' => $revIds ],
-			array_map( function ( $rc_id, $rev_id ) {
-				return [
-					$rc_id,
-					$rev_id,
-				];
-			}, $taggedRcIds, $revIds )
-		);
-		$this->assertSelect( 'logging',
-			[ 'log_id' ],
-			'',
-			array_map( function ( $log_id ) {
-				return [ $log_id ];
-			}, $taggedLogIds )
-		);
+		$this->assertEquals( $expectedTaggedRevIds, $taggedRevIds );
+
+		if ( $expectedTaggedRevIds ) {
+			$this->assertSelect( 'recentchanges',
+				[ 'rc_id', 'rc_this_oldid' ],
+				[ 'rc_this_oldid' => $expectedTaggedRevIds ],
+				array_map( function ( $rc_id, $rev_id ) {
+					return [
+						$rc_id,
+						$rev_id,
+					];
+				}, $taggedRcIds, $expectedTaggedRevIds )
+			);
+			$this->assertSelect( 'logging',
+				[ 'log_id' ],
+				'',
+				array_map( function ( $log_id ) {
+					return [ $log_id ];
+				}, $taggedLogIds )
+			);
+		} else {
+			$this->assertEmpty( $taggedRcIds );
+			$this->assertEmpty( $taggedLogIds );
+		}
 	}
 
 	/**
@@ -284,15 +320,26 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * Returns key for $tasks array.
-	 * Note: this is test-specific, it is NOT the same as ModerationApproveHook::getTaskKey().
+	 * Find task in $this->currentTestInfo (which is populated during runApproveHookTest()).
 	 * @param Title $title
 	 * @param User $user
 	 * @param string $type
-	 * @return string
+	 * @return array
+	 *
+	 * @phan-return array<string,?string>
 	 */
-	private function taskKey( Title $title, User $user, $type ) {
-		return $title->getPrefixedDBKey() . '|' . $user->getName() . '|' . $type;
+	private function findTaskInTodo( Title $title, User $user, $type ) {
+		foreach ( $this->currentTestInfo as $testParameters ) {
+			list( $todoTitle, $todoUser, $todoType, $task ) = $testParameters;
+			if ( $todoType == $type && $todoTitle->equals( $title ) &&
+				$todoUser->equals( $user )
+			) {
+				return $task;
+			}
+		}
+
+		throw new MWException( 'findTaskInTodo: not found for title=' . $title->getPrefixedText() .
+			', user=' . $user->getName() . ", type=$type" );
 	}
 
 	/**
