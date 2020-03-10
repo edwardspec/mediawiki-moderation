@@ -56,6 +56,7 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 		$opt->notifyEmail = $opt->notifyEmail ?? false;
 		$opt->notifyNewOnly = $opt->notifyNewOnly ?? false;
 		$opt->anonymously = $opt->anonymously ?? false;
+		$opt->editedBefore = $opt->editedBefore ?? false;
 
 		$user = $opt->anonymously ? User::newFromName( '127.0.0.1', false ) :
 			self::getTestUser()->getUser();
@@ -107,6 +108,12 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 		$anonId = 67890;
 		$manager->mockResult( RememberAnonIdConsequence::class, $anonId );
 
+		if ( $opt->anonymously && $opt->editedBefore ) {
+			// Simulate situation when this anonymous user has already edited before,
+			// meaning that this edit wouldn't cause RememberAnonIdConsequence.
+			RequestContext::getMain()->getRequest()->setSessionData( 'anon_id', $anonId );
+		}
+
 		// Create and run the Consequence.
 		$consequence = new QueueEditConsequence(
 			$page, $user, $content, $summary, '', '', $opt->bot, $opt->minor );
@@ -153,7 +160,7 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 
 		// Check secondary consequences.
 		$expectedConsequences = [];
-		if ( $opt->anonymously ) {
+		if ( $opt->anonymously && !$opt->editedBefore ) {
 			$expectedConsequences[] = new RememberAnonIdConsequence();
 		}
 
@@ -178,6 +185,8 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 		return [
 			'logged-in edit' => [ [] ],
 			'anonymous edit' => [ [ 'anonymously' => true ] ],
+			'anonymous edit (already edited before)' =>
+				[ [ 'anonymously' => true, 'editedBefore' => true ] ],
 			'edit in Project namespace' => [ [ 'title' => 'Project:Title in another namespace' ] ],
 			'edit in existing page' => [ [ 'existing' => true ] ],
 			'edit with edit summary' => [ [ 'summary' => 'Summary 1' ] ],
