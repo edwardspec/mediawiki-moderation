@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\Auth\AuthManager;
+use MediaWiki\Moderation\ForgetAnonIdConsequence;
 use MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 
@@ -48,8 +49,8 @@ class CreatingNewUserHasConsequencesTest extends MediaWikiTestCase {
 		$newPreloadId = '[' . $username;
 		$oldPreloadId = ']' . $anonId;
 
-		// This session key is always created when edit by anonymous user is queued for moderation.
-		// TODO: this should be tested separately (in EditsHaveConsequencesTest?)
+		// This session key is always created when edit by anonymous user is queued for moderation,
+		// see RememberAnonIdConsequence and related tests.
 		$session = RequestContext::getMain()->getRequest()->getSession();
 		$session->set( 'anon_id', $anonId );
 		$session->persist();
@@ -62,7 +63,9 @@ class CreatingNewUserHasConsequencesTest extends MediaWikiTestCase {
 				User::newFromName( $username ),
 				$oldPreloadId,
 				$newPreloadId
-			)
+			),
+			// Should also forget anon_id
+			new ForgetAnonIdConsequence()
 		], $manager->getConsequences() );
 	}
 

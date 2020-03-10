@@ -24,6 +24,7 @@ use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueEditConsequence;
+use MediaWiki\Moderation\RememberAnonIdConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 
 require_once __DIR__ . "/ConsequenceTestTrait.php";
@@ -48,19 +49,21 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 	public function testQueueEdit( array $params ) {
 		$opt = (object)$params;
 
-		$user = empty( $opt->anonymously ) ? self::getTestUser()->getUser() :
-			User::newFromName( '127.0.0.1', false );
-		$title = Title::newFromText( $opt->title ?? 'UTPage-' . rand( 0, 100000 ) );
-		$page = WikiPage::factory( $title );
-		$content = ContentHandler::makeContent( 'Some text' . rand( 0, 100000 ),
-			null, CONTENT_MODEL_WIKITEXT );
-		$summary = $opt->summary ?? 'Some summary ' . rand( 0, 100000 );
 		$opt->bot = $opt->bot ?? false;
 		$opt->minor = $opt->minor ?? false;
 		$opt->existing = $opt->existing ?? false;
 		$opt->modblocked = $opt->modblocked ?? false;
 		$opt->notifyEmail = $opt->notifyEmail ?? false;
 		$opt->notifyNewOnly = $opt->notifyNewOnly ?? false;
+		$opt->anonymously = $opt->anonymously ?? false;
+
+		$user = $opt->anonymously ? User::newFromName( '127.0.0.1', false ) :
+			self::getTestUser()->getUser();
+		$title = Title::newFromText( $opt->title ?? 'UTPage-' . rand( 0, 100000 ) );
+		$page = WikiPage::factory( $title );
+		$content = ContentHandler::makeContent( 'Some text' . rand( 0, 100000 ),
+			null, CONTENT_MODEL_WIKITEXT );
+		$summary = $opt->summary ?? 'Some summary ' . rand( 0, 100000 );
 
 		if ( $opt->existing ) {
 			// Precreate the page.
@@ -101,15 +104,15 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 		$modid = 12345;
 		$manager->mockResult( InsertRowIntoModerationTableConsequence::class, $modid );
 
+		$anonId = 67890;
+		$manager->mockResult( RememberAnonIdConsequence::class, $anonId );
+
 		// Create and run the Consequence.
 		$consequence = new QueueEditConsequence(
 			$page, $user, $content, $summary, '', '', $opt->bot, $opt->minor );
 		$consequence->run();
 
 		// This is very similar to ModerationQueueTest::getExpectedRow().
-		$preload = ModerationPreload::singleton();
-		$preload->setUser( $user );
-
 		$expectedFields = [
 			'mod_timestamp' => 'ignored by assertConsequencesEqual()',
 			'mod_user' => $user->getId(),
@@ -130,7 +133,7 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 			'mod_new_len' => $content->getSize(),
 			'mod_header_xff' => $opt->xff ?? null,
 			'mod_header_ua' => $opt->userAgent ?? null,
-			'mod_preload_id' => $preload->getId( false ),
+			'mod_preload_id' => $opt->anonymously ? ']' . $anonId : '[' . $user->getName(),
 			'mod_rejected' => $opt->modblocked ? 1 : 0,
 			'mod_rejected_by_user' => 0,
 			'mod_rejected_by_user_text' => $opt->modblocked ?
@@ -149,9 +152,13 @@ class QueueEditConsequenceTest extends MediaWikiTestCase {
 		];
 
 		// Check secondary consequences.
-		$expectedConsequences = [
-			new InsertRowIntoModerationTableConsequence( $expectedFields )
-		];
+		$expectedConsequences = [];
+		if ( $opt->anonymously ) {
+			$expectedConsequences[] = new RememberAnonIdConsequence();
+		}
+
+		$expectedConsequences[] = new InsertRowIntoModerationTableConsequence( $expectedFields );
+
 		if ( !$opt->modblocked && $opt->notifyEmail && ( !$opt->notifyNewOnly || !$opt->existing ) ) {
 			$expectedConsequences[] = new SendNotificationEmailConsequence(
 				$title,

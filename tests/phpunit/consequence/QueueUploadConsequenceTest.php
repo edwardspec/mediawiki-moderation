@@ -24,6 +24,7 @@ use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueUploadConsequence;
+use MediaWiki\Moderation\RememberAnonIdConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 
 require_once __DIR__ . "/ConsequenceTestTrait.php";
@@ -50,17 +51,18 @@ class QueueUploadConsequenceTest extends MediaWikiTestCase {
 	public function testQueueUpload( array $params ) {
 		$opt = (object)$params;
 
-		$user = empty( $opt->anonymously ) ? self::getTestUser()->getUser() :
-			User::newFromName( '127.0.0.1', false );
-		$title = $title = Title::newFromText( 'File:UTUpload-' . rand( 0, 100000 ) . '.png' );
-		$summary = $opt->summary ?? 'Some summary ' . rand( 0, 100000 );
-		$text = $opt->text ?? 'Initial text';
-		$content = ContentHandler::makeContent( $text, $title );
-
 		$opt->existing = $opt->existing ?? false;
 		$opt->modblocked = $opt->modblocked ?? false;
 		$opt->notifyEmail = $opt->notifyEmail ?? false;
 		$opt->notifyNewOnly = $opt->notifyNewOnly ?? false;
+		$opt->anonymously = $opt->anonymously ?? false;
+
+		$user = $opt->anonymously ? User::newFromName( '127.0.0.1', false ) :
+			self::getTestUser()->getUser();
+		$title = Title::newFromText( 'File:UTUpload-' . rand( 0, 100000 ) . '.png' );
+		$summary = $opt->summary ?? 'Some summary ' . rand( 0, 100000 );
+		$text = $opt->text ?? 'Initial text';
+		$content = ContentHandler::makeContent( $text, $title );
 
 		if ( $opt->existing ) {
 			// Precreate the page.
@@ -95,6 +97,9 @@ class QueueUploadConsequenceTest extends MediaWikiTestCase {
 		$modid = 12345;
 		$manager->mockResult( InsertRowIntoModerationTableConsequence::class, $modid );
 
+		$anonId = 67890;
+		$manager->mockResult( RememberAnonIdConsequence::class, $anonId );
+
 		// Create and run the Consequence.
 		$consequence = new QueueUploadConsequence(
 			$this->prepareTestUpload( $title ), $user, $summary, $text );
@@ -103,9 +108,6 @@ class QueueUploadConsequenceTest extends MediaWikiTestCase {
 		$this->assertNull( $error, "QueueUploadConsequence returned an error" );
 
 		// This is very similar to ModerationQueueTest::getExpectedRow().
-		$preload = ModerationPreload::singleton();
-		$preload->setUser( $user );
-
 		$dbw = wfGetDB( DB_MASTER );
 		$expectedStashKey = $dbw->selectField( 'uploadstash', 'us_key', '', __METHOD__ );
 
@@ -129,7 +131,7 @@ class QueueUploadConsequenceTest extends MediaWikiTestCase {
 			'mod_new_len' => $content->getSize(),
 			'mod_header_xff' => $opt->xff ?? null,
 			'mod_header_ua' => $opt->userAgent ?? null,
-			'mod_preload_id' => $preload->getId( false ),
+			'mod_preload_id' => $opt->anonymously ? ']' . $anonId : '[' . $user->getName(),
 			'mod_rejected' => $opt->modblocked ? 1 : 0,
 			'mod_rejected_by_user' => 0,
 			'mod_rejected_by_user_text' => $opt->modblocked ?
@@ -148,9 +150,13 @@ class QueueUploadConsequenceTest extends MediaWikiTestCase {
 		];
 
 		// Check secondary consequences.
-		$expectedConsequences = [
-			new InsertRowIntoModerationTableConsequence( $expectedFields )
-		];
+		$expectedConsequences = [];
+		if ( $opt->anonymously ) {
+			$expectedConsequences[] = new RememberAnonIdConsequence();
+		}
+
+		$expectedConsequences[] = new InsertRowIntoModerationTableConsequence( $expectedFields );
+
 		if ( !$opt->modblocked && $opt->notifyEmail && ( !$opt->notifyNewOnly || !$opt->existing ) ) {
 			$expectedConsequences[] = new SendNotificationEmailConsequence(
 				$title,

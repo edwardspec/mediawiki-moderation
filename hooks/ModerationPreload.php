@@ -21,7 +21,9 @@
  */
 
 use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\ForgetAnonIdConsequence;
 use MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence;
+use MediaWiki\Moderation\RememberAnonIdConsequence;
 
 /*
 	Calculating 'mod_preload_id':
@@ -112,28 +114,11 @@ class ModerationPreload {
 				return false;
 			}
 
-			$anonToken = MWCryptRand::generateHex( 32 );
-
-			$this->makeSureSessionExists();
-			$this->getRequest()->setSessionData( 'anon_id', $anonToken );
+			$manager = ConsequenceUtils::getManager();
+			$anonToken = $manager->add( new RememberAnonIdConsequence() );
 		}
 
 		return ']' . $anonToken;
-	}
-
-	/**
-	 * Forget the fact that this user edited anonymously.
-	 * Used in LocalUserCreated hook, when user becomes registered and
-	 * no longer needs anonymous preload.
-	 */
-	protected function forgetAnonId() {
-		$this->getRequest()->setSessionData( 'anon_id', '' );
-	}
-
-	/** Make sure that results of $request->setSessionData() won't be lost */
-	protected function makeSureSessionExists() {
-		$session = MediaWiki\Session\SessionManager::getGlobalSession();
-		$session->persist();
 	}
 
 	/**
@@ -158,7 +143,9 @@ class ModerationPreload {
 			$user, $anonId, $preload->getId()
 		) );
 
-		$preload->forgetAnonId();
+		// Forget the fact that this user edited anonymously:
+		// this user is now registered and no longer needs anonymous preload.
+		$manager->add( new ForgetAnonIdConsequence() );
 
 		return true;
 	}
