@@ -87,6 +87,17 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	}
 
 	/**
+	 * Verify that InstallApproveHookConsequence (without tags) works with one move.
+	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 */
+	public function testOneMove() {
+		$this->runApproveHookTest( [ [
+			'type' => ModerationNewChange::MOD_TYPE_MOVE,
+			'task' => [ 'timestamp' => wfTimestampNow() ] + $this->defaultTask()
+		] ] );
+	}
+
+	/**
 	 * Verify that InstallApproveHookConsequence won't affect edits that weren't targeted by it.
 	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 */
@@ -131,6 +142,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 
 	/**
 	 * Precreate a page for IgnoredTimestamp tests.
+	 * @param string $pageName
 	 */
 	private function precreatePage( $pageName ) {
 		$title = Title::newFromText( $pageName );
@@ -147,7 +159,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * Verify that timestamp is ignored if more recent revisions already exist in the history.
+	 * Verify that timestamp of edit is ignored if more recent revisions exist in the history.
 	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 */
 	public function testOneEditWithIgnoredTimestamp() {
@@ -166,6 +178,18 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				// This timestamp will be ignored, because it's earlier than timestamp of existing edit.
 				'timestamp' => $this->pastTimestamp()
 			],
+			'extra' => [ 'expectUnchangedTimestamp' => true ]
+		] ] );
+	}
+
+	/**
+	 * Verify that timestamp of move is ignored if more recent revisions exist in the history.
+	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 */
+	public function testOneMoveWithIgnoredTimestamp() {
+		$this->runApproveHookTest( [ [
+			'type' => ModerationNewChange::MOD_TYPE_MOVE,
+			'task' => $this->defaultTask(),
 			'extra' => [ 'expectUnchangedTimestamp' => true ]
 		] ] );
 	}
@@ -277,6 +301,11 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 
 			$title = Title::newFromText( $pageName );
 
+			if ( $type == ModerationNewChange::MOD_TYPE_MOVE ) {
+				$this->precreatePage( $pageName );
+				$this->setGroupPermissions( '*', 'move', true );
+			}
+
 			$user = User::isIP( $username ) ?
 				User::newFromName( $username, false ) :
 				( new TestUser( $username ) )->getUser();
@@ -305,6 +334,12 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		) use ( &$taggedRevIds, &$taggedLogIds, &$taggedRcIds ) {
 			$this->assertEquals( [], $tagsToRemove );
 
+			if ( $tagsToAdd == [ 'mw-new-redirect' ] ) {
+				// This tag is irrelevant: it is added when creating a redirect during move tests,
+				// it has nothing to do with ApproveHook.
+				return true;
+			}
+
 			if ( $rev_id !== false ) {
 				$taggedRevIds[$rev_id] = $tagsToAdd;
 			}
@@ -330,7 +365,14 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 
 		foreach ( $todo as $testParameters ) {
 			list( $title, $user, $type, $task ) = $testParameters;
-			$this->makeEdit( $title, $user );
+
+			if ( $type == ModerationNewChange::MOD_TYPE_EDIT ) {
+				$this->makeEdit( $title, $user );
+			} elseif ( $type == ModerationNewChange::MOD_TYPE_MOVE ) {
+				$this->makeMove( $title, $user );
+			} else {
+				throw new MWException( "Unknown type: $type" );
+			}
 		}
 
 		if ( $deferUpdates ) {
@@ -372,22 +414,26 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				[ [ $expectedIP ] ]
 			);
 
-			$row = $this->db->selectRow( 'recentchanges',
-				[ 'rc_id', 'rc_this_oldid' ],
-				$rcWhere,
-				__METHOD__
-			);
-			$rev_id = $row->rc_this_oldid;
-			$rc_id = $row->rc_id;
+			$rc = RecentChange::newFromConds( $rcWhere, __METHOD__, DB_MASTER );
+			$rc_id = $rc->mAttribs['rc_id'];
+
+			$revIds = [ $rc->mAttribs['rc_this_oldid'] ];
+			if ( $rc->mAttribs['rc_log_action'] == 'move' ) {
+				// For page moves, two revisions should have been modified:
+				// 1) revision in newly created redirect, 2) "page was moved" null revision.
+				$revIds[] = $rc->getTitle()->getLatestRevID( IDBAccessObject::READ_LATEST );
+			}
 
 			if ( $task ) {
-				$rev = Revision::newFromId( $rev_id, Revision::READ_LATEST );
+				foreach ( $revIds as $rev_id ) {
+					$rev = Revision::newFromId( $rev_id, Revision::READ_LATEST );
 
-				if ( empty( $extraInfo['expectUnchangedTimestamp'] ) ) {
-					// Verify that ApproveHook has modified revision.rev_timestamp field.
-					$this->assertEquals( $task['timestamp'], $rev->getTimestamp() );
-				} else {
-					$this->assertNotEquals( $task['timestamp'], $rev->getTimestamp() );
+					if ( empty( $extraInfo['expectUnchangedTimestamp'] ) ) {
+						// Verify that ApproveHook has modified revision.rev_timestamp field.
+						$this->assertEquals( $task['timestamp'], $rev->getTimestamp() );
+					} else {
+						$this->assertNotEquals( $task['timestamp'], $rev->getTimestamp() );
+					}
 				}
 			}
 
@@ -423,8 +469,13 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentNullableInternal
 			$expectedTags = empty( $task['tags'] ) ? null : explode( "\n", $task['tags'] );
 
-			$this->assertEquals( $expectedTags, $taggedRevIds[$rev_id] ?? null );
+			foreach ( $revIds as $rev_id ) {
+				$this->assertEquals( $expectedTags, $taggedRevIds[$rev_id] ?? null );
+				unset( $taggedRevIds[$rev_id] );
+			}
+
 			$this->assertEquals( $expectedTags, $taggedRcIds[$rc_id] ?? null );
+			unset( $taggedRcIds[$rc_id] );
 
 			$logWhere = [
 				'log_namespace' => $title->getNamespace(),
@@ -442,17 +493,12 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				$this->assertEquals( $expectedTags, $taggedLogIds[$log_id] ?? null );
 				unset( $taggedLogIds[$log_id] );
 			}
-
-			unset( $taggedRevIds[$rev_id] );
-			unset( $taggedRcIds[$rc_id] );
 		}
 
 		// Verify that things that shouldn't have been tagged weren't tagged.
 		$this->assertEmpty( $taggedRevIds );
 		$this->assertEmpty( $taggedRcIds );
 		$this->assertEmpty( $taggedLogIds );
-
-		// TODO: test moves: both redirect revision and "page moves" null revision should be affected.
 	}
 
 	/**
@@ -486,6 +532,36 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		$this->assertTrue( $status->isGood(), "Edit failed: " . $status->getMessage()->plain() );
 
 		return $status->value['revision']->getId();
+	}
+
+	/**
+	 * Make one test renaming of $title on behalf of $user, return new title.
+	 * @param Title $title
+	 * @param User $user
+	 * @return Title
+	 */
+	private function makeMove( Title $title, User $user ) {
+		$newTitle = Title::newFromText( $title->getPrefixedText() . '-newTitle' );
+		$this->assertTrue( $title->exists(),
+			"makeMove(): page doesn't exist: " . $title->getFullText() );
+
+		$reason = 'Some reason to rename the page';
+		$createRedirect = true;
+
+		$mp = new MovePage( $title, $newTitle );
+
+		/* Sanity checks like "page with the new name should not exist" */
+		$status = $mp->isValidMove();
+		if ( $status->isOK() ) {
+			$status->merge( $mp->checkPermissions( $user, $reason ) );
+			if ( $status->isOK() ) {
+				$status->merge( $mp->move( $user, $reason, $createRedirect ) );
+			}
+		}
+
+		$this->assertTrue( $status->isGood(), "Move failed: " . $status->getMessage()->plain() );
+
+		return $newTitle;
 	}
 
 	/**
