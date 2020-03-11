@@ -143,10 +143,11 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	/**
 	 * Precreate a page for IgnoredTimestamp tests.
 	 * @param string $pageName
+	 * @return int rev_id
 	 */
 	private function precreatePage( $pageName ) {
 		$title = Title::newFromText( $pageName );
-		$this->makeEdit( $title, self::getTestUser( [ 'automoderated' ] )->getUser() );
+		return $this->makeEdit( $title, self::getTestUser( [ 'automoderated' ] )->getUser() );
 	}
 
 	/**
@@ -187,10 +188,16 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 */
 	public function testOneMoveWithIgnoredTimestamp() {
+		$pageName = 'UTPage-' . rand( 0, 100000 );
+		$this->precreatePage( $pageName );
+
 		$this->runApproveHookTest( [ [
+			'title' => $pageName,
 			'type' => ModerationNewChange::MOD_TYPE_MOVE,
 			'task' => $this->defaultTask(),
-			'extra' => [ 'expectUnchangedTimestamp' => true ]
+			'extra' => [
+				'expectUnchangedTimestamp' => true
+			]
 		] ] );
 	}
 
@@ -302,8 +309,21 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 			$title = Title::newFromText( $pageName );
 
 			if ( $type == ModerationNewChange::MOD_TYPE_MOVE ) {
-				$this->precreatePage( $pageName );
 				$this->setGroupPermissions( '*', 'move', true );
+
+				if ( !$title->exists() ) {
+					$revid = $this->precreatePage( $pageName );
+
+					// Ensure that rev_timestamp of precreated revision is extremely far in the past
+					// and won't trigger "rev_timestamp ignored" situation
+					// unless the test specifically causes it.
+					$this->db->update( 'revision',
+						[ 'rev_timestamp' => $this->db->timestamp( '19700101000000' ) ],
+						[ 'rev_id' => $revid ],
+						'runApproveHookTest'
+					);
+					$this->assertEquals( 1, $this->db->affectedRows() );
+				}
 			}
 
 			$user = User::isIP( $username ) ?
@@ -428,7 +448,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				foreach ( $revIds as $rev_id ) {
 					$rev = Revision::newFromId( $rev_id, Revision::READ_LATEST );
 
-					if ( empty( $extraInfo['expectUnchangedTimestamp'] ) ) {
+					if ( empty( $extraInfo['expectUnchangedTimestamp'] ) || !$rev->getParentId() ) {
 						// Verify that ApproveHook has modified revision.rev_timestamp field.
 						$this->assertEquals( $task['timestamp'], $rev->getTimestamp() );
 					} else {
@@ -538,7 +558,6 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	 * Make one test renaming of $title on behalf of $user, return new title.
 	 * @param Title $title
 	 * @param User $user
-	 * @return Title
 	 */
 	private function makeMove( Title $title, User $user ) {
 		$newTitle = Title::newFromText( $title->getPrefixedText() . '-newTitle' );
@@ -560,8 +579,6 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		}
 
 		$this->assertTrue( $status->isGood(), "Move failed: " . $status->getMessage()->plain() );
-
-		return $newTitle;
 	}
 
 	/**

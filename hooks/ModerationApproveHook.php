@@ -80,17 +80,51 @@ class ModerationApproveHook {
 	}
 
 	/**
-	 * Schedule doUpdate() to run after all other DeferredUpdates that are caused by new edits.
+	 * PageContentSaveComplete hook.
+	 * @return true
 	 */
 	public static function onPageContentSaveComplete() {
-		self::singleton()->useCount ++;
-		DeferredUpdates::addCallableUpdate( __CLASS__ . '::doUpdate' );
+		self::scheduleDoUpdate();
+		return true;
 	}
 
 	/**
-	 * Schedule doUpdate() to run after all other DeferredUpdates that are caused by new moves.
+	 * TitleMoveComplete hook.
+	 * Here we modify rev_timestamp of a newly created redirect after the page move.
+	 * @param Title $title
+	 * @param Title $newTitle
+	 * @param User $user
+	 * @return true
 	 */
-	public static function onTitleMoveComplete() {
+	public static function onTitleMoveComplete( Title $title, Title $newTitle, User $user ) {
+		$hook = self::singleton();
+		$task = $hook->getTask( $title, $user, ModerationNewChange::MOD_TYPE_MOVE );
+		if ( !$task ) {
+			return true;
+		}
+
+		$revid = $title->getLatestRevID();
+		if ( !$revid ) {
+			// Nothing to do: redirect wasn't created.
+			return true;
+		}
+
+		$dbr = wfGetDB( DB_REPLICA );
+		$timestamp = $dbr->timestamp( $task['timestamp'] ); // Possibly in PostgreSQL format
+
+		/* Fix rev_timestamp to be equal to mod_timestamp
+			(time when edit was queued, i.e. made by the user)
+			instead of current time (time of approval). */
+		$hook->queueUpdate( 'revision', [ $revid ], [ 'rev_timestamp' => $timestamp ] );
+
+		self::scheduleDoUpdate();
+		return true;
+	}
+
+	/**
+	 * Schedule doUpdate() to run after all other DeferredUpdates that are caused by new edits.
+	 */
+	public static function scheduleDoUpdate() {
 		self::singleton()->useCount ++;
 		DeferredUpdates::addCallableUpdate( __CLASS__ . '::doUpdate' );
 	}
@@ -455,32 +489,14 @@ class ModerationApproveHook {
 			);
 		}
 
-		/* Fix rev_timestamp to be equal to mod_timestamp
-			(time when edit was queued, i.e. made by the user)
-			instead of current time (time of approval). */
-		$revIdsToModify = [
-			 $rc->mAttribs['rc_this_oldid']
-		];
-		if ( $rc->mAttribs['rc_log_action'] == 'move' ) {
-			/* When page A is moved to B, there will be
-				only one row in the recentchanges table ($rc),
-				but there are actually TWO revisions:
-				(1) rc_this_oldid - null revision in B,
-				(2) newly created redirect in A.
-				We need to modify both of them.
-			*/
-			if ( $rc->getParam( '5::noredir' ) == 0 ) {
-				/* Redirect exists */
-				$redirectTitle = $rc->getTitle();
-				$revIdsToModify[] = $redirectTitle->getLatestRevID();
-			}
-		}
-
 		$dbr = wfGetDB( DB_REPLICA );
 		$timestamp = $dbr->timestamp( $task['timestamp'] ); // Possibly in PostgreSQL format
 
+		/* Fix rev_timestamp to be equal to mod_timestamp
+			(time when edit was queued, i.e. made by the user)
+			instead of current time (time of approval). */
 		$hook->queueUpdate( 'revision',
-			$revIdsToModify,
+			[ $rc->mAttribs['rc_this_oldid'] ],
 			[ 'rev_timestamp' => $timestamp ]
 		);
 
