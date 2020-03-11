@@ -31,20 +31,38 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		'change_tag', 'logging', 'log_search' ];
 
 	/**
+	 * @return array
+	 * @phan-return array<string,?string>
+	 */
+	private function defaultTask() {
+		return [
+			'ip' => '10.11.12.13',
+			'xff' => '10.20.30.40',
+			'ua' => 'Some-User-Agent/1.2.3',
+			'tags' => null, // Tags are optional, and most edits won't have them
+			'timestamp' => $this->pastTimestamp()
+		];
+	}
+
+	/**
 	 * Verify that InstallApproveHookConsequence (without tags) works with one edit.
-	 * This is the most common situation of ApproveHook being used in production.
+	 * This is the most common situation of ApproveHook being used in production,
+	 * because tags are optional, and most edits won't have them.
 	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 */
 	public function testOneEdit() {
-		$this->runApproveHookTest( [ [
-			'task' => [
-				'ip' => '10.11.12.13',
-				'xff' => '10.20.30.40',
-				'ua' => 'Some-User-Agent/1.2.3',
-				'tags' => null, // Tags are optional, and most edits won't have them
-				'timestamp' => wfTimestamp( TS_MW, (int)wfTimestamp() - 100000 )
-			]
-		] ] );
+		$this->runApproveHookTest( [ [ 'task' => $this->defaultTask() ] ] );
+	}
+
+	/**
+	 * Verify that InstallApproveHookConsequence works when DeferredUpdates are immediate.
+	 * This doesn't happen in production (unless ApproveHook is used in a maintenance script).
+	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 */
+	public function testOneEditImmediateDeferredUpdates() {
+		$this->runApproveHookTest( [ [ 'task' => $this->defaultTask() ] ],
+			false // Make DeferredUpdates immediate
+		);
 	}
 
 	/**
@@ -53,21 +71,15 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	 */
 	public function testOneEditWithTags() {
 		$this->runApproveHookTest( [ [
-			'task' => [
-				'ip' => '10.11.12.13',
-				'xff' => '10.20.30.40',
-				'ua' => 'Some-User-Agent/1.2.3',
-				'tags' => "Sample tag 1\nSample tag 2",
-				'timestamp' => wfTimestamp( TS_MW, (int)wfTimestamp() - 100000 )
-			]
+			'task' => [ 'tags' => "Sample tag 1\nSample tag 2" ] + $this->defaultTask()
 		] ] );
 	}
 
 	/**
-	 * Verify that InstallApproveHookConsequence won't affect edits that weren't targeted by it.
+	 * Verify that ApproveHook changes wouldn't happen if ApproveHook wasn't installed.
 	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 */
-	public function testNoApproveHookNeeded() {
+	public function testEditWithoutApproveHook() {
 		$this->runApproveHookTest( [ [
 			# Here runApproveHookTest() will still make an edit, but won't install ApproveHook.
 			'task' => null
@@ -75,55 +87,175 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * Verify that InstallApproveHookConsequence modifies rev_timestamp, etc. according to $task.
+	 * Verify that InstallApproveHookConsequence won't affect edits that weren't targeted by it.
 	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 */
-	public function testInstallApproveHook() {
-		// TODO: now that $this->runApproveHookTest() method exists,
-		// split this test into more specific tests: editing only 1 page, with DeferredUpdates,
-		// without DeferredUpdates, situation where CASE ... WHEN ... THEN is used,
-		// situation where rev_timestamp is ignored,
-		// situation where tags exist and don't exist,
-		// situation where some edits don't need ApproveHook installed and must be unchanged, etc.
-
-		$usernames = [
-			'Test user1 ' . rand( 0, 100000 ),
-			'Test user2 ' . rand( 0, 100000 ),
-			'Test user3 ' . rand( 0, 100000 )
-		];
-
-		// TODO: while testing installed InstallApproveHookConsequence followed by multiple edits,
-		// also test that ApproveHook doesn't affect edits of another $title OR $user OR $type.
-
-		// TODO: currently timestamps are ordered from older to newer on purpose,
-		// because changing ApproveHook purposely ignores rev_timestamp if it is earlier
-		// than timestamp of already existing revision in this page.
-		// However, this behavior should be tested too!
-		// Provide an array of fixed (non-randomized) timestamps which would check exactly that.
-		$timestamp = wfTimestamp( TS_MW, (int)wfTimestamp() - 100000 );
-		$type = ModerationNewChange::MOD_TYPE_EDIT;
-
-		$todo = [];
-		foreach ( $usernames as $username ) {
-			$timestamp = wfTimestamp( TS_MW, (int)wfTimestamp( TS_UNIX, $timestamp ) + rand( 0, 12345 ) );
-			$task = [
-				'ip' => '10.11.' . rand( 0, 255 ) . '.' . rand( 0, 254 ),
-				'xff' => '10.20.' . rand( 0, 255 ) . '.' . rand( 0, 254 ),
-				'ua' => 'Some-User-Agent/1.0.' . rand( 0, 100000 ),
-
-				// TODO: test some changes WITHOUT any tags.
-				'tags' => implode( "\n", [
-					"Sample tag 1 " . rand( 0, 100000 ),
-					"Sample tag 2 " . rand( 0, 100000 ),
-				] ),
-				'timestamp' => $timestamp
-			];
-
-			$todo[] = [ 'user' => $username, 'task' => $task ];
-		}
-
-		$this->runApproveHookTest( $todo );
+	public function testSomeEditsWithoutApproveHook() {
+		$this->runApproveHookTest( [
+			[ 'task' => [ 'title' => "UTPage1", 'user' => "TestUser1" ] + $this->defaultTask() ],
+			[ 'task' => null ],
+			[ 'task' => [ 'title' => "UTPage3", 'user' => "TestUser3" ] + $this->defaultTask() ],
+		] );
 	}
+
+	/**
+	 * Test situation when ApproveHook uses "CASE...WHEN...THEN" to reduce the number of SQL queries.
+	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 */
+	public function testCaseWhenThenChanges() {
+		$this->runApproveHookTest( [
+			[ 'task' => [
+				'ip' => '10.0.0.1',
+				'xff' => '10.20.0.1',
+				'ua' => 'Some-User-Agent/0.0.1',
+				'tags' => null,
+				'timestamp' => $this->pastTimestamp( 1000 )
+			] ],
+			[ 'task' => [
+				'ip' => '10.0.0.2',
+				'xff' => '10.20.0.2',
+				'ua' => 'Some-User-Agent/0.0.2',
+				'tags' => null,
+				'timestamp' => $this->pastTimestamp( 2000 )
+			] ],
+			[ 'task' => [
+				'ip' => '10.0.0.3',
+				'xff' => '10.20.0.3',
+				'ua' => 'Some-User-Agent/0.0.3',
+				'tags' => null,
+				'timestamp' => $this->pastTimestamp( 3000 )
+			] ]
+
+		] );
+	}
+
+	/**
+	 * Precreate a page for IgnoredTimestamp tests.
+	 */
+	private function precreatePage( $pageName ) {
+		$title = Title::newFromText( $pageName );
+		$revid = $this->makeEdit( $title, self::getTestUser( [ 'automoderated' ] )->getUser() );
+
+		// FIXME: cleaning "logging" table is needed because runApproveHookTest() checks ALL rows
+		// in this table, and that includes "create/create" LogEntry from makeEdit() above.
+		// Tag-checking code in runApproveHookTest() should be rewritten to avoid this.
+		$this->db->delete( 'logging', '*' );
+	}
+
+	/**
+	 * Get timestamp in the past (N seconds ago).
+	 * @param int $secondsAgo.
+	 * @return string MediaWiki timestamp (14 digits).
+	 */
+	private function pastTimestamp( $secondsAgo = 10000 ) {
+		return wfTimestamp( TS_MW, (int)wfTimestamp() - $secondsAgo );
+	}
+
+	/**
+	 * Verify that timestamp is ignored if more recent revisions already exist in the history.
+	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 */
+	public function testOneEditWithIgnoredTimestamp() {
+		// Precreate a page: if history doesn't exist, then rev_timestamp is never ignored.
+		$pageName = 'UTPage-' . rand( 0, 100000 );
+		$this->precreatePage( $pageName );
+
+		$this->runApproveHookTest( [ [
+			'title' => $pageName,
+			'task' => [
+				'ip' => '10.11.12.13',
+				'xff' => '10.20.30.40',
+				'ua' => 'Some-User-Agent/1.2.3',
+				'tags' => "Sample tag 1\nSample tag 2",
+
+				// This timestamp will be ignored, because it's earlier than timestamp of existing edit.
+				'timestamp' => $this->pastTimestamp()
+			],
+			'extra' => [ 'expectUnchangedTimestamp' => true ]
+		] ] );
+	}
+
+	/**
+	 * Test situation when ApproveHook uses "CASE...WHEN...THEN", but SOME timestamps are ignored.
+	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 */
+	public function testCaseWhenThenIgnoredTimestamp() {
+		// Precreate a page: if history doesn't exist, then rev_timestamp is never ignored.
+		$pageName = 'UTPage with ignored timestamp-' . rand( 0, 100000 );
+		$this->precreatePage( $pageName );
+
+		$this->runApproveHookTest( [
+			[ 'task' => [
+				'ip' => '10.0.0.1',
+				'xff' => '10.20.0.1',
+				'ua' => 'Some-User-Agent/0.0.1',
+				'tags' => null,
+				'timestamp' => $this->pastTimestamp( 1000 )
+			] ],
+			[
+				'title' => $pageName,
+				'task' => [
+					'ip' => '10.0.0.2',
+					'xff' => '10.20.0.2',
+					'ua' => 'Some-User-Agent/0.0.2',
+					'tags' => null,
+					'timestamp' => $this->pastTimestamp( 2000 )
+				],
+				'extra' => [ 'expectUnchangedTimestamp' => true ]
+			],
+			[ 'task' => [
+				'ip' => '10.0.0.3',
+				'xff' => '10.20.0.3',
+				'ua' => 'Some-User-Agent/0.0.3',
+				'tags' => null,
+				'timestamp' => $this->pastTimestamp( 3000 )
+			] ]
+
+		] );
+	}
+
+	/**
+	 * Test situation when ApproveHook uses "CASE...WHEN...THEN", but ALL timestamps are ignored.
+	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 */
+	public function testCaseWhenThenIgnoredAllTimestamps() {
+		// Precreate a page: if history doesn't exist, then rev_timestamp is never ignored.
+		$pageName1 = 'UTPage-1 with ignored timestamp-' . rand( 0, 100000 );
+		$this->precreatePage( $pageName1 );
+
+		$pageName2 = 'UTPage-2 with ignored timestamp-' . rand( 0, 100000 );
+		$this->precreatePage( $pageName2 );
+
+		$ignoredTimestamp = $this->pastTimestamp();
+
+		$this->runApproveHookTest( [
+			[
+				'title' => $pageName1,
+				'task' => [
+					'ip' => '10.0.0.2',
+					'xff' => '10.20.0.2',
+					'ua' => 'Some-User-Agent/0.0.2',
+					'tags' => null,
+					'timestamp' => $ignoredTimestamp
+				],
+				'extra' => [ 'expectUnchangedTimestamp' => true ]
+			],
+			[
+				'title' => $pageName2,
+				'task' => [
+					'ip' => '10.0.0.2',
+					'xff' => '10.20.0.2',
+					'ua' => 'Some-User-Agent/0.0.2',
+					'tags' => null,
+					'timestamp' => $ignoredTimestamp
+				],
+				'extra' => [ 'expectUnchangedTimestamp' => true ]
+			]
+		] );
+	}
+
+	// TODO: while testing installed InstallApproveHookConsequence followed by multiple edits,
+	// also test that ApproveHook doesn't affect edits of another $title OR $user OR $type.
 
 	/**
 	 * Run the ApproveHook test with selected list of edits.
@@ -131,12 +263,13 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	 * and also optional $task for ApproveHook itself (if null, then ApproveHook is NOT installed).
 	 *
 	 * @param array $todo
+	 * @param bool $deferUpdates If false, any DeferredUpdates are executed immediately.
 	 *
 	 * @codingStandardsIgnoreStart
-	 * @phan-param list<array{title?:string,user?:string,type?:string,task:?array<string,?string>}> $todo
+	 * @phan-param list<array{title?:string,user?:string,type?:string,task:?array<string,?string>,extra?:array}> $todo
 	 * @codingStandardsIgnoreEnd
 	 */
-	private function runApproveHookTest( array $todo ) {
+	private function runApproveHookTest( array $todo, $deferUpdates = true ) {
 		static $pageNameSuffix = 0; // Added to default titles of pages, incremented each time.
 
 		// Convert pagename and username parameters (#0 and #1) to Title/User objects
@@ -153,10 +286,10 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				User::newFromName( $username, false ) :
 				( new TestUser( $username ) )->getUser();
 
-			return [ $title, $user, $type, $task ];
+			return [ $title, $user, $type, $task, $testParameters['extra'] ?? [] ];
 		}, $todo );
 
-		'@phan-var list<array{0:Title,1:User,2:string,3:array<string,?string>}> $todo';
+		'@phan-var list<array{0:Title,1:User,2:string,3:array<string,?string>,4:array}> $todo';
 
 		foreach ( $todo as $testParameters ) {
 			list( $title, $user, $type, $task ) = $testParameters;
@@ -203,7 +336,11 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 
 		// Now make new edits and double-check that all changes from $task were applied to them.
 		$this->setMwGlobals( 'wgModerationEnable', false ); // Edits shouldn't be intercepted
-		$this->setMwGlobals( 'wgCommandLineMode', false ); // Delay any DeferredUpdates
+
+		if ( $deferUpdates ) {
+			 // Delay any DeferredUpdates
+			$this->setMwGlobals( 'wgCommandLineMode', false );
+		}
 
 		$expectedTaggedRevIds = [];
 
@@ -216,14 +353,16 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 			}
 		}
 
-		// Run any DeferredUpdates that may have been queued when making edits.
-		// Note: PRESEND must be first, as this is where RecentChanges_save hooks are called,
-		// and results of these hooks are used by ApproveHook, which is in POSTSEND.
-		DeferredUpdates::doUpdates( 'run', DeferredUpdates::PRESEND );
-		DeferredUpdates::doUpdates( 'run', DeferredUpdates::POSTSEND );
+		if ( $deferUpdates ) {
+			// Run any DeferredUpdates that may have been queued when making edits.
+			// Note: PRESEND must be first, as this is where RecentChanges_save hooks are called,
+			// and results of these hooks are used by ApproveHook, which is in POSTSEND.
+			DeferredUpdates::doUpdates( 'run', DeferredUpdates::PRESEND );
+			DeferredUpdates::doUpdates( 'run', DeferredUpdates::POSTSEND );
+		}
 
 		foreach ( $todo as $testParameters ) {
-			list( $title, $user, $type, $task ) = $testParameters;
+			list( $title, $user, $type, $task, $extraInfo ) = $testParameters;
 
 			$expectedIP = $task ? $task['ip'] : '127.0.0.1';
 			if ( $this->db->getType() == 'postgres' ) {
@@ -239,6 +378,12 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				$rcWhere['rc_log_action'] = 'move';
 			}
 
+			if ( $rcWhere['rc_actor'] == 0 ) {
+				// B/C: MediaWiki 1.31 doesn't use Actors by default.
+				unset( $rcWhere['rc_actor'] );
+				$rcWhere['rc_user_text'] = $user->getName();
+			}
+
 			// Verify that ApproveHook has modified recentchanges.rc_ip field.
 			$this->assertSelect(
 				'recentchanges',
@@ -250,14 +395,14 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 			if ( $task ) {
 				$revid = $this->db->selectField( 'recentchanges', 'rc_this_oldid', $rcWhere,
 					__METHOD__ );
+				$rev = Revision::newFromId( $revid, Revision::READ_LATEST );
 
-				// Verify that ApproveHook has modified revision.rev_timestamp field.
-				$this->assertSelect( 'revision',
-					[ 'rev_timestamp' ],
-					[ 'rev_id' => $revid ],
-					// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
-					[ [ $this->db->timestamp( $task['timestamp'] ) ] ]
-				);
+				if ( empty( $extraInfo['expectUnchangedTimestamp'] ) ) {
+					// Verify that ApproveHook has modified revision.rev_timestamp field.
+					$this->assertEquals( $task['timestamp'], $rev->getTimestamp() );
+				} else {
+					$this->assertNotEquals( $task['timestamp'], $rev->getTimestamp() );
+				}
 			}
 
 			if ( ExtensionRegistry::getInstance()->isLoaded( 'CheckUser' ) ) {
