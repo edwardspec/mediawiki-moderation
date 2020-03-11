@@ -134,12 +134,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	 */
 	private function precreatePage( $pageName ) {
 		$title = Title::newFromText( $pageName );
-		$revid = $this->makeEdit( $title, self::getTestUser( [ 'automoderated' ] )->getUser() );
-
-		// FIXME: cleaning "logging" table is needed because runApproveHookTest() checks ALL rows
-		// in this table, and that includes "create/create" LogEntry from makeEdit() above.
-		// Tag-checking code in runApproveHookTest() should be rewritten to avoid this.
-		$this->db->delete( 'logging', '*' );
+		$this->makeEdit( $title, self::getTestUser( [ 'automoderated' ] )->getUser() );
 	}
 
 	/**
@@ -307,28 +302,19 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		$this->setTemporaryHook( 'ChangeTagsAfterUpdateTags', function (
 			$tagsToAdd, $tagsToRemove, $prevTags,
 			$rc_id, $rev_id, $log_id, $params, $rc, $user
-		) use ( $todo, &$taggedRevIds, &$taggedLogIds, &$taggedRcIds ) {
-			$task = $this->findTaskInTodo( $todo, $rc->getTitle(), $rc->getPerformer(), 'edit' );
-
-			$this->assertNotEmpty( $task['tags'],
-				"Tags were changed for something that wasn't supposed to be tagged" );
-
-			// @phan-suppress-next-line PhanTypeMismatchArgumentNullableInternal
-			$expectedTags = explode( "\n", $task['tags'] );
-
-			$this->assertEquals( $expectedTags, $tagsToAdd );
+		) use ( &$taggedRevIds, &$taggedLogIds, &$taggedRcIds ) {
 			$this->assertEquals( [], $tagsToRemove );
 
 			if ( $rev_id !== false ) {
-				$taggedRevIds[] = $rev_id;
+				$taggedRevIds[$rev_id] = $tagsToAdd;
 			}
 
 			if ( $log_id !== false ) {
-				$taggedLogIds[] = $log_id;
+				$taggedLogIds[$log_id] = $tagsToAdd;
 			}
 
 			if ( $rc_id !== false ) {
-				$taggedRcIds[] = $rc_id;
+				$taggedRcIds[$rc_id] = $tagsToAdd;
 			}
 
 			return true;
@@ -342,15 +328,9 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 			$this->setMwGlobals( 'wgCommandLineMode', false );
 		}
 
-		$expectedTaggedRevIds = [];
-
 		foreach ( $todo as $testParameters ) {
 			list( $title, $user, $type, $task ) = $testParameters;
-			$revid = $this->makeEdit( $title, $user );
-
-			if ( !empty( $task['tags'] ) ) {
-				$expectedTaggedRevIds[] = $revid;
-			}
+			$this->makeEdit( $title, $user );
 		}
 
 		if ( $deferUpdates ) {
@@ -392,10 +372,16 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				[ [ $expectedIP ] ]
 			);
 
+			$row = $this->db->selectRow( 'recentchanges',
+				[ 'rc_id', 'rc_this_oldid' ],
+				$rcWhere,
+				__METHOD__
+			);
+			$rev_id = $row->rc_this_oldid;
+			$rc_id = $row->rc_id;
+
 			if ( $task ) {
-				$revid = $this->db->selectField( 'recentchanges', 'rc_this_oldid', $rcWhere,
-					__METHOD__ );
-				$rev = Revision::newFromId( $revid, Revision::READ_LATEST );
+				$rev = Revision::newFromId( $rev_id, Revision::READ_LATEST );
 
 				if ( empty( $extraInfo['expectUnchangedTimestamp'] ) ) {
 					// Verify that ApproveHook has modified revision.rev_timestamp field.
@@ -431,36 +417,42 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 					[ $expectedRow ]
 				);
 			}
+
+			// Verify that ChangeTagsAfterUpdateTags hook was called for all revisions, etc.
+
+			// @phan-suppress-next-line PhanTypeMismatchArgumentNullableInternal
+			$expectedTags = empty( $task['tags'] ) ? null : explode( "\n", $task['tags'] );
+
+			$this->assertEquals( $expectedTags, $taggedRevIds[$rev_id] ?? null );
+			$this->assertEquals( $expectedTags, $taggedRcIds[$rc_id] ?? null );
+
+			$logWhere = [
+				'log_namespace' => $title->getNamespace(),
+				'log_title' => $title->getDBKey(),
+				'log_actor' => $user->getActorId()
+			];
+			if ( $logWhere['log_actor'] == 0 ) {
+				// B/C: MediaWiki 1.31 doesn't use Actors by default.
+				unset( $logWhere['log_actor'] );
+				$logWhere['log_user_text'] = $user->getName();
+			}
+
+			$log_ids = $this->db->selectFieldValues( 'logging', 'log_id', $logWhere, __METHOD__ );
+			foreach ( $log_ids as $log_id ) {
+				$this->assertEquals( $expectedTags, $taggedLogIds[$log_id] ?? null );
+				unset( $taggedLogIds[$log_id] );
+			}
+
+			unset( $taggedRevIds[$rev_id] );
+			unset( $taggedRcIds[$rc_id] );
 		}
+
+		// Verify that things that shouldn't have been tagged weren't tagged.
+		$this->assertEmpty( $taggedRevIds );
+		$this->assertEmpty( $taggedRcIds );
+		$this->assertEmpty( $taggedLogIds );
 
 		// TODO: test moves: both redirect revision and "page moves" null revision should be affected.
-
-		// Check that ChangeTagsAfterUpdateTags hook was called for all revisions, etc.
-		// Note: ChangeTagsAfterUpdateTags hook (see above) checks "were added tags valid or not".
-		$this->assertEquals( $expectedTaggedRevIds, $taggedRevIds );
-
-		if ( $expectedTaggedRevIds ) {
-			$this->assertSelect( 'recentchanges',
-				[ 'rc_id', 'rc_this_oldid' ],
-				[ 'rc_this_oldid' => $expectedTaggedRevIds ],
-				array_map( function ( $rc_id, $rev_id ) {
-					return [
-						$rc_id,
-						$rev_id,
-					];
-				}, $taggedRcIds, $expectedTaggedRevIds )
-			);
-			$this->assertSelect( 'logging',
-				[ 'log_id' ],
-				'',
-				array_map( function ( $log_id ) {
-					return [ $log_id ];
-				}, $taggedLogIds )
-			);
-		} else {
-			$this->assertEmpty( $taggedRcIds );
-			$this->assertEmpty( $taggedLogIds );
-		}
 	}
 
 	/**
@@ -494,31 +486,6 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		$this->assertTrue( $status->isGood(), "Edit failed: " . $status->getMessage()->plain() );
 
 		return $status->value['revision']->getId();
-	}
-
-	/**
-	 * Find task in $todo (which is populated during runApproveHookTest()).
-	 * @param array $todo
-	 * @param Title $title
-	 * @param User $user
-	 * @param string $type
-	 * @return array
-	 *
-	 * @phan-param list<array{0:Title,1:User,2:string,3:array<string,?string>}> $todo
-	 * @phan-return array<string,?string>
-	 */
-	private function findTaskInTodo( array $todo, Title $title, User $user, $type ) {
-		foreach ( $todo as $testParameters ) {
-			list( $todoTitle, $todoUser, $todoType, $task ) = $testParameters;
-			if ( $todoType == $type && $todoTitle->equals( $title ) &&
-				$todoUser->equals( $user )
-			) {
-				return $task;
-			}
-		}
-
-		throw new MWException( 'findTaskInTodo: not found for title=' . $title->getPrefixedText() .
-			', user=' . $user->getName() . ", type=$type" );
 	}
 
 	/**
