@@ -88,6 +88,14 @@ class ModerationApproveHook {
 	}
 
 	/**
+	 * Schedule doUpdate() to run after all other DeferredUpdates that are caused by new moves.
+	 */
+	public static function onTitleMoveComplete() {
+		self::singleton()->useCount ++;
+		DeferredUpdates::addCallableUpdate( __CLASS__ . '::doUpdate' );
+	}
+
+	/**
 	 * Correct rev_timestamp, rc_ip and other fields (as requested by queueUpdate()).
 	 */
 	public static function doUpdate() {

@@ -363,6 +363,9 @@
 		"SpecialPageBeforeExecute": [
 			"MediaWiki\\Moderation\\WatchCheckbox::onSpecialPageBeforeExecute"
 		],
+		"TitleMoveComplete": [
+			"ModerationApproveHook::onTitleMoveComplete"
+		],
 		"UploadVerifyUpload": [
 			"ModerationUploadHooks::onUploadVerifyUpload"
 		],
