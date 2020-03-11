@@ -31,10 +31,27 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		'change_tag', 'logging', 'log_search' ];
 
 	/**
-	 * Verify that InstallApproveHookConsequence works with one edit.
+	 * Verify that InstallApproveHookConsequence (without tags) works with one edit.
+	 * This is the most common situation of ApproveHook being used in production.
 	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 */
 	public function testOneEdit() {
+		$this->runApproveHookTest( [ [
+			'task' => [
+				'ip' => '10.11.12.13',
+				'xff' => '10.20.30.40',
+				'ua' => 'Some-User-Agent/1.2.3',
+				'tags' => null, // Tags are optional, and most edits won't have them
+				'timestamp' => wfTimestamp( TS_MW, (int)wfTimestamp() - 100000 )
+			]
+		] ] );
+	}
+
+	/**
+	 * Verify that InstallApproveHookConsequence (with tags) works with one edit.
+	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 */
+	public function testOneEditWithTags() {
 		$this->runApproveHookTest( [ [
 			'task' => [
 				'ip' => '10.11.12.13',
@@ -47,18 +64,13 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * Verify that InstallApproveHookConsequence works with one edit.
+	 * Verify that InstallApproveHookConsequence won't affect edits that weren't targeted by it.
 	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 */
-	public function testOneEditWithoutTags() {
+	public function testNoApproveHookNeeded() {
 		$this->runApproveHookTest( [ [
-			'task' => [
-				'ip' => '10.11.12.13',
-				'xff' => '10.20.30.40',
-				'ua' => 'Some-User-Agent/1.2.3',
-				'tags' => null,
-				'timestamp' => wfTimestamp( TS_MW, (int)wfTimestamp() - 100000 )
-			]
+			# Here runApproveHookTest() will still make an edit, but won't install ApproveHook.
+			'task' => null
 		] ] );
 	}
 
@@ -121,7 +133,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	 * @param array $todo
 	 *
 	 * @codingStandardsIgnoreStart
-	 * @phan-param list<array{title?:string,user?:string,type?:string,task:array<string,?string>}> $todo
+	 * @phan-param list<array{title?:string,user?:string,type?:string,task:?array<string,?string>}> $todo
 	 * @codingStandardsIgnoreEnd
 	 */
 	private function runApproveHookTest( array $todo ) {
@@ -213,7 +225,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		foreach ( $todo as $testParameters ) {
 			list( $title, $user, $type, $task ) = $testParameters;
 
-			$expectedIP = $task['ip'];
+			$expectedIP = $task ? $task['ip'] : '127.0.0.1';
 			if ( $this->db->getType() == 'postgres' ) {
 				$expectedIP .= '/32';
 			}
@@ -235,19 +247,31 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				[ [ $expectedIP ] ]
 			);
 
-			$revid = $this->db->selectField( 'recentchanges', 'rc_this_oldid', $rcWhere,
-				__METHOD__ );
+			if ( $task ) {
+				$revid = $this->db->selectField( 'recentchanges', 'rc_this_oldid', $rcWhere,
+					__METHOD__ );
 
-			// Verify that ApproveHook has modified revision.rev_timestamp field.
-			$this->assertSelect( 'revision',
-				[ 'rev_timestamp' ],
-				[ 'rev_id' => $revid ],
-				// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
-				[ [ $this->db->timestamp( $task['timestamp'] ) ] ]
-			);
+				// Verify that ApproveHook has modified revision.rev_timestamp field.
+				$this->assertSelect( 'revision',
+					[ 'rev_timestamp' ],
+					[ 'rev_id' => $revid ],
+					// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
+					[ [ $this->db->timestamp( $task['timestamp'] ) ] ]
+				);
+			}
 
 			if ( ExtensionRegistry::getInstance()->isLoaded( 'CheckUser' ) ) {
 				// Verify that ApproveHook has modified fields in cuc_changes table.
+				$expectedRow = [ '127.0.0.1', IP::toHex( '127.0.0.1' ), '0' ];
+				if ( $task ) {
+					$expectedRow = [
+						$task['ip'],
+						// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
+						$task['ip'] ? IP::toHex( $task['ip'] ) : null,
+						$task['ua']
+					];
+				}
+
 				$this->assertSelect( 'cu_changes',
 					[
 						'cuc_ip',
@@ -259,12 +283,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 						'cuc_title' => $title->getDBKey(),
 						'cuc_user_text' => $user->getName()
 					],
-					[ [
-						$task['ip'],
-						// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
-						$task['ip'] ? IP::toHex( $task['ip'] ) : null,
-						$task['ua']
-					] ]
+					[ $expectedRow ]
 				);
 			}
 		}
