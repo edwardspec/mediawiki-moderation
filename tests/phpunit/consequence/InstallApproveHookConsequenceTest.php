@@ -143,11 +143,31 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	/**
 	 * Precreate a page for IgnoredTimestamp tests.
 	 * @param string $pageName
+	 * @param string|null $text
 	 * @return int rev_id
 	 */
-	private function precreatePage( $pageName ) {
-		$title = Title::newFromText( $pageName );
-		return $this->makeEdit( $title, self::getTestUser( [ 'automoderated' ] )->getUser() );
+	private function precreatePage( $pageName, $text = null ) {
+		return $this->makeEdit( Title::newFromText( $pageName ),
+			self::getTestUser( [ 'automoderated' ] )->getUser(), $text );
+	}
+
+	/**
+	 * Precreate a page and make rev_timestamp of its initial revision to 1 January 1970.
+	 * @param string $pageName
+	 * @param string|null $text
+	 */
+	private function precreatePageLongAgo( $pageName, $text = null ) {
+		$revid = $this->precreatePage( $pageName, $text );
+
+		// Ensure that rev_timestamp of precreated revision is extremely far in the past
+		// and won't trigger "rev_timestamp ignored" situation
+		// unless the test specifically causes it.
+		$this->db->update( 'revision',
+			[ 'rev_timestamp' => $this->db->timestamp( '19700101000000' ) ],
+			[ 'rev_id' => $revid ],
+			__METHOD__
+		);
+		$this->assertEquals( 1, $this->db->affectedRows() );
 	}
 
 	/**
@@ -280,6 +300,45 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		] );
 	}
 
+	/**
+	 * Verify that InstallApproveHookConsequence works with a move that overwrites a redirect,
+	 * i.e. when before the move $oldTitle was an article and $newTitle a redirect to $oldTitle.
+	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 */
+	public function testOneMoveOverwriteRedirect() {
+		$pageName = 'UTPage-' . rand( 0, 100000 );
+		$newPageName = 'NewTitleAfterMoveIsExistingPageThatWasARedirectToOldTitle';
+
+		$this->precreatePageLongAgo( $newPageName, "#REDIRECT [[$pageName]]" );
+
+		$this->runApproveHookTest( [ [
+			'type' => ModerationNewChange::MOD_TYPE_MOVE,
+			'task' => [ 'timestamp' => wfTimestampNow() ] + $this->defaultTask(),
+			'title' => $pageName,
+			'extra' => [ 'newTitle' => $newPageName ]
+		] ] );
+	}
+
+	/**
+	 * Same as testOneMoveOverwriteRedirect(), but with ignored timestamp.
+	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 */
+	public function testOneMoveOverwriteRedirectWithIgnoredTimestamp() {
+		$pageName = 'UTPage-' . rand( 0, 100000 );
+		$newPageName = 'NewTitleAfterMoveIsExistingPageThatWasARedirectToOldTitle';
+
+		$this->precreatePage( $pageName, "Some text" );
+		$this->precreatePage( $newPageName, "#REDIRECT [[$pageName]]" );
+
+		$this->runApproveHookTest( [ [
+			'type' => ModerationNewChange::MOD_TYPE_MOVE,
+			'task' => $this->defaultTask(),
+			'title' => $pageName,
+			'timestamp' => $this->pastTimestamp(),
+			'extra' => [ 'newTitle' => $newPageName, 'expectUnchangedTimestamp' => true ]
+		] ] );
+	}
+
 	// TODO: while testing installed InstallApproveHookConsequence followed by multiple edits,
 	// also test that ApproveHook doesn't affect edits of another $title OR $user OR $type.
 
@@ -312,17 +371,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				$this->setGroupPermissions( '*', 'move', true );
 
 				if ( !$title->exists() ) {
-					$revid = $this->precreatePage( $pageName );
-
-					// Ensure that rev_timestamp of precreated revision is extremely far in the past
-					// and won't trigger "rev_timestamp ignored" situation
-					// unless the test specifically causes it.
-					$this->db->update( 'revision',
-						[ 'rev_timestamp' => $this->db->timestamp( '19700101000000' ) ],
-						[ 'rev_id' => $revid ],
-						'runApproveHookTest'
-					);
-					$this->assertEquals( 1, $this->db->affectedRows() );
+					$this->precreatePageLongAgo( $pageName );
 				}
 			}
 
@@ -330,7 +379,12 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				User::newFromName( $username, false ) :
 				( new TestUser( $username ) )->getUser();
 
-			return [ $title, $user, $type, $task, $testParameters['extra'] ?? [] ];
+			$extraInfo = $testParameters['extra'] ?? [];
+			if ( isset( $extraInfo['newTitle'] ) ) {
+				$extraInfo['newTitle'] = Title::newFromText( $extraInfo['newTitle'] );
+			}
+
+			return [ $title, $user, $type, $task, $extraInfo ];
 		}, $todo );
 
 		'@phan-var list<array{0:Title,1:User,2:string,3:array<string,?string>,4:array}> $todo';
@@ -384,12 +438,12 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		}
 
 		foreach ( $todo as $testParameters ) {
-			list( $title, $user, $type, $task ) = $testParameters;
+			list( $title, $user, $type, $task, $extraInfo ) = $testParameters;
 
 			if ( $type == ModerationNewChange::MOD_TYPE_EDIT ) {
 				$this->makeEdit( $title, $user );
 			} elseif ( $type == ModerationNewChange::MOD_TYPE_MOVE ) {
-				$this->makeMove( $title, $user );
+				$this->makeMove( $title, $user, $extraInfo['newTitle'] ?? null );
 			} else {
 				throw new MWException( "Unknown type: $type" );
 			}
@@ -417,7 +471,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				'rc_actor' => $user->getActorId()
 			];
 			if ( $type == ModerationNewChange::MOD_TYPE_MOVE ) {
-				$rcWhere['rc_log_action'] = 'move';
+				$rcWhere['rc_log_action'] = [ 'move', 'move_redir' ];
 			}
 
 			if ( $rcWhere['rc_actor'] == 0 ) {
@@ -525,11 +579,14 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	 * Make one test edit on behalf of $user in page $title.
 	 * @param Title $title
 	 * @param User $user
+	 * @param string|null $text
 	 * @return int rev_id of the newly created edit.
 	 */
-	private function makeEdit( Title $title, User $user ) {
-		$text = 'Some text ' . rand( 0, 100000 ) . ' in page ' .
-			$title->getFullText() . ' by ' . $user->getName();
+	private function makeEdit( Title $title, User $user, $text = null ) {
+		if ( !$text ) {
+			$text = 'Some text ' . rand( 0, 100000 ) . ' in page ' .
+				$title->getFullText() . ' by ' . $user->getName();
+		}
 
 		// B/C workaround for User::getBlockedStatus() trying to use $wgUser in MediaWiki 1.31,
 		// which leads to WebRequest::getIP() being used (which fails) instead of FauxRequest.
@@ -558,15 +615,20 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	 * Make one test renaming of $title on behalf of $user, return new title.
 	 * @param Title $title
 	 * @param User $user
+	 * @param Title|null $newTitle
 	 */
-	private function makeMove( Title $title, User $user ) {
-		$newTitle = Title::newFromText( $title->getPrefixedText() . '-newTitle' );
+	private function makeMove( Title $title, User $user, Title $newTitle = null ) {
+		if ( !$newTitle ) {
+			$newTitle = Title::newFromText( $title->getPrefixedText() . '-newTitle' );
+		}
+
 		$this->assertTrue( $title->exists(),
 			"makeMove(): page doesn't exist: " . $title->getFullText() );
 
 		$reason = 'Some reason to rename the page';
 		$createRedirect = true;
 
+		// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
 		$mp = new MovePage( $title, $newTitle );
 
 		/* Sanity checks like "page with the new name should not exist" */

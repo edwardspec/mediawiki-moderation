@@ -353,8 +353,10 @@ class ModerationApproveHook {
 	 * @return array|false
 	 */
 	protected function getTaskByRC( RecentChange $rc ) {
+		$logAction = $rc->mAttribs['rc_log_action'];
+
 		$type = ModerationNewChange::MOD_TYPE_EDIT;
-		if ( $rc->mAttribs['rc_log_action'] == 'move' ) {
+		if ( $logAction == 'move' || $logAction == 'move_redir' ) {
 			$type = ModerationNewChange::MOD_TYPE_MOVE;
 		}
 
