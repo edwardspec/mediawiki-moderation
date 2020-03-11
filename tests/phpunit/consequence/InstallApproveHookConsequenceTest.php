@@ -435,6 +435,10 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		if ( $deferUpdates ) {
 			 // Delay any DeferredUpdates
 			$this->setMwGlobals( 'wgCommandLineMode', false );
+
+			// Prevent getRequest() from making WebRequest due to $wgCommandLineMode=false.
+			// Tests must always use FauxRequest.
+			RequestContext::getMain()->setRequest( new FauxRequest() );
 		}
 
 		foreach ( $todo as $testParameters ) {
@@ -586,16 +590,6 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		if ( !$text ) {
 			$text = 'Some text ' . rand( 0, 100000 ) . ' in page ' .
 				$title->getFullText() . ' by ' . $user->getName();
-		}
-
-		// B/C workaround for User::getBlockedStatus() trying to use $wgUser in MediaWiki 1.31,
-		// which leads to WebRequest::getIP() being used (which fails) instead of FauxRequest.
-		global $wgVersion;
-		if ( version_compare( $wgVersion, '1.32.0', '<' ) ) {
-			$request = RequestContext::getMain()->getRequest();
-			if ( $request instanceof WebRequest ) {
-				RequestContext::getMain()->setRequest( new FauxRequest() );
-			}
 		}
 
 		$page = WikiPage::factory( $title );
