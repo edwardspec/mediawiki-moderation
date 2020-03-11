@@ -31,12 +31,6 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		'change_tag', 'logging', 'log_search' ];
 
 	/**
-	 * @var list<array{0:Title,1:User,2:string,3:array<string,?string>}>
-	 * Parameters of currently running runApproveHookTest().
-	 */
-	protected $currentTestInfo;
-
-	/**
 	 * Verify that InstallApproveHookConsequence works with one edit.
 	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 */
@@ -128,7 +122,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	 *
 	 * @codingStandardsIgnoreStart
 	 * @phan-param list<array{title?:string,user?:string,type?:string,task:array<string,?string>}> $todo
-	 *  @codingStandardsIgnoreEnd
+	 * @codingStandardsIgnoreEnd
 	 */
 	private function runApproveHookTest( array $todo ) {
 		static $pageNameSuffix = 0; // Added to default titles of pages, incremented each time.
@@ -150,8 +144,7 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 			return [ $title, $user, $type, $task ];
 		}, $todo );
 
-		// Make $todo available to findTaskInTodo()
-		$this->currentTestInfo = $todo;
+		'@phan-var list<array{0:Title,1:User,2:string,3:array<string,?string>}> $todo';
 
 		foreach ( $todo as $testParameters ) {
 			list( $title, $user, $type, $task ) = $testParameters;
@@ -169,8 +162,8 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		$this->setTemporaryHook( 'ChangeTagsAfterUpdateTags', function (
 			$tagsToAdd, $tagsToRemove, $prevTags,
 			$rc_id, $rev_id, $log_id, $params, $rc, $user
-		) use ( &$taggedRevIds, &$taggedLogIds, &$taggedRcIds ) {
-			$task = $this->findTaskInTodo( $rc->getTitle(), $rc->getPerformer(), 'edit' );
+		) use ( $todo, &$taggedRevIds, &$taggedLogIds, &$taggedRcIds ) {
+			$task = $this->findTaskInTodo( $todo, $rc->getTitle(), $rc->getPerformer(), 'edit' );
 
 			$this->assertNotEmpty( $task['tags'],
 				"Tags were changed for something that wasn't supposed to be tagged" );
@@ -202,12 +195,9 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 
 		$expectedTaggedRevIds = [];
 
-		$revIds = [];
-		foreach ( $todo as &$testParameters ) {
+		foreach ( $todo as $testParameters ) {
 			list( $title, $user, $type, $task ) = $testParameters;
 			$revid = $this->makeEdit( $title, $user );
-
-			$revIds[] = $revid;
 
 			if ( !empty( $task['tags'] ) ) {
 				$expectedTaggedRevIds[] = $revid;
@@ -220,53 +210,66 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		DeferredUpdates::doUpdates( 'run', DeferredUpdates::PRESEND );
 		DeferredUpdates::doUpdates( 'run', DeferredUpdates::POSTSEND );
 
-		// TODO: test moves: both redirect revision and "page moves" null revision should be affected.
-		// TODO: check that correct User+Title pairs got correct results.
+		foreach ( $todo as $testParameters ) {
+			list( $title, $user, $type, $task ) = $testParameters;
 
-		$tasks = array_filter( array_map( function ( $testParameters ) {
-			return $testParameters[3];
-		}, $todo ) );
+			$expectedIP = $task['ip'];
+			if ( $this->db->getType() == 'postgres' ) {
+				$expectedIP .= '/32';
+			}
 
-		$this->assertSelect( 'revision',
-			[ 'rev_timestamp' ],
-			[ 'rev_id' => $revIds ],
-			array_map( function ( $task ) {
-				return [ $this->db->timestamp( $task['timestamp'] ) ];
-			}, $tasks ),
-			[ 'ORDER BY' => 'rev_id' ]
-		);
+			$rcWhere = [
+				'rc_namespace' => $title->getNamespace(),
+				'rc_title' => $title->getDBKey(),
+				'rc_actor' => $user->getActorId()
+			];
+			if ( $type == ModerationNewChange::MOD_TYPE_MOVE ) {
+				$rcWhere['rc_log_action'] = 'move';
+			}
 
-		$this->assertSelect( 'recentchanges',
-			[ 'rc_ip' ],
-			[ 'rc_this_oldid' => $revIds ],
-			array_map( function ( $task ) {
-				$expectedIP = $task['ip'];
-				if ( $this->db->getType() == 'postgres' ) {
-					$expectedIP .= '/32';
-				}
-				return [ $expectedIP ];
-			}, $tasks ),
-			[ 'ORDER BY' => 'rc_id' ]
-		);
-
-		if ( ExtensionRegistry::getInstance()->isLoaded( 'CheckUser' ) ) {
-			$this->assertSelect( 'cu_changes',
-				[
-					'cuc_ip',
-					'cuc_ip_hex',
-					'cuc_agent'
-				],
-				[ 'cuc_this_oldid' => $revIds ],
-				array_map( function ( $task ) {
-					return [
-						$task['ip'],
-						IP::toHex( $task['ip'] ),
-						$task['ua']
-					];
-				}, $tasks ),
-				[ 'ORDER BY' => 'cuc_id' ]
+			// Verify that ApproveHook has modified recentchanges.rc_ip field.
+			$this->assertSelect(
+				'recentchanges',
+				[ 'rc_ip' ],
+				$rcWhere,
+				[ [ $expectedIP ] ]
 			);
+
+			$revid = $this->db->selectField( 'recentchanges', 'rc_this_oldid', $rcWhere,
+				__METHOD__ );
+
+			// Verify that ApproveHook has modified revision.rev_timestamp field.
+			$this->assertSelect( 'revision',
+				[ 'rev_timestamp' ],
+				[ 'rev_id' => $revid ],
+				// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
+				[ [ $this->db->timestamp( $task['timestamp'] ) ] ]
+			);
+
+			if ( ExtensionRegistry::getInstance()->isLoaded( 'CheckUser' ) ) {
+				// Verify that ApproveHook has modified fields in cuc_changes table.
+				$this->assertSelect( 'cu_changes',
+					[
+						'cuc_ip',
+						'cuc_ip_hex',
+						'cuc_agent'
+					],
+					[
+						'cuc_namespace' => $title->getNamespace(),
+						'cuc_title' => $title->getDBKey(),
+						'cuc_user_text' => $user->getName()
+					],
+					[ [
+						$task['ip'],
+						// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
+						$task['ip'] ? IP::toHex( $task['ip'] ) : null,
+						$task['ua']
+					] ]
+				);
+			}
 		}
+
+		// TODO: test moves: both redirect revision and "page moves" null revision should be affected.
 
 		// Check that ChangeTagsAfterUpdateTags hook was called for all revisions, etc.
 		// Note: ChangeTagsAfterUpdateTags hook (see above) checks "were added tags valid or not".
@@ -306,6 +309,16 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		$text = 'Some text ' . rand( 0, 100000 ) . ' in page ' .
 			$title->getFullText() . ' by ' . $user->getName();
 
+		// B/C workaround for User::getBlockedStatus() trying to use $wgUser in MediaWiki 1.31,
+		// which leads to WebRequest::getIP() being used (which fails) instead of FauxRequest.
+		global $wgVersion;
+		if ( version_compare( $wgVersion, '1.32.0', '<' ) ) {
+			$request = RequestContext::getMain()->getRequest();
+			if ( $request instanceof WebRequest ) {
+				RequestContext::getMain()->setRequest( new FauxRequest() );
+			}
+		}
+
 		$page = WikiPage::factory( $title );
 		$status = $page->doEditContent(
 			ContentHandler::makeContent( $text, null, CONTENT_MODEL_WIKITEXT ),
@@ -320,16 +333,18 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * Find task in $this->currentTestInfo (which is populated during runApproveHookTest()).
+	 * Find task in $todo (which is populated during runApproveHookTest()).
+	 * @param array $todo
 	 * @param Title $title
 	 * @param User $user
 	 * @param string $type
 	 * @return array
 	 *
+	 * @phan-param list<array{0:Title,1:User,2:string,3:array<string,?string>}> $todo
 	 * @phan-return array<string,?string>
 	 */
-	private function findTaskInTodo( Title $title, User $user, $type ) {
-		foreach ( $this->currentTestInfo as $testParameters ) {
+	private function findTaskInTodo( array $todo, Title $title, User $user, $type ) {
+		foreach ( $todo as $testParameters ) {
 			list( $todoTitle, $todoUser, $todoType, $task ) = $testParameters;
 			if ( $todoType == $type && $todoTitle->equals( $title ) &&
 				$todoUser->equals( $user )
