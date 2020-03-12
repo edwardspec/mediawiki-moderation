@@ -22,10 +22,14 @@
 
 use MediaWiki\Moderation\RejectBatchConsequence;
 
+require_once __DIR__ . "/ModifySeveralDbRowsTestTrait.php";
+
 /**
  * @group Database
  */
 class RejectBatchConsequenceTest extends MediaWikiTestCase {
+	use ModifySeveralDbRowsTestTrait;
+
 	/** @var string[] */
 	protected $tablesUsed = [ 'moderation', 'user' ];
 
@@ -37,8 +41,7 @@ class RejectBatchConsequenceTest extends MediaWikiTestCase {
 		$moderator = User::createNew( 'Some moderator' );
 
 		// Let's reject half of the rows. This allows us to test that other rows are unmodified.
-		$ids = $this->precreateRows( 6 );
-		list( $idsToReject, $idsToPreserve ) = array_chunk( $ids, 2 );
+		list( $idsToReject, $idsToPreserve ) = array_chunk( $this->ids, 2 );
 
 		// Create and run the Consequence.
 		$consequence = new RejectBatchConsequence( $idsToReject, $moderator );
@@ -91,27 +94,5 @@ class RejectBatchConsequenceTest extends MediaWikiTestCase {
 			[ 'mod_id' => $ids ],
 			array_fill( 0, count( $ids ), [ 0 ] )
 		);
-	}
-
-	/**
-	 * Create several rows in "moderation" SQL table.
-	 * @param int $count
-	 * @return int[] Array of mod_id values of newly added rows.
-	 */
-	private function precreateRows( $count ) {
-		$author = User::newFromName( "127.0.0.1", false );
-		$content = ContentHandler::makeContent( 'Some text', null, CONTENT_MODEL_WIKITEXT );
-
-		$ids = [];
-		for ( $i = 0; $i < $count; $i++ ) {
-			$title = Title::newFromText( "Some page $i" );
-			$page = WikiPage::factory( $title );
-
-			$change = new ModerationNewChange( $title, $author );
-			$ids[] = $change->edit( $page, $content, '', '' )->queue();
-		}
-
-		$this->assertCount( $count, $ids );
-		return $ids;
 	}
 }
