@@ -58,5 +58,7 @@
 	"moderation-rejected-auto": "Автоматично отхвърлено",
 	"moderation-reject": "Отхвърляне",
 	"moderation-show": "разл",
+	"moderation-whois-link-text": "?",
+	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
 	"right-moderation": "Модериране на редакции"
 }

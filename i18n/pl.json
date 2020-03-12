@@ -85,6 +85,8 @@
 	"moderation-unblock": "Cofnij status spamera",
 	"moderation-unblock-ok": "{{GENDER:$1|Użytkownik|Użytkowniczka}} [[Special:Contributions/$1|$1]] nie jest już {{GENDER:$1|uznawany|uznawana}} za spamera.",
 	"moderation-unknown-modaction": "Nieznana akcja moderacji.",
+	"moderation-whois-link-text": "?",
+	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
 	"right-moderation-checkuser": "Podgląd IP edytorów w interfejsie moderacji",
 	"right-moderation": "Moderowanie edycji",
 	"right-skip-moderation": "Edytowanie z pominięciem moderacji.",

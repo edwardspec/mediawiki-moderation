@@ -91,6 +91,8 @@
 	"moderation-unblock": "لم يعد مرسل بريد مزعج",
 	"moderation-unblock-ok": "المستخدم [[Special:Contributions/$1|$1]] لم يعد يُعتبَر مرسل بريد مزعج.",
 	"moderation-unknown-modaction": "إجراء إشراف غير معروف.",
+	"moderation-whois-link-text": "?",
+	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
 	"right-moderation-checkuser": "القدرة على رؤية عناوين أيبي المحررين في واجهة الإشراف",
 	"right-moderation": "الإشراف على التعديلات",
 	"right-skip-moderation": "تعديلاتهم تتجاوز الإشراف",

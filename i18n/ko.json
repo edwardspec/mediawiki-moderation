@@ -63,6 +63,8 @@
 	"moderation-show": "차이",
 	"moderation-unblock": "더 이상 스패머가 아님",
 	"moderation-unblock-ok": "[[Special:Contributions/$1|$1]] 사용자는 더 이상 스패머로 간주되지 않습니다.",
+	"moderation-whois-link-text": "?",
+	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
 	"right-moderation-checkuser": "조정 인터페이스에서 편집자의 IP를 볼 수 있음",
 	"right-moderation": "편집 조정",
 	"right-skip-move-moderation": "조정 없이 문서 이동",

@@ -89,6 +89,8 @@
 	"moderation-unblock": "Kein Spammer mehr",
 	"moderation-unblock-ok": "[[Special:Contributions/$1|$1]] wird nicht mehr als Spammer behandelt.",
 	"moderation-unknown-modaction": "Unbekannte Moderationsaktion.",
+	"moderation-whois-link-text": "?",
+	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
 	"right-moderation-checkuser": "IP-Adressen von Autoren auf der Moderationsoberfläche ansehen",
 	"right-moderation": "Bearbeitungen moderieren",
 	"right-skip-moderation": "Moderation von Bearbeitungen umgehen",
