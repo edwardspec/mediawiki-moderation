@@ -70,7 +70,6 @@ class ApproveEditConsequenceTest extends MediaWikiTestCase {
 			);
 		}
 
-		// TODO: add tests for resolvable and non-resolvable edit conflicts.
 		$baseRevId = $opt->existing ?
 			$title->getLatestRevID( IDBAccessObject::READ_LATEST ) : 0;
 
@@ -135,7 +134,7 @@ class ApproveEditConsequenceTest extends MediaWikiTestCase {
 	 * @covers MediaWiki\Moderation\ApproveEditConsequence
 	 * See also: ModerationEditConflictTest::testResolvableEditConflict()
 	 */
-	public function testApproveEditWithResolvableConflict() {
+	public function testResolvableEditConflict() {
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 		$user = User::newFromName( '127.0.0.1', false );
 
@@ -164,6 +163,40 @@ class ApproveEditConsequenceTest extends MediaWikiTestCase {
 	}
 
 	/**
+	 * Verify that ApproveEditConsequence detects a non-resolvable edit conflict.
+	 * @covers MediaWiki\Moderation\ApproveEditConsequence
+	 * See also: ModerationMergeTest::testMerge()
+	 */
+	public function testUnresolvableEditConflict() {
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$user = User::newFromName( '127.0.0.1', false );
+
+		// Edits shouldn't be intercepted (including edit caused by approval).
+		$this->setMwGlobals( 'wgModerationEnable', false );
+
+		list( $revid1, $revid2 ) = $this->makeTwoEdits( $title,
+			"Normal line 1\nNormal line 2\nNormal line 3\n",
+			"Normal line 1\nLine 2 was modified\nNormal line 3\n"
+		);
+
+		$textToApprove = "Normal line 1, but second line was deleted\nNormal line 3\n";
+
+		// Create and run the Consequence.
+		$consequence = new ApproveEditConsequence(
+			$user, $title, $textToApprove, '', false, false, $revid1 );
+		$status = $consequence->run();
+
+		$this->assertFalse( $status->isOK(),
+			"ApproveEditConsequence returned incorrect Success for unresolvable edit conflict." );
+
+		$this->assertEquals( 'moderation-edit-conflict', $status->getMessage()->getKey(),
+			"ApproveEditConsequence didn't return \"moderation-edit-conflict\" error." );
+
+		$this->assertEquals( $revid2, $title->getLatestRevID( IDBAccessObject::READ_LATEST ),
+			"Page was modified after ApproveEditConsequence on unresolvable edit conflict." );
+	}
+
+	/**
 	 * Make two edits in the same page with two different users.
 	 * @return int[] Array of rev_id of both edits
 	 */
@@ -173,5 +206,4 @@ class ApproveEditConsequenceTest extends MediaWikiTestCase {
 		$revIds[] = $this->makeEdit( $title, User::newFromName( '127.0.0.3', false ), $text2 );
 		return $revIds;
 	}
-
 }
