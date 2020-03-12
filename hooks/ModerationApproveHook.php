@@ -21,9 +21,15 @@
  * Corrects rev_timestamp, rc_ip and checkuser logs when edit is approved.
  */
 
+use MediaWiki\Logger\LoggerFactory;
+use Psr\Log\LoggerInterface;
+
 class ModerationApproveHook {
 	/** @var ModerationApproveHook|null Singleton instance */
 	protected static $instance = null;
+
+	/** @var LoggerInterface */
+	private $logger;
 
 	/**
 	 * Return a singleton instance of ModerationApproveHook
@@ -77,6 +83,7 @@ class ModerationApproveHook {
 	protected $logEntriesToFix = [];
 
 	protected function __construct() {
+		$this->logger = LoggerFactory::getInstance( 'ModerationApproveHook' );
 	}
 
 	/**
@@ -130,7 +137,7 @@ class ModerationApproveHook {
 	}
 
 	/**
-	 * Correct rev_timestamp, rc_ip and other fields (as requested by queueUpdate()).
+	 * Run reallyDoUpdate() if this is the last DeferredUpdate of this kind.
 	 */
 	public static function doUpdate() {
 		/* This DeferredUpdate is installed after every edit.
@@ -142,11 +149,27 @@ class ModerationApproveHook {
 			return;
 		}
 
+		$hook->reallyDoUpdate();
+	}
+
+	/**
+	 * Correct rev_timestamp, rc_ip and other fields (as requested by queueUpdate()).
+	 */
+	protected function reallyDoUpdate() {
+		if ( !$this->dbUpdates ) {
+			// There are no updates.
+			return;
+		}
+
+		$this->logger->debug( "[ApproveHook] Running DB updates: {updates}", [
+			'updates' => FormatJson::encode( $this->dbUpdates )
+		] );
+
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->startAtomic( __METHOD__ );
 
-		foreach ( $hook->dbUpdates as $table => $updates ) {
-			$idFieldName = $hook->idFieldNames[$table]; /* e.g. "rev_id" */
+		foreach ( $this->dbUpdates as $table => $updates ) {
+			$idFieldName = $this->idFieldNames[$table]; /* e.g. "rev_id" */
 			$ids = array_keys( array_values( $updates )[0] ); /* All rev_ids/rc_ids of affected rows */
 
 			/*
@@ -198,6 +221,16 @@ class ModerationApproveHook {
 					);
 					foreach ( $res as $row ) {
 						if ( $row->prev_timestamp > $whenThen[$row->id] ) {
+							$this->logger->info(
+								"[ApproveHook] Decided not to set rev_timestamp={timestamp} for revision #{revid}, " .
+								"because previous revision has {prev_timestamp} (which is newer).",
+								[
+									'revid' => $row->id,
+									'timestamp' => $whenThen[$row->id],
+									'prev_timestamp' => $row->prev_timestamp
+								]
+							);
+
 							/* Don't modify timestamp of this revision,
 								because doing so would be resulting
 								in incorrect order of history. */
@@ -259,6 +292,13 @@ class ModerationApproveHook {
 				$set,
 				[ $idFieldName => $ids ],
 				__METHOD__
+			);
+
+			$this->logger->debug( '[ApproveHook] SQL query ({rows} rows affected): {query}',
+				[
+					'rows' => $dbw->affectedRows(),
+					'query' => $dbw->lastQuery()
+				]
 			);
 		}
 
@@ -450,6 +490,12 @@ class ModerationApproveHook {
 		if ( !is_array( $ids ) ) {
 			$ids = [ $ids ];
 		}
+
+		$this->logger->debug( "[ApproveHook] queueUpdate(): table={table}; ids={ids}; values={values}", [
+			'table' => $table,
+			'ids' => implode( '|', $ids ),
+			'values' => FormatJson::encode( $values )
+		] );
 
 		if ( !isset( $this->dbUpdates[$table] ) ) {
 			$this->dbUpdates[$table] = [];
