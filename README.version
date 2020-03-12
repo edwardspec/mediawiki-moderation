@@ -4,12 +4,9 @@
 4) extension.json MUST be updated when version changes.
 
 Note: if some feature is being developed in a different Git branch
-(e.g. "some-feature1"), then you need to update version number only once -
-when merging this branch into master (git merge --no-ff).
+(e.g. "some-feature1"), then you need to update version number only once
+(before merging this branch into master).
 
 == Translations ==
 
 Updates merged from 'translatewiki' to 'master' don't change the version.
-
-Automated test ModerationI18nTest.php can detect JSON parsing errors,
-and if there aren't any, then i18n update shouldn't break functionality.
