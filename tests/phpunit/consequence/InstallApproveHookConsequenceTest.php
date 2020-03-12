@@ -93,12 +93,13 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	public function testOneMove() {
 		$this->runApproveHookTest( [ [
 			'type' => ModerationNewChange::MOD_TYPE_MOVE,
-			'task' => [ 'timestamp' => wfTimestampNow() ] + $this->defaultTask()
+			'task' => $this->defaultTask()
 		] ] );
 	}
 
 	/**
-	 * Verify that InstallApproveHookConsequence won't affect edits that weren't targeted by it.
+	 * Verify that InstallApproveHookConsequence won't affect edits that weren't targeted by it,
+	 * e.g. changes without ApproveHook or with another $title OR $user OR $type.
 	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 */
 	public function testSomeEditsWithoutApproveHook() {
@@ -106,6 +107,11 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 			[ 'task' => [ 'title' => "UTPage1", 'user' => "TestUser1" ] + $this->defaultTask() ],
 			[ 'task' => null ],
 			[ 'task' => [ 'title' => "UTPage3", 'user' => "TestUser3" ] + $this->defaultTask() ],
+			[ 'task' => null ],
+			[
+				'type' => 'move',
+				'task' => [ 'title' => "UTPage5", 'user' => "TestUser5" ] + $this->defaultTask()
+			]
 		] );
 	}
 
@@ -137,6 +143,41 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 				'timestamp' => $this->pastTimestamp( 3000 )
 			] ]
 
+		] );
+	}
+
+	/**
+	 * Verify that InstallApproveHookConsequence works when a user moves AND edits the same page.
+	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 */
+	public function testMoveAndEditWithSameUserAndPage() {
+		$pageName = 'UTPage-to-both-move-and-edit';
+		$username = 'Test user 567';
+
+		$this->runApproveHookTest( [
+			[
+				'title' => $pageName,
+				'user' => $username,
+				'task' => [
+					'ip' => '10.0.0.1',
+					'xff' => '10.20.0.1',
+					'ua' => 'Some-User-Agent/0.0.1',
+					'tags' => null,
+					'timestamp' => $this->pastTimestamp( 2000 )
+				]
+			],
+			[
+				'title' => $pageName,
+				'user' => $username,
+				'type' => ModerationNewChange::MOD_TYPE_MOVE,
+				'task' => [
+					'ip' => '10.0.0.2',
+					'xff' => '10.20.0.2',
+					'ua' => 'Some-User-Agent/0.0.2',
+					'tags' => null,
+					'timestamp' => $this->pastTimestamp( 1000 )
+				]
+			]
 		] );
 	}
 
@@ -339,9 +380,6 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		] ] );
 	}
 
-	// TODO: while testing installed InstallApproveHookConsequence followed by multiple edits,
-	// also test that ApproveHook doesn't affect edits of another $title OR $user OR $type.
-
 	/**
 	 * Run the ApproveHook test with selected list of edits.
 	 * For each edit, Title, User and type ("edit" or "move") must be specified,
@@ -359,6 +397,9 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 
 		// Convert pagename and username parameters (#0 and #1) to Title/User objects
 		$todo = array_map( function ( $testParameters ) use ( &$pageNameSuffix ) {
+			// [ 'pageName1' => true, ... ] - keep track of what pages will be created by $todo
+			static $pageCreatedByThisTest = [];
+
 			$pageName = $testParameters['title'] ??
 				'UTPage-' . ( ++$pageNameSuffix ) . '-' . rand( 0, 100000 );
 			$username = $testParameters['user'] ?? '127.0.0.1';
@@ -370,9 +411,13 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 			if ( $type == ModerationNewChange::MOD_TYPE_MOVE ) {
 				$this->setGroupPermissions( '*', 'move', true );
 
-				if ( !$title->exists() ) {
+				// Precreate the page that will be moved,
+				// unless it was created by the previous task in this $todo.
+				if ( !$title->exists() && !isset( $pageCreatedByThisTest[$pageName] ) ) {
 					$this->precreatePageLongAgo( $pageName );
 				}
+			} else {
+				$pageCreatedByThisTest[$pageName] = true;
 			}
 
 			$user = User::isIP( $username ) ?
@@ -476,6 +521,8 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 			];
 			if ( $type == ModerationNewChange::MOD_TYPE_MOVE ) {
 				$rcWhere['rc_log_action'] = [ 'move', 'move_redir' ];
+			} else {
+				$rcWhere['rc_log_action'] = '';
 			}
 
 			if ( $rcWhere['rc_actor'] == 0 ) {
@@ -527,17 +574,24 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 					];
 				}
 
+				$cuWhere = [
+					'cuc_namespace' => $title->getNamespace(),
+					'cuc_title' => $title->getDBKey(),
+					'cuc_user_text' => $user->getName()
+				];
+				if ( $type == ModerationNewChange::MOD_TYPE_EDIT ) {
+					$cuWhere['cuc_actiontext'] = '';
+				} else {
+					$cuWhere[] = 'cuc_actiontext <> ""';
+				}
+
 				$this->assertSelect( 'cu_changes',
 					[
 						'cuc_ip',
 						'cuc_ip_hex',
 						'cuc_agent'
 					],
-					[
-						'cuc_namespace' => $title->getNamespace(),
-						'cuc_title' => $title->getDBKey(),
-						'cuc_user_text' => $user->getName()
-					],
+					$cuWhere,
 					[ $expectedRow ]
 				);
 			}
