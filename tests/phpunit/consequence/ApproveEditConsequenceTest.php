@@ -22,12 +22,14 @@
 
 use MediaWiki\Moderation\ApproveEditConsequence;
 
+require_once __DIR__ . "/MakeEditTestTrait.php";
 require_once __DIR__ . "/PostApproveCleanupTrait.php";
 
 /**
  * @group Database
  */
 class ApproveEditConsequenceTest extends MediaWikiTestCase {
+	use MakeEditTestTrait;
 	use PostApproveCleanupTrait;
 
 	/** @var string[] */
@@ -127,4 +129,49 @@ class ApproveEditConsequenceTest extends MediaWikiTestCase {
 			'minor edit' => [ [ 'minor' => true, 'existing' => true ] ]
 		];
 	}
+
+	/**
+	 * Verify that ApproveEditConsequence can automatically resolve a resolvable edit conflict.
+	 * @covers MediaWiki\Moderation\ApproveEditConsequence
+	 * See also: ModerationEditConflictTest::testResolvableEditConflict()
+	 */
+	public function testApproveEditWithResolvableConflict() {
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$user = User::newFromName( '127.0.0.1', false );
+
+		// Edits shouldn't be intercepted (including edit caused by approval).
+		$this->setMwGlobals( 'wgModerationEnable', false );
+
+		list( $revid1, $revid2 ) = $this->makeTwoEdits( $title,
+			"Original paragraph about dogs\n\nOriginal paragraph about cats",
+			"Original paragraph about dogs\n\nModified paragraph about cats"
+		);
+
+		$textToApprove = "Modified paragraph about dogs\n\nOriginal paragraph about cats";
+		$expectedText = "Modified paragraph about dogs\n\nModified paragraph about cats";
+
+		// Create and run the Consequence.
+		$consequence = new ApproveEditConsequence(
+			$user, $title, $textToApprove, '', false, false, $revid1 );
+		$status = $consequence->run();
+
+		$this->assertTrue( $status->isOK(),
+			"ApproveEditConsequence failed: " . $status->getMessage()->plain() );
+
+		$rev = Revision::newFromId( $status->value['revision']->getId() );
+		$this->assertEquals( $revid2, $rev->getParentId() );
+		$this->assertEquals( $expectedText, $rev->getContent()->getNativeData() );
+	}
+
+	/**
+	 * Make two edits in the same page with two different users.
+	 * @return int[] Array of rev_id of both edits
+	 */
+	public function makeTwoEdits( Title $title, $text1, $text2 ) {
+		$revIds = [];
+		$revIds[] = $this->makeEdit( $title, User::newFromName( '127.0.0.2', false ), $text1 );
+		$revIds[] = $this->makeEdit( $title, User::newFromName( '127.0.0.3', false ), $text2 );
+		return $revIds;
+	}
+
 }

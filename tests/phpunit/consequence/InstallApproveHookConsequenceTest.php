@@ -22,10 +22,14 @@
 
 use MediaWiki\Moderation\InstallApproveHookConsequence;
 
+require_once __DIR__ . "/MakeEditTestTrait.php";
+
 /**
  * @group Database
  */
 class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
+	use MakeEditTestTrait;
+
 	/** @var string[] */
 	protected $tablesUsed = [ 'revision', 'page', 'user', 'recentchanges', 'cu_changes',
 		'change_tag', 'logging', 'log_search' ];
@@ -673,32 +677,6 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		$this->assertEmpty( $taggedRevIds );
 		$this->assertEmpty( $taggedRcIds );
 		$this->assertEmpty( $taggedLogIds );
-	}
-
-	/**
-	 * Make one test edit on behalf of $user in page $title.
-	 * @param Title $title
-	 * @param User $user
-	 * @param string|null $text
-	 * @return int rev_id of the newly created edit.
-	 */
-	private function makeEdit( Title $title, User $user, $text = null ) {
-		if ( !$text ) {
-			$text = 'Some text ' . rand( 0, 100000 ) . ' in page ' .
-				$title->getFullText() . ' by ' . $user->getName();
-		}
-
-		$page = WikiPage::factory( $title );
-		$status = $page->doEditContent(
-			ContentHandler::makeContent( $text, null, CONTENT_MODEL_WIKITEXT ),
-			'Some edit summary',
-			EDIT_INTERNAL,
-			false,
-			$user
-		);
-		$this->assertTrue( $status->isGood(), "Edit failed: " . $status->getMessage()->plain() );
-
-		return $status->value['revision']->getId();
 	}
 
 	/**
