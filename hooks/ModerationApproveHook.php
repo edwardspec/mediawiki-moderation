@@ -206,6 +206,7 @@ class ModerationApproveHook {
 						],
 						[
 							'a.rev_id AS id',
+							'b.rev_id AS prev_id',
 							'b.rev_timestamp AS prev_timestamp'
 						],
 						[
@@ -219,22 +220,45 @@ class ModerationApproveHook {
 							] ]
 						]
 					);
+
+					$prevTimestamps = [];
 					foreach ( $res as $row ) {
-						if ( $row->prev_timestamp > $whenThen[$row->id] ) {
+						$prevTimestamps[$row->id] = [ $row->prev_id, $row->prev_timestamp ];
+					}
+
+					// Check earlier timestamps first (see below).
+					asort( $whenThen );
+					foreach ( $whenThen as $id => $newTimestamp ) {
+						if ( !isset( $prevTimestamps[$id] ) ) {
+							// Page doesn't exist yet, so $newTimestamp clearly doesn't need to be ignored.
+							continue;
+						}
+
+						list( $prevId, $prevTimestamp ) = $prevTimestamps[$id];
+
+						if ( isset( $whenThen[$prevId] ) && $whenThen[$prevId] != 'rev_timestamp' ) {
+							// If we are here, than means ApproveHook also wants to change rev_timestamp of
+							// the previous revision too.
+							// Because $whenThen is sorted by timestamp (from older to newer),
+							// we already checked this revision and decided not to ignore its timestamp.
+							$prevTimestamp = $whenThen[$prevId];
+						}
+
+						if ( $prevTimestamp > $newTimestamp ) {
 							$this->logger->info(
 								"[ApproveHook] Decided not to set rev_timestamp={timestamp} for revision #{revid}, " .
 								"because previous revision has {prev_timestamp} (which is newer).",
 								[
-									'revid' => $row->id,
-									'timestamp' => $whenThen[$row->id],
-									'prev_timestamp' => $row->prev_timestamp
+									'revid' => $id,
+									'timestamp' => $newTimestamp,
+									'prev_timestamp' => $prevTimestamp
 								]
 							);
 
 							/* Don't modify timestamp of this revision,
 								because doing so would be resulting
 								in incorrect order of history. */
-							$whenThen[$row->id] = 'rev_timestamp';
+							$whenThen[$id] = 'rev_timestamp';
 							$skippedIds++;
 						}
 					}
