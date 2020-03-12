@@ -147,11 +147,12 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * Verify that InstallApproveHookConsequence works when a user moves AND edits the same page.
+	 * Verify that InstallApproveHookConsequence works when a user edits AND moves the same page.
+	 * This is what happens during modaction=approveall, where moves are approved after edits.
 	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 */
-	public function testMoveAndEditWithSameUserAndPage() {
-		$pageName = 'UTPage-to-both-move-and-edit';
+	public function testEditAndMoveWithSameUserAndPage() {
+		$pageName = 'UTPage-to-both-edit-and-move';
 		$username = 'Test user 567';
 
 		$this->runApproveHookTest( [
@@ -174,6 +175,42 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 					'ip' => '10.0.0.2',
 					'xff' => '10.20.0.2',
 					'ua' => 'Some-User-Agent/0.0.2',
+					'tags' => null,
+					'timestamp' => $this->pastTimestamp( 1000 )
+				]
+			]
+		] );
+	}
+
+	/**
+	 * Verify that InstallApproveHookConsequence works when a user moves AND edits the same page.
+	 * Same as testEditAndMoveWithSameUserAndPage(), but move is performed before the edit.
+	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 */
+	public function testMoveAndEditWithSameUserAndPage() {
+		$pageName = 'UTPage-to-both-move-and-edit';
+		$username = 'Test user 567';
+
+		$this->runApproveHookTest( [
+			[
+				'title' => $pageName,
+				'user' => $username,
+				'type' => ModerationNewChange::MOD_TYPE_MOVE,
+				'task' => [
+					'ip' => '10.0.0.2',
+					'xff' => '10.20.0.2',
+					'ua' => 'Some-User-Agent/0.0.2',
+					'tags' => null,
+					'timestamp' => $this->pastTimestamp( 2000 )
+				]
+			],
+			[
+				'title' => $pageName,
+				'user' => $username,
+				'task' => [
+					'ip' => '10.0.0.1',
+					'xff' => '10.20.0.1',
+					'ua' => 'Some-User-Agent/0.0.1',
 					'tags' => null,
 					'timestamp' => $this->pastTimestamp( 1000 )
 				]
@@ -453,9 +490,9 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 		) use ( &$taggedRevIds, &$taggedLogIds, &$taggedRcIds ) {
 			$this->assertEquals( [], $tagsToRemove );
 
-			if ( $tagsToAdd == [ 'mw-new-redirect' ] ) {
-				// This tag is irrelevant: it is added when creating a redirect during move tests,
-				// it has nothing to do with ApproveHook.
+			if ( $tagsToAdd == [ 'mw-new-redirect' ] || $tagsToAdd == [ 'mw-removed-redirect' ] ) {
+				// This tag is irrelevant: it is added when creating/removing a redirect
+				// during move tests, it has nothing to do with ApproveHook.
 				return true;
 			}
 
@@ -545,8 +582,13 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 			$revIds = [ $rc->mAttribs['rc_this_oldid'] ];
 			if ( $rc->mAttribs['rc_log_action'] == 'move' ) {
 				// For page moves, two revisions should have been modified:
-				// 1) revision in newly created redirect, 2) "page was moved" null revision.
-				$revIds[] = $rc->getTitle()->getLatestRevID( IDBAccessObject::READ_LATEST );
+				// 1) "page was moved" null revision. (which is rc_this_oldid)
+				// 2) revision in newly created redirect. (next revision after (1))
+				$revIds[] = $this->db->selectField( 'revision', 'rev_id',
+					[ 'rev_id > ' . $this->db->addQuotes( $rc->mAttribs['rc_this_oldid'] ) ],
+					__METHOD__,
+					[ 'ORDER BY' => 'rev_id' ]
+				);
 			}
 
 			if ( $task ) {
