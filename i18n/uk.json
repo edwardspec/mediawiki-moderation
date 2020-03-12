@@ -90,6 +90,8 @@
 	"moderation-unblock": "Більше не спамер",
 	"moderation-unblock-ok": "Користувач [[Special:Contributions/$1|$1]] не є у списку спамерів.",
 	"moderation-unknown-modaction": "Невідома модераційна дія.",
+	"moderation-whois-link-text": "?",
+	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
 	"right-moderation-checkuser": "перегляд IP-адрес користувачів у інтерфейсі модерації",
 	"right-moderation": "модерація редагувань",
 	"right-skip-moderation": "редагування в обхід модерації",
