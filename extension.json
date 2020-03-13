@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.5.0",
+	"version": "1.5.1",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -292,86 +292,38 @@
 		"remoteExtPath": "Moderation/modules"
 	},
 	"Hooks": {
-		"AlternateEdit": [
-			"ModerationPreload::onAlternateEdit"
-		],
-		"ApiBeforeMain": [
-			"ModerationApiHooks::onApiBeforeMain"
-		],
-		"ApiCheckCanExecute": [
-			"ModerationApiHooks::onApiCheckCanExecute"
-		],
+		"AlternateEdit": "ModerationPreload::onAlternateEdit",
+		"ApiBeforeMain": "ModerationApiHooks::onApiBeforeMain",
+		"ApiCheckCanExecute": "ModerationApiHooks::onApiCheckCanExecute",
 		"BeforeInitialize": [
 			"ModerationPlugins::install",
 			"ModerationNotifyModerator::onBeforeInitialize"
 		],
-		"BeforePageDisplay": [
-			"ModerationEditHooks::onBeforePageDisplay"
-		],
-		"CheckUserInsertForRecentChange": [
-			"ModerationApproveHook::onCheckUserInsertForRecentChange"
-		],
-		"EditFilter": [
-			"ModerationEditHooks::onEditFilter"
-		],
-		"EditFormInitialText": [
-			"ModerationPreload::onEditFormInitialText"
-		],
-		"EditFormPreloadText": [
-			"ModerationPreload::onEditFormPreloadText"
-		],
-		"EditPage::showEditForm:fields": [
-			"ModerationEditHooks::prepareEditForm"
-		],
-		"FileUpload": [
-			"ModerationApproveHook::onFileUpload"
-		],
-		"getUserPermissionsErrors": [
-			"ModerationUploadHooks::ongetUserPermissionsErrors"
-		],
-		"LoadExtensionSchemaUpdates": [
-			"ModerationUpdater::onLoadExtensionSchemaUpdates"
-		],
-		"ListDefinedTags": [
-			"ModerationEditHooks::onListDefinedTags"
-		],
-		"LocalUserCreated": [
-			"ModerationPreload::onLocalUserCreated"
-		],
-		"MovePageCheckPermissions": [
-			"ModerationMoveHooks::onMovePageCheckPermissions"
-		],
-		"NewRevisionFromEditComplete": [
-			"ModerationApproveHook::onNewRevisionFromEditComplete"
-		],
-		"PageContentSave": [
-			"ModerationEditHooks::onPageContentSave"
-		],
+		"BeforePageDisplay": "ModerationEditHooks::onBeforePageDisplay",
+		"CheckUserInsertForRecentChange": "ModerationApproveHook::onCheckUserInsertForRecentChange",
+		"EditFilter": "ModerationEditHooks::onEditFilter",
+		"EditFormInitialText": "ModerationPreload::onEditFormInitialText",
+		"EditFormPreloadText": "ModerationPreload::onEditFormPreloadText",
+		"EditPage::showEditForm:fields": "ModerationEditHooks::prepareEditForm",
+		"FileUpload": "ModerationApproveHook::onFileUpload",
+		"getUserPermissionsErrors": "ModerationUploadHooks::ongetUserPermissionsErrors",
+		"LoadExtensionSchemaUpdates": "ModerationUpdater::onLoadExtensionSchemaUpdates",
+		"ListDefinedTags": "ModerationEditHooks::onListDefinedTags",
+		"LocalUserCreated": "ModerationPreload::onLocalUserCreated",
+		"MovePageCheckPermissions": "ModerationMoveHooks::onMovePageCheckPermissions",
+		"NewRevisionFromEditComplete": "ModerationApproveHook::onNewRevisionFromEditComplete",
+		"PageContentSave": "ModerationEditHooks::onPageContentSave",
 		"PageContentSaveComplete": [
 			"ModerationApproveHook::onPageContentSaveComplete",
 			"ModerationEditHooks::onPageContentSaveComplete"
 		],
-		"PageForms::EditFormInitialText": [
-			"ModerationPageForms::preloadText"
-		],
-		"PageForms::EditFormPreloadText": [
-			"ModerationPageForms::preloadText"
-		],
-		"RecentChange_save": [
-			"ModerationApproveHook::onRecentChange_save"
-		],
-		"SpecialPageBeforeExecute": [
-			"MediaWiki\\Moderation\\WatchCheckbox::onSpecialPageBeforeExecute"
-		],
-		"TitleMoveComplete": [
-			"ModerationApproveHook::onTitleMoveComplete"
-		],
-		"UploadVerifyUpload": [
-			"ModerationUploadHooks::onUploadVerifyUpload"
-		],
-		"wgQueryPages": [
-			"ModerationApiHooks::onwgQueryPages"
-		]
+		"PageForms::EditFormInitialText": "ModerationPageForms::preloadText",
+		"PageForms::EditFormPreloadText": "ModerationPageForms::preloadText",
+		"RecentChange_save": "ModerationApproveHook::onRecentChange_save",
+		"SpecialPageBeforeExecute": "MediaWiki\\Moderation\\WatchCheckbox::onSpecialPageBeforeExecute",
+		"TitleMoveComplete": "ModerationApproveHook::onTitleMoveComplete",
+		"UploadVerifyUpload": "ModerationUploadHooks::onUploadVerifyUpload",
+		"wgQueryPages": "ModerationApiHooks::onwgQueryPages"
 	},
 	"config": {
 		"ModerationEnable": {
