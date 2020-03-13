@@ -26,7 +26,7 @@ trait PostApproveCleanupTrait {
 	/**
 	 * Exit "approve mode" and destroy the ApproveHook singleton.
 	 */
-	public function tearDown() {
+	public function tearDown() : void {
 		// If the previous test used Approve, it enabled "all edits should bypass moderation" mode.
 		// Disable it now.
 		$canSkip = TestingAccessWrapper::newFromClass( ModerationCanSkip::class );

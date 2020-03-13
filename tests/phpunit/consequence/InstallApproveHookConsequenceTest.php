@@ -714,12 +714,12 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	/**
 	 * Destroy ApproveHook object after the test.
 	 */
-	protected function tearDown() {
+	protected function tearDown() : void {
 		ModerationApproveHook::destroySingleton();
 		parent::tearDown();
 	}
 
-	public function setUp() {
+	public function setUp() : void {
 		parent::setUp();
 
 		// Workaround for MediaWiki 1.31 only: its TestCase class doesn't clean tables properly

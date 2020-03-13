@@ -22,6 +22,11 @@
  * This trait must be included into ModerationTestCase subclasses.
  */
 
+/**
+ * @method static assertEquals($a, $b, $message='', $d=0.0, $e=10, $f=null, $g=null)
+ * @method static assertLessThanOrEqual($a, $b, $message='')
+ * @method static assertGreaterThan($a, $b, $message='')
+ */
 trait ModerationTestsuiteTestSet {
 	/**
 	 * @var bool
@@ -47,8 +52,11 @@ trait ModerationTestsuiteTestSet {
 	public function __destruct() {
 		// Destructor should be suppressed for cloned MediaWikiTestCase objects.
 		if ( !$this->cloned ) {
-			// @phan-suppress-next-line PhanTraitParentReference
-			parent::__destruct();
+			$rc = new ReflectionObject( $this );
+			if ( $rc->getParentClass()->hasMethod( '__destruct' ) ) { // False for MW 1.35+
+				// @phan-suppress-next-line PhanTraitParentReference
+				parent::__destruct();
+			}
 		}
 	}
 
@@ -75,12 +83,6 @@ trait ModerationTestsuiteTestSet {
 
 	/** @return ModerationTestsuite */
 	abstract public function getTestsuite();
-
-	abstract public function assertEquals( $expected, $actual, $message = '' );
-
-	abstract public function assertLessThanOrEqual( $expected, $actual, $message = '' );
-
-	abstract public function assertGreaterThan( $expected, $actual, $message = '' );
 
 	/*-------------------------------------------------------------------*/
 

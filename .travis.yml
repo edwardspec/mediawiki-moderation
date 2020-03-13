@@ -53,6 +53,8 @@ matrix:
     - env: TESTSUITE_TYPE=selenium branch=REL1_32
     - env: TESTSUITE_TYPE=selenium branch=REL1_33
     - env: TESTSUITE_TYPE=selenium branch=REL1_34
+    # master branch of MediaWiki core is in constant development, tests against it are advisory
+    - env: branch=master
   include:
     # Linters (phpcs, eslint, etc.)
     - &linter-php-build
@@ -136,6 +138,12 @@ matrix:
       php: 7.3
 #    - <<: *phpunit-build
 #      env: branch=unknown_branch_will_be_treated_as_master
+
+    # Optional: PHPUnit tests with the master branch of MediaWiki core
+    - <<: *phpunit-build
+      if: branch IN (phpunit)
+      env: branch=master
+      php: 7.3
     - <<: *phpunit-build
       if: branch IN (nightly)
       env: branch=master

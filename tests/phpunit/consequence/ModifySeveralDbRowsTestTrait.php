@@ -20,6 +20,9 @@
  * Trait with setUp() that makes N rows in "moderation" table and populates $this->ids.
  */
 
+/**
+ * @method mixed getName($a=true)
+ */
 trait ModifySeveralDbRowsTestTrait {
 	/** @var int[] Array of mod_id of existing rows in "moderation" table */
 	protected $ids;
@@ -38,7 +41,7 @@ trait ModifySeveralDbRowsTestTrait {
 	/**
 	 * Create several rows in "moderation" SQL table.
 	 */
-	public function setUp() {
+	public function setUp() : void {
 		// @phan-suppress-next-line PhanTraitParentReference
 		parent::setUp();
 
@@ -61,8 +64,4 @@ trait ModifySeveralDbRowsTestTrait {
 
 		$this->ids = $ids;
 	}
-
-	/* This abstract method is provided by PHPUnit-related classes. */
-
-	abstract public function getName( $withDataSet = true );
 }

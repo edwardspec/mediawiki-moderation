@@ -20,6 +20,9 @@
  * Trait with setUp() that makes 1 row in "moderation" table and populates $this->modid.
  */
 
+/**
+ * @method mixed getName($a=true)
+ */
 trait ModifyDbRowTestTrait {
 	/** @var int */
 	protected $modid;
@@ -30,7 +33,7 @@ trait ModifyDbRowTestTrait {
 	/**
 	 * Create a row in "moderation" SQL table.
 	 */
-	public function setUp() {
+	public function setUp() : void {
 		// @phan-suppress-next-line PhanTraitParentReference
 		parent::setUp();
 
@@ -47,8 +50,4 @@ trait ModifyDbRowTestTrait {
 		$change = new ModerationNewChange( $title, $this->authorUser );
 		$this->modid = $change->edit( $page, $content, '', '' )->queue();
 	}
-
-	/* This abstract method is provided by PHPUnit-related classes. */
-
-	abstract public function getName( $withDataSet = true );
 }

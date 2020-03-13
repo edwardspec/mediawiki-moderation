@@ -22,6 +22,11 @@
 
 use MediaWiki\Moderation\IConsequence;
 
+/**
+ * @method static assertEquals($a, $b, $message='', $d=0.0, $e=10, $f=null, $g=null)
+ * @method static assertCount($a, $b, $message='')
+ * @method static assertInstanceOf($a, $b, $message='')
+ */
 trait ConsequenceTestTrait {
 	/**
 	 * Assert that $expectedConsequences are exactly the same as $actualConsequences.
@@ -85,14 +90,4 @@ trait ConsequenceTestTrait {
 
 		return [ get_class( $consequence ), $fields ];
 	}
-
-	/*----------------------------------------------------------------------------------------*/
-	/* These abstract methods are provided by PHPUnit-related classes. */
-
-	abstract public static function assertEquals( $expected, $actual, $message = '',
-		$delta = 0.0, $maxDepth = 10, $canonicalize = null, $ignoreCase = null );
-
-	abstract public static function assertInstanceOf( $expected, $actual, $message = '' );
-
-	abstract public static function assertCount( $expectedCount, $haystack, $message = '' );
 }

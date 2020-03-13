@@ -75,7 +75,7 @@ class SendNotificationEmailConsequenceTest extends MediaWikiTestCase {
 	/**
 	 * Restore original AlternateUserMailer hook that suppresses all emails during PHPUnit tests.
 	 */
-	public function tearDown() {
+	public function tearDown() : void {
 		\Hooks::clear( 'AlternateUserMailer' );
 		\Hooks::register( 'AlternateUserMailer', function () {
 			return false;

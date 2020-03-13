@@ -482,7 +482,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	/**
 	 * Queue an edit for moderation. Populate all fields ($this->modid, etc.) used by actual tests.
 	 */
-	public function setUp() {
+	public function setUp() : void {
 		parent::setUp();
 
 		$name = $this->getName();

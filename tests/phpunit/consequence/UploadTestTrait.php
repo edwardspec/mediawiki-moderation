@@ -20,6 +20,9 @@
  * Trait for tests that need an UploadBase object which can be used for performUpload() calls.
  */
 
+/**
+ * @method static assertEquals($a, $b, $message='', $d=0.0, $e=10, $f=null, $g=null)
+ */
 trait UploadTestTrait {
 	/**
 	 * Path to the locally stored image that will be uploaded.
@@ -66,10 +69,4 @@ trait UploadTestTrait {
 
 		return $upload;
 	}
-
-	/*----------------------------------------------------------------------------------------*/
-	/* This abstract method is provided by PHPUnit-related classes. */
-
-	abstract public static function assertEquals( $expected, $actual, $message = '',
-		$delta = 0.0, $maxDepth = 10, $canonicalize = null, $ignoreCase = null );
 }

@@ -91,7 +91,7 @@ class ModerationTestCase extends MediaWikiTestCase {
 	/**
 	 * Dump the logs related to the current test.
 	 */
-	protected function onNotSuccessfulTest( Throwable $e ) {
+	protected function onNotSuccessfulTest( Throwable $e ) : void {
 		switch ( get_class( $e ) ) {
 			case 'PHPUnit\Framework\SkippedTestError':
 				break; // Don't need logs of skipped tests
@@ -106,7 +106,7 @@ class ModerationTestCase extends MediaWikiTestCase {
 	/**
 	 * Forget the logs related to previous tests.
 	 */
-	protected function setUp() {
+	protected function setUp() : void {
 		ModerationTestsuiteLogger::prepareCleanBuffer( $this->getName() );
 		parent::setUp();
 

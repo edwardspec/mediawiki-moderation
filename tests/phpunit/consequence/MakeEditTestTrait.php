@@ -20,6 +20,9 @@
  * Trait that provides makeEdit() for quickly precreating pages.
  */
 
+/**
+ * @method static assertTrue($a, $message='')
+ */
 trait MakeEditTestTrait {
 	/**
 	 * Make one test edit on behalf of $user in page $title.
@@ -46,8 +49,4 @@ trait MakeEditTestTrait {
 
 		return $status->value['revision']->getId();
 	}
-
-	/* This abstract method is provided by PHPUnit-related classes. */
-
-	abstract public function assertTrue( $condition, $message = '' );
 }
