@@ -26,6 +26,7 @@
 # Load the usual LocalSettings.php
 require_once "$IP/LocalSettings.php";
 
+use MediaWiki\Auth\AuthManager;
 use Wikimedia\Rdbms\DatabaseDomain;
 
 # Replace Memcached with our caching class. This is needed for Parallel PHPUnit testing,
@@ -128,7 +129,7 @@ function efModerationTestsuiteMockedHeader( $string, $replace = true, $http_resp
  * Sanity check: log "what user is currently logged in",
  * and ensure that request is executed on behalf on an expected user.
  */
-function efModerationTestsuiteLogSituation() {
+function efModerationTestsuiteCliLogin() {
 	global $wgModerationTestsuiteCliDescriptor;
 
 	$entrypoint = 'index';
@@ -140,7 +141,24 @@ function efModerationTestsuiteLogSituation() {
 		$entrypoint = defined( 'MW_API' ) ? 'api' : 'index';
 	}
 
+	list( $expectedId, $expectedName ) = $wgModerationTestsuiteCliDescriptor['expectedUser'];
+
 	$user = RequestContext::getMain()->getUser();
+	if ( $user->getId() != $expectedId || $user->getName() != $expectedName ) {
+		$user = User::newFromName( $expectedName, false );
+
+		$manager = AuthManager::singleton();
+		$status = $manager->autoCreateUser( $user, AuthManager::AUTOCREATE_SOURCE_SESSION, true );
+
+		if ( !$status->isOK() ) {
+			throw new MWException( "Failed to login as User:$expectedName (#$expectedId)." );
+		}
+
+		global $wgUser;
+		$wgUser = $user;
+		RequestContext::getMain()->setUser( $user );
+	}
+
 	$event = array_merge(
 		[
 			'_entrypoint' => $entrypoint,
@@ -150,15 +168,6 @@ function efModerationTestsuiteLogSituation() {
 		RequestContext::getMain()->getRequest()->getValues()
 	);
 	wfDebugLog( 'ModerationTestsuite', FormatJson::encode( $event, true, FormatJson::ALL_OK ) );
-
-	list( $expectedId, $expectedName ) = $wgModerationTestsuiteCliDescriptor['expectedUser'];
-	$actualId = $user->getId();
-	$actualName = $user->getName();
-	if ( $expectedId != $actualId || $expectedName != $actualName ) {
-		throw new MWException( "CliEngine: assertion failed: expected a request on behalf of " .
-			"User:$expectedName (#$expectedId), but are (incorrectly) logged in as " .
-			"User:$actualName (#$actualId)." );
-	}
 }
 
 function efModerationTestsuiteSetup() {
@@ -208,7 +217,16 @@ function efModerationTestsuiteSetup() {
 			true
 		);
 
-		efModerationTestsuiteLogSituation();
+		efModerationTestsuiteCliLogin();
+		return true;
+	};
+
+	$wgHooks['BeforeInitialize'] = function ( &$unused1, &$unused2, &$unused3, &$user ) {
+		efModerationTestsuiteCliLogin();
+
+		// Make sure that ModerationNotifyModerator::onBeforeInitialize() runs as this new user.
+		$user = RequestContext::getMain()->getUser();
+
 		return true;
 	};
 
@@ -235,12 +253,7 @@ function efModerationTestsuiteSetup() {
 			$session = $manager->getSessionById( $sessionId, true )
 				?: $manager->getEmptySession();
 			$request->setSessionId( $session->getSessionId() );
-
 		}
-	};
-
-	$wgHooks['BeforeInitialize'][] = function () {
-		efModerationTestsuiteLogSituation();
 	};
 
 	/*

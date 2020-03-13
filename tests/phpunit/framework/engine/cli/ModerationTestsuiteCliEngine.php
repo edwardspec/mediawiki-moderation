@@ -58,6 +58,13 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 	}
 
 	/**
+	 * CliEngine doesn't need any login logic - it auto-logins as $this->getExpectedUser().
+	 * @param User $user
+	 */
+	protected function loginAsInternal( User $user ) {
+	}
+
+	/**
 	 * Simulate HTTP request by running index.php/api.php of MediaWiki in a controlled environment.
 	 * @param string $url
 	 * @param string $method
