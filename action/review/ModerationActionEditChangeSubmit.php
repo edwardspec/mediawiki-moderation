@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,6 +21,10 @@
  *
  * @see ModerationActionEditChange - handles the edit form
  */
+
+use MediaWiki\Moderation\AddLogEntryConsequence;
+use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\ModifyPendingChangeConsequence;
 
 class ModerationActionEditChangeSubmit extends ModerationAction {
 
@@ -54,16 +58,16 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 
 		$request = $this->getRequest();
 
-		/* Apply preSaveTransform to the submitted text */
 		$title = Title::makeTitle( $row->namespace, $row->title );
-		$newContent = ContentHandler::makeContent(
-			$request->getVal( 'wpTextbox1' ),
-			$title
-		);
-
 		$originalAuthor = $row->user ?
 			User::newFromId( $row->user ) :
 			User::newFromName( $row->user_text, false );
+
+		$newText = $request->getVal( 'wpTextbox1', '' );
+		$newComment = $request->getVal( 'wpSummary', '' );
+
+		/* Apply preSaveTransform to the submitted text */
+		$newContent = ContentHandler::makeContent( $newText, $title );
 		$pstContent = $newContent->preSaveTransform(
 			$title,
 			$originalAuthor,
@@ -74,30 +78,22 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 		);
 
 		$newText = $pstContent->getNativeData();
-		$newComment = $request->getVal( 'wpSummary' );
+		$newLen = $pstContent->getSize();
 
 		$somethingChanged = ( $newText != $row->text || $newComment != $row->comment );
-		if ( $somethingChanged ) {
-			$dbw->update( 'moderation',
-				[
-					'mod_text' => $newText,
-					'mod_new_len' => $pstContent->getSize(),
-					'mod_comment' => $newComment
-				],
-				[
-					'mod_id' => $this->id
-				],
-				__METHOD__
-			);
 
-			$logEntry = new ManualLogEntry( 'moderation', 'editchange' );
-			$logEntry->setPerformer( $this->moderator );
-			$logEntry->setTarget( $title );
-			$logEntry->setParameters( [
+		if ( $somethingChanged ) {
+			// Something changed.
+			$manager = ConsequenceUtils::getManager();
+			$manager->add( new ModifyPendingChangeConsequence(
+				$this->id,
+				$newText,
+				$newComment,
+				$newLen
+			) );
+			$manager->add( new AddLogEntryConsequence( 'editchange', $this->moderator, $title, [
 				'modid' => $this->id
-			] );
-			$logid = $logEntry->insert();
-			$logEntry->publish( $logid );
+			] ) );
 		}
 
 		return [

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2018 Edward Chernenko.
+	Copyright (C) 2014-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,6 +20,10 @@
  * Implements modaction=approve(all) on [[Special:Moderation]].
  */
 
+use MediaWiki\Moderation\AddLogEntryConsequence;
+use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
+
 class ModerationActionApprove extends ModerationAction {
 
 	public function execute() {
@@ -30,7 +34,8 @@ class ModerationActionApprove extends ModerationAction {
 		if ( $ret['approved'] ) {
 			/* Clear the cache of "Most recent mod_timestamp of pending edit"
 				- could have changed */
-			ModerationNotifyModerator::invalidatePendingTime();
+			$manager = ConsequenceUtils::getManager();
+			$manager->add( new InvalidatePendingTimeCacheConsequence() );
 		}
 
 		return $ret;
@@ -117,12 +122,10 @@ class ModerationActionApprove extends ModerationAction {
 		}
 
 		if ( $approved ) {
-			$logEntry = new ManualLogEntry( 'moderation', 'approveall' );
-			$logEntry->setPerformer( $this->moderator );
-			$logEntry->setTarget( $userpage );
-			$logEntry->setParameters( [ '4::count' => count( $approved ) ] );
-			$logid = $logEntry->insert();
-			$logEntry->publish( $logid );
+			$manager = ConsequenceUtils::getManager();
+			$manager->add( new AddLogEntryConsequence( 'approveall', $this->moderator, $userpage, [
+				'4::count' => count( $approved )
+			] ) );
 		}
 
 		return [

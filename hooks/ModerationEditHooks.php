@@ -20,6 +20,14 @@
  * Hooks related to normal edits.
  */
 
+use MediaWiki\Moderation\AddLogEntryConsequence;
+use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
+use MediaWiki\Moderation\MarkAsMergedConsequence;
+use MediaWiki\Moderation\QueueEditConsequence;
+use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
+use MediaWiki\Moderation\WatchCheckbox;
+
 class ModerationEditHooks {
 	/**
 	 * @var int
@@ -32,9 +40,6 @@ class ModerationEditHooks {
 
 	/** @var string Text of edited section, if any (populated in onEditFilter) */
 	protected static $sectionText = '';
-
-	/** @var bool|null Checkbox "Watch this page", if found (populated in onEditFilter) */
-	protected static $watchthis = null;
 
 	/**
 	 * EditFilter hook handler.
@@ -52,8 +57,7 @@ class ModerationEditHooks {
 			self::$sectionText = $text;
 		}
 
-		self::$watchthis = $editor->watchthis;
-
+		WatchCheckbox::setWatch( (bool)$editor->watchthis );
 		return true;
 	}
 
@@ -110,20 +114,17 @@ class ModerationEditHooks {
 			return true;
 		}
 
-		$change = new ModerationNewChange( $title, $user );
-		$change->edit( $page, $content, self::$section, self::$sectionText )
-			->setBot( (bool)( $flags & EDIT_FORCE_BOT ) )
-			->setMinor( (bool)$is_minor )
-			->setSummary( $summary )
-			->queue();
+		$manager = ConsequenceUtils::getManager();
+		$manager->add( new QueueEditConsequence(
+			$page, $user, $content, $summary,
+			self::$section, self::$sectionText,
+			(bool)( $flags & EDIT_FORCE_BOT ),
+			(bool)$is_minor
+		) );
 
-		if ( self::$watchthis !== null ) {
-			/* Watch/Unwatch the page immediately:
-				watchlist is the user's own business,
-				no reason to wait for approval of the edit */
-			$watch = (bool)self::$watchthis;
-			WatchAction::doWatchOrUnwatch( $watch, $title, $user );
-		}
+		/* Watch/Unwatch the page immediately:
+			watchlist is the user's own business, no reason to wait for approval of the edit */
+		WatchCheckbox::watchIfNeeded( $user, [ $title ] );
 
 		/*
 			We have queued this edit for moderation.
@@ -221,45 +222,28 @@ class ModerationEditHooks {
 			return true;
 		}
 
-		$mergeID = RequestContext::getMain()->getRequest()->getVal( 'wpMergeID' );
+		$mergeID = RequestContext::getMain()->getRequest()->getInt( 'wpMergeID' );
 		if ( !$mergeID ) {
 			return true;
 		}
 
 		$revid = $revision->getId();
 
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->update( 'moderation',
-			[
-				'mod_merged_revid' => $revid,
-				ModerationVersionCheck::setPreloadableToNo()
-			],
-			[
-				'mod_id' => $mergeID,
-				'mod_merged_revid' => 0 # No more than one merging
-			],
-			__METHOD__
-		);
+		$manager = ConsequenceUtils::getManager();
+		$somethingChanged = $manager->add( new MarkAsMergedConsequence( $mergeID, $revid ) );
 
-		if ( $dbw->affectedRows() ) {
-			$logEntry = new ManualLogEntry( 'moderation', 'merge' );
-			$logEntry->setPerformer( $user );
-			$logEntry->setTarget( $page->getTitle() );
-			$logEntry->setParameters( [
+		if ( $somethingChanged ) {
+			$manager->add( new AddLogEntryConsequence( 'merge', $user, $page->getTitle(), [
 				'modid' => $mergeID,
 				'revid' => $revision->getId()
-			] );
-			$logid = $logEntry->insert();
-			$logEntry->publish( $logid );
+			] ) );
 
 			/* Clear the cache of "Most recent mod_timestamp of pending edit"
 				- could have changed */
-			ModerationNotifyModerator::invalidatePendingTime();
+			$manager->add( new InvalidatePendingTimeCacheConsequence() );
 
 			/* Tag this edit as "manually merged" */
-			DeferredUpdates::addCallableUpdate( function () use ( $revid ) {
-				ChangeTags::addTags( 'moderation-merged', null, $revid, null );
-			} );
+			$manager->add( new TagRevisionAsMergedConsequence( $revid ) );
 		}
 
 		return true;
@@ -291,7 +275,7 @@ class ModerationEditHooks {
 	/**
 	 * ListDefinedTags hook handler.
 	 * Registers 'moderation-merged' ChangeTag.
-	 * @param array &$tags
+	 * @param string[] &$tags
 	 * @return true
 	 */
 	public static function onListDefinedTags( &$tags ) {

@@ -148,13 +148,13 @@ class ModerationQueueTest extends ModerationTestCase {
 				] ],
 			'absence of email for existing page when $wgModerationNotificationNewOnly=true' =>
 				[ [
-					'filename' => 'image100x100.png',
+					'existing' => true,
 					'notifyNewOnly' => true,
 					'notifyEmail' => 'noreply@localhost'
 				] ],
 			'absence of email for reupload when $wgModerationNotificationNewOnly=true' =>
 				[ [
-					'existing' => true,
+					'filename' => 'image100x100.png',
 					'notifyNewOnly' => true,
 					'notifyEmail' => 'noreply@localhost'
 				] ],
@@ -480,6 +480,13 @@ class ModerationQueueTest extends ModerationTestCase {
 			// ModerationIntercept hook shouldn't be called when renaming a page.
 			$this->assertEmpty( $hooks,
 				"ModerationIntercept hook was called when renaming a page." );
+			return;
+		}
+
+		if ( $this->filename ) {
+			// ModerationIntercept hook shouldn't be called for uploads.
+			$this->assertEmpty( $hooks,
+				"ModerationIntercept hook was called for upload." );
 			return;
 		}
 

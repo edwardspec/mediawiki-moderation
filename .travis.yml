@@ -63,7 +63,7 @@ matrix:
       script: composer test
 
     - &linter-js-build
-      if: NOT branch IN (phpunit,postgres,phan)
+      if: NOT branch IN (phpunit,postgres,phan,consequence)
       env: TESTSUITE_TYPE=linter-js
       language: node_js
       node_js: 10
@@ -74,7 +74,7 @@ matrix:
 
     # Phan (PHP static analyzer)
     - &phan-build
-      if: NOT branch IN (selenium,troubleshooting,linters)
+      if: NOT branch IN (selenium,troubleshooting,linters,consequence)
       env: TESTSUITE_TYPE=phan branch=REL1_34
       php: 7.3
       before_script:
@@ -90,7 +90,7 @@ matrix:
 
     # Phan for ModerationTestsuite framework
     - <<: *phan-build
-      if: branch IN (phan,phpunit)
+      if: branch IN (phan,phpunit,consequence)
       env: TESTSUITE_TYPE=phan branch=REL1_34 PHAN_CHECK_TESTSUITE=1
 
     # PHPUnit tests
@@ -98,13 +98,17 @@ matrix:
       if: NOT branch IN (selenium,troubleshooting,linters,phan)
       env: branch=REL1_31
       script:
+        # Start by running non-blackbox unit tests that can use temporary DB tables.
+        # These tests are much faster than the integration testsuite.
+        - php tests/phpunit/phpunit.php extensions/Moderation/tests/phpunit/consequence/
+
         # First run the smallest test without --reuse-db, so that the cloned database tables are created,
         # then run the remaining testsuite with --reuse-db to save time.
         - php tests/phpunit/phpunit.php --use-normal-tables extensions/Moderation/tests/phpunit/ModerationPermissionsTest.php
 
         # Run all tests in parallel via Fastest.
         # Note: test files are sorted by filesize (from smallest to largest).
-        - find extensions/Moderation/tests/phpunit/ -name "*Test.php" -exec ls -1Sr {} + | grep -v selftest | ./extensions/Moderation/vendor/liuggio/fastest/fastest -p "$PARALLEL_PHPUNIT_TESTS" --before="./extensions/Moderation/tests/travis/fastest_init_thread.sh" --preserve-order --verbose "php tests/phpunit/phpunit.php --use-normal-tables --reuse-db {};"
+        - find extensions/Moderation/tests/phpunit/ -name "*Test.php" -exec ls -1Sr {} + | grep -v -E 'selftest|consequence' | ./extensions/Moderation/vendor/liuggio/fastest/fastest -p "$PARALLEL_PHPUNIT_TESTS" --before="./extensions/Moderation/tests/travis/fastest_init_thread.sh" --preserve-order --verbose "php tests/phpunit/phpunit.php --use-normal-tables --reuse-db {};"
 
         # NotifyModeratorTest has already been completed without Echo, but it should also be tested with Echo.
         - WITH_ECHO=1 php tests/phpunit/phpunit.php --use-normal-tables --reuse-db extensions/Moderation/tests/phpunit/ModerationNotifyModeratorTest.php

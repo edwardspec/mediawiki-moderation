@@ -203,7 +203,6 @@ class ModerationLogFormatterTest extends ModerationTestCase {
 				case 'expectedParams':
 				case 'expectTargetUserlink':
 				case 'subtype':
-				case 'target':
 				case 'params':
 					$this->$key = $value;
 					break;

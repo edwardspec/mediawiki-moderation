@@ -1,8 +1,27 @@
 List of changes between releases of Extension:Moderation.
 
-== master branch ==
+== master branch (1.5.x versions) ==
 
-No changes since Moderation 1.4.20.
+Bugfixes:
+* Move/upload via API won't unnecessarily Unwatch affected pages.
+* Fixed rare error during ApproveAll when some of the timestamp changes
+need to be ignored, while others don't need to be ignored.
+* Fixed post-approval adjustments to rev_timestamp (restoring time when
+the author did the change) not being applied:
+	* to post-Move redirects,
+	* when ApproveAll simultaneously approves Edit and Move on same page,
+	* when approving a Move that overwrites an existing redirect.
+* Fixed incorrect value returned by NewChange::queue() for PostgreSQL.
+
+Refactoring, performance optimizations:
+* Major refactoring of everything (Consequence classes).
+* Better performance of move/upload via API.
+* Reduced the number of SQL queries when upload is intercepted.
+* Refactoring of ModerationApproveHook class.
+* Removed static variables like NewChange::$LastInsertId.
+
+Troubleshooting tools:
+* Added debug log to ModerationApproveHook.
 
 == Moderation 1.4.20 ==
 

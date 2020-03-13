@@ -20,11 +20,11 @@
  * Methods to manage "moderation" SQL table.
  */
 
+use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
+use MediaWiki\Moderation\SendNotificationEmailConsequence;
+
 class ModerationNewChange {
-
-	/** @var int|null mod_id of the last inserted row */
-	public static $LastInsertId = null;
-
 	const MOD_TYPE_EDIT = 'edit';
 	const MOD_TYPE_MOVE = 'move';
 
@@ -153,6 +153,17 @@ class ModerationNewChange {
 	}
 
 	/**
+	 * @param string $stashKey
+	 * @return self
+	 */
+	public function upload( $stashKey ) {
+		$this->fields['mod_stash_key'] = $stashKey;
+		$this->addChangeTags( 'upload' );
+
+		return $this;
+	}
+
+	/**
 	 * @param bool $isMinor
 	 * @return self
 	 */
@@ -220,7 +231,7 @@ class ModerationNewChange {
 	 * @param string $action AbuseFilter action, e.g. 'edit' or 'delete'.
 	 * @return string|null
 	 */
-	public static function findAbuseFilterTags( Title $title, User $user, $action ) {
+	protected static function findAbuseFilterTags( Title $title, User $user, $action ) {
 		if ( !class_exists( 'AbuseFilter' ) || empty( AbuseFilter::$tagsToSet ) ) {
 			return null; /* No tags */
 		}
@@ -295,32 +306,36 @@ class ModerationNewChange {
 
 	/**
 	 * Queue edit for moderation.
+	 * @return int mod_id of affected row.
 	 */
 	public function queue() {
-		self::$LastInsertId = ModerationVersionCheck::hasUniqueIndex() ?
+		$modid = ModerationVersionCheck::hasUniqueIndex() ?
 			$this->insert() :
 			$this->insertOld();
 
 		// Run hook to allow other extensions be notified about pending changes
 		Hooks::run( 'ModerationPending', [
 			$this->getFields(),
-			self::$LastInsertId
+			$modid
 		] );
 
-		$this->notify();
+		$this->notify( $modid );
+
+		return $modid;
 	}
 
 	/**
 	 * Notify moderators about this newly saved pending change.
+	 * @param int $modid mod_id of affected row.
 	 */
-	public function notify() {
+	public function notify( $modid ) {
 		if ( $this->getField( 'mod_rejected_auto' ) ) {
 			// This change was placed into the Spam folder. No need to notify.
 			return;
 		}
 
 		// Notify administrator by email
-		$this->sendNotificationEmail();
+		$this->sendNotificationEmail( $modid );
 
 		// Enable in-wiki notification "New changes await moderation" for moderators
 		ModerationNotifyModerator::setPendingTime( $this->getField( 'mod_timestamp' ) );
@@ -331,32 +346,16 @@ class ModerationNewChange {
 	 * @return int mod_id of affected row.
 	 */
 	protected function insert() {
-		$fields = $this->getFields();
-
-		$uniqueFields = [
-			'mod_preloadable',
-			'mod_namespace',
-			'mod_title',
-			'mod_preload_id'
-		];
-		if ( ModerationVersionCheck::hasModType() ) {
-			$uniqueFields[] = 'mod_type';
-		}
-
-		$dbw = wfGetDB( DB_MASTER );
-		RollbackResistantQuery::upsert( $dbw, [
-			'moderation',
-			$fields,
-			[ $uniqueFields ],
-			$fields,
-			__METHOD__
-		] );
-		return $dbw->insertId();
+		$manager = ConsequenceUtils::getManager();
+		return $manager->add(
+			new InsertRowIntoModerationTableConsequence( $this->getFields() )
+		);
 	}
 
 	/**
 	 * Legacy version of insert() for old databases without UNIQUE INDEX.
 	 * @return int mod_id of affected row.
+	 * NOTE: this B/C code will eventually be removed, no need to move this into Consequence class.
 	 */
 	protected function insertOld() {
 		$row = $this->getPendingChange();
@@ -384,8 +383,9 @@ class ModerationNewChange {
 
 	/**
 	 * Send email to moderators that new change has appeared.
+	 * @param int $modid mod_id of affected row.
 	 */
-	public function sendNotificationEmail() {
+	public function sendNotificationEmail( $modid ) {
 		global $wgModerationNotificationEnable,
 			$wgModerationNotificationNewOnly,
 			$wgModerationEmail;
@@ -400,33 +400,11 @@ class ModerationNewChange {
 			return;
 		}
 
-		/* Sending may be slow, defer it
-			until the user receives HTTP response */
-		DeferredUpdates::addCallableUpdate( [
-			$this,
-			'sendNotificationEmailNow'
-		] );
-	}
-
-	/**
-	 * Deliver the deferred letter from sendNotificationEmail().
-	 */
-	public function sendNotificationEmailNow() {
-		global $wgModerationEmail, $wgPasswordSender;
-
-		$mailer = new UserMailer();
-		$to = new MailAddress( $wgModerationEmail );
-		$from = new MailAddress( $wgPasswordSender );
-		$subject = wfMessage( 'moderation-notification-subject' )->inContentLanguage()->text();
-		$content = wfMessage( 'moderation-notification-content',
-			$this->title->getPrefixedText(),
-			$this->user->getName(),
-			SpecialPage::getTitleFor( 'Moderation' )->getCanonicalURL( [
-				'modaction' => 'show',
-				'modid' => self::$LastInsertId
-			] )
-		)->inContentLanguage()->text();
-
-		$mailer->send( $to, $from, $subject, $content );
+		$manager = ConsequenceUtils::getManager();
+		$manager->add( new SendNotificationEmailConsequence(
+			$this->title,
+			$this->user,
+			$modid
+		) );
 	}
 }

@@ -20,6 +20,11 @@
  * Parent class for all entry types (edit, upload, move, etc.).
  */
 
+use MediaWiki\Moderation\AddLogEntryConsequence;
+use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
+use MediaWiki\Moderation\InstallApproveHookConsequence;
+
 abstract class ModerationApprovableEntry extends ModerationEntry {
 	/**
 	 * Get the list of fields needed for selecting $row, as expected by newFromRow().
@@ -93,7 +98,8 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 		$row = $this->getRow();
 		$user = $this->getUser();
 
-		ModerationApproveHook::install( $this->getTitle(), $user, $row->type, [
+		$manager = ConsequenceUtils::getManager();
+		$manager->add( new InstallApproveHookConsequence( $this->getTitle(), $user, $row->type, [
 			# For CheckUser extension to work properly, IP, XFF and UA
 			# should be set to the correct values for the original user
 			# (not from the moderator)
@@ -109,7 +115,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 			# users would want to see new edits as they appear,
 			# without the edits surprisingly appearing somewhere in the past.
 			'timestamp' => $row->timestamp
-		] );
+		] ) );
 	}
 
 	/**
@@ -144,20 +150,18 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 		}
 
 		# Create post-approval log entry ("successfully approved").
-		$logEntry = new ManualLogEntry( 'moderation', $this->getApproveLogSubtype() );
-		$logEntry->setPerformer( $moderator );
-		$logEntry->setTarget( $this->getTitle() );
-		$logEntry->setParameters( $this->getApproveLogParameters() );
-		$logid = $logEntry->insert();
-		$logEntry->publish( $logid );
-
-		ModerationApproveHook::checkLogEntry( $logid, $logEntry );
+		$manager = ConsequenceUtils::getManager();
+		$manager->add( new AddLogEntryConsequence(
+			$this->getApproveLogSubtype(),
+			$moderator,
+			$this->getTitle(),
+			$this->getApproveLogParameters(),
+			true // Run ApproveHook on newly create log entry
+		) );
 
 		# Approved edits are removed from "moderation" table,
 		# because they already exist in page history, recentchanges etc.
-
-		$dbw = wfGetDB( DB_MASTER );
-		$dbw->delete( 'moderation', [ 'mod_id' => $row->id ], __METHOD__ );
+		$manager->add( new DeleteRowFromModerationTableConsequence( $row->id ) );
 	}
 
 	/**
@@ -173,7 +177,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	 * @return array
 	 */
 	protected function getApproveLogParameters() {
-		return [ 'revid' => ModerationApproveHook::getLastRevId() ];
+		return [ 'revid' => ModerationApproveHook::singleton()->getLastRevId() ];
 	}
 
 	/**

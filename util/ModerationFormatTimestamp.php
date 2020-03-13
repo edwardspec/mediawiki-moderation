@@ -32,7 +32,7 @@ class ModerationFormatTimestamp {
 		$lang = $context->getLanguage();
 		$user = $context->getUser();
 
-		if ( self::isToday( $timestamp, $context ) ) {
+		if ( self::isToday( $timestamp, $lang ) ) {
 			/* Only time */
 			return $lang->userTime( $timestamp, $user );
 		}
@@ -44,10 +44,10 @@ class ModerationFormatTimestamp {
 	/**
 	 * Returns true if $timestamp is today, false otherwise.
 	 * @param string $timestamp Timestamp in MediaWiki format (14 digits).
-	 * @param IContextSource $context Any object that contains current context.
+	 * @param Language $lang
 	 * @return bool
 	 */
-	protected static function isToday( $timestamp, IContextSource $context ) {
+	protected static function isToday( $timestamp, Language $lang ) {
 		static $today = '',
 			$skippedToday = false;
 
@@ -57,8 +57,6 @@ class ModerationFormatTimestamp {
 				then isToday=false for all following timestamps. */
 			return false;
 		}
-
-		$lang = $context->getLanguage();
 
 		// Respect the timezone selected by current user.
 		$timestamp = (string)$lang->userAdjust( $timestamp );

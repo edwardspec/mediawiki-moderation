@@ -21,9 +21,39 @@
  * Corrects rev_timestamp, rc_ip and checkuser logs when edit is approved.
  */
 
-class ModerationApproveHook implements DeferrableUpdate {
+use MediaWiki\Logger\LoggerFactory;
+use Psr\Log\LoggerInterface;
 
-	/** @var int How many times was this DeferrableUpdate queued */
+class ModerationApproveHook {
+	/** @var ModerationApproveHook|null Singleton instance */
+	protected static $instance = null;
+
+	/** @var LoggerInterface */
+	private $logger;
+
+	/**
+	 * Return a singleton instance of ModerationApproveHook
+	 * @return ModerationApproveHook
+	 */
+	public static function singleton() {
+		if ( self::$instance === null ) {
+			self::$instance = new self;
+		}
+
+		return self::$instance;
+	}
+
+	/**
+	 * Destroy the singleton instance
+	 */
+	public static function destroySingleton() {
+		self::$instance = null;
+	}
+
+	/**
+	 * @var int
+	 * Counter used in onPageContentSaveComplete() to ensure that doUpdate() is called only once.
+	 */
 	protected $useCount = 0;
 
 	/**
@@ -42,7 +72,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @var array Tasks which must be performed by postapprove hooks.
 	 * Format: [ key1 => [ 'ip' => ..., 'xff' => ..., 'ua' => ... ], key2 => ... ]
 	 */
-	protected static $tasks = [];
+	protected $tasks = [];
 
 	/**
 	 * @var array Log entries to modify in FileUpload hook.
@@ -50,31 +80,90 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 *
 	 * @phan-var array<int,ManualLogEntry>
 	 */
-	protected static $logEntriesToFix = [];
+	protected $logEntriesToFix = [];
 
 	protected function __construct() {
+		$this->logger = LoggerFactory::getInstance( 'ModerationApproveHook' );
 	}
 
-	public function newDeferrableUpdate() {
-		$this->useCount ++;
-		return $this;
+	/**
+	 * PageContentSaveComplete hook.
+	 * @return true
+	 */
+	public static function onPageContentSaveComplete() {
+		self::scheduleDoUpdate();
+		return true;
 	}
 
-	public function onPageContentSaveComplete() {
-		DeferredUpdates::addUpdate( $this->newDeferrableUpdate() );
+	/**
+	 * TitleMoveComplete hook.
+	 * Here we modify rev_timestamp of a newly created redirect after the page move.
+	 * @param Title $title
+	 * @param Title $newTitle
+	 * @param User $user
+	 * @return true
+	 */
+	public static function onTitleMoveComplete( Title $title, Title $newTitle, User $user ) {
+		$hook = self::singleton();
+		$task = $hook->getTask( $title, $user, ModerationNewChange::MOD_TYPE_MOVE );
+		if ( !$task ) {
+			return true;
+		}
+
+		$revid = $title->getLatestRevID();
+		if ( !$revid ) {
+			// Nothing to do: redirect wasn't created.
+			return true;
+		}
+
+		$dbr = wfGetDB( DB_REPLICA );
+		$timestamp = $dbr->timestamp( $task['timestamp'] ); // Possibly in PostgreSQL format
+
+		/* Fix rev_timestamp to be equal to mod_timestamp
+			(time when edit was queued, i.e. made by the user)
+			instead of current time (time of approval). */
+		$hook->queueUpdate( 'revision', [ $revid ], [ 'rev_timestamp' => $timestamp ] );
+
+		self::scheduleDoUpdate();
+		return true;
+	}
+
+	/**
+	 * Schedule doUpdate() to run after all other DeferredUpdates that are caused by new edits.
+	 */
+	public static function scheduleDoUpdate() {
+		self::singleton()->useCount ++;
+		DeferredUpdates::addCallableUpdate( __CLASS__ . '::doUpdate' );
+	}
+
+	/**
+	 * Run reallyDoUpdate() if this is the last DeferredUpdate of this kind.
+	 */
+	public static function doUpdate() {
+		/* This DeferredUpdate is installed after every edit.
+			Only the last of these updates should run, because
+			all RecentChange_save hooks must be completed before it.
+		*/
+		$hook = self::singleton();
+		if ( --$hook->useCount > 0 ) {
+			return;
+		}
+
+		$hook->reallyDoUpdate();
 	}
 
 	/**
 	 * Correct rev_timestamp, rc_ip and other fields (as requested by queueUpdate()).
 	 */
-	public function doUpdate() {
-		/* This DeferredUpdate is installed after every edit.
-			Only the last of these updates should run, because
-			all RecentChange_save hooks must be completed before it.
-		*/
-		if ( --$this->useCount > 0 ) {
+	protected function reallyDoUpdate() {
+		if ( !$this->dbUpdates ) {
+			// There are no updates.
 			return;
 		}
+
+		$this->logger->debug( "[ApproveHook] Running DB updates: {updates}", [
+			'updates' => FormatJson::encode( $this->dbUpdates )
+		] );
 
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->startAtomic( __METHOD__ );
@@ -91,6 +180,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 			*/
 			$set = [];
 			foreach ( $updates as $field => $whenThen ) {
+				$skippedIds = 0;
 				if ( $table == 'revision' && $field == 'rev_timestamp' ) {
 					/*
 						IMPORTANT: sometimes we DON'T update rev_timestamp
@@ -116,6 +206,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 						],
 						[
 							'a.rev_id AS id',
+							'b.rev_id AS prev_id',
 							'b.rev_timestamp AS prev_timestamp'
 						],
 						[
@@ -129,19 +220,53 @@ class ModerationApproveHook implements DeferrableUpdate {
 							] ]
 						]
 					);
+
+					$prevTimestamps = [];
 					foreach ( $res as $row ) {
-						if ( $row->prev_timestamp > $whenThen[$row->id] ) {
-							/* Skip this revision,
-								because updating its timestamp would be
-								resulting in incorrect order of history. */
-							unset( $whenThen[$row->id] );
+						$prevTimestamps[$row->id] = [ $row->prev_id, $row->prev_timestamp ];
+					}
+
+					// Check earlier timestamps first (see below).
+					asort( $whenThen );
+					foreach ( $whenThen as $id => $newTimestamp ) {
+						if ( !isset( $prevTimestamps[$id] ) ) {
+							// Page doesn't exist yet, so $newTimestamp clearly doesn't need to be ignored.
+							continue;
+						}
+
+						list( $prevId, $prevTimestamp ) = $prevTimestamps[$id];
+
+						if ( isset( $whenThen[$prevId] ) && $whenThen[$prevId] != 'rev_timestamp' ) {
+							// If we are here, than means ApproveHook also wants to change rev_timestamp of
+							// the previous revision too.
+							// Because $whenThen is sorted by timestamp (from older to newer),
+							// we already checked this revision and decided not to ignore its timestamp.
+							$prevTimestamp = $whenThen[$prevId];
+						}
+
+						if ( $prevTimestamp > $newTimestamp ) {
+							$this->logger->info(
+								"[ApproveHook] Decided not to set rev_timestamp={timestamp} for revision #{revid}, " .
+								"because previous revision has {prev_timestamp} (which is newer).",
+								[
+									'revid' => $id,
+									'timestamp' => $newTimestamp,
+									'prev_timestamp' => $prevTimestamp
+								]
+							);
+
+							/* Don't modify timestamp of this revision,
+								because doing so would be resulting
+								in incorrect order of history. */
+							$whenThen[$id] = 'rev_timestamp';
+							$skippedIds++;
 						}
 					}
 				}
 
-				if ( empty( $whenThen ) ) {
-					/* Nothing to do.
-						This can happen when we skip rev_timestamp update (see above) */
+				if ( count( $ids ) == $skippedIds ) {
+					/* Nothing to do:
+						we decided to skip rev_timestamp update for all rows. */
 					continue;
 				}
 
@@ -155,17 +280,24 @@ class ModerationApproveHook implements DeferrableUpdate {
 					$caseSql = '';
 					foreach ( $whenThen as $when => $then ) {
 						$whenQuoted = $dbw->addQuotes( $when );
-						$thenQuoted = $dbw->addQuotes( $then );
 
-						if ( $dbw->getType() == 'postgres' ) {
-							if ( $field == 'rc_ip' ) {
-								// In PostgreSQL, rc_ip is of type CIDR, and we can't insert strings into it.
-								$thenQuoted .= '::cidr';
-							} elseif ( $field == 'rev_timestamp' ) {
-								// In PostgreSQL, rc_timestamp is of type TIMESTAMPZ,
-								// and we can't insert strings into it.
-								$thenQuoted = 'to_timestamp(' . $thenQuoted .
-									', \'YYYY-MM-DD HH24:MI:SS\' )';
+						if ( $then == 'rev_timestamp' ) {
+							// Default value for rev_timestamp=(CASE ... ) when certain rows were skipped:
+							// leave the previous value of rev_timestamp unchanged.
+							$thenQuoted = 'rev_timestamp';
+						} else {
+							$thenQuoted = $dbw->addQuotes( $then );
+
+							if ( $dbw->getType() == 'postgres' ) {
+								if ( $field == 'rc_ip' ) {
+									// In PostgreSQL, rc_ip is of type CIDR, and we can't insert strings into it.
+									$thenQuoted .= '::cidr';
+								} elseif ( $field == 'rev_timestamp' ) {
+									// In PostgreSQL, rc_timestamp is of type TIMESTAMPZ,
+									// and we can't insert strings into it.
+									$thenQuoted = 'to_timestamp(' . $thenQuoted .
+										', \'YYYY-MM-DD HH24:MI:SS\' )';
+								}
 							}
 						}
 
@@ -185,6 +317,13 @@ class ModerationApproveHook implements DeferrableUpdate {
 				[ $idFieldName => $ids ],
 				__METHOD__
 			);
+
+			$this->logger->debug( '[ApproveHook] SQL query ({rows} rows affected): {query}',
+				[
+					'rows' => $dbw->affectedRows(),
+					'query' => $dbw->lastQuery()
+				]
+			);
 		}
 
 		$dbw->endAtomic( __METHOD__ );
@@ -198,19 +337,19 @@ class ModerationApproveHook implements DeferrableUpdate {
 	public static function checkLogEntry( $logid, ManualLogEntry $logEntry ) {
 		$params = $logEntry->getParameters();
 		if ( array_key_exists( 'revid', $params ) && $params['revid'] === null ) {
-			self::$logEntriesToFix[$logid] = $logEntry;
+			self::singleton()->logEntriesToFix[$logid] = $logEntry;
 		}
 	}
 
 	/** @var int|null Revid of the last edit, populated in onNewRevisionFromEditComplete */
-	protected static $lastRevId = null;
+	protected $lastRevId = null;
 
 	/**
 	 * Returns revid of the last edit.
 	 * @return int|null
 	 */
-	public static function getLastRevId() {
-		return self::$lastRevId;
+	public function getLastRevId() {
+		return $this->lastRevId;
 	}
 
 	/**
@@ -222,9 +361,9 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param User $user
 	 * @return bool
 	 */
-	public function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
+	public static function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
 		/* Remember ID of this revision for getLastRevId() */
-		self::$lastRevId = $rev->getId();
+		self::singleton()->lastRevId = $rev->getId();
 		return true;
 	}
 
@@ -235,7 +374,7 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param string $type mod_type of this change.
 	 * @return string
 	 */
-	protected static function getTaskKey( Title $title, $username, $type ) {
+	protected function getTaskKey( Title $title, $username, $type ) {
 		return implode( '[', /* Symbol "[" is not allowed in both titles and usernames */
 			[
 				$username,
@@ -253,9 +392,23 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param string $type One of ModerationNewChange::MOD_TYPE_* values.
 	 * @return array|false [ 'ip' => ..., 'xff' => ..., 'ua' => ..., ... ]
 	 */
-	public function getTask( Title $title, $username, $type ) {
-		$key = self::getTaskKey( $title, $username, $type );
-		return self::$tasks[$key] ?? false;
+	protected function getTask( Title $title, $username, $type ) {
+		$key = $this->getTaskKey( $title, $username, $type );
+		return $this->tasks[$key] ?? false;
+	}
+
+	/**
+	 * Add a new task. Called before doEditContent().
+	 * @param Title $title
+	 * @param User $user
+	 * @param string $type
+	 * @param array $task
+	 *
+	 * @phan-param array{ip:?string,xff:?string,ua:?string,tags:?string,timestamp:?string} $task
+	 */
+	public function addTask( Title $title, User $user, $type, array $task ) {
+		$key = $this->getTaskKey( $title, $user->getName(), $type );
+		$this->tasks[$key] = $task;
 	}
 
 	/**
@@ -263,9 +416,11 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param RecentChange $rc
 	 * @return array|false
 	 */
-	public function getTaskByRC( RecentChange $rc ) {
+	protected function getTaskByRC( RecentChange $rc ) {
+		$logAction = $rc->mAttribs['rc_log_action'];
+
 		$type = ModerationNewChange::MOD_TYPE_EDIT;
-		if ( $rc->mAttribs['rc_log_action'] == 'move' ) {
+		if ( $logAction == 'move' || $logAction == 'move_redir' ) {
 			$type = ModerationNewChange::MOD_TYPE_MOVE;
 		}
 
@@ -285,9 +440,11 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param RecentChange $rc
 	 * @param array &$fields
 	 * @return bool
+	 *
+	 * @phan-param array<string,string|int|null> &$fields
 	 */
-	public function onCheckUserInsertForRecentChange( $rc, &$fields ) {
-		$task = $this->getTaskByRC( $rc );
+	public static function onCheckUserInsertForRecentChange( $rc, &$fields ) {
+		$task = self::singleton()->getTaskByRC( $rc );
 		if ( !$task ) {
 			return true;
 		}
@@ -322,13 +479,13 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param bool $hasDescription
 	 * @return bool
 	 */
-	public function onFileUpload( LocalFile $file, $reupload, $hasDescription ) {
+	public static function onFileUpload( LocalFile $file, $reupload, $hasDescription ) {
 		if ( $reupload ) {
 			return true; // rev_id is not missing for reuploads
 		}
 
 		$dbw = wfGetDB( DB_MASTER );
-		foreach ( self::$logEntriesToFix as $logid => $logEntry ) {
+		foreach ( self::singleton()->logEntriesToFix as $logid => $logEntry ) {
 			$title = $file->getTitle();
 			if ( $logEntry->getTarget()->equals( $title ) ) {
 				$params = $logEntry->getParameters();
@@ -350,11 +507,19 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param int|array $ids One or several IDs (e.g. rev_id or rc_id).
 	 * @param array $values New values, as expected by $db->update,
 	 * e.g. [ 'rc_ip' => '1.2.3.4', 'rc_something' => '...' ].
+	 *
+	 * @phan-param array<string,string> $values
 	 */
-	public function queueUpdate( $table, $ids, array $values ) {
+	protected function queueUpdate( $table, $ids, array $values ) {
 		if ( !is_array( $ids ) ) {
 			$ids = [ $ids ];
 		}
+
+		$this->logger->debug( "[ApproveHook] queueUpdate(): table={table}; ids={ids}; values={values}", [
+			'table' => $table,
+			'ids' => implode( '|', $ids ),
+			'values' => FormatJson::encode( $values )
+		] );
 
 		if ( !isset( $this->dbUpdates[$table] ) ) {
 			$this->dbUpdates[$table] = [];
@@ -380,45 +545,31 @@ class ModerationApproveHook implements DeferrableUpdate {
 	 * @param RecentChange &$rc
 	 * @return bool
 	 */
-	public function onRecentChange_save( &$rc ) {
+	public static function onRecentChange_save( &$rc ) {
 		global $wgPutIPinRC;
 
-		$task = $this->getTaskByRC( $rc );
+		$hook = self::singleton();
+		$task = $hook->getTaskByRC( $rc );
 		if ( !$task ) {
 			return true;
 		}
 
 		if ( $wgPutIPinRC ) {
-			$this->queueUpdate( 'recentchanges',
+			$hook->queueUpdate( 'recentchanges',
 				$rc->mAttribs['rc_id'],
 				[ 'rc_ip' => IP::sanitizeIP( $task['ip'] ) ]
 			);
 		}
 
+		$dbr = wfGetDB( DB_REPLICA );
+		$timestamp = $dbr->timestamp( $task['timestamp'] ); // Possibly in PostgreSQL format
+
 		/* Fix rev_timestamp to be equal to mod_timestamp
 			(time when edit was queued, i.e. made by the user)
 			instead of current time (time of approval). */
-		$revIdsToModify = [
-			 $rc->mAttribs['rc_this_oldid']
-		];
-		if ( $rc->mAttribs['rc_log_action'] == 'move' ) {
-			/* When page A is moved to B, there will be
-				only one row in the recentchanges table ($rc),
-				but there are actually TWO revisions:
-				(1) rc_this_oldid - null revision in B,
-				(2) newly created redirect in A.
-				We need to modify both of them.
-			*/
-			if ( $rc->getParam( '5::noredir' ) == 0 ) {
-				/* Redirect exists */
-				$redirectTitle = $rc->getTitle();
-				$revIdsToModify[] = $redirectTitle->getLatestRevID();
-			}
-		}
-
-		$this->queueUpdate( 'revision',
-			$revIdsToModify,
-			[ 'rev_timestamp' => $task['timestamp'] ]
+		$hook->queueUpdate( 'revision',
+			[ $rc->mAttribs['rc_this_oldid'] ],
+			[ 'rev_timestamp' => $timestamp ]
 		);
 
 		if ( $task['tags'] ) {
@@ -434,31 +585,5 @@ class ModerationApproveHook implements DeferrableUpdate {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Prepare the approve hook. Called before doEditContent().
-	 * @param Title $title
-	 * @param User $user
-	 * @param string $type
-	 * @param array $task
-	 */
-	public static function install( Title $title, User $user, $type, array $task ) {
-		$key = self::getTaskKey( $title, $user->getName(), $type );
-		self::$tasks[$key] = $task;
-
-		static $installed = false;
-		if ( !$installed ) {
-			global $wgHooks;
-
-			$hook = new self;
-			$wgHooks['CheckUserInsertForRecentChange'][] = $hook;
-			$wgHooks['FileUpload'][] = $hook;
-			$wgHooks['NewRevisionFromEditComplete'][] = $hook;
-			$wgHooks['PageContentSaveComplete'][] = $hook;
-			$wgHooks['RecentChange_save'][] = $hook;
-
-			$installed = true;
-		}
 	}
 }

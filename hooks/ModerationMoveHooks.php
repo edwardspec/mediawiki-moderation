@@ -20,6 +20,10 @@
  * Hooks related to moving (renaming) pages.
  */
 
+use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\Moderation\QueueMoveConsequence;
+use MediaWiki\Moderation\WatchCheckbox;
+
 class ModerationMoveHooks {
 
 	/**
@@ -86,20 +90,14 @@ class ModerationMoveHooks {
 			}
 		}
 
-		$change = new ModerationNewChange( $oldTitle, $user );
-		$change->move( $newTitle )
-			->setSummary( $reason )
-			->queue();
+		$manager = ConsequenceUtils::getManager();
+		$manager->add( new QueueMoveConsequence(
+			$oldTitle, $newTitle, $user, $reason
+		) );
 
-		if ( $user->isLoggedIn() ) {
-			/* Watch/Unwatch $oldTitle/$newTitle immediately:
-				watchlist is the user's own business,
-				no reason to wait for approval of the move */
-			$watch = $user->getRequest()->getCheck( 'wpWatch' );
-
-			WatchAction::doWatchOrUnwatch( $watch, $oldTitle, $user );
-			WatchAction::doWatchOrUnwatch( $watch, $newTitle, $user );
-		}
+		/* Watch/Unwatch $oldTitle/$newTitle immediately:
+			watchlist is the user's own business, no reason to wait for approval of the move */
+		WatchCheckbox::watchIfNeeded( $user, [ $oldTitle, $newTitle ] );
 
 		$errorMsg = 'moderation-move-queued';
 		ModerationQueuedSuccessException::throwIfNeeded( $errorMsg );

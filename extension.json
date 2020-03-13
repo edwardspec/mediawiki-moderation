@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.4.20",
+	"version": "1.5.0",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -101,6 +101,36 @@
 		"ApiModeration": "api/ApiModeration.php",
 		"ApiQueryModerationPreload": "api/ApiQueryModerationPreload.php",
 		"IModerationEntry": "lib/entry/IModerationEntry.php",
+		"MediaWiki\\Moderation\\AddLogEntryConsequence": "lib/consequence/AddLogEntryConsequence.php",
+		"MediaWiki\\Moderation\\ApproveEditConsequence": "lib/consequence/ApproveEditConsequence.php",
+		"MediaWiki\\Moderation\\ApproveMoveConsequence": "lib/consequence/ApproveMoveConsequence.php",
+		"MediaWiki\\Moderation\\ApproveUploadConsequence": "lib/consequence/ApproveUploadConsequence.php",
+		"MediaWiki\\Moderation\\BlockUserConsequence": "lib/consequence/BlockUserConsequence.php",
+		"MediaWiki\\Moderation\\ConsequenceManager": "lib/consequence/manager/ConsequenceManager.php",
+		"MediaWiki\\Moderation\\ConsequenceUtils": "lib/consequence/manager/ConsequenceUtils.php",
+		"MediaWiki\\Moderation\\DeleteRowFromModerationTableConsequence": "lib/consequence/DeleteRowFromModerationTableConsequence.php",
+		"MediaWiki\\Moderation\\ForgetAnonIdConsequence": "lib/consequence/ForgetAnonIdConsequence.php",
+		"MediaWiki\\Moderation\\GiveAnonChangesToNewUserConsequence": "lib/consequence/GiveAnonChangesToNewUserConsequence.php",
+		"MediaWiki\\Moderation\\IConsequence": "lib/consequence/IConsequence.php",
+		"MediaWiki\\Moderation\\IConsequenceManager": "lib/consequence/manager/IConsequenceManager.php",
+		"MediaWiki\\Moderation\\InsertRowIntoModerationTableConsequence": "lib/consequence/InsertRowIntoModerationTableConsequence.php",
+		"MediaWiki\\Moderation\\InstallApproveHookConsequence": "lib/consequence/InstallApproveHookConsequence.php",
+		"MediaWiki\\Moderation\\InvalidatePendingTimeCacheConsequence": "lib/consequence/InvalidatePendingTimeCacheConsequence.php",
+		"MediaWiki\\Moderation\\MarkAsConflictConsequence": "lib/consequence/MarkAsConflictConsequence.php",
+		"MediaWiki\\Moderation\\MarkAsMergedConsequence": "lib/consequence/MarkAsMergedConsequence.php",
+		"MediaWiki\\Moderation\\MockConsequenceManager": "lib/consequence/manager/MockConsequenceManager.php",
+		"MediaWiki\\Moderation\\ModifyPendingChangeConsequence": "lib/consequence/ModifyPendingChangeConsequence.php",
+		"MediaWiki\\Moderation\\QueueEditConsequence": "lib/consequence/QueueEditConsequence.php",
+		"MediaWiki\\Moderation\\QueueMoveConsequence": "lib/consequence/QueueMoveConsequence.php",
+		"MediaWiki\\Moderation\\QueueUploadConsequence": "lib/consequence/QueueUploadConsequence.php",
+		"MediaWiki\\Moderation\\RejectBatchConsequence": "lib/consequence/RejectBatchConsequence.php",
+		"MediaWiki\\Moderation\\RejectOneConsequence": "lib/consequence/RejectOneConsequence.php",
+		"MediaWiki\\Moderation\\RememberAnonIdConsequence": "lib/consequence/RememberAnonIdConsequence.php",
+		"MediaWiki\\Moderation\\SendNotificationEmailConsequence": "lib/consequence/SendNotificationEmailConsequence.php",
+		"MediaWiki\\Moderation\\TagRevisionAsMergedConsequence": "lib/consequence/TagRevisionAsMergedConsequence.php",
+		"MediaWiki\\Moderation\\UnblockUserConsequence": "lib/consequence/UnblockUserConsequence.php",
+		"MediaWiki\\Moderation\\WatchCheckbox": "util/WatchCheckbox.php",
+		"MediaWiki\\Moderation\\WatchOrUnwatchConsequence": "lib/consequence/WatchOrUnwatchConsequence.php",
 		"ModerationAction": "action/ModerationAction.php",
 		"ModerationActionApprove": "action/ModerationActionApprove.php",
 		"ModerationActionBlock": "action/ModerationActionBlock.php",
@@ -278,6 +308,9 @@
 		"BeforePageDisplay": [
 			"ModerationEditHooks::onBeforePageDisplay"
 		],
+		"CheckUserInsertForRecentChange": [
+			"ModerationApproveHook::onCheckUserInsertForRecentChange"
+		],
 		"EditFilter": [
 			"ModerationEditHooks::onEditFilter"
 		],
@@ -289,6 +322,9 @@
 		],
 		"EditPage::showEditForm:fields": [
 			"ModerationEditHooks::prepareEditForm"
+		],
+		"FileUpload": [
+			"ModerationApproveHook::onFileUpload"
 		],
 		"getUserPermissionsErrors": [
 			"ModerationUploadHooks::ongetUserPermissionsErrors"
@@ -305,10 +341,14 @@
 		"MovePageCheckPermissions": [
 			"ModerationMoveHooks::onMovePageCheckPermissions"
 		],
+		"NewRevisionFromEditComplete": [
+			"ModerationApproveHook::onNewRevisionFromEditComplete"
+		],
 		"PageContentSave": [
 			"ModerationEditHooks::onPageContentSave"
 		],
 		"PageContentSaveComplete": [
+			"ModerationApproveHook::onPageContentSaveComplete",
 			"ModerationEditHooks::onPageContentSaveComplete"
 		],
 		"PageForms::EditFormInitialText": [
@@ -316,6 +356,15 @@
 		],
 		"PageForms::EditFormPreloadText": [
 			"ModerationPageForms::preloadText"
+		],
+		"RecentChange_save": [
+			"ModerationApproveHook::onRecentChange_save"
+		],
+		"SpecialPageBeforeExecute": [
+			"MediaWiki\\Moderation\\WatchCheckbox::onSpecialPageBeforeExecute"
+		],
+		"TitleMoveComplete": [
+			"ModerationApproveHook::onTitleMoveComplete"
 		],
 		"UploadVerifyUpload": [
 			"ModerationUploadHooks::onUploadVerifyUpload"
