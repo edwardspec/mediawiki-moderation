@@ -65,6 +65,14 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 	}
 
 	/**
+	 * Placeholder for edit token - will be replaced by correct token in [InvokedWikiSettings.php].
+	 * @return string
+	 */
+	public function getEditToken() {
+		return '{CliEngine:Token:CSRF}';
+	}
+
+	/**
 	 * Simulate HTTP request by running index.php/api.php of MediaWiki in a controlled environment.
 	 * @param string $url
 	 * @param string $method

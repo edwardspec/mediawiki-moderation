@@ -159,13 +159,20 @@ function efModerationTestsuiteCliLogin() {
 		RequestContext::getMain()->setUser( $user );
 	}
 
+	$request = RequestContext::getMain()->getRequest();
+	foreach ( $request->getValues() as $key => $val ) {
+		if ( $val === '{CliEngine:Token:CSRF}' ) {
+			$request->setVal( $key, $user->getEditToken() );
+		}
+	}
+
 	$event = array_merge(
 		[
 			'_entrypoint' => $entrypoint,
 			'_LoggedInAs' => $user->getName() . ' (#' . $user->getId() .
 				'), groups=[' . implode( ', ', $user->getGroups() ) . ']',
 		],
-		RequestContext::getMain()->getRequest()->getValues()
+		$request->getValues()
 	);
 	wfDebugLog( 'ModerationTestsuite', FormatJson::encode( $event, true, FormatJson::ALL_OK ) );
 }
