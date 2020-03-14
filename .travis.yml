@@ -143,7 +143,7 @@ matrix:
     - <<: *phpunit-build
       if: branch IN (phpunit)
       env: branch=master
-      php: 7.3
+      php: 7.4
     - <<: *phpunit-build
       if: branch IN (nightly)
       env: branch=master
