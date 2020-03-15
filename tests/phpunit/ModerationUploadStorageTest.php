@@ -39,7 +39,7 @@ class ModerationUploadStorageTest extends ModerationTestCase {
 		$t->loginAs( $t->unprivilegedUser );
 		for ( $i = 1; $i <= $numberOfUploads * 2; $i++ ) {
 			if ( $i % 2 ) {
-				$result = $t->doTestUpload( "Test image $i.png" );
+				$result = $t->doTestUpload( "Test image $i " . $t->uniqueSuffix() . ".png" );
 			} else {
 				$result = $t->doTestEdit( "Test page $i" );
 			}

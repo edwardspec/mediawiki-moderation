@@ -161,7 +161,7 @@ abstract class ModerationTestsuiteBot {
 	 */
 	private function generateRandomTitle() {
 		// Simple string, no underscores
-		return "Test page 1";
+		return "Test page " . $this->t->uniqueSuffix();
 	}
 
 	/**

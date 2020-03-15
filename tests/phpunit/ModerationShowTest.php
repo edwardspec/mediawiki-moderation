@@ -93,7 +93,7 @@ class ModerationShowTest extends ModerationTestCase {
 	 */
 	public function testShowUpload( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
-		$t->doTestUpload( "Test image 1.png", "image640x50.png",
+		$t->doTestUpload( "Test image 1" . $t->uniqueSuffix() . ".png", "image640x50.png",
 			"" # Empty description: check for (moderation-diff-upload-notext)
 		);
 		$t->fetchSpecial();

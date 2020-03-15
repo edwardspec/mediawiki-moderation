@@ -298,7 +298,8 @@ class ModerationQueueTest extends ModerationTestCase {
 		}
 
 		if ( !$this->title ) {
-			$pageName = $this->filename ? 'File:Test image 1.png' : 'Test page 1';
+			$suffix = $this->getTestsuite()->uniqueSuffix();
+			$pageName = $this->filename ? "File:Test image $suffix.png" : "Test page $suffix";
 			$this->title = Title::newFromText( $pageName );
 		}
 

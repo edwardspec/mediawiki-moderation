@@ -91,7 +91,7 @@ class ModerationUploadTest extends ModerationTestCase {
 	 * @covers ModerationApproveHook::onNewRevisionFromEditComplete
 	 */
 	public function testReupload( ModerationTestsuite $t ) {
-		$title = "Test image 1.png";
+		$title = "Test image " . $t->uniqueSuffix() . ".png";
 
 		# Upload the image first
 		$t->loginAs( $t->automoderated );

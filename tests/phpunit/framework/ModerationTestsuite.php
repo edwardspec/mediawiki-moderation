@@ -616,6 +616,14 @@ class ModerationTestsuite {
 	}
 
 	/**
+	 * Get random string to be appended to filenames, etc. to avoid filename conflicts.
+	 * @return string
+	 */
+	public function uniqueSuffix() {
+		return rand( 0, 100000 ) . 'T' . microtime( true );
+	}
+
+	/**
 	 * Perform a test upload.
 	 * @return ModerationTestsuiteNonApiBotResponse
 	 */
