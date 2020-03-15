@@ -147,41 +147,5 @@ class ModerationUploadTest extends ModerationTestCase {
 		$this->assertEquals( $t->lastEdit['User'], $ii['user'] );
 		$this->assertEquals( $t->lastEdit['Text'], $ii['comment'] );
 		$this->assertEquals( $t->lastEdit['SHA1'], $ii['sha1'] );
-
-		# Check image page history: performUpload(... $user) mistakenly
-		# tags image reuploads as made by moderator (and not $user).
-		# Was that fixed? (via ModerationApproveHook class)
-
-		$ret = $t->query( [
-			'action' => 'query',
-			'prop' => 'revisions',
-			'rvlimit' => 2, # See below
-			'rvprop' => 'user|timestamp|comment|content|ids',
-			'titles' => $entry->title
-		] );
-
-		# Because API orders entries by timestamp (up to seconds), and
-		# it's likely that two uploads we just made will have the same
-		# timestamp, they may be ordered incorrectly ([0] not being the
-		# most recent). So find the entry with 'parentid' referring to
-		# the other entry.
-		$ret_page = array_shift( $ret['query']['pages'] );
-		$rev1 = $ret_page['revisions'][0];
-		$rev2 = $ret_page['revisions'][1];
-
-		# Make $rev1 the most recent edit
-		if ( $rev2['parentid'] == $rev1['revid'] ) {
-			$tmp = $rev1;
-			$rev1 = $rev2;
-			$rev2 = $tmp;
-		}
-
-		$this->assertEquals( $rev2['revid'], $rev1['parentid'],
-			"testReupload(): parentid of new revision doesn't match revid of the previous revision" );
-		$this->assertNotEquals( $t->moderator->getName(), $rev1['user'],
-			"testReupload(): Image reupload was attributed to the moderator who " .
-			"approved it (instead of the user who made the reupload)" );
-		$this->assertEquals( $t->lastEdit['User'], $rev1['user'],
-			"testReupload(): Image reupload wasn't attributed to the user who made it" );
 	}
 }
