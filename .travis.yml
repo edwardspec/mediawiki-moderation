@@ -115,9 +115,6 @@ matrix:
         # NotifyModeratorTest has already been completed without Echo, but it should also be tested with Echo.
         - WITH_ECHO=1 php tests/phpunit/phpunit.php --use-normal-tables --reuse-db extensions/Moderation/tests/phpunit/ModerationNotifyModeratorTest.php
 
-        # Run small benchmarks to detect performance regressions
-        # TODO: move this into a separate Travis build stage and do this only on tags/releases.
-        - for i in extensions/Moderation/tests/benchmarks/*; do php maintenance/runScript.php $i; done
     - <<: *phpunit-build
       env: branch=REL1_32
     - <<: *phpunit-build
