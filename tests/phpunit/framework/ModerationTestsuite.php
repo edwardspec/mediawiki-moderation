@@ -697,19 +697,33 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * Get the last revision of page $title via API.
+	 * Get information about last revision of page $title.
+	 * @param string $title
 	 * @return array|false
+	 *
+	 * @phan-return array{revid:int,*:string,user:string,comment:string,timestamp:string}|false
 	 */
 	public function getLastRevision( $title ) {
-		$ret = $this->query( [
-			'action' => 'query',
-			'prop' => 'revisions',
-			'rvlimit' => 1,
-			'rvprop' => 'user|timestamp|comment|content|ids|tags|flags',
-			'titles' => $title
-		] );
-		$retPage = array_shift( $ret['query']['pages'] );
-		return isset( $retPage['missing'] ) ? false : $retPage['revisions'][0];
+		$page = WikiPage::factory( Title::newFromText( $title ) );
+		$rev = $page->getRevision();
+
+		if ( !$rev ) {
+			return false;
+		}
+
+		// Response in the same format as returned by api.php?action=query&prop=revisions.
+		$result = [
+			'*' => $page->getContent()->getNativeData(),
+			'user' => $rev->getUserText(),
+			'revid' => $rev->getId(),
+			'comment' => $rev->getComment(),
+			'timestamp' => wfTimestamp( TS_ISO_8601, $rev->getTimestamp() )
+		];
+		if ( $rev->isMinor() ) {
+			$result['minor'] = '';
+		}
+
+		return $result;
 	}
 
 	/**
