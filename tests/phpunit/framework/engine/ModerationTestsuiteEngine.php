@@ -37,11 +37,10 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 	/**
 	 * @var User|null
-	 * This variable is only used for sanity checks.
-	 * Engine should throw an exception if it discovers that a request is executing
-	 * on behalf of a different user (someone other than $expectedUser).
+	 * Requests should be executed on behalf of this user.
+	 * Engine should throw an exception if login as this user didn't succeed.
 	 */
-	private $expectedUser = null;
+	private $currentUser = null;
 
 	/**
 	 * Create engine object.
@@ -226,20 +225,6 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	}
 
 	/**
-	 * Determine the current user.
-	 * @return User
-	 */
-	public function loggedInAs() {
-		$ret = $this->query( [
-			'action' => 'query',
-			'meta' => 'userinfo'
-		] );
-		$username = $ret['query']['userinfo']['name'];
-
-		return User::newFromName( $username, false );
-	}
-
-	/**
 	 * Perform API request and return the resulting structure.
 	 * @param array $apiQuery
 	 * @return array
@@ -266,12 +251,11 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	}
 
 	/**
-	 * Internal function for Engine subclasses.
-	 * They should throw an exception if httpRequestInternal() is called on behalf of another user.
+	 * Determine the current user.
 	 * @return User
 	 */
-	protected function getExpectedUser() {
-		return $this->expectedUser ?: User::newFromName( '127.0.0.1', false );
+	public function loggedInAs() {
+		return $this->currentUser ?: User::newFromName( '127.0.0.1', false );
 	}
 
 	/**
@@ -281,7 +265,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	final public function loginAs( User $user ) {
 		$this->loginAsInternal( $user );
 		$this->forgetEditToken(); # It's different for a logged-in user
-		$this->expectedUser = $user;
+		$this->currentUser = $user;
 	}
 
 	/**
@@ -336,7 +320,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	final public function logout() {
 		$this->logoutInternal();
 		$this->forgetEditToken(); # It's different for anonymous user
-		$this->expectedUser = null;
+		$this->currentUser = null;
 	}
 
 	/**

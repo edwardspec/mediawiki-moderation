@@ -487,23 +487,15 @@ class ModerationTestsuite {
 	public $unprivilegedUser2;
 	public $moderatorAndCheckuser;
 
-	/** @var User */
-	protected $currentUser = null;
-
+	/**
+	 * @return User
+	 */
 	public function loggedInAs() {
-		if ( $this->currentUser === null ) {
-			$this->currentUser = $this->engine->loggedInAs();
-		}
-
-		return $this->currentUser;
+		return $this->engine->loggedInAs();
 	}
 
 	public function isModerator() {
-		if ( !$this->currentUser ) {
-			return false;
-		}
-
-		return in_array( $this->currentUser->getId(), [
+		return in_array( $this->loggedInAs()->getId(), [
 			$this->moderator->getId(),
 			$this->moderatorButNotAutomoderated->getId(),
 			$this->moderatorAndCheckuser->getId()
@@ -511,7 +503,7 @@ class ModerationTestsuite {
 	}
 
 	public function loginAs( User $user ) {
-		if ( $this->currentUser && $user->getId() == $this->currentUser->getId() ) {
+		if ( $user->getId() == $this->loggedInAs()->getId() ) {
 			return; /* Nothing to do, already logged in */
 		}
 
@@ -521,12 +513,10 @@ class ModerationTestsuite {
 		}
 
 		$this->engine->loginAs( $user );
-		$this->currentUser = $user;
 	}
 
 	public function logout() {
 		$this->engine->logout();
-		$this->currentUser = $this->engine->loggedInAs();
 	}
 
 	/**

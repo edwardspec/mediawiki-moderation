@@ -58,7 +58,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 	}
 
 	/**
-	 * CliEngine doesn't need any login logic - it auto-logins as $this->getExpectedUser().
+	 * CliEngine doesn't need any login logic - it auto-logins as the current user.
 	 * @param User $user
 	 */
 	protected function loginAsInternal( User $user ) {
@@ -111,10 +111,10 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 			'config' => $this->config,
 			'trackedHooks' => array_keys( $this->trackedHooks ),
 
-			// For sanity checks only.
+			// Request will be executed on behalf of this user.
 			'expectedUser' => [
-				$this->getExpectedUser()->getId(),
-				$this->getExpectedUser()->getName()
+				$this->loggedInAs()->getId(),
+				$this->loggedInAs()->getName()
 			]
 		];
 
