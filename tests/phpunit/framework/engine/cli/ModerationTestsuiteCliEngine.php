@@ -80,7 +80,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 	 * @return ModerationTestsuiteResponse
 	 * @throws MWException
 	 */
-	public function httpRequestInternal( $url, $method, array $postData ) {
+	protected function httpRequestInternal( $url, $method, array $postData ) {
 		global $wgServerName, $IP;
 		$url = wfExpandURL( $url, PROTO_CANONICAL );
 

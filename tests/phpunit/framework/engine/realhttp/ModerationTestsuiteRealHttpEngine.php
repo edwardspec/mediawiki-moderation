@@ -45,7 +45,7 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 	 * @return ModerationTestsuiteResponse
 	 * @throws MWException
 	 */
-	public function httpRequestInternal( $url, $method, array $postData ) {
+	protected function httpRequestInternal( $url, $method, array $postData ) {
 		if ( !$this->cookieJar ) {
 			$this->cookieJar = new CookieJar;
 		}
@@ -71,9 +71,7 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 
 		$status = $req->execute();
 
-		if ( !$status->isOK()
-			&& !$this->isHttpErrorIgnored( $req->getStatus() )
-		) {
+		if ( !$status->isOK() && $req->getStatus() !== 404 ) {
 			throw new MWException( __METHOD__ . ": request failed" );
 		}
 

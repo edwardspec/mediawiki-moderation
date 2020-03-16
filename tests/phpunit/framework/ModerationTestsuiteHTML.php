@@ -28,10 +28,10 @@ class ModerationTestsuiteHTML extends DOMDocument {
 	 */
 	const XML_HTML_UNKNOWN_TAG = 801;
 
-	/** @var ModerationTestsuiteEngine|null */
+	/** @var IModerationTestsuiteEngine|null */
 	protected $engine;
 
-	public function __construct( ModerationTestsuiteEngine $engine = null ) {
+	public function __construct( IModerationTestsuiteEngine $engine = null ) {
 		$this->engine = $engine;
 	}
 
@@ -47,10 +47,7 @@ class ModerationTestsuiteHTML extends DOMDocument {
 				"it was created without ModerationTestsuiteEngine." );
 		}
 
-		$this->engine->ignoreHttpError( 404 );
-		$req = $this->engine->httpGet( $url );
-		$this->engine->stopIgnoringHttpError( 404 );
-
+		$req = $this->engine->httpRequest( $url, 'GET' );
 		return $this->loadReq( $req );
 	}
 

@@ -26,7 +26,7 @@ class ModerationTestsuite {
 	const TEST_PASSWORD = '123456';
 	const DEFAULT_USER_AGENT = 'MediaWiki Moderation Testsuite';
 
-	/** @var ModerationTestsuiteEngine */
+	/** @var IModerationTestsuiteEngine */
 	protected $engine;
 
 	/** @var ModerationTestsuiteHTML */
@@ -56,11 +56,11 @@ class ModerationTestsuite {
 	}
 
 	public function httpGet( $url ) {
-		return $this->engine->httpGet( $url );
+		return $this->engine->httpRequest( $url, 'GET' );
 	}
 
 	public function httpPost( $url, array $postData = [] ) {
-		return $this->engine->httpPost( $url, $postData );
+		return $this->engine->httpRequest( $url, 'POST', $postData );
 	}
 
 	public function getEditToken() {
@@ -117,20 +117,6 @@ class ModerationTestsuite {
 	 */
 	public function setUserAgent( $ua ) {
 		$this->setHeader( 'User-Agent', $ua );
-	}
-
-	/**
-	 * Don't throw exception when HTTP request returns $code.
-	 */
-	public function ignoreHttpError( $code ) {
-		$this->engine->ignoreHttpError( $code );
-	}
-
-	/**
-	 * Re-enable throwing an exception when HTTP request returns $code.
-	 */
-	public function stopIgnoringHttpError( $code ) {
-		$this->engine->stopIgnoringHttpError( $code );
 	}
 
 	#

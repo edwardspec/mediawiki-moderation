@@ -26,10 +26,12 @@
 
 abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
-	/** @var array Ignored non-OK HTTP codes, e.g. [ 302, 404 ] */
-	protected $ignoredHttpErrors = [];
-
-	/** @var array HTTP headers to add to all requests, e.g. [ 'User-Agent' => '...' ] */
+	/**
+	 * @var array
+	 * HTTP headers to add to all requests, e.g. [ 'User-Agent' => '...' ]
+	 *
+	 * @phan-var array<string,string>
+	 */
 	protected $reqHeaders = [];
 
 	/** @var string|null Cached CSRF token, as obtained by getEditToken() */
@@ -44,7 +46,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 	/**
 	 * Create engine object.
-	 * @return ModerationTestsuiteEngine
+	 * @return IModerationTestsuiteEngine
 	 */
 	public static function factory() {
 		switch ( getenv( 'MODERATION_TEST_ENGINE' ) ) {
@@ -72,12 +74,6 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	}
 
 	/**
-	 * Sets MediaWiki global variable. Implementation depends on the engine.
-	 * @param string $name Name of variable without the $wg prefix.
-	 */
-	abstract public function setMwConfig( $name, $value );
-
-	/**
 	 * Detect invocations of the hook and capture the parameters that were passed to it.
 	 * @param string $name Name of the hook, e.g. "ModerationPending".
 	 * @param callable $postfactumCallback Receives array of received parameter types and array
@@ -90,22 +86,6 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	public function trackHook( $name, callable $postfactumCallback ) {
 		throw new PHPUnit\Framework\SkippedTestError(
 			'Test skipped: ' . __METHOD__ . ' is not yet implemented.' );
-	}
-
-	/**
-	 * Perform GET request.
-	 * @return ModerationTestsuiteResponse object.
-	 */
-	public function httpGet( $url ) {
-		return $this->httpRequest( $url, 'GET', [] );
-	}
-
-	/**
-	 * Perform POST request.
-	 * @return ModerationTestsuiteResponse object.
-	 */
-	public function httpPost( $url, array $postData = [] ) {
-		return $this->httpRequest( $url, 'POST', $postData );
 	}
 
 	/**
@@ -123,7 +103,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 * @param array $postData
 	 * @return ModerationTestsuiteResponse
 	 */
-	private function httpRequest( $url, $method = 'GET', array $postData = [] ) {
+	public function httpRequest( $url, $method = 'GET', array $postData = [] ) {
 		$logger = $this->getLogger();
 
 		$user = $this->loggedInAs();
@@ -208,30 +188,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	/**
 	 * Engine-specific implementation of httpRequest().
 	 */
-	abstract public function httpRequestInternal( $url, $method, array $postData );
-
-	/**
-	 * Don't throw exception when HTTP request returns $code.
-	 */
-	public function ignoreHttpError( $code ) {
-		$this->ignoredHttpErrors[$code] = true;
-	}
-
-	/**
-	 * Re-enable throwing an exception when HTTP request returns $code.
-	 */
-	public function stopIgnoringHttpError( $code ) {
-		unset( $this->ignoredHttpErrors[$code] );
-	}
-
-	/**
-	 * Re-enable throwing an exception when HTTP request returns $code.
-	 * @return bool
-	 */
-	protected function isHttpErrorIgnored( $code ) {
-		return isset( $this->ignoredHttpErrors[$code] )
-			&& $this->ignoredHttpErrors[$code];
-	}
+	abstract protected function httpRequestInternal( $url, $method, array $postData );
 
 	/**
 	 * Perform API request and return the resulting structure.
@@ -255,7 +212,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 * @return array
 	 */
 	protected function queryInternal( array $apiQuery ) {
-		$req = $this->httpPost( wfScript( 'api' ), $apiQuery );
+		$req = $this->httpRequest( wfScript( 'api' ), 'POST', $apiQuery );
 		return FormatJson::decode( $req->getContent(), true );
 	}
 

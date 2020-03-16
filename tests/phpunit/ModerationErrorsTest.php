@@ -45,10 +45,7 @@ class ModerationErrorsTest extends ModerationTestCase {
 		$this->assertEquals( '(moderation-missing-stashed-image)', $error );
 
 		/* Additionally check that ShowImg link returns "404 Not Found" */
-		$t->ignoreHttpError( 404 );
 		$req = $t->httpGet( $entry->expectedShowImgLink() );
-		$t->stopIgnoringHttpError( 404 );
-
 		$this->assertEquals( 404, $req->getStatus(),
 			"testMissingStashedImage(): URL of modaction=showimg doesn't return 404 Not Found"
 		);

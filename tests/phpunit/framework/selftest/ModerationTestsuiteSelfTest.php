@@ -82,13 +82,14 @@ class ModerationTestsuiteSelfTest extends ModerationTestCase {
 		$url = wfScript( 'index' );
 		$data = [
 			'title' => 'Test page 1',
-			'action' => 'edit'
+			'action' => 'edit',
+			'uselang' => 'qqx'
 		];
 
 		if ( $method == 'POST' ) {
-			$req = $engine->httpPost( $url, $data );
+			$req = $engine->httpRequest( $url, 'POST', $data );
 		} else {
-			$req = $engine->httpGet( wfAppendQuery( $url, $data ) );
+			$req = $engine->httpRequest( wfAppendQuery( $url, $data ) );
 		}
 
 		$this->assertEquals( 200, $req->getStatus(),
