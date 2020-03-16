@@ -125,11 +125,15 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 */
 	private function httpRequest( $url, $method = 'GET', array $postData = [] ) {
 		$logger = $this->getLogger();
+
+		$user = $this->loggedInAs();
 		$logger->info( '[http] Sending HTTP request',
 			[
 				'method' => $method,
 				'url' => $url,
-				'postData' => $postData
+				'postData' => $postData,
+				'loggedInAs' => $user->getName() . ' (#' . $user->getId() .
+					'), groups=[' . implode( ', ', $user->getGroups() ) . ']'
 			]
 		);
 
