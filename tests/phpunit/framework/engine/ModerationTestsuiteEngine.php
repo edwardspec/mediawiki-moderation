@@ -162,6 +162,11 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 				$loggedContent['noMainContent'] = true;
 				$loggedContent['rawContent'] = $content;
 			}
+
+			$notice = $html->getNewMessagesNotice();
+			if ( $notice ) {
+				$loggedContent['newMessagesNotice'] = $notice;
+			}
 		} elseif ( strpos( $contentType, 'application/json' ) !== false ) {
 			$status = FormatJson::parse( $content, FormatJson::FORCE_ASSOC );
 			if ( $status->isOK() ) {
