@@ -27,6 +27,10 @@ use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
+use MediaWiki\Moderation\WatchCheckbox;
+use MediaWiki\Moderation\WatchOrUnwatchConsequence;
+use Wikimedia\ScopedCallback;
+use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/ConsequenceTestTrait.php";
 
@@ -111,6 +115,75 @@ class EditsHaveConsequencesTest extends MediaWikiTestCase {
 			new InvalidatePendingTimeCacheConsequence(),
 			new TagRevisionAsMergedConsequence( $revid )
 		] );
+	}
+
+	/**
+	 * Test consequences of 1) editing a section, 2) "Watch this page" checkbox being (un)checked.
+	 * @param bool $watch
+	 * @dataProvider dataProviderSectionEditAndWatchthis
+	 * @covers ModerationEditHooks::onEditFilter
+	 * @covers ModerationEditHooks::onPageContentSave
+	 */
+	public function testSectionEditAndWatchthis( $watch ) {
+		$cleanupScope = new ScopedCallback( function () {
+			// Undo all changes that this test makes to static fields of ModerationEditHooks class.
+			$wrapper = TestingAccessWrapper::newFromClass( ModerationEditHooks::class );
+			$wrapper->section = '';
+			$wrapper->sectionText = '';
+			WatchCheckbox::clear();
+		} );
+
+		$section = "2"; // Section is a string (not integer), because it can be "new", etc.
+		$sectionText = 'New text of section #2';
+		$fullText = "Text #0\n== Section 1 ==\nText #1\n\n " .
+			"== Section 2 ==\nText #2\n\n== Section 3 ==\nText #3";
+
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$summary = 'Some edit summary';
+		$user = self::getTestUser()->getUser();
+
+		// Replace real ConsequenceManager with a mock.
+		list( $managerScope, $this->manager ) = MockConsequenceManager::install();
+
+		$editPage = new EditPage( Article::newFromTitle( $title, RequestContext::getMain() ) );
+		$editPage->watchthis = $watch;
+
+		$hookError = null;
+		Hooks::run( 'EditFilter',
+			[ $editPage, $sectionText, $section, &$hookError, $summary ] );
+
+		$content = ContentHandler::makeContent( $fullText, null, CONTENT_MODEL_WIKITEXT );
+
+		$page = WikiPage::factory( $title );
+		$page->doEditContent(
+			$content,
+			$summary,
+			EDIT_INTERNAL,
+			false,
+			$user
+		);
+
+		$this->assertConsequences( [
+			new QueueEditConsequence(
+				$page, $user, $content, $summary,
+				$section,
+				$sectionText,
+				false, // isBot
+				false // isMinor
+			),
+			new WatchOrUnwatchConsequence( $watch, $title, $user )
+		] );
+	}
+
+	/**
+	 * Provide datasets for testSectionEditAndWatchthis() runs.
+	 * @return array
+	 */
+	public function dataProviderSectionEditAndWatchthis() {
+		return [
+			'watch' => [ true ],
+			'unwatch' => [ true ]
+		];
 	}
 
 	/**
