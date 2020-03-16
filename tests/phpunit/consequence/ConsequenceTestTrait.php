@@ -37,19 +37,18 @@ trait ConsequenceTestTrait {
 		array $expectedConsequences,
 		array $actualConsequences
 	) {
-		$expectedCount = count( $expectedConsequences );
-		$this->assertCount( $expectedCount, $actualConsequences,
-			"Unexpected number of consequences" );
+		$this->assertEquals(
+			array_map( 'get_class', $expectedConsequences ),
+			array_map( 'get_class', $actualConsequences ),
+			"List of consequences doesn't match expected."
+		);
 
 		array_map( function ( $expected, $actual ) {
-			$expectedClass = get_class( $expected );
-			$this->assertInstanceOf( $expectedClass, $actual,
-				"Class of consequence doesn't match expected" );
-
+			$class = get_class( $expected );
 			$this->assertEquals(
 				$this->toArray( $expected ),
 				$this->toArray( $actual ),
-				"Parameters of consequence don't match expected"
+				"Parameters of consequence $class don't match expected."
 			);
 		}, $expectedConsequences, $actualConsequences );
 	}
