@@ -25,10 +25,10 @@
 class ModerationTestsuiteNonApiBotResponse implements IModerationTestsuiteResponse {
 	use ModerationTestsuiteBotResponse;
 
-	/** @var ModerationTestsuiteResponse */
+	/** @var IModerationTestsuiteResponse */
 	private $httpResp;
 
-	protected function __construct( ModerationTestsuiteResponse $httpResp ) {
+	protected function __construct( IModerationTestsuiteResponse $httpResp ) {
 		$this->httpResp = $httpResp;
 	}
 

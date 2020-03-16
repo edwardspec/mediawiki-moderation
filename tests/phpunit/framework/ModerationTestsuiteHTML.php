@@ -53,10 +53,10 @@ class ModerationTestsuiteHTML extends DOMDocument {
 
 	/**
 	 * Load the HTML document from the result of $t->httpGet(), $t->httpPost()
-	 * @param ModerationTestsuiteResponse $req
+	 * @param IModerationTestsuiteResponse $req
 	 * @return self
 	 */
-	public function loadReq( ModerationTestsuiteResponse $req ) {
+	public function loadReq( IModerationTestsuiteResponse $req ) {
 		return $this->loadString( $req->getContent() );
 	}
 

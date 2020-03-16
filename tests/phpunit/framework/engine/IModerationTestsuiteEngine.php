@@ -72,7 +72,7 @@ interface IModerationTestsuiteEngine {
 	 * @param string $url
 	 * @param string $method
 	 * @param array $postData
-	 * @return ModerationTestsuiteResponse
+	 * @return IModerationTestsuiteResponse
 	 *
 	 * @phan-param array<string,string> $postData
 	 * @phan-param 'GET'|'POST' $method

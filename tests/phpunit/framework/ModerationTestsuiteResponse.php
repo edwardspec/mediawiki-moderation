@@ -42,7 +42,8 @@ class ModerationTestsuiteResponse implements IModerationTestsuiteResponse {
 
 	/**
 	 * Create response from real MWHttpRequest.
-	 * @return ModerationTestsuiteResponse object.
+	 * @param MWHttpRequest $httpRequest
+	 * @return IModerationTestsuiteResponse
 	 */
 	public static function newFromMWHttpRequest( MWHttpRequest $httpRequest ) {
 		return new self(
@@ -56,7 +57,7 @@ class ModerationTestsuiteResponse implements IModerationTestsuiteResponse {
 	 * Create response after internal invocation.
 	 * @param FauxResponse $mwResponse Response object after $mediaWiki->run
 	 * @param string $capturedContent Text printed by $mediaWiki->run
-	 * @return ModerationTestsuiteResponse object.
+	 * @return IModerationTestsuiteResponse
 	 */
 	public static function newFromFauxResponse( FauxResponse $mwResponse, $capturedContent ) {
 		$httpCode = $mwResponse->getStatusCode();

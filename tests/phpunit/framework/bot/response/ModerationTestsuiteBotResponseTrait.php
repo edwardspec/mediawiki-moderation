@@ -33,7 +33,7 @@ trait ModerationTestsuiteBotResponse {
 
 	/**
 	 * Construct new BotResponse object.
-	 * @param array|ModerationTestsuiteResponse $nativeResponse Depends on bot type (API or not).
+	 * @param array|IModerationTestsuiteResponse $nativeResponse Depends on bot type (API or not).
 	 * @param bool $isIntercepted
 	 * @param bool $isBypassed
 	 * @param string|null $error

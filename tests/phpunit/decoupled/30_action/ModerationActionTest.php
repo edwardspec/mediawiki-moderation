@@ -831,7 +831,7 @@ class ModerationActionTest extends ModerationTestCase {
 	 * Check non-HTML output printed by the action URL.
 	 * @see assertHtmlOutput
 	 */
-	protected function assertBinaryOutput( ModerationTestsuiteResponse $req ) {
+	protected function assertBinaryOutput( IModerationTestsuiteResponse $req ) {
 		$this->assertEquals(
 			$this->expectedContentType,
 			$req->getResponseHeader( 'Content-Type' ),

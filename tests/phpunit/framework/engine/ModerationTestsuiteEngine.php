@@ -101,7 +101,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 * @param string $url
 	 * @param string $method
 	 * @param array $postData
-	 * @return ModerationTestsuiteResponse
+	 * @return IModerationTestsuiteResponse
 	 */
 	public function httpRequest( $url, $method = 'GET', array $postData = [] ) {
 		$logger = $this->getLogger();

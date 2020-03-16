@@ -132,13 +132,13 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 
 	/**
 	 * Interpret the HTML page printed by submitted Special:Upload or Special:Movepage.
-	 * @param ModerationTestsuiteResponse $req Value returned by httpPost().
+	 * @param IModerationTestsuiteResponse $req Value returned by httpPost().
 	 * @param string $interceptMsg One of "moderation-move-queued", "moderation-image-queued".
 	 * @param string|null &$failedReason Error code (if any) will be written into this variable.
 	 * @return string One of "intercepted", "bypassed", "failed".
 	 */
 	protected function getSubmitResult(
-		ModerationTestsuiteResponse $req,
+		IModerationTestsuiteResponse $req,
 		$interceptMsg,
 		&$failedReason = null
 	) {
