@@ -42,11 +42,11 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 		];
 
 		/* Load text which is currently awaiting moderation */
-		$row = ModerationPreload::singleton()->loadUnmoderatedEdit( $title );
-		if ( !$row ) {
+		$pendingEdit = ModerationPreload::singleton()->loadUnmoderatedEdit( $title );
+		if ( !$pendingEdit ) {
 			$r['missing'] = ''; /* There is no pending edit */
 		} else {
-			$wikitext = $row->text;
+			$wikitext = $pendingEdit->getText();
 
 			if ( isset( $params['section'] ) ) {
 				/* Only one section should be preloaded */
@@ -64,7 +64,7 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 				$r['parsed'] = $this->parse( $title, $wikitext );
 			}
 
-			$r['comment'] = $row->comment;
+			$r['comment'] = $pendingEdit->getComment();
 		}
 
 		$this->getResult()->addValue( 'query', $this->getModuleName(), $r );

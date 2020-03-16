@@ -73,12 +73,12 @@ class ModerationApiHooks {
 		$pageObj = $main->getTitleOrPageId( $request->getValues( 'title', 'pageid' ) );
 		$title = $pageObj->getTitle();
 
-		$row = ModerationPreload::singleton()->loadUnmoderatedEdit( $title );
-		if ( !$row ) {
+		$pendingEdit = ModerationPreload::singleton()->loadUnmoderatedEdit( $title );
+		if ( !$pendingEdit ) {
 			return true; /* No pending version - ApiEdit will handle this correctly */
 		}
 
-		$oldContent = ContentHandler::makeContent( $row->text, $title );
+		$oldContent = ContentHandler::makeContent( $pendingEdit->getText(), $title );
 		$content = $oldContent;
 		if ( $section ) {
 			if ( $section == 'new' ) {

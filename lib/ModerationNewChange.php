@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
+use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 
 class ModerationNewChange {
@@ -38,10 +39,10 @@ class ModerationNewChange {
 	protected $fields = [];
 
 	/**
-	 * @var stdClass|false|null
-	 * Database row (with keys like mod_id, mod_text), as returned by loadUnmoderatedEdit().
+	 * @var PendingEdit|false|null
+	 * Edit of $user in $title that is currently awaiting moderation (false if there isn't one).
 	 */
-	private $pendingChange = null;
+	private $pendingEdit = null;
 
 	public function __construct( Title $title, User $user ) {
 		$this->title = $title;
@@ -113,8 +114,8 @@ class ModerationNewChange {
 
 		// Check if we need to update existing row (if this edit is by the same user to the same page)
 		if ( $section !== '' ) {
-			$row = $this->getPendingChange();
-			if ( $row ) {
+			$pendingEdit = $this->getPendingEdit();
+			if ( $pendingEdit ) {
 				#
 				# We must recalculate $this->fields['mod_text'] here.
 				# Otherwise if the user adds or modifies two (or more) different sections (in consequent edits),
@@ -122,7 +123,10 @@ class ModerationNewChange {
 				# because $this->newContent is [old content] PLUS [modified section from the edit].
 				#
 				$model = $newContent->getModel();
-				$newContent = $this->makeContent( $row->text, $model )->replaceSection(
+				$newContent = $this->makeContent(
+					$pendingEdit->getText(),
+					$model
+				)->replaceSection(
 					$section,
 					$this->makeContent( $sectionText, $model ),
 					''
@@ -262,15 +266,16 @@ class ModerationNewChange {
 	}
 
 	/**
-	 * @return stdClass|null
+	 * Get edit of $user in $title that is currently awaiting moderation (if any).
+	 * @return PendingEdit|false
 	 */
-	protected function getPendingChange() {
-		if ( $this->pendingChange === null ) {
-			$this->pendingChange = $this->getPreload()
+	protected function getPendingEdit() {
+		if ( $this->pendingEdit === null ) {
+			$this->pendingEdit = $this->getPreload()
 				->loadUnmoderatedEdit( $this->title );
 		}
 
-		return $this->pendingChange;
+		return $this->pendingEdit;
 	}
 
 	/**
@@ -358,8 +363,8 @@ class ModerationNewChange {
 	 * NOTE: this B/C code will eventually be removed, no need to move this into Consequence class.
 	 */
 	protected function insertOld() {
-		$row = $this->getPendingChange();
-		$id = $row ? $row->id : false;
+		$pendingEdit = $this->getPendingEdit();
+		$id = $pendingEdit ? $pendingEdit->getId() : false;
 
 		$dbw = wfGetDB( DB_MASTER );
 		if ( $id ) {

@@ -23,6 +23,7 @@
 use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\ForgetAnonIdConsequence;
 use MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence;
+use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
 
 /*
@@ -151,43 +152,18 @@ class ModerationPreload {
 	}
 
 	/**
-	 * Check if there is a pending-moderation edit of this user
-	 * to this page, and if such edit exists, then load its text and
-	 * edit comment.
+	 * Check if there is a pending-moderation edit of this user to this page,
+	 * and if such edit exists, then load its text and edit comment.
 	 * @param Title $title
-	 * @return stdClass|false Database row.
+	 * @return PendingEdit|false
 	 */
-	public function loadUnmoderatedEdit( $title ) {
+	public function loadUnmoderatedEdit( Title $title ) {
 		$id = $this->getId();
 		if ( !$id ) { # This visitor never saved any edits
 			return false;
 		}
 
-		$where = [
-			'mod_preloadable' => ModerationVersionCheck::preloadableYes(),
-			'mod_namespace' => $title->getNamespace(),
-			'mod_title' => ModerationVersionCheck::getModTitleFor( $title ),
-			'mod_preload_id' => $id
-		];
-
-		if ( ModerationVersionCheck::hasModType() ) {
-			$where['mod_type'] = ModerationNewChange::MOD_TYPE_EDIT;
-		}
-
-		# Sequential edits are often done with small intervals of time between
-		# them, so we shouldn't wait for replication: DB_MASTER will be used.
-		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( 'moderation',
-			[
-				'mod_id AS id',
-				'mod_comment AS comment',
-				'mod_text AS text'
-			],
-			$where,
-			__METHOD__,
-			[ 'USE INDEX' => 'moderation_load' ]
-		);
-		return $row;
+		return PendingEdit::find( $id, $title );
 	}
 
 	/**
@@ -206,8 +182,8 @@ class ModerationPreload {
 			return;
 		}
 
-		$row = $preload->loadUnmoderatedEdit( $title );
-		if ( !$row ) {
+		$pendingEdit = $preload->loadUnmoderatedEdit( $title );
+		if ( !$pendingEdit ) {
 			return;
 		}
 
@@ -216,9 +192,9 @@ class ModerationPreload {
 		$out->wrapWikiMsg( '<div id="mw-editing-your-version">$1</div>',
 			[ 'moderation-editing-your-version' ] );
 
-		$text = $row->text;
+		$text = $pendingEdit->getText();
 		if ( $editPage ) {
-			$editPage->summary = $row->comment;
+			$editPage->summary = $pendingEdit->getComment();
 		}
 
 		if ( $section !== '' ) {
