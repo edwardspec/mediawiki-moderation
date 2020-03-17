@@ -58,7 +58,7 @@ class ModerationEntryMove extends ModerationApprovableEntry {
 		$row = $this->getRow();
 		return [
 			'4::target' => $this->getPage2Title()->getPrefixedText(),
-			'user' => $row->user,
+			'user' => (int)$row->user,
 			'user_text' => $row->user_text
 		];
 	}

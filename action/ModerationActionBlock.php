@@ -56,7 +56,7 @@ class ModerationActionBlock extends ModerationAction {
 
 		if ( $this->actionName == 'block' ) {
 			$somethingChanged = $manager->add( new BlockUserConsequence(
-				$row->user,
+				(int)$row->user,
 				$row->user_text,
 				$this->moderator
 			) );

@@ -21,11 +21,13 @@
  */
 
 use MediaWiki\Moderation\IConsequence;
+use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 use Wikimedia\TestingAccessWrapper;
 
 /**
  * @method static assertEquals($a, $b, $message='', $d=0.0, $e=10, $f=null, $g=null)
+ * @method static assertSame($a, $b, $message='')
  * @method static assertCount($a, $b, $message='')
  * @method static assertInstanceOf($a, $b, $message='')
  */
@@ -60,7 +62,7 @@ trait ConsequenceTestTrait {
 
 		array_map( function ( $expected, $actual ) {
 			$class = get_class( $expected );
-			$this->assertEquals(
+			$this->assertSame(
 				$this->toArray( $expected ),
 				$this->toArray( $actual ),
 				"Parameters of consequence $class don't match expected."
@@ -95,7 +97,15 @@ trait ConsequenceTestTrait {
 				// Having timestamps in normalized form leads to flaky comparison results,
 				// because it's possible that "expected timestamp" was calculated
 				// in a different second than mod_timestamp in an actual Consequence.
-				unset( $value['mod_timestamp'] );
+				$value['mod_timestamp'] = '<<< MOCKED TIMESTAMP >>>';
+			}
+
+			if ( $consequence instanceof InsertRowIntoModerationTableConsequence ) {
+				# Cast all values to strings. 2 and "2" are the same for DB::insert(),
+				# so caller shouldn't have to write "mod_namespace => (string)2" explicitly.
+				# We also don't want it to prevent Phan from typechecking inside $fields array.
+				$value = array_map( 'strval', $value );
+				ksort( $value );
 			}
 
 			$name = $prop->getName();

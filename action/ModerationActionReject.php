@@ -83,7 +83,7 @@ class ModerationActionReject extends ModerationAction {
 		$title = Title::makeTitle( $row->namespace, $row->title );
 		$manager->add( new AddLogEntryConsequence( 'reject', $this->moderator, $title, [
 			'modid' => $this->id,
-			'user' => $row->user,
+			'user' => (int)$row->user,
 			'user_text' => $row->user_text
 		] ) );
 
@@ -115,7 +115,7 @@ class ModerationActionReject extends ModerationAction {
 
 		$ids = [];
 		foreach ( $res as $row ) {
-			$ids[] = $row->id;
+			$ids[] = (int)$row->id;
 		}
 
 		$manager = ConsequenceUtils::getManager();

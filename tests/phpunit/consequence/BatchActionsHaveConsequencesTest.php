@@ -82,8 +82,8 @@ class BatchActionsHaveConsequencesTest extends MediaWikiTestCase {
 				$title,
 				$fields['mod_text'],
 				$fields['mod_comment'],
-				$fields['mod_bot'],
-				$fields['mod_minor'],
+				(bool)$fields['mod_bot'],
+				(bool)$fields['mod_minor'],
 				0 // $baseRevId
 			);
 			$expectedConsequences[] = new AddLogEntryConsequence(

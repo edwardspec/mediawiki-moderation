@@ -42,7 +42,7 @@ class ModerationEntryEdit extends ModerationApprovableEntry {
 			$row->comment,
 			( $row->bot && $user->isAllowed( 'bot' ) ),
 			(bool)$row->minor,
-			$row->last_oldid
+			(int)$row->last_oldid
 		) );
 
 		if ( $status->hasMessage( 'moderation-edit-conflict' ) ) {

@@ -161,7 +161,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 
 		# Approved edits are removed from "moderation" table,
 		# because they already exist in page history, recentchanges etc.
-		$manager->add( new DeleteRowFromModerationTableConsequence( $row->id ) );
+		$manager->add( new DeleteRowFromModerationTableConsequence( (int)$row->id ) );
 	}
 
 	/**
