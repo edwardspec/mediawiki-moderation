@@ -87,6 +87,12 @@ class ModerationActionApprove extends ModerationAction {
 		# when the edit to this page was approved.
 		$orderBy[] = 'mod_stash_key IS NULL';
 
+		if ( $dbw->getType() == 'postgres' ) {
+			# Earlier edits are approved first.
+			# This is already a default sorting order for MySQL, so only PostgreSQL needs this.
+			$orderBy[] = 'mod_id';
+		}
+
 		$res = $dbw->select( 'moderation',
 			ModerationApprovableEntry::getFields(),
 			[

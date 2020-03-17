@@ -11,7 +11,8 @@ the author did the change) not being applied:
 	* to post-Move redirects,
 	* when ApproveAll simultaneously approves Edit and Move on same page,
 	* when approving a Move that overwrites an existing redirect.
-* Fixed incorrect value returned by NewChange::queue() for PostgreSQL.
+* PostgreSQL: fixed incorrect value returned by NewChange::queue().
+* PostgreSQL: order of edits during ApproveAll is now the same as with MySQL.
 
 Refactoring, performance optimizations:
 * Major refactoring of everything (Consequence classes).
