@@ -26,16 +26,13 @@ use MediaWiki\Moderation\ApproveMoveConsequence;
 use MediaWiki\Moderation\ApproveUploadConsequence;
 use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
-use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\InstallApproveHookConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsConflictConsequence;
-use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\ModifyPendingChangeConsequence;
 use MediaWiki\Moderation\RejectBatchConsequence;
 use MediaWiki\Moderation\RejectOneConsequence;
 use MediaWiki\Moderation\UnblockUserConsequence;
-use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/ConsequenceTestTrait.php";
 require_once __DIR__ . "/PostApproveCleanupTrait.php";
@@ -52,9 +49,6 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 
 	/** @var User */
 	protected $authorUser;
-
-	/** @var User */
-	protected $moderatorUser;
 
 	/** @var Title */
 	protected $title;
@@ -76,12 +70,6 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 
 	/** @var string Value of mod_timestamp field. */
 	protected $timestamp;
-
-	/**
-	 * @var ModerationError|null
-	 * Exception that happened during getConsequences(), if any.
-	 */
-	protected $thrownException;
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'moderation', 'moderation_block' ];
@@ -105,7 +93,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			),
 			new InvalidatePendingTimeCacheConsequence()
 		];
-		$actual = $this->getConsequences( 'reject', [ RejectOneConsequence::class, 1 ] );
+		$actual = $this->getConsequences( $this->modid, 'reject',
+			[ [ RejectOneConsequence::class, 1 ] ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
 	}
@@ -127,7 +116,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 				$this->authorUser->getUserPage()
 			)
 		];
-		$actual = $this->getConsequences( 'block', [ BlockUserConsequence::class, true ] );
+		$actual = $this->getConsequences( $this->modid, 'block',
+			[ [ BlockUserConsequence::class, true ] ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
 	}
@@ -145,13 +135,13 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			)
 			// No AddLogEntryConsequence, because the user was already modblocked.
 		];
-		$actual = $this->getConsequences( 'block', [
+		$actual = $this->getConsequences( $this->modid, 'block', [ [
 			// Mocked manager won't run BlockUserConsequence and would instead return "false",
 			// which is what BlockUserConsequence does when the user is already modblocked.
 			// That fact should be checked by unit test of BlockUserConsequence itself, not here.
 			BlockUserConsequence::class,
 			false
-		] );
+		] ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
 	}
@@ -169,7 +159,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 				$this->authorUser->getUserPage()
 			)
 		];
-		$actual = $this->getConsequences( 'unblock', [ UnblockUserConsequence::class, true ] );
+		$actual = $this->getConsequences( $this->modid, 'unblock',
+			[ [ UnblockUserConsequence::class, true ] ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
 	}
@@ -183,26 +174,13 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			new UnblockUserConsequence( $this->authorUser->getName() ),
 			// No AddLogEntryConsequence, because the user wasn't modblocked to begin with.
 		];
-		$actual = $this->getConsequences( 'unblock', [
+		$actual = $this->getConsequences( $this->modid, 'unblock', [ [
 			// Mocked return value from UnblockUserConsequence: simulate "nothing changed".
 			UnblockUserConsequence::class,
 			false
-		] );
+		] ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
-	}
-
-	/**
-	 * Set "revision ID of last edit" in ApproveHook to a random number (and return this number).
-	 * @return int
-	 */
-	private function mockLastRevId() {
-		$revid = rand( 1, 100000 );
-
-		$approveHook = TestingAccessWrapper::newFromObject( ModerationApproveHook::singleton() );
-		$approveHook->lastRevId = $revid;
-
-		return $revid;
 	}
 
 	/**
@@ -211,8 +189,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	 */
 	public function testApprove() {
 		$expectedRevId = $this->mockLastRevId();
-		$actual = $this->getConsequences( 'approve',
-			[ ApproveEditConsequence::class, Status::newGood() ]
+		$actual = $this->getConsequences( $this->modid, 'approve',
+			[ [ ApproveEditConsequence::class, Status::newGood() ] ]
 		);
 		$expected = [
 			new InstallApproveHookConsequence( $this->title, $this->authorUser, 'edit', [
@@ -264,8 +242,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			__METHOD__
 		);
 
-		$actual = $this->getConsequences( 'approve',
-			[ ApproveUploadConsequence::class, Status::newGood() ]
+		$actual = $this->getConsequences( $this->modid, 'approve',
+			[ [ ApproveUploadConsequence::class, Status::newGood() ] ]
 		);
 		$expected = [
 			new InstallApproveHookConsequence( $title, $this->authorUser, 'edit', [
@@ -313,8 +291,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			__METHOD__
 		);
 
-		$actual = $this->getConsequences( 'approve',
-			[ ApproveMoveConsequence::class, Status::newGood() ]
+		$actual = $this->getConsequences( $this->modid, 'approve',
+			[ [ ApproveMoveConsequence::class, Status::newGood() ] ]
 		);
 		$expected = [
 			new InstallApproveHookConsequence( $this->title, $this->authorUser, 'move', [
@@ -354,8 +332,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	 * @covers ModerationEntryEdit::doApprove
 	 */
 	public function testApproveEditConflict() {
-		$actual = $this->getConsequences( 'approve',
-			[ ApproveEditConsequence::class, Status::newFatal( 'moderation-edit-conflict' ) ]
+		$actual = $this->getConsequences( $this->modid, 'approve',
+			[ [ ApproveEditConsequence::class, Status::newFatal( 'moderation-edit-conflict' ) ] ]
 		);
 		$expected = [
 			new InstallApproveHookConsequence( $this->title, $this->authorUser, 'edit', [
@@ -378,10 +356,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		];
 
 		$this->assertConsequencesEqual( $expected, $actual );
-		$this->assertNotNull( $this->thrownException,
+		$this->assertEquals( 'moderation-edit-conflict', $this->thrownError,
 			"Despite the edit conflict, modaction=approve didn't throw an exception." );
-		$this->assertTrue( $this->thrownException->status->hasMessage( 'moderation-edit-conflict' ),
-			"Status of modaction=approve doesn't have \"moderation-edit-conflict\" message." );
 	}
 
 	// NOTE: running Approve without process isolation (like in ModerationTestsuite framework)
@@ -392,9 +368,11 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	 * Test consequences of modaction=approveall.
 	 * @covers ModerationActionApprove::executeApproveAll
 	 */
-	public function testApproveAll() {
-		$actual = $this->getConsequences( 'approveall',
-			[ ApproveEditConsequence::class, Status::newGood() ]
+	public function testApproveAllOneEdit() {
+		$expectedRevId = $this->mockLastRevId();
+
+		$actual = $this->getConsequences( $this->modid, 'approveall',
+			[ [ ApproveEditConsequence::class, Status::newGood() ] ]
 		);
 		$expected = [
 			new InstallApproveHookConsequence( $this->title, $this->authorUser, 'edit', [
@@ -417,9 +395,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 				'approve',
 				$this->moderatorUser,
 				$this->title,
-				[
-					'revid' => $this->title->getLatestRevID( IDBAccessObject::READ_LATEST )
-				],
+				[ 'revid' => $expectedRevId ],
 				true // ApproveHook enabled
 			),
 			new DeleteRowFromModerationTableConsequence( $this->modid ),
@@ -468,8 +444,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		];
 
 		$this->setMwGlobals( 'wgModerationEnableEditChange', true );
-		$actual = $this->getConsequences( 'editchangesubmit',
-			[ ModifyPendingChangeConsequence::class, true ],
+		$actual = $this->getConsequences( $this->modid, 'editchangesubmit',
+			[ [ ModifyPendingChangeConsequence::class, true ] ],
 			[
 				'wpTextbox1' => $newText,
 				'wpSummary' => $newComment
@@ -488,7 +464,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		$row = $dbw->selectRow( 'moderation', [ 'mod_text', 'mod_comment' ], '', __METHOD__ );
 
 		$this->setMwGlobals( 'wgModerationEnableEditChange', true );
-		$actual = $this->getConsequences( 'editchangesubmit', null,
+		$actual = $this->getConsequences( $this->modid, 'editchangesubmit', null,
 			[
 				// Same values as already present in the database.
 				'wpTextbox1' => $row->mod_text,
@@ -504,7 +480,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	 * Test consequences of modaction=rejectall.
 	 * @covers ModerationActionReject::executeRejectAll
 	 */
-	public function testRejectAll() {
+	public function testRejectAllOneEdit() {
 		$expected = [
 			new RejectBatchConsequence( [ $this->modid ], $this->moderatorUser ),
 			new AddLogEntryConsequence(
@@ -517,7 +493,8 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			),
 			new InvalidatePendingTimeCacheConsequence()
 		];
-		$actual = $this->getConsequences( 'rejectall', [ RejectBatchConsequence::class, 1 ] );
+		$actual = $this->getConsequences( $this->modid, 'rejectall',
+			[ [ RejectBatchConsequence::class, 1 ] ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
 	}
@@ -534,7 +511,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			$beforeCallback->call( $this );
 		}
 
-		$this->assertConsequencesEqual( [], $this->getConsequences( $modaction ) );
+		$this->assertConsequencesEqual( [], $this->getConsequences( $this->modid, $modaction ) );
 	}
 
 	/**
@@ -557,45 +534,6 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 				$this->setMwGlobals( 'wgModerationEnableEditChange', true );
 			} ]
 		];
-	}
-
-	/**
-	 * Get an array of consequences after running $modaction on an edit that was queued in setUp().
-	 * @param string $modaction
-	 * @param array $mockedResult Parameters to pass to $manager->mockResult().
-	 * @param array $extraParams Additional HTTP request parameters when running ModerationAction.
-	 * @return IConsequence[]
-	 *
-	 * @phan-param array{0:class-string,1:mixed}|null $mockedResult
-	 */
-	private function getConsequences( $modaction, array $mockedResult = null, $extraParams = [] ) {
-		// Replace real ConsequenceManager with a mock.
-		list( $scope, $manager ) = MockConsequenceManager::install();
-
-		// Invoke ModerationAction with requested modid.
-		$request = new FauxRequest( [
-			'modaction' => $modaction,
-			'modid' => $this->modid
-		] + $extraParams );
-		$context = new DerivativeContext( RequestContext::getMain() );
-		$context->setTitle( SpecialPage::getTitleFor( 'Moderation' ) );
-		$context->setRequest( $request );
-		$context->setUser( $this->moderatorUser );
-
-		if ( $mockedResult ) {
-			$manager->mockResult( ...$mockedResult );
-		}
-
-		$this->thrownException = null;
-
-		$action = ModerationAction::factory( $context );
-		try {
-			$action->run();
-		} catch ( ModerationError $exception ) {
-			$this->thrownException = $exception;
-		}
-
-		return $manager->getConsequences();
 	}
 
 	/**

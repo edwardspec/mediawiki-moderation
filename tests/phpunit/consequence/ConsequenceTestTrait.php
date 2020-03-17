@@ -21,6 +21,8 @@
  */
 
 use MediaWiki\Moderation\IConsequence;
+use MediaWiki\Moderation\MockConsequenceManager;
+use Wikimedia\TestingAccessWrapper;
 
 /**
  * @method static assertEquals($a, $b, $message='', $d=0.0, $e=10, $f=null, $g=null)
@@ -28,6 +30,19 @@ use MediaWiki\Moderation\IConsequence;
  * @method static assertInstanceOf($a, $b, $message='')
  */
 trait ConsequenceTestTrait {
+
+	/**
+	 * @var string|null
+	 * Error message (e.g. "moderation-edit-conflict") thrown during getConsequences(), if any.
+	 */
+	protected $thrownError = null;
+
+	/**
+	 * @var User|null
+	 * Moderator that will perform the action during getConsequences().
+	 */
+	protected $moderatorUser;
+
 	/**
 	 * Assert that $expectedConsequences are exactly the same as $actualConsequences.
 	 * @param IConsequence[] $expectedConsequences
@@ -88,5 +103,67 @@ trait ConsequenceTestTrait {
 		}
 
 		return [ get_class( $consequence ), $fields ];
+	}
+
+	/**
+	 * Get an array of consequences after running $modaction on an edit that was queued in setUp().
+	 * @param int $modid
+	 * @param string $modaction
+	 * @param array[]|null $mockedResults Parameters to pass to calls to $manager->mockResult().
+	 * @param array $extraParams Additional HTTP request parameters when running ModerationAction.
+	 * @return IConsequence[]
+	 *
+	 * @phan-param list<array{0:class-string,1:mixed}>|null $mockedResults
+	 */
+	public function getConsequences( $modid, $modaction,
+		array $mockedResults = null, $extraParams = []
+	) {
+		if ( !$this->moderatorUser ) {
+			throw new MWException(
+				'Must set $this->moderatorUser before calling getConsequences().' );
+		}
+
+		// Replace real ConsequenceManager with a mock.
+		list( $scope, $manager ) = MockConsequenceManager::install();
+
+		// Invoke ModerationAction with requested modid.
+		$request = new FauxRequest( [
+			'modaction' => $modaction,
+			'modid' => $modid
+		] + $extraParams );
+		$context = new DerivativeContext( RequestContext::getMain() );
+		$context->setTitle( SpecialPage::getTitleFor( 'Moderation' ) );
+		$context->setRequest( $request );
+		$context->setUser( $this->moderatorUser );
+
+		if ( $mockedResults ) {
+			foreach ( $mockedResults as $result ) {
+				$manager->mockResult( ...$result );
+			}
+		}
+
+		$this->thrownError = null;
+
+		$action = ModerationAction::factory( $context );
+		try {
+			$action->run();
+		} catch ( ModerationError $error ) {
+			$this->thrownError = $error->status->getMessage()->getKey();
+		}
+
+		return $manager->getConsequences();
+	}
+
+	/**
+	 * Set "revision ID of last edit" in ApproveHook to a random number (and return this number).
+	 * @return int
+	 */
+	public function mockLastRevId() {
+		$revid = rand( 1, 100000 );
+
+		$approveHook = TestingAccessWrapper::newFromObject( ModerationApproveHook::singleton() );
+		$approveHook->lastRevId = $revid;
+
+		return $revid;
 	}
 }
