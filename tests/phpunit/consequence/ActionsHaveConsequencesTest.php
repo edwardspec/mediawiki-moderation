@@ -22,6 +22,8 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ApproveEditConsequence;
+use MediaWiki\Moderation\ApproveMoveConsequence;
+use MediaWiki\Moderation\ApproveUploadConsequence;
 use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\IConsequence;
@@ -33,6 +35,7 @@ use MediaWiki\Moderation\ModifyPendingChangeConsequence;
 use MediaWiki\Moderation\RejectBatchConsequence;
 use MediaWiki\Moderation\RejectOneConsequence;
 use MediaWiki\Moderation\UnblockUserConsequence;
+use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/ConsequenceTestTrait.php";
 require_once __DIR__ . "/PostApproveCleanupTrait.php";
@@ -190,10 +193,24 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	}
 
 	/**
+	 * Set "revision ID of last edit" in ApproveHook to a random number (and return this number).
+	 * @return int
+	 */
+	private function mockLastRevId() {
+		$revid = rand( 1, 100000 );
+
+		$approveHook = TestingAccessWrapper::newFromObject( ModerationApproveHook::singleton() );
+		$approveHook->lastRevId = $revid;
+
+		return $revid;
+	}
+
+	/**
 	 * Test consequences of modaction=approve.
 	 * @covers ModerationActionApprove::executeApproveOne
 	 */
 	public function testApprove() {
+		$expectedRevId = $this->mockLastRevId();
 		$actual = $this->getConsequences( 'approve',
 			[ ApproveEditConsequence::class, Status::newGood() ]
 		);
@@ -218,8 +235,110 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 				'approve',
 				$this->moderatorUser,
 				$this->title,
+				[ 'revid' => $expectedRevId ],
+				true // ApproveHook enabled
+			),
+			new DeleteRowFromModerationTableConsequence( $this->modid ),
+			new InvalidatePendingTimeCacheConsequence()
+		];
+
+		$this->assertConsequencesEqual( $expected, $actual );
+	}
+
+	/**
+	 * Test consequences of modaction=approve on a pending upload.
+	 * @covers ModerationActionApprove::executeApproveOne
+	 */
+	public function testApproveUpload() {
+		$stashKey = 'sample-stash-key';
+		$title = Title::newFromText( 'File:UTUpload-' . rand( 0, 100000 ) . '.png' );
+		$expectedRevId = $this->mockLastRevId();
+
+		$this->db->update( 'moderation',
+			[
+				'mod_stash_key' => $stashKey,
+				'mod_namespace' => $title->getNamespace(),
+				'mod_title' => $title->getDBKey()
+			],
+			[ 'mod_id' => $this->modid ],
+			__METHOD__
+		);
+
+		$actual = $this->getConsequences( 'approve',
+			[ ApproveUploadConsequence::class, Status::newGood() ]
+		);
+		$expected = [
+			new InstallApproveHookConsequence( $title, $this->authorUser, 'edit', [
+				'ip' => '127.0.0.1',
+				'xff' => $this->xff,
+				'ua' => $this->userAgent,
+				'tags' => $this->tags,
+				'timestamp' => $this->timestamp
+			] ),
+			new ApproveUploadConsequence(
+				$stashKey,
+				$title,
+				$this->authorUser,
+				$this->summary,
+				$this->text
+			),
+			new AddLogEntryConsequence(
+				'approve',
+				$this->moderatorUser,
+				$title,
+				[ 'revid' => $expectedRevId ],
+				true // ApproveHook enabled
+			),
+			new DeleteRowFromModerationTableConsequence( $this->modid ),
+			new InvalidatePendingTimeCacheConsequence()
+		];
+
+		$this->assertConsequencesEqual( $expected, $actual );
+	}
+
+	/**
+	 * Test consequences of modaction=approve on a pending move.
+	 * @covers ModerationActionApprove::executeApproveOne
+	 */
+	public function testApproveMove() {
+		$newTitle = Title::newFromText( 'Project:' . $this->title->getFullText() . '-new' );
+
+		$this->db->update( 'moderation',
+			[
+				'mod_type' => ModerationNewChange::MOD_TYPE_MOVE,
+				'mod_page2_namespace' => $newTitle->getNamespace(),
+				'mod_page2_title' => $newTitle->getDBKey()
+			],
+			[ 'mod_id' => $this->modid ],
+			__METHOD__
+		);
+
+		$actual = $this->getConsequences( 'approve',
+			[ ApproveMoveConsequence::class, Status::newGood() ]
+		);
+		$expected = [
+			new InstallApproveHookConsequence( $this->title, $this->authorUser, 'move', [
+				'ip' => '127.0.0.1',
+				'xff' => $this->xff,
+				'ua' => $this->userAgent,
+				'tags' => $this->tags,
+				'timestamp' => $this->timestamp
+			] ),
+			new ApproveMoveConsequence(
+				$this->moderatorUser,
+				$this->title,
+				$newTitle,
+				$this->authorUser,
+				$this->summary
+			),
+			new AddLogEntryConsequence(
+				'approve-move',
+				$this->moderatorUser,
+				$this->title,
 				[
-					'revid' => $this->title->getLatestRevID( IDBAccessObject::READ_LATEST )
+					'4::target' => $newTitle->getFullText(),
+					'user' => $this->authorUser->getId(),
+					'user_text' => $this->authorUser->getName()
 				],
 				true // ApproveHook enabled
 			),
