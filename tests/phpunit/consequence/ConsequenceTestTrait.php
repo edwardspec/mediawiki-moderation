@@ -23,6 +23,7 @@
 use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
+use MediaWiki\Moderation\RejectBatchConsequence;
 use Wikimedia\TestingAccessWrapper;
 
 /**
@@ -82,8 +83,8 @@ trait ConsequenceTestTrait {
 		$rc = new ReflectionClass( $consequence );
 		foreach ( $rc->getProperties() as $prop ) {
 			$prop->setAccessible( true );
-
 			$value = $prop->getValue( $consequence );
+
 			$type = gettype( $value );
 			if ( $type == 'object' ) {
 				if ( $value instanceof Title ) {
@@ -93,22 +94,28 @@ trait ConsequenceTestTrait {
 				} elseif ( $value instanceof User ) {
 					$value = [ 'User', $value->getId(), $value->getName() ];
 				}
-			} elseif ( $type == 'array' ) {
-				// Having timestamps in normalized form leads to flaky comparison results,
-				// because it's possible that "expected timestamp" was calculated
-				// in a different second than mod_timestamp in an actual Consequence.
-				$value['mod_timestamp'] = '<<< MOCKED TIMESTAMP >>>';
 			}
 
-			if ( $consequence instanceof InsertRowIntoModerationTableConsequence ) {
+			$name = $prop->getName();
+
+			if ( $consequence instanceof InsertRowIntoModerationTableConsequence &&
+				$name == 'fields'
+			) {
 				# Cast all values to strings. 2 and "2" are the same for DB::insert(),
 				# so caller shouldn't have to write "mod_namespace => (string)2" explicitly.
 				# We also don't want it to prevent Phan from typechecking inside $fields array.
 				$value = array_map( 'strval', $value );
 				ksort( $value );
+
+				// Having timestamps in normalized form leads to flaky comparison results,
+				// because it's possible that "expected timestamp" was calculated
+				// in a different second than mod_timestamp in an actual Consequence.
+				$value['mod_timestamp'] = '<<< MOCKED TIMESTAMP >>>';
+			} elseif ( $consequence instanceof RejectBatchConsequence && $name == 'ids' ) {
+				// Order of elements in $ids doesn't matter and is different for MySQL/PosgreSQL.
+				sort( $value );
 			}
 
-			$name = $prop->getName();
 			$fields[$name] = $value;
 		}
 

@@ -26,6 +26,7 @@ use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\InstallApproveHookConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
+use MediaWiki\Moderation\RejectBatchConsequence;
 
 require_once __DIR__ . "/ConsequenceTestTrait.php";
 require_once __DIR__ . "/PostApproveCleanupTrait.php";
@@ -111,6 +112,44 @@ class BatchActionsHaveConsequencesTest extends MediaWikiTestCase {
 			array_fill( 0, $numberOfEdits, [ ApproveEditConsequence::class, Status::newGood() ] )
 		);
 		$this->assertConsequencesEqual( $expectedConsequences, $actualConsequences );
+	}
+
+	/**
+	 * Test consequences of modaction=rejectall when rejecting several changes.
+	 * @covers ModerationActionReject::executeRejectAll
+	 */
+	public function testRejectAll() {
+		$this->authorUser = self::getTestUser()->getUser();
+		$this->moderatorUser = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
+
+		// First, let's queue some edits by the same user for moderation.
+		$numberOfEdits = 3;
+		$ids = [];
+		for ( $i = 0; $i < $numberOfEdits; $i++ ) {
+			$fields = $this->getDefaultFields();
+			$ids[] = ( new InsertRowIntoModerationTableConsequence( $fields ) )->run();
+		}
+
+		// It's possible for RejectBatchConsequence to return a number other than $numberOfEdits
+		// in case of a race condition (e.g. another moderator just approved one of these edits).
+		$mockedNumberOfAffectedRows = 456;
+
+		$expected = [
+			new RejectBatchConsequence( $ids, $this->moderatorUser ),
+			new AddLogEntryConsequence(
+				'rejectall',
+				$this->moderatorUser,
+				$this->authorUser->getUserPage(),
+				[
+					'4::count' => $mockedNumberOfAffectedRows
+				]
+			),
+			new InvalidatePendingTimeCacheConsequence()
+		];
+		$actual = $this->getConsequences( $ids[0], 'rejectall',
+			[ [ RejectBatchConsequence::class, $mockedNumberOfAffectedRows ] ] );
+
+		$this->assertConsequencesEqual( $expected, $actual );
 	}
 
 	/**
