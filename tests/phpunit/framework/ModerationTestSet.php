@@ -94,7 +94,7 @@ trait ModerationTestsuiteTestSet {
 		// How many seconds ago are allowed without failing the assertion.
 		$allowedRangeInSeconds = 60;
 
-		$ts = new MWTimestamp();
+		$ts = new MWTimestamp( $timestamp );
 		$timestamp = $ts->getTimestamp( TS_MW );
 
 		$this->assertLessThanOrEqual(
