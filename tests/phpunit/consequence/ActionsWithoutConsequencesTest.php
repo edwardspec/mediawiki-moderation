@@ -20,14 +20,12 @@
  * Verifies that readonly, failed or non-applicable actions have no consequences.
  */
 
-require_once __DIR__ . "/ConsequenceTestTrait.php";
-require_once __DIR__ . "/ModifyDbRowTestTrait.php";
-require_once __DIR__ . "/PostApproveCleanupTrait.php";
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  */
-class ActionsWithoutConsequencesTest extends MediaWikiTestCase {
+class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	use ConsequenceTestTrait;
 	use ModifyDbRowTestTrait;
 	use PostApproveCleanupTrait;

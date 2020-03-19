@@ -25,13 +25,13 @@ use MediaWiki\Moderation\ForgetAnonIdConsequence;
 use MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 
-require_once __DIR__ . "/ConsequenceTestTrait.php";
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  * @group medium
  */
-class CreatingNewUserHasConsequencesTest extends MediaWikiTestCase {
+class CreatingNewUserHasConsequencesTest extends ModerationUnitTestCase {
 	use ConsequenceTestTrait;
 
 	/** @var string[] */

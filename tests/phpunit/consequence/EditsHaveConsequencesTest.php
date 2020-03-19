@@ -32,12 +32,12 @@ use MediaWiki\Moderation\WatchOrUnwatchConsequence;
 use Wikimedia\ScopedCallback;
 use Wikimedia\TestingAccessWrapper;
 
-require_once __DIR__ . "/ConsequenceTestTrait.php";
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  */
-class EditsHaveConsequencesTest extends MediaWikiTestCase {
+class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	use ConsequenceTestTrait;
 
 	/** @var int */

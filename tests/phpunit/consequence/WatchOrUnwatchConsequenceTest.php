@@ -23,10 +23,12 @@
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\WatchOrUnwatchConsequence;
 
+require_once __DIR__ . "/autoload.php";
+
 /**
  * @group Database
  */
-class WatchOrUnwatchConsequenceTest extends MediaWikiTestCase {
+class WatchOrUnwatchConsequenceTest extends ModerationUnitTestCase {
 	/** @var string[] */
 	protected $tablesUsed = [ 'watchlist' ];
 

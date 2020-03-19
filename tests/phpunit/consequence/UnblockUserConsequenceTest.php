@@ -23,10 +23,12 @@
 use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\UnblockUserConsequence;
 
+require_once __DIR__ . "/autoload.php";
+
 /**
  * @group Database
  */
-class UnblockUserConsequenceTest extends MediaWikiTestCase {
+class UnblockUserConsequenceTest extends ModerationUnitTestCase {
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'moderation_block', 'user' ];

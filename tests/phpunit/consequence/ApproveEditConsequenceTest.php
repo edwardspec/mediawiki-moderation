@@ -22,13 +22,12 @@
 
 use MediaWiki\Moderation\ApproveEditConsequence;
 
-require_once __DIR__ . "/MakeEditTestTrait.php";
-require_once __DIR__ . "/PostApproveCleanupTrait.php";
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  */
-class ApproveEditConsequenceTest extends MediaWikiTestCase {
+class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 	use MakeEditTestTrait;
 	use PostApproveCleanupTrait;
 

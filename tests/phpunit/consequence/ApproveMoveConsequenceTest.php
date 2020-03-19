@@ -22,10 +22,12 @@
 
 use MediaWiki\Moderation\ApproveMoveConsequence;
 
+require_once __DIR__ . "/autoload.php";
+
 /**
  * @group Database
  */
-class ApproveMoveConsequenceTest extends MediaWikiTestCase {
+class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'page', 'logging' ];
 

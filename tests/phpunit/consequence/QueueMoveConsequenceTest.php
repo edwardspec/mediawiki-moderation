@@ -27,12 +27,12 @@ use MediaWiki\Moderation\QueueMoveConsequence;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 
-require_once __DIR__ . "/ConsequenceTestTrait.php";
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  */
-class QueueMoveConsequenceTest extends MediaWikiTestCase {
+class QueueMoveConsequenceTest extends ModerationUnitTestCase {
 	use ConsequenceTestTrait;
 
 	/** @var string[] */

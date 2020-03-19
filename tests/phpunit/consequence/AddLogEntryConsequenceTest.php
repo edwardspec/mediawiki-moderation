@@ -23,10 +23,12 @@
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use Wikimedia\TestingAccessWrapper;
 
+require_once __DIR__ . "/autoload.php";
+
 /**
  * @group Database
  */
-class AddLogEntryConsequenceTest extends MediaWikiTestCase {
+class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'logging' ];

@@ -22,12 +22,12 @@
 
 use MediaWiki\Moderation\RejectOneConsequence;
 
-require_once __DIR__ . "/ModifyDbRowTestTrait.php";
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  */
-class RejectOneConsequenceTest extends MediaWikiTestCase {
+class RejectOneConsequenceTest extends ModerationUnitTestCase {
 	use ModifyDbRowTestTrait;
 
 	/** @var string[] */

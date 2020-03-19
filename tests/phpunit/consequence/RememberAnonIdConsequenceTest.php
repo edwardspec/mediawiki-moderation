@@ -22,7 +22,9 @@
 
 use MediaWiki\Moderation\RememberAnonIdConsequence;
 
-class RememberAnonIdConsequenceTest extends MediaWikiTestCase {
+require_once __DIR__ . "/autoload.php";
+
+class RememberAnonIdConsequenceTest extends ModerationUnitTestCase {
 	/**
 	 * Verify that RememberAnonIdConsequence returns a newly generated ID, saving it into session.
 	 * @covers MediaWiki\Moderation\RememberAnonIdConsequence

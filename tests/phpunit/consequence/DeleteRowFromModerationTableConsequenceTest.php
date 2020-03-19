@@ -22,12 +22,12 @@
 
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 
-require_once __DIR__ . "/ModifyDbRowTestTrait.php";
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  */
-class DeleteRowFromModerationTableConsequenceTest extends MediaWikiTestCase {
+class DeleteRowFromModerationTableConsequenceTest extends ModerationUnitTestCase {
 	use ModifyDbRowTestTrait;
 
 	/** @var string[] */

@@ -22,12 +22,12 @@
 
 use MediaWiki\Moderation\MarkAsMergedConsequence;
 
-require_once __DIR__ . "/ModifyDbRowTestTrait.php";
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  */
-class MarkAsMergedConsequenceTest extends MediaWikiTestCase {
+class MarkAsMergedConsequenceTest extends ModerationUnitTestCase {
 	use ModifyDbRowTestTrait;
 
 	/** @var string[] */

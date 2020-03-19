@@ -22,12 +22,12 @@
 
 use MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence;
 
-require_once __DIR__ . "/ModifySeveralDbRowsTestTrait.php";
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  */
-class GiveAnonChangesToNewUserConsequenceTest extends MediaWikiTestCase {
+class GiveAnonChangesToNewUserConsequenceTest extends ModerationUnitTestCase {
 	use ModifySeveralDbRowsTestTrait;
 
 	/** @var string[] */

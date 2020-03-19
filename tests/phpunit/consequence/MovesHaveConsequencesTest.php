@@ -23,12 +23,12 @@
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueMoveConsequence;
 
-require_once __DIR__ . "/ConsequenceTestTrait.php";
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  */
-class MovesHaveConsequencesTest extends MediaWikiTestCase {
+class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 	use ConsequenceTestTrait;
 
 	/** @var Title */

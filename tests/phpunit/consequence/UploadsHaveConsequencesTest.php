@@ -23,13 +23,12 @@
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueUploadConsequence;
 
-require_once __DIR__ . "/ConsequenceTestTrait.php";
-require_once __DIR__ . "/UploadTestTrait.php";
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  */
-class UploadsHaveConsequencesTest extends MediaWikiTestCase {
+class UploadsHaveConsequencesTest extends ModerationUnitTestCase {
 	use ConsequenceTestTrait;
 	use UploadTestTrait;
 

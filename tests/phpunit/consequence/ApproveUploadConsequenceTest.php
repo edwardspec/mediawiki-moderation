@@ -22,13 +22,12 @@
 
 use MediaWiki\Moderation\ApproveUploadConsequence;
 
-require_once __DIR__ . "/PostApproveCleanupTrait.php";
-require_once __DIR__ . "/UploadTestTrait.php";
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  */
-class ApproveUploadConsequenceTest extends MediaWikiTestCase {
+class ApproveUploadConsequenceTest extends ModerationUnitTestCase {
 	use PostApproveCleanupTrait;
 	use UploadTestTrait;
 

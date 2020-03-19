@@ -22,12 +22,12 @@
 
 use MediaWiki\Moderation\MarkAsConflictConsequence;
 
-require_once __DIR__ . "/ModifyDbRowTestTrait.php";
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  */
-class MarkAsConflictConsequenceTest extends MediaWikiTestCase {
+class MarkAsConflictConsequenceTest extends ModerationUnitTestCase {
 	use ModifyDbRowTestTrait;
 
 	/** @var string[] */

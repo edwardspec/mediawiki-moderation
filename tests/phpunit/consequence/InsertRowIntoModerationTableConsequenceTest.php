@@ -22,10 +22,12 @@
 
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 
+require_once __DIR__ . "/autoload.php";
+
 /**
  * @group Database
  */
-class InsertRowIntoModerationTableConsequenceTest extends MediaWikiTestCase {
+class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase {
 	/** @var string[] */
 	protected $tablesUsed = [ 'moderation' ];
 

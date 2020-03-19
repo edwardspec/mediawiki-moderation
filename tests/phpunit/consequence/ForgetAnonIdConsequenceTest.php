@@ -22,7 +22,9 @@
 
 use MediaWiki\Moderation\ForgetAnonIdConsequence;
 
-class ForgetAnonIdConsequenceTest extends MediaWikiTestCase {
+require_once __DIR__ . "/autoload.php";
+
+class ForgetAnonIdConsequenceTest extends ModerationUnitTestCase {
 	/**
 	 * Verify that ForgetAnonIdConsequence removes anon_id from the current session.
 	 * @covers MediaWiki\Moderation\ForgetAnonIdConsequence

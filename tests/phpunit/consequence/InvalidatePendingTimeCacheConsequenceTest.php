@@ -23,7 +23,9 @@
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use Wikimedia\TestingAccessWrapper;
 
-class InvalidatePendingTimeCacheConsequenceTest extends MediaWikiTestCase {
+require_once __DIR__ . "/autoload.php";
+
+class InvalidatePendingTimeCacheConsequenceTest extends ModerationUnitTestCase {
 	/**
 	 * Verify that InvalidatePendingTimeCacheConsequence invalidates the cache
 	 * used by ModerationNotifyModerator::getPendingTime().

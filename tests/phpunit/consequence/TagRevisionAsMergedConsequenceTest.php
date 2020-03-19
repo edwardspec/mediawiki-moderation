@@ -22,10 +22,14 @@
 
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
 
+require_once __DIR__ . "/autoload.php";
+
 /**
  * @group Database
  */
-class TagRevisionAsMergedConsequenceTest extends MediaWikiTestCase {
+class TagRevisionAsMergedConsequenceTest extends ModerationUnitTestCase {
+	use MakeEditTestTrait;
+
 	protected $tablesUsed = [ 'page', 'revision', 'change_tag' ];
 
 	/**
@@ -33,18 +37,20 @@ class TagRevisionAsMergedConsequenceTest extends MediaWikiTestCase {
 	 * @covers MediaWiki\Moderation\TagRevisionAsMergedConsequence
 	 */
 	public function testTagRevision() {
-		$title = Title::newFromText( 'UTPage' ); // Was created in parent::addCoreDBData()
-		$expectedRevid = $title->getLatestRevID();
+		$revid = $this->makeEdit(
+			Title::newFromText( 'UTPage-' . rand( 0, 100000 ) ),
+			self::getTestUser( [ 'automoderated' ] )->getUser()
+		);
 
 		$hookFired = false;
 
 		$this->setTemporaryHook( 'ChangeTagsAfterUpdateTags', function (
 			$tagsToAdd, $tagsToRemove, $prevTags,
-			$rc_id, $rev_id, $log_id, $params, $rc, $user
-		) use ( &$hookFired, $expectedRevid ) {
+			$rc_id, $hookRevId, $log_id, $params, $rc, $user
+		) use ( &$hookFired, $revid ) {
 			$hookFired = true;
 
-			$this->assertEquals( $expectedRevid, $rev_id );
+			$this->assertEquals( $revid, $hookRevId );
 			$this->assertEquals( [ 'moderation-merged' ], $tagsToAdd );
 			$this->assertEquals( [], $tagsToRemove );
 
@@ -52,7 +58,7 @@ class TagRevisionAsMergedConsequenceTest extends MediaWikiTestCase {
 		} );
 
 		// Create and run the Consequence.
-		$consequence = new TagRevisionAsMergedConsequence( $expectedRevid );
+		$consequence = new TagRevisionAsMergedConsequence( $revid );
 		$consequence->run();
 
 		$this->assertTrue( $hookFired, "TagRevisionAsMergedConsequence didn't tag anything." );

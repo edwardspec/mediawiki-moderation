@@ -34,14 +34,12 @@ use MediaWiki\Moderation\RejectBatchConsequence;
 use MediaWiki\Moderation\RejectOneConsequence;
 use MediaWiki\Moderation\UnblockUserConsequence;
 
-require_once __DIR__ . "/ConsequenceTestTrait.php";
-require_once __DIR__ . "/ModifyDbRowTestTrait.php";
-require_once __DIR__ . "/PostApproveCleanupTrait.php";
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  */
-class ActionsHaveConsequencesTest extends MediaWikiTestCase {
+class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 	use ConsequenceTestTrait;
 	use ModifyDbRowTestTrait;
 	use PostApproveCleanupTrait;
@@ -513,14 +511,6 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		$name = $this->getName();
 		if ( $name == 'testValidCovers' || $name == 'testMediaWikiTestCaseParentSetupCalled' ) {
 			return;
-		}
-
-		// Workaround for MediaWiki 1.31 only: its TestCase class doesn't clean tables properly
-		global $wgVersion;
-		if ( version_compare( $wgVersion, '1.32.0', '<' ) ) {
-			foreach ( $this->tablesUsed as $table ) {
-				$this->db->delete( $table, '*', __METHOD__ );
-			}
 		}
 
 		$this->moderatorUser = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();

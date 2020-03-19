@@ -22,10 +22,12 @@
 
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 
+require_once __DIR__ . "/autoload.php";
+
 /**
  * @group Database
  */
-class SendNotificationEmailConsequenceTest extends MediaWikiTestCase {
+class SendNotificationEmailConsequenceTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that SendNotificationEmailConsequence sends an outgoing email.

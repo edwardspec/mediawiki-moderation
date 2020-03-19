@@ -22,12 +22,12 @@
 
 use MediaWiki\Moderation\InstallApproveHookConsequence;
 
-require_once __DIR__ . "/MakeEditTestTrait.php";
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  */
-class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
+class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	use MakeEditTestTrait;
 
 	/** @var string[] */
@@ -717,25 +717,5 @@ class InstallApproveHookConsequenceTest extends MediaWikiTestCase {
 	protected function tearDown() : void {
 		ModerationApproveHook::destroySingleton();
 		parent::tearDown();
-	}
-
-	public function setUp() : void {
-		parent::setUp();
-
-		// Workaround for MediaWiki 1.31 only: its TestCase class doesn't clean tables properly
-		global $wgVersion;
-		if ( version_compare( $wgVersion, '1.32.0', '<' ) && $this->db->getType() == 'mysql' ) {
-			foreach ( $this->tablesUsed as $table ) {
-				$this->db->delete( $this->db->tableName( $table ), '*', __METHOD__ );
-			}
-		}
-	}
-
-	/**
-	 * Override the parent method, so that UTSysop and UTPage are not created.
-	 * This test doesn't use them, and having to filter them out complicates assertSelect() calls.
-	 */
-	protected function addCoreDBData() {
-		// Nothing
 	}
 }

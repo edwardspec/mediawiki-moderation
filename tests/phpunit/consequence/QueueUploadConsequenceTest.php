@@ -27,13 +27,12 @@ use MediaWiki\Moderation\QueueUploadConsequence;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 
-require_once __DIR__ . "/ConsequenceTestTrait.php";
-require_once __DIR__ . "/UploadTestTrait.php";
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  */
-class QueueUploadConsequenceTest extends MediaWikiTestCase {
+class QueueUploadConsequenceTest extends ModerationUnitTestCase {
 	use ConsequenceTestTrait;
 	use UploadTestTrait;
 

@@ -27,14 +27,12 @@ use MediaWiki\Moderation\InstallApproveHookConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\RejectBatchConsequence;
 
-require_once __DIR__ . "/ConsequenceTestTrait.php";
-require_once __DIR__ . "/ModifyDbRowTestTrait.php";
-require_once __DIR__ . "/PostApproveCleanupTrait.php";
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  */
-class BatchActionsHaveConsequencesTest extends MediaWikiTestCase {
+class BatchActionsHaveConsequencesTest extends ModerationUnitTestCase {
 	use ConsequenceTestTrait;
 	use ModifyDbRowTestTrait;
 	use PostApproveCleanupTrait;
@@ -149,25 +147,5 @@ class BatchActionsHaveConsequencesTest extends MediaWikiTestCase {
 			[ [ RejectBatchConsequence::class, $mockedNumberOfAffectedRows ] ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
-	}
-
-	/**
-	 * Clean the tables before the test. Only needed in MediaWiki 1.31.
-	 */
-	public function setUp() : void {
-		parent::setUp();
-
-		$name = $this->getName();
-		if ( $name == 'testValidCovers' || $name == 'testMediaWikiTestCaseParentSetupCalled' ) {
-			return;
-		}
-
-		// Workaround for MediaWiki 1.31 only: its TestCase class doesn't clean tables properly
-		global $wgVersion;
-		if ( version_compare( $wgVersion, '1.32.0', '<' ) ) {
-			foreach ( $this->tablesUsed as $table ) {
-				$this->db->delete( $table, '*', __METHOD__ );
-			}
-		}
 	}
 }
