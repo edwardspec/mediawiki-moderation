@@ -28,7 +28,6 @@ require_once __DIR__ . "/autoload.php";
 class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	use ConsequenceTestTrait;
 	use ModifyDbRowTestTrait;
-	use PostApproveCleanupTrait;
 
 	/**
 	 * Ensure that readonly, failed or non-applicable actions don't have any consequences.

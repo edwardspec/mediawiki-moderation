@@ -49,9 +49,6 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 		$user = User::createNew( $username );
 		$title = Title::newFromText( $pageName );
 
-		// Clean ApproveHook::$logEntriesToFix before the test.
-		ModerationApproveHook::destroySingleton();
-
 		// Create and run the Consequence.
 		$consequence = new AddLogEntryConsequence( $subtype, $user, $title, $params,
 			$runApproveHook );

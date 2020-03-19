@@ -42,7 +42,6 @@ require_once __DIR__ . "/autoload.php";
 class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 	use ConsequenceTestTrait;
 	use ModifyDbRowTestTrait;
-	use PostApproveCleanupTrait;
 
 	/** @var int */
 	protected $modid;

@@ -35,7 +35,6 @@ require_once __DIR__ . "/autoload.php";
 class BatchActionsHaveConsequencesTest extends ModerationUnitTestCase {
 	use ConsequenceTestTrait;
 	use ModifyDbRowTestTrait;
-	use PostApproveCleanupTrait;
 
 	/** @var User */
 	protected $authorUser;

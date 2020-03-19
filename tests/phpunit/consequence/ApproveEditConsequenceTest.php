@@ -29,7 +29,6 @@ require_once __DIR__ . "/autoload.php";
  */
 class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 	use MakeEditTestTrait;
-	use PostApproveCleanupTrait;
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'page', 'logging', 'log_search' ];

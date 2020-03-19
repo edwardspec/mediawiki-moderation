@@ -28,7 +28,6 @@ require_once __DIR__ . "/autoload.php";
  * @group Database
  */
 class ApproveUploadConsequenceTest extends ModerationUnitTestCase {
-	use PostApproveCleanupTrait;
 	use UploadTestTrait;
 
 	/** @var string[] */

@@ -710,12 +710,4 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 
 		$this->assertTrue( $status->isGood(), "Move failed: " . $status->getMessage()->plain() );
 	}
-
-	/**
-	 * Destroy ApproveHook object after the test.
-	 */
-	protected function tearDown() : void {
-		ModerationApproveHook::destroySingleton();
-		parent::tearDown();
-	}
 }
