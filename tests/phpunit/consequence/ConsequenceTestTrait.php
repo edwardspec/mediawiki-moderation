@@ -44,7 +44,7 @@ trait ConsequenceTestTrait {
 	 * @var User|null
 	 * Moderator that will perform the action during getConsequences().
 	 */
-	protected $moderatorUser;
+	protected $moderatorUser = null;
 
 	/**
 	 * Assert that $expectedConsequences are exactly the same as $actualConsequences.
@@ -136,8 +136,8 @@ trait ConsequenceTestTrait {
 		array $mockedResults = null, $extraParams = []
 	) {
 		if ( !$this->moderatorUser ) {
-			throw new MWException(
-				'Must set $this->moderatorUser before calling getConsequences().' );
+			$this->moderatorUser =
+				self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
 		}
 
 		// Replace real ConsequenceManager with a mock.

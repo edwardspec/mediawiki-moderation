@@ -505,43 +505,6 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	}
 
 	/**
-	 * Ensure that readonly actions don't have any consequences.
-	 * @param string $modaction
-	 * @param Closure|null $beforeCallback Will be called before the test.
-	 * @dataProvider dataProviderNoConsequenceActions
-	 * @coversNothing
-	 */
-	public function testNoConsequenceActions( $modaction, Closure $beforeCallback = null ) {
-		if ( $beforeCallback ) {
-			$beforeCallback->call( $this );
-		}
-
-		$this->assertConsequencesEqual( [], $this->getConsequences( $this->modid, $modaction ) );
-	}
-
-	/**
-	 * Provide datasets for testNoConsequenceActions() runs.
-	 * @return array
-	 */
-	public function dataProviderNoConsequenceActions() {
-		return [
-			[ 'show', null ],
-			[ 'showimg', null ],
-			[ 'preview', null ],
-			[ 'merge', function () {
-				$dbw = wfGetDB( DB_MASTER );
-				$dbw->update( 'moderation',
-					[ 'mod_conflict' => 1 ],
-					[ 'mod_id' => $this->modid ]
-				);
-			} ],
-			[ 'editchange', function () {
-				$this->setMwGlobals( 'wgModerationEnableEditChange', true );
-			} ]
-		];
-	}
-
-	/**
 	 * Queue an edit for moderation. Populate all fields ($this->modid, etc.) used by actual tests.
 	 */
 	public function setUp() : void {
