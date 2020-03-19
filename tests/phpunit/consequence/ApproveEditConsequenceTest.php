@@ -32,7 +32,7 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 	use PostApproveCleanupTrait;
 
 	/** @var string[] */
-	protected $tablesUsed = [ 'user', 'page', 'logging' ];
+	protected $tablesUsed = [ 'user', 'page', 'logging', 'log_search' ];
 
 	/**
 	 * Verify that ApproveEditConsequence makes a new edit.

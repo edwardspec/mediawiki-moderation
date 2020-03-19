@@ -29,7 +29,7 @@ require_once __DIR__ . "/autoload.php";
  */
 class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 	/** @var string[] */
-	protected $tablesUsed = [ 'user', 'page', 'logging' ];
+	protected $tablesUsed = [ 'user', 'page', 'logging', 'log_search' ];
 
 	/**
 	 * Verify that ApproveMoveConsequence renames the page.

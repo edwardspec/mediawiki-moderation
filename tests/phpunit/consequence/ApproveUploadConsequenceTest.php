@@ -32,7 +32,8 @@ class ApproveUploadConsequenceTest extends ModerationUnitTestCase {
 	use UploadTestTrait;
 
 	/** @var string[] */
-	protected $tablesUsed = [ 'user', 'page', 'uploadstash', 'image', 'oldimage' ];
+	protected $tablesUsed = [ 'user', 'page', 'uploadstash', 'image', 'oldimage',
+		'logging', 'log_search' ];
 
 	/**
 	 * Verify that ApproveUploadConsequence uploads a new file.

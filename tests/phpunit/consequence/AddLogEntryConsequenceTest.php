@@ -31,7 +31,7 @@ require_once __DIR__ . "/autoload.php";
 class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 
 	/** @var string[] */
-	protected $tablesUsed = [ 'user', 'logging' ];
+	protected $tablesUsed = [ 'user', 'logging', 'log_search' ];
 
 	/**
 	 * Verify that AddLogEntryConsequence creates a log entry when executed.
