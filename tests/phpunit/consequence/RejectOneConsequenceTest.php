@@ -39,15 +39,16 @@ class RejectOneConsequenceTest extends MediaWikiTestCase {
 	 */
 	public function testRejectOne() {
 		$moderator = User::createNew( 'Some moderator' );
+		$modid = $this->makeDbRow();
 
 		// Create and run the Consequence.
-		$consequence = new RejectOneConsequence( $this->modid, $moderator );
+		$consequence = new RejectOneConsequence( $modid, $moderator );
 		$rejectedCount = $consequence->run();
 
 		$this->assertEquals( 1, $rejectedCount );
 
 		// Check the state of the database.
-		$this->assertWasRejected( $this->modid, $moderator );
+		$this->assertWasRejected( $modid, $moderator );
 	}
 
 	/**
@@ -56,17 +57,18 @@ class RejectOneConsequenceTest extends MediaWikiTestCase {
 	 */
 	public function testNoopRejectOne() {
 		$moderator = User::createNew( 'Some moderator' );
+		$modid = $this->makeDbRow();
 
 		// Create and run the Consequence.
-		$consequence1 = new RejectOneConsequence( $this->modid, $moderator );
+		$consequence1 = new RejectOneConsequence( $modid, $moderator );
 		$consequence1->run();
 
-		$consequence2 = new RejectOneConsequence( $this->modid, $moderator );
+		$consequence2 = new RejectOneConsequence( $modid, $moderator );
 		$rejectedCount = $consequence2->run();
 		$this->assertSame( 0, $rejectedCount );
 
 		// Despite $consequence2 doing nothing, the row should still be marked as rejected.
-		$this->assertWasRejected( $this->modid, $moderator );
+		$this->assertWasRejected( $modid, $moderator );
 	}
 
 	/**
@@ -77,12 +79,13 @@ class RejectOneConsequenceTest extends MediaWikiTestCase {
 	 */
 	public function testNotApplicableRejectOne( array $fields ) {
 		$moderator = User::createNew( 'Some moderator' );
+		$modid = $this->makeDbRow();
 
 		$dbw = wfGetDB( DB_MASTER );
-		$dbw->update( 'moderation', $fields, [ 'mod_id' => $this->modid ], __METHOD__ );
+		$dbw->update( 'moderation', $fields, [ 'mod_id' => $modid ], __METHOD__ );
 
 		// Create and run the Consequence.
-		$consequence = new RejectOneConsequence( $this->modid, $moderator );
+		$consequence = new RejectOneConsequence( $modid, $moderator );
 		$rejectedCount = $consequence->run();
 		$this->assertSame( 0, $rejectedCount );
 	}

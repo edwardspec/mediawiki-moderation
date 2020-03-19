@@ -38,14 +38,16 @@ class DeleteRowFromModerationTableConsequenceTest extends MediaWikiTestCase {
 	 * @covers MediaWiki\Moderation\DeleteRowFromModerationTableConsequence
 	 */
 	public function testMarkAsConflict() {
+		$modid = $this->makeDbRow();
+
 		// Create and run the Consequence.
-		$consequence = new DeleteRowFromModerationTableConsequence( $this->modid );
+		$consequence = new DeleteRowFromModerationTableConsequence( $modid );
 		$consequence->run();
 
 		// Check the state of the database.
 		$this->assertSelect( 'moderation',
 			[ 'mod_id' ],
-			[ 'mod_id' => $this->modid ],
+			[ 'mod_id' => $modid ],
 			[]
 		);
 	}

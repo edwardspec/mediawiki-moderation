@@ -35,6 +35,7 @@ use MediaWiki\Moderation\RejectOneConsequence;
 use MediaWiki\Moderation\UnblockUserConsequence;
 
 require_once __DIR__ . "/ConsequenceTestTrait.php";
+require_once __DIR__ . "/ModifyDbRowTestTrait.php";
 require_once __DIR__ . "/PostApproveCleanupTrait.php";
 
 /**
@@ -42,6 +43,7 @@ require_once __DIR__ . "/PostApproveCleanupTrait.php";
  */
 class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 	use ConsequenceTestTrait;
+	use ModifyDbRowTestTrait;
 	use PostApproveCleanupTrait;
 
 	/** @var int */
@@ -58,6 +60,9 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 
 	/** @var string */
 	protected $summary;
+
+	/** @var string|null */
+	protected $ip;
 
 	/** @var string|null */
 	protected $xff;
@@ -194,7 +199,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		);
 		$expected = [
 			new InstallApproveHookConsequence( $this->title, $this->authorUser, 'edit', [
-				'ip' => '127.0.0.1',
+				'ip' => $this->ip,
 				'xff' => $this->xff,
 				'ua' => $this->userAgent,
 				'tags' => $this->tags,
@@ -247,7 +252,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		);
 		$expected = [
 			new InstallApproveHookConsequence( $title, $this->authorUser, 'edit', [
-				'ip' => '127.0.0.1',
+				'ip' => $this->ip,
 				'xff' => $this->xff,
 				'ua' => $this->userAgent,
 				'tags' => $this->tags,
@@ -296,7 +301,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		);
 		$expected = [
 			new InstallApproveHookConsequence( $this->title, $this->authorUser, 'move', [
-				'ip' => '127.0.0.1',
+				'ip' => $this->ip,
 				'xff' => $this->xff,
 				'ua' => $this->userAgent,
 				'tags' => $this->tags,
@@ -337,7 +342,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		);
 		$expected = [
 			new InstallApproveHookConsequence( $this->title, $this->authorUser, 'edit', [
-				'ip' => '127.0.0.1',
+				'ip' => $this->ip,
 				'xff' => $this->xff,
 				'ua' => $this->userAgent,
 				'tags' => $this->tags,
@@ -376,7 +381,7 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 		);
 		$expected = [
 			new InstallApproveHookConsequence( $this->title, $this->authorUser, 'edit', [
-				'ip' => '127.0.0.1',
+				'ip' => $this->ip,
 				'xff' => $this->xff,
 				'ua' => $this->userAgent,
 				'tags' => $this->tags,
@@ -547,44 +552,31 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			return;
 		}
 
-		$this->authorUser = self::getTestUser()->getUser();
 		$this->moderatorUser = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
 
 		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 		$this->text = 'Some text ' . rand( 0, 100000 );
 		$this->summary = 'Sample edit summary ' . rand( 0, 100000 );
-
-		$request = $this->authorUser->getRequest();
-		'@phan-var FauxRequest $request';
-
 		$this->userAgent = 'SampleUserAgent/1.0.' . rand( 0, 100000 );
-		$request->setHeader( 'User-Agent', $this->userAgent );
-
+		$this->ip = '10.20.30.40';
 		$this->xff = '10.11.12.13';
-		$request->setHeader( 'X-Forwarded-For', $this->xff );
-
-		$page = WikiPage::factory( $this->title );
-		$page->doEditContent(
-			ContentHandler::makeContent( $this->text, null, CONTENT_MODEL_WIKITEXT ),
-			$this->summary,
-			EDIT_INTERNAL,
-			false,
-			$this->authorUser
-		);
-
-		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( 'moderation', [ 'mod_id', 'mod_timestamp' ], '', __METHOD__ );
-
-		$this->timestamp = $row->mod_timestamp;
-		$this->modid = (int)$row->mod_id;
-		$this->assertNotSame( 0, $this->modid );
+		$this->timestamp = $this->db->timestamp(
+			wfTimestamp( TS_MW, (int)wfTimestamp() - rand( 100, 100000 ) ) );
 
 		// TODO: additionally check entries without any tags
 		// (important for testing InstallApproveHookConsequence)
 		$this->tags = "Sample tag1\nSample tag2";
-		$dbw->update( 'moderation',
-			[ 'mod_tags' => $this->tags ],
-			[ 'mod_id' => $this->modid ],
-			__METHOD__ );
+
+		$this->modid = $this->makeDbRow( [
+			'mod_title' => $this->title->getDBKey(),
+			'mod_namespace' => $this->title->getNamespace(),
+			'mod_comment' => $this->summary,
+			'mod_text' => $this->text,
+			'mod_ip' => $this->ip,
+			'mod_header_ua' => $this->userAgent,
+			'mod_header_xff' => $this->xff,
+			'mod_tags' => $this->tags,
+			'mod_timestamp' => $this->timestamp
+		] );
 	}
 }

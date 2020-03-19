@@ -38,13 +38,14 @@ class ModifyPendingChangeConsequenceTest extends MediaWikiTestCase {
 	 * @covers MediaWiki\Moderation\ModifyPendingChangeConsequence
 	 */
 	public function testModify() {
+		$modid = $this->makeDbRow();
 		$newText = 'Modified text';
 		$newComment = 'Another edit comment';
 		$newLen = strlen( $newText );
 
 		// Create and run the Consequence.
 		$consequence = new ModifyPendingChangeConsequence(
-			$this->modid, $newText, $newComment, $newLen );
+			$modid, $newText, $newComment, $newLen );
 		$consequence->run();
 
 		// Check the state of the database.
@@ -54,7 +55,7 @@ class ModifyPendingChangeConsequenceTest extends MediaWikiTestCase {
 				'mod_comment',
 				'mod_new_len'
 			],
-			[ 'mod_id' => $this->modid ],
+			[ 'mod_id' => $modid ],
 			[ [
 				$newText,
 				$newComment,

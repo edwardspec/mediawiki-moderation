@@ -39,36 +39,38 @@ class MarkAsMergedConsequenceTest extends MediaWikiTestCase {
 	 */
 	public function testMarkAsMerged() {
 		$revid = 12345;
+		$modid = $this->makeDbRow();
 
 		// Create and run the Consequence.
-		$consequence = new MarkAsMergedConsequence( $this->modid, $revid );
+		$consequence = new MarkAsMergedConsequence( $modid, $revid );
 		$somethingChanged = $consequence->run();
 
 		$this->assertTrue( $somethingChanged );
-		$this->assertIsMerged( $revid );
+		$this->assertIsMerged( $modid, $revid );
 
 		// Noop test: try applying MarkAsMergedConsequence to an already merged row again.
-		$consequence = new MarkAsMergedConsequence( $this->modid, $revid );
+		$consequence = new MarkAsMergedConsequence( $modid, $revid );
 		$somethingChanged = $consequence->run();
 
 		$this->assertFalse( $somethingChanged );
-		$this->assertIsMerged( $revid ); // Should remain merged (as it was before)
+		$this->assertIsMerged( $modid, $revid ); // Should remain merged (as it was before)
 	}
 
 	/**
 	 * Throw an exception if row is not marked as merged with mod_merged_revid=$revid.
+	 * @param int $modid
 	 * @param int $revid
 	 */
-	protected function assertIsMerged( $revid ) {
+	protected function assertIsMerged( $modid, $revid ) {
 		$this->assertSelect( 'moderation',
 			[
 				'mod_merged_revid',
 				'mod_preloadable'
 			],
-			[ 'mod_id' => $this->modid ],
+			[ 'mod_id' => $modid ],
 			[ [
 				$revid, // mod_merged_revid
-				$this->modid // mod_preloadable: when it equals mod_id, it means "NOT preloadable"
+				$modid // mod_preloadable: when it equals mod_id, it means "NOT preloadable"
 			] ]
 		);
 	}

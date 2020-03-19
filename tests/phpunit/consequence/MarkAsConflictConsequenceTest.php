@@ -38,14 +38,16 @@ class MarkAsConflictConsequenceTest extends MediaWikiTestCase {
 	 * @covers MediaWiki\Moderation\MarkAsConflictConsequence
 	 */
 	public function testMarkAsConflict() {
+		$modid = $this->makeDbRow();
+
 		// Create and run the Consequence.
-		$consequence = new MarkAsConflictConsequence( $this->modid );
+		$consequence = new MarkAsConflictConsequence( $modid );
 		$consequence->run();
 
 		// Check the state of the database.
 		$this->assertSelect( 'moderation',
 			[ 'mod_conflict' ],
-			[ 'mod_id' => $this->modid ],
+			[ 'mod_id' => $modid ],
 			[ [ 1 ] ]
 		);
 	}

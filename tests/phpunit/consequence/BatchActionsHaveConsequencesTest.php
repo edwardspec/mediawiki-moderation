@@ -23,12 +23,12 @@
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ApproveEditConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
-use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\InstallApproveHookConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\RejectBatchConsequence;
 
 require_once __DIR__ . "/ConsequenceTestTrait.php";
+require_once __DIR__ . "/ModifyDbRowTestTrait.php";
 require_once __DIR__ . "/PostApproveCleanupTrait.php";
 
 /**
@@ -36,6 +36,7 @@ require_once __DIR__ . "/PostApproveCleanupTrait.php";
  */
 class BatchActionsHaveConsequencesTest extends MediaWikiTestCase {
 	use ConsequenceTestTrait;
+	use ModifyDbRowTestTrait;
 	use PostApproveCleanupTrait;
 
 	/** @var User */
@@ -57,12 +58,11 @@ class BatchActionsHaveConsequencesTest extends MediaWikiTestCase {
 
 		// First, let's queue some edits by the same user for moderation.
 		$numberOfEdits = 3;
-
 		$expectedConsequences = [];
 
 		for ( $i = 0; $i < $numberOfEdits; $i++ ) {
 			$fields = $this->getDefaultFields();
-			$modid = ( new InsertRowIntoModerationTableConsequence( $fields ) )->run();
+			$modid = $this->makeDbRow( $fields );
 
 			$title = Title::makeTitle( $fields['mod_namespace'], $fields['mod_title'] );
 
@@ -126,8 +126,7 @@ class BatchActionsHaveConsequencesTest extends MediaWikiTestCase {
 		$numberOfEdits = 3;
 		$ids = [];
 		for ( $i = 0; $i < $numberOfEdits; $i++ ) {
-			$fields = $this->getDefaultFields();
-			$ids[] = ( new InsertRowIntoModerationTableConsequence( $fields ) )->run();
+			$ids[] = $this->makeDbRow();
 		}
 
 		// It's possible for RejectBatchConsequence to return a number other than $numberOfEdits
@@ -150,46 +149,5 @@ class BatchActionsHaveConsequencesTest extends MediaWikiTestCase {
 			[ [ RejectBatchConsequence::class, $mockedNumberOfAffectedRows ] ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
-	}
-
-	/**
-	 * Returns default fields of one row in "moderation" table.
-	 * Same as ModerationTestsuitePendingChangeTestSet::getDefaultFields() in blackbox testsuite.
-	 * @return array
-	 */
-	private function getDefaultFields() {
-		return [
-			'mod_timestamp' => $this->db->timestamp(),
-			'mod_user' => $this->authorUser->getId(),
-			'mod_user_text' => $this->authorUser->getName(),
-			'mod_cur_id' => 0,
-			'mod_namespace' => rand( 0, 1 ),
-			'mod_title' => 'Test page ' . rand( 0, 100000 ),
-			'mod_comment' => 'Some reason ' . rand( 0, 100000 ),
-			'mod_minor' => 0,
-			'mod_bot' => 0,
-			'mod_new' => 1,
-			'mod_last_oldid' => 0,
-			'mod_ip' => '127.1.2.3',
-			'mod_old_len' => 0,
-			'mod_new_len' => 8, // Length of mod_text, see below
-			'mod_header_xff' => null,
-			'mod_header_ua' => 'TestsuiteUserAgent/1.0.' . rand( 0, 100000 ),
-			'mod_preload_id' => ']fake',
-			'mod_rejected' => 0,
-			'mod_rejected_by_user' => 0,
-			'mod_rejected_by_user_text' => null,
-			'mod_rejected_batch' => 0,
-			'mod_rejected_auto' => 0,
-			'mod_preloadable' => 0,
-			'mod_conflict' => 0,
-			'mod_merged_revid' => 0,
-			'mod_text' => 'New text ' . rand( 0, 100000 ),
-			'mod_stash_key' => '',
-			'mod_tags' => null,
-			'mod_type' => ModerationNewChange::MOD_TYPE_EDIT,
-			'mod_page2_namespace' => 0,
-			'mod_page2_title' => 'Test page 2'
-		];
 	}
 }
