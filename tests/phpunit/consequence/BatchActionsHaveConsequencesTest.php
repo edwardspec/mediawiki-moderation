@@ -150,4 +150,24 @@ class BatchActionsHaveConsequencesTest extends MediaWikiTestCase {
 
 		$this->assertConsequencesEqual( $expected, $actual );
 	}
+
+	/**
+	 * Clean the tables before the test. Only needed in MediaWiki 1.31.
+	 */
+	public function setUp() : void {
+		parent::setUp();
+
+		$name = $this->getName();
+		if ( $name == 'testValidCovers' || $name == 'testMediaWikiTestCaseParentSetupCalled' ) {
+			return;
+		}
+
+		// Workaround for MediaWiki 1.31 only: its TestCase class doesn't clean tables properly
+		global $wgVersion;
+		if ( version_compare( $wgVersion, '1.32.0', '<' ) ) {
+			foreach ( $this->tablesUsed as $table ) {
+				$this->db->delete( $table, '*', __METHOD__ );
+			}
+		}
+	}
 }

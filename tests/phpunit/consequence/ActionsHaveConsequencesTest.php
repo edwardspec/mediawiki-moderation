@@ -515,6 +515,14 @@ class ActionsHaveConsequencesTest extends MediaWikiTestCase {
 			return;
 		}
 
+		// Workaround for MediaWiki 1.31 only: its TestCase class doesn't clean tables properly
+		global $wgVersion;
+		if ( version_compare( $wgVersion, '1.32.0', '<' ) ) {
+			foreach ( $this->tablesUsed as $table ) {
+				$this->db->delete( $table, '*', __METHOD__ );
+			}
+		}
+
 		$this->moderatorUser = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
 
 		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );

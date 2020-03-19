@@ -31,6 +31,7 @@ use Wikimedia\TestingAccessWrapper;
  * @method static assertSame($a, $b, $message='')
  * @method static assertCount($a, $b, $message='')
  * @method static assertInstanceOf($a, $b, $message='')
+ * @method static TestUser getTestUser($groups=null)
  */
 trait ConsequenceTestTrait {
 
