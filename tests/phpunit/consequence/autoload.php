@@ -27,6 +27,5 @@ $wgAutoloadClasses += [
 	'MakeEditTestTrait' => __DIR__ . '/MakeEditTestTrait.php',
 	'ModerationUnitTestCase' => __DIR__ . '/ModerationUnitTestCase.php',
 	'ModifyDbRowTestTrait' => __DIR__ . '/ModifyDbRowTestTrait.php',
-	'ModifySeveralDbRowsTestTrait' => __DIR__ . '/ModifySeveralDbRowsTestTrait.php',
 	'UploadTestTrait' => __DIR__ . '/UploadTestTrait.php',
 ];

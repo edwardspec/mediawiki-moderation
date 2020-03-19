@@ -28,7 +28,7 @@ require_once __DIR__ . "/autoload.php";
  * @group Database
  */
 class GiveAnonChangesToNewUserConsequenceTest extends ModerationUnitTestCase {
-	use ModifySeveralDbRowsTestTrait;
+	use ModifyDbRowTestTrait;
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'moderation', 'user' ];
@@ -38,7 +38,7 @@ class GiveAnonChangesToNewUserConsequenceTest extends ModerationUnitTestCase {
 	 * @covers MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence
 	 */
 	public function testGiveChanges() {
-		list( $idsToAffect, $idsToPreserve ) = array_chunk( $this->ids, 2 );
+		list( $idsToAffect, $idsToPreserve ) = array_chunk( $this->makeSeveralDbRows(), 2 );
 
 		$oldPreloadId = 'some anonymous preload ID';
 		$newPreloadId = 'new non-anonymous preload ID';
@@ -102,7 +102,7 @@ class GiveAnonChangesToNewUserConsequenceTest extends ModerationUnitTestCase {
 	 * @covers MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence
 	 */
 	public function testIgnoreNonPreloadableChanges() {
-		list( $idsToAffect, $idsToPreserve ) = array_chunk( $this->ids, 2 );
+		list( $idsToAffect, $idsToPreserve ) = array_chunk( $this->makeSeveralDbRows(), 2 );
 
 		$oldPreloadId = 'some anonymous preload ID';
 		$newPreloadId = 'new non-anonymous preload ID';

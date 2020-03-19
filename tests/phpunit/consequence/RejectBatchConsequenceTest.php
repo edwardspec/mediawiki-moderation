@@ -28,7 +28,7 @@ require_once __DIR__ . "/autoload.php";
  * @group Database
  */
 class RejectBatchConsequenceTest extends ModerationUnitTestCase {
-	use ModifySeveralDbRowsTestTrait;
+	use ModifyDbRowTestTrait;
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'moderation', 'user' ];
@@ -41,7 +41,7 @@ class RejectBatchConsequenceTest extends ModerationUnitTestCase {
 		$moderator = User::createNew( 'Some moderator' );
 
 		// Let's reject half of the rows. This allows us to test that other rows are unmodified.
-		list( $idsToReject, $idsToPreserve ) = array_chunk( $this->ids, 2 );
+		list( $idsToReject, $idsToPreserve ) = array_chunk( $this->makeSeveralDbRows(), 2 );
 
 		// Create and run the Consequence.
 		$consequence = new RejectBatchConsequence( $idsToReject, $moderator );

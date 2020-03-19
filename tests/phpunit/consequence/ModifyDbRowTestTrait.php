@@ -40,6 +40,20 @@ trait ModifyDbRowTestTrait {
 	}
 
 	/**
+	 * Create several rows in "moderation" SQL table.
+	 * @param int $count
+	 * @return int[] Array of mod_id values of newly created rows.
+	 */
+	public function makeSeveralDbRows( $count = 6 ) {
+		$ids = [];
+		for ( $i = 0; $i < $count; $i++ ) {
+			$ids[] = $this->makeDbRow();
+		}
+
+		return $ids;
+	}
+
+	/**
 	 * Returns default fields of one row in "moderation" table.
 	 * Same as ModerationTestsuitePendingChangeTestSet::getDefaultFields() in blackbox testsuite.
 	 * @return array
