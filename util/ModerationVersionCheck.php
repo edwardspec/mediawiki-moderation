@@ -100,9 +100,6 @@ class ModerationVersionCheck {
 
 	/*-------------------------------------------------------------------*/
 
-	/** @const string Name of extension (as listed in extension.json) */
-	const EXTENSION_NAME = 'Moderation';
-
 	/** @var string|null Local cache used by getDbUpdatedVersion() */
 	protected static $dbUpdatedVersion = null;
 
@@ -188,20 +185,6 @@ class ModerationVersionCheck {
 			__METHOD__
 		);
 		return $titlesWithSpace ? '1.1.29' : '1.1.31';
-	}
-
-	/**
-	 * Returns current version of Moderation (string).
-	 * @return string Version number, e.g. "1.2.3".
-	 */
-	protected static function getVersionOfModeration() {
-		$status = FormatJson::parse( file_get_contents( __DIR__ . "/../extension.json" ) );
-		if ( $status->isOK() ) {
-			$extensionInfo = $status->getValue();
-			return $extensionInfo->version;
-		}
-
-		return '';
 	}
 
 	/**
