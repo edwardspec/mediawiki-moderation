@@ -28,6 +28,7 @@ use Wikimedia\TestingAccessWrapper;
 
 /**
  * @method static assertEquals($a, $b, $message='', $d=0.0, $e=10, $f=null, $g=null)
+ * @method static assertNotEquals($a, $b, $message='', $d=0.0, $e=10, $f=null, $g=null)
  * @method static assertSame($a, $b, $message='')
  * @method static assertCount($a, $b, $message='')
  * @method static assertInstanceOf($a, $b, $message='')
@@ -40,6 +41,18 @@ trait ConsequenceTestTrait {
 	 * Error message (e.g. "moderation-edit-conflict") thrown during getConsequences(), if any.
 	 */
 	protected $thrownError = null;
+
+	/**
+	 * @var string
+	 * Text written into OutputPage object during getConsequences().
+	 */
+	protected $outputText = '';
+
+	/**
+	 * @var mixed
+	 * Return value of $action->run() during during getConsequences().
+	 */
+	protected $result = null;
 
 	/**
 	 * @var User|null
@@ -154,6 +167,10 @@ trait ConsequenceTestTrait {
 		$context->setRequest( $request );
 		$context->setUser( $this->moderatorUser );
 
+		// With "qqx" language selected, messages are replaced with
+		// their names, so parsing process is translation-independent.
+		$context->setLanguage( 'qqx' );
+
 		if ( $mockedResults ) {
 			foreach ( $mockedResults as $result ) {
 				$manager->mockResult( ...$result );
@@ -161,14 +178,37 @@ trait ConsequenceTestTrait {
 		}
 
 		$this->thrownError = null;
+		$this->result = null;
+		$this->outputText = '';
+
+		$out = $context->getOutput();
+		$out->setContext( $context );
 
 		try {
 			$action = ModerationAction::factory( $context );
-			$action->run();
+			$this->result = $action->run();
 		} catch ( ModerationError $error ) {
 			$this->thrownError = $error->status->getMessage()->getKey();
 		} catch ( Exception $e ) {
 			$this->thrownError = 'exceptionClass:' . get_class( $e );
+		}
+
+		$this->assertSame( '', $out->getHTML(),
+			'ModerationAction::run() is not allowed to print anything, but it did.' );
+
+		if ( $this->result ) {
+			if ( $modaction == 'showimg' && isset( $this->result['missing'] ) ) {
+				// This error is printed directly to stdout (not to OutputPage object),
+				// so we need to test this elsewhere.
+				// Should probably make HTTPFileStreamer::send404Message() into a Consequence.
+				$this->outputText = '{{ HTTPFileStreamer::send404Message }}';
+			} else {
+				$action->outputResult( $this->result, $out );
+				$this->outputText = Parser::stripOuterParagraph( $out->getHTML() );
+
+				$this->assertNotEquals( '', $this->outputText,
+					"ModerationAction::outputResult() didn't print anything." );
+			}
 		}
 
 		return $manager->getConsequences();

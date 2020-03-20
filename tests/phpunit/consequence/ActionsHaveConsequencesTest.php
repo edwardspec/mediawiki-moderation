@@ -99,6 +99,9 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 			[ [ RejectOneConsequence::class, 1 ] ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
+
+		$this->assertEquals( $this->result, [ 'rejected-count' => 1 ] );
+		$this->assertEquals( $this->outputText, '(moderation-rejected-ok: 1)' );
 	}
 
 	/**

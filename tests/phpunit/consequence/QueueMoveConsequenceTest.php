@@ -172,7 +172,7 @@ class QueueMoveConsequenceTest extends ModerationUnitTestCase {
 			'move with edit summary' => [ [ 'summary' => 'Summary 1' ] ],
 			'move by modblocked user' => [ [ 'modblocked' => true ] ],
 			'email notification' => [ [ 'notifyEmail' => 'noreply@localhost' ] ],
-			'abasence of email notification for move when $wgModerationNotificationNewOnly=true' =>
+			'absence of email notification for move when $wgModerationNotificationNewOnly=true' =>
 				[ [ 'notifyEmail' => 'noreply@localhost', 'notifyNewOnly' => true ] ],
 			'absence of email for move by modblocked user' =>
 				[ [
