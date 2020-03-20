@@ -20,6 +20,8 @@
  * Verifies that readonly, failed or non-applicable actions have no consequences.
  */
 
+use Wikimedia\ScopedCallback;
+
 require_once __DIR__ . "/autoload.php";
 
 /**
@@ -41,11 +43,35 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 		$this->assertArrayHasKey( 'action', $options );
 		$this->setMwGlobals( $options['globals'] ?? [] );
 
+		if ( isset( $options['getModerator'] ) ) {
+			$this->moderatorUser = $options['getModerator']();
+			$scope = new ScopedCallback( function () {
+				$this->moderatorUser = null;
+			} );
+		}
+
 		$modid = $this->makeDbRow( $options['fields'] ?? [] );
 		$this->assertConsequencesEqual( [], $this->getConsequences( $modid, $options['action'] ) );
 
-		$this->assertEquals( $this->thrownError, $options['expectedError'] ?? null,
+		$this->assertEquals( $options['expectedError'] ?? null, $this->thrownError,
 			"Thrown ModerationError doesn't match expected." );
+	}
+
+	// TODO: add tests for "moderation-edit-not-found", "moderation-nothing-to-{approve,reject}all"
+	// errors (e.g. when calling getConsequences() on incorrect $modid).
+
+	// TODO: add readonly tests
+
+	/**
+	 * Get value of mod_timestamp that is too long ago to reapprove already rejected edit.
+	 * @return string
+	 */
+	public function longAgoTimestamp() {
+		global $wgModerationTimeToOverrideRejection;
+
+		$dbr = wfGetDB( DB_REPLICA );
+		return $dbr->timestamp(
+			wfTimestamp( TS_MW, (int)wfTimestamp() - $wgModerationTimeToOverrideRejection - 1 ) );
 	}
 
 	/**
@@ -66,19 +92,75 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 				] ],
 
 			// Situations when actions return errors.
+			'unknown modaction' => [ [
+				'action' => 'makesandwich',
+				'expectedError' => 'moderation-unknown-modaction'
+			] ],
 			'editchange (when not enabled via $wgModerationEnableEditChange)' =>
 				[ [ 'action' => 'editchange', 'expectedError' => 'moderation-unknown-modaction' ] ],
-
-			'merge (when not a conflict merged)' =>
+			'editchangesubmit (when not enabled via $wgModerationEnableEditChange)' =>
+				[ [
+					'action' => 'editchangesubmit',
+					'expectedError' => 'moderation-unknown-modaction'
+				] ],
+			'editchange (on a move)' =>
+				[ [
+					'action' => 'editchange',
+					'globals' => [ 'wgModerationEnableEditChange' => true ],
+					'fields' => [ 'mod_type' => ModerationNewChange::MOD_TYPE_MOVE ],
+					'expectedError' => 'moderation-editchange-not-edit'
+				] ],
+			'editchangesubmit (on a move)' =>
+				[ [
+					'action' => 'editchangesubmit',
+					'globals' => [ 'wgModerationEnableEditChange' => true ],
+					'fields' => [ 'mod_type' => ModerationNewChange::MOD_TYPE_MOVE ],
+					'expectedError' => 'moderation-edit-not-found'
+				] ],
+			'merge (when not a conflict)' =>
 				[ [ 'action' => 'merge', 'expectedError' => 'moderation-merge-not-needed' ] ],
+			'merge (when not automoderated)' =>
+				[ [
+					'action' => 'merge',
+					'fields' => [ 'mod_conflict' => 1 ],
+					'getModerator' => function () {
+						return self::getTestUser( [ 'moderator' ] )->getUser();
+					},
+					'expectedError' => 'moderation-merge-not-automoderated'
+				] ],
 			'merge (when already merged)' =>
 				[ [
 					'action' => 'merge',
 					'fields' => [ 'mod_conflict' => 1, 'mod_merged_revid' => 123 ],
 					'expectedError' => 'moderation-already-merged'
 				] ],
-
-			// TODO: add checks for all possible error conditions
+			'reject (when already rejected)' =>
+				[ [
+					'action' => 'reject',
+					'fields' => [ 'mod_rejected' => 1 ],
+					'expectedError' => 'moderation-already-rejected'
+				] ],
+			'reject (when already merged)' =>
+				[ [
+					'action' => 'reject',
+					'fields' => [ 'mod_merged_revid' => 123 ],
+					'expectedError' => 'moderation-already-merged'
+				] ],
+			'approve (when already merged)' =>
+				[ [
+					'action' => 'approve',
+					'fields' => [ 'mod_merged_revid' => 123 ],
+					'expectedError' => 'moderation-already-merged'
+				] ],
+			'approve (when rejected too long ago)' =>
+				[ [
+					'action' => 'approve',
+					'fields' => [
+						'mod_rejected' => 1,
+						'mod_timestamp' => $this->longAgoTimestamp()
+					],
+					'expectedError' => 'moderation-rejected-long-ago'
+				] ]
 		];
 	}
 }

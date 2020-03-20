@@ -136,7 +136,7 @@ trait ConsequenceTestTrait {
 	public function getConsequences( $modid, $modaction,
 		array $mockedResults = null, $extraParams = []
 	) {
-		if ( !$this->moderatorUser ) {
+		if ( !$this->moderatorUser || !$this->moderatorUser->loadFromDatabase() ) {
 			$this->moderatorUser =
 				self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
 		}
@@ -162,8 +162,8 @@ trait ConsequenceTestTrait {
 
 		$this->thrownError = null;
 
-		$action = ModerationAction::factory( $context );
 		try {
+			$action = ModerationAction::factory( $context );
 			$action->run();
 		} catch ( ModerationError $error ) {
 			$this->thrownError = $error->status->getMessage()->getKey();
