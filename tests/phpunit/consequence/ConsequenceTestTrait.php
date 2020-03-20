@@ -167,6 +167,8 @@ trait ConsequenceTestTrait {
 			$action->run();
 		} catch ( ModerationError $error ) {
 			$this->thrownError = $error->status->getMessage()->getKey();
+		} catch ( Exception $e ) {
+			$this->thrownError = 'exceptionClass:' . get_class( $e );
 		}
 
 		return $manager->getConsequences();

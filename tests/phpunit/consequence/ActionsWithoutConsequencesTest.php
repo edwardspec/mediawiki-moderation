@@ -37,10 +37,15 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	 * @dataProvider dataProviderNoConsequenceActions
 	 * @coversNothing
 	 *
-	 * @phan-param array{action:string,globals?:array,fields?:array,expectedError:string} $options
+	 * @codingStandardsIgnoreStart
+	 * @phan-param array{action:string,globals?:array,fields?:array,expectedError?:string,getModerator?:(callable():User)} $options
+	 * @codingStandardsIgnoreEnd
 	 */
 	public function testNoConsequenceActions( $options ) {
 		$this->assertArrayHasKey( 'action', $options );
+
+		// Have to create test user before $wgReadOnly is set in readonly tests.
+		$this->moderatorUser = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
 		$this->setMwGlobals( $options['globals'] ?? [] );
 
 		if ( isset( $options['getModerator'] ) ) {
@@ -60,8 +65,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	// TODO: add tests for "moderation-edit-not-found", "moderation-nothing-to-{approve,reject}all"
 	// errors (e.g. when calling getConsequences() on incorrect $modid).
 
-	// TODO: add readonly tests
-
 	/**
 	 * Get value of mod_timestamp that is too long ago to reapprove already rejected edit.
 	 * @return string
@@ -79,7 +82,7 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	 * @return array
 	 */
 	public function dataProviderNoConsequenceActions() {
-		return [
+		$sets = [
 			// Actions that are always readonly and shouldn't have any consequences.
 			'show' => [ [ 'action' => 'show' ] ],
 			'showimg' => [ [ 'action' => 'showimg' ] ],
@@ -162,5 +165,30 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 					'expectedError' => 'moderation-rejected-long-ago'
 				] ]
 		];
+
+		// ReadOnlyError exception from non-readonly actions
+		$actionIsReadOnly = [
+			'approve' => false,
+			'approveall' => false,
+			'reject' => false,
+			'rejectall' => false,
+			'block' => false,
+			'unblock' => false,
+			'merge' => false,
+			'editchange' => false,
+			'editchangesubmit' => false,
+			'show' => true,
+			'showimg' => true,
+			'preview' => true
+		];
+		foreach ( $actionIsReadOnly as $action => $isReadOnly ) {
+			$sets["readonly modaction=$action"] = [ [
+				'action' => $action,
+				'globals' => [ 'wgReadOnly' => 'for some reason' ],
+				'expectedError' => $isReadOnly ? null : 'exceptionClass:ReadOnlyError'
+			] ];
+		}
+
+		return $sets;
 	}
 }
