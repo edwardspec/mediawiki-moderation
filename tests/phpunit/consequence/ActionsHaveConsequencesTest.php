@@ -100,7 +100,7 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 
 		$this->assertConsequencesEqual( $expected, $actual );
 
-		$this->assertEquals( $this->result, [ 'rejected-count' => 1 ] );
+		$this->assertSame( $this->result, [ 'rejected-count' => 1 ] );
 		$this->assertEquals( $this->outputText, '(moderation-rejected-ok: 1)' );
 	}
 
@@ -125,6 +125,14 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 			[ [ BlockUserConsequence::class, true ] ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
+
+		$this->assertSame( $this->result, [
+			'action' => 'block',
+			'username' => $this->authorUser->getName(),
+			'noop' => false
+		] );
+		$this->assertEquals( $this->outputText,
+			'(moderation-block-ok: ' . $this->authorUser->getName() . ')' );
 	}
 
 	/**
@@ -149,6 +157,14 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 		] ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
+
+		$this->assertSame( $this->result, [
+			'action' => 'block',
+			'username' => $this->authorUser->getName(),
+			'noop' => true
+		] );
+		$this->assertEquals( $this->outputText,
+			'(moderation-block-ok: ' . $this->authorUser->getName() . ')' );
 	}
 
 	/**
@@ -168,6 +184,14 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 			[ [ UnblockUserConsequence::class, true ] ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
+
+		$this->assertSame( $this->result, [
+			'action' => 'unblock',
+			'username' => $this->authorUser->getName(),
+			'noop' => false
+		] );
+		$this->assertEquals( $this->outputText,
+			'(moderation-unblock-ok: ' . $this->authorUser->getName() . ')' );
 	}
 
 	/**
@@ -186,6 +210,14 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 		] ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
+
+		$this->assertSame( $this->result, [
+			'action' => 'unblock',
+			'username' => $this->authorUser->getName(),
+			'noop' => true
+		] );
+		$this->assertEquals( $this->outputText,
+			'(moderation-unblock-ok: ' . $this->authorUser->getName() . ')' );
 	}
 
 	/**
@@ -226,6 +258,9 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 		];
 
 		$this->assertConsequencesEqual( $expected, $actual );
+
+		$this->assertSame( $this->result, [ 'approved' => [ $this->modid ] ] );
+		$this->assertEquals( $this->outputText, '(moderation-approved-ok: 1)' );
 	}
 
 	/**
@@ -277,6 +312,9 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 		];
 
 		$this->assertConsequencesEqual( $expected, $actual );
+
+		$this->assertSame( $this->result, [ 'approved' => [ $this->modid ] ] );
+		$this->assertEquals( $this->outputText, '(moderation-approved-ok: 1)' );
 	}
 
 	/**
@@ -330,6 +368,9 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 		];
 
 		$this->assertConsequencesEqual( $expected, $actual );
+
+		$this->assertSame( $this->result, [ 'approved' => [ $this->modid ] ] );
+		$this->assertEquals( $this->outputText, '(moderation-approved-ok: 1)' );
 	}
 
 	/**
@@ -416,6 +457,12 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 		];
 
 		$this->assertConsequencesEqual( $expected, $actual );
+
+		$this->assertSame( $this->result, [
+			'approved' => [ $this->modid => '' ],
+			'failed' => []
+		] );
+		$this->assertEquals( $this->outputText, '(moderation-approved-ok: 1)' );
 	}
 
 	/**
@@ -458,6 +505,13 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 		);
 
 		$this->assertConsequencesEqual( $expected, $actual );
+
+		$this->assertSame( $this->result, [
+			'id' => $this->modid,
+			'success' => true,
+			'noop' => false
+		] );
+		$this->assertEquals( $this->outputText, '(moderation-editchange-ok)' );
 	}
 
 	/**
@@ -479,6 +533,13 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 
 		// Nothing changed, so ModifyPendingChangeConsequence wasn't added.
 		$this->assertConsequencesEqual( [], $actual );
+
+		$this->assertSame( $this->result, [
+			'id' => $this->modid,
+			'success' => true,
+			'noop' => true
+		] );
+		$this->assertEquals( $this->outputText, '(moderation-editchange-ok)' );
 	}
 
 	/**
@@ -502,6 +563,9 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 			[ [ RejectBatchConsequence::class, 1 ] ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
+
+		$this->assertSame( $this->result, [ 'rejected-count' => 1 ] );
+		$this->assertEquals( $this->outputText, '(moderation-rejected-ok: 1)' );
 	}
 
 	/**

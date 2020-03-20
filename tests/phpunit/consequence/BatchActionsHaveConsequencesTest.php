@@ -56,10 +56,11 @@ class BatchActionsHaveConsequencesTest extends ModerationUnitTestCase {
 		// First, let's queue some edits by the same user for moderation.
 		$numberOfEdits = 3;
 		$expectedConsequences = [];
+		$ids = [];
 
 		for ( $i = 0; $i < $numberOfEdits; $i++ ) {
 			$fields = $this->getDefaultFields();
-			$modid = $this->makeDbRow( $fields );
+			$ids[] = $modid = $this->makeDbRow( $fields );
 
 			$title = Title::makeTitle( $fields['mod_namespace'], $fields['mod_title'] );
 
@@ -109,6 +110,13 @@ class BatchActionsHaveConsequencesTest extends ModerationUnitTestCase {
 			array_fill( 0, $numberOfEdits, [ ApproveEditConsequence::class, Status::newGood() ] )
 		);
 		$this->assertConsequencesEqual( $expectedConsequences, $actualConsequences );
+
+		$this->assertSame( $this->result, [
+			'approved' => array_fill_keys( $ids, '' ),
+			'failed' => []
+		] );
+		$this->assertEquals( $this->outputText,
+			'(moderation-approved-ok: ' . $numberOfEdits . ')' );
 	}
 
 	/**
@@ -146,5 +154,9 @@ class BatchActionsHaveConsequencesTest extends ModerationUnitTestCase {
 			[ [ RejectBatchConsequence::class, $mockedNumberOfAffectedRows ] ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
+
+		$this->assertSame( $this->result, [ 'rejected-count' => $mockedNumberOfAffectedRows ] );
+		$this->assertEquals( $this->outputText,
+			'(moderation-rejected-ok: ' . $mockedNumberOfAffectedRows . ')' );
 	}
 }
