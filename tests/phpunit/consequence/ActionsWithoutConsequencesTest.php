@@ -31,6 +31,9 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	use ConsequenceTestTrait;
 	use ModifyDbRowTestTrait;
 
+	/** @var string[] */
+	protected $tablesUsed = [ 'user', 'moderation' ];
+
 	/**
 	 * Ensure that readonly, failed or non-applicable actions don't have any consequences.
 	 * @param array $options
@@ -38,7 +41,7 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	 * @coversNothing
 	 *
 	 * @codingStandardsIgnoreStart
-	 * @phan-param array{action:string,globals?:array,fields?:array,expectedError?:string,getModerator?:(callable():User)} $options
+	 * @phan-param array{action:string,globals?:array,fields?:array|false,expectedError?:string,getModerator?:(callable():User)} $options
 	 * @codingStandardsIgnoreEnd
 	 */
 	public function testNoConsequenceActions( $options ) {
@@ -55,15 +58,18 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 			} );
 		}
 
-		$modid = $this->makeDbRow( $options['fields'] ?? [] );
+		$options['fields'] = $options['fields'] ?? [];
+		if ( $options['fields'] !== false ) {
+			$modid = $this->makeDbRow( $options['fields'] );
+		} else {
+			// Simulate nonexistent row (to test "moderation-edit-not-found" error)
+			$modid = 12345;
+		}
 		$this->assertConsequencesEqual( [], $this->getConsequences( $modid, $options['action'] ) );
 
 		$this->assertEquals( $options['expectedError'] ?? null, $this->thrownError,
 			"Thrown ModerationError doesn't match expected." );
 	}
-
-	// TODO: add tests for "moderation-edit-not-found", "moderation-nothing-to-{approve,reject}all"
-	// errors (e.g. when calling getConsequences() on incorrect $modid).
 
 	/**
 	 * Get value of mod_timestamp that is too long ago to reapprove already rejected edit.
@@ -163,6 +169,18 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 						'mod_timestamp' => $this->longAgoTimestamp()
 					],
 					'expectedError' => 'moderation-rejected-long-ago'
+				] ],
+			'approveall (no edits to approve)' =>
+				[ [
+					'action' => 'approveall',
+					'fields' => [ 'mod_rejected' => 1 ],
+					'expectedError' => 'moderation-nothing-to-approveall'
+				] ],
+			'rejectall (no edits to reject)' =>
+				[ [
+					'action' => 'rejectall',
+					'fields' => [ 'mod_rejected' => 1 ],
+					'expectedError' => 'moderation-nothing-to-rejectall'
 				] ]
 		];
 
@@ -187,6 +205,20 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 				'globals' => [ 'wgReadOnly' => 'for some reason' ],
 				'expectedError' => $isReadOnly ? null : 'exceptionClass:ReadOnlyError'
 			] ];
+		}
+
+		// 'moderation-edit-not-found' from everything
+		foreach ( array_keys( $actionIsReadOnly ) as $action ) {
+			$options = [
+				'action' => $action,
+				'fields' => false, // Don't create a row in "moderation" table
+				'expectedError' => 'moderation-edit-not-found'
+			];
+			if ( $action == 'editchange' || $action == 'editchangesubmit' ) {
+				$options['globals']['wgModerationEnableEditChange'] = true;
+			}
+
+			$sets["modaction=$action on nonexistent change"] = [ $options ];
 		}
 
 		return $sets;
