@@ -55,17 +55,19 @@ matrix:
     - env: TESTSUITE_TYPE=selenium branch=REL1_34
     # master branch of MediaWiki core is in constant development, tests against it are advisory
     - env: branch=master
+    # Coverage calculation is optional
+    - env: TESTSUITE_TYPE=coverage branch=REL1_34
   include:
     # Linters (phpcs, eslint, etc.)
     - &linter-php-build
-      if: NOT branch IN (selenium,phan)
+      if: NOT branch IN (selenium,phan,coverage)
       env: TESTSUITE_TYPE=linter-php
       addons:
       before_script: composer install
       script: composer test
 
     - &linter-js-build
-      if: NOT branch IN (phpunit,postgres,phan,consequence)
+      if: NOT branch IN (phpunit,postgres,phan,consequence,coverage)
       env: TESTSUITE_TYPE=linter-js
       language: node_js
       node_js: 10
@@ -76,7 +78,7 @@ matrix:
 
     # Phan (PHP static analyzer)
     - &phan-build
-      if: NOT branch IN (selenium,troubleshooting,linters,consequence)
+      if: NOT branch IN (selenium,troubleshooting,linters,consequence,coverage)
       env: TESTSUITE_TYPE=phan branch=REL1_34
       php: 7.3
       before_script:
@@ -97,7 +99,7 @@ matrix:
 
     # PHPUnit tests
     - &phpunit-build
-      if: NOT branch IN (selenium,troubleshooting,linters,phan)
+      if: NOT branch IN (selenium,troubleshooting,linters,phan,coverage)
       env: branch=REL1_31
       script:
         # Start by running non-blackbox unit tests that can use temporary DB tables.
@@ -120,7 +122,6 @@ matrix:
     - <<: *phpunit-build
       env: branch=REL1_33
     - <<: *phpunit-build
-      if: NOT branch IN (selenium,troubleshooting,linters)
       env: branch=REL1_34
       php: 7.3
 # FIXME: ModerationTestsuite is currently incompatible with 1.31+PostgreSQL combination.
@@ -149,6 +150,16 @@ matrix:
       if: branch IN (troubleshooting)
       env: branch=REL1_34 FLAKY_TEST="edit in existing page"
       script: ./extensions/Moderation/tests/travis/troubleshoot_flaky_test.sh "${FLAKY_TEST}"
+
+   # Optional: use PHPUnit to calculate code coverage of consequence tests
+    - <<: *phpunit-build
+      if: branch IN (phpunit,coverage)
+      env: TESTSUITE_TYPE=coverage branch=REL1_34
+      php: 7.3
+      script:
+        # Run consequence tests only. We won't be able to calculate coverage of blackbox tests,
+        # because CliEngine invokes them as a separate process, and PHPUnit has no way to track that.
+        - phpdbg -qrr tests/phpunit/phpunit.php extensions/Moderation/tests/phpunit/consequence/ --coverage-text --whitelist extensions/Moderation/
 
     # Selenium tests
     - &selenium-build
