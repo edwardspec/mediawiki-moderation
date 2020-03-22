@@ -159,7 +159,7 @@ matrix:
       script:
         # Run consequence tests only. We won't be able to calculate coverage of blackbox tests,
         # because CliEngine invokes them as a separate process, and PHPUnit has no way to track that.
-        - phpdbg -qrr tests/phpunit/phpunit.php extensions/Moderation/tests/phpunit/consequence/ --coverage-text --whitelist extensions/Moderation/
+        - phpdbg -qrr tests/phpunit/phpunit.php --coverage-text --configuration extensions/Moderation/tests/phpunit/coverage.suite.xml
 
     # Selenium tests
     - &selenium-build
