@@ -37,6 +37,7 @@ class ApproveUploadConsequenceTest extends ModerationUnitTestCase {
 	/**
 	 * Verify that ApproveUploadConsequence uploads a new file.
 	 * @covers MediaWiki\Moderation\ApproveUploadConsequence
+	 * @covers ModerationUploadStorage
 	 * @dataProvider dataProviderApproveUpload
 	 * @param bool $existing
 	 */

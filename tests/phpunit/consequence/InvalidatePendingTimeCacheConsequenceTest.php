@@ -30,6 +30,7 @@ class InvalidatePendingTimeCacheConsequenceTest extends ModerationUnitTestCase {
 	 * Verify that InvalidatePendingTimeCacheConsequence invalidates the cache
 	 * used by ModerationNotifyModerator::getPendingTime().
 	 * @covers MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence
+	 * @covers ModerationNotifyModerator
 	 */
 	public function testPendingTimeCacheInvalidated() {
 		// This test requires working Cache (not EmptyBagOStuff, which is default for tests).

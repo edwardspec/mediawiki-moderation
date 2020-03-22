@@ -78,7 +78,8 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of modaction=reject.
-	 * @covers ModerationActionReject::executeRejectOne
+	 * @covers ModerationActionReject
+	 * @covers ModerationAction
 	 */
 	public function testReject() {
 		$expected = [
@@ -106,7 +107,8 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of modaction=block.
-	 * @covers ModerationActionBlock::execute
+	 * @covers ModerationActionBlock
+	 * @covers ModerationAction
 	 */
 	public function testBlock() {
 		$expected = [
@@ -137,7 +139,8 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of modaction=block when the user is already blocked.
-	 * @covers ModerationActionBlock::execute
+	 * @covers ModerationActionBlock
+	 * @covers ModerationAction
 	 */
 	public function testNoopBlock() {
 		$expected = [
@@ -169,7 +172,8 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of modaction=unblock.
-	 * @covers ModerationActionBlock::execute
+	 * @covers ModerationActionBlock
+	 * @covers ModerationAction
 	 */
 	public function testUnblock() {
 		$expected = [
@@ -196,7 +200,8 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of modaction=unblock when the user is already not blocked.
-	 * @covers ModerationActionBlock::execute
+	 * @covers ModerationActionBlock
+	 * @covers ModerationAction
 	 */
 	public function testNoopUnblock() {
 		$expected = [
@@ -222,7 +227,11 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of modaction=approve.
-	 * @covers ModerationActionApprove::executeApproveOne
+	 * @covers ModerationActionApprove
+	 * @covers ModerationAction
+	 * @covers ModerationEntryEdit
+	 * @covers ModerationApprovableEntry
+	 * @covers ModerationEntry
 	 */
 	public function testApprove() {
 		$expectedRevId = $this->mockLastRevId();
@@ -265,7 +274,11 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of modaction=approve on a pending upload.
-	 * @covers ModerationActionApprove::executeApproveOne
+	 * @covers ModerationActionApprove
+	 * @covers ModerationAction
+	 * @covers ModerationEntryUpload
+	 * @covers ModerationApprovableEntry
+	 * @covers ModerationEntry
 	 */
 	public function testApproveUpload() {
 		$stashKey = 'sample-stash-key';
@@ -319,7 +332,11 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of modaction=approve on a pending move.
-	 * @covers ModerationActionApprove::executeApproveOne
+	 * @covers ModerationActionApprove
+	 * @covers ModerationAction
+	 * @covers ModerationEntryMove
+	 * @covers ModerationApprovableEntry
+	 * @covers ModerationEntry
 	 */
 	public function testApproveMove() {
 		$newTitle = Title::newFromText( 'Project:' . $this->title->getFullText() . '-new' );
@@ -375,7 +392,12 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of modaction=approve when it results in edit conflict.
-	 * @covers ModerationEntryEdit::doApprove
+	 * @covers ModerationActionApprove
+	 * @covers ModerationAction
+	 * @covers ModerationEntryEdit
+	 * @covers ModerationApprovableEntry
+	 * @covers ModerationEntry
+	 * @covers ModerationError
 	 */
 	public function testApproveEditConflict() {
 		$actual = $this->getConsequences( $this->modid, 'approve',
@@ -413,6 +435,7 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 	/**
 	 * Test consequences of modaction=approveall.
 	 * @covers ModerationActionApprove::executeApproveAll
+	 * @covers ModerationAction
 	 */
 	public function testApproveAllOneEdit() {
 		$expectedRevId = $this->mockLastRevId();
@@ -467,7 +490,8 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of modaction=editchangesubmit.
-	 * @covers ModerationActionEditChangeSubmit::execute
+	 * @covers ModerationActionEditChangeSubmit
+	 * @covers ModerationAction
 	 */
 	public function testEditChangeSubmit() {
 		$dbw = wfGetDB( DB_MASTER );
@@ -516,7 +540,8 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of modaction=editchangesubmit when both text and summary are unchanged.
-	 * @covers ModerationActionEditChangeSubmit::execute
+	 * @covers ModerationActionEditChangeSubmit
+	 * @covers ModerationAction
 	 */
 	public function testNoopEditChangeSubmit() {
 		$dbw = wfGetDB( DB_MASTER );
@@ -545,6 +570,7 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 	/**
 	 * Test consequences of modaction=rejectall.
 	 * @covers ModerationActionReject::executeRejectAll
+	 * @covers ModerationAction
 	 */
 	public function testRejectAllOneEdit() {
 		$expected = [

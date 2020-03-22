@@ -38,11 +38,24 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	 * Ensure that readonly, failed or non-applicable actions don't have any consequences.
 	 * @param array $options
 	 * @dataProvider dataProviderNoConsequenceActions
-	 * @coversNothing
 	 *
 	 * @codingStandardsIgnoreStart
 	 * @phan-param array{action:string,globals?:array,fields?:array|false,expectedError?:string,getModerator?:(callable():User)} $options
 	 * @codingStandardsIgnoreEnd
+	 *
+	 * @covers ModerationAction
+	 * @covers ModerationActionApprove
+	 * @covers ModerationActionBlock
+	 * @covers ModerationActionEditChange
+	 * @covers ModerationActionEditChangeSubmit
+	 * @covers ModerationActionMerge
+	 * @covers ModerationActionPreview
+	 * @covers ModerationActionReject
+	 * @covers ModerationActionShow
+	 * @covers ModerationActionShowImage
+	 * @covers ModerationEntry
+	 * @covers ModerationApprovableEntry
+	 * @covers ModerationError
 	 */
 	public function testNoConsequenceActions( $options ) {
 		$this->assertArrayHasKey( 'action', $options );

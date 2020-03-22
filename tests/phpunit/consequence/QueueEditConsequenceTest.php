@@ -41,7 +41,7 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 	/**
 	 * Check the secondary consequences of running QueueEditConsequence.
 	 * @covers MediaWiki\Moderation\QueueEditConsequence
-	 * @covers ModerationNewChange::sendNotificationEmail
+	 * @covers ModerationNewChange
 	 * @dataProvider dataProviderQueueEdit
 	 *
 	 * See also: ModerationQueueTest from the blackbox integration tests.

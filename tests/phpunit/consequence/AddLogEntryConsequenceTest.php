@@ -41,6 +41,7 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 	 * @param array $params
 	 * @param bool $runApproveHook
 	 * @covers MediaWiki\Moderation\AddLogEntryConsequence
+	 * @covers ModerationApproveHook::checkLogEntry
 	 * @dataProvider dataProviderAddLogEntry
 	 */
 	public function testAddLogEntry( $subtype, $username, $pageName, array $params,

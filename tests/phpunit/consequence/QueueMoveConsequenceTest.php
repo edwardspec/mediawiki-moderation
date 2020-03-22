@@ -41,7 +41,7 @@ class QueueMoveConsequenceTest extends ModerationUnitTestCase {
 	/**
 	 * Check the secondary consequences of running QueueMoveConsequence.
 	 * @covers MediaWiki\Moderation\QueueMoveConsequence
-	 * @covers ModerationNewChange::sendNotificationEmail
+	 * @covers ModerationNewChange
 	 * @dataProvider dataProviderQueueMove
 	 *
 	 * See also: ModerationQueueTest from the blackbox integration tests.
