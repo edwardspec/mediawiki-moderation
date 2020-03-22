@@ -24,7 +24,7 @@
  * In this situation new row in "moderation" table shouldn't be lost.
  */
 
-require_once __DIR__ . "/framework/ModerationTestsuite.php";
+require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @covers RollbackResistantQuery

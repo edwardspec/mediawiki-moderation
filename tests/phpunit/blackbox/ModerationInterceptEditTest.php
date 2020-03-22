@@ -20,7 +20,7 @@
  * Ensures that edits are intercepted by Extension:Moderation.
  */
 
-require_once __DIR__ . "/framework/ModerationTestsuite.php";
+require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationEditHooks

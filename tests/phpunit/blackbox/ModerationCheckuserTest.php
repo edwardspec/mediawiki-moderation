@@ -20,7 +20,7 @@
  * Ensures that checkuser-related functionality works correctly.
  */
 
-require_once __DIR__ . "/framework/ModerationTestsuite.php";
+require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationApproveHook

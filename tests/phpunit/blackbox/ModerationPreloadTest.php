@@ -20,7 +20,7 @@
  * Checks that user can continue editing their version of the page.
  */
 
-require_once __DIR__ . "/framework/ModerationTestsuite.php";
+require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationPreload

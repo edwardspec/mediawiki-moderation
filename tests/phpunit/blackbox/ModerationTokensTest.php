@@ -19,7 +19,7 @@
  * @file
  */
 
-require_once __DIR__ . "/framework/ModerationTestsuite.php";
+require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 class ModerationTokensTest extends ModerationTestCase {
 	/**

@@ -20,7 +20,7 @@
  * Verifies that AbuseFilter-assigned tags are preserved by Moderation.
  */
 
-require_once __DIR__ . "/framework/ModerationTestsuite.php";
+require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 class ModerationAbuseFilterTest extends ModerationTestCase {
 	private $expectedTags = [

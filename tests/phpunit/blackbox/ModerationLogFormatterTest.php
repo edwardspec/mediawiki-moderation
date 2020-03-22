@@ -20,7 +20,7 @@
  * Checks rendering of moderation-related log entries on Special:Log.
  */
 
-require_once __DIR__ . "/framework/ModerationTestsuite.php";
+require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationLogFormatter

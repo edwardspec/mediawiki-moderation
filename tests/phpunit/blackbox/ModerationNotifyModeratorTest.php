@@ -20,7 +20,7 @@
  * Verifies that moderators see "New changes await moderation" notice.
  */
 
-require_once __DIR__ . "/framework/ModerationTestsuite.php";
+require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationNotifyModerator

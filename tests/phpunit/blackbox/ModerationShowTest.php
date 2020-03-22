@@ -20,7 +20,7 @@
  * Verifies that modaction=show works as expected.
  */
 
-require_once __DIR__ . "/framework/ModerationTestsuite.php";
+require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationActionShow

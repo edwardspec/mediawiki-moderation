@@ -20,7 +20,7 @@
  * Verifies that modactions work via api.php?action=moderation.
  */
 
-require_once __DIR__ . "/framework/ModerationTestsuite.php";
+require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @covers ApiModeration

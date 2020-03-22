@@ -21,7 +21,7 @@
  * @note modaction=editchangesubmit is tested in ModerationActionTest.
  */
 
-require_once __DIR__ . "/framework/ModerationTestsuite.php";
+require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationActionEditChange

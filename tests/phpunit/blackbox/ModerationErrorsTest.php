@@ -20,7 +20,7 @@
  * Ensure that known error conditions cause exceptions.
  */
 
-require_once __DIR__ . "/framework/ModerationTestsuite.php";
+require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @covers ModerationError

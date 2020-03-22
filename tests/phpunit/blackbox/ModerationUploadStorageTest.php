@@ -20,7 +20,7 @@
  * Ensures that ModerationUploadStorage works for existing uploads and new uploads.
  */
 
-require_once __DIR__ . "/framework/ModerationTestsuite.php";
+require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @group Database

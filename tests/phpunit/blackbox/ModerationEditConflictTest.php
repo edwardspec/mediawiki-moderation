@@ -22,7 +22,7 @@
  * Note: unresolvable edit conflicts are tested by ModerationMergeTest.
  */
 
-require_once __DIR__ . "/framework/ModerationTestsuite.php";
+require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 class ModerationEditConflictTest extends ModerationTestCase {
 	/**

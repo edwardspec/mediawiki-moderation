@@ -34,7 +34,7 @@
 		<exclude-pattern>*/tests/benchmarks/*</exclude-pattern>
 
 		<!-- Excluded (temporarily?) to not rename the existing files -->
-		<exclude-pattern>*/tests/phpunit/RollbackResistantQueryTest\.php</exclude-pattern>
+		<exclude-pattern>*/tests/phpunit/blackbox/RollbackResistantQueryTest\.php</exclude-pattern>
 		<exclude-pattern>*/tests/phpunit/framework/ModerationTestSet\.php</exclude-pattern>
 		<exclude-pattern>*/tests/phpunit/framework/ModerationPendingChangeTestSet\.php</exclude-pattern>
 		<exclude-pattern>*/tests/phpunit/framework/bot/response/ModerationTestsuiteBotResponseTrait\.php</exclude-pattern>

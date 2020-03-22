@@ -20,7 +20,7 @@
  * Ensures that reverting image to old revision doesn't bypass Moderation.
  */
 
-require_once __DIR__ . "/framework/ModerationTestsuite.php";
+require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 class ModerationFileRevertTest extends ModerationTestCase {
 	/**
