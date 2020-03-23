@@ -43,7 +43,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	 * @phan-param array{action:string,globals?:array,fields?:array|false,expectedError?:string,getModerator?:(callable():User)} $options
 	 * @codingStandardsIgnoreEnd
 	 *
-	 * @covers ModerationAction
 	 * @covers ModerationActionApprove
 	 * @covers ModerationActionBlock
 	 * @covers ModerationActionEditChange

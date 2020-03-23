@@ -33,6 +33,10 @@
 		<!-- Benchmark scripts should have short names, not full class names -->
 		<exclude-pattern>*/tests/benchmarks/*</exclude-pattern>
 
+		<!-- This test is named ModerationActionUnitTest
+			to avoid class name collision with [decoupled/30_action/ModerationActionTest.php] -->
+		<exclude-pattern>*/tests/phpunit/consequence/ModerationActionTest\.php</exclude-pattern>
+
 		<!-- Excluded (temporarily?) to not rename the existing files -->
 		<exclude-pattern>*/tests/phpunit/blackbox/RollbackResistantQueryTest\.php</exclude-pattern>
 		<exclude-pattern>*/tests/phpunit/framework/ModerationTestSet\.php</exclude-pattern>
