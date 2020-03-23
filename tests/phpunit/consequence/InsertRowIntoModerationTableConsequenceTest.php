@@ -20,7 +20,9 @@
  * Unit test of InsertRowIntoModerationTableConsequence.
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
+use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -113,6 +115,71 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 	}
 
 	/**
+	 * Verify that changes of InsertRowIntoModerationTableConsequence are repeated on DB rollback.
+	 * @param bool $initialized Value of RollbackResistantQuery::$initialized before the test.
+	 * @dataProvider dataProviderRollbackResistance
+	 *
+	 * @covers MediaWiki\Moderation\InsertRowIntoModerationTableConsequence
+	 * @covers RollbackResistantQuery
+	 */
+	public function testRollbackResistanceNotInitialized( $initialized ) {
+		$wrapper = TestingAccessWrapper::newFromClass( RollbackResistantQuery::class );
+		if ( $initialized && !$wrapper->initialized ) {
+			throw new MWException(
+				'Test with initialized=true should run after the test with initialized=false' );
+		} elseif ( !$initialized && $wrapper->initialized ) {
+			// Some previous test has already initialized the listener.
+			// TODO: this should probably be a destructible singleton (like ModerationApproveHook).
+			$wrapper->initialized = false;
+			$wrapper->performedQueries = [];
+
+			$loadBalancer = MediaWikiServices::getInstance()->getDBLoadBalancer();
+			$loadBalancer->setTransactionListener( 'moderation-on-rollback-or-commit', null );
+		}
+
+		$fields = $this->getSampleFields();
+
+		// Ensure that rollback() won't reinsert any changes from previous tests.
+		$lbFactory = MediaWikiServices::getInstance()->getDBLoadBalancerFactory();
+		$lbFactory->commitMasterChanges( __METHOD__ );
+
+		// Begin a new transaction.
+		$lbFactory->beginMasterChanges( __METHOD__ );
+
+		// Create and run the Consequence.
+		$consequence = new InsertRowIntoModerationTableConsequence( $fields );
+		$modid = $consequence->run();
+
+		// Simulate situation when caller of doEditContent (some third-party extension)
+		// throws an MWException, in which case transaction is aborted.
+		$lbFactory->rollbackMasterChanges( __METHOD__ );
+
+		$reinsertedModId = $this->db->selectField( 'moderation', 'mod_id', '', __METHOD__ );
+		$this->assertRowExistsAndCorrect( $reinsertedModId, $fields );
+
+		// Verify that row won't be reinserted after commit and another rollback.
+		$lbFactory->beginMasterChanges( __METHOD__ );
+		$this->db->delete( 'moderation', [ 'mod_id' => $reinsertedModId ], __METHOD__ );
+		$lbFactory->commitMasterChanges( __METHOD__ );
+
+		$lbFactory->beginMasterChanges( __METHOD__ );
+		$lbFactory->rollbackMasterChanges( __METHOD__ );
+		$this->assertSelect( 'moderation', 'mod_id', [ 'mod_id' => $reinsertedModId ], [] );
+	}
+
+	/**
+	 * Provide datasets for testRollbackResistance() runs.
+	 * @return array
+	 */
+	public function dataProviderRollbackResistance() {
+		return [
+			'when RollbackResistantQuery::$initialized=false' => [ false ],
+			'when RollbackResistantQuery::$initialized=true' => [ true ],
+			'when RollbackResistantQuery::$initialized=false (attempt #2)' => [ false ]
+		];
+	}
+
+	/**
 	 * Throw an exception if row with selected $modid doesn't exist or has incorrect fields.
 	 * @param int $modid
 	 * @param array $expectedFields
@@ -149,9 +216,9 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 			'mod_user' => 12345,
 			'mod_user_text' => 'Some user with ID #12345',
 			'mod_cur_id' => 0,
-			'mod_namespace' => 0,
-			'mod_title' => 'Test page 1',
-			'mod_comment' => 'Some reason',
+			'mod_namespace' => rand( 0, 1 ),
+			'mod_title' => 'Test page ' . rand( 0, 100000 ),
+			'mod_comment' => 'Some reason ' . rand( 0, 100000 ),
 			'mod_minor' => 0,
 			'mod_bot' => 0,
 			'mod_new' => 1,
