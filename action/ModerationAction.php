@@ -37,6 +37,47 @@ abstract class ModerationAction extends ContextSource {
 	 */
 	public $moderator;
 
+	/**
+	 * List of all known modactions and their PHP classes.
+	 * @var array
+	 *
+	 * @phan-var array<string,class-string>
+	 */
+	protected static $knownActions = [
+		'approveall' => ModerationActionApprove::class,
+		'approve' => ModerationActionApprove::class,
+		'block' => ModerationActionBlock::class,
+		'editchange' => ModerationActionEditChange::class,
+		'editchangesubmit' => ModerationActionEditChangeSubmit::class,
+		'merge' => ModerationActionMerge::class,
+		'preview' => ModerationActionPreview::class,
+		'rejectall' => ModerationActionReject::class,
+		'reject' => ModerationActionReject::class,
+		'show' => ModerationActionShow::class,
+		'showimg' => ModerationActionShowImage::class,
+		'unblock' => ModerationActionBlock::class
+	];
+
+	/**
+	 * Construct new ModerationAction.
+	 * @param IContextSource $context
+	 * @return ModerationAction
+	 * @throws ModerationError
+	 */
+	public static function factory( IContextSource $context ) {
+		$action = $context->getRequest()->getVal( 'modaction' );
+		$class = self::$knownActions[$action] ?? null;
+
+		if ( !$class ) {
+			throw new ModerationError( 'moderation-unknown-modaction' );
+		}
+
+		return new $class( $context );
+	}
+
+	/**
+	 * @param IContextSource $context
+	 */
 	protected function __construct( IContextSource $context ) {
 		$this->setContext( $context );
 
@@ -121,49 +162,5 @@ abstract class ModerationAction extends ContextSource {
 		}
 
 		return Title::makeTitle( NS_USER, $username );
-	}
-
-	/**
-	 * Construct new ModerationAction
-	 * @param IContextSource $context
-	 * @return ModerationAction
-	 * @throws ModerationError
-	 */
-	public static function factory( IContextSource $context ) {
-		$request = $context->getRequest();
-		$action = $request->getVal( 'modaction' );
-		switch ( $action ) {
-			case 'showimg':
-				return new ModerationActionShowImage( $context );
-
-			case 'show':
-				return new ModerationActionShow( $context );
-
-			case 'preview':
-				return new ModerationActionPreview( $context );
-
-			case 'editchange':
-				return new ModerationActionEditChange( $context );
-
-			case 'editchangesubmit':
-				return new ModerationActionEditChangeSubmit( $context );
-
-			case 'approve':
-			case 'approveall':
-				return new ModerationActionApprove( $context );
-
-			case 'reject':
-			case 'rejectall':
-				return new ModerationActionReject( $context );
-
-			case 'merge':
-				return new ModerationActionMerge( $context );
-
-			case 'block':
-			case 'unblock':
-				return new ModerationActionBlock( $context );
-		}
-
-		throw new ModerationError( 'moderation-unknown-modaction' );
 	}
 }
