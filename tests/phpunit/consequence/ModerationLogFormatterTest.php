@@ -17,20 +17,79 @@
 
 /**
  * @file
- * Checks rendering of moderation-related log entries on Special:Log.
+ * Unit test of ModerationLogFormatter.
  */
 
-require_once __DIR__ . "/../framework/ModerationTestsuite.php";
+require_once __DIR__ . "/autoload.php";
 
-/**
- * @covers ModerationLogFormatter
- */
-class ModerationLogFormatterTest extends ModerationTestCase {
+class ModerationLogFormatterTest extends ModerationUnitTestCase {
 	/**
+	 * @covers ModerationLogFormatter
 	 * @dataProvider dataProvider
 	 */
 	public function testLogFormatter( array $options ) {
-		$this->runSet( $options );
+		$this->setMwGlobals( 'wgLogRestrictions', [] );
+		$this->setContentLang( 'qqx' );
+		$this->setUserLang( 'qqx' ); // Only for MediaWiki 1.31, not needed in MW 1.32+
+
+		$performer = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
+		$target = Title::newFromText( $options['target'] );
+
+		$entry = new ManualLogEntry( 'moderation', $options['subtype'] );
+		$entry->setPerformer( $performer );
+		$entry->setTarget( $target );
+		$entry->setParameters( $options['params'] ?? [] );
+
+		$formatter = LogFormatter::newFromEntry( $entry );
+		$html = $formatter->getActionText();
+
+		// Check $html for validity
+		$isMatched = preg_match(
+			'/\(logentry-moderation-([^:]+): (.*)\)\s*$/',
+			$html,
+			$matches
+		);
+		$this->assertEquals( 1, $isMatched, "Malformed log line." );
+
+		list( , $subtype, $paramLine ) = $matches;
+		$this->assertEquals( $options['subtype'], $subtype, "Incorrect subtype." );
+
+		// Now check $paramLine for correctness
+		$params = [];
+		$params = explode( ', ', $paramLine );
+
+		$this->assertEquals( $performer->getName(), $params[1], "Incorrect performer." );
+		$this->assertEquals(
+			Linker::userLink( $performer->getId(), $performer->getName() ),
+			$params[0],
+			"Incorrect link to performer."
+		);
+
+		// Check $params[2], which is the link to the target
+		if ( $options['expectTargetUserlink'] ?? false ) {
+			$user = User::newFromName( $target->getText(), false );
+			$this->assertEquals(
+				Linker::userLink( $user->getId(), $user->getName() ),
+				$params[2],
+				"Incorrect userlink to the target user."
+			);
+		} else {
+			$linkRenderer = MediaWiki\MediaWikiServices::getInstance()->getLinkRenderer();
+			$this->assertEquals(
+				$linkRenderer->makeLink( $target ),
+				$params[2],
+				"Incorrect link to the target page."
+			);
+		}
+
+		// Check other $params (aside from the already checked 3)
+		$expectedParams = $options['expectedParams'] ?? [];
+		$this->assertCount( 3 + count( $expectedParams ), $params,
+			"Incorrect number of parameters in i18n message of logentry." );
+
+		foreach ( $expectedParams as $idx => $expectedParam ) {
+			$this->assertParamHtml( $expectedParam, $params[$idx], $idx, $target );
+		}
 	}
 
 	/**
@@ -38,7 +97,7 @@ class ModerationLogFormatterTest extends ModerationTestCase {
 	 */
 	public function dataProvider() {
 		return [
-			[ [
+			'approve' => [ [
 				'subtype' => 'approve',
 				'target' => 'Project:Some page',
 				'params' => [ 'revid' => 12345 ],
@@ -50,7 +109,7 @@ class ModerationLogFormatterTest extends ModerationTestCase {
 					]
 				]
 			] ],
-			[ [
+			'approve-move' => [ [
 				'subtype' => 'approve-move',
 				'target' => 'Help:Moving pages',
 				'params' => [
@@ -67,12 +126,12 @@ class ModerationLogFormatterTest extends ModerationTestCase {
 					]
 				]
 			] ],
-			[ [
+			'approveall' => [ [
 				'subtype' => 'approveall',
 				'target' => 'User:Some author',
 				'expectTargetUserlink' => true
 			] ],
-			[ [
+			'reject' => [ [
 				'subtype' => 'reject',
 				'target' => 'Project:Some page',
 				'params' => [
@@ -95,7 +154,7 @@ class ModerationLogFormatterTest extends ModerationTestCase {
 					]
 				]
 			] ],
-			[ [
+			'reject (anonymous user)' => [ [
 				'subtype' => 'reject',
 				'target' => 'Project:Some page',
 				'params' => [
@@ -118,7 +177,7 @@ class ModerationLogFormatterTest extends ModerationTestCase {
 					]
 				]
 			] ],
-			[ [
+			'rejectall' => [ [
 				'subtype' => 'rejectall',
 				'target' => 'User:Some author',
 				'params' => [
@@ -132,11 +191,11 @@ class ModerationLogFormatterTest extends ModerationTestCase {
 				]
 
 			] ],
-			[ [ 'subtype' => 'block', 'target' => 'User:Some author',
+			'block' => [ [ 'subtype' => 'block', 'target' => 'User:Some author',
 				'expectTargetUserlink' => true ] ],
-			[ [ 'subtype' => 'unblock', 'target' => 'User:Some author',
+			'unblock' => [ [ 'subtype' => 'unblock', 'target' => 'User:Some author',
 				'expectTargetUserlink' => true ] ],
-			[ [
+			'merge' => [ [
 				'subtype' => 'merge',
 				'target' => 'User:Some page',
 				'params' => [
@@ -163,135 +222,14 @@ class ModerationLogFormatterTest extends ModerationTestCase {
 		];
 	}
 
-	/*-------------------------------------------------------------------*/
-	/* TestSet of this test                                              */
-	/*-------------------------------------------------------------------*/
-
-	use ModerationTestsuiteTestSet;
-
-	/** @var array Expected parameters, see assertParam() for details */
-	protected $expectedParams = [];
-
-	/** @var bool If true, $3 in logentry is expected to be a userlink. */
-	protected $expectTargetUserlink = false;
-
-	/** @var string Log action, e.g. 'approve-move' or 'rejectall'. */
-	protected $subtype = null;
-
-	/** @var Title Target of LogEntry */
-	protected $target = null;
-
-	/** @var array Parameters of LogEntry */
-	protected $params = [];
-
-	/** @var User Moderator who did the action. */
-	protected $performer = null;
-
-	/** @var string Resulting HTML produced by LogFormatter. Checked in assertResults(). */
-	protected $resultHtml = '';
-
-	/**
-	 * Initialize this TestSet from the input of dataProvider.
-	 */
-	protected function applyOptions( array $options ) {
-		foreach ( $options as $key => $value ) {
-			switch ( $key ) {
-				case 'target':
-					$this->target = Title::newFromText( $value );
-					break;
-
-				case 'expectedParams':
-				case 'expectTargetUserlink':
-				case 'subtype':
-				case 'params':
-					$this->$key = $value;
-					break;
-
-				default:
-					throw new Exception( __CLASS__ . ": unknown key {$key} in options" );
-			}
-		}
-
-		if ( !$this->subtype || !$this->target ) {
-			throw new MWException( __CLASS__ . ': subtype and target are mandatory parameters.' );
-		}
-
-		$this->performer = User::newFromName( 'Some moderator', false );
-	}
-
-	/**
-	 * Get human-readable description of this TestSet (for error messages).
-	 * @return string
-	 */
-	protected function getErrorContext() {
-		return "Log entry 'moderation/{$this->subtype}'";
-	}
-
-	/**
-	 * Assert correctness of $this->resultHtml.
-	 */
-	protected function assertResults() {
-		$errorContext = $this->getErrorContext();
-
-		// Split resultHtml into parameters
-		$isMatched = preg_match(
-			'/\(logentry-moderation-([^:]+): (.*)\)\s*$/',
-			$this->resultHtml,
-			$matches
-		);
-		$this->assertEquals( 1, $isMatched,
-			"$errorContext: malformed log line." );
-
-		list( , $subtype, $paramLine ) = $matches;
-		$this->assertEquals( $this->subtype, $subtype,
-			"$errorContext: incorrect subtype." );
-
-		// Now check $params for correctness
-		$params = [];
-		$params = explode( ', ', $paramLine );
-
-		$this->assertEquals( $this->performer->getName(), $params[1],
-			"$errorContext: incorrect performer." );
-		$this->assertEquals(
-			Linker::userLink( $this->performer->getId(), $this->performer->getName() ),
-			$params[0],
-			"$errorContext: incorrect link to performer."
-		);
-
-		// Check $params[2], which is the link to the target
-		if ( $this->expectTargetUserlink ) {
-			$this->assertIsUserLink(
-				User::newFromName( $this->target->getText(), false ),
-				$params[2],
-				"$errorContext: incorrect userlink to the target user."
-			);
-		} else {
-			$linkRenderer = MediaWiki\MediaWikiServices::getInstance()->getLinkRenderer();
-			$this->assertEquals(
-				$linkRenderer->makeLink( $this->target ),
-				$params[2],
-				"$errorContext: incorrect link to the target page."
-			);
-		}
-
-		// Check other $params (aside from the already checked 3)
-		$this->assertCount( 3 + count( $this->expectedParams ), $params,
-			"$errorContext: incorrect number of parameters in i18n message of logentry." );
-
-		foreach ( $this->expectedParams as $idx => $expectedParam ) {
-			$this->assertParamHtml( $expectedParam, $params[$idx], $idx );
-		}
-	}
-
 	/**
 	 * Assert correctness of the parsed HTML of one LogEntry parameter.
 	 * @param array $expectedParam Expected text/tooltip/etc. of the parameter, see dataProvider().
 	 * @param string $paramHtml HTML to check.
 	 * @param int $idx Index of the parameter (for error messages).
+	 * @param Title $target Title of target page in the tested logentry.
 	 */
-	protected function assertParamHtml( array $expectedParam, $paramHtml, $idx ) {
-		$errorContext = $this->getErrorContext();
-
+	protected function assertParamHtml( array $expectedParam, $paramHtml, $idx, Title $target ) {
 		if ( !isset( $expectedParam['query'] ) ) {
 			$title = null;
 			if ( isset( $expectedParam['userlink'] ) ) {
@@ -308,7 +246,7 @@ class ModerationLogFormatterTest extends ModerationTestCase {
 			} else {
 				// Plaintext parameter (not a link).
 				$this->assertEquals( $expectedParam['text'], $paramHtml,
-					"$errorContext: incorrect text of parameter #$idx." );
+					"Incorrect text of parameter #$idx." );
 				return;
 			}
 
@@ -321,7 +259,7 @@ class ModerationLogFormatterTest extends ModerationTestCase {
 		}
 
 		if ( $expectedParam['query']['title'] == '{{TARGET}}' ) {
-			$expectedParam['query']['title'] = $this->target->getPrefixedDBKey();
+			$expectedParam['query']['title'] = $target->getPrefixedDBKey();
 		}
 
 		$linkTitle = Title::newFromText( $expectedParam['query']['title'] );
@@ -340,12 +278,11 @@ class ModerationLogFormatterTest extends ModerationTestCase {
 		}
 
 		$param = $this->parseParam( $paramHtml );
-		$this->assertEquals( $expectedParam, $param,
-			"$errorContext: incorrect HTML of parameter #$idx." );
+		$this->assertEquals( $expectedParam, $param, "Incorrect HTML of parameter #$idx." );
 	}
 
 	protected function parseParam( $paramHtml ) {
-		$html = new ModerationTestsuiteHTML;
+		$html = new ModerationTestHTML;
 		$html->loadString( $paramHtml );
 
 		$parsed = [
@@ -374,41 +311,5 @@ class ModerationLogFormatterTest extends ModerationTestCase {
 		}
 
 		return $parsed;
-	}
-
-	/**
-	 * Execute the TestSet. Populates $this->resultHtml by formatting a LogEntry.
-	 */
-	protected function makeChanges() {
-		$subtype = $this->subtype;
-
-		$context = new DerivativeContext( RequestContext::getMain() );
-		$context->setLanguage( 'qqx' );
-		$context->setUser( $this->getTestsuite()->moderator );
-
-		$entry = new ManualLogEntry( 'moderation', $subtype );
-		$entry->setPerformer( $this->performer );
-		$entry->setTarget( $this->target );
-		if ( $this->params ) {
-			$entry->setParameters( $this->params );
-		}
-
-		$formatter = LogFormatter::newFromEntry( $entry );
-		$formatter->setContext( $context );
-		$this->resultHtml = $formatter->getActionText();
-	}
-
-	/**
-	 * Asserts that $html is the userlink to certain user.
-	 * @param User $expectedUser
-	 * @param string $html
-	 * @param string $errorText
-	 */
-	protected function assertIsUserLink( User $expectedUser, $html, $errorText ) {
-		$this->assertEquals(
-			Linker::userLink( $expectedUser->getId(), $expectedUser->getName() ),
-			$html,
-			$errorText
-		);
 	}
 }

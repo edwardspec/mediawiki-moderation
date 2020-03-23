@@ -25,6 +25,7 @@ global $wgAutoloadClasses;
 // phpcs:disable Generic.Files.LineLength
 $wgAutoloadClasses += [
 	/* Common test/benchmark methods */
+	'ModerationTestHTML' => __DIR__ . '/../../common/ModerationTestHTML.php',
 	'ModerationTestUtil' => __DIR__ . '/../../common/ModerationTestUtil.php',
 
 	/* Moderation Testsuite framework */

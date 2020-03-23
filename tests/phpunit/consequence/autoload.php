@@ -23,6 +23,7 @@
 global $wgAutoloadClasses;
 
 $wgAutoloadClasses += [
+	'ModerationTestHTML' => __DIR__ . '/../../common/ModerationTestHTML.php',
 	'ConsequenceTestTrait' => __DIR__ . '/ConsequenceTestTrait.php',
 	'MakeEditTestTrait' => __DIR__ . '/MakeEditTestTrait.php',
 	'ModerationUnitTestCase' => __DIR__ . '/ModerationUnitTestCase.php',
