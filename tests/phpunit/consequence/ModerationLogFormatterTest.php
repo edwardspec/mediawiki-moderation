@@ -90,6 +90,13 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 		foreach ( $expectedParams as $idx => $expectedParam ) {
 			$this->assertParamHtml( $expectedParam, $params[$idx], $idx, $target );
 		}
+
+		// Check preload titles
+		$preloadTitles = array_map( function ( Title $title ) {
+			return $title->getFullText();
+		}, $formatter->getPreloadTitles() );
+		$this->assertEquals( $options['expectedPreloadTitles'] ?? [], $preloadTitles,
+			'Incorrect values returned by getPreloadTitles().' );
 	}
 
 	/**
@@ -124,7 +131,8 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 					4 => [
 						'userlink' => [ 500, 'Test username' ]
 					]
-				]
+				],
+				'expectedPreloadTitles' => [ 'New title' ]
 			] ],
 			'approveall' => [ [
 				'subtype' => 'approveall',
@@ -152,7 +160,8 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 					4 => [
 						'userlink' => [ 987, 'Some author' ]
 					]
-				]
+				],
+				'expectedPreloadTitles' => [ 'User:Some author' ]
 			] ],
 			'reject (anonymous user)' => [ [
 				'subtype' => 'reject',
@@ -218,7 +227,24 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 						'tooltip' => '(tooltip-moderation-approved-diff)'
 					]
 				]
-			] ]
+			] ],
+			'editchange' => [ [
+				'subtype' => 'editchange',
+				'target' => 'Project:Some page',
+				'params' => [ 'modid' => 12345 ],
+				'expectedParams' => [
+					3 => [
+						'text' => '(moderation-log-change: 12345)',
+						'query' => [
+							'title' => 'Special:Moderation',
+							'modaction' => 'show',
+							'modid' => 12345
+						],
+						// This link currently doesn't have a custom tooltip.
+						'tooltip' => 'Special:Moderation'
+					]
+				]
+			] ],
 		];
 	}
 
