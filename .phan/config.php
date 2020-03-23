@@ -59,9 +59,6 @@ $cfg['exclude_analysis_directory_list'] = array_merge(
 
 # Temporarily suppressed warnings.
 
-# RollbackResistantQuery::update(), etc. not using return value of "new self".
-$cfg['suppress_issue_types'][] = 'PhanNoopNew';
-
 if ( getenv( 'PHAN_CHECK_DEPRECATED' ) ) {
 	# Warn about the use of @deprecated methods, etc.
 	# Not enabled by default (without PHAN_CHECK_DEPRECATED=1) for backward compatibility.

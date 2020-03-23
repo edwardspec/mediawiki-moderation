@@ -361,6 +361,7 @@ class ModerationNewChange {
 	 * Legacy version of insert() for old databases without UNIQUE INDEX.
 	 * @return int mod_id of affected row.
 	 * NOTE: this B/C code will eventually be removed, no need to move this into Consequence class.
+	 * @codeCoverageIgnore
 	 */
 	protected function insertOld() {
 		$pendingEdit = $this->getPendingEdit();

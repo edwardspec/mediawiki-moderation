@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017-2019 Edward Chernenko.
+	Copyright (C) 2017-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -41,8 +41,10 @@ class RollbackResistantQuery {
 	 * Perform Database::insert() that won't be undone by Database::rollback().
 	 * @param IDatabase $dbw Database object.
 	 * @param array $args Arguments of Database::insert call.
+	 * @codeCoverageIgnore This method is only used in B/C code that will eventually be removed.
 	 */
 	public static function insert( IDatabase $dbw, array $args ) {
+		// @phan-suppress-next-line PhanNoopNew
 		new self( 'insert', $dbw, $args );
 	}
 
@@ -50,18 +52,11 @@ class RollbackResistantQuery {
 	 * Perform Database::update() that won't be undone by Database::rollback().
 	 * @param IDatabase $dbw Database object.
 	 * @param array $args Arguments of Database::update call.
+	 * @codeCoverageIgnore This method is only used in B/C code that will eventually be removed.
 	 */
 	public static function update( IDatabase $dbw, array $args ) {
+		// @phan-suppress-next-line PhanNoopNew
 		new self( 'update', $dbw, $args );
-	}
-
-	/**
-	 * Perform Database::replace() that won't be undone by Database::rollback().
-	 * @param IDatabase $dbw Database object.
-	 * @param array $args Arguments of Database::replace call.
-	 */
-	public static function replace( IDatabase $dbw, array $args ) {
-		new self( 'replace', $dbw, $args );
 	}
 
 	/**
@@ -70,6 +65,7 @@ class RollbackResistantQuery {
 	 * @param array $args Arguments of Database::upsert call.
 	 */
 	public static function upsert( IDatabase $dbw, array $args ) {
+		// @phan-suppress-next-line PhanNoopNew
 		new self( 'upsert', $dbw, $args );
 	}
 
