@@ -276,6 +276,39 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 	}
 
 	/**
+	 * Test folder-independent behavior of SpecialModeration when showing the list of changes.
+	 * @param bool $useAjax
+	 * @dataProvider dataProviderShowChangesList
+	 *
+	 * @covers SpecialModeration::showChangesList()
+	 * @covers SpecialModeration::execute()
+	 */
+	public function testShowChangesList( $useAjax ) {
+		$moderator = self::getTestUser( [ 'moderator' ] )->getUser();
+		$this->setMwGlobals( 'wgModerationUseAjax', $useAjax );
+
+		$context = null;
+		$html = ModerationTestUtil::runSpecialModeration( $moderator, [], false, $context );
+		$this->assertContains( '(moderation-text)', $html );
+
+		$out = $context->getOutput();
+		$this->assertEquals( [ 'ext.moderation.special.css' ], $out->getModuleStyles() );
+		$this->assertEquals( $useAjax ? [ 'ext.moderation.special.ajax' ] : [],
+			$out->getModules() );
+	}
+
+	/**
+	 * Provide datasets for testShowChangesList() runs.
+	 * @return array
+	 */
+	public function dataProviderShowChangesList() {
+		return [
+			'$wgModerationUseAjax=false (default)' => [ false ],
+			'$wgModerationUseAjax=true' => [ true ]
+		];
+	}
+
+	/**
 	 * Make a mock for ModerationAction class and make ActionFactory always return it.
 	 * @param string $actionName
 	 * @return \PHPUnit\Framework\MockObject\MockObject
