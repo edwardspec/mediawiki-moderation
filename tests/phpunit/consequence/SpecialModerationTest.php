@@ -20,7 +20,10 @@
  * Unit test of SpecialModeration.
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionFactory;
+use Wikimedia\Rdbms\FakeResultWrapper;
+use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -306,6 +309,76 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 			'$wgModerationUseAjax=false (default)' => [ false ],
 			'$wgModerationUseAjax=true' => [ true ]
 		];
+	}
+
+	/**
+	 * Ensure that SpecialModeration::preprocessResults() adds all necessary pages to LinkCache.
+	 * @covers SpecialModeration
+	 * @covers ModerationEntryFormatter::addToLinkBatch
+	 */
+	public function testPreprocessResults() {
+		// Mock the response of DB::select()
+		$res = new FakeResultWrapper( [
+			(object)[
+				'namespace' => NS_TALK,
+				'title' => 'Some talkpage',
+				'user' => 0,
+				'rejected_by_user' => 0,
+				'page2_title' => ''
+			],
+			(object)[
+				'namespace' => NS_MAIN,
+				'title' => 'Some article',
+				'user' => 12345,
+				'user_text' => 'Username of author',
+				'rejected_by_user' => 0,
+				'page2_title' => ''
+			],
+			(object)[
+				'namespace' => NS_PROJECT,
+				'title' => 'Page where the edit was rejected',
+				'user' => 0,
+				'rejected_by_user' => 12345,
+				'rejected_by_user_text' => 'Username of moderator',
+				'page2_title' => ''
+			],
+			(object)[
+				'namespace' => NS_MAIN,
+				'title' => 'Renamed page',
+				'user' => 0,
+				'rejected_by_user' => 0,
+				'page2_namespace' => NS_USER,
+				'page2_title' => 'Sandbox/Renamed page'
+			]
+		] );
+		$expectedPageNamesInCache = [
+			'Talk:Some talkpage',
+			'Some article',
+			'User:Username of author',
+			'Project:Page where the edit was rejected',
+			'User:Username of moderator',
+			'Renamed page',
+			'User:Sandbox/Renamed page'
+		];
+
+		$linkCache = MediaWikiServices::getInstance()->getLinkCache();
+		$linkCache->clear();
+
+		$special = new SpecialModeration;
+		$special->preprocessResults( $this->db, $res );
+
+		// Verify that pages were added into the LinkCache.
+		foreach ( $expectedPageNamesInCache as $expectedBadLink ) {
+			$title = Title::newFromText( $expectedBadLink );
+			$linkCacheKey = $title->getPrefixedDBKey();
+
+			$this->assertTrue( $linkCache->isBadLink( $linkCacheKey ),
+				"Page $expectedBadLink wasn't found in LinkCache after preprocessResults()." );
+		}
+
+		// Verify that preprocessResults() has rewinded $res (which is an iterator).
+		$seekPosition = TestingAccessWrapper::newFromObject( $res )->pos;
+		$this->assertSame( 0, $seekPosition );
 	}
 
 	/**
