@@ -146,21 +146,23 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 	 * @param string|null $folder
 	 * @param array $expectedConds
 	 * @param array $expectedOptions
-	 * @dataProvider dataProviderQueryInfo
+	 * @dataProvider dataProviderFolders
 	 *
 	 * @covers SpecialModeration
 	 * @covers ModerationEntryFormatter::getQueryInfo()
 	 */
-	public function testQueryInfo( $folder, array $expectedConds, array $expectedOptions ) {
+	public function testFolders( $folder, array $expectedConds, array $expectedOptions ) {
 		$expectedFields = ModerationEntryFormatter::getFields();
 		$expectedFields[] = 'mod_id AS value';
 
 		$context = new DerivativeContext( RequestContext::getMain() );
 		$context->setRequest( new FauxRequest( $folder ? [ 'folder' => $folder ] : [] ) );
+		$context->setLanguage( 'qqx' );
 
 		$special = new SpecialModeration;
 		$special->setContext( $context );
 
+		// Check getQueryInfo()
 		$queryInfo = $special->getQueryInfo();
 
 		$this->assertArrayHasKey( 'tables', $queryInfo );
@@ -175,17 +177,54 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 			$queryInfo['join_conds']
 		);
 
+		// Check getOrderFields()
 		$this->assertEquals( [ 'mod_timestamp' ], $special->getOrderFields() );
 
+		// Check linkParameters()
 		$expectedFolder = ( $folder == 'nosuchfolder' ) ? 'pending' : ( $folder ?? 'pending' );
 		$this->assertEquals( [ 'folder' => $expectedFolder ], $special->linkParameters() );
+
+		// Check getPageHeader(): it should contain (1) HTML links to other folders,
+		// (2) <strong> tag with the name of current folder.
+		$html = new ModerationTestHTML;
+		$html->loadString( $special->getPageHeader() );
+
+		$links = $html->getElementsByXPath( '//*[@class="mw-moderation-folders"]//a' );
+		$this->assertCount( 3, $links, "There are 4 folders on Special:Moderation, " .
+			"but the number of <a> links to other folders isn't 3." );
+
+		$allFolders = [ 'pending', 'rejected', 'merged', 'spam' ];
+		$expectedFolderLinks = array_filter( $allFolders,
+			function ( $folder ) use ( $expectedFolder ) {
+				return $folder !== $expectedFolder;
+			}
+		);
+
+		foreach ( $links as $link ) {
+			$folder = array_shift( $expectedFolderLinks );
+
+			$this->assertEquals( "(moderation-folder-$folder)", $link->textContent );
+			$this->assertEquals( "(tooltip-moderation-folder-$folder)",
+				$link->getAttribute( 'title' ) );
+
+			$url = $link->getAttribute( 'href' );
+			$bits = wfParseUrl( wfExpandUrl( $url ) );
+			$query = wfCgiToArray( $bits['query'] );
+
+			$this->assertEquals( [ 'title' => 'Special:Moderation', 'folder' => $folder ], $query );
+		}
+
+		$selflink = $html->getElementByXPath(
+			'//*[@class="mw-moderation-folders"]//strong[@class="selflink"]' );
+		$this->assertNotNull( $selflink );
+		$this->assertEquals( "(moderation-folder-$expectedFolder)", $selflink->textContent );
 	}
 
 	/**
-	 * Provide datasets for testQueryInfo() runs.
+	 * Provide datasets for testFolders() runs.
 	 * @return array
 	 */
-	public function dataProviderQueryInfo() {
+	public function dataProviderFolders() {
 		return [
 			'default folder (no folder= parameter)' => [ null,
 				[ 'mod_rejected' => 0, 'mod_merged_revid' => 0 ],
@@ -194,7 +233,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 					'moderation' => 'moderation_folder_pending'
 				] ]
 			],
-			'default folder (no folder= parameter)' => [ 'pending',
+			'default folder (explicit folder=pending)' => [ 'pending',
 				[ 'mod_rejected' => 0, 'mod_merged_revid' => 0 ],
 				[ 'USE INDEX' => [
 					'moderation_block' => 'moderation_block_address',
