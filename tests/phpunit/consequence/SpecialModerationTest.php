@@ -130,6 +130,113 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 	}
 
 	/**
+	 * Test that SpecialModeration subclass overrides some methods of SpecialPage class.
+	 * @covers SpecialModeration
+	 */
+	public function testSpecialPageSubclass() {
+		$special = new SpecialModeration;
+
+		$this->assertEquals( 'spam', $special->getGroupName(), 'getGroupName' );
+		$this->assertFalse( $special->isSyndicated(), 'isSyndicated' );
+		$this->assertFalse( $special->isCacheable(), 'isCacheable' );
+	}
+
+	/**
+	 * Test return value of QueryPage-related methods for different folders of Special:Moderation.
+	 * @param string|null $folder
+	 * @param array $expectedConds
+	 * @param array $expectedOptions
+	 * @dataProvider dataProviderQueryInfo
+	 *
+	 * @covers SpecialModeration
+	 * @covers ModerationEntryFormatter::getQueryInfo()
+	 */
+	public function testQueryInfo( $folder, array $expectedConds, array $expectedOptions ) {
+		$expectedFields = ModerationEntryFormatter::getFields();
+		$expectedFields[] = 'mod_id AS value';
+
+		$context = new DerivativeContext( RequestContext::getMain() );
+		$context->setRequest( new FauxRequest( $folder ? [ 'folder' => $folder ] : [] ) );
+
+		$special = new SpecialModeration;
+		$special->setContext( $context );
+
+		$queryInfo = $special->getQueryInfo();
+
+		$this->assertArrayHasKey( 'tables', $queryInfo );
+		$this->assertEquals( [ 'moderation', 'moderation_block' ], $queryInfo['tables'] );
+
+		$this->assertArrayHasKey( 'fields', $queryInfo );
+		$this->assertEquals( $expectedFields, $queryInfo['fields'] );
+
+		$this->assertArrayHasKey( 'join_conds', $queryInfo );
+		$this->assertEquals(
+			[ 'moderation_block' => [ 'LEFT JOIN', [ 'mb_address=mod_user_text' ] ] ],
+			$queryInfo['join_conds']
+		);
+
+		$this->assertEquals( [ 'mod_timestamp' ], $special->getOrderFields() );
+
+		$expectedFolder = ( $folder == 'nosuchfolder' ) ? 'pending' : ( $folder ?? 'pending' );
+		$this->assertEquals( [ 'folder' => $expectedFolder ], $special->linkParameters() );
+	}
+
+	/**
+	 * Provide datasets for testQueryInfo() runs.
+	 * @return array
+	 */
+	public function dataProviderQueryInfo() {
+		return [
+			'default folder (no folder= parameter)' => [ null,
+				[ 'mod_rejected' => 0, 'mod_merged_revid' => 0 ],
+				[ 'USE INDEX' => [
+					'moderation_block' => 'moderation_block_address',
+					'moderation' => 'moderation_folder_pending'
+				] ]
+			],
+			'default folder (no folder= parameter)' => [ 'pending',
+				[ 'mod_rejected' => 0, 'mod_merged_revid' => 0 ],
+				[ 'USE INDEX' => [
+					'moderation_block' => 'moderation_block_address',
+					'moderation' => 'moderation_folder_pending'
+				] ]
+			],
+			'default folder (unknown value of folder= parameter)' => [ 'nosuchfolder',
+				[ 'mod_rejected' => 0, 'mod_merged_revid' => 0 ],
+				[ 'USE INDEX' => [
+					'moderation_block' => 'moderation_block_address',
+					'moderation' => 'moderation_folder_pending'
+				] ]
+			],
+			'folder=rejected' => [ 'rejected',
+				[
+					'mod_rejected' => 1,
+					'mod_rejected_auto' => 0,
+					'mod_merged_revid' => 0
+				],
+				[ 'USE INDEX' => [
+					'moderation_block' => 'moderation_block_address',
+					'moderation' => 'moderation_folder_rejected'
+				] ]
+			],
+			'folder=merged' => [ 'merged',
+				[ 'mod_merged_revid <> 0' ],
+				[ 'USE INDEX' => [
+					'moderation_block' => 'moderation_block_address',
+					'moderation' => 'moderation_folder_merged'
+				] ]
+			],
+			'folder=spam' => [ 'spam',
+				[ 'mod_rejected_auto' => 1 ],
+				[ 'USE INDEX' => [
+					'moderation_block' => 'moderation_block_address',
+					'moderation' => 'moderation_folder_spam'
+				] ]
+			]
+		];
+	}
+
+	/**
 	 * Make a mock for ModerationAction class and make ActionFactory always return it.
 	 * @param string $actionName
 	 * @return \PHPUnit\Framework\MockObject\MockObject
