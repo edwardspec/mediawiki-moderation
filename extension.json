@@ -101,6 +101,7 @@
 		"ApiModeration": "api/ApiModeration.php",
 		"ApiQueryModerationPreload": "api/ApiQueryModerationPreload.php",
 		"IModerationEntry": "lib/entry/IModerationEntry.php",
+		"MediaWiki\\Moderation\\ActionFactory": "action/ActionFactory.php",
 		"MediaWiki\\Moderation\\AddLogEntryConsequence": "lib/consequence/AddLogEntryConsequence.php",
 		"MediaWiki\\Moderation\\ApproveEditConsequence": "lib/consequence/ApproveEditConsequence.php",
 		"MediaWiki\\Moderation\\ApproveMoveConsequence": "lib/consequence/ApproveMoveConsequence.php",
@@ -380,5 +381,8 @@
 			"description": "If true, moderators are allowed to edit pending changes before approving. DANGEROUS: moderator can accidentally delete the text of pending change. Enable this only when you use Moderation for pre-publish review."
 		}
 	},
+	"ServiceWiringFiles": [
+		"hooks/ServiceWiring.php"
+	],
 	"manifest_version": 2
 }
