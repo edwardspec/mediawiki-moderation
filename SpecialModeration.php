@@ -119,10 +119,8 @@ class SpecialModeration extends QueryPage {
 	public function execute( $unused ) {
 		global $wgModerationUseAjax;
 
-		if ( !$this->getUser()->isAllowed( 'moderation' ) ) {
-			$this->displayRestrictionError();
-			return;
-		}
+		// Throw an exception if current user doesn't have "moderation" right.
+		$this->checkPermissions();
 
 		$this->setHeaders();
 		$this->outputHeader();
