@@ -20,10 +20,26 @@
  * Register services like ActionFactory in MediaWikiServices container.
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionFactory;
+use MediaWiki\Moderation\ActionLinkRenderer;
+use MediaWiki\Moderation\EntryFormatterFactory;
 
 return [
 	'Moderation.ActionFactory' => function () {
 		return new ActionFactory();
-	}
+	},
+	'Moderation.ActionLinkRenderer' => function ( MediaWikiServices $services ) {
+		return new ActionLinkRenderer(
+			RequestContext::getMain(),
+			$services->getLinkRenderer(),
+			SpecialPage::getTitleFor( 'Moderation' )
+		);
+	},
+	'Moderation.EntryFormatterFactory' => function ( MediaWikiServices $services ) {
+		return new EntryFormatterFactory(
+			$services->getLinkRenderer(),
+			$services->getService( 'Moderation.ActionLinkRenderer' )
+		);
+	},
 ];

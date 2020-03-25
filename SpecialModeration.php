@@ -20,6 +20,8 @@
  * Implements [[Special:Moderation]].
  */
 
+use MediaWiki\MediaWikiServices;
+
 class SpecialModeration extends QueryPage {
 
 	/**
@@ -197,9 +199,15 @@ class SpecialModeration extends QueryPage {
 		);
 	}
 
+	/**
+	 * @param Skin $skin
+	 * @param object $row Result row
+	 * @return string
+	 */
 	public function formatResult( $skin, $row ) {
-		$formatter = ModerationEntryFormatter::newFromRow( $row );
-		$formatter->setContext( $this->getContext() );
-		return $formatter->getHTML();
+		return MediaWikiServices::getInstance()
+			->getService( 'Moderation.EntryFormatterFactory' )
+			->makeFormatter( $row, $this->getContext() )
+			->getHTML();
 	}
 }

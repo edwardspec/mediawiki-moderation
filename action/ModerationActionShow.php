@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2019 Edward Chernenko.
+	Copyright (C) 2014-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
  * @file
  * Implements modaction=show on [[Special:Moderation]].
  */
+
+use MediaWiki\MediaWikiServices;
 
 class ModerationActionShow extends ModerationAction {
 
@@ -46,14 +48,14 @@ class ModerationActionShow extends ModerationAction {
 			$out->addWikiMsg( $result['nodiff-reason'] );
 		}
 
-		$approveLink = ModerationEntryFormatter::makeModerationLink( 'approve', $this->id );
-		$rejectLink = ModerationEntryFormatter::makeModerationLink( 'reject', $this->id );
+		$actionLinkRenderer =
+			MediaWikiServices::getInstance()->getService( 'Moderation.ActionLinkRenderer' );
 
 		if ( !isset( $result['null-edit'] ) ) {
-			$out->addHTML( $approveLink );
+			$out->addHTML( $actionLinkRenderer->makeLink( 'approve', $this->id ) );
 			$out->addHTML( ' / ' );
 		}
-		$out->addHTML( $rejectLink );
+		$out->addHTML( $actionLinkRenderer->makeLink( 'reject', $this->id ) );
 	}
 
 	public function execute() {
