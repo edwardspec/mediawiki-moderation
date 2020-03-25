@@ -44,7 +44,7 @@ class ActionLinkRendererTest extends ModerationUnitTestCase {
 
 		// Mock all parameters of ActionLinkRenderer::__construct.
 		$specialTitle = $this->createMock( Title::class );
-		$context = $this->createMock( RequestContext::class );
+		$context = $this->createMock( IContextSource::class );
 		$linkRenderer = $this->createMock( LinkRenderer::class );
 
 		if ( $isTokenNeeded ) {
@@ -69,13 +69,22 @@ class ActionLinkRendererTest extends ModerationUnitTestCase {
 
 		$linkRenderer->expects( $this->once() )->method( 'makePreloadedLink' )
 			->with(
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( $specialTitle ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( $expectedLinkText ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( '' ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( [ 'title' => $expectedTooltip ] ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( $expectedQueryParameters )
 			)
 			->willReturn( $expectedResult );
+
+		'@phan-var IContextSource $context';
+		'@phan-var LinkRenderer $linkRenderer';
+		'@phan-var Title $specialTitle';
 
 		// Now run ActionLinkRenderer::makeLink().
 		$renderer = new ActionLinkRenderer( $context, $linkRenderer, $specialTitle );

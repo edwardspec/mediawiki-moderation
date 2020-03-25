@@ -36,8 +36,12 @@ class EntryFormatterFactoryTest extends ModerationUnitTestCase {
 	public function testFactory() {
 		$linkRenderer = $this->createMock( LinkRenderer::class );
 		$actionLinkRenderer = $this->createMock( ActionLinkRenderer::class );
-		$context = $this->createMock( RequestContext::class );
+		$context = $this->createMock( IContextSource::class );
 		$sampleRow = (object)[ 'mod_id' => 12345, 'mod_title' => 'something' ];
+
+		'@phan-var LinkRenderer $linkRenderer';
+		'@phan-var ActionLinkRenderer $actionLinkRenderer';
+		'@phan-var IContextSource $context';
 
 		$factory = new EntryFormatterFactory( $linkRenderer, $actionLinkRenderer );
 
