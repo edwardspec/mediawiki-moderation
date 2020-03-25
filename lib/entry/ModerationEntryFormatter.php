@@ -38,17 +38,15 @@ class ModerationEntryFormatter extends ModerationEntry {
 	 * @param IContextSource $context
 	 * @param LinkRenderer $linkRenderer
 	 * @param ActionLinkRenderer $actionLinkRenderer
-	 * @return ModerationEntryFormatter
 	 */
-	public static function create( $row, IContextSource $context, LinkRenderer $linkRenderer,
+	public function __construct( $row, IContextSource $context, LinkRenderer $linkRenderer,
 		ActionLinkRenderer $actionLinkRenderer
 	) {
-		$formatter = self::newFromRow( $row );
-		$formatter->context = $context;
-		$formatter->linkRenderer = $linkRenderer;
-		$formatter->actionLinkRenderer = $actionLinkRenderer;
+		parent::__construct( $row );
 
-		return $formatter;
+		$this->context = $context;
+		$this->linkRenderer = $linkRenderer;
+		$this->actionLinkRenderer = $actionLinkRenderer;
 	}
 
 	/**
@@ -119,17 +117,13 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	/**
-	 * Get the list of fields needed for selecting $row, as expected by newFromRow().
-	 * @return array ($fields parameter for $db->select()).
+	 * Get the list of fields needed for selecting $row from database.
+	 * @return array
 	 */
 	public static function getFields() {
-		$fields = [
+		$fields = array_merge( parent::getFields(), [
 			'mod_id AS id',
 			'mod_timestamp AS timestamp',
-			'mod_user AS user',
-			'mod_user_text AS user_text',
-			'mod_namespace AS namespace',
-			'mod_title AS title',
 			'mod_comment AS comment',
 			'mod_minor AS minor',
 			'mod_bot AS bot',
@@ -144,18 +138,10 @@ class ModerationEntryFormatter extends ModerationEntry {
 			'mod_conflict AS conflict',
 			'mod_merged_revid AS merged_revid',
 			'mb_id AS blocked'
-		];
+		] );
 
 		if ( RequestContext::getMain()->getUser()->isAllowed( 'moderation-checkuser' ) ) {
 			$fields[] = 'mod_ip AS ip';
-		}
-
-		if ( ModerationVersionCheck::hasModType() ) {
-			$fields = array_merge( $fields, [
-				'mod_type AS type',
-				'mod_page2_namespace AS page2_namespace',
-				'mod_page2_title AS page2_title'
-			] );
 		}
 
 		return $fields;

@@ -31,7 +31,7 @@ class EntryFormatterFactoryTest extends ModerationUnitTestCase {
 	/**
 	 * Test that EntryFormatterFactory can create a valid ModerationEntryFormatter.
 	 * @covers MediaWiki\Moderation\EntryFormatterFactory
-	 * @covers ModerationEntryFormatter::create
+	 * @covers ModerationEntryFormatter
 	 */
 	public function testFactory() {
 		$linkRenderer = $this->createMock( LinkRenderer::class );

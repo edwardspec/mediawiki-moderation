@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.5.7",
+	"version": "1.5.8",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -100,7 +100,6 @@
 	"AutoloadClasses": {
 		"ApiModeration": "api/ApiModeration.php",
 		"ApiQueryModerationPreload": "api/ApiQueryModerationPreload.php",
-		"IModerationEntry": "lib/entry/IModerationEntry.php",
 		"MediaWiki\\Moderation\\ActionFactory": "action/ActionFactory.php",
 		"MediaWiki\\Moderation\\ActionLinkRenderer": "util/ActionLinkRenderer.php",
 		"MediaWiki\\Moderation\\AddLogEntryConsequence": "lib/consequence/AddLogEntryConsequence.php",

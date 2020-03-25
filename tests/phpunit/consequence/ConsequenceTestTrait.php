@@ -189,7 +189,7 @@ trait ConsequenceTestTrait {
 			$this->result = $action->run();
 		} catch ( ModerationError $error ) {
 			$this->thrownError = $error->status->getMessage()->getKey();
-		} catch ( Exception $e ) {
+		} catch ( MWException $e ) {
 			$this->thrownError = 'exceptionClass:' . get_class( $e );
 		}
 

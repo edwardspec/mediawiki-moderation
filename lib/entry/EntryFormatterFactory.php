@@ -53,7 +53,7 @@ class EntryFormatterFactory {
 	 * @return ModerationEntryFormatter
 	 */
 	public function makeFormatter( $row, IContextSource $context ) {
-		return ModerationEntryFormatter::create(
+		return new ModerationEntryFormatter(
 			$row,
 			$context,
 			$this->linkRenderer,
