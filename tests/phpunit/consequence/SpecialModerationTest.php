@@ -22,6 +22,7 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionFactory;
+use MediaWiki\Moderation\EntryFormatterFactory;
 use Wikimedia\Rdbms\FakeResultWrapper;
 use Wikimedia\TestingAccessWrapper;
 
@@ -309,6 +310,36 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 			'$wgModerationUseAjax=false (default)' => [ false ],
 			'$wgModerationUseAjax=true' => [ true ]
 		];
+	}
+
+	/**
+	 * Ensure that formatResult() returns the result of ModerationEntryFormatter::getHTML().
+	 * @covers SpecialModeration
+	 */
+	public function testFormatResult() {
+		$skin = $this->createMock( Skin::class );
+		$context = $this->createMock( RequestContext::class );
+		$sampleRow = (object)[ 'mod_id' => 12345, 'mod_title' => 'something' ];
+		$expectedResult = 'Some returned value ' . rand( 0, 100000 );
+
+		$special = new SpecialModeration;
+		$special->setContext( $context );
+
+		// Mock the EntryFormatterFactory service before trying formatResult().
+		$factory = $this->createMock( EntryFormatterFactory::class );
+		$factory->expects( $this->once() )->method( 'makeFormatter' )
+			->with( $this->identicalTo( $sampleRow ), $this->identicalTo( $context ) )
+			->will( $this->returnCallback( function () use ( $expectedResult ) {
+				$formatter = $this->createMock( ModerationEntryFormatter::class );
+				$formatter->expects( $this->once() )->method( 'getHTML' )
+					->willReturn( $expectedResult );
+				return $formatter;
+			} ) );
+		$this->setService( 'Moderation.EntryFormatterFactory', $factory );
+
+		// Run formatResult()
+		$result = $special->formatResult( $skin, $sampleRow );
+		$this->assertEquals( $expectedResult, $result );
 	}
 
 	/**
