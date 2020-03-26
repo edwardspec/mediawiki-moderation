@@ -240,7 +240,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 	 * Check whether timestamp of $entry is correct.
 	 */
 	protected function assertTimestamp( ModerationTestsuiteEntry $entry ) {
-		$timestamp = $this->fields['mod_timestamp'];
+		$timestamp = wfTimestamp( TS_MW, $this->fields['mod_timestamp'] );
 
 		// When mod_timestamp is today, only time is shown.
 		// Otherwise both time and date are shown.

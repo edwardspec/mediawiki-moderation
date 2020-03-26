@@ -43,7 +43,7 @@ class ModerationFormatTimestamp {
 
 	/**
 	 * Returns true if $timestamp is today, false otherwise.
-	 * @param string $timestamp Timestamp in MediaWiki format (14 digits).
+	 * @param string $timestamp
 	 * @param Language $lang
 	 * @return bool
 	 */
@@ -59,7 +59,7 @@ class ModerationFormatTimestamp {
 		}
 
 		// Respect the timezone selected by current user.
-		$timestamp = (string)$lang->userAdjust( $timestamp );
+		$timestamp = (string)$lang->userAdjust( wfTimestamp( TS_MW, $timestamp ) );
 
 		if ( !$today ) {
 			$today = substr( (string)$lang->userAdjust( wfTimestampNow() ), 0, 8 );
