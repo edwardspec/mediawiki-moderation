@@ -62,7 +62,9 @@ class ModerationTestUtil {
 	 * Render Special:Moderation with $params.
 	 * @return string HTML of the result.
 	 */
-	public static function runSpecialModeration( User $user, array $params, $wasPosted = false ) {
+	public static function runSpecialModeration( User $user, array $params, $wasPosted = false,
+		IContextSource &$context = null
+	) {
 		$page = new SpecialModeration;
 
 		$context = new RequestContext;

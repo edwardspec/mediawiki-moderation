@@ -20,6 +20,8 @@
  * Implements [[Special:Moderation]].
  */
 
+use MediaWiki\MediaWikiServices;
+
 class SpecialModeration extends QueryPage {
 
 	/**
@@ -117,34 +119,46 @@ class SpecialModeration extends QueryPage {
 	}
 
 	public function execute( $unused ) {
-		global $wgModerationUseAjax;
-
-		if ( !$this->getUser()->isAllowed( 'moderation' ) ) {
-			$this->displayRestrictionError();
-			return;
-		}
+		// Throw an exception if current user doesn't have "moderation" right.
+		$this->checkPermissions();
 
 		$this->setHeaders();
 		$this->outputHeader();
-		$out = $this->getOutput();
-		$out->preventClickjacking();
+		$this->getOutput()->preventClickjacking();
 
-		if ( !$this->getRequest()->getVal( 'modaction' ) ) {
-			/* Show the list of pending edits */
-			$out->addModuleStyles( 'ext.moderation.special.css' );
-			$out->addWikiMsg( 'moderation-text' );
-
-			if ( $wgModerationUseAjax ) {
-				$out->addModules( 'ext.moderation.special.ajax' );
-			}
-
-			/* Close "New changes await moderation" notification until new changes appear */
-			ModerationNotifyModerator::setSeen( $this->getUser(), wfTimestampNow() );
-
-			return parent::execute( $unused );
+		if ( $this->getRequest()->getVal( 'modaction' ) ) {
+			// Some action was requested.
+			$this->runModerationAction();
+			return;
 		}
 
-		/* Some action was requested */
+		// Show the list of pending edits.
+		$this->showChangesList();
+	}
+
+	/**
+	 * Show the list of pending changes in the current folder of Special:Moderation.
+	 */
+	public function showChangesList() {
+		$out = $this->getOutput();
+		$out->addModuleStyles( 'ext.moderation.special.css' );
+		$out->addWikiMsg( 'moderation-text' );
+
+		if ( $this->getConfig()->get( 'ModerationUseAjax' ) ) {
+			$out->addModules( 'ext.moderation.special.ajax' );
+		}
+
+		/* Close "New changes await moderation" notification until new changes appear */
+		ModerationNotifyModerator::setSeen( $this->getUser(), wfTimestampNow() );
+
+		// The rest will be handled by QueryPage::execute()
+		parent::execute( null );
+	}
+
+	/**
+	 * Run ModerationAction.
+	 */
+	public function runModerationAction() {
 		$A = ModerationAction::factory( $this->getContext() );
 		if ( $A->requiresEditToken() ) {
 			$token = $this->getRequest()->getVal( 'token' );
@@ -185,9 +199,15 @@ class SpecialModeration extends QueryPage {
 		);
 	}
 
+	/**
+	 * @param Skin $skin
+	 * @param object $row Result row
+	 * @return string
+	 */
 	public function formatResult( $skin, $row ) {
-		$formatter = ModerationEntryFormatter::newFromRow( $row );
-		$formatter->setContext( $this->getContext() );
-		return $formatter->getHTML();
+		return MediaWikiServices::getInstance()
+			->getService( 'Moderation.EntryFormatterFactory' )
+			->makeFormatter( $row, $this->getContext() )
+			->getHTML();
 	}
 }

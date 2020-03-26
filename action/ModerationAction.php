@@ -20,6 +20,8 @@
  * Parent class for all moderation actions.
  */
 
+use MediaWiki\MediaWikiServices;
+
 abstract class ModerationAction extends ContextSource {
 	/**
 	 * @var int Value of modid= request parameter.
@@ -38,47 +40,21 @@ abstract class ModerationAction extends ContextSource {
 	public $moderator;
 
 	/**
-	 * List of all known modactions and their PHP classes.
-	 * @var array
-	 *
-	 * @phan-var array<string,class-string>
-	 */
-	protected static $knownActions = [
-		'approveall' => ModerationActionApprove::class,
-		'approve' => ModerationActionApprove::class,
-		'block' => ModerationActionBlock::class,
-		'editchange' => ModerationActionEditChange::class,
-		'editchangesubmit' => ModerationActionEditChangeSubmit::class,
-		'merge' => ModerationActionMerge::class,
-		'preview' => ModerationActionPreview::class,
-		'rejectall' => ModerationActionReject::class,
-		'reject' => ModerationActionReject::class,
-		'show' => ModerationActionShow::class,
-		'showimg' => ModerationActionShowImage::class,
-		'unblock' => ModerationActionBlock::class
-	];
-
-	/**
 	 * Construct new ModerationAction.
 	 * @param IContextSource $context
 	 * @return ModerationAction
 	 * @throws ModerationError
 	 */
 	public static function factory( IContextSource $context ) {
-		$action = $context->getRequest()->getVal( 'modaction' );
-		$class = self::$knownActions[$action] ?? null;
-
-		if ( !$class ) {
-			throw new ModerationError( 'moderation-unknown-modaction' );
-		}
-
-		return new $class( $context );
+		return MediaWikiServices::getInstance()->getService( 'Moderation.ActionFactory' )
+			->makeAction( $context );
 	}
 
 	/**
+	 * Regular constructor with no "detect class from modaction=" logic. Use factory() instead.
 	 * @param IContextSource $context
 	 */
-	protected function __construct( IContextSource $context ) {
+	public function __construct( IContextSource $context ) {
 		$this->setContext( $context );
 
 		$this->moderator = $this->getUser();

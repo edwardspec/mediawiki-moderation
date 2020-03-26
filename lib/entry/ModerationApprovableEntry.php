@@ -27,18 +27,14 @@ use MediaWiki\Moderation\InstallApproveHookConsequence;
 
 abstract class ModerationApprovableEntry extends ModerationEntry {
 	/**
-	 * Get the list of fields needed for selecting $row, as expected by newFromRow().
-	 * @return array ($fields parameter for $db->select()).
+	 * Get the list of fields needed for selecting $row from database.
+	 * @return array
 	 */
 	public static function getFields() {
-		$fields = [
+		$fields = array_merge( parent::getFields(), [
 			'mod_id AS id',
 			'mod_timestamp AS timestamp',
-			'mod_user AS user',
-			'mod_user_text AS user_text',
 			'mod_cur_id AS cur_id',
-			'mod_namespace AS namespace',
-			'mod_title AS title',
 			'mod_comment AS comment',
 			'mod_minor AS minor',
 			'mod_bot AS bot',
@@ -50,18 +46,10 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 			'mod_merged_revid AS merged_revid',
 			'mod_rejected AS rejected',
 			'mod_stash_key AS stash_key'
-		];
+		] );
 
 		if ( ModerationVersionCheck::areTagsSupported() ) {
 			$fields[] = 'mod_tags AS tags';
-		}
-
-		if ( ModerationVersionCheck::hasModType() ) {
-			$fields = array_merge( $fields, [
-				'mod_type AS type',
-				'mod_page2_namespace AS page2_namespace',
-				'mod_page2_title AS page2_title'
-			] );
 		}
 
 		return $fields;

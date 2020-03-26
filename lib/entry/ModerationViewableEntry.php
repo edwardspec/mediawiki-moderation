@@ -22,30 +22,27 @@
 
 class ModerationViewableEntry extends ModerationEntry {
 	/**
-	 * Get the list of fields needed for selecting $row, as expected by newFromRow().
-	 * @return array ($fields parameter for $db->select()).
+	 * Get the list of fields needed for selecting $row from database.
+	 * @return array
 	 */
 	public static function getFields() {
-		$fields = [
-			'mod_user AS user',
-			'mod_user_text AS user_text',
+		$fields = array_merge( parent::getFields(), [
 			'mod_last_oldid AS last_oldid',
 			'mod_new AS new',
-			'mod_namespace AS namespace',
-			'mod_title AS title',
 			'mod_text AS text',
 			'mod_stash_key AS stash_key'
-		];
-
-		if ( ModerationVersionCheck::hasModType() ) {
-			$fields = array_merge( $fields, [
-				'mod_type AS type',
-				'mod_page2_namespace AS page2_namespace',
-				'mod_page2_title AS page2_title'
-			] );
-		}
+		] );
 
 		return $fields;
+	}
+
+	/**
+	 * True if this is an upload, false otherwise.
+	 * @return bool
+	 */
+	public function isUpload() {
+		$row = $this->getRow();
+		return $row->stash_key ? true : false;
 	}
 
 	/**

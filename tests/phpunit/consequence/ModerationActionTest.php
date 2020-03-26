@@ -33,67 +33,6 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 	protected $tablesUsed = [ 'moderation' ];
 
 	/**
-	 * Test ModerationAction::factory() on all known actions,
-	 * as well as requiresWrite() and requiresEditToken() of these actions.
-	 * @param string $modaction
-	 * @param string $expectedClass
-	 * @param bool $requiresWrite
-	 * @param bool $requiresEditToken
-	 * @dataProvider dataProviderFactory
-	 *
-	 * @phan-param class-string $expectedClass
-	 *
-	 * @covers ModerationAction
-	 * @covers ModerationActionEditChange::requiresEditToken
-	 * @covers ModerationActionPreview::requiresEditToken
-	 * @covers ModerationActionPreview::requiresWrite
-	 * @covers ModerationActionShowImage::requiresEditToken
-	 * @covers ModerationActionShowImage::requiresWrite
-	 * @covers ModerationActionShow::requiresEditToken
-	 * @covers ModerationActionShow::requiresWrite
-	 */
-	public function testFactory( $modaction, $expectedClass, $requiresWrite, $requiresEditToken ) {
-		$user = User::newFromName( '10.11.12.13', false );
-		$modid = 12345;
-
-		$context = new DerivativeContext( RequestContext::getMain() );
-		$context->setRequest( new FauxRequest( [
-			'modaction' => $modaction,
-			'modid' => $modid
-		] ) );
-		$context->setUser( $user );
-
-		$action = ModerationAction::factory( $context );
-		$this->assertInstanceof( $expectedClass, $action );
-
-		$this->assertEquals( $requiresWrite, $action->requiresWrite(),
-			'Incorrect return value of requiresWrite()' );
-		$this->assertEquals( $requiresEditToken, $action->requiresEditToken(),
-			'Incorrect return value of requiresEditToken()' );
-
-		$this->assertEquals( $modaction, $action->actionName,
-			'Incorrect value of $action->actionName' );
-		$this->assertEquals( $user, $action->moderator,
-			'Incorrect return value of $action->moderator' );
-
-		$actionWrapper = TestingAccessWrapper::newFromObject( $action );
-		$this->assertEquals( $modid, $actionWrapper->id,
-			'Incorrect return value of requiresEditToken()' );
-	}
-
-	/**
-	 * Test ModerationAction::factory() on unknown action.
-	 * @covers ModerationAction
-	 */
-	public function testFactoryUnknownAction() {
-		$context = new DerivativeContext( RequestContext::getMain() );
-		$context->setRequest( new FauxRequest( [ 'modaction' => 'makesandwich' ] ) );
-
-		$this->expectExceptionObject( new ModerationError( 'moderation-unknown-modaction' ) );
-		ModerationAction::factory( $context );
-	}
-
-	/**
 	 * Test ModerationAction::run() does all the necessary preparations and then calls execute().
 	 * @param bool $requiresWrite True to test non-readonly action, false to test readonly action.
 	 * @param bool $simulateReadOnlyMode If true, the wiki will be ReadOnly during this test.
@@ -161,7 +100,7 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 	private function getModerationActionMock() {
 		return $this->getMockBuilder( ModerationAction::class )
 			->disableOriginalConstructor()
-			->setMethods( [ 'requiresWrite' ] )
+			->setMethods( [ 'requiresWrite', 'execute' ] )
 			->getMockForAbstractClass();
 	}
 
@@ -217,28 +156,6 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 			'readonly action (wiki in readonly mode)' => [ false, true ],
 			'non-readonly action (wiki NOT in readonly mode)' => [ true, false ],
 			'non-readonly action (wiki in readonly mode)' => [ true, true ]
-		];
-	}
-
-	/**
-	 * Provide datasets for testFactory() runs.
-	 * @return array
-	 */
-	public function dataProviderFactory() {
-		return [
-			'approveall' => [ 'approveall', ModerationActionApprove::class, true, true ],
-			'approve' => [ 'approve', ModerationActionApprove::class, true, true ],
-			'block' => [ 'block', ModerationActionBlock::class, true, true ],
-			'editchange' => [ 'editchange', ModerationActionEditChange::class, true, false ],
-			'editchangesubmit' =>
-				[ 'editchangesubmit', ModerationActionEditChangeSubmit::class, true, true ],
-			'merge' => [ 'merge', ModerationActionMerge::class, true, true ],
-			'preview' => [ 'preview', ModerationActionPreview::class, false, false ],
-			'rejectall' => [ 'rejectall', ModerationActionReject::class, true, true ],
-			'reject' => [ 'reject', ModerationActionReject::class, true, true ],
-			'show' => [ 'show', ModerationActionShow::class, false, false ],
-			'showimg' => [ 'showimg', ModerationActionShowImage::class, false, false ],
-			'unblock' => [ 'unblock', ModerationActionBlock::class, true, true ]
 		];
 	}
 }

@@ -20,47 +20,40 @@
  * Formatter for displaying entry on Special:Moderation.
  */
 
+use MediaWiki\Linker\LinkRenderer;
+use MediaWiki\Moderation\ActionLinkRenderer;
+
 class ModerationEntryFormatter extends ModerationEntry {
 	/** @var IContextSource */
-	protected $context = null;
+	protected $context;
 
-	/** @var \MediaWiki\Linker\LinkRenderer|null */
-	private static $linkRenderer;
+	/** @var LinkRenderer */
+	protected $linkRenderer;
 
-	/**
-	 * @return IContextSource
-	 */
-	public function getContext() {
-		if ( $this->context === null ) {
-			$this->context = RequestContext::getMain();
-		}
-
-		return $this->context;
-	}
+	/** @var ActionLinkRenderer */
+	protected $actionLinkRenderer;
 
 	/**
+	 * @param stdClass $row
 	 * @param IContextSource $context
+	 * @param LinkRenderer $linkRenderer
+	 * @param ActionLinkRenderer $actionLinkRenderer
 	 */
-	public function setContext( IContextSource $context ) {
+	public function __construct( $row, IContextSource $context, LinkRenderer $linkRenderer,
+		ActionLinkRenderer $actionLinkRenderer
+	) {
+		parent::__construct( $row );
+
 		$this->context = $context;
-	}
-
-	/**
-	 * @return \MediaWiki\Linker\LinkRenderer
-	 */
-	protected static function getLinkRenderer() {
-		if ( self::$linkRenderer === null ) {
-			self::$linkRenderer = MediaWiki\MediaWikiServices::getInstance()->getLinkRenderer();
-		}
-
-		return self::$linkRenderer;
+		$this->linkRenderer = $linkRenderer;
+		$this->actionLinkRenderer = $actionLinkRenderer;
 	}
 
 	/**
 	 * @return User object of moderator.
 	 */
 	public function getModerator() {
-		return $this->getContext()->getUser();
+		return $this->context->getUser();
 	}
 
 	/**
@@ -69,7 +62,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 	 * @return Message
 	 */
 	public function msg( ...$args ) {
-		return $this->getContext()->msg( ...$args );
+		return $this->context->msg( ...$args );
 	}
 
 	/**
@@ -124,17 +117,13 @@ class ModerationEntryFormatter extends ModerationEntry {
 	}
 
 	/**
-	 * Get the list of fields needed for selecting $row, as expected by newFromRow().
-	 * @return array ($fields parameter for $db->select()).
+	 * Get the list of fields needed for selecting $row from database.
+	 * @return array
 	 */
 	public static function getFields() {
-		$fields = [
+		$fields = array_merge( parent::getFields(), [
 			'mod_id AS id',
 			'mod_timestamp AS timestamp',
-			'mod_user AS user',
-			'mod_user_text AS user_text',
-			'mod_namespace AS namespace',
-			'mod_title AS title',
 			'mod_comment AS comment',
 			'mod_minor AS minor',
 			'mod_bot AS bot',
@@ -149,18 +138,10 @@ class ModerationEntryFormatter extends ModerationEntry {
 			'mod_conflict AS conflict',
 			'mod_merged_revid AS merged_revid',
 			'mb_id AS blocked'
-		];
+		] );
 
 		if ( RequestContext::getMain()->getUser()->isAllowed( 'moderation-checkuser' ) ) {
 			$fields[] = 'mod_ip AS ip';
-		}
-
-		if ( ModerationVersionCheck::hasModType() ) {
-			$fields = array_merge( $fields, [
-				'mod_type AS type',
-				'mod_page2_namespace AS page2_namespace',
-				'mod_page2_title AS page2_title'
-			] );
 		}
 
 		return $fields;
@@ -173,7 +154,9 @@ class ModerationEntryFormatter extends ModerationEntry {
 	public function getHTML() {
 		global $wgModerationPreviewLink, $wgModerationEnableEditChange;
 
-		$linkRenderer = self::getLinkRenderer();
+		$linkRenderer = $this->linkRenderer;
+		$actionLinkRenderer = $this->actionLinkRenderer;
+
 		$row = $this->getRow();
 		$title = $this->getTitle();
 
@@ -182,14 +165,14 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 		// Show/Preview links. Not needed for moves, because they don't change the text.
 		if ( !$this->isMove() ) {
-			$line .= '(' . self::makeModerationLink( 'show', $row->id );
+			$line .= '(' . $actionLinkRenderer->makeLink( 'show', $row->id );
 
 			if ( $wgModerationPreviewLink ) {
-				$line .= ' | ' . self::makeModerationLink( 'preview', $row->id );
+				$line .= ' | ' . $actionLinkRenderer->makeLink( 'preview', $row->id );
 			}
 
 			if ( $wgModerationEnableEditChange ) {
-				$line .= ' | ' . self::makeModerationLink( 'editchange', $row->id );
+				$line .= ' | ' . $actionLinkRenderer->makeLink( 'editchange', $row->id );
 			}
 
 			$line .= ') . . ';
@@ -222,13 +205,13 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 		$line .= ' ';
 
-		$line .= ModerationFormatTimestamp::format( $row->timestamp, $this->getContext() );
+		$line .= ModerationFormatTimestamp::format( $row->timestamp, $this->context );
 
 		$line .= ' . . ';
 		$line .= ChangesList::showCharacterDifference(
 			$row->old_len,
 			$row->new_len,
-			$this->getContext()
+			$this->context
 		);
 		$line .= ' . . ';
 		$line .= Linker::userLink( $row->user, $row->user_text );
@@ -258,14 +241,14 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 				// In order to merge, moderator must also be automoderated
 				if ( ModerationCanSkip::canEditSkip( $this->getModerator(), $row->namespace ) ) {
-					$line .= self::makeModerationLink( 'merge', $row->id );
+					$line .= $actionLinkRenderer->makeLink( 'merge', $row->id );
 				} else {
 					$line .= $this->msg(
 						'moderation-no-merge-link-not-automoderated' )->plain();
 				}
 			} else {
 				if ( !$row->rejected || $this->canReapproveRejected() ) {
-					$line .= self::makeModerationLink( 'approve', $row->id );
+					$line .= $actionLinkRenderer->makeLink( 'approve', $row->id );
 				}
 
 				# Note: you can use "Approve all" on rejected edit,
@@ -273,15 +256,15 @@ class ModerationEntryFormatter extends ModerationEntry {
 				# To avoid confusion, link "Approve all" is not shown for rejected edits.
 				if ( !$row->rejected ) {
 					$line .= ' ';
-					$line .= self::makeModerationLink( 'approveall', $row->id );
+					$line .= $actionLinkRenderer->makeLink( 'approveall', $row->id );
 				}
 			}
 
 			if ( !$row->rejected ) {
 				$line .= ' . . ';
-				$line .= self::makeModerationLink( 'reject', $row->id );
+				$line .= $actionLinkRenderer->makeLink( 'reject', $row->id );
 				$line .= ' ';
-				$line .= self::makeModerationLink( 'rejectall', $row->id );
+				$line .= $actionLinkRenderer->makeLink( 'rejectall', $row->id );
 			}
 			$line .= ']';
 		} else {
@@ -295,7 +278,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 		}
 
 		$line .= ' . . [';
-		$line .= self::makeModerationLink(
+		$line .= $actionLinkRenderer->makeLink(
 			$row->blocked ? 'unblock' : 'block',
 			$row->id
 		);
@@ -321,20 +304,5 @@ class ModerationEntryFormatter extends ModerationEntry {
 		$html = Xml::tags( 'span', [ 'class' => $class ], $line );
 
 		return $html;
-	}
-
-	public static function makeModerationLink( $action, $id ) {
-		$params = [ 'modaction' => $action, 'modid' => $id ];
-		if ( $action != 'show' && $action != 'preview' ) {
-			$params['token'] = RequestContext::getMain()->getUser()->getEditToken();
-		}
-
-		return self::getLinkRenderer()->makePreloadedLink(
-			SpecialPage::getTitleFor( 'Moderation' ),
-			wfMessage( 'moderation-' . $action )->plain(),
-			'',
-			[ 'title' => wfMessage( 'tooltip-moderation-' . $action )->plain() ],
-			$params
-		);
 	}
 }

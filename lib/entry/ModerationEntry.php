@@ -20,7 +20,7 @@
  * Parent class for objects that represent one row in the 'moderation' SQL table.
  */
 
-abstract class ModerationEntry implements IModerationEntry {
+abstract class ModerationEntry {
 	/** @var stdClass Return value of Database::selectRow() */
 	private $row;
 
@@ -50,6 +50,30 @@ abstract class ModerationEntry implements IModerationEntry {
 	}
 
 	/**
+	 * Get the list of fields needed for selecting $row from database.
+	 * This method can be overridden in subclass to add more fields.
+	 * @return array
+	 */
+	public static function getFields() {
+		$fields = [
+			'mod_user AS user',
+			'mod_user_text AS user_text',
+			'mod_namespace AS namespace',
+			'mod_title AS title'
+		];
+
+		if ( ModerationVersionCheck::hasModType() ) {
+			$fields = array_merge( $fields, [
+				'mod_type AS type',
+				'mod_page2_namespace AS page2_namespace',
+				'mod_page2_title AS page2_title'
+			] );
+		}
+
+		return $fields;
+	}
+
+	/**
 	 * Returns true if this is a move, false otherwise.
 	 * @return bool
 	 */
@@ -58,16 +82,10 @@ abstract class ModerationEntry implements IModerationEntry {
 	}
 
 	/**
-	 * True if this is an upload, false otherwise.
-	 * @return bool
-	 */
-	public function isUpload() {
-		return $this->row->stash_key ? true : false;
-	}
-
-	/**
 	 * True if this edit is recent enough to be reapproved after rejection, false otherwise.
 	 * @return bool
+	 *
+	 * TODO: move this elsewhere: mod_timestamp field is not selected by ModerationViewableEntry.
 	 */
 	public function canReapproveRejected() {
 		if ( self::$earliestReapprovableTimestamp === null ) {

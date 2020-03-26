@@ -122,7 +122,7 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 	 * @covers MediaWiki\Moderation\InsertRowIntoModerationTableConsequence
 	 * @covers RollbackResistantQuery
 	 */
-	public function testRollbackResistanceNotInitialized( $initialized ) {
+	public function testRollbackResistance( $initialized ) {
 		$wrapper = TestingAccessWrapper::newFromClass( RollbackResistantQuery::class );
 		if ( $initialized && !$wrapper->initialized ) {
 			throw new MWException(
