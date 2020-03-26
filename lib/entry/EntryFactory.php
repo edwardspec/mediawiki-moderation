@@ -17,19 +17,23 @@
 
 /**
  * @file
- * Factory that can construct ModerationEntryFormatter from Context.
+ * Factory that can construct ModerationEntry objects from Context.
  */
 
 namespace MediaWiki\Moderation;
 
 use IContextSource;
 use MediaWiki\Linker\LinkRenderer;
+use ModerationApprovableEntry;
+use ModerationEntryEdit;
 use ModerationEntryFormatter;
+use ModerationEntryMove;
+use ModerationEntryUpload;
+use ModerationNewChange;
+use ModerationViewableEntry;
 
 class EntryFactory {
-	/**
-	 * @var LinkRenderer
-	 */
+	/** @var LinkRenderer */
 	protected $linkRenderer;
 
 	/** @var ActionLinkRenderer */
@@ -59,5 +63,53 @@ class EntryFactory {
 			$this->linkRenderer,
 			$this->actionLinkRenderer
 		);
+	}
+
+	/**
+	 * Construct new ModerationViewableEntry from $row.
+	 * @param object $row
+	 * @return ModerationViewableEntry
+	 */
+	public function makeViewableEntry( $row ) {
+		return new ModerationViewableEntry(
+			$row,
+			$this->linkRenderer
+		);
+	}
+
+	/**
+	 * Construct new ModerationViewableEntry from mod_id of the change.
+	 * @param int $id
+	 * @return ModerationViewableEntry
+	 */
+	public function findViewableEntry( $id ) {
+		return $this->makeViewableEntry(
+			ModerationViewableEntry::loadRowFromDb( $id, DB_REPLICA ) );
+	}
+
+	/**
+	 * Construct new ModerationApprovableEntry from $row.
+	 * @param object $row
+	 * @return ModerationApprovableEntry
+	 */
+	public function makeApprovableEntry( $row ) {
+		if ( isset( $row->type ) && $row->type == ModerationNewChange::MOD_TYPE_MOVE ) {
+			return new ModerationEntryMove( $row );
+		}
+
+		if ( $row->stash_key ) {
+			return new ModerationEntryUpload( $row );
+		}
+
+		return new ModerationEntryEdit( $row );
+	}
+
+	/**
+	 * Construct new ModerationApprovableEntry from mod_id of the change.
+	 * @param int $id
+	 * @return ModerationApprovableEntry
+	 */
+	public function findApprovableEntry( $id ) {
+		return $this->makeApprovableEntry( ModerationApprovableEntry::loadRowFromDb( $id ) );
 	}
 }

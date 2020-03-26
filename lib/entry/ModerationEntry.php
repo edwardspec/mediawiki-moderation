@@ -37,7 +37,7 @@ abstract class ModerationEntry {
 		return $this->row;
 	}
 
-	protected function __construct( $row ) {
+	public function __construct( $row ) {
 		if ( !isset( $row->type ) ) { // !ModerationVersionCheck::hasModType()
 			$row->type = ModerationNewChange::MOD_TYPE_EDIT;
 		}
@@ -156,13 +156,13 @@ abstract class ModerationEntry {
 	}
 
 	/**
-	 * Load ModerationEntry from the database by mod_id.
+	 * Load $row from the database by its mod_id.
 	 * @param int $id
 	 * @param int $dbType DB_MASTER or DB_REPLICA.
-	 * @return static
+	 * @return object
 	 * @throws ModerationError
 	 */
-	public static function newFromId( $id, $dbType = DB_MASTER ) {
+	public static function loadRowFromDb( $id, $dbType = DB_MASTER ) {
 		$dbw = wfGetDB( $dbType );
 		$row = $dbw->selectRow( 'moderation',
 			static::getFields(),
@@ -174,17 +174,6 @@ abstract class ModerationEntry {
 		}
 
 		$row->id = $id;
-		return static::newFromRow( $row );
-	}
-
-	/**
-	 * Construct new ModerationEntry from $row.
-	 * @param stdClass $row
-	 * @return static
-	 * @throws ModerationError
-	 */
-	public static function newFromRow( $row ) {
-		// @phan-suppress-next-line PhanTypeInstantiateAbstractStatic
-		return new static( $row );
+		return $row;
 	}
 }

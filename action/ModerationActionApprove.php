@@ -20,6 +20,7 @@
  * Implements modaction=approve(all) on [[Special:Moderation]].
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
@@ -56,7 +57,7 @@ class ModerationActionApprove extends ModerationAction {
 	}
 
 	public function executeApproveOne() {
-		$entry = ModerationApprovableEntry::newFromId( $this->id );
+		$entry = $this->getEntryFactory()->findApprovableEntry( $this->id );
 		$entry->approve( $this->moderator );
 
 		return [
@@ -114,7 +115,7 @@ class ModerationActionApprove extends ModerationAction {
 		$failed = [];
 		foreach ( $res as $row ) {
 			try {
-				$entry = ModerationApprovableEntry::newFromRow( $row );
+				$entry = $this->getEntryFactory()->makeApprovableEntry( $row );
 				$entry->approve( $this->moderator );
 
 				$approved[$row->id] = '';
@@ -138,5 +139,12 @@ class ModerationActionApprove extends ModerationAction {
 			'approved' => $approved,
 			'failed' => $failed
 		];
+	}
+
+	/**
+	 * @return MediaWiki\Moderation\EntryFactory
+	 */
+	private function getEntryFactory() {
+		return MediaWikiServices::getInstance()->getService( 'Moderation.EntryFactory' );
 	}
 }
