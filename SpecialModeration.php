@@ -212,7 +212,7 @@ class SpecialModeration extends QueryPage {
 	 */
 	public function formatResult( $skin, $row ) {
 		return MediaWikiServices::getInstance()
-			->getService( 'Moderation.EntryFormatterFactory' )
+			->getService( 'Moderation.EntryFactory' )
 			->makeFormatter( $row, $this->getContext() )
 			->getHTML();
 	}

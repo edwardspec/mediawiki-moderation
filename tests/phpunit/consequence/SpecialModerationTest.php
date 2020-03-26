@@ -22,7 +22,7 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionFactory;
-use MediaWiki\Moderation\EntryFormatterFactory;
+use MediaWiki\Moderation\EntryFactory;
 use Wikimedia\Rdbms\FakeResultWrapper;
 use Wikimedia\TestingAccessWrapper;
 
@@ -337,8 +337,8 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		$special = new SpecialModeration;
 		$special->setContext( $context );
 
-		// Mock the EntryFormatterFactory service before trying formatResult().
-		$factory = $this->createMock( EntryFormatterFactory::class );
+		// Mock the EntryFactory service before trying formatResult().
+		$factory = $this->createMock( EntryFactory::class );
 		$factory->expects( $this->once() )->method( 'makeFormatter' )
 			->with(
 				// @phan-suppress-next-line PhanTypeMismatchArgument
@@ -351,7 +351,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 					->willReturn( $expectedResult );
 				return $formatter;
 			} ) );
-		$this->setService( 'Moderation.EntryFormatterFactory', $factory );
+		$this->setService( 'Moderation.EntryFactory', $factory );
 
 		'@phan-var Skin $skin';
 

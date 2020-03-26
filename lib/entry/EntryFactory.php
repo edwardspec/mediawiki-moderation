@@ -26,7 +26,7 @@ use IContextSource;
 use MediaWiki\Linker\LinkRenderer;
 use ModerationEntryFormatter;
 
-class EntryFormatterFactory {
+class EntryFactory {
 	/**
 	 * @var LinkRenderer
 	 */

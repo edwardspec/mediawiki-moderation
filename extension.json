@@ -110,7 +110,7 @@
 		"MediaWiki\\Moderation\\ConsequenceManager": "lib/consequence/manager/ConsequenceManager.php",
 		"MediaWiki\\Moderation\\ConsequenceUtils": "lib/consequence/manager/ConsequenceUtils.php",
 		"MediaWiki\\Moderation\\DeleteRowFromModerationTableConsequence": "lib/consequence/DeleteRowFromModerationTableConsequence.php",
-		"MediaWiki\\Moderation\\EntryFormatterFactory": "lib/entry/EntryFormatterFactory.php",
+		"MediaWiki\\Moderation\\EntryFactory": "lib/entry/EntryFactory.php",
 		"MediaWiki\\Moderation\\ForgetAnonIdConsequence": "lib/consequence/ForgetAnonIdConsequence.php",
 		"MediaWiki\\Moderation\\GiveAnonChangesToNewUserConsequence": "lib/consequence/GiveAnonChangesToNewUserConsequence.php",
 		"MediaWiki\\Moderation\\IConsequence": "lib/consequence/IConsequence.php",

@@ -17,20 +17,20 @@
 
 /**
  * @file
- * Unit test of EntryFormatterFactory.
+ * Unit test of EntryFactory.
  */
 
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
-use MediaWiki\Moderation\EntryFormatterFactory;
+use MediaWiki\Moderation\EntryFactory;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
-class EntryFormatterFactoryTest extends ModerationUnitTestCase {
+class EntryFactoryTest extends ModerationUnitTestCase {
 	/**
-	 * Test that EntryFormatterFactory can create a valid ModerationEntryFormatter.
-	 * @covers MediaWiki\Moderation\EntryFormatterFactory
+	 * Test that EntryFactory can create a valid ModerationEntryFormatter.
+	 * @covers MediaWiki\Moderation\EntryFactory
 	 * @covers ModerationEntryFormatter
 	 */
 	public function testFactory() {
@@ -43,7 +43,7 @@ class EntryFormatterFactoryTest extends ModerationUnitTestCase {
 		'@phan-var ActionLinkRenderer $actionLinkRenderer';
 		'@phan-var IContextSource $context';
 
-		$factory = new EntryFormatterFactory( $linkRenderer, $actionLinkRenderer );
+		$factory = new EntryFactory( $linkRenderer, $actionLinkRenderer );
 
 		$formatter = $factory->makeFormatter( $sampleRow, $context );
 		$this->assertInstanceOf( ModerationEntryFormatter::class, $formatter );
