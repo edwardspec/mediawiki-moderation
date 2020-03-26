@@ -21,6 +21,25 @@
  */
 
 class ModerationFormatTimestamp {
+	/**
+	 * @var bool
+	 * If true, return value of format() will always be "time+date" pair.
+	 * If false, format() will detect today's timestamps and return "time only" for it.
+	 *
+	 * This is performance optimization: because results on Special:Moderation are sorted
+	 * by timestamp (DESC), calls to format() will be in the same order,
+	 * so if format() discovers a non-today's timestamp (e.g. yesterday), then we know
+	 * that today's timestamps wont't be in the future calls to format().
+	 *
+	 * So on the first non-today's timestamp we set $skippedToday=true, and then omit the checks.
+	 */
+	protected static $skippedToday = false;
+
+	/**
+	 * @var string
+	 * Cache used by isToday(): result of userAdjust(wfTimestampNow()).
+	 */
+	protected static $today = '';
 
 	/**
 	 * Returns human-readable version of $timestamp.
@@ -32,12 +51,13 @@ class ModerationFormatTimestamp {
 		$lang = $context->getLanguage();
 		$user = $context->getUser();
 
-		if ( self::isToday( $timestamp, $lang ) ) {
+		if ( !self::$skippedToday && self::isToday( $timestamp, $lang ) ) {
 			/* Only time */
 			return $lang->userTime( $timestamp, $user );
 		}
 
 		/* Time and date */
+		self::$skippedToday = true;
 		return $lang->userTimeAndDate( $timestamp, $user );
 	}
 
@@ -48,28 +68,13 @@ class ModerationFormatTimestamp {
 	 * @return bool
 	 */
 	protected static function isToday( $timestamp, Language $lang ) {
-		static $today = '',
-			$skippedToday = false;
-
-		if ( $skippedToday ) {
-			/* Optimization: results are sorted by timestamp (DESC),
-				so if we found even one timestamp with isToday=false,
-				then isToday=false for all following timestamps. */
-			return false;
+		if ( !self::$today ) {
+			self::$today = (string)$lang->userAdjust( wfTimestampNow() );
 		}
 
-		// Respect the timezone selected by current user.
+		// MediaWiki timestamps (14 digits), respecting the timezone selected by current user.
+		// First 8 symbols are YYYYMMDD. If they are the same, then the day is the same.
 		$timestamp = (string)$lang->userAdjust( wfTimestamp( TS_MW, $timestamp ) );
-
-		if ( !$today ) {
-			$today = substr( (string)$lang->userAdjust( wfTimestampNow() ), 0, 8 );
-		}
-
-		$isToday = ( substr( $timestamp, 0, 8 ) == $today );
-		if ( !$isToday ) {
-			$skippedToday = true; /* The following timestamps are even earlier, no need to check them */
-		}
-
-		return $isToday;
+		return ( strncmp( self::$today, $timestamp, 8 ) == 0 );
 	}
 }
