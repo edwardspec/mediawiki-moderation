@@ -23,7 +23,6 @@
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\EntryFactory;
-use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -31,7 +30,6 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 	/**
 	 * Test that EntryFactory can create a valid ModerationEntryFormatter.
 	 * @covers MediaWiki\Moderation\EntryFactory
-	 * @covers ModerationEntryFormatter
 	 */
 	public function testFactory() {
 		$linkRenderer = $this->createMock( LinkRenderer::class );
@@ -47,11 +45,5 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 
 		$formatter = $factory->makeFormatter( $sampleRow, $context );
 		$this->assertInstanceOf( ModerationEntryFormatter::class, $formatter );
-
-		$wrapper = TestingAccessWrapper::newFromObject( $formatter );
-		$this->assertSame( $sampleRow, $wrapper->row );
-		$this->assertSame( $context, $wrapper->context );
-		$this->assertSame( $linkRenderer, $wrapper->linkRenderer );
-		$this->assertSame( $actionLinkRenderer, $wrapper->actionLinkRenderer );
 	}
 }
