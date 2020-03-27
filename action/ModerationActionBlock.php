@@ -41,18 +41,10 @@ class ModerationActionBlock extends ModerationAction {
 	public function execute() {
 		$manager = ConsequenceUtils::getManager();
 
-		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( 'moderation',
-			[
-				'mod_user AS user',
-				'mod_user_text AS user_text'
-			],
-			[ 'mod_id' => $this->id ],
-			__METHOD__
-		);
-		if ( !$row ) {
-			throw new ModerationError( 'moderation-edit-not-found' );
-		}
+		$row = $this->entryFactory->loadRowOrThrow( $this->id, [
+			'mod_user AS user',
+			'mod_user_text AS user_text'
+		] );
 
 		if ( $this->actionName == 'block' ) {
 			$somethingChanged = $manager->add( new BlockUserConsequence(

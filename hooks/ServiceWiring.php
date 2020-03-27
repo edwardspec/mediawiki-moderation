@@ -27,8 +27,10 @@ use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\TimestampFormatter;
 
 return [
-	'Moderation.ActionFactory' => function () {
-		return new ActionFactory();
+	'Moderation.ActionFactory' => function ( MediaWikiServices $services ) {
+		return new ActionFactory(
+			$services->getService( 'Moderation.EntryFactory' )
+		);
 	},
 	'Moderation.ActionLinkRenderer' => function ( MediaWikiServices $services ) {
 		return new ActionLinkRenderer(

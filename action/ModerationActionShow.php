@@ -61,8 +61,7 @@ class ModerationActionShow extends ModerationAction {
 	public function execute() {
 		$result = [];
 
-		$entry = MediaWikiServices::getInstance()->getService( 'Moderation.EntryFactory' )
-			->findViewableEntry( $this->id );
+		$entry = $this->entryFactory->findViewableEntry( $this->id );
 		$title = $entry->getTitle();
 
 		if ( $entry->isUpload() ) {

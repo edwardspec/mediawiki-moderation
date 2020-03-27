@@ -49,20 +49,12 @@ class ModerationActionShowImage extends ModerationAction {
 	}
 
 	public function execute() {
-		$dbr = wfGetDB( DB_REPLICA );
-		$row = $dbr->selectRow( 'moderation',
-			[
-				'mod_user AS user',
-				'mod_user_text AS user_text',
-				'mod_title AS title',
-				'mod_stash_key AS stash_key'
-			],
-			[ 'mod_id' => $this->id ],
-			__METHOD__
-		);
-		if ( !$row ) {
-			throw new ModerationError( 'moderation-edit-not-found' );
-		}
+		$row = $this->entryFactory->loadRowOrThrow( $this->id, [
+			'mod_user AS user',
+			'mod_user_text AS user_text',
+			'mod_title AS title',
+			'mod_stash_key AS stash_key'
+		], DB_REPLICA );
 
 		$stash = ModerationUploadStorage::getStash();
 

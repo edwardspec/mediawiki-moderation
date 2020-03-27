@@ -23,22 +23,14 @@
 class ModerationActionMerge extends ModerationAction {
 
 	public function execute() {
-		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( 'moderation',
-			[
-				'mod_namespace AS namespace',
-				'mod_title AS title',
-				'mod_user_text AS user_text',
-				'mod_text AS text',
-				'mod_conflict AS conflict',
-				'mod_merged_revid AS merged_revid'
-			],
-			[ 'mod_id' => $this->id ],
-			__METHOD__
-		);
-		if ( !$row ) {
-			throw new ModerationError( 'moderation-edit-not-found' );
-		}
+		$row = $this->entryFactory->loadRowOrThrow( $this->id, [
+			'mod_namespace AS namespace',
+			'mod_title AS title',
+			'mod_user_text AS user_text',
+			'mod_text AS text',
+			'mod_conflict AS conflict',
+			'mod_merged_revid AS merged_revid'
+		] );
 
 		if ( !$row->conflict ) {
 			throw new ModerationError( 'moderation-merge-not-needed' );

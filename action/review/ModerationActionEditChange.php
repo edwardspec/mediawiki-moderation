@@ -45,15 +45,7 @@ class ModerationActionEditChange extends ModerationAction {
 			$fields[] = 'mod_type AS type';
 		}
 
-		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( 'moderation',
-			$fields,
-			[ 'mod_id' => $this->id ],
-			__METHOD__
-		);
-		if ( !$row ) {
-			throw new ModerationError( 'moderation-edit-not-found' );
-		}
+		$row = $this->entryFactory->loadRowOrThrow( $this->id, $fields );
 
 		if ( isset( $row->type ) && $row->type != ModerationNewChange::MOD_TYPE_EDIT ) {
 			throw new ModerationError( 'moderation-editchange-not-edit' );

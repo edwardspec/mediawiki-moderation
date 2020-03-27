@@ -48,23 +48,14 @@ class ModerationActionReject extends ModerationAction {
 	}
 
 	public function executeRejectOne() {
-		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( 'moderation',
-			[
-				'mod_namespace AS namespace',
-				'mod_title AS title',
-				'mod_user AS user',
-				'mod_user_text AS user_text',
-				'mod_rejected AS rejected',
-				'mod_merged_revid AS merged_revid'
-			],
-			[ 'mod_id' => $this->id ],
-			__METHOD__
-		);
-
-		if ( !$row ) {
-			throw new ModerationError( 'moderation-edit-not-found' );
-		}
+		$row = $this->entryFactory->loadRowOrThrow( $this->id, [
+			'mod_namespace AS namespace',
+			'mod_title AS title',
+			'mod_user AS user',
+			'mod_user_text AS user_text',
+			'mod_rejected AS rejected',
+			'mod_merged_revid AS merged_revid'
+		] );
 
 		if ( $row->rejected ) {
 			throw new ModerationError( 'moderation-already-rejected' );

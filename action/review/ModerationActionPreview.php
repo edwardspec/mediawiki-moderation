@@ -40,19 +40,11 @@ class ModerationActionPreview extends ModerationAction {
 	}
 
 	public function execute() {
-		$dbr = wfGetDB( DB_REPLICA );
-		$row = $dbr->selectRow( 'moderation',
-			[
-				'mod_namespace AS namespace',
-				'mod_title AS title',
-				'mod_text AS text'
-			],
-			[ 'mod_id' => $this->id ],
-			__METHOD__
-		);
-		if ( !$row ) {
-			throw new ModerationError( 'moderation-edit-not-found' );
-		}
+		$row = $this->entryFactory->loadRowOrThrow( $this->id, [
+			'mod_namespace AS namespace',
+			'mod_title AS title',
+			'mod_text AS text'
+		], DB_REPLICA );
 
 		$title = Title::makeTitle( $row->namespace, $row->title );
 

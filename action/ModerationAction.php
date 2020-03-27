@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\EntryFactory;
 
 abstract class ModerationAction extends ContextSource {
 	/**
@@ -39,6 +40,9 @@ abstract class ModerationAction extends ContextSource {
 	 */
 	public $moderator;
 
+	/** @var EntryFactory */
+	protected $entryFactory;
+
 	/**
 	 * Construct new ModerationAction.
 	 * @param IContextSource $context
@@ -53,9 +57,11 @@ abstract class ModerationAction extends ContextSource {
 	/**
 	 * Regular constructor with no "detect class from modaction=" logic. Use factory() instead.
 	 * @param IContextSource $context
+	 * @param EntryFactory $entryFactory
 	 */
-	public function __construct( IContextSource $context ) {
+	public function __construct( IContextSource $context, EntryFactory $entryFactory ) {
 		$this->setContext( $context );
+		$this->entryFactory = $entryFactory;
 
 		$this->moderator = $this->getUser();
 
