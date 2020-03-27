@@ -17,7 +17,7 @@
 
 /**
  * @file
- * Benchmark: how fast is ModerationFormatTimestamp::format()?
+ * Benchmark: how fast is TimestampFormatter)?
  *
  * Usage:
  *	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/formatTimestamp.php
@@ -25,12 +25,19 @@
 
 require_once __DIR__ . '/ModerationBenchmark.php';
 
+use MediaWiki\Moderation\TimestampFormatter;
+
 class BenchmarkFormatTimestamp extends ModerationBenchmark {
 
 	/**
 	 * @var IContextSource
 	 */
 	protected $context;
+
+	/**
+	 * @var TimestampFormatter
+	 */
+	protected $timestampFormatter;
 
 	/**
 	 * Default number of loops.
@@ -42,10 +49,11 @@ class BenchmarkFormatTimestamp extends ModerationBenchmark {
 
 	public function beforeBenchmark( $numberOfUsers ) {
 		$this->context = RequestContext::getMain();
+		$this->timestampFormatter = new TimestampFormatter();
 	}
 
 	public function doActualWork( $i ) {
-		ModerationFormatTimestamp::format( '20180101000000', $this->context );
+		$this->timestampFormatter->format( '20180101000000', $this->context );
 	}
 }
 

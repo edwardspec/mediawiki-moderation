@@ -20,7 +20,12 @@
  * Displays mod_timestamp on Special:Moderation.
  */
 
-class ModerationFormatTimestamp {
+namespace MediaWiki\Moderation;
+
+use IContextSource;
+use Language;
+
+class TimestampFormatter {
 	/**
 	 * @var bool
 	 * If true, return value of format() will always be "time+date" pair.
@@ -33,13 +38,13 @@ class ModerationFormatTimestamp {
 	 *
 	 * So on the first non-today's timestamp we set $skippedToday=true, and then omit the checks.
 	 */
-	protected static $skippedToday = false;
+	protected $skippedToday = false;
 
 	/**
 	 * @var string
 	 * Cache used by isToday(): result of userAdjust(wfTimestampNow()).
 	 */
-	protected static $today = '';
+	protected $today = '';
 
 	/**
 	 * Returns human-readable version of $timestamp.
@@ -47,17 +52,17 @@ class ModerationFormatTimestamp {
 	 * @param IContextSource $context
 	 * @return string
 	 */
-	public static function format( $timestamp, IContextSource $context ) {
+	public function format( $timestamp, IContextSource $context ) {
 		$lang = $context->getLanguage();
 		$user = $context->getUser();
 
-		if ( !self::$skippedToday && self::isToday( $timestamp, $lang ) ) {
+		if ( !$this->skippedToday && $this->isToday( $timestamp, $lang ) ) {
 			/* Only time */
 			return $lang->userTime( $timestamp, $user );
 		}
 
 		/* Time and date */
-		self::$skippedToday = true;
+		$this->skippedToday = true;
 		return $lang->userTimeAndDate( $timestamp, $user );
 	}
 
@@ -67,14 +72,14 @@ class ModerationFormatTimestamp {
 	 * @param Language $lang
 	 * @return bool
 	 */
-	protected static function isToday( $timestamp, Language $lang ) {
-		if ( !self::$today ) {
-			self::$today = (string)$lang->userAdjust( wfTimestampNow() );
+	protected function isToday( $timestamp, Language $lang ) {
+		if ( !$this->today ) {
+			$this->today = (string)$lang->userAdjust( wfTimestampNow() );
 		}
 
 		// MediaWiki timestamps (14 digits), respecting the timezone selected by current user.
 		// First 8 symbols are YYYYMMDD. If they are the same, then the day is the same.
 		$timestamp = (string)$lang->userAdjust( wfTimestamp( TS_MW, $timestamp ) );
-		return ( strncmp( self::$today, $timestamp, 8 ) == 0 );
+		return ( strncmp( $this->today, $timestamp, 8 ) == 0 );
 	}
 }

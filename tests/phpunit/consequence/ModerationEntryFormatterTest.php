@@ -22,6 +22,7 @@
 
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
+use MediaWiki\Moderation\TimestampFormatter;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -35,6 +36,11 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 	 * @var mixed
 	 */
 	private $actionLinkRenderer;
+
+	/**
+	 * @var mixed
+	 */
+	private $timestampFormatter;
 
 	/**
 	 * @var mixed
@@ -273,12 +279,14 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 				return new RawMessage( '{msg:' . implode( '|', $args ) . '}' );
 			} );
 
-		$expectedTime = ( new MWTimestamp( $row->timestamp ) )->timestamp->format( 'H:i' );
+		$this->timestampFormatter->expects( $this->once() )->method( 'format' )
+			->with( $this->identicalTo( $row->timestamp ) )->willReturn( '{FormattedTime}' );
+
 		$expectedCharDiff = ChangesList::showCharacterDifference(
 			$row->old_len, $row->new_len, $this->context );
 
 		// phpcs:ignore Generic.Files.LineLength.TooLong
-		$expectedResult = "<span class=\"modline\">({ActionLink:show}) . .  {PageLink:{$row->namespace}|{$row->title}} {$expectedTime} . . {$expectedCharDiff} . . " . Linker::userLink( $row->user, $row->user_text ) . "  <span class=\"comment\">({$row->comment})</span> [{ActionLink:approve} {ActionLink:approveall} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>";
+		$expectedResult = "<span class=\"modline\">({ActionLink:show}) . .  {PageLink:{$row->namespace}|{$row->title}} {FormattedTime} . . {$expectedCharDiff} . . " . Linker::userLink( $row->user, $row->user_text ) . "  <span class=\"comment\">({$row->comment})</span> [{ActionLink:approve} {ActionLink:approveall} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>";
 
 		$formatter = $this->makeTestFormatter( $row );
 		$this->assertEquals( $expectedResult, $formatter->getHTML() );
@@ -299,14 +307,9 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 	 * @param object|null $row
 	 */
 	private function makeTestFormatter( $row = null ) {
-		/*
-		'@phan-var LinkRenderer $linkRenderer';
-		'@phan-var ActionLinkRenderer $actionLinkRenderer';
-		'@phan-var IContextSource $context';
-		*/
-
 		return new ModerationEntryFormatter( $row ?? new stdClass, $this->context,
-			$this->linkRenderer, $this->actionLinkRenderer );
+			$this->linkRenderer, $this->actionLinkRenderer,
+			$this->timestampFormatter );
 	}
 
 	/**
@@ -317,6 +320,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 
 		$this->linkRenderer = $this->createMock( LinkRenderer::class );
 		$this->actionLinkRenderer = $this->createMock( ActionLinkRenderer::class );
+		$this->timestampFormatter = $this->createMock( TimestampFormatter::class );
 		$this->context = $this->createMock( IContextSource::class );
 	}
 }

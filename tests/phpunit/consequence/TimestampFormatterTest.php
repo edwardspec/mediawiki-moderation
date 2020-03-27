@@ -17,23 +17,24 @@
 
 /**
  * @file
- * Unit test of ModerationFormatTimestamp.
+ * Unit test of TimestampFormatter.
  */
 
+use MediaWiki\Moderation\TimestampFormatter;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
-class ModerationFormatTimestampTest extends ModerationUnitTestCase {
+class TimestampFormatterTest extends ModerationUnitTestCase {
 	/**
-	 * Test the results of ModerationFormatTimestamp::format().
+	 * Test the results of TimestampFormatter::format().
 	 * @dataProvider dataProviderFormat
 	 * @param string $timestamp First parameter passed to format().
 	 * @param string $mockedAdjustedTimestamp Mocked value of "userAdjust($timestamp)".
 	 * @param string $mockedAdjustedToday Mocked value of "userAdjust(wfTimestampNow())".
 	 * @param bool $expectTimeOnly Whether format() should return date+time (false) or time (true).
 	 *
-	 * @covers ModerationFormatTimestamp
+	 * @covers MediaWiki\Moderation\TimestampFormatter
 	 */
 	public function testFormat( $timestamp, $mockedAdjustedTimestamp,
 		$mockedAdjustedToday, $expectTimeOnly
@@ -86,16 +87,17 @@ class ModerationFormatTimestampTest extends ModerationUnitTestCase {
 		'@phan-var IContextSource $context';
 		'@phan-var Language $lang';
 
-		$result = ModerationFormatTimestamp::format( $timestamp, $context );
+		$formatter = new TimestampFormatter();
+		$result = $formatter->format( $timestamp, $context );
 		$this->assertEquals( $mockedResult, $result );
 
-		// Additionally test the internal cache of ModerationFormatTimestamp ($skippedToday).
-		$wrapper = TestingAccessWrapper::newFromClass( ModerationFormatTimestamp::class );
+		// Additionally test the internal cache of TimestampFormatter ($skippedToday).
+		$skippedToday = TestingAccessWrapper::newFromObject( $formatter )->skippedToday;
 		if ( $expectTimeOnly ) {
-			$this->assertFalse( $wrapper->skippedToday,
+			$this->assertFalse( $skippedToday,
 				"After today's timestamp \$skippedToday was incorrectly set to true." );
 		} else {
-			$this->assertTrue( $wrapper->skippedToday,
+			$this->assertTrue( $skippedToday,
 				"After encountering a non-today's timestamp \$skippedToday wasn't set to true." );
 
 			// Additionally test the behavior of cache.
@@ -116,7 +118,7 @@ class ModerationFormatTimestampTest extends ModerationUnitTestCase {
 			'@phan-var IContextSource $context';
 			'@phan-var Language $lang';
 
-			$result = ModerationFormatTimestamp::format( $timestamp, $context );
+			$result = $formatter->format( $timestamp, $context );
 			$this->assertEquals( $mockedResult, $result );
 		}
 	}
@@ -166,16 +168,5 @@ class ModerationFormatTimestampTest extends ModerationUnitTestCase {
 				false // $expectTimeOnly
 			],
 		];
-	}
-
-	/**
-	 * Reset the cache of ModerationFormatTimestamp class.
-	 */
-	public function setUp() : void {
-		parent::setUp();
-
-		$wrapper = TestingAccessWrapper::newFromClass( ModerationFormatTimestamp::class );
-		$wrapper->skippedToday = false;
-		$wrapper->today = '';
 	}
 }

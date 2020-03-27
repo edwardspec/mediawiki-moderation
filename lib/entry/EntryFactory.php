@@ -39,15 +39,19 @@ class EntryFactory {
 	/** @var ActionLinkRenderer */
 	protected $actionLinkRenderer;
 
+	/** @var TimestampFormatter */
+	protected $timestampFormatter;
+
 	/**
 	 * @param LinkRenderer $linkRenderer
 	 * @param ActionLinkRenderer $actionLinkRenderer
 	 */
 	public function __construct( LinkRenderer $linkRenderer,
-		ActionLinkRenderer $actionLinkRenderer
+		ActionLinkRenderer $actionLinkRenderer, TimestampFormatter $timestampFormatter
 	) {
 		$this->linkRenderer = $linkRenderer;
 		$this->actionLinkRenderer = $actionLinkRenderer;
+		$this->timestampFormatter = $timestampFormatter;
 	}
 
 	/**
@@ -61,7 +65,8 @@ class EntryFactory {
 			$row,
 			$context,
 			$this->linkRenderer,
-			$this->actionLinkRenderer
+			$this->actionLinkRenderer,
+			$this->timestampFormatter
 		);
 	}
 

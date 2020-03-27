@@ -23,6 +23,7 @@
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\EntryFactory;
+use MediaWiki\Moderation\TimestampFormatter;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -34,14 +35,16 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 	public function testFactory() {
 		$linkRenderer = $this->createMock( LinkRenderer::class );
 		$actionLinkRenderer = $this->createMock( ActionLinkRenderer::class );
+		$timestampFormatter = $this->createMock( TimestampFormatter::class );
 		$context = $this->createMock( IContextSource::class );
 		$sampleRow = (object)[ 'mod_id' => 12345, 'mod_title' => 'something' ];
 
 		'@phan-var LinkRenderer $linkRenderer';
 		'@phan-var ActionLinkRenderer $actionLinkRenderer';
+		'@phan-var TimestampFormatter $timestampFormatter';
 		'@phan-var IContextSource $context';
 
-		$factory = new EntryFactory( $linkRenderer, $actionLinkRenderer );
+		$factory = new EntryFactory( $linkRenderer, $actionLinkRenderer, $timestampFormatter );
 
 		$formatter = $factory->makeFormatter( $sampleRow, $context );
 		$this->assertInstanceOf( ModerationEntryFormatter::class, $formatter );
