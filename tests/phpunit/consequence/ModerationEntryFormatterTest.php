@@ -179,115 +179,71 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 		$this->context->expects( $this->any() )->method( 'getConfig' )
 			->willReturn( RequestContext::getMain()->getConfig() );
 
-		// Determine which calls to msg() and makeLink() should be expected, then mock them.
-		$expectedMessages = [];
-		$expectedActionLinks = [];
-		$expectedPageLinks = [];
-
-		if ( $row->type != 'move' ) {
-			$expectedActionLinks[] = 'show';
-			if ( $options['globals']['wgModerationPreviewLink'] ?? false ) {
-				$expectedActionLinks[] = 'preview';
-			}
-
-			if ( $options['globals']['wgModerationEnableEditChange'] ?? false ) {
-				$expectedActionLinks[] = 'editchange';
-			}
-		}
-
-		if ( $row->minor ) {
-			$expectedMessages[] = 'minoreditletter';
-		}
-		if ( $row->bot ) {
-			$expectedMessages[] = 'boteditletter';
-		}
-		if ( $row->minor ) {
-			$expectedMessages[] = 'newpageletter';
-		}
-
-		$expectedPageLinks[] = Title::makeTitle( $row->namespace, $row->title );
-
-		if ( $row->type == 'move' ) {
-			$expectedMessages[] = 'moderation-move';
-			$expectedPageLinks[] = Title::makeTitle( $row->page2_namespace,
-				$row->page2_mod_title );
-		}
-
-		$expectedMessages[] = 'rc-change-size-new';
-		$expectedMessages[] = 'rc-change-size';
-
-		if ( ( $row->ip ?? null ) || IP::isValid( $row->user_text ) ) {
-			$expectedMessages[] = 'moderation-whois-link-url';
-			$expectedMessages[] = 'moderation-whois-link-text';
-		}
-
-		if ( !$row->merged_revid ) {
-			if ( $row->conflict ) {
-				if ( in_array( 'automoderated', $moderator->getEffectiveGroups() ) ) {
-					$expectedActionLinks[] = 'merge';
-				} else {
-					$expectedMessages[] = 'moderation-no-merge-link-not-automoderated';
-				}
-			} else {
-				if ( !$row->rejected || ( $options['canReapprove'] ?? true ) ) {
-					$expectedActionLinks[] = 'approve';
-				}
-
-				if ( !$row->rejected ) {
-					$expectedActionLinks[] = 'approveall';
-				}
-			}
-
-			if ( !$row->rejected ) {
-				$expectedActionLinks[] = 'reject';
-				$expectedActionLinks[] = 'rejectall';
-			}
-		} else {
-			// TODO: need to mock $linkRenderer->makePreloadedLink() with parameters
-		}
-
-		$expectedActionLinks[] = $row->blocked ? 'unblock' : 'block';
-
-		if ( $row->rejected ) {
-			if ( $row->rejected_by_user ) {
-				$expectedMessages[] = 'moderation-rejected-by';
-			} elseif ( $row->rejected_auto ) {
-				$expectedMessages[] = 'moderation-rejected-auto';
-			}
-
-			if ( $row->rejected_batch ) {
-				$expectedMessages[] = 'moderation-rejected-batch';
-			}
-		}
-
-		// Start mocking.
-		$returnValueMap = [];
-		foreach ( $expectedActionLinks as $action ) {
-			$returnValueMap[] = [ $action, $row->id, "{ActionLink:$action}" ];
-		}
-		$this->actionLinkRenderer->expects( $this->exactly( count( $expectedActionLinks ) ) )
-			->method( 'makeLink' )->will( $this->returnValueMap( $returnValueMap ) );
-
-		$this->linkRenderer->expects( $this->exactly( count( $expectedPageLinks ) ) )
+		// Mock all calls to msg(), makeLink() and TimestampFormatter:format().
+		$this->actionLinkRenderer->expects( $this->any() )->method( 'makeLink' )
+			->willReturnCallback( function ( $action, $id ) use ( $row ) {
+				$this->assertEquals( $row->id, $id );
+				return "{ActionLink:$action}";
+			} );
+		$this->linkRenderer->expects( $this->any() )
 			->method( 'makeLink' )->willReturnCallback( function ( Title $title ) {
 				return '{PageLink:' . $title->getNamespace() . '|' . $title->getDBKey() . '}';
 			} );
-
-		// TODO: can willReturnCallback() be used with sequential checks of $expectedMessages?
+		$this->linkRenderer->expects( $this->any() )
+			->method( 'makePreloadedLink' )->with(
+				// This is "merged revision" link: makePreloadedLink() isn't used for anything else.
+				$this->isInstanceOf( Title::class ),
+				$this->identicalTo( '(moderation-merged-link)' ),
+				$this->identicalTo( '' ),
+				$this->identicalTo( [ 'title' => '(tooltip-moderation-merged-link)' ] ),
+				$this->logicalAnd( $this->arrayHasKey( 'diff' ), $this->countOf( 1 ) )
+			)->willReturnCallback(
+				function ( Title $title, $text, $classes, array $extraAttribs, array $query ) {
+					return '{MergedRevisionLink:' . $title->getNamespace() . '|' .
+						$title->getDBKey() . '|' . ( $query['diff'] ?? 'unknown' ) . '}';
+				} );
 		$this->context->expects( $this->any() )->method( 'msg' )
-			->willReturnCallback( function ( ...$args ) {
-				return new RawMessage( '{msg:' . implode( '|', $args ) . '}' );
+			->willReturnCallback( function ( ...$args ) use ( $lang ) {
+				return wfMessage( ...$args )->inLanguage( $lang );
 			} );
-
 		$this->timestampFormatter->expects( $this->once() )->method( 'format' )
 			->with( $this->identicalTo( $row->timestamp ) )->willReturn( '{FormattedTime}' );
 
-		$expectedCharDiff = ChangesList::showCharacterDifference(
-			$row->old_len, $row->new_len, $this->context );
-
-		// phpcs:ignore Generic.Files.LineLength.TooLong
-		$expectedResult = "<span class=\"modline\">({ActionLink:show}) . .  {PageLink:{$row->namespace}|{$row->title}} {FormattedTime} . . {$expectedCharDiff} . . " . Linker::userLink( $row->user, $row->user_text ) . "  <span class=\"comment\">({$row->comment})</span> [{ActionLink:approve} {ActionLink:approveall} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>";
-
+		$expectedResult = str_replace( [ '{AuthorUserLink}', '{CharDiff}' ],
+			[
+				Linker::userLink( $row->user, $row->user_text ),
+				ChangesList::showCharacterDifference(
+					$row->old_len,
+					$row->new_len,
+					$this->context
+				)
+			],
+			$options['expectedResult']
+		);
+		$expectedResult = preg_replace_callback(
+			'/\{Row:([^}]+)\}/', function ( $matches ) use ( $row ) {
+				$field = $matches[1];
+				return $row->$field;
+			},
+			$expectedResult
+		);
+		$expectedResult = preg_replace_callback(
+			'/\{WhoisLink:([^}]+)\}/', function ( $matches ) {
+				$ip = $matches[1];
+				return '<sup class="whois plainlinks">[' . Linker::makeExternalLink(
+					'(moderation-whois-link-url: ' . $ip . ')',
+					'(moderation-whois-link-text)'
+				) . ']</sup>';
+			},
+			$expectedResult
+		);
+		$expectedResult = preg_replace_callback(
+			'/\{UserLink:([^}]+)\}/', function ( $matches )  {
+				list( $userId, $username ) = explode( '|', $matches[1] );
+				return Linker::userLink( (int)$userId, $username );
+			},
+			$expectedResult
+		);
 		$formatter = $this->makeTestFormatter( $row );
 		$this->assertEquals( $expectedResult, $formatter->getHTML() );
 	}
@@ -297,9 +253,104 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 	 * @return array
 	 */
 	public function dataProviderGetHTML() {
+		// phpcs:disable Generic.Files.LineLength.TooLong
 		return [
-			[ [] ]
+			'pending edit' => [ [
+				'expectedResult' => '<span class="modline">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve} {ActionLink:approveall} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>'
+			] ],
+			'pending edit, PreviewLink=true' => [ [
+				'globals' => [ 'wgModerationPreviewLink' => true ],
+				'expectedResult' => '<span class="modline">({ActionLink:show} | {ActionLink:preview}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve} {ActionLink:approveall} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>'
+			] ],
+			'pending edit, EnableEditChange=true' => [ [
+				'globals' => [ 'wgModerationEnableEditChange' => true ],
+				'expectedResult' => '<span class="modline">({ActionLink:show} | {ActionLink:editchange}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve} {ActionLink:approveall} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>'
+			] ],
+			'pending edit, PreviewLink=true and EnableEditChange=true' => [ [
+				'globals' => [
+					'wgModerationPreviewLink' => true,
+					'wgModerationEnableEditChange' => true
+				],
+				'expectedResult' => '<span class="modline">({ActionLink:show} | {ActionLink:preview} | {ActionLink:editchange}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve} {ActionLink:approveall} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>'
+			] ],
+			'minor edit' => [ [
+				'fields' => [ 'minor' => 1 ],
+				'expectedResult' => '<span class="modline">({ActionLink:show}) . . (minoreditletter) {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve} {ActionLink:approveall} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>'
+			] ],
+			'bot edit' => [ [
+				'fields' => [ 'bot' => 1 ],
+				'expectedResult' => '<span class="modline">({ActionLink:show}) . . (boteditletter) {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve} {ActionLink:approveall} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>'
+			] ],
+			'new article creation' => [ [
+				'fields' => [ 'new' => 1 ],
+				'expectedResult' => '<span class="modline">({ActionLink:show}) . . (newpageletter) {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve} {ActionLink:approveall} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>'
+			] ],
+			'minor+bot+new edit' => [ [
+				'fields' => [ 'minor' => 1, 'bot' => 1, 'new' => 1 ],
+				'expectedResult' => '<span class="modline">({ActionLink:show}) . . (minoreditletter)(boteditletter)(newpageletter) {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve} {ActionLink:approveall} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>'
+			] ],
+			'pending move' => [ [
+				'fields' => [
+					'type' => 'move',
+					'page2_namespace' => 4,
+					'page2_title' => 'New_pagename'
+				],
+				'expectedResult' => '<span class="modline"> (moderation-move: {PageLink:{Row:namespace}|{Row:title}}, {PageLink:{Row:page2_namespace}|{Row:page2_title}}) {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve} {ActionLink:approveall} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>'
+			] ],
+			'pending edit, logged-in author, moderator is checkuser (should see Whois link)' => [ [
+				'fields' => [ 'ip' => '10.11.12.13' ],
+				'expectedResult' => '<span class="modline">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}{WhoisLink:10.11.12.13}  <span class="comment">({Row:comment})</span> [{ActionLink:approve} {ActionLink:approveall} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>'
+			] ],
+			'pending edit, anonymous author (should see Whois link)' => [ [
+				'fields' => [ 'user' => 0, 'user_text' => '10.20.30.40' ],
+				'expectedResult' => '<span class="modline">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}{WhoisLink:10.20.30.40}  <span class="comment">({Row:comment})</span> [{ActionLink:approve} {ActionLink:approveall} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>'
+			] ],
+			'pending edit, edit conflict, moderator is automoderated' => [ [
+				'groups' => [ 'automoderated' ],
+				'fields' => [ 'conflict' => 1 ],
+				'expectedResult' => '<span class="modline modconflict">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:merge} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>'
+			] ],
+			'pending edit, edit conflict, moderator is NOT automoderated' => [ [
+				'fields' => [ 'conflict' => 1 ],
+				'expectedResult' => '<span class="modline modconflict">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [(moderation-no-merge-link-not-automoderated) . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>'
+			] ],
+			'pending edit, modblocked user' => [ [
+				'fields' => [ 'blocked' => 1 ],
+				'expectedResult' => '<span class="modline">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve} {ActionLink:approveall} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:unblock}]</span>'
+			] ],
+			'merged edit' => [ [
+				'fields' => [ 'conflict' => 1, 'merged_revid' => 12345 ],
+				'expectedResult' => '<span class="modline">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{MergedRevisionLink:{Row:namespace}|{Row:title}|12345}] . . [{ActionLink:block}]</span>'
+			] ],
+			'rejected edit' => [ [
+				'fields' => [
+					'rejected' => 1,
+					'rejected_by_user' => 12345,
+					'rejected_by_user_text' => 'Name of moderator'
+				],
+				'expectedResult' => '<span class="modline">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve}] . . [{ActionLink:block}] . . (moderation-rejected-by: {UserLink:12345|Name of moderator}, {Row:rejected_by_user_text})</span>'
+			] ],
+			'rejected edit, rejected via "Reject all"' => [ [
+				'fields' => [
+					'rejected' => 1,
+					'rejected_batch' => 1,
+					'rejected_by_user' => 12345,
+					'rejected_by_user_text' => 'Name of moderator'
+				],
+				'expectedResult' => '<span class="modline">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve}] . . [{ActionLink:block}] . . (moderation-rejected-by: {UserLink:12345|Name of moderator}, {Row:rejected_by_user_text}) . . (moderation-rejected-batch)</span>'
+			] ],
+			'spam edit (automatically rejected)' => [ [
+				'fields' => [
+					'rejected' => 1,
+					'rejected_by_user' => 0,
+					'rejected_auto' => 1
+				],
+				'expectedResult' => '<span class="modline">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve}] . . [{ActionLink:block}] . . (moderation-rejected-auto)</span>'
+			] ],
+
+			// TODO: check absence of Approve link when $entry->canReapproveRejected() is false.
 		];
+		// phpcs:enable Generic.Files.LineLength.TooLong
 	}
 
 	/**
