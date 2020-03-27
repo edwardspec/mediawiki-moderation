@@ -23,6 +23,7 @@
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\EntryFactory;
+use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\TimestampFormatter;
 
 require_once __DIR__ . "/autoload.php";
@@ -32,6 +33,8 @@ require_once __DIR__ . "/autoload.php";
  */
 class EntryFactoryTest extends ModerationUnitTestCase {
 	use ModifyDbRowTestTrait;
+
+	protected $tablesUsed = [ 'moderation' ];
 
 	/**
 	 * Test that EntryFactory can create ModerationEntryFormatter, ModerationViewableEntry, etc.
@@ -154,6 +157,42 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 	}
 
 	/**
+	 * Test whether $options parameter is passed to DB::select() by loadRow() and loadRowOrThrow().
+	 * @param string $testedMethod Either 'loadRow' or 'loadRowOrThrow'.
+	 * @dataProvider dataProviderLoadRowOptions
+	 *
+	 * @covers MediaWiki\Moderation\EntryFactory
+	 */
+	public function testLoadRowOptions( $testedMethod ) {
+		// Let's make two rows and check if "ORDER BY" in $options
+		// will allow us to select 1 row we need.
+		$this->makeDbRow( [ 'mod_namespace' => 4 ] );
+		$this->makeDbRow( [ 'mod_namespace' => 10 ] );
+
+		$factory = $this->makeFactory();
+
+		$anyWhere = [ 'mod_namespace >= 0' ];
+		$row = $factory->$testedMethod( $anyWhere, [ 'mod_namespace AS value' ], DB_MASTER,
+			[ 'ORDER BY' => 'mod_namespace' ] );
+		$this->assertEquals( 4, $row->value );
+
+		$row = $factory->$testedMethod( $anyWhere, [ 'mod_namespace AS value' ], DB_MASTER,
+			[ 'ORDER BY' => 'mod_namespace DESC' ] );
+		$this->assertEquals( 10, $row->value );
+	}
+
+	/**
+	 * Provide datasets for testLoadRowOptions() runs.
+	 * @return array
+	 */
+	public function dataProviderLoadRowOptions() {
+		return [
+			'loadRow' => [ 'loadRow' ],
+			'loadRowOrThrow' => [ 'loadRowOrThrow' ]
+		];
+	}
+
+	/**
 	 * Test findApprovableEntry() and findViewableEntry().
 	 * @param string $testedMethod Name of method, e.g. "findViewableEntry".
 	 * @param bool $isFound True to use correct mod_id of existing row. False to use incorrect id.
@@ -191,6 +230,59 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 				[ 'findApprovableEntry', true, ModerationApprovableEntry::class ],
 			'findApprovableEntry() doesn\'t find an entry' =>
 				[ 'findApprovableEntry', false, ModerationApprovableEntry::class ]
+		];
+	}
+
+	/**
+	 * Test findPendingEdit()
+	 * @param bool $isFound True to use existing row. False to simulate "row not found" situation.
+	 * @dataProvider dataProviderFindPendingEdit
+	 *
+	 * @covers MediaWiki\Moderation\EntryFactory
+	 * @covers MediaWiki\Moderation\PendingEdit
+	 */
+	public function testFindPendingEdit( $isFound ) {
+		$title = Title::newFromText( "Talk:UTPage-" . rand( 0, 100000 ) );
+		$preloadId = 'sample preload ID ' . rand( 0, 1000000 );
+		$expectedComment = 'edit summary ' . rand( 0, 1000000 );
+		$expectedText = 'new text ' . rand( 0, 1000000 );
+
+		$fields = [
+			'mod_preloadable' => 0, // mod_preloadable=0 means "prelodable"
+			'mod_namespace' => $title->getNamespace(),
+			'mod_title' => $title->getDBKey(),
+			'mod_preload_id' => $preloadId,
+			'mod_type' => 'edit',
+			'mod_comment' => $expectedComment,
+			'mod_text' => $expectedText
+		];
+		$modid = $isFound ? $this->makeDbRow( $fields ) : null;
+
+		$factory = $this->makeFactory();
+		$pendingEdit = $factory->findPendingEdit( $preloadId, $title );
+
+		if ( $isFound ) {
+			$this->assertNotFalse( $pendingEdit,
+				"findPendingEdit() returned false when an edit should have been found." );
+			$this->assertInstanceOf( PendingEdit::class, $pendingEdit );
+
+			$this->assertSame( $modid, $pendingEdit->getId(), 'Wrong mod_id' );
+			$this->assertSame( $expectedComment, $pendingEdit->getComment(), 'wrong comment' );
+			$this->assertSame( $expectedText, $pendingEdit->getText(), 'Wrong text' );
+		} else {
+			$this->assertFalse( $pendingEdit,
+				"findPendingEdit() didn't return false when nothing should have been found." );
+		}
+	}
+
+	/**
+	 * Provide datasets for testFindPendingEdit() runs.
+	 * @return array
+	 */
+	public function dataProviderFindPendingEdit() {
+		return [
+			'findPendingEdit() finds an edit' => [ true ],
+			'findPendingEdit() doesn\'t find an edit' => [ false ]
 		];
 	}
 

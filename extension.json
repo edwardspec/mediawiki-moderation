@@ -122,7 +122,7 @@
 		"MediaWiki\\Moderation\\MarkAsMergedConsequence": "lib/consequence/MarkAsMergedConsequence.php",
 		"MediaWiki\\Moderation\\MockConsequenceManager": "lib/consequence/manager/MockConsequenceManager.php",
 		"MediaWiki\\Moderation\\ModifyPendingChangeConsequence": "lib/consequence/ModifyPendingChangeConsequence.php",
-		"MediaWiki\\Moderation\\PendingEdit": "lib/PendingEdit.php",
+		"MediaWiki\\Moderation\\PendingEdit": "lib/entry/PendingEdit.php",
 		"MediaWiki\\Moderation\\QueueEditConsequence": "lib/consequence/QueueEditConsequence.php",
 		"MediaWiki\\Moderation\\QueueMoveConsequence": "lib/consequence/QueueMoveConsequence.php",
 		"MediaWiki\\Moderation\\QueueUploadConsequence": "lib/consequence/QueueUploadConsequence.php",
