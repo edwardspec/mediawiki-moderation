@@ -29,7 +29,7 @@ require_once __DIR__ . "/autoload.php";
 
 class EntryFactoryTest extends ModerationUnitTestCase {
 	/**
-	 * Test that EntryFactory can create a valid ModerationEntryFormatter.
+	 * Test that EntryFactory can create ModerationEntryFormatter, ModerationViewableEntry, etc.
 	 * @covers MediaWiki\Moderation\EntryFactory
 	 */
 	public function testFactory() {
@@ -37,7 +37,6 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 		$actionLinkRenderer = $this->createMock( ActionLinkRenderer::class );
 		$timestampFormatter = $this->createMock( TimestampFormatter::class );
 		$context = $this->createMock( IContextSource::class );
-		$sampleRow = (object)[ 'mod_id' => 12345, 'mod_title' => 'something' ];
 
 		'@phan-var LinkRenderer $linkRenderer';
 		'@phan-var ActionLinkRenderer $actionLinkRenderer';
@@ -46,7 +45,27 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 
 		$factory = new EntryFactory( $linkRenderer, $actionLinkRenderer, $timestampFormatter );
 
-		$formatter = $factory->makeFormatter( $sampleRow, $context );
+		// Test makeFormatter()
+		$row = (object)[ 'param1' => 'value1', 'param2' => 'value2' ];
+		$formatter = $factory->makeFormatter( $row, $context );
 		$this->assertInstanceOf( ModerationEntryFormatter::class, $formatter );
+
+		// Test makeViewableEntry()
+		$row = (object)[ 'param1' => 'value1', 'param2' => 'value2' ];
+		$viewableEntry = $factory->makeViewableEntry( $row );
+		$this->assertInstanceOf( ModerationViewableEntry::class, $viewableEntry );
+
+		// Test makeApprovableEntry()
+		$row = (object)[ 'type' => 'move', 'stash_key' => null ];
+		$approvableEntry = $factory->makeApprovableEntry( $row );
+		$this->assertInstanceOf( ModerationEntryMove::class, $approvableEntry );
+
+		$row = (object)[ 'type' => 'edit', 'stash_key' => null ];
+		$approvableEntry = $factory->makeApprovableEntry( $row );
+		$this->assertInstanceOf( ModerationEntryEdit::class, $approvableEntry );
+
+		$row = (object)[ 'type' => 'edit', 'stash_key' => 'some non-empty stash key' ];
+		$approvableEntry = $factory->makeApprovableEntry( $row );
+		$this->assertInstanceOf( ModerationEntryUpload::class, $approvableEntry );
 	}
 }
