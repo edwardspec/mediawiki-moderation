@@ -72,12 +72,13 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 	 * Test loadRow() and loadRowOrThrow().
 	 * @param string $testedMethod Either 'loadRow' or 'loadRowOrThrow'.
 	 * @param bool $isFound True to use correct mod_id of existing row. False to use incorrect id.
+	 * @param bool $useWhere If true, first parameter ($where) will be an array. If false, mod_id.
 	 * @param int $dbType Either DB_MASTER or DB_REPLICA.
 	 * @dataProvider dataProviderLoadRow
 	 *
 	 * @covers MediaWiki\Moderation\EntryFactory
 	 */
-	public function testLoadRow( $testedMethod, $isFound, $dbType ) {
+	public function testLoadRow( $testedMethod, $isFound, $useWhere, $dbType ) {
 		$expectedUA = 'SampleUserAgent/1.0.' . rand( 0, 100000 );
 		$expectedIP = '10.11.12.13';
 
@@ -95,18 +96,28 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 			}
 		}
 
+		// Test both selection by $where (same as $where parameter for DB::select())
+		// and by mod_id (integer).
+		$where = $useWhere ? [ 'mod_header_ua' => $expectedUA ] : $modid;
+		$fields = [ 'mod_header_ua AS header_ua', 'mod_ip AS ip' ];
+
 		$factory = $this->makeFactory();
-		$row = $factory->$testedMethod(
-			$modid,
-			[ 'mod_header_ua AS header_ua', 'mod_ip AS ip' ],
-			$dbType
-		);
+		$row = $factory->$testedMethod( $where, $fields, $dbType );
 
 		if ( $isFound ) {
 			$this->assertNotFalse( $row );
 			$this->assertEquals( $expectedUA, $row->header_ua );
 			$this->assertEquals( $expectedIP, $row->ip );
-			$this->assertEquals( $modid, $row->id, "Incorrect \$row->id in return value of $testedMethod." );
+
+			if ( $useWhere ) {
+				// We haven't listed "id" in $fields, and parameter $where is an array (not mod_id).
+				$this->assertSame( 0, $row->id,
+					"Field \$row->id is not 0, even though $testedMethod() didn't receive an id, " .
+					"and \$fields parameter didn't contain \"id\" field either." );
+			} else {
+				$this->assertEquals( $modid, $row->id,
+					"Incorrect \$row->id in return value of $testedMethod." );
+			}
 
 			$this->assertEquals( [ 'header_ua', 'ip', 'id' ], array_keys( get_object_vars( $row ) ),
 				"List of properties in \$row (return value of $testedMethod)."
@@ -123,10 +134,22 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 	 */
 	public function dataProviderLoadRow() {
 		return [
-			'situation when loadRow() finds a row' => [ 'loadRow', true, DB_MASTER ],
-			'situation when loadRow() doesn\'t find a row' => [ 'loadRow', false, DB_MASTER ],
-			'situation when loadRowOrThrow() finds a row' => [ 'loadRowOrThrow', true, DB_MASTER ],
-			'situation when loadRowOrThrow() doesn\'t find a row' => [ 'loadRowOrThrow', false, DB_MASTER ]
+			// Selecting by mod_id
+			'situation when loadRow($id) finds a row' => [ 'loadRow', true, false, DB_MASTER ],
+			'situation when loadRow($id) doesn\'t find a row' =>
+				[ 'loadRow', false, false, DB_MASTER ],
+			'situation when loadRowOrThrow($id) finds a row' =>
+				[ 'loadRowOrThrow', true, false, DB_MASTER ],
+			'situation when loadRowOrThrow($id) doesn\'t find a row' =>
+				[ 'loadRowOrThrow', false, false, DB_MASTER ],
+			// Selecting by $where array
+			'situation when loadRow($where) finds a row' => [ 'loadRow', true, true, DB_MASTER ],
+			'situation when loadRow($where) doesn\'t find a row' =>
+				[ 'loadRow', false, true, DB_MASTER ],
+			'situation when loadRowOrThrow($where) finds a row' =>
+				[ 'loadRowOrThrow', true, true, DB_MASTER ],
+			'situation when loadRowOrThrow($where) doesn\'t find a row' =>
+				[ 'loadRowOrThrow', false, true, DB_MASTER ]
 		];
 	}
 

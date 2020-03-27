@@ -124,32 +124,36 @@ class EntryFactory {
 
 	/**
 	 * Load $row from the database by its mod_id.
-	 * @param int $id
+	 * @param int|array $where Either the value of mod_id (integer) or $where array for DB::select().
 	 * @param string[] $fields
 	 * @param int $dbType DB_MASTER or DB_REPLICA.
 	 * @return object|false
 	 */
-	public function loadRow( $id, array $fields, $dbType = DB_MASTER ) {
+	public function loadRow( $where, array $fields, $dbType = DB_MASTER ) {
+		if ( !is_array( $where ) ) {
+			$where = [ 'mod_id' => $where ];
+		}
+
 		$db = wfGetDB( $dbType );
-		$row = $db->selectRow( 'moderation', $fields, [ 'mod_id' => $id ], __METHOD__ );
+		$row = $db->selectRow( 'moderation', $fields, $where, __METHOD__ );
 		if ( !$row ) {
 			return false;
 		}
 
-		$row->id = $id;
+		$row->id = (int)( $row->id ?? $where['mod_id'] ?? 0 );
 		return $row;
 	}
 
 	/**
 	 * Load $row from the database by its mod_id. Throws an exception if the row wasn't found.
-	 * @param int $id
+	 * @param int|array $where Either the value of mod_id (integer) or $where array for DB::select().
 	 * @param string[] $fields
 	 * @param int $dbType DB_MASTER or DB_REPLICA.
 	 * @return object
 	 * @throws ModerationError
 	 */
-	public function loadRowOrThrow( $id, array $fields, $dbType = DB_MASTER ) {
-		$row = $this->loadRow( $id, $fields, $dbType );
+	public function loadRowOrThrow( $where, array $fields, $dbType = DB_MASTER ) {
+		$row = $this->loadRow( $where, $fields, $dbType );
 		if ( !$row ) {
 			throw new ModerationError( 'moderation-edit-not-found' );
 		}

@@ -39,22 +39,14 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 			$where['mod_type'] = ModerationNewChange::MOD_TYPE_EDIT;
 		}
 
-		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( 'moderation',
-			[
-				'mod_namespace AS namespace',
-				'mod_title AS title',
-				'mod_user AS user',
-				'mod_user_text AS user_text',
-				'mod_text AS text',
-				'mod_comment AS comment'
-			],
-			$where,
-			__METHOD__
-		);
-		if ( !$row ) {
-			throw new ModerationError( 'moderation-edit-not-found' );
-		}
+		$row = $this->entryFactory->loadRowOrThrow( $where, [
+			'mod_namespace AS namespace',
+			'mod_title AS title',
+			'mod_user AS user',
+			'mod_user_text AS user_text',
+			'mod_text AS text',
+			'mod_comment AS comment'
+		] );
 
 		$request = $this->getRequest();
 
