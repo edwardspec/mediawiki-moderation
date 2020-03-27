@@ -29,6 +29,7 @@ use ModerationEntryEdit;
 use ModerationEntryFormatter;
 use ModerationEntryMove;
 use ModerationEntryUpload;
+use ModerationError;
 use ModerationNewChange;
 use ModerationViewableEntry;
 
@@ -89,7 +90,8 @@ class EntryFactory {
 	 */
 	public function findViewableEntry( $id ) {
 		return $this->makeViewableEntry(
-			ModerationViewableEntry::loadRowFromDb( $id, DB_REPLICA ) );
+			$this->loadRowOrThrow( $id, ModerationViewableEntry::getFields(), DB_REPLICA )
+		);
 	}
 
 	/**
@@ -115,6 +117,43 @@ class EntryFactory {
 	 * @return ModerationApprovableEntry
 	 */
 	public function findApprovableEntry( $id ) {
-		return $this->makeApprovableEntry( ModerationApprovableEntry::loadRowFromDb( $id ) );
+		return $this->makeApprovableEntry(
+			$this->loadRowOrThrow( $id, ModerationApprovableEntry::getFields() )
+		);
+	}
+
+	/**
+	 * Load $row from the database by its mod_id.
+	 * @param int $id
+	 * @param string[] $fields
+	 * @param int $dbType DB_MASTER or DB_REPLICA.
+	 * @return object|false
+	 */
+	public function loadRow( $id, array $fields, $dbType = DB_MASTER ) {
+		$db = wfGetDB( $dbType );
+		$row = $db->selectRow( 'moderation', $fields, [ 'mod_id' => $id ], __METHOD__ );
+		if ( !$row ) {
+			return false;
+		}
+
+		$row->id = $id;
+		return $row;
+	}
+
+	/**
+	 * Load $row from the database by its mod_id. Throws an exception if the row wasn't found.
+	 * @param int $id
+	 * @param string[] $fields
+	 * @param int $dbType DB_MASTER or DB_REPLICA.
+	 * @return object
+	 * @throws ModerationError
+	 */
+	public function loadRowOrThrow( $id, array $fields, $dbType = DB_MASTER ) {
+		$row = $this->loadRow( $id, $fields, $dbType );
+		if ( !$row ) {
+			throw new ModerationError( 'moderation-edit-not-found' );
+		}
+
+		return $row;
 	}
 }

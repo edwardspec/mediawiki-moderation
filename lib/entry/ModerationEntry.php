@@ -154,26 +154,4 @@ abstract class ModerationEntry {
 
 		return Title::makeTitle( $row->page2_namespace, $row->page2_title );
 	}
-
-	/**
-	 * Load $row from the database by its mod_id.
-	 * @param int $id
-	 * @param int $dbType DB_MASTER or DB_REPLICA.
-	 * @return object
-	 * @throws ModerationError
-	 */
-	public static function loadRowFromDb( $id, $dbType = DB_MASTER ) {
-		$dbw = wfGetDB( $dbType );
-		$row = $dbw->selectRow( 'moderation',
-			static::getFields(),
-			[ 'mod_id' => $id ],
-			__METHOD__
-		);
-		if ( !$row ) {
-			throw new ModerationError( 'moderation-edit-not-found' );
-		}
-
-		$row->id = $id;
-		return $row;
-	}
 }
