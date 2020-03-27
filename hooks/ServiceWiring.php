@@ -23,7 +23,8 @@
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionFactory;
 use MediaWiki\Moderation\ActionLinkRenderer;
-use MediaWiki\Moderation\EntryFormatterFactory;
+use MediaWiki\Moderation\EntryFactory;
+use MediaWiki\Moderation\TimestampFormatter;
 
 return [
 	'Moderation.ActionFactory' => function () {
@@ -36,10 +37,14 @@ return [
 			SpecialPage::getTitleFor( 'Moderation' )
 		);
 	},
-	'Moderation.EntryFormatterFactory' => function ( MediaWikiServices $services ) {
-		return new EntryFormatterFactory(
+	'Moderation.EntryFactory' => function ( MediaWikiServices $services ) {
+		return new EntryFactory(
 			$services->getLinkRenderer(),
-			$services->getService( 'Moderation.ActionLinkRenderer' )
+			$services->getService( 'Moderation.ActionLinkRenderer' ),
+			$services->getService( 'Moderation.TimestampFormatter' )
 		);
+	},
+	'Moderation.TimestampFormatter' => function () {
+		return new TimestampFormatter();
 	},
 ];

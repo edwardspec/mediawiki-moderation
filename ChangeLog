@@ -13,6 +13,7 @@ the author did the change) not being applied:
 	* when approving a Move that overwrites an existing redirect.
 * PostgreSQL: fixed incorrect value returned by NewChange::queue().
 * PostgreSQL: order of edits during ApproveAll is now the same as with MySQL.
+* PostgreSQL: Special:Moderation no longer shows day/month in today's timestamps.
 
 Refactoring, performance optimizations:
 * Major refactoring of everything (Consequence classes).

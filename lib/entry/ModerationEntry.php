@@ -37,7 +37,7 @@ abstract class ModerationEntry {
 		return $this->row;
 	}
 
-	protected function __construct( $row ) {
+	public function __construct( $row ) {
 		if ( !isset( $row->type ) ) { // !ModerationVersionCheck::hasModType()
 			$row->type = ModerationNewChange::MOD_TYPE_EDIT;
 		}
@@ -153,38 +153,5 @@ abstract class ModerationEntry {
 		}
 
 		return Title::makeTitle( $row->page2_namespace, $row->page2_title );
-	}
-
-	/**
-	 * Load ModerationEntry from the database by mod_id.
-	 * @param int $id
-	 * @param int $dbType DB_MASTER or DB_REPLICA.
-	 * @return static
-	 * @throws ModerationError
-	 */
-	public static function newFromId( $id, $dbType = DB_MASTER ) {
-		$dbw = wfGetDB( $dbType );
-		$row = $dbw->selectRow( 'moderation',
-			static::getFields(),
-			[ 'mod_id' => $id ],
-			__METHOD__
-		);
-		if ( !$row ) {
-			throw new ModerationError( 'moderation-edit-not-found' );
-		}
-
-		$row->id = $id;
-		return static::newFromRow( $row );
-	}
-
-	/**
-	 * Construct new ModerationEntry from $row.
-	 * @param stdClass $row
-	 * @return static
-	 * @throws ModerationError
-	 */
-	public static function newFromRow( $row ) {
-		// @phan-suppress-next-line PhanTypeInstantiateAbstractStatic
-		return new static( $row );
 	}
 }

@@ -140,12 +140,18 @@ class SpecialModeration extends QueryPage {
 	 * Show the list of pending changes in the current folder of Special:Moderation.
 	 */
 	public function showChangesList() {
+		global $wgVersion;
+
 		$out = $this->getOutput();
 		$out->addModuleStyles( 'ext.moderation.special.css' );
 		$out->addWikiMsg( 'moderation-text' );
 
 		if ( $this->getConfig()->get( 'ModerationUseAjax' ) ) {
 			$out->addModules( 'ext.moderation.special.ajax' );
+		}
+
+		if ( version_compare( $wgVersion, '1.35.0', '>=' ) ) {
+			$out->addModuleStyles( 'mediawiki.interface.helpers.styles' );
 		}
 
 		/* Close "New changes await moderation" notification until new changes appear */
@@ -206,7 +212,7 @@ class SpecialModeration extends QueryPage {
 	 */
 	public function formatResult( $skin, $row ) {
 		return MediaWikiServices::getInstance()
-			->getService( 'Moderation.EntryFormatterFactory' )
+			->getService( 'Moderation.EntryFactory' )
 			->makeFormatter( $row, $this->getContext() )
 			->getHTML();
 	}

@@ -20,20 +20,33 @@
  * Formatter for displaying entry in modaction=show.
  */
 
+use MediaWiki\Linker\LinkRenderer;
+
 class ModerationViewableEntry extends ModerationEntry {
+	/** @var LinkRenderer */
+	protected $linkRenderer;
+
+	/**
+	 * @param stdClass $row
+	 * @param LinkRenderer $linkRenderer
+	 */
+	public function __construct( $row, LinkRenderer $linkRenderer ) {
+		parent::__construct( $row );
+
+		$this->linkRenderer = $linkRenderer;
+	}
+
 	/**
 	 * Get the list of fields needed for selecting $row from database.
 	 * @return array
 	 */
 	public static function getFields() {
-		$fields = array_merge( parent::getFields(), [
+		return array_merge( parent::getFields(), [
 			'mod_last_oldid AS last_oldid',
 			'mod_new AS new',
 			'mod_text AS text',
 			'mod_stash_key AS stash_key'
 		] );
-
-		return $fields;
 	}
 
 	/**
@@ -62,10 +75,9 @@ class ModerationViewableEntry extends ModerationEntry {
 
 		if ( $this->isMove() ) {
 			// "Page A moved into B"
-			$linkRenderer = MediaWiki\MediaWikiServices::getInstance()->getLinkRenderer();
 			return $context->msg( 'movepage-page-moved' )->rawParams(
-				$linkRenderer->makeLink( $title ),
-				$linkRenderer->makeLink( $this->getPage2Title() )
+				$this->linkRenderer->makeLink( $title ),
+				$this->linkRenderer->makeLink( $this->getPage2Title() )
 			)->parseAsBlock();
 		}
 

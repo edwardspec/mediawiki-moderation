@@ -22,6 +22,7 @@
 
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
+use MediaWiki\Moderation\TimestampFormatter;
 
 class ModerationEntryFormatter extends ModerationEntry {
 	/** @var IContextSource */
@@ -33,6 +34,9 @@ class ModerationEntryFormatter extends ModerationEntry {
 	/** @var ActionLinkRenderer */
 	protected $actionLinkRenderer;
 
+	/** @var TimestampFormatter */
+	protected $timestampFormatter;
+
 	/**
 	 * @param stdClass $row
 	 * @param IContextSource $context
@@ -40,13 +44,14 @@ class ModerationEntryFormatter extends ModerationEntry {
 	 * @param ActionLinkRenderer $actionLinkRenderer
 	 */
 	public function __construct( $row, IContextSource $context, LinkRenderer $linkRenderer,
-		ActionLinkRenderer $actionLinkRenderer
+		ActionLinkRenderer $actionLinkRenderer, TimestampFormatter $timestampFormatter
 	) {
 		parent::__construct( $row );
 
 		$this->context = $context;
 		$this->linkRenderer = $linkRenderer;
 		$this->actionLinkRenderer = $actionLinkRenderer;
+		$this->timestampFormatter = $timestampFormatter;
 	}
 
 	/**
@@ -205,7 +210,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 		$line .= ' ';
 
-		$line .= ModerationFormatTimestamp::format( $row->timestamp, $this->context );
+		$line .= $this->timestampFormatter->format( $row->timestamp, $this->context );
 
 		$line .= ' . . ';
 		$line .= ChangesList::showCharacterDifference(

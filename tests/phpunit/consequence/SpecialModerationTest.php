@@ -22,7 +22,7 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionFactory;
-use MediaWiki\Moderation\EntryFormatterFactory;
+use MediaWiki\Moderation\EntryFactory;
 use Wikimedia\Rdbms\FakeResultWrapper;
 use Wikimedia\TestingAccessWrapper;
 
@@ -282,21 +282,29 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 	/**
 	 * Test folder-independent behavior of SpecialModeration when showing the list of changes.
 	 * @param bool $useAjax
+	 * @param string $mwVersion
 	 * @dataProvider dataProviderShowChangesList
 	 *
 	 * @covers SpecialModeration::showChangesList()
 	 * @covers SpecialModeration::execute()
 	 */
-	public function testShowChangesList( $useAjax ) {
+	public function testShowChangesList( $useAjax, $mwVersion ) {
 		$moderator = self::getTestUser( [ 'moderator' ] )->getUser();
 		$this->setMwGlobals( 'wgModerationUseAjax', $useAjax );
+
+		$expectedStyles = [ 'ext.moderation.special.css' ];
+		if ( version_compare( $mwVersion, '1.35.0', '>=' ) ) {
+			$expectedStyles[] = 'mediawiki.interface.helpers.styles';
+		}
+
+		$this->setMwGlobals( 'wgVersion', $mwVersion );
 
 		$context = null;
 		$html = ModerationTestUtil::runSpecialModeration( $moderator, [], false, $context );
 		$this->assertContains( '(moderation-text)', $html );
 
 		$out = $context->getOutput();
-		$this->assertEquals( [ 'ext.moderation.special.css' ], $out->getModuleStyles() );
+		$this->assertEquals( $expectedStyles, $out->getModuleStyles() );
 		$this->assertEquals( $useAjax ? [ 'ext.moderation.special.ajax' ] : [],
 			$out->getModules() );
 	}
@@ -307,8 +315,10 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 	 */
 	public function dataProviderShowChangesList() {
 		return [
-			'$wgModerationUseAjax=false (default)' => [ false ],
-			'$wgModerationUseAjax=true' => [ true ]
+			'$wgModerationUseAjax=false (default)' => [ false, '1.34.0' ],
+			'$wgModerationUseAjax=true' => [ true, '1.34.0' ],
+			'$wgModerationUseAjax=false (default), MW 1.35+' => [ false, '1.35.0' ],
+			'$wgModerationUseAjax=true, MW 1.35+' => [ true, '1.35.0' ]
 		];
 	}
 
@@ -327,8 +337,8 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		$special = new SpecialModeration;
 		$special->setContext( $context );
 
-		// Mock the EntryFormatterFactory service before trying formatResult().
-		$factory = $this->createMock( EntryFormatterFactory::class );
+		// Mock the EntryFactory service before trying formatResult().
+		$factory = $this->createMock( EntryFactory::class );
 		$factory->expects( $this->once() )->method( 'makeFormatter' )
 			->with(
 				// @phan-suppress-next-line PhanTypeMismatchArgument
@@ -341,7 +351,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 					->willReturn( $expectedResult );
 				return $formatter;
 			} ) );
-		$this->setService( 'Moderation.EntryFormatterFactory', $factory );
+		$this->setService( 'Moderation.EntryFactory', $factory );
 
 		'@phan-var Skin $skin';
 

@@ -70,44 +70,13 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 
 		Hooks::register( 'SetupAfterCache', function () use ( $newDomain, $value ) {
 			$lbFactory = MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancerFactory();
-			if ( method_exists( $lbFactory, 'redefineLocalDomain' ) ) {
-				// MediaWiki 1.32+
-				$lbFactory->redefineLocalDomain( $newDomain );
-			} else {
+			if ( !method_exists( $lbFactory, 'redefineLocalDomain' ) ) {
 				// MediaWiki 1.31
-				$lbFactory->closeAll();
-
-				// @phan-suppress-next-line PhanUndeclaredMethod
-				$lbFactory->setDomainPrefix( $value );
-
-				// HACK: in MediaWiki 1.31, RevisionStore object compared wfWikiId() with $db->getDomainID(),
-				// however it fails, because wfWikiId() doesn't have prefix, and $db->getDomainID() does.
-				// Normally $wgPrefix adds prefix to wfWikiId(), but $wgPrefix can't be used with PostgreSQL.
-				// This is an unnecessary sanity check that makes running tests vs. PostgreSQL not possible.
-				// Workaround is to provide $newDomain->getId() to RevisionStore when it is constructed.
-				$services = MediaWiki\MediaWikiServices::getInstance();
-				$services->redefineService( 'RevisionStore',
-					function () use ( $services, $newDomain ) {
-						// @phan-suppress-next-line PhanParamTooFew
-						$store = new MediaWiki\Storage\RevisionStore(
-							$services->getDBLoadBalancer(),
-							$services->getService( '_SqlBlobStore' ),
-							$services->getMainWANObjectCache(),
-							$services->getCommentStore(),
-							// @phan-suppress-next-line PhanTypeMismatchArgument
-							$services->getActorMigration(),
-							// @phan-suppress-next-line PhanTypeMismatchArgument
-							$newDomain->getId() // <----- what ModerationTestsuite is adding
-						);
-
-						$store->setLogger( MediaWiki\Logger\LoggerFactory::getInstance( 'RevisionStore' ) );
-						$config = $services->getMainConfig();
-						$store->setContentHandlerUseDB( $config->get( 'ContentHandlerUseDB' ) );
-
-						return $store;
-					}
-				);
+				throw new MWException(
+					"CliEngine requires MediaWiki 1.32+ when using PostgreSQL.\n" );
 			}
+
+			$lbFactory->redefineLocalDomain( $newDomain );
 		} );
 	} else {
 		$GLOBALS["wg$name"] = $value;

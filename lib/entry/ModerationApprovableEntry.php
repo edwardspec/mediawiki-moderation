@@ -55,24 +55,6 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 		return $fields;
 	}
 
-	/**
-	 * Construct new ModerationApprovableEntry from $row.
-	 * @param stdClass $row
-	 * @return ModerationApprovableEntry
-	 * @throws ModerationError
-	 */
-	public static function newFromRow( $row ) {
-		if ( isset( $row->type ) && $row->type == ModerationNewChange::MOD_TYPE_MOVE ) {
-			return new ModerationEntryMove( $row );
-		}
-
-		if ( $row->stash_key ) {
-			return new ModerationEntryUpload( $row );
-		}
-
-		return new ModerationEntryEdit( $row );
-	}
-
 	protected function getUser( $flags = 0 ) {
 		/* User could have been recently renamed or deleted.
 			Make sure we have the correct data when approving. */
