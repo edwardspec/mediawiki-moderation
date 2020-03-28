@@ -184,7 +184,8 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 		$errorOutput = $ret->getStderr();
 
 		if ( $errorOutput ) {
-			/* Allow PHPUnit to complain about this */
+			// Allow PHPUnit to complain about this.
+			// @phan-suppress-next-line SecurityCheck-XSS - false positive
 			print "\n" . $errorOutput;
 		}
 
@@ -192,6 +193,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 			wfArrayToCgi( $descriptor['_POST'] ) . ']';
 
 		try {
+			// @phan-suppress-next-line SecurityCheck-PHPSerializeInjection - false positive
 			$result = unserialize( $output );
 		} catch ( Exception $e ) {
 			$this->getLogger()->error( '[CliEngine] Non-serialized text printed by cliInvoke.php', [

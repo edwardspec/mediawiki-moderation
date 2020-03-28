@@ -75,7 +75,8 @@ class ModerationTestsuiteMockAutoLoader {
 	 * Replace all calls to function A with calls to function B.
 	 */
 	public static function replaceFunction( $oldFunctionName, $newFunctionName ) {
-		self::singleton()->replacements[$oldFunctionName] = $newFunctionName;
+		$self = self::singleton();
+		$self->replacements[$oldFunctionName] = $newFunctionName;
 	}
 
 	/**

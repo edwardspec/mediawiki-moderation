@@ -215,7 +215,8 @@ class ModerationPreload {
 	 * @return true
 	 */
 	public static function onAlternateEdit( $editPage ) {
-		self::singleton()->editPage = $editPage;
+		$preload = self::singleton();
+		$preload->editPage = $editPage;
 
 		return true;
 	}
@@ -228,7 +229,8 @@ class ModerationPreload {
 	 * @return true
 	 */
 	public static function onEditFormPreloadText( &$text, &$title ) {
-		self::showUnmoderatedEdit( $text, $title, self::singleton()->editPage );
+		$preload = self::singleton();
+		self::showUnmoderatedEdit( $text, $title, $preload->editPage );
 
 		return true;
 	}

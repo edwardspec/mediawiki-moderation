@@ -155,6 +155,7 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 		$this->assertTrue( $status->isOK(),
 			"ApproveEditConsequence failed: " . $status->getMessage()->plain() );
 
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
 		$rev = Revision::newFromId( $status->value['revision']->getId() );
 		$this->assertEquals( $revid2, $rev->getParentId() );
 		$this->assertEquals( $expectedText, $rev->getContent()->getNativeData() );

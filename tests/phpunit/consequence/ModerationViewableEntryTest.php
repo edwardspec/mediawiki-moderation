@@ -307,11 +307,8 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 			)
 		);
 		$differenceEngine->expects( $this->once() )->method( 'addHeader' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( '{GeneratedDiff}' ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( '(moderation-diff-header-before)' ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( '(moderation-diff-header-after)' )
 		)->willReturn( '{GeneratedDiff+Header}' );
 

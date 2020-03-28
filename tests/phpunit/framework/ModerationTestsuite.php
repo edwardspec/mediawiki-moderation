@@ -378,6 +378,7 @@ class ModerationTestsuite {
 					unset( $row[$keyField] );
 				}
 
+				// @phan-suppress-next-line SecurityCheck-SQLInjection - false positive
 				$dbw->insert( $table, $row, __METHOD__ );
 				if ( $dbw->affectedRows() != 1 ) {
 					throw new MWException( 'createTestUsers: loading from cache failed.' );

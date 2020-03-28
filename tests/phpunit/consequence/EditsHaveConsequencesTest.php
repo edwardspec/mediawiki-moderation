@@ -99,6 +99,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		$status = $this->makeEdit();
 		$this->assertTrue( $status->isOK(), 'Failed to save an edit.' );
 
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
 		$revid = $status->value['revision']->getId();
 
 		$this->assertConsequences( [
