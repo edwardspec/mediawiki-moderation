@@ -25,6 +25,7 @@ use MediaWiki\Linker\LinkRenderer;
 require_once __DIR__ . "/autoload.php";
 
 class ModerationViewableEntryTest extends ModerationUnitTestCase {
+	use MockRevisionLookupTestTrait;
 	use UploadTestTrait;
 
 	/**
@@ -208,6 +209,135 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 
 		$fields = ModerationViewableEntry::getFields();
 		$this->assertEquals( $expectedFields, $fields );
+	}
+
+	/**
+	 * Verify that getDiffHTML() returns an empty string for reuploads.
+	 * @covers ModerationViewableEntry
+	 */
+	public function testDiffReupload() {
+		$context = $this->createMock( IContextSource::class );
+		$entry = $this->makeViewableEntry( (object)[
+			'stash_key' => 'somekey.jpg',
+			'namespace' => 0,
+			'title' => 'Some_page'
+		] );
+
+		'@phan-var IContextSource $context';
+
+		// This makes Title::exists() to always return true.
+		$this->setTemporaryHook( 'TitleExists', function ( $_, &$exists ) {
+			$exists = true;
+			return true;
+		} );
+
+		$result = $entry->getDiffHTML( $context );
+		$this->assertSame( '', $result,
+			'Result of getDiffHTML() on reupload must be an empty string.' );
+	}
+
+	/**
+	 * Verify that getDiffHTML() returns "movepage-page-moved" message for moves.
+	 * @covers ModerationViewableEntry
+	 */
+	public function testDiffMove() {
+		$context = new DerivativeContext( RequestContext::getMain() );
+		$context->setLanguage( 'qqx' );
+
+		$oldTitle = Title::newFromText( 'Talk:UTPage ' . rand( 0, 100000 ) );
+		$newTitle = Title::newFromText( 'Project:UTPage ' . rand( 0, 100000 ) );
+
+		// Mock LinkRenderer::makeLink() to check that they point to the necessary pages.
+		$this->linkRenderer->expects( $this->at( 0 ) )->method( 'makeLink' )->will(
+			$this->returnCallback( function ( $linkTarget ) use ( $oldTitle ) {
+				$this->assertEquals( $oldTitle->getFullText(), $linkTarget->getFullText() );
+				return '{OldTitleLink}';
+			}
+		) );
+		$this->linkRenderer->expects( $this->at( 1 ) )->method( 'makeLink' )->will(
+			$this->returnCallback( function ( $linkTarget ) use ( $newTitle ) {
+				$this->assertEquals( $newTitle->getFullText(), $linkTarget->getFullText() );
+				return '{NewTitleLink}';
+			}
+		) );
+
+		$entry = $this->makeViewableEntry( (object)[
+			'stash_key' => null,
+			'namespace' => $oldTitle->getNamespace(),
+			'title' => $oldTitle->getDBKey(),
+			'type' => 'move',
+			'page2_namespace' => $newTitle->getNamespace(),
+			'page2_title' => $newTitle->getDBKey()
+		] );
+
+		$result = $entry->getDiffHTML( $context );
+		$this->assertEquals(
+			'(movepage-page-moved: {OldTitleLink}, {NewTitleLink})',
+			Parser::stripOuterParagraph( $result )
+		);
+	}
+
+	/**
+	 * Check the return value of ModerationViewableEntry::getDiffHTML().
+	 * @covers ModerationViewableEntry
+	 */
+	public function testDiff() {
+		$title = Title::newFromText( 'File:UTUpload ' . rand( 0, 100000 ) . '.png' );
+		$oldText = 'Original text of the article';
+		$newText = 'New content of the article';
+		$oldid = 56789;
+		$modid = 12345;
+
+		$context = new DerivativeContext( RequestContext::getMain() );
+		$context->setLanguage( 'qqx' );
+		$context->setTitle( SpecialPage::getTitleFor( 'Moderation' ) );
+
+		// Mock RevisionLookup service to provide $oldText as current text of revision $revid.
+		$this->mockRevisionLookup( $oldid, $oldText, $title );
+
+		// Mock DifferenceEngine (which is used by ViewableEntry to generate the diff)
+		$differenceEngine = $this->createMock( DifferenceEngine::class );
+		$differenceEngine->expects( $this->once() )->method( 'generateContentDiffBody' )->will(
+			$this->returnCallback(
+				function ( $oldContent, $newContent ) use ( $oldText, $newText ) {
+					$this->assertEquals( $oldText, $oldContent->getNativeData() );
+					$this->assertEquals( $newText, $newContent->getNativeData() );
+					return '{GeneratedDiff}';
+				}
+			)
+		);
+		$differenceEngine->expects( $this->once() )->method( 'addHeader' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( '{GeneratedDiff}' ),
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( '(moderation-diff-header-before)' ),
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( '(moderation-diff-header-after)' )
+		)->willReturn( '{GeneratedDiff+Header}' );
+
+		// This makes ContentHandler::createDifferenceEngine() return our mocked $differenceEngine.
+		$this->setTemporaryHook( 'GetDifferenceEngine', function ( $context, $old, $new,
+			$refreshCache, $unhide, &$engineToUse
+		) use ( $oldid, $differenceEngine ) {
+			$this->assertSame( $oldid, $old, 'DifferenceEngine: Incorrect parameter of $old' );
+			$this->assertSame( 0, $new, 'DifferenceEngine: Incorrect parameter of $new' );
+
+			$engineToUse = $differenceEngine;
+			return false;
+		} );
+
+		$entry = $this->makeViewableEntry( (object)[
+			'id' => $modid,
+			'stash_key' => null,
+			'namespace' => $title->getNamespace(),
+			'title' => $title->getDBKey(),
+			'new' => 0,
+			'last_oldid' => $oldid,
+			'text' => $newText
+		] );
+
+		$result = $entry->getDiffHTML( $context );
+		$this->assertEquals( '{GeneratedDiff+Header}', $result );
 	}
 
 	/**
