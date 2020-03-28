@@ -253,6 +253,18 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 	 * @return array
 	 */
 	public function dataProviderGetHTML() {
+		// TODO: result of "can reapprove rejected?" should be mockable,
+		// and this should be tested elsewhere.
+		global $wgModerationTimeToOverrideRejection;
+
+		$ts = new MWTimestamp();
+		$ts->timestamp->modify( '-' . ( $wgModerationTimeToOverrideRejection + 1 ) . ' seconds' );
+		$longAgo = $ts->getTimestamp( TS_MW ); // Can't reapprove rejected edit with this timestamp
+
+		$ts = new MWTimestamp();
+		$ts->timestamp->modify( '-' . ( $wgModerationTimeToOverrideRejection - 600 ) . ' seconds' );
+		$notLongAgoEnough = $ts->getTimestamp( TS_MW );
+
 		// phpcs:disable Generic.Files.LineLength.TooLong
 		return [
 			'pending edit' => [ [
@@ -326,9 +338,19 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 				'fields' => [
 					'rejected' => 1,
 					'rejected_by_user' => 12345,
-					'rejected_by_user_text' => 'Name of moderator'
+					'rejected_by_user_text' => 'Name of moderator',
+					'timestamp' => $notLongAgoEnough
 				],
 				'expectedResult' => '<span class="modline">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve}] . . [{ActionLink:block}] . . (moderation-rejected-by: {UserLink:12345|Name of moderator}, {Row:rejected_by_user_text})</span>'
+			] ],
+			'rejected edit, too long ago to approve' => [ [
+				'fields' => [
+					'rejected' => 1,
+					'rejected_by_user' => 12345,
+					'rejected_by_user_text' => 'Name of moderator',
+					'timestamp' => $longAgo
+				],
+				'expectedResult' => '<span class="modline">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [] . . [{ActionLink:block}] . . (moderation-rejected-by: {UserLink:12345|Name of moderator}, {Row:rejected_by_user_text})</span>'
 			] ],
 			'rejected edit, rejected via "Reject all"' => [ [
 				'fields' => [
@@ -356,6 +378,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 	/**
 	 * Make formatter for $row with mocks that were created in setUp().
 	 * @param object|null $row
+	 * @return ModerationEntryFormatter
 	 */
 	private function makeTestFormatter( $row = null ) {
 		return new ModerationEntryFormatter( $row ?? new stdClass, $this->context,
