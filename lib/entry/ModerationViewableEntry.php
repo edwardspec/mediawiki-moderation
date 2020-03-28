@@ -159,8 +159,7 @@ class ModerationViewableEntry extends ModerationEntry {
 	 * @return string
 	 */
 	public function getImageThumbHTML() {
-		$row = $this->getRow();
-		if ( !$row->stash_key ) {
+		if ( !$this->isUpload() ) {
 			return ''; /* Not an upload */
 		}
 
