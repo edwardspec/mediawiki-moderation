@@ -23,7 +23,6 @@
 use MediaWiki\Auth\AuthManager;
 use MediaWiki\Moderation\ForgetAnonIdConsequence;
 use MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence;
-use MediaWiki\Moderation\MockConsequenceManager;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -55,7 +54,7 @@ class CreatingNewUserHasConsequencesTest extends ModerationUnitTestCase {
 		$session->set( 'anon_id', $anonId );
 		$session->persist();
 
-		list( $scope, $manager ) = MockConsequenceManager::install();
+		$manager = $this->mockConsequenceManager();
 		$this->createAccount( $username );
 
 		$this->assertConsequencesEqual( [
@@ -75,7 +74,7 @@ class CreatingNewUserHasConsequencesTest extends ModerationUnitTestCase {
 	 * @covers ModerationPreload::onLocalUserCreated
 	 */
 	public function testCreateAccountWithNoPriorEdits() {
-		list( $scope, $manager ) = MockConsequenceManager::install();
+		$manager = $this->mockConsequenceManager();
 		$this->createAccount( 'Newly registered user ' . rand( 0, 100000 ) );
 		$this->assertConsequencesEqual( [], $manager->getConsequences() );
 	}

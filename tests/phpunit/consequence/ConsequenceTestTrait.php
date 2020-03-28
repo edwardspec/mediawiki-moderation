@@ -155,7 +155,7 @@ trait ConsequenceTestTrait {
 		}
 
 		// Replace real ConsequenceManager with a mock.
-		list( $scope, $manager ) = MockConsequenceManager::install();
+		$manager = $this->mockConsequenceManager();
 
 		// Invoke ModerationAction with requested modid.
 		$request = new FauxRequest( [
@@ -226,4 +226,18 @@ trait ConsequenceTestTrait {
 
 		return $revid;
 	}
+
+	/**
+	 * Install new MockConsequenceManager for the duration of the test.
+	 * @return MockConsequenceManager
+	 */
+	public function mockConsequenceManager() {
+		$manager = new MockConsequenceManager;
+		$this->setService( 'Moderation.ConsequenceManager', $manager );
+
+		return $manager;
+	}
+
+	// This method is in MediaWikiTestCase (this trait is used by its subclasses).
+	abstract protected function setService( $name, $service );
 }
