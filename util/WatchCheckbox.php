@@ -22,6 +22,7 @@
 
 namespace MediaWiki\Moderation;
 
+use MediaWiki\MediaWikiServices;
 use SpecialPage;
 use Title;
 use User;
@@ -60,7 +61,7 @@ class WatchCheckbox {
 			return;
 		}
 
-		$manager = ConsequenceUtils::getManager();
+		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
 		foreach ( $titles as $title ) {
 			$manager->add( new WatchOrUnwatchConsequence( self::$watchthis, $title, $user ) );
 		}

@@ -20,8 +20,8 @@
  * Hooks related to normal edits.
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\AddLogEntryConsequence;
-use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\QueueEditConsequence;
@@ -114,7 +114,7 @@ class ModerationEditHooks {
 			return true;
 		}
 
-		$manager = ConsequenceUtils::getManager();
+		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
 		$manager->add( new QueueEditConsequence(
 			$page, $user, $content, $summary,
 			self::$section, self::$sectionText,
@@ -229,7 +229,7 @@ class ModerationEditHooks {
 
 		$revid = $revision->getId();
 
-		$manager = ConsequenceUtils::getManager();
+		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
 		$somethingChanged = $manager->add( new MarkAsMergedConsequence( $mergeID, $revid ) );
 
 		if ( $somethingChanged ) {

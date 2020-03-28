@@ -20,7 +20,7 @@
  * Methods to manage "moderation" SQL table.
  */
 
-use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
@@ -351,7 +351,7 @@ class ModerationNewChange {
 	 * @return int mod_id of affected row.
 	 */
 	protected function insert() {
-		$manager = ConsequenceUtils::getManager();
+		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
 		return $manager->add(
 			new InsertRowIntoModerationTableConsequence( $this->getFields() )
 		);
@@ -406,7 +406,7 @@ class ModerationNewChange {
 			return;
 		}
 
-		$manager = ConsequenceUtils::getManager();
+		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
 		$manager->add( new SendNotificationEmailConsequence(
 			$this->title,
 			$this->user,

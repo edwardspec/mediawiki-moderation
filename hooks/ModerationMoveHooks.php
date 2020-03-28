@@ -20,7 +20,7 @@
  * Hooks related to moving (renaming) pages.
  */
 
-use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\QueueMoveConsequence;
 use MediaWiki\Moderation\WatchCheckbox;
 
@@ -90,7 +90,7 @@ class ModerationMoveHooks {
 			}
 		}
 
-		$manager = ConsequenceUtils::getManager();
+		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
 		$manager->add( new QueueMoveConsequence(
 			$oldTitle, $newTitle, $user, $reason
 		) );

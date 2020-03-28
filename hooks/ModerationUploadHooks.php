@@ -20,7 +20,7 @@
  * Hooks related to file uploads.
  */
 
-use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\QueueUploadConsequence;
 use MediaWiki\Moderation\WatchCheckbox;
 
@@ -50,7 +50,7 @@ class ModerationUploadHooks {
 		// Note: skipping moderation for uploads via ModerationIntercept hook didn't work even
 		// before its invocation here was removed. It only worked for normal edits (non-uploads).
 
-		$manager = ConsequenceUtils::getManager();
+		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
 		$error = $manager->add( new QueueUploadConsequence(
 			$upload, $user, $comment, $pageText
 		) );

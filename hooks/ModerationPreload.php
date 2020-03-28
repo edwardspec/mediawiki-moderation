@@ -21,7 +21,6 @@
  */
 
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\ForgetAnonIdConsequence;
 use MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence;
 use MediaWiki\Moderation\PendingEdit;
@@ -116,7 +115,7 @@ class ModerationPreload {
 				return false;
 			}
 
-			$manager = ConsequenceUtils::getManager();
+			$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
 			$anonToken = $manager->add( new RememberAnonIdConsequence() );
 		}
 
@@ -140,7 +139,7 @@ class ModerationPreload {
 			return true;
 		}
 
-		$manager = ConsequenceUtils::getManager();
+		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
 		$manager->add( new GiveAnonChangesToNewUserConsequence(
 			$user, $anonId, $preload->getId()
 		) );
