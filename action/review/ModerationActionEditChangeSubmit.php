@@ -23,7 +23,6 @@
  */
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
-use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\ModifyPendingChangeConsequence;
 
 class ModerationActionEditChangeSubmit extends ModerationAction {
@@ -76,16 +75,17 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 
 		if ( $somethingChanged ) {
 			// Something changed.
-			$manager = ConsequenceUtils::getManager();
-			$manager->add( new ModifyPendingChangeConsequence(
+			$this->consequenceManager->add( new ModifyPendingChangeConsequence(
 				$this->id,
 				$newText,
 				$newComment,
 				$newLen
 			) );
-			$manager->add( new AddLogEntryConsequence( 'editchange', $this->moderator, $title, [
-				'modid' => $this->id
-			] ) );
+			$this->consequenceManager->add( new AddLogEntryConsequence( 'editchange',
+				$this->moderator,
+				$title,
+				[ 'modid' => $this->id ]
+			) );
 		}
 
 		return [

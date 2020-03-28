@@ -45,16 +45,22 @@ class EntryFactory {
 	/** @var TimestampFormatter */
 	protected $timestampFormatter;
 
+	/** @var IConsequenceManager */
+	protected $consequenceManager;
+
 	/**
 	 * @param LinkRenderer $linkRenderer
 	 * @param ActionLinkRenderer $actionLinkRenderer
 	 */
 	public function __construct( LinkRenderer $linkRenderer,
-		ActionLinkRenderer $actionLinkRenderer, TimestampFormatter $timestampFormatter
+		ActionLinkRenderer $actionLinkRenderer,
+		TimestampFormatter $timestampFormatter,
+		IConsequenceManager $consequenceManager
 	) {
 		$this->linkRenderer = $linkRenderer;
 		$this->actionLinkRenderer = $actionLinkRenderer;
 		$this->timestampFormatter = $timestampFormatter;
+		$this->consequenceManager = $consequenceManager;
 	}
 
 	/**
@@ -103,14 +109,14 @@ class EntryFactory {
 	 */
 	public function makeApprovableEntry( $row ) {
 		if ( isset( $row->type ) && $row->type == ModerationNewChange::MOD_TYPE_MOVE ) {
-			return new ModerationEntryMove( $row );
+			return new ModerationEntryMove( $row, $this->consequenceManager );
 		}
 
 		if ( $row->stash_key ) {
-			return new ModerationEntryUpload( $row );
+			return new ModerationEntryUpload( $row, $this->consequenceManager );
 		}
 
-		return new ModerationEntryEdit( $row );
+		return new ModerationEntryEdit( $row, $this->consequenceManager );
 	}
 
 	/**

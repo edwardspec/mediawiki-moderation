@@ -21,11 +21,20 @@
  */
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
-use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
+use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\InstallApproveHookConsequence;
 
 abstract class ModerationApprovableEntry extends ModerationEntry {
+	/** @var IConsequenceManager */
+	protected $consequenceManager;
+
+	public function __construct( $row, IConsequenceManager $consequenceManager ) {
+		parent::__construct( $row );
+
+		$this->consequenceManager = $consequenceManager;
+	}
+
 	/**
 	 * Get the list of fields needed for selecting $row from database.
 	 * @return array
@@ -68,24 +77,28 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 		$row = $this->getRow();
 		$user = $this->getUser();
 
-		$manager = ConsequenceUtils::getManager();
-		$manager->add( new InstallApproveHookConsequence( $this->getTitle(), $user, $row->type, [
-			# For CheckUser extension to work properly, IP, XFF and UA
-			# should be set to the correct values for the original user
-			# (not from the moderator)
-			'ip' => $row->ip,
-			'xff' => $row->header_xff,
-			'ua' => $row->header_ua,
-			'tags' => $row->tags,
+		$this->consequenceManager->add( new InstallApproveHookConsequence(
+			$this->getTitle(),
+			$user,
+			$row->type,
+			[
+				# For CheckUser extension to work properly, IP, XFF and UA
+				# should be set to the correct values for the original user
+				# (not from the moderator)
+				'ip' => $row->ip,
+				'xff' => $row->header_xff,
+				'ua' => $row->header_ua,
+				'tags' => $row->tags,
 
-			# Here we set the timestamp of this edit to $row->timestamp
-			# (this is needed because doEditContent() always uses current timestamp).
-			#
-			# NOTE: timestamp in recentchanges table is not updated on purpose:
-			# users would want to see new edits as they appear,
-			# without the edits surprisingly appearing somewhere in the past.
-			'timestamp' => $row->timestamp
-		] ) );
+				# Here we set the timestamp of this edit to $row->timestamp
+				# (this is needed because doEditContent() always uses current timestamp).
+				#
+				# NOTE: timestamp in recentchanges table is not updated on purpose:
+				# users would want to see new edits as they appear,
+				# without the edits surprisingly appearing somewhere in the past.
+				'timestamp' => $row->timestamp
+			]
+		) );
 	}
 
 	/**
@@ -120,8 +133,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 		}
 
 		# Create post-approval log entry ("successfully approved").
-		$manager = ConsequenceUtils::getManager();
-		$manager->add( new AddLogEntryConsequence(
+		$this->consequenceManager->add( new AddLogEntryConsequence(
 			$this->getApproveLogSubtype(),
 			$moderator,
 			$this->getTitle(),
@@ -131,7 +143,9 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 
 		# Approved edits are removed from "moderation" table,
 		# because they already exist in page history, recentchanges etc.
-		$manager->add( new DeleteRowFromModerationTableConsequence( (int)$row->id ) );
+		$this->consequenceManager->add(
+			new DeleteRowFromModerationTableConsequence( (int)$row->id )
+		);
 	}
 
 	/**

@@ -22,6 +22,7 @@
 
 namespace MediaWiki\Moderation;
 
+use MediaWiki\MediaWikiServices;
 use MWException;
 use Wikimedia\ScopedCallback;
 
@@ -47,12 +48,15 @@ class MockConsequenceManager implements IConsequenceManager {
 	 * $manager will be uninstalled when $scope variable goes out of scope.
 	 */
 	public static function install() {
-		$scope = new ScopedCallback( function () {
-			ConsequenceUtils::resetManager();
+		$services = MediaWikiServices::getInstance();
+		$scope = new ScopedCallback( function () use ( $services ) {
+			$services->resetServiceForTesting( 'Moderation.ConsequenceManager' );
 		} );
 
 		$manager = new self;
-		ConsequenceUtils::installManager( $manager );
+		$services->redefineService( 'Moderation.ConsequenceManager', function () use ( $manager ) {
+			return $manager;
+		} );
 
 		return [ $scope, $manager ];
 	}

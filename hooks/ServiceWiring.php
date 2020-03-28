@@ -23,13 +23,15 @@
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionFactory;
 use MediaWiki\Moderation\ActionLinkRenderer;
+use MediaWiki\Moderation\ConsequenceManager;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\TimestampFormatter;
 
 return [
 	'Moderation.ActionFactory' => function ( MediaWikiServices $services ) {
 		return new ActionFactory(
-			$services->getService( 'Moderation.EntryFactory' )
+			$services->getService( 'Moderation.EntryFactory' ),
+			$services->getService( 'Moderation.ConsequenceManager' )
 		);
 	},
 	'Moderation.ActionLinkRenderer' => function ( MediaWikiServices $services ) {
@@ -39,11 +41,15 @@ return [
 			SpecialPage::getTitleFor( 'Moderation' )
 		);
 	},
+	'Moderation.ConsequenceManager' => function () {
+		return new ConsequenceManager();
+	},
 	'Moderation.EntryFactory' => function ( MediaWikiServices $services ) {
 		return new EntryFactory(
 			$services->getLinkRenderer(),
 			$services->getService( 'Moderation.ActionLinkRenderer' ),
-			$services->getService( 'Moderation.TimestampFormatter' )
+			$services->getService( 'Moderation.TimestampFormatter' ),
+			$services->getService( 'Moderation.ConsequenceManager' )
 		);
 	},
 	'Moderation.TimestampFormatter' => function () {

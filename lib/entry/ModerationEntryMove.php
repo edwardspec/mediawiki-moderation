@@ -21,7 +21,6 @@
  */
 
 use MediaWiki\Moderation\ApproveMoveConsequence;
-use MediaWiki\Moderation\ConsequenceUtils;
 
 class ModerationEntryMove extends ModerationApprovableEntry {
 	/**
@@ -32,8 +31,7 @@ class ModerationEntryMove extends ModerationApprovableEntry {
 	public function doApprove( User $moderator ) {
 		$row = $this->getRow();
 
-		$manager = ConsequenceUtils::getManager();
-		return $manager->add( new ApproveMoveConsequence(
+		return $this->consequenceManager->add( new ApproveMoveConsequence(
 			$moderator,
 			$this->getTitle(), /* old name of the article */
 			$this->getPage2Title(), /* new (suggested) name of the article */

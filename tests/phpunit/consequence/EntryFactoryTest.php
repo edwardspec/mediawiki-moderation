@@ -23,6 +23,7 @@
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\EntryFactory;
+use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\TimestampFormatter;
 
@@ -294,11 +295,14 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 		$linkRenderer = $this->createMock( LinkRenderer::class );
 		$actionLinkRenderer = $this->createMock( ActionLinkRenderer::class );
 		$timestampFormatter = $this->createMock( TimestampFormatter::class );
+		$consequenceManager = $this->createMock( IConsequenceManager::class );
 
 		'@phan-var LinkRenderer $linkRenderer';
 		'@phan-var ActionLinkRenderer $actionLinkRenderer';
 		'@phan-var TimestampFormatter $timestampFormatter';
+		'@phan-var IConsequenceManager $consequenceManager';
 
-		return new EntryFactory( $linkRenderer, $actionLinkRenderer, $timestampFormatter );
+		return new EntryFactory( $linkRenderer, $actionLinkRenderer, $timestampFormatter,
+			$consequenceManager );
 	}
 }

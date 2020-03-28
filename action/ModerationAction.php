@@ -22,6 +22,7 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\EntryFactory;
+use MediaWiki\Moderation\IConsequenceManager;
 
 abstract class ModerationAction extends ContextSource {
 	/**
@@ -43,6 +44,9 @@ abstract class ModerationAction extends ContextSource {
 	/** @var EntryFactory */
 	protected $entryFactory;
 
+	/** @var IConsequenceManager */
+	protected $consequenceManager;
+
 	/**
 	 * Construct new ModerationAction.
 	 * @param IContextSource $context
@@ -59,9 +63,12 @@ abstract class ModerationAction extends ContextSource {
 	 * @param IContextSource $context
 	 * @param EntryFactory $entryFactory
 	 */
-	public function __construct( IContextSource $context, EntryFactory $entryFactory ) {
+	public function __construct( IContextSource $context, EntryFactory $entryFactory,
+		IConsequenceManager $consequenceManager
+	) {
 		$this->setContext( $context );
 		$this->entryFactory = $entryFactory;
+		$this->consequenceManager = $consequenceManager;
 
 		$this->moderator = $this->getUser();
 

@@ -22,36 +22,15 @@
 
 namespace MediaWiki\Moderation;
 
+use MediaWiki\MediaWikiServices;
+
 class ConsequenceUtils {
-	/**
-	 * @var IConsequenceManager|null
-	 * Currently used ConsequenceManager.
-	 */
-	private static $manager = null;
-
-	/**
-	 * @param IConsequenceManager $manager
-	 */
-	public static function installManager( IConsequenceManager $manager ) {
-		self::$manager = $manager;
-	}
-
-	/**
-	 * Restore the default ConsequenceManager. (e.g. to undo the mock)
-	 */
-	public static function resetManager() {
-		self::$manager = null;
-	}
-
 	/**
 	 * Get currently used ConsequenceManager.
 	 * @return IConsequenceManager
 	 */
 	public static function getManager() {
-		if ( !self::$manager ) {
-			self::$manager = new ConsequenceManager();
-		}
-
-		return self::$manager;
+		// FIXME: remove this B/C wrapper.
+		return MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
 	}
 }
