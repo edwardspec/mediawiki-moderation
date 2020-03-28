@@ -67,7 +67,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	 */
 	public function testEdit() {
 		// Replace real ConsequenceManager with a mock.
-		list( $managerScope, $this->manager ) = MockConsequenceManager::install();
+		$this->manager = $this->mockConsequenceManager();
 
 		$this->user = self::getTestUser()->getUser();
 		$this->makeEdit();
@@ -88,7 +88,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	 */
 	public function testMergedEdit() {
 		// Replace real ConsequenceManager with a mock.
-		list( $managerScope, $this->manager ) = MockConsequenceManager::install();
+		$this->manager = $this->mockConsequenceManager();
 
 		$modid = 12345;
 		RequestContext::getMain()->getRequest()->setVal( 'wpMergeID', $modid );
@@ -143,7 +143,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		$user = self::getTestUser()->getUser();
 
 		// Replace real ConsequenceManager with a mock.
-		list( $managerScope, $this->manager ) = MockConsequenceManager::install();
+		$this->manager = $this->mockConsequenceManager();
 
 		$editPage = new EditPage( Article::newFromTitle( $title, RequestContext::getMain() ) );
 		$editPage->watchthis = $watch;

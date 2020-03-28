@@ -23,6 +23,8 @@
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\EntryFactory;
+use MediaWiki\Moderation\IConsequenceManager;
+use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\TimestampFormatter;
 
 require_once __DIR__ . "/autoload.php";
@@ -32,6 +34,8 @@ require_once __DIR__ . "/autoload.php";
  */
 class EntryFactoryTest extends ModerationUnitTestCase {
 	use ModifyDbRowTestTrait;
+
+	protected $tablesUsed = [ 'moderation' ];
 
 	/**
 	 * Test that EntryFactory can create ModerationEntryFormatter, ModerationViewableEntry, etc.
@@ -72,12 +76,13 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 	 * Test loadRow() and loadRowOrThrow().
 	 * @param string $testedMethod Either 'loadRow' or 'loadRowOrThrow'.
 	 * @param bool $isFound True to use correct mod_id of existing row. False to use incorrect id.
+	 * @param bool $useWhere If true, first parameter ($where) will be an array. If false, mod_id.
 	 * @param int $dbType Either DB_MASTER or DB_REPLICA.
 	 * @dataProvider dataProviderLoadRow
 	 *
 	 * @covers MediaWiki\Moderation\EntryFactory
 	 */
-	public function testLoadRow( $testedMethod, $isFound, $dbType ) {
+	public function testLoadRow( $testedMethod, $isFound, $useWhere, $dbType ) {
 		$expectedUA = 'SampleUserAgent/1.0.' . rand( 0, 100000 );
 		$expectedIP = '10.11.12.13';
 
@@ -95,18 +100,28 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 			}
 		}
 
+		// Test both selection by $where (same as $where parameter for DB::select())
+		// and by mod_id (integer).
+		$where = $useWhere ? [ 'mod_header_ua' => $expectedUA ] : $modid;
+		$fields = [ 'mod_header_ua AS header_ua', 'mod_ip AS ip' ];
+
 		$factory = $this->makeFactory();
-		$row = $factory->$testedMethod(
-			$modid,
-			[ 'mod_header_ua AS header_ua', 'mod_ip AS ip' ],
-			$dbType
-		);
+		$row = $factory->$testedMethod( $where, $fields, $dbType );
 
 		if ( $isFound ) {
 			$this->assertNotFalse( $row );
 			$this->assertEquals( $expectedUA, $row->header_ua );
 			$this->assertEquals( $expectedIP, $row->ip );
-			$this->assertEquals( $modid, $row->id, "Incorrect \$row->id in return value of $testedMethod." );
+
+			if ( $useWhere ) {
+				// We haven't listed "id" in $fields, and parameter $where is an array (not mod_id).
+				$this->assertSame( 0, $row->id,
+					"Field \$row->id is not 0, even though $testedMethod() didn't receive an id, " .
+					"and \$fields parameter didn't contain \"id\" field either." );
+			} else {
+				$this->assertEquals( $modid, $row->id,
+					"Incorrect \$row->id in return value of $testedMethod." );
+			}
 
 			$this->assertEquals( [ 'header_ua', 'ip', 'id' ], array_keys( get_object_vars( $row ) ),
 				"List of properties in \$row (return value of $testedMethod)."
@@ -123,10 +138,58 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 	 */
 	public function dataProviderLoadRow() {
 		return [
-			'situation when loadRow() finds a row' => [ 'loadRow', true, DB_MASTER ],
-			'situation when loadRow() doesn\'t find a row' => [ 'loadRow', false, DB_MASTER ],
-			'situation when loadRowOrThrow() finds a row' => [ 'loadRowOrThrow', true, DB_MASTER ],
-			'situation when loadRowOrThrow() doesn\'t find a row' => [ 'loadRowOrThrow', false, DB_MASTER ]
+			// Selecting by mod_id
+			'situation when loadRow($id) finds a row' => [ 'loadRow', true, false, DB_MASTER ],
+			'situation when loadRow($id) doesn\'t find a row' =>
+				[ 'loadRow', false, false, DB_MASTER ],
+			'situation when loadRowOrThrow($id) finds a row' =>
+				[ 'loadRowOrThrow', true, false, DB_MASTER ],
+			'situation when loadRowOrThrow($id) doesn\'t find a row' =>
+				[ 'loadRowOrThrow', false, false, DB_MASTER ],
+			// Selecting by $where array
+			'situation when loadRow($where) finds a row' => [ 'loadRow', true, true, DB_MASTER ],
+			'situation when loadRow($where) doesn\'t find a row' =>
+				[ 'loadRow', false, true, DB_MASTER ],
+			'situation when loadRowOrThrow($where) finds a row' =>
+				[ 'loadRowOrThrow', true, true, DB_MASTER ],
+			'situation when loadRowOrThrow($where) doesn\'t find a row' =>
+				[ 'loadRowOrThrow', false, true, DB_MASTER ]
+		];
+	}
+
+	/**
+	 * Test whether $options parameter is passed to DB::select() by loadRow() and loadRowOrThrow().
+	 * @param string $testedMethod Either 'loadRow' or 'loadRowOrThrow'.
+	 * @dataProvider dataProviderLoadRowOptions
+	 *
+	 * @covers MediaWiki\Moderation\EntryFactory
+	 */
+	public function testLoadRowOptions( $testedMethod ) {
+		// Let's make two rows and check if "ORDER BY" in $options
+		// will allow us to select 1 row we need.
+		$this->makeDbRow( [ 'mod_namespace' => 4 ] );
+		$this->makeDbRow( [ 'mod_namespace' => 10 ] );
+
+		$factory = $this->makeFactory();
+
+		$anyWhere = [ 'mod_namespace >= 0' ];
+		$row = $factory->$testedMethod( $anyWhere, [ 'mod_namespace AS value' ], DB_MASTER,
+			[ 'ORDER BY' => 'mod_namespace' ] );
+		$this->assertEquals( 4, $row->value );
+
+		$row = $factory->$testedMethod( $anyWhere, [ 'mod_namespace AS value' ], DB_MASTER,
+			[ 'ORDER BY' => 'mod_namespace DESC' ] );
+		$this->assertEquals( 10, $row->value );
+	}
+
+	/**
+	 * Provide datasets for testLoadRowOptions() runs.
+	 * @return array
+	 */
+	public function dataProviderLoadRowOptions() {
+		return [
+			'loadRow' => [ 'loadRow' ],
+			'loadRowOrThrow' => [ 'loadRowOrThrow' ]
 		];
 	}
 
@@ -172,6 +235,59 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 	}
 
 	/**
+	 * Test findPendingEdit()
+	 * @param bool $isFound True to use existing row. False to simulate "row not found" situation.
+	 * @dataProvider dataProviderFindPendingEdit
+	 *
+	 * @covers MediaWiki\Moderation\EntryFactory
+	 * @covers MediaWiki\Moderation\PendingEdit
+	 */
+	public function testFindPendingEdit( $isFound ) {
+		$title = Title::newFromText( "Talk:UTPage-" . rand( 0, 100000 ) );
+		$preloadId = 'sample preload ID ' . rand( 0, 1000000 );
+		$expectedComment = 'edit summary ' . rand( 0, 1000000 );
+		$expectedText = 'new text ' . rand( 0, 1000000 );
+
+		$fields = [
+			'mod_preloadable' => 0, // mod_preloadable=0 means "prelodable"
+			'mod_namespace' => $title->getNamespace(),
+			'mod_title' => $title->getDBKey(),
+			'mod_preload_id' => $preloadId,
+			'mod_type' => 'edit',
+			'mod_comment' => $expectedComment,
+			'mod_text' => $expectedText
+		];
+		$modid = $isFound ? $this->makeDbRow( $fields ) : null;
+
+		$factory = $this->makeFactory();
+		$pendingEdit = $factory->findPendingEdit( $preloadId, $title );
+
+		if ( $isFound ) {
+			$this->assertNotFalse( $pendingEdit,
+				"findPendingEdit() returned false when an edit should have been found." );
+			$this->assertInstanceOf( PendingEdit::class, $pendingEdit );
+
+			$this->assertSame( $modid, $pendingEdit->getId(), 'Wrong mod_id' );
+			$this->assertSame( $expectedComment, $pendingEdit->getComment(), 'wrong comment' );
+			$this->assertSame( $expectedText, $pendingEdit->getText(), 'Wrong text' );
+		} else {
+			$this->assertFalse( $pendingEdit,
+				"findPendingEdit() didn't return false when nothing should have been found." );
+		}
+	}
+
+	/**
+	 * Provide datasets for testFindPendingEdit() runs.
+	 * @return array
+	 */
+	public function dataProviderFindPendingEdit() {
+		return [
+			'findPendingEdit() finds an edit' => [ true ],
+			'findPendingEdit() doesn\'t find an edit' => [ false ]
+		];
+	}
+
+	/**
 	 * Create one EntryFactory with mocked parameters.
 	 * @return EntryFactory
 	 */
@@ -179,11 +295,14 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 		$linkRenderer = $this->createMock( LinkRenderer::class );
 		$actionLinkRenderer = $this->createMock( ActionLinkRenderer::class );
 		$timestampFormatter = $this->createMock( TimestampFormatter::class );
+		$consequenceManager = $this->createMock( IConsequenceManager::class );
 
 		'@phan-var LinkRenderer $linkRenderer';
 		'@phan-var ActionLinkRenderer $actionLinkRenderer';
 		'@phan-var TimestampFormatter $timestampFormatter';
+		'@phan-var IConsequenceManager $consequenceManager';
 
-		return new EntryFactory( $linkRenderer, $actionLinkRenderer, $timestampFormatter );
+		return new EntryFactory( $linkRenderer, $actionLinkRenderer, $timestampFormatter,
+			$consequenceManager );
 	}
 }

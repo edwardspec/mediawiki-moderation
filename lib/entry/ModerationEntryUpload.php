@@ -21,7 +21,6 @@
  */
 
 use MediaWiki\Moderation\ApproveUploadConsequence;
-use MediaWiki\Moderation\ConsequenceUtils;
 
 class ModerationEntryUpload extends ModerationApprovableEntry {
 	/**
@@ -32,8 +31,7 @@ class ModerationEntryUpload extends ModerationApprovableEntry {
 	public function doApprove( User $moderator ) {
 		$row = $this->getRow();
 
-		$manager = ConsequenceUtils::getManager();
-		return $manager->add( new ApproveUploadConsequence(
+		return $this->consequenceManager->add( new ApproveUploadConsequence(
 			$row->stash_key,
 			$this->getTitle(),
 			$this->getUser(),

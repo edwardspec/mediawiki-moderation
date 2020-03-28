@@ -23,7 +23,6 @@
  */
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
-use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\ModifyPendingChangeConsequence;
 
 class ModerationActionEditChangeSubmit extends ModerationAction {
@@ -39,22 +38,14 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 			$where['mod_type'] = ModerationNewChange::MOD_TYPE_EDIT;
 		}
 
-		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( 'moderation',
-			[
-				'mod_namespace AS namespace',
-				'mod_title AS title',
-				'mod_user AS user',
-				'mod_user_text AS user_text',
-				'mod_text AS text',
-				'mod_comment AS comment'
-			],
-			$where,
-			__METHOD__
-		);
-		if ( !$row ) {
-			throw new ModerationError( 'moderation-edit-not-found' );
-		}
+		$row = $this->entryFactory->loadRowOrThrow( $where, [
+			'mod_namespace AS namespace',
+			'mod_title AS title',
+			'mod_user AS user',
+			'mod_user_text AS user_text',
+			'mod_text AS text',
+			'mod_comment AS comment'
+		] );
 
 		$request = $this->getRequest();
 
@@ -84,16 +75,17 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 
 		if ( $somethingChanged ) {
 			// Something changed.
-			$manager = ConsequenceUtils::getManager();
-			$manager->add( new ModifyPendingChangeConsequence(
+			$this->consequenceManager->add( new ModifyPendingChangeConsequence(
 				$this->id,
 				$newText,
 				$newComment,
 				$newLen
 			) );
-			$manager->add( new AddLogEntryConsequence( 'editchange', $this->moderator, $title, [
-				'modid' => $this->id
-			] ) );
+			$this->consequenceManager->add( new AddLogEntryConsequence( 'editchange',
+				$this->moderator,
+				$title,
+				[ 'modid' => $this->id ]
+			) );
 		}
 
 		return [

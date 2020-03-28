@@ -20,7 +20,7 @@
  * Hooks/methods to preload edits which are pending moderation.
  */
 
-use MediaWiki\Moderation\ConsequenceUtils;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ForgetAnonIdConsequence;
 use MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence;
 use MediaWiki\Moderation\PendingEdit;
@@ -115,7 +115,7 @@ class ModerationPreload {
 				return false;
 			}
 
-			$manager = ConsequenceUtils::getManager();
+			$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
 			$anonToken = $manager->add( new RememberAnonIdConsequence() );
 		}
 
@@ -139,7 +139,7 @@ class ModerationPreload {
 			return true;
 		}
 
-		$manager = ConsequenceUtils::getManager();
+		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
 		$manager->add( new GiveAnonChangesToNewUserConsequence(
 			$user, $anonId, $preload->getId()
 		) );
@@ -163,7 +163,8 @@ class ModerationPreload {
 			return false;
 		}
 
-		return PendingEdit::find( $id, $title );
+		$entryFactory = MediaWikiServices::getInstance()->getService( 'Moderation.EntryFactory' );
+		return $entryFactory->findPendingEdit( $id, $title );
 	}
 
 	/**

@@ -31,7 +31,9 @@ use ModerationEntryMove;
 use ModerationEntryUpload;
 use ModerationError;
 use ModerationNewChange;
+use ModerationVersionCheck;
 use ModerationViewableEntry;
+use Title;
 
 class EntryFactory {
 	/** @var LinkRenderer */
@@ -43,16 +45,22 @@ class EntryFactory {
 	/** @var TimestampFormatter */
 	protected $timestampFormatter;
 
+	/** @var IConsequenceManager */
+	protected $consequenceManager;
+
 	/**
 	 * @param LinkRenderer $linkRenderer
 	 * @param ActionLinkRenderer $actionLinkRenderer
 	 */
 	public function __construct( LinkRenderer $linkRenderer,
-		ActionLinkRenderer $actionLinkRenderer, TimestampFormatter $timestampFormatter
+		ActionLinkRenderer $actionLinkRenderer,
+		TimestampFormatter $timestampFormatter,
+		IConsequenceManager $consequenceManager
 	) {
 		$this->linkRenderer = $linkRenderer;
 		$this->actionLinkRenderer = $actionLinkRenderer;
 		$this->timestampFormatter = $timestampFormatter;
+		$this->consequenceManager = $consequenceManager;
 	}
 
 	/**
@@ -101,14 +109,14 @@ class EntryFactory {
 	 */
 	public function makeApprovableEntry( $row ) {
 		if ( isset( $row->type ) && $row->type == ModerationNewChange::MOD_TYPE_MOVE ) {
-			return new ModerationEntryMove( $row );
+			return new ModerationEntryMove( $row, $this->consequenceManager );
 		}
 
 		if ( $row->stash_key ) {
-			return new ModerationEntryUpload( $row );
+			return new ModerationEntryUpload( $row, $this->consequenceManager );
 		}
 
-		return new ModerationEntryEdit( $row );
+		return new ModerationEntryEdit( $row, $this->consequenceManager );
 	}
 
 	/**
@@ -123,33 +131,77 @@ class EntryFactory {
 	}
 
 	/**
-	 * Load $row from the database by its mod_id.
-	 * @param int $id
-	 * @param string[] $fields
-	 * @param int $dbType DB_MASTER or DB_REPLICA.
-	 * @return object|false
+	 * Find an edit that awaits moderation and was made by user $preloadId in page $title.
+	 * @param string $preloadId
+	 * @param Title $title
+	 * @return PendingEdit|false
 	 */
-	public function loadRow( $id, array $fields, $dbType = DB_MASTER ) {
-		$db = wfGetDB( $dbType );
-		$row = $db->selectRow( 'moderation', $fields, [ 'mod_id' => $id ], __METHOD__ );
+	public function findPendingEdit( $preloadId, Title $title ) {
+		$where = [
+			'mod_preloadable' => ModerationVersionCheck::preloadableYes(),
+			'mod_namespace' => $title->getNamespace(),
+			'mod_title' => ModerationVersionCheck::getModTitleFor( $title ),
+			'mod_preload_id' => $preloadId
+		];
+
+		if ( ModerationVersionCheck::hasModType() ) {
+			$where['mod_type'] = ModerationNewChange::MOD_TYPE_EDIT;
+		}
+
+		$row = $this->loadRow( $where,
+			[
+				'mod_id AS id',
+				'mod_comment AS comment',
+				'mod_text AS text'
+			],
+			# Sequential edits are often done with small intervals of time between
+			# them, so we shouldn't wait for replication: DB_MASTER will be used.
+			DB_MASTER,
+			[ 'USE INDEX' => 'moderation_load' ]
+		);
 		if ( !$row ) {
 			return false;
 		}
 
-		$row->id = $id;
+		return new PendingEdit( (int)$row->id, $row->text, $row->comment );
+	}
+
+	/**
+	 * Select $row from the "moderation" table by either its mod_id or $where array.
+	 * @param int|array $where
+	 * @param string[] $fields
+	 * @param int $dbType DB_MASTER or DB_REPLICA
+	 * @param array $options This parameter is passed to DB::select().
+	 * @return object|false
+	 */
+	public function loadRow( $where, array $fields, $dbType = DB_MASTER, array $options = [] ) {
+		if ( !is_array( $where ) ) {
+			$where = [ 'mod_id' => $where ];
+		}
+
+		$db = wfGetDB( $dbType );
+		$row = $db->selectRow( 'moderation', $fields, $where, __METHOD__, $options );
+		if ( !$row ) {
+			return false;
+		}
+
+		$row->id = (int)( $row->id ?? $where['mod_id'] ?? 0 );
 		return $row;
 	}
 
 	/**
-	 * Load $row from the database by its mod_id. Throws an exception if the row wasn't found.
-	 * @param int $id
+	 * Same as loadRow(), but throws an exception if the row wasn't found.
+	 * @param int|array $where
 	 * @param string[] $fields
-	 * @param int $dbType DB_MASTER or DB_REPLICA.
+	 * @param int $dbType DB_MASTER or DB_REPLICA
+	 * @param array $options
 	 * @return object
 	 * @throws ModerationError
 	 */
-	public function loadRowOrThrow( $id, array $fields, $dbType = DB_MASTER ) {
-		$row = $this->loadRow( $id, $fields, $dbType );
+	public function loadRowOrThrow( $where, array $fields, $dbType = DB_MASTER,
+		array $options = []
+	) {
+		$row = $this->loadRow( $where, $fields, $dbType, $options );
 		if ( !$row ) {
 			throw new ModerationError( 'moderation-edit-not-found' );
 		}

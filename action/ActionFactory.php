@@ -36,6 +36,22 @@ use ModerationActionShowImage;
 use ModerationError;
 
 class ActionFactory {
+	/** @var EntryFactory */
+	protected $entryFactory;
+
+	/** @var IConsequenceManager */
+	protected $consequenceManager;
+
+	/**
+	 * @param EntryFactory $entryFactory
+	 */
+	public function __construct( EntryFactory $entryFactory,
+		IConsequenceManager $consequenceManager
+	) {
+		$this->entryFactory = $entryFactory;
+		$this->consequenceManager = $consequenceManager;
+	}
+
 	/**
 	 * List of all known modactions and their PHP classes.
 	 * @var array
@@ -71,6 +87,6 @@ class ActionFactory {
 			throw new ModerationError( 'moderation-unknown-modaction' );
 		}
 
-		return new $class( $context );
+		return new $class( $context, $this->entryFactory, $this->consequenceManager );
 	}
 }

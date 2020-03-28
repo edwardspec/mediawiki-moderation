@@ -20,7 +20,6 @@
  * Verifies that renaming a page has consequences.
  */
 
-use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueMoveConsequence;
 
 require_once __DIR__ . "/autoload.php";
@@ -51,7 +50,7 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 		$newTitle = Title::newFromText( 'UTPage-new-' . rand( 0, 100000 ) );
 		$reason = 'Some reason for renaming the page';
 
-		list( $scope, $manager ) = MockConsequenceManager::install();
+		$manager = $this->mockConsequenceManager();
 
 		$mp = new MovePage( $this->title, $newTitle );
 		$status = $mp->isValidMove();

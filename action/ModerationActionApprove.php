@@ -20,9 +20,7 @@
  * Implements modaction=approve(all) on [[Special:Moderation]].
  */
 
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\AddLogEntryConsequence;
-use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 
 class ModerationActionApprove extends ModerationAction {
@@ -35,8 +33,7 @@ class ModerationActionApprove extends ModerationAction {
 		if ( $ret['approved'] ) {
 			/* Clear the cache of "Most recent mod_timestamp of pending edit"
 				- could have changed */
-			$manager = ConsequenceUtils::getManager();
-			$manager->add( new InvalidatePendingTimeCacheConsequence() );
+			$this->consequenceManager->add( new InvalidatePendingTimeCacheConsequence() );
 		}
 
 		return $ret;
@@ -57,7 +54,7 @@ class ModerationActionApprove extends ModerationAction {
 	}
 
 	public function executeApproveOne() {
-		$entry = $this->getEntryFactory()->findApprovableEntry( $this->id );
+		$entry = $this->entryFactory->findApprovableEntry( $this->id );
 		$entry->approve( $this->moderator );
 
 		return [
@@ -115,7 +112,7 @@ class ModerationActionApprove extends ModerationAction {
 		$failed = [];
 		foreach ( $res as $row ) {
 			try {
-				$entry = $this->getEntryFactory()->makeApprovableEntry( $row );
+				$entry = $this->entryFactory->makeApprovableEntry( $row );
 				$entry->approve( $this->moderator );
 
 				$approved[$row->id] = '';
@@ -129,22 +126,15 @@ class ModerationActionApprove extends ModerationAction {
 		}
 
 		if ( $approved ) {
-			$manager = ConsequenceUtils::getManager();
-			$manager->add( new AddLogEntryConsequence( 'approveall', $this->moderator, $userpage, [
-				'4::count' => count( $approved )
-			] ) );
+			$this->consequenceManager->add( new AddLogEntryConsequence( 'approveall', $this->moderator,
+				$userpage,
+				[ '4::count' => count( $approved ) ]
+			) );
 		}
 
 		return [
 			'approved' => $approved,
 			'failed' => $failed
 		];
-	}
-
-	/**
-	 * @return MediaWiki\Moderation\EntryFactory
-	 */
-	private function getEntryFactory() {
-		return MediaWikiServices::getInstance()->getService( 'Moderation.EntryFactory' );
 	}
 }

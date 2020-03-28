@@ -21,7 +21,6 @@
  */
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
-use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\RejectBatchConsequence;
 use MediaWiki\Moderation\RejectOneConsequence;
@@ -36,8 +35,7 @@ class ModerationActionReject extends ModerationAction {
 		if ( $ret['rejected-count'] ) {
 			/* Clear the cache of "Most recent mod_timestamp of pending edit"
 				- could have changed */
-			$manager = ConsequenceUtils::getManager();
-			$manager->add( new InvalidatePendingTimeCacheConsequence() );
+			$this->consequenceManager->add( new InvalidatePendingTimeCacheConsequence() );
 		}
 
 		return $ret;
@@ -48,23 +46,14 @@ class ModerationActionReject extends ModerationAction {
 	}
 
 	public function executeRejectOne() {
-		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( 'moderation',
-			[
-				'mod_namespace AS namespace',
-				'mod_title AS title',
-				'mod_user AS user',
-				'mod_user_text AS user_text',
-				'mod_rejected AS rejected',
-				'mod_merged_revid AS merged_revid'
-			],
-			[ 'mod_id' => $this->id ],
-			__METHOD__
-		);
-
-		if ( !$row ) {
-			throw new ModerationError( 'moderation-edit-not-found' );
-		}
+		$row = $this->entryFactory->loadRowOrThrow( $this->id, [
+			'mod_namespace AS namespace',
+			'mod_title AS title',
+			'mod_user AS user',
+			'mod_user_text AS user_text',
+			'mod_rejected AS rejected',
+			'mod_merged_revid AS merged_revid'
+		] );
 
 		if ( $row->rejected ) {
 			throw new ModerationError( 'moderation-already-rejected' );
@@ -74,18 +63,22 @@ class ModerationActionReject extends ModerationAction {
 			throw new ModerationError( 'moderation-already-merged' );
 		}
 
-		$manager = ConsequenceUtils::getManager();
-		$rejectedCount = $manager->add( new RejectOneConsequence( $this->id, $this->moderator ) );
+		$rejectedCount = $this->consequenceManager->add( new RejectOneConsequence(
+			$this->id, $this->moderator
+		) );
 		if ( !$rejectedCount ) {
 			throw new ModerationError( 'moderation-edit-not-found' );
 		}
 
 		$title = Title::makeTitle( $row->namespace, $row->title );
-		$manager->add( new AddLogEntryConsequence( 'reject', $this->moderator, $title, [
-			'modid' => $this->id,
-			'user' => (int)$row->user,
-			'user_text' => $row->user_text
-		] ) );
+		$this->consequenceManager->add( new AddLogEntryConsequence( 'reject', $this->moderator,
+			$title,
+			[
+				'modid' => $this->id,
+				'user' => (int)$row->user,
+				'user_text' => $row->user_text
+			]
+		) );
 
 		return [
 			'rejected-count' => $rejectedCount
@@ -118,16 +111,16 @@ class ModerationActionReject extends ModerationAction {
 			$ids[] = (int)$row->id;
 		}
 
-		$manager = ConsequenceUtils::getManager();
-		$rejectedCount = $manager->add( new RejectBatchConsequence( $ids, $this->moderator ) );
+		$rejectedCount = $this->consequenceManager->add( new RejectBatchConsequence(
+			$ids, $this->moderator
+		) );
 		if ( !$rejectedCount ) {
 			throw new ModerationError( 'moderation-edit-not-found' );
 		}
 
-		$manager = ConsequenceUtils::getManager();
-		$manager->add( new AddLogEntryConsequence( 'rejectall', $this->moderator, $userpage, [
-			'4::count' => $rejectedCount
-		] ) );
+		$this->consequenceManager->add( new AddLogEntryConsequence( 'rejectall', $this->moderator,
+			$userpage, [ '4::count' => $rejectedCount ]
+		) );
 
 		return [
 			'rejected-count' => $rejectedCount

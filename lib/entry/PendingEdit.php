@@ -22,10 +22,6 @@
 
 namespace MediaWiki\Moderation;
 
-use ModerationNewChange;
-use ModerationVersionCheck;
-use Title;
-
 class PendingEdit {
 	/**
 	 * @var int
@@ -44,7 +40,7 @@ class PendingEdit {
 	 * @param string $text
 	 * @param string $comment
 	 */
-	protected function __construct( $id, $text, $comment ) {
+	public function __construct( $id, $text, $comment ) {
 		$this->id = $id;
 		$this->text = $text;
 		$this->comment = $comment;
@@ -72,43 +68,5 @@ class PendingEdit {
 	 */
 	public function getComment() {
 		return $this->comment;
-	}
-
-	/**
-	 * Find an edit that awaits moderation and was made by user $preloadId in page $title.
-	 * @param string $preloadId
-	 * @param Title $title
-	 * @return PendingEdit|false
-	 */
-	public static function find( $preloadId, Title $title ) {
-		$where = [
-			'mod_preloadable' => ModerationVersionCheck::preloadableYes(),
-			'mod_namespace' => $title->getNamespace(),
-			'mod_title' => ModerationVersionCheck::getModTitleFor( $title ),
-			'mod_preload_id' => $preloadId
-		];
-
-		if ( ModerationVersionCheck::hasModType() ) {
-			$where['mod_type'] = ModerationNewChange::MOD_TYPE_EDIT;
-		}
-
-		# Sequential edits are often done with small intervals of time between
-		# them, so we shouldn't wait for replication: DB_MASTER will be used.
-		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( 'moderation',
-			[
-				'mod_id AS id',
-				'mod_comment AS comment',
-				'mod_text AS text'
-			],
-			$where,
-			__METHOD__,
-			[ 'USE INDEX' => 'moderation_load' ]
-		);
-		if ( !$row ) {
-			return false;
-		}
-
-		return new self( $row->id, $row->text, $row->comment );
 	}
 }

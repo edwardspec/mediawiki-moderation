@@ -22,7 +22,6 @@
 
 use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
-use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
@@ -93,7 +92,7 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 		] );
 
 		// Replace real ConsequenceManager with a mock.
-		list( $scope, $manager ) = MockConsequenceManager::install();
+		$manager = $this->mockConsequenceManager();
 
 		$this->setMwGlobals( [
 			'wgModerationNotificationEnable' => $opt->notifyEmail ? true : false,

@@ -20,7 +20,6 @@
  * Verifies that uploading a file has consequences.
  */
 
-use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueUploadConsequence;
 
 require_once __DIR__ . "/autoload.php";
@@ -53,7 +52,7 @@ class UploadsHaveConsequencesTest extends ModerationUnitTestCase {
 		$comment = 'Edit comment when uploading the file';
 		$pageText = 'Initial content of File:Something (description page)';
 
-		list( $scope, $manager ) = MockConsequenceManager::install();
+		$manager = $this->mockConsequenceManager();
 
 		$status = $upload->performUpload( $comment, $pageText, false, $user );
 		$this->assertTrue( $status->hasMessage( 'moderation-image-queued' ),

@@ -22,7 +22,6 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\BlockUserConsequence;
-use MediaWiki\Moderation\ConsequenceUtils;
 use MediaWiki\Moderation\UnblockUserConsequence;
 
 class ModerationActionBlock extends ModerationAction {
@@ -39,29 +38,19 @@ class ModerationActionBlock extends ModerationAction {
 	}
 
 	public function execute() {
-		$manager = ConsequenceUtils::getManager();
-
-		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( 'moderation',
-			[
-				'mod_user AS user',
-				'mod_user_text AS user_text'
-			],
-			[ 'mod_id' => $this->id ],
-			__METHOD__
-		);
-		if ( !$row ) {
-			throw new ModerationError( 'moderation-edit-not-found' );
-		}
+		$row = $this->entryFactory->loadRowOrThrow( $this->id, [
+			'mod_user AS user',
+			'mod_user_text AS user_text'
+		] );
 
 		if ( $this->actionName == 'block' ) {
-			$somethingChanged = $manager->add( new BlockUserConsequence(
+			$somethingChanged = $this->consequenceManager->add( new BlockUserConsequence(
 				(int)$row->user,
 				$row->user_text,
 				$this->moderator
 			) );
 		} else {
-			$somethingChanged = $manager->add( new UnblockUserConsequence(
+			$somethingChanged = $this->consequenceManager->add( new UnblockUserConsequence(
 				$row->user_text
 			) );
 		}
@@ -73,7 +62,7 @@ class ModerationActionBlock extends ModerationAction {
 			E.g. this can happen if the moderator clicked "Mark as spammer" twice.
 		*/
 		if ( $somethingChanged ) {
-			$manager->add( new AddLogEntryConsequence(
+			$this->consequenceManager->add( new AddLogEntryConsequence(
 				( $this->actionName == 'block' ) ? 'block' : 'unblock',
 				$this->moderator,
 				Title::makeTitle( NS_USER, $row->user_text )

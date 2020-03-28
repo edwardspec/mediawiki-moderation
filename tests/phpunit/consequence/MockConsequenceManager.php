@@ -23,7 +23,6 @@
 namespace MediaWiki\Moderation;
 
 use MWException;
-use Wikimedia\ScopedCallback;
 
 class MockConsequenceManager implements IConsequenceManager {
 	/**
@@ -37,25 +36,6 @@ class MockConsequenceManager implements IConsequenceManager {
 	 * @phan-var array<class-string,mixed[]>
 	 */
 	protected $mockedResults = [];
-
-	/**
-	 * Install new MockConsequenceManager that is automatically uninstalled via ScopedCallback.
-	 * @return array
-	 * @phan-return array{0:ScopedCallback,1:MockConsequenceManager}
-	 *
-	 * Usage: list( $scope, $manager ) = MockConsequenceManager::install();
-	 * $manager will be uninstalled when $scope variable goes out of scope.
-	 */
-	public static function install() {
-		$scope = new ScopedCallback( function () {
-			ConsequenceUtils::resetManager();
-		} );
-
-		$manager = new self;
-		ConsequenceUtils::installManager( $manager );
-
-		return [ $scope, $manager ];
-	}
 
 	/**
 	 * Mocked version of add(): record the Consequence without running it, return mocked result.
