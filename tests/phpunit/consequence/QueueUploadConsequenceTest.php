@@ -194,4 +194,37 @@ class QueueUploadConsequenceTest extends ModerationUnitTestCase {
 				] ]
 		];
 	}
+
+	/**
+	 * Verify that QueueUploadConsequence fails if the file can't be saved into the Stash.
+	 * @covers MediaWiki\Moderation\QueueUploadConsequence
+	 */
+	public function testStashFailed() {
+		$user = self::getTestUser()->getUser();
+		$title = Title::newFromText( 'File:UTUpload-' . rand( 0, 100000 ) . '.png' );
+
+		// Provide incorrect "where to store" directory, so that saving into Stash will fail.
+		$repo = RequestContext::getMain()->getConfig()->get( 'LocalFileRepo' );
+		$repo['directory'] = '/dev/null/clearly/incorrect/path';
+		$this->setMwGlobals( 'wgLocalFileRepo', $repo );
+
+		if ( !method_exists( 'MediaWiki\\MediaWikiServices', 'getRepoGroup' ) ) {
+			// MediaWiki 1.31-1.33 need RepoGroup to be reset when changing $wgLocalFileRepo
+			RepoGroup::destroySingleton();
+			$cleanupScope = new Wikimedia\ScopedCallback( function () {
+				RepoGroup::destroySingleton();
+			} );
+		}
+
+		// Replace real ConsequenceManager with a mock.
+		$manager = $this->mockConsequenceManager();
+
+		// Create and run the Consequence.
+		$consequence = new QueueUploadConsequence(
+			$this->prepareTestUpload( $title ), $user, '', '' );
+		$error = $consequence->run();
+
+		$this->assertEquals( [ 'api-error-stashfailed' ], $error );
+		$this->assertConsequencesEqual( [], $manager->getConsequences() );
+	}
 }
