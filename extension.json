@@ -120,7 +120,6 @@
 		"MediaWiki\\Moderation\\InvalidatePendingTimeCacheConsequence": "lib/consequence/InvalidatePendingTimeCacheConsequence.php",
 		"MediaWiki\\Moderation\\MarkAsConflictConsequence": "lib/consequence/MarkAsConflictConsequence.php",
 		"MediaWiki\\Moderation\\MarkAsMergedConsequence": "lib/consequence/MarkAsMergedConsequence.php",
-		"MediaWiki\\Moderation\\MockConsequenceManager": "lib/consequence/manager/MockConsequenceManager.php",
 		"MediaWiki\\Moderation\\ModifyPendingChangeConsequence": "lib/consequence/ModifyPendingChangeConsequence.php",
 		"MediaWiki\\Moderation\\PendingEdit": "lib/entry/PendingEdit.php",
 		"MediaWiki\\Moderation\\QueueEditConsequence": "lib/consequence/QueueEditConsequence.php",
