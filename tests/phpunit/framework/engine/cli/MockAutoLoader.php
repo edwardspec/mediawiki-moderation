@@ -92,6 +92,7 @@ class ModerationTestsuiteMockAutoLoader {
 
 		# First, we ask MediaWiki to find the PHP file for us.
 		$classMap = array_merge(
+			// @phan-suppress-next-line PhanRedundantCondition
 			$wgAutoloadClasses ?: [],
 			$wgAutoloadLocalClasses ?: []
 		);

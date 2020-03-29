@@ -67,8 +67,11 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 		$expectedResult = 'Result ' . rand( 0, 100000 );
 		$this->context->expects( $this->once() )->method( 'msg' )
 			->with(
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( 'param1' ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( 'param2' ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( 'param3' )
 			)
 			->willReturn( $expectedResult );
@@ -192,10 +195,15 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 		$this->linkRenderer->expects( $this->any() )
 			->method( 'makePreloadedLink' )->with(
 				// This is "merged revision" link: makePreloadedLink() isn't used for anything else.
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->isInstanceOf( Title::class ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( '(moderation-merged-link)' ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( '' ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( [ 'title' => '(tooltip-moderation-merged-link)' ] ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->logicalAnd( $this->arrayHasKey( 'diff' ), $this->countOf( 1 ) )
 			)->willReturnCallback(
 				function ( Title $title, $text, $classes, array $extraAttribs, array $query ) {
@@ -206,8 +214,10 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 			->willReturnCallback( function ( ...$args ) use ( $lang ) {
 				return wfMessage( ...$args )->inLanguage( $lang );
 			} );
-		$this->timestampFormatter->expects( $this->once() )->method( 'format' )
-			->with( $this->identicalTo( $row->timestamp ) )->willReturn( '{FormattedTime}' );
+		$this->timestampFormatter->expects( $this->once() )->method( 'format' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( $row->timestamp )
+		)->willReturn( '{FormattedTime}' );
 
 		$expectedResult = str_replace( [ '{AuthorUserLink}', '{CharDiff}' ],
 			[
