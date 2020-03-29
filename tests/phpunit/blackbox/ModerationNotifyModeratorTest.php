@@ -25,7 +25,7 @@ require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 /**
  * @covers ModerationNotifyModerator
  */
-class ModerationNotifyModeratorTest extends ModerationTestCase {
+class ModerationNotifyModeratorIntegrationTest extends ModerationTestCase {
 	/**
 	 * Ensure that moderator is notified about new pending changes.
 	 */

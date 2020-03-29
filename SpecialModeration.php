@@ -155,7 +155,8 @@ class SpecialModeration extends QueryPage {
 		}
 
 		/* Close "New changes await moderation" notification until new changes appear */
-		ModerationNotifyModerator::setSeen( $this->getUser(), wfTimestampNow() );
+		$notifyModerator = MediaWikiServices::getInstance()->getService( 'Moderation.NotifyModerator' );
+		$notifyModerator->setSeen( $this->getUser(), wfTimestampNow() );
 
 		// The rest will be handled by QueryPage::execute()
 		parent::execute( null );

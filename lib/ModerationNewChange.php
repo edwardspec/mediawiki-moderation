@@ -343,7 +343,8 @@ class ModerationNewChange {
 		$this->sendNotificationEmail( $modid );
 
 		// Enable in-wiki notification "New changes await moderation" for moderators
-		ModerationNotifyModerator::setPendingTime( $this->getField( 'mod_timestamp' ) );
+		$notifyModerator = MediaWikiServices::getInstance()->getService( 'Moderation.NotifyModerator' );
+		$notifyModerator->setPendingTime( $this->getField( 'mod_timestamp' ) );
 	}
 
 	/**

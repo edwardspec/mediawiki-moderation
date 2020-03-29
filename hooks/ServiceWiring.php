@@ -52,6 +52,13 @@ return [
 			$services->getService( 'Moderation.ConsequenceManager' )
 		);
 	},
+	'Moderation.NotifyModerator' => function ( MediaWikiServices $services ) {
+		return new ModerationNotifyModerator(
+			$services->getLinkRenderer(),
+			$services->getService( 'Moderation.EntryFactory' ),
+			wfGetMainCache()
+		);
+	},
 	'Moderation.TimestampFormatter' => function () {
 		return new TimestampFormatter();
 	},

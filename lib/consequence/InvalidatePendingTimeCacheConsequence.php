@@ -22,13 +22,14 @@
 
 namespace MediaWiki\Moderation;
 
-use ModerationNotifyModerator;
+use MediaWiki\MediaWikiServices;
 
 class InvalidatePendingTimeCacheConsequence implements IConsequence {
 	/**
 	 * Execute the consequence.
 	 */
 	public function run() {
-		ModerationNotifyModerator::invalidatePendingTime();
+		$notifyModerator = MediaWikiServices::getInstance()->getService( 'Moderation.NotifyModerator' );
+		$notifyModerator->invalidatePendingTime();
 	}
 }
