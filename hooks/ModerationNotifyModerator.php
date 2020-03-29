@@ -20,6 +20,8 @@
  * Hooks that are only needed for moderators.
  */
 
+use MediaWiki\MediaWikiServices;
+
 class ModerationNotifyModerator {
 	/**
 	 * Name of our hook that runs third-party handlers of GetNewMessagesAlert hook,
@@ -165,15 +167,14 @@ class ModerationNotifyModerator {
 	 * @return string|false
 	 */
 	protected function getPendingTimeUncached() {
-		$dbr = wfGetDB( DB_REPLICA );
-		return $dbr->selectField( 'moderation', 'mod_timestamp',
-			[
-				'mod_rejected' => 0,
-				'mod_merged_revid' => 0
-			],
-			__METHOD__,
+		$entryFactory = MediaWikiServices::getInstance()->getService( 'Moderation.EntryFactory' );
+		$row = $entryFactory->loadRow(
+			[ 'mod_rejected' => 0, 'mod_merged_revid' => 0 ],
+			[ 'mod_timestamp AS timestamp' ],
+			DB_REPLICA,
 			[ 'USE INDEX' => 'moderation_folder_pending' ]
 		);
+		return $row ? $row->timestamp : false;
 	}
 
 	/**
