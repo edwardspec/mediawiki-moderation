@@ -72,8 +72,11 @@ trait MockRevisionLookupTestTrait {
 			OldRevisionLookup31::class : RevisionLookup::class;
 	}
 
-	// This method is in MediaWikiTestCase (this trait is used by its subclasses).
+	// These methods are in MediaWikiTestCase (this trait is used by its subclasses).
+
+	/** @inheritDoc */
 	abstract protected function setService( $name, $service );
 
+	/** @inheritDoc */
 	abstract protected function createMock( $originalClassName );
 }

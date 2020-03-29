@@ -207,6 +207,10 @@ class ModerationTestsuite {
 	#
 	# Database-related functions.
 	#
+
+	/**
+	 * @return User
+	 */
 	private function createTestUser( $name, $groups = [] ) {
 		$user = User::createNew( $name );
 		if ( !$user ) {
