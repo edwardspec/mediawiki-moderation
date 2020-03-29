@@ -27,6 +27,7 @@ $wgAutoloadClasses += [
 	'ModerationTestUtil' => __DIR__ . '/../../common/ModerationTestUtil.php',
 	'ConsequenceTestTrait' => __DIR__ . '/trait/ConsequenceTestTrait.php',
 	'MakeEditTestTrait' => __DIR__ . '/trait/MakeEditTestTrait.php',
+	'MockLoadRowTestTrait' => __DIR__ . '/trait/MockLoadRowTestTrait.php',
 	'MockRevisionLookupTestTrait' => __DIR__ . '/trait/MockRevisionLookupTestTrait.php',
 	'MediaWiki\\Moderation\\MockConsequenceManager' => __DIR__ . '/MockConsequenceManager.php',
 	'ModerationUnitTestCase' => __DIR__ . '/ModerationUnitTestCase.php',

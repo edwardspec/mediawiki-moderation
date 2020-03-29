@@ -26,6 +26,8 @@ use Wikimedia\TestingAccessWrapper;
 require_once __DIR__ . "/autoload.php";
 
 class ModerationActionUnitTest extends ModerationUnitTestCase {
+	use MockLoadRowTestTrait;
+
 	/**
 	 * Test ModerationAction::run() does all the necessary preparations and then calls execute().
 	 * @param bool $requiresWrite True to test non-readonly action, false to test readonly action.
@@ -107,13 +109,10 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 		$modid = 12345;
 
 		// Mock the EntryFactory service before trying formatResult().
-		$entryFactory = $this->createMock( EntryFactory::class );
-		$entryFactory->expects( $this->once() )->method( 'loadRow' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
-			$this->identicalTo( $modid ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
-			$this->identicalTo( [ 'mod_user_text AS user_text' ] )
-		)->willReturn( (object)[ 'user_text' => $username ] );
+		$entryFactory = $this->mockLoadRow( $modid,
+			[ 'mod_user_text AS user_text' ],
+			(object)[ 'user_text' => $username ]
+		);
 
 		$mockWrapper = TestingAccessWrapper::newFromObject( $this->getModerationActionMock() );
 		$mockWrapper->id = $modid;
