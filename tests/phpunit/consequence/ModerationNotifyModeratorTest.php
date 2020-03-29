@@ -135,7 +135,6 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 	public function testNotifyHook( array $newtalks, $expectShown, $thirdPartyHookResult ) {
 		$linkRenderer = $this->createMock( LinkRenderer::class );
 		$entryFactory = $this->createMock( EntryFactory::class );
-		$cache = $this->createMock( BagOStuff::class );
 		$user = $this->createMock( User::class );
 		$out = $this->createMock( OutputPage::class );
 
@@ -159,12 +158,9 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 
 		'@phan-var LinkRenderer $linkRenderer';
 		'@phan-var EntryFactory $entryFactory';
-		'@phan-var BagOStuff $cache';
-		'@phan-var User $user';
-		'@phan-var OutputPage $out';
 
 		// This test checks whether this method correctly works as a hook, so install it as a hook.
-		$notify = new ModerationNotifyModerator( $linkRenderer, $entryFactory, $cache );
+		$notify = new ModerationNotifyModerator( $linkRenderer, $entryFactory, new HashBagOStuff() );
 		$this->setService( 'Moderation.NotifyModerator', $notify );
 		$this->setTemporaryHook( 'GetNewMessagesAlert',
 			'ModerationNotifyModerator::onGetNewMessagesAlert' );
@@ -241,4 +237,162 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 				[ [ 'something' => 'here' ], false, false ]
 		];
 	}
+
+	/**
+	 * Check the handler of "BeforeInitialize" hook (which is called by MediaWiki core).
+	 * @param bool $expectInstalled True to assert that GetNewMessagesAlert hook handler was installed.
+	 * @dataProvider dataProviderInstallHook
+	 *
+	 * @covers ModerationNotifyModerator
+	 */
+	public function testInstallHook( $expectInstalled, array $opt ) {
+		$isModerator = $opt['isModerator'] ?? true;
+		$isSpecialModeration = $opt['isSpecialModeration'] ?? false;
+		$pendingTimeCached = $opt['pendingTimeCached'] ?? false;
+		$pendingTimeUncached = $opt['pendingTimeUncached'] ?? false;
+		$seenTime = $opt['seenTime'] ?? false;
+		$thirdPartyHooks = $opt['thirdPartyHooks'] ?? [];
+
+		$linkRenderer = $this->createMock( LinkRenderer::class );
+		$entryFactory = $this->createMock( EntryFactory::class );
+
+		$title = $this->createMock( Title::class );
+		$out = $this->createMock( OutputPage::class );
+		$user = $this->createMock( User::class );
+
+		$userId = 456;
+		$user->expects( $this->any() )->method( 'getId' )->willReturn( $userId );
+
+		$user->expects( $this->once() )->method( 'isAllowed' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( 'moderation' )
+		)->willReturn( $isModerator );
+
+		$cache = new HashBagOStuff();
+		$cache->set( $cache->makeKey( 'moderation-newest-pending-timestamp' ), $pendingTimeCached );
+		$cache->set( $cache->makeKey( 'moderation-seen-timestamp', "$userId" ), $seenTime );
+
+		$expectedCacheContents = [];
+
+		if ( !$isModerator ) {
+			// Hook won't be installed.
+			$title->expects( $this->never() )->method( 'isSpecial' );
+		} else {
+			$title->expects( $this->once() )->method( 'isSpecial' )->with(
+				// @phan-suppress-next-line PhanTypeMismatchArgument
+				$this->identicalTo( 'Moderation' )
+			)->willReturn( $isSpecialModeration );
+
+			if ( !$isSpecialModeration && $pendingTimeCached === false ) {
+				// PendingTime wasn't found in the cache, so it will be loaded from the database.
+				$entryFactory->expects( $this->once() )->method( 'loadRow' )->with(
+					// @phan-suppress-next-line PhanTypeMismatchArgument
+					$this->identicalTo( [ 'mod_rejected' => 0, 'mod_merged_revid' => 0 ] ),
+					// @phan-suppress-next-line PhanTypeMismatchArgument
+					$this->identicalTo( [ 'mod_timestamp AS timestamp' ] ),
+					// @phan-suppress-next-line PhanTypeMismatchArgument
+					$this->identicalTo( DB_REPLICA ),
+					// @phan-suppress-next-line PhanTypeMismatchArgument
+					$this->identicalTo( [ 'USE INDEX' => 'moderation_folder_pending' ] )
+				)->willReturn( $pendingTimeUncached ? (object)[ 'timestamp' => $pendingTimeUncached ] : false );
+
+				// Obtained $pendingTimeUncached should be stored in the cache (used in assertions below).
+				$cacheKey = $cache->makeKey( 'moderation-newest-pending-timestamp' );
+				$expectedCacheContents[$cacheKey] = $pendingTimeUncached ?: 0;
+			}
+		}
+
+		'@phan-var LinkRenderer $linkRenderer';
+		'@phan-var EntryFactory $entryFactory';
+
+		// This test checks whether this method correctly works as a hook, so install it as a hook.
+		$notify = new ModerationNotifyModerator( $linkRenderer, $entryFactory, $cache );
+		$this->setService( 'Moderation.NotifyModerator', $notify );
+		$this->setTemporaryHook( 'BeforeInitialize', 'ModerationNotifyModerator::onBeforeInitialize' );
+
+		Hooks::clear( 'GetNewMessagesAlert' );
+		foreach ( $thirdPartyHooks as $handler ) {
+			// Only $wgHooks are saved, hooks from Hooks::register() are not.
+			global $wgHooks;
+			$wgHooks['GetNewMessagesAlert'][] = $handler;
+		}
+
+		// Run the tested hook.
+		$unused = null;
+		$result = Hooks::run( 'BeforeInitialize', [ &$title, &$unused, &$out, &$user ] );
+		$this->assertTrue( $result, "BeforeInitialize hook didn't return true." );
+
+		$hooksAfterTest = Hooks::getHandlers( 'GetNewMessagesAlert' );
+
+		// Analyze the situation afterwards.
+		foreach ( $expectedCacheContents as $key => $val ) {
+			$this->assertSame( $val, $cache->get( $key ), "Cache[$key] != $val" );
+		}
+
+		if ( !$expectInstalled ) {
+			$this->assertEquals( $thirdPartyHooks, $hooksAfterTest,
+				'Unexpected changes in \$wgHooks when no hooks should have been installed.' );
+			return;
+		}
+
+		$this->assertEquals(
+			[ 'ModerationNotifyModerator::onGetNewMessagesAlert' ],
+			Hooks::getHandlers( 'GetNewMessagesAlert' ),
+			"onGetNewMessagesAlert must be installed and be the only handler of this hook."
+		);
+
+		$this->assertEquals( $thirdPartyHooks,
+			Hooks::getHandlers( ModerationNotifyModerator::SAVED_HOOK_NAME ),
+			"Third-party handlers of GetNewMessagesAlert hook weren't saved."
+		);
+	}
+
+	/**
+	 * Provide datasets for testInstallHook() runs.
+	 * @return array
+	 */
+	public function dataProviderInstallHook() {
+		return [
+			'Not installed (not a moderator)' => [ false, [ 'isModerator' => false ] ],
+			'Not installed (on Special:Moderation)' =>
+				[ false, [ 'isSpecialModeration' => true ] ],
+			'Not installed (no pending edits, according to cache)' =>
+				[ false, [ 'pendingTimeCached' => 0 ] ],
+			'Not installed (no pending edits, according to the database)' =>
+				[ false, [ 'pendingTimeUncached' => 0 ] ],
+			'Not installed (SeenTime is newer than the most recent pending edit)' =>
+				[ false, [
+					'pendingTimeUncached' => '2010010203040506',
+					'seenTime' => '2015010203040506'
+				] ],
+			'Not installed (SeenTime is newer than the most recent pending edit), have third-party hooks' =>
+				[ false, [
+					'pendingTimeUncached' => '2010010203040506',
+					'seenTime' => '2015010203040506',
+					'thirdPartyHooks' => [ 'fakeHandler1', 'fakeHandler2' ]
+				] ],
+			'Installed (SeenTime is unknown, which means that this moderator hasn\'t visited for a while)' =>
+				[ true, [
+					'pendingTimeUncached' => '2010010203040506',
+					'seenTime' => false
+				] ],
+			'Installed (SeenTime is less than pendingTimeUncached)' =>
+				[ true, [
+					'pendingTimeUncached' => '2010010203040506',
+					'seenTime' => '2005010203040506'
+				] ],
+			'Installed (SeenTime is less than pendingTimeCached)' =>
+				[ true, [
+					'pendingTimeCached' => '2010010203040506',
+					'seenTime' => '2005010203040506'
+				] ],
+			'Installed (SeenTime is less than pendingTimeCached), have third-party hooks' =>
+				[ true, [
+					'pendingTimeCached' => '2010010203040506',
+					'seenTime' => '2005010203040506',
+					'thirdPartyHooks' => [ 'fakeHandler1', 'fakeHandler2' ]
+				] ]
+		];
+	}
+
 }
