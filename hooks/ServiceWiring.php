@@ -60,6 +60,12 @@ return [
 			wfGetMainCache()
 		);
 	},
+	'Moderation.Preload' => function ( MediaWikiServices $services ) : ModerationPreload {
+		return new ModerationPreload(
+			$services->getService( 'Moderation.EntryFactory' ),
+			$services->getService( 'Moderation.ConsequenceManager' )
+		);
+	},
 	'Moderation.TimestampFormatter' => function () : TimestampFormatter {
 		return new TimestampFormatter();
 	},

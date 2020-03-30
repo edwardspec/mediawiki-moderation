@@ -260,8 +260,9 @@ class ModerationNewChange {
 	 * @return ModerationPreload
 	 */
 	protected function getPreload() {
-		$preload = ModerationPreload::singleton();
+		$preload = MediaWikiServices::getInstance()->getService( 'Moderation.Preload' );
 		$preload->setUser( $this->user );
+
 		return $preload;
 	}
 
@@ -271,8 +272,7 @@ class ModerationNewChange {
 	 */
 	protected function getPendingEdit() {
 		if ( $this->pendingEdit === null ) {
-			$this->pendingEdit = $this->getPreload()
-				->loadUnmoderatedEdit( $this->title );
+			$this->pendingEdit = $this->getPreload()->findPendingEdit( $this->title );
 		}
 
 		return $this->pendingEdit;

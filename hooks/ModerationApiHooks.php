@@ -20,6 +20,8 @@
  * Hooks related to edits/uploads via API.
  */
 
+use MediaWiki\MediaWikiServices;
+
 class ModerationApiHooks {
 
 	/**
@@ -73,7 +75,8 @@ class ModerationApiHooks {
 		$pageObj = $main->getTitleOrPageId( $request->getValues( 'title', 'pageid' ) );
 		$title = $pageObj->getTitle();
 
-		$pendingEdit = ModerationPreload::singleton()->loadUnmoderatedEdit( $title );
+		$preload = MediaWikiServices::getInstance()->getService( 'Moderation.Preload' );
+		$pendingEdit = $preload->findPendingEdit( $title );
 		if ( !$pendingEdit ) {
 			return true; /* No pending version - ApiEdit will handle this correctly */
 		}

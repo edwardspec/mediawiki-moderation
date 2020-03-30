@@ -32,6 +32,8 @@
  * set to true), "ext.moderation.ajaxhook" will also be attached.
  */
 
+use MediaWiki\MediaWikiServices;
+
 class ModerationAjaxHook {
 
 	/**
@@ -82,9 +84,9 @@ class ModerationAjaxHook {
 				$modules[] = 'ext.moderation.mf.preload33';
 
 				$title = $out->getTitle();
-				if ( !$title->exists() &&
-					ModerationPreload::singleton()->loadUnmoderatedEdit( $title )
-				) {
+				$preload = MediaWikiServices::getInstance()->getService( 'Moderation.Preload' );
+
+				if ( !$title->exists() && $preload->findPendingEdit( $title ) ) {
 					// This user has a pending revision in $title, but $title doesn't exist.
 					// Non-existent pages have wgArticleId=0, and MobileFrontend won't even try
 					// to load their text.

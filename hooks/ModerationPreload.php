@@ -21,8 +21,10 @@
  */
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\ForgetAnonIdConsequence;
 use MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence;
+use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
 
@@ -35,29 +37,27 @@ use MediaWiki\Moderation\RememberAnonIdConsequence;
 */
 
 class ModerationPreload {
-
-	/** @var ModerationPreload Singleton instance */
-	protected static $instance = null;
-
 	/** @var EditPage|null Editor object passed from onAlternateEdit() to onEditFormPreloadText() */
 	protected $editPage = null;
 
 	/** @var User|null Current user. If not set, $wgUser will be used. */
 	private $user = null;
 
-	protected function __construct() {
-	}
+	/** @var EntryFactory */
+	protected $entryFactory;
+
+	/** @var IConsequenceManager */
+	protected $consequenceManager;
 
 	/**
-	 * Return a singleton instance of ModerationPreload
-	 * @return ModerationPreload
+	 * @param EntryFactory $entryFactory
+	 * @param IConsequenceManager $consequenceManager
 	 */
-	public static function singleton() {
-		if ( self::$instance === null ) {
-			self::$instance = new self;
-		}
-
-		return self::$instance;
+	public function __construct( EntryFactory $entryFactory,
+		IConsequenceManager $consequenceManager
+	) {
+		$this->entryFactory = $entryFactory;
+		$this->consequenceManager = $consequenceManager;
 	}
 
 	/**
@@ -115,8 +115,7 @@ class ModerationPreload {
 				return false;
 			}
 
-			$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
-			$anonToken = $manager->add( new RememberAnonIdConsequence() );
+			$anonToken = $this->consequenceManager->add( new RememberAnonIdConsequence() );
 		}
 
 		return ']' . $anonToken;
@@ -131,24 +130,31 @@ class ModerationPreload {
 	 * @return true
 	 */
 	public static function onLocalUserCreated( $user, $autocreated ) {
-		$preload = self::singleton();
-		$preload->setUser( $user );
+		$preload = MediaWikiServices::getInstance()->getService( 'Moderation.Preload' );
+		$preload->runNewUserHook( $user );
 
-		$anonId = $preload->getAnonId( false );
+		return true;
+	}
+
+	/**
+	 * Main logic of LocalUserCreated hook.
+	 * @param User $user
+	 */
+	protected function runNewUserHook( User $user ) {
+		$this->setUser( $user );
+
+		$anonId = $this->getAnonId( false );
 		if ( !$anonId ) { # This visitor never saved any edits
-			return true;
+			return;
 		}
 
-		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
-		$manager->add( new GiveAnonChangesToNewUserConsequence(
-			$user, $anonId, $preload->getId()
+		$this->consequenceManager->add( new GiveAnonChangesToNewUserConsequence(
+			$user, $anonId, $this->getId()
 		) );
 
 		// Forget the fact that this user edited anonymously:
 		// this user is now registered and no longer needs anonymous preload.
-		$manager->add( new ForgetAnonIdConsequence() );
-
-		return true;
+		$this->consequenceManager->add( new ForgetAnonIdConsequence() );
 	}
 
 	/**
@@ -157,33 +163,31 @@ class ModerationPreload {
 	 * @param Title $title
 	 * @return PendingEdit|false
 	 */
-	public function loadUnmoderatedEdit( Title $title ) {
+	public function findPendingEdit( Title $title ) {
 		$id = $this->getId();
 		if ( !$id ) { # This visitor never saved any edits
 			return false;
 		}
 
-		$entryFactory = MediaWikiServices::getInstance()->getService( 'Moderation.EntryFactory' );
-		return $entryFactory->findPendingEdit( $id, $title );
+		return $this->entryFactory->findPendingEdit( $id, $title );
 	}
 
 	/**
 	 * If there is an edit (currently pending moderation) made by the
 	 * current user, inform EditPage object of its Text and Summary,
 	 * so that the user can continue editing its own revision.
-	 * @param string &$text
+	 * @param string &$text @phan-output-reference
 	 * @param Title $title
 	 * @param EditPage|null $editPage
 	 */
-	public static function showUnmoderatedEdit( &$text, $title, $editPage ) {
-		$preload = self::singleton();
-		$section = $preload->getRequest()->getVal( 'section', '' );
+	protected function showPendingEdit( &$text, $title, $editPage ) {
+		$section = $this->getRequest()->getVal( 'section', '' );
 		if ( $section == 'new' ) {
 			# Nothing to preload if new section is being created
 			return;
 		}
 
-		$pendingEdit = $preload->loadUnmoderatedEdit( $title );
+		$pendingEdit = $this->findPendingEdit( $title );
 		if ( !$pendingEdit ) {
 			return;
 		}
@@ -215,7 +219,7 @@ class ModerationPreload {
 	 * @return true
 	 */
 	public static function onAlternateEdit( $editPage ) {
-		$preload = self::singleton();
+		$preload = MediaWikiServices::getInstance()->getService( 'Moderation.Preload' );
 		$preload->editPage = $editPage;
 
 		return true;
@@ -229,20 +233,21 @@ class ModerationPreload {
 	 * @return true
 	 */
 	public static function onEditFormPreloadText( &$text, &$title ) {
-		$preload = self::singleton();
-		self::showUnmoderatedEdit( $text, $title, $preload->editPage );
+		$preload = MediaWikiServices::getInstance()->getService( 'Moderation.Preload' );
+		$preload->showPendingEdit( $text, $title, $preload->editPage );
 
 		return true;
 	}
 
 	/**
-	 * EditFormPreloadText hook handler.
+	 * EditFormInitialText hook handler.
 	 * Preloads text/summary when the article already exists.
 	 * @param EditPage $editPage
 	 * @return true
 	 */
 	public static function onEditFormInitialText( $editPage ) {
-		self::showUnmoderatedEdit( $editPage->textbox1, $editPage->getTitle(), $editPage );
+		$preload = MediaWikiServices::getInstance()->getService( 'Moderation.Preload' );
+		$preload->showPendingEdit( $editPage->textbox1, $editPage->getTitle(), $editPage );
 
 		return true;
 	}
