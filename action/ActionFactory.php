@@ -44,6 +44,7 @@ class ActionFactory {
 
 	/**
 	 * @param EntryFactory $entryFactory
+	 * @param IConsequenceManager $consequenceManager
 	 */
 	public function __construct( EntryFactory $entryFactory,
 		IConsequenceManager $consequenceManager

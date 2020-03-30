@@ -42,6 +42,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 	 * @param IContextSource $context
 	 * @param LinkRenderer $linkRenderer
 	 * @param ActionLinkRenderer $actionLinkRenderer
+	 * @param TimestampFormatter $timestampFormatter
 	 */
 	public function __construct( $row, IContextSource $context, LinkRenderer $linkRenderer,
 		ActionLinkRenderer $actionLinkRenderer, TimestampFormatter $timestampFormatter

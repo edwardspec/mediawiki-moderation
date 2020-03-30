@@ -62,6 +62,7 @@ abstract class ModerationBenchmark extends Maintenance {
 
 	/**
 	 * This function will be benchmarked by execute().
+	 * @param int $iterationNumber
 	 */
 	abstract public function doActualWork( $iterationNumber );
 
@@ -137,6 +138,10 @@ abstract class ModerationBenchmark extends Maintenance {
 
 	/**
 	 * Edit the page (convenience function to be used by benchmarks).
+	 * @param Title $title
+	 * @param string $newText
+	 * @param string $summary
+	 * @param User|null $user
 	 * @return Status object.
 	 */
 	public function edit( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
@@ -164,6 +169,11 @@ abstract class ModerationBenchmark extends Maintenance {
 	 * For example, if moveQueue benchmark needs 500 existing pages,
 	 * it would take forever for doEditContent() to create them all,
 	 * much longer than the actual benchmark.
+	 *
+	 * @param Title $title
+	 * @param string $newText
+	 * @param string $summary
+	 * @param User|null $user
 	 */
 	public function fastEdit( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
 		ModerationTestUtil::fastEdit( $title, $newText, $summary, $user );
@@ -172,7 +182,10 @@ abstract class ModerationBenchmark extends Maintenance {
 	/**
 	 * Queue the page by directly modifying the database. Very fast.
 	 * This is used for initialization of tests.
-	 *
+	 * @param Title $title
+	 * @param string $newText
+	 * @param string $summary
+	 * @param User|null $user
 	 * @return mod_id of the newly inserted row.
 	 */
 	public function fastQueue(
@@ -218,6 +231,8 @@ abstract class ModerationBenchmark extends Maintenance {
 
 	/**
 	 * Render Special:Moderation with $params.
+	 * @param array $params
+	 * @param bool $wasPosted
 	 * @return string HTML of the result.
 	 */
 	public function runSpecialModeration( array $params, $wasPosted = false ) {

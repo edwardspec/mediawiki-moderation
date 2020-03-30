@@ -119,6 +119,7 @@ class ModerationTestHTML extends DOMDocument {
 	/**
 	 * Find the DOM element by XPath selector.
 	 * E.g. $t->html->getElementsByXPath( '//row[@name="wpSummary"]' )
+	 * @param string $selector
 	 * @return DOMElement|null
 	 */
 	public function getElementByXPath( $selector ) {
@@ -129,6 +130,7 @@ class ModerationTestHTML extends DOMDocument {
 	/**
 	 * Find all DOM elements matching the XPath selector.
 	 * E.g. $t->html->getElementsByXPath( '//a[@class="new"]' )
+	 * @param string $selector
 	 * @return DOMNodeList
 	 */
 	public function getElementsByXPath( $selector ) {
@@ -161,9 +163,10 @@ class ModerationTestHTML extends DOMDocument {
 
 	/**
 	 * Return the array of <input> elements in the form (name => value).
+	 * @param DomElement|null $formElement
 	 * @return DomElement[]
 	 */
-	public function getFormElements( $formElement = null ) {
+	public function getFormElements( DomElement $formElement = null ) {
 		if ( !$formElement ) {
 			$formElement = $this;
 		}

@@ -62,6 +62,7 @@ abstract class ModerationAction extends ContextSource {
 	 * Regular constructor with no "detect class from modaction=" logic. Use factory() instead.
 	 * @param IContextSource $context
 	 * @param EntryFactory $entryFactory
+	 * @param IConsequenceManager $consequenceManager
 	 */
 	public function __construct( IContextSource $context, EntryFactory $entryFactory,
 		IConsequenceManager $consequenceManager

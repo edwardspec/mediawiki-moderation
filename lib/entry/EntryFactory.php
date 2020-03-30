@@ -17,7 +17,7 @@
 
 /**
  * @file
- * Factory that can construct ModerationEntry objects from Context.
+ * Factory that can construct ModerationEntry objects from database rows.
  */
 
 namespace MediaWiki\Moderation;
@@ -51,6 +51,8 @@ class EntryFactory {
 	/**
 	 * @param LinkRenderer $linkRenderer
 	 * @param ActionLinkRenderer $actionLinkRenderer
+	 * @param TimestampFormatter $timestampFormatter
+	 * @param IConsequenceManager $consequenceManager
 	 */
 	public function __construct( LinkRenderer $linkRenderer,
 		ActionLinkRenderer $actionLinkRenderer,

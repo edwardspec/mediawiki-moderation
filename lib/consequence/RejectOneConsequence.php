@@ -34,6 +34,7 @@ class RejectOneConsequence implements IConsequence {
 
 	/**
 	 * @param int $modid
+	 * @param User $moderator
 	 */
 	public function __construct( $modid, User $moderator ) {
 		$this->modid = $modid;
