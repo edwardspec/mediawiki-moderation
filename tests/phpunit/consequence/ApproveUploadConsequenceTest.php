@@ -92,4 +92,28 @@ class ApproveUploadConsequenceTest extends ModerationUnitTestCase {
 			'reupload' => [ true ],
 		];
 	}
+
+	/**
+	 * Verify that ApproveUploadConsequence fails if the file can't be found in the Stash.
+	 * @covers MediaWiki\Moderation\ApproveUploadConsequence
+	 */
+	public function testMissingStashFile() {
+		$user = self::getTestUser()->getUser();
+		$title = Title::newFromText( 'File:UTUpload-' . rand( 0, 100000 ) . '.png' );
+
+		$missingStashKey = 'missing' . rand( 0, 1000000 ) . '.jpg';
+
+		// Create and run the Consequence.
+		$consequence = new ApproveUploadConsequence( $missingStashKey, $title, $user, '', '' );
+		$status = $consequence->run();
+
+		$this->assertFalse( $status->isOK(),
+			"ApproveUploadConsequence didn't fail for incorrect stash key." );
+		$this->assertTrue( $status->hasMessage( 'moderation-missing-stashed-image' ),
+			"ApproveUploadConsequence didn't return 'moderation-missing-stashed-image' Status." );
+
+		$file = RepoGroup::singleton()->findFile( $title->getText(), [ 'latest' => true ] );
+		$this->assertFalse( $file,
+			"Target file exists after ApproveUploadConsequence has failed." );
+	}
 }

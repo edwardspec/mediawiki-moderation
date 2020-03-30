@@ -28,6 +28,10 @@ class ModerationTestUtil {
 	 * For example, if moveQueue benchmark needs 500 existing pages,
 	 * it would take forever for doEditContent() to create them all,
 	 * much longer than the actual benchmark.
+	 * @param Title $title
+	 * @param string $newText
+	 * @param string $summary
+	 * @param User|null $user
 	 */
 	public static function fastEdit(
 		Title $title,
@@ -60,6 +64,10 @@ class ModerationTestUtil {
 
 	/**
 	 * Render Special:Moderation with $params.
+	 * @param User $user
+	 * @param array $params
+	 * @param bool $wasPosted
+	 * @param IContextSource|null &$context Used context will be written here. @phan-output-reference
 	 * @return string HTML of the result.
 	 */
 	public static function runSpecialModeration( User $user, array $params, $wasPosted = false,

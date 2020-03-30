@@ -55,7 +55,6 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 		$this->assertEquals( $options['subtype'], $subtype, "Incorrect subtype." );
 
 		// Now check $paramLine for correctness
-		$params = [];
 		$params = explode( ', ', $paramLine );
 
 		$this->assertEquals( $performer->getName(), $params[1], "Incorrect performer." );
@@ -257,7 +256,6 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 	 */
 	protected function assertParamHtml( array $expectedParam, $paramHtml, $idx, Title $target ) {
 		if ( !isset( $expectedParam['query'] ) ) {
-			$title = null;
 			if ( isset( $expectedParam['userlink'] ) ) {
 				list( $userId, $username ) = $expectedParam['userlink'];
 				$title = $userId ?

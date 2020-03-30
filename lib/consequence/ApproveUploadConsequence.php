@@ -71,7 +71,7 @@ class ApproveUploadConsequence implements IConsequence {
 
 		try {
 			$upload->initialize( $this->stashKey, $this->title->getText() );
-		} catch ( UploadStashFileNotFoundException $e ) {
+		} catch ( UploadStashFileNotFoundException $_ ) {
 			return Status::newFatal( 'moderation-missing-stashed-image' );
 		}
 

@@ -67,8 +67,11 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 		$expectedResult = 'Result ' . rand( 0, 100000 );
 		$this->context->expects( $this->once() )->method( 'msg' )
 			->with(
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( 'param1' ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( 'param2' ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( 'param3' )
 			)
 			->willReturn( $expectedResult );
@@ -192,10 +195,15 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 		$this->linkRenderer->expects( $this->any() )
 			->method( 'makePreloadedLink' )->with(
 				// This is "merged revision" link: makePreloadedLink() isn't used for anything else.
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->isInstanceOf( Title::class ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( '(moderation-merged-link)' ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( '' ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( [ 'title' => '(tooltip-moderation-merged-link)' ] ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->logicalAnd( $this->arrayHasKey( 'diff' ), $this->countOf( 1 ) )
 			)->willReturnCallback(
 				function ( Title $title, $text, $classes, array $extraAttribs, array $query ) {
@@ -206,8 +214,10 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 			->willReturnCallback( function ( ...$args ) use ( $lang ) {
 				return wfMessage( ...$args )->inLanguage( $lang );
 			} );
-		$this->timestampFormatter->expects( $this->once() )->method( 'format' )
-			->with( $this->identicalTo( $row->timestamp ) )->willReturn( '{FormattedTime}' );
+		$this->timestampFormatter->expects( $this->once() )->method( 'format' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( $row->timestamp )
+		)->willReturn( '{FormattedTime}' );
 
 		$expectedResult = str_replace( [ '{AuthorUserLink}', '{CharDiff}' ],
 			[
@@ -253,6 +263,18 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 	 * @return array
 	 */
 	public function dataProviderGetHTML() {
+		// TODO: result of "can reapprove rejected?" should be mockable,
+		// and this should be tested elsewhere.
+		global $wgModerationTimeToOverrideRejection;
+
+		$ts = new MWTimestamp();
+		$ts->timestamp->modify( '-' . ( $wgModerationTimeToOverrideRejection + 1 ) . ' seconds' );
+		$longAgo = $ts->getTimestamp( TS_MW ); // Can't reapprove rejected edit with this timestamp
+
+		$ts = new MWTimestamp();
+		$ts->timestamp->modify( '-' . ( $wgModerationTimeToOverrideRejection - 600 ) . ' seconds' );
+		$notLongAgoEnough = $ts->getTimestamp( TS_MW );
+
 		// phpcs:disable Generic.Files.LineLength.TooLong
 		return [
 			'pending edit' => [ [
@@ -326,9 +348,19 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 				'fields' => [
 					'rejected' => 1,
 					'rejected_by_user' => 12345,
-					'rejected_by_user_text' => 'Name of moderator'
+					'rejected_by_user_text' => 'Name of moderator',
+					'timestamp' => $notLongAgoEnough
 				],
 				'expectedResult' => '<span class="modline">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve}] . . [{ActionLink:block}] . . (moderation-rejected-by: {UserLink:12345|Name of moderator}, {Row:rejected_by_user_text})</span>'
+			] ],
+			'rejected edit, too long ago to approve' => [ [
+				'fields' => [
+					'rejected' => 1,
+					'rejected_by_user' => 12345,
+					'rejected_by_user_text' => 'Name of moderator',
+					'timestamp' => $longAgo
+				],
+				'expectedResult' => '<span class="modline">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [] . . [{ActionLink:block}] . . (moderation-rejected-by: {UserLink:12345|Name of moderator}, {Row:rejected_by_user_text})</span>'
 			] ],
 			'rejected edit, rejected via "Reject all"' => [ [
 				'fields' => [
@@ -356,6 +388,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 	/**
 	 * Make formatter for $row with mocks that were created in setUp().
 	 * @param object|null $row
+	 * @return ModerationEntryFormatter
 	 */
 	private function makeTestFormatter( $row = null ) {
 		return new ModerationEntryFormatter( $row ?? new stdClass, $this->context,

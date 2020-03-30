@@ -8,8 +8,6 @@
 		<!-- TODO: missing documentation: this can be fixed -->
 		<exclude name="MediaWiki.Commenting.FunctionComment.MissingDocumentationProtected" />
 		<exclude name="MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic" />
-		<exclude name="MediaWiki.Commenting.FunctionComment.MissingParamTag" />
-		<exclude name="MediaWiki.Commenting.FunctionComment.WrongStyle" />
 
 		<!-- NOTE: can't fix this yet, because we still support MediaWiki 1.31 (LTS),
 			which supported PHP 7.0, while "visibility of constants" was only added in PHP 7.1.
@@ -19,6 +17,11 @@
 		<!-- Don't want to apply this -->
 		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment" />
 
+	</rule>
+
+	<rule ref="MediaWiki.Commenting.FunctionComment.MissingParamTag">
+		<!-- TODO: missing documentation in blackbox tests: this can be fixed -->
+		<exclude-pattern>*/tests/phpunit/framework/*</exclude-pattern>
 	</rule>
 
 	<rule ref="MediaWiki.Usage.DeprecatedGlobalVariables.Deprecated$wgContLang">
@@ -37,21 +40,15 @@
 			to avoid class name collision with [decoupled/30_action/ModerationActionTest.php] -->
 		<exclude-pattern>*/tests/phpunit/consequence/ModerationActionTest\.php</exclude-pattern>
 
+		<!-- This test is named ModerationNotifyModeratorIntegrationTest
+			to avoid class name collision with [tests/phpunit/consequence/ModerationNotifyModeratorTest.php] -->
+		<exclude-pattern>*/tests/phpunit/blackbox/ModerationNotifyModeratorTest.php</exclude-pattern>
+
 		<!-- Excluded (temporarily?) to not rename the existing files -->
 		<exclude-pattern>*/tests/phpunit/framework/ModerationTestSet\.php</exclude-pattern>
 		<exclude-pattern>*/tests/phpunit/framework/ModerationPendingChangeTestSet\.php</exclude-pattern>
 		<exclude-pattern>*/tests/phpunit/framework/bot/response/ModerationTestsuiteBotResponseTrait\.php</exclude-pattern>
 		<exclude-pattern>*/tests/phpunit/framework/engine/cli/MockAutoLoader\.php</exclude-pattern>
-	</rule>
-
-	<rule ref="MediaWiki.Usage.PHPUnitTypeHints">
-		<!-- These type hints can't be added, because MediaWikiTestCase class in MediaWiki 1.31 didn't have them,
-			so adding them to a subclass of MediaWikiTestCase would break backward compatibility.
-			(causing PHP error "Declaration of [method] should be compatible with [parent method]")
-		-->
-		<exclude-pattern>*/tests/phpunit/framework/ModerationTestCase.php</exclude-pattern>
-		<exclude-pattern>*/tests/phpunit/consequence/*</exclude-pattern>
-
 	</rule>
 
 	<rule ref="MediaWiki.NamingConventions.ValidGlobalName">

@@ -65,6 +65,8 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 
 		if ( isset( $options['getModerator'] ) ) {
 			$this->moderatorUser = $options['getModerator']();
+
+			// @phan-suppress-next-line PhanUnusedVariable
 			$scope = new ScopedCallback( function () {
 				$this->moderatorUser = null;
 			} );

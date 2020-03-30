@@ -62,6 +62,7 @@ abstract class ModerationAction extends ContextSource {
 	 * Regular constructor with no "detect class from modaction=" logic. Use factory() instead.
 	 * @param IContextSource $context
 	 * @param EntryFactory $entryFactory
+	 * @param IConsequenceManager $consequenceManager
 	 */
 	public function __construct( IContextSource $context, EntryFactory $entryFactory,
 		IConsequenceManager $consequenceManager
@@ -141,15 +142,9 @@ abstract class ModerationAction extends ContextSource {
 	 * @return Title|false
 	 */
 	protected function getUserpageOfPerformer() {
-		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
-		$username = $dbw->selectField( 'moderation', 'mod_user_text',
-			[ 'mod_id' => $this->id ],
-			__METHOD__
-		);
-		if ( strval( $username ) == '' ) {
-			return false;
-		}
-
-		return Title::makeTitle( NS_USER, $username );
+		$row = $this->entryFactory->loadRow( $this->id, [
+			'mod_user_text AS user_text'
+		] );
+		return $row ? Title::makeTitle( NS_USER, $row->user_text ) : false;
 	}
 }

@@ -99,7 +99,7 @@ class ModerationApproveHook {
 	 * TitleMoveComplete hook.
 	 * Here we modify rev_timestamp of a newly created redirect after the page move.
 	 * @param Title $title
-	 * @param Title $newTitle
+	 * @param Title $newTitle @phan-unused-param
 	 * @param User $user
 	 * @return true
 	 */
@@ -132,7 +132,8 @@ class ModerationApproveHook {
 	 * Schedule doUpdate() to run after all other DeferredUpdates that are caused by new edits.
 	 */
 	public static function scheduleDoUpdate() {
-		self::singleton()->useCount ++;
+		$hook = self::singleton();
+		$hook->useCount ++;
 		DeferredUpdates::addCallableUpdate( __CLASS__ . '::doUpdate' );
 	}
 
@@ -337,7 +338,8 @@ class ModerationApproveHook {
 	public static function checkLogEntry( $logid, ManualLogEntry $logEntry ) {
 		$params = $logEntry->getParameters();
 		if ( array_key_exists( 'revid', $params ) && $params['revid'] === null ) {
-			self::singleton()->logEntriesToFix[$logid] = $logEntry;
+			$hook = self::singleton();
+			$hook->logEntriesToFix[$logid] = $logEntry;
 		}
 	}
 
@@ -355,15 +357,16 @@ class ModerationApproveHook {
 	/**
 	 * NewRevisionFromEditComplete hook.
 	 * Here we determine $lastRevId.
-	 * @param Article $article
+	 * @param Article $article @phan-unused-param
 	 * @param Revision $rev
-	 * @param string $baseID
-	 * @param User $user
+	 * @param string $baseID @phan-unused-param
+	 * @param User $user @phan-unused-param
 	 * @return bool
 	 */
 	public static function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
 		/* Remember ID of this revision for getLastRevId() */
-		self::singleton()->lastRevId = $rev->getId();
+		$hook = self::singleton();
+		$hook->lastRevId = $rev->getId();
 		return true;
 	}
 
@@ -444,7 +447,8 @@ class ModerationApproveHook {
 	 * @phan-param array<string,string|int|null> &$fields
 	 */
 	public static function onCheckUserInsertForRecentChange( $rc, &$fields ) {
-		$task = self::singleton()->getTaskByRC( $rc );
+		$hook = self::singleton();
+		$task = $hook->getTaskByRC( $rc );
 		if ( !$task ) {
 			return true;
 		}
@@ -476,7 +480,7 @@ class ModerationApproveHook {
 	 *
 	 * @param LocalFile $file
 	 * @param bool $reupload
-	 * @param bool $hasDescription
+	 * @param bool $hasDescription @phan-unused-param
 	 * @return bool
 	 */
 	public static function onFileUpload( LocalFile $file, $reupload, $hasDescription ) {
@@ -485,7 +489,8 @@ class ModerationApproveHook {
 		}
 
 		$dbw = wfGetDB( DB_MASTER );
-		foreach ( self::singleton()->logEntriesToFix as $logid => $logEntry ) {
+		$hook = self::singleton();
+		foreach ( $hook->logEntriesToFix as $logid => $logEntry ) {
 			$title = $file->getTitle();
 			if ( $logEntry->getTarget()->equals( $title ) ) {
 				$params = $logEntry->getParameters();

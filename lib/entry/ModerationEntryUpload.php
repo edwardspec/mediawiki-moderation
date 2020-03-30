@@ -25,7 +25,7 @@ use MediaWiki\Moderation\ApproveUploadConsequence;
 class ModerationEntryUpload extends ModerationApprovableEntry {
 	/**
 	 * Approve this upload.
-	 * @param User $moderator
+	 * @param User $moderator @phan-unused-param
 	 * @return Status object.
 	 */
 	public function doApprove( User $moderator ) {

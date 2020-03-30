@@ -68,7 +68,7 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 		);
 		$GLOBALS['wgCachePrefix'] = $newDomain->getId();
 
-		Hooks::register( 'SetupAfterCache', function () use ( $newDomain, $value ) {
+		Hooks::register( 'SetupAfterCache', function () use ( $newDomain ) {
 			$lbFactory = MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancerFactory();
 			if ( !method_exists( $lbFactory, 'redefineLocalDomain' ) ) {
 				// MediaWiki 1.31
@@ -101,7 +101,6 @@ function efModerationTestsuiteMockedHeader( $string, $replace = true, $http_resp
 function efModerationTestsuiteCliLogin() {
 	global $wgModerationTestsuiteCliDescriptor;
 
-	$entrypoint = 'index';
 	if ( defined( 'MW_ENTRY_POINT' ) ) {
 		// MediaWiki 1.34+
 		$entrypoint = MW_ENTRY_POINT;

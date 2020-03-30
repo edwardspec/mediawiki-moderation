@@ -91,7 +91,7 @@ matrix:
         - cd mediawiki
         - ( cd extensions/Moderation && composer install )
       script:
-        - ( cd extensions/Moderation && ./vendor/bin/phan -j2 )
+        - ( cd extensions/Moderation && ./vendor/bin/phan --analyze-twice )
 
     # Phan for ModerationTestsuite framework
     - <<: *phan-build

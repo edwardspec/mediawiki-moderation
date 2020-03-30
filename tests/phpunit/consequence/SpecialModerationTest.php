@@ -181,6 +181,12 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 			$queryInfo['join_conds']
 		);
 
+		$this->assertArrayHasKey( 'conds', $queryInfo );
+		$this->assertEquals( $expectedConds, $queryInfo['conds'] );
+
+		$this->assertArrayHasKey( 'options', $queryInfo );
+		$this->assertEquals( $expectedOptions, $queryInfo['options'] );
+
 		// Check getOrderFields()
 		$this->assertEquals( [ 'mod_timestamp' ], $special->getOrderFields() );
 

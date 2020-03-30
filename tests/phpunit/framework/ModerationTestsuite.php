@@ -207,6 +207,10 @@ class ModerationTestsuite {
 	#
 	# Database-related functions.
 	#
+
+	/**
+	 * @return User
+	 */
 	private function createTestUser( $name, $groups = [] ) {
 		$user = User::createNew( $name );
 		if ( !$user ) {
@@ -378,6 +382,7 @@ class ModerationTestsuite {
 					unset( $row[$keyField] );
 				}
 
+				// @phan-suppress-next-line SecurityCheck-SQLInjection - false positive
 				$dbw->insert( $table, $row, __METHOD__ );
 				if ( $dbw->affectedRows() != 1 ) {
 					throw new MWException( 'createTestUsers: loading from cache failed.' );

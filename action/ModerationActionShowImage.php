@@ -60,7 +60,7 @@ class ModerationActionShowImage extends ModerationAction {
 
 		try {
 			$file = $stash->getFile( $row->stash_key );
-		} catch ( MWException $e ) {
+		} catch ( MWException $_ ) {
 			return [ 'missing' => '' ];
 		}
 

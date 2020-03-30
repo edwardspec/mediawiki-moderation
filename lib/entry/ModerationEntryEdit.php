@@ -26,7 +26,7 @@ use MediaWiki\Moderation\MarkAsConflictConsequence;
 class ModerationEntryEdit extends ModerationApprovableEntry {
 	/**
 	 * Approve this edit.
-	 * @param User $moderator
+	 * @param User $moderator @phan-unused-param
 	 * @return Status object.
 	 */
 	public function doApprove( User $moderator ) {

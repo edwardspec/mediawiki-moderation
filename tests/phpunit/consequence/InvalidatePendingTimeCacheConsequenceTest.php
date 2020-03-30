@@ -21,7 +21,6 @@
  */
 
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
-use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -33,21 +32,13 @@ class InvalidatePendingTimeCacheConsequenceTest extends ModerationUnitTestCase {
 	 * @covers ModerationNotifyModerator
 	 */
 	public function testPendingTimeCacheInvalidated() {
-		// This test requires working Cache (not EmptyBagOStuff, which is default for tests).
-		$this->setMwGlobals( 'wgMainCacheType', 'hash' );
+		$notify = $this->createMock( ModerationNotifyModerator::class );
+		$notify->expects( $this->once() )->method( 'invalidatePendingTime' );
 
-		// First, place some value into the cache and verify that getPendingTime() returns it.
-		$timestamp = wfTimestampNow();
-		ModerationNotifyModerator::setPendingTime( $timestamp );
-
-		$accessWrapper = TestingAccessWrapper::newFromObject( new ModerationNotifyModerator );
-		$this->assertEquals( $timestamp, $accessWrapper->getPendingTime() );
+		$this->setService( 'Moderation.NotifyModerator', $notify );
 
 		// Create and run the Consequence.
 		$consequence = new InvalidatePendingTimeCacheConsequence();
 		$consequence->run();
-
-		// Now verify that the previously cached result is no longer returned by getPendingTime().
-		$this->assertNotEquals( $timestamp, $accessWrapper->getPendingTime() );
 	}
 }

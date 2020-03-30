@@ -24,7 +24,7 @@ class ModerationEditChangePage extends EditPage {
 
 	/**
 	 * When user clicks Submit, handle this back to Special:Moderation.
-	 * @param Title $title
+	 * @param Title $title @phan-unused-param
 	 * @return string URL
 	 */
 	protected function getActionURL( Title $title ) {

@@ -36,8 +36,11 @@ class ModerationError extends ErrorPageError {
 		parent::__construct( 'moderation', $message );
 	}
 
-	/* Completely override report() from ErrorPageError
-		in order to wrap the message in <div id='mw-mod-error'></div> */
+	/**
+	 * Completely override report() from ErrorPageError in order to wrap the message
+	 * in <div id='mw-mod-error'></div>
+	 * @param mixed $action @phan-unused-param
+	 */
 	public function report( $action = 0 ) {
 		global $wgOut;
 

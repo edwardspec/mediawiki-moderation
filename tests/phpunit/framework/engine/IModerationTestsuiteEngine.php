@@ -82,6 +82,7 @@ interface IModerationTestsuiteEngine {
 	/**
 	 * Sets MediaWiki global variable.
 	 * @param string $name Name of variable without the $wg prefix.
+	 * @param mixed $value
 	 */
 	public function setMwConfig( $name, $value );
 

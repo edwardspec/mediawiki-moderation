@@ -20,17 +20,13 @@
  * Unit test of ModerationAction.
  */
 
+use MediaWiki\Moderation\EntryFactory;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
-/**
- * @group Database
- */
 class ModerationActionUnitTest extends ModerationUnitTestCase {
-	use ModifyDbRowTestTrait;
-
-	protected $tablesUsed = [ 'moderation' ];
+	use MockLoadRowTestTrait;
 
 	/**
 	 * Test ModerationAction::run() does all the necessary preparations and then calls execute().
@@ -110,10 +106,18 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 	 */
 	public function testUserpageOfPerformer() {
 		$username = 'Test user ' . rand( 0, 100000 );
-		$modid = $this->makeDbRow( [ 'mod_user_text' => $username ] );
+		$modid = 12345;
+
+		// Mock the EntryFactory service before trying formatResult().
+		$entryFactory = $this->mockLoadRow( $modid,
+			[ 'mod_user_text AS user_text' ],
+			(object)[ 'user_text' => $username ]
+		);
 
 		$mockWrapper = TestingAccessWrapper::newFromObject( $this->getModerationActionMock() );
 		$mockWrapper->id = $modid;
+		$mockWrapper->entryFactory = $entryFactory;
+
 		$title = $mockWrapper->getUserpageOfPerformer();
 
 		$this->assertInstanceof( Title::class, $title );
@@ -125,25 +129,14 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 	 * @covers ModerationAction::getUserpageOfPerformer()
 	 */
 	public function testUserpageOfPerformerNotFound() {
+		$entryFactory = $this->createMock( EntryFactory::class );
+		$entryFactory->expects( $this->once() )->method( 'loadRow' )->willReturn( false );
+
 		$mockWrapper = TestingAccessWrapper::newFromObject( $this->getModerationActionMock() );
-		$mockWrapper->id = 123456;
+		$mockWrapper->id = 12345;
+		$mockWrapper->entryFactory = $entryFactory;
 
 		$this->assertFalse( $mockWrapper->getUserpageOfPerformer() );
-	}
-
-	/**
-	 * Test ModerationAction::getUserpageOfPerformer() works for [[User:0]] (where 0 is username).
-	 * @covers ModerationAction::getUserpageOfPerformer()
-	 */
-	public function testUserpageOfPerformerWhenNameIs0() {
-		$modid = $this->makeDbRow( [ 'mod_user_text' => '0' ] );
-
-		$mockWrapper = TestingAccessWrapper::newFromObject( $this->getModerationActionMock() );
-		$mockWrapper->id = $modid;
-		$title = $mockWrapper->getUserpageOfPerformer();
-
-		$this->assertInstanceof( Title::class, $title );
-		$this->assertEquals( 'User:0', $title->getFullText() );
 	}
 
 	/**

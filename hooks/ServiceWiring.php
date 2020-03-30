@@ -28,23 +28,23 @@ use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\TimestampFormatter;
 
 return [
-	'Moderation.ActionFactory' => function ( MediaWikiServices $services ) {
+	'Moderation.ActionFactory' => function ( MediaWikiServices $services ) : ActionFactory {
 		return new ActionFactory(
 			$services->getService( 'Moderation.EntryFactory' ),
 			$services->getService( 'Moderation.ConsequenceManager' )
 		);
 	},
-	'Moderation.ActionLinkRenderer' => function ( MediaWikiServices $services ) {
+	'Moderation.ActionLinkRenderer' => function ( MediaWikiServices $services ) : ActionLinkRenderer {
 		return new ActionLinkRenderer(
 			RequestContext::getMain(),
 			$services->getLinkRenderer(),
 			SpecialPage::getTitleFor( 'Moderation' )
 		);
 	},
-	'Moderation.ConsequenceManager' => function () {
+	'Moderation.ConsequenceManager' => function () : ConsequenceManager {
 		return new ConsequenceManager();
 	},
-	'Moderation.EntryFactory' => function ( MediaWikiServices $services ) {
+	'Moderation.EntryFactory' => function ( MediaWikiServices $services ) : EntryFactory {
 		return new EntryFactory(
 			$services->getLinkRenderer(),
 			$services->getService( 'Moderation.ActionLinkRenderer' ),
@@ -52,7 +52,15 @@ return [
 			$services->getService( 'Moderation.ConsequenceManager' )
 		);
 	},
-	'Moderation.TimestampFormatter' => function () {
+	'Moderation.NotifyModerator' =>
+	function ( MediaWikiServices $services ) : ModerationNotifyModerator {
+		return new ModerationNotifyModerator(
+			$services->getLinkRenderer(),
+			$services->getService( 'Moderation.EntryFactory' ),
+			wfGetMainCache()
+		);
+	},
+	'Moderation.TimestampFormatter' => function () : TimestampFormatter {
 		return new TimestampFormatter();
 	},
 ];

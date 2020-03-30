@@ -95,6 +95,10 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 		];
 	}
 
+	/**
+	 * @param array $result @phan-unused-param
+	 * @param OutputPage $out
+	 */
 	public function outputResult( array $result, OutputPage $out ) {
 		$out->addWikiMsg( 'moderation-editchange-ok' );
 	}

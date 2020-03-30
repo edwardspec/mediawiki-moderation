@@ -239,5 +239,7 @@ trait ConsequenceTestTrait {
 	}
 
 	// This method is in MediaWikiTestCase (this trait is used by its subclasses).
+
+	/** @inheritDoc */
 	abstract protected function setService( $name, $service );
 }

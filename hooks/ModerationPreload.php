@@ -127,7 +127,7 @@ class ModerationPreload {
 	 * If the user did some anonymous edits before registering,
 	 * this hook makes them non-anonymous, so that they could be preloaded.
 	 * @param User $user
-	 * @param bool $autocreated
+	 * @param bool $autocreated @phan-unused-param
 	 * @return true
 	 */
 	public static function onLocalUserCreated( $user, $autocreated ) {
@@ -215,7 +215,8 @@ class ModerationPreload {
 	 * @return true
 	 */
 	public static function onAlternateEdit( $editPage ) {
-		self::singleton()->editPage = $editPage;
+		$preload = self::singleton();
+		$preload->editPage = $editPage;
 
 		return true;
 	}
@@ -228,7 +229,8 @@ class ModerationPreload {
 	 * @return true
 	 */
 	public static function onEditFormPreloadText( &$text, &$title ) {
-		self::showUnmoderatedEdit( $text, $title, self::singleton()->editPage );
+		$preload = self::singleton();
+		self::showUnmoderatedEdit( $text, $title, $preload->editPage );
 
 		return true;
 	}

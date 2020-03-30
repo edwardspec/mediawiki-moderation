@@ -99,6 +99,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		$status = $this->makeEdit();
 		$this->assertTrue( $status->isOK(), 'Failed to save an edit.' );
 
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
 		$revid = $status->value['revision']->getId();
 
 		$this->assertConsequences( [
@@ -125,6 +126,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	 * @covers ModerationEditHooks::onPageContentSave
 	 */
 	public function testSectionEditAndWatchthis( $watch ) {
+		// @phan-suppress-next-line PhanUnusedVariable
 		$cleanupScope = new ScopedCallback( function () {
 			// Undo all changes that this test makes to static fields of ModerationEditHooks class.
 			$wrapper = TestingAccessWrapper::newFromClass( ModerationEditHooks::class );

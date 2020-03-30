@@ -96,41 +96,52 @@ class ModerationTestsuiteBagOStuff extends MediumSpecificBagOStuff {
 	}
 
 	// Proxy all get/set/delete methods to a singleton HashBagOStuff
+
+	/** @inheritDoc */
 	protected function doGet( $key, $flags = 0, &$casToken = null ) {
 		$casToken = null;
 		return self::$store->get( $key, $flags );
 	}
 
+	/** @inheritDoc */
 	protected function doSet( $key, $value, $exptime = 0, $flags = 0 ) {
 		return self::$store->set( $key, $value, $exptime, $flags );
 	}
 
+	/** @inheritDoc */
 	protected function doAdd( $key, $value, $exptime = 0, $flags = 0 ) {
 		return self::$store->add( $key, $value, $exptime, $flags );
 	}
 
+	/** @inheritDoc */
 	protected function doDelete( $key, $flags = 0 ) {
 		return self::$store->delete( $key, $flags );
 	}
 
+	/** @inheritDoc */
 	public function incr( $key, $value = 1, $flags = 0 ) {
 		return self::$store->incr( $key, $value, $flags );
 	}
 
+	/** @inheritDoc */
 	public function decr( $key, $value = 1, $flags = 0 ) {
 		return self::$store->decr( $key, $value, $flags );
 	}
 
 	// Backward compatibility methods for MediaWiki 1.31-1.33: set(), add(), delete().
 	// Not needed in MediaWiki 1.34+ (MediumSpecificBagOStuff class implements them for us).
+
+	/** @inheritDoc */
 	public function set( $key, $value, $exptime = 0, $flags = 0 ) {
 		return $this->doSet( $key, $value, $exptime, $flags );
 	}
 
+	/** @inheritDoc */
 	public function add( $key, $value, $exptime = 0, $flags = 0 ) {
 		return $this->doAdd( $key, $value, $exptime, $flags );
 	}
 
+	/** @inheritDoc */
 	public function delete( $key, $flags = 0 ) {
 		return $this->doDelete( $key, $flags );
 	}

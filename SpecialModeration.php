@@ -76,6 +76,10 @@ class SpecialModeration extends QueryPage {
 		return false;
 	}
 
+	/**
+	 * @param Wikimedia\Rdbms\IDatabase $db @phan-unused-param
+	 * @param Wikimedia\Rdbms\IResultWrapper $res
+	 */
 	public function preprocessResults( $db, $res ) {
 		/* Check all pages for whether they exist or not -
 			improves performance of makeLink() in ModerationEntryFormatter */
@@ -155,7 +159,8 @@ class SpecialModeration extends QueryPage {
 		}
 
 		/* Close "New changes await moderation" notification until new changes appear */
-		ModerationNotifyModerator::setSeen( $this->getUser(), wfTimestampNow() );
+		$notifyModerator = MediaWikiServices::getInstance()->getService( 'Moderation.NotifyModerator' );
+		$notifyModerator->setSeen( $this->getUser(), wfTimestampNow() );
 
 		// The rest will be handled by QueryPage::execute()
 		parent::execute( null );
@@ -206,7 +211,7 @@ class SpecialModeration extends QueryPage {
 	}
 
 	/**
-	 * @param Skin $skin
+	 * @param Skin $skin @phan-unused-param
 	 * @param object $row Result row
 	 * @return string
 	 */

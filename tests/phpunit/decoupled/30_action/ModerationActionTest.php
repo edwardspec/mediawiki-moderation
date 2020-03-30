@@ -732,7 +732,7 @@ class ModerationActionTest extends ModerationTestCase {
 			// However, MW 1.31 can still have compatibility mode enabled (which supports this).
 			try {
 				User::newFromName( "There is no such user" )->getActorId( $dbw );
-			} catch ( CannotCreateActorException $e ) {
+			} catch ( CannotCreateActorException $_ ) {
 				$this->markTestSkipped(
 					'Test skipped: approving edits of deleted users is not supported in MediaWiki 1.33+' );
 			}

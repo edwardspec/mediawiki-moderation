@@ -133,7 +133,7 @@ class ModerationApproveTest extends ModerationTestCase {
 
 		$t->loginAs( $t->unprivilegedUser );
 
-		foreach ( $testPages as $title => $task ) {
+		foreach ( $testPages as $title => $_ ) {
 			$t->doTestEdit( $title );
 		}
 

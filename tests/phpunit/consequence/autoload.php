@@ -25,10 +25,12 @@ global $wgAutoloadClasses;
 $wgAutoloadClasses += [
 	'ModerationTestHTML' => __DIR__ . '/../../common/ModerationTestHTML.php',
 	'ModerationTestUtil' => __DIR__ . '/../../common/ModerationTestUtil.php',
-	'ConsequenceTestTrait' => __DIR__ . '/ConsequenceTestTrait.php',
-	'MakeEditTestTrait' => __DIR__ . '/MakeEditTestTrait.php',
+	'ConsequenceTestTrait' => __DIR__ . '/trait/ConsequenceTestTrait.php',
+	'MakeEditTestTrait' => __DIR__ . '/trait/MakeEditTestTrait.php',
+	'MockLoadRowTestTrait' => __DIR__ . '/trait/MockLoadRowTestTrait.php',
+	'MockRevisionLookupTestTrait' => __DIR__ . '/trait/MockRevisionLookupTestTrait.php',
 	'MediaWiki\\Moderation\\MockConsequenceManager' => __DIR__ . '/MockConsequenceManager.php',
 	'ModerationUnitTestCase' => __DIR__ . '/ModerationUnitTestCase.php',
-	'ModifyDbRowTestTrait' => __DIR__ . '/ModifyDbRowTestTrait.php',
-	'UploadTestTrait' => __DIR__ . '/UploadTestTrait.php',
+	'ModifyDbRowTestTrait' => __DIR__ . '/trait/ModifyDbRowTestTrait.php',
+	'UploadTestTrait' => __DIR__ . '/trait/UploadTestTrait.php',
 ];

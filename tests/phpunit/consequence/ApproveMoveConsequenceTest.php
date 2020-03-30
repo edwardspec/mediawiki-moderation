@@ -28,6 +28,8 @@ require_once __DIR__ . "/autoload.php";
  * @group Database
  */
 class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
+	use MakeEditTestTrait;
+
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'page', 'logging', 'log_search' ];
 
@@ -43,14 +45,7 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 		$reason = 'Some reasons why the page was renamed';
 
 		// Precreate the page that will be renamed.
-		$page = WikiPage::factory( $title );
-		$page->doEditContent(
-			ContentHandler::makeContent( 'Some text', null, CONTENT_MODEL_WIKITEXT ),
-			'',
-			EDIT_INTERNAL,
-			false,
-			$moderator // Should bypass moderation
-		);
+		$this->makeEdit( $title, $moderator );
 
 		// Monitor TitleMoveComplete hook
 		$hookFired = false;
@@ -74,5 +69,84 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 		$this->assertTrue( $status->isOK(),
 			"ApproveMoveConsequence failed: " . $status->getMessage()->plain() );
 		$this->assertTrue( $hookFired, "ApproveMoveConsequence: didn't move anything." );
+	}
+
+	/**
+	 * Verify that ApproveMoveConsequence fails if the move is invalid (e.g. renaming A to A).
+	 * @covers MediaWiki\Moderation\ApproveMoveConsequence
+	 */
+	public function testApproveInvalidMove() {
+		$moderator = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
+		$user = self::getTestUser()->getUser();
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$reason = 'Some reasons why the page was renamed';
+
+		// Precreate the page that will be renamed.
+		$this->makeEdit( $title, $moderator );
+
+		// Monitor TitleMoveComplete hook
+		$hookFired = false;
+		$this->setTemporaryHook( 'TitleMoveComplete', function () use ( &$hookFired ) {
+			$hookFired = true;
+		} );
+
+		// Cause "selfmove" error (trying to rename page into the name it already has).
+		$newTitle = $title;
+
+		// Create and run the Consequence.
+		$consequence = new ApproveMoveConsequence( $moderator, $title, $newTitle, $user, $reason );
+		$status = $consequence->run();
+
+		$this->assertFalse( $status->isOK(),
+			"ApproveMoveConsequence succeeded for invalid move." );
+		$this->assertTrue( $status->hasMessage( 'selfmove' ),
+			"ApproveMoveConsequence didn't return expected 'selfmove' Status." );
+		$this->assertFalse( $hookFired, "TitleMoveComplete hook was fired for invalid move." );
+	}
+
+	/**
+	 * Verify that ApproveMoveConsequence fails if moderator doesn't have "move" permission.
+	 * @covers MediaWiki\Moderation\ApproveMoveConsequence
+	 */
+	public function testModeratorNotAllowedToMove() {
+		$moderator = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
+		$user = self::getTestUser()->getUser();
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$newTitle = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) . '-new' );
+		$reason = 'Some reasons why the page was renamed';
+
+		// Simulate situation when the moderator is not allowed to rename pages.
+		global $wgVersion;
+		if ( version_compare( $wgVersion, '1.32.0', '>=' ) ) {
+			// MediaWiki 1.32+
+			$this->setMwGlobals( 'wgRevokePermissions', [ 'moderator' => [ 'move' => true ] ] );
+		} else {
+			// MediaWiki 1.31 doesn't have $wgRevokePermissions
+			$this->setTemporaryHook( 'UserGetRights', function ( $user, &$rights ) use ( $moderator ) {
+				if ( $user->equals( $moderator ) ) {
+					$rights = array_diff( $rights, [ 'move' ] );
+				}
+				return true;
+			} );
+		}
+
+		// Precreate the page that will be renamed.
+		$this->makeEdit( $title, $moderator );
+
+		// Monitor TitleMoveComplete hook
+		$hookFired = false;
+		$this->setTemporaryHook( 'TitleMoveComplete', function () use ( &$hookFired ) {
+			$hookFired = true;
+		} );
+
+		// Create and run the Consequence.
+		$consequence = new ApproveMoveConsequence( $moderator, $title, $newTitle, $user, $reason );
+		$status = $consequence->run();
+
+		$this->assertFalse( $status->isOK(),
+			"ApproveMoveConsequence succeeded for a moderator who is not allowed to move." );
+		$this->assertEquals( 'movenotallowed', $status->getMessage()->getKey(),
+			"ApproveMoveConsequence didn't return expected Status." );
+		$this->assertFalse( $hookFired, "TitleMoveComplete hook was fired for non-allowed move." );
 	}
 }

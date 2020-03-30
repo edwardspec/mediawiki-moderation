@@ -36,7 +36,7 @@ class ModerationPageForms {
 	 *
 	 * @param string &$preloadContent
 	 * @param Title $targetTitle
-	 * @param Title $formTitle
+	 * @param Title $formTitle @phan-unused-param
 	 * @return bool
 	 */
 	public static function preloadText( &$preloadContent, $targetTitle, $formTitle ) {
@@ -56,7 +56,7 @@ class ModerationPageForms {
 	 * Here we point "continue editing" link to FormEdit after using FormEdit.
 	 * @param string &$returnto
 	 * @param array &$returntoquery
-	 * @param Title $title
+	 * @param Title $title @phan-unused-param
 	 * @param IContextSource $context
 	 * @return bool
 	 */

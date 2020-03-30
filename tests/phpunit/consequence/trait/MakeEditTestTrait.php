@@ -47,6 +47,7 @@ trait MakeEditTestTrait {
 		);
 		$this->assertTrue( $status->isGood(), "Edit failed: " . $status->getMessage()->plain() );
 
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
 		return $status->value['revision']->getId();
 	}
 }

@@ -20,7 +20,33 @@
  * Hooks that are only needed for moderators.
  */
 
+use MediaWiki\Linker\LinkRenderer;
+use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\EntryFactory;
+
 class ModerationNotifyModerator {
+	/** @var LinkRenderer */
+	protected $linkRenderer;
+
+	/** @var EntryFactory */
+	protected $entryFactory;
+
+	/** @var BagOStuff */
+	protected $cache;
+
+	/**
+	 * @param LinkRenderer $linkRenderer
+	 * @param EntryFactory $entryFactory
+	 * @param BagOStuff $cache
+	 */
+	public function __construct( LinkRenderer $linkRenderer, EntryFactory $entryFactory,
+		BagOStuff $cache
+	) {
+		$this->linkRenderer = $linkRenderer;
+		$this->entryFactory = $entryFactory;
+		$this->cache = $cache;
+	}
+
 	/**
 	 * Name of our hook that runs third-party handlers of GetNewMessagesAlert hook,
 	 * but only for "You have new messages" and NOT for "new edits are pending moderation".
@@ -38,10 +64,29 @@ class ModerationNotifyModerator {
 	 * @return true
 	 */
 	public static function onBeforeInitialize( &$title, &$unused, &$out, &$user ) {
-		$handler = new self;
-		$handler->considerInstall( $user, $title );
+		$notifyModerator = MediaWikiServices::getInstance()->getService( 'Moderation.NotifyModerator' );
+		$notifyModerator->considerInstall( $user, $title );
 
 		return true;
+	}
+
+	/**
+	 * GetNewMessagesAlert hook. This hook is installed dynamically (NOT via extension.json).
+	 * Shows in-wiki notification "new edits are pending moderation" to moderators.
+	 * @param string &$newMessagesAlert
+	 * @param array $newtalks
+	 * @param User $user
+	 * @param OutputPage $out
+	 * @return bool
+	 */
+	public static function onGetNewMessagesAlert(
+		&$newMessagesAlert,
+		array $newtalks,
+		User $user,
+		OutputPage $out
+	) {
+		$notifyModerator = MediaWikiServices::getInstance()->getService( 'Moderation.NotifyModerator' );
+		return $notifyModerator->runHookInternal( $newMessagesAlert, $newtalks, $user, $out );
 	}
 
 	/**
@@ -94,20 +139,20 @@ class ModerationNotifyModerator {
 			$wgHooks[$hookName] = []; // Delete existing handlers
 		}
 
-		$hook = [ $this, 'onGetNewMessagesAlert' ];
-		Hooks::register( $hookName, $hook ); // Install our own handler
+		// Install our own handler.
+		$handler = __CLASS__ . '::onGetNewMessagesAlert';
+		Hooks::register( $hookName, $handler );
 	}
 
 	/**
-	 * GetNewMessagesAlert hook.
-	 * Shows in-wiki notification "new edits are pending moderation" to moderators.
+	 * Main logic of GetNewMessagesAlert hook.
 	 * @param string &$newMessagesAlert
 	 * @param array $newtalks
 	 * @param User $user
 	 * @param OutputPage $out
 	 * @return bool
 	 */
-	public function onGetNewMessagesAlert(
+	protected function runHookInternal(
 		&$newMessagesAlert,
 		array $newtalks,
 		User $user,
@@ -121,8 +166,7 @@ class ModerationNotifyModerator {
 		}
 
 		/* Need to notify */
-		$linkRenderer = MediaWiki\MediaWikiServices::getInstance()->getLinkRenderer();
-		$newMessagesAlert .= $linkRenderer->makeLink(
+		$newMessagesAlert .= $this->linkRenderer->makeLink(
 			SpecialPage::getTitleFor( 'Moderation' ),
 			$out->msg( 'moderation-new-changes-appeared' )->plain()
 		);
@@ -133,8 +177,8 @@ class ModerationNotifyModerator {
 	 * Returns memcached key used by getPendingTime()/setPendingTime()
 	 * @return string
 	 */
-	protected static function getPendingCacheKey() {
-		return self::getCache()->makeKey( 'moderation-newest-pending-timestamp' );
+	protected function getPendingCacheKey() {
+		return $this->cache->makeKey( 'moderation-newest-pending-timestamp' );
 	}
 
 	/**
@@ -142,10 +186,9 @@ class ModerationNotifyModerator {
 	 * @return string
 	 */
 	protected function getPendingTime() {
-		$cache = self::getCache();
-		$cacheKey = self::getPendingCacheKey();
+		$cacheKey = $this->getPendingCacheKey();
 
-		$result = $cache->get( $cacheKey );
+		$result = $this->cache->get( $cacheKey );
 		if ( $result === false ) { /* Not found in the cache */
 			$result = $this->getPendingTimeUncached();
 			if ( !$result ) {
@@ -154,7 +197,7 @@ class ModerationNotifyModerator {
 			}
 
 			// 24 hours, but can be explicitly renewed by setPendingTime()
-			$cache->set( $cacheKey, $result, 86400 );
+			$this->cache->set( $cacheKey, $result, 86400 );
 		}
 
 		return $result;
@@ -165,23 +208,21 @@ class ModerationNotifyModerator {
 	 * @return string|false
 	 */
 	protected function getPendingTimeUncached() {
-		$dbr = wfGetDB( DB_REPLICA );
-		return $dbr->selectField( 'moderation', 'mod_timestamp',
-			[
-				'mod_rejected' => 0,
-				'mod_merged_revid' => 0
-			],
-			__METHOD__,
+		$row = $this->entryFactory->loadRow(
+			[ 'mod_rejected' => 0, 'mod_merged_revid' => 0 ],
+			[ 'mod_timestamp AS timestamp' ],
+			DB_REPLICA,
 			[ 'USE INDEX' => 'moderation_folder_pending' ]
 		);
+		return $row ? $row->timestamp : false;
 	}
 
 	/**
 	 * Update the cache of getPendingTime() with more actual value.
 	 * @param string $newTimestamp
 	 */
-	public static function setPendingTime( $newTimestamp ) {
-		self::getCache()->set( self::getPendingCacheKey(), $newTimestamp, 86400 ); /* 24 hours */
+	public function setPendingTime( $newTimestamp ) {
+		$this->cache->set( $this->getPendingCacheKey(), $newTimestamp, 86400 ); /* 24 hours */
 	}
 
 	/**
@@ -189,16 +230,8 @@ class ModerationNotifyModerator {
 	 * Used instead of setPendingTime() when we don't know $newTimestamp,
 	 * e.g. in modaction=rejectall.
 	 */
-	public static function invalidatePendingTime() {
-		self::getCache()->delete( self::getPendingCacheKey() );
-	}
-
-	/**
-	 * Returns cache used by NotifyModerator methods.
-	 * @return BagOStuff
-	 */
-	protected static function getCache() {
-		return wfGetMainCache();
+	public function invalidatePendingTime() {
+		$this->cache->delete( $this->getPendingCacheKey() );
 	}
 
 	/**
@@ -206,8 +239,8 @@ class ModerationNotifyModerator {
 	 * @param User $user
 	 * @return string
 	 */
-	protected static function getSeenCacheKey( User $user ) {
-		return self::getCache()->makeKey( 'moderation-seen-timestamp', (string)$user->getId() );
+	protected function getSeenCacheKey( User $user ) {
+		return $this->cache->makeKey( 'moderation-seen-timestamp', (string)$user->getId() );
 	}
 
 	/**
@@ -216,7 +249,7 @@ class ModerationNotifyModerator {
 	 * @return string|false
 	 */
 	protected function getSeen( User $user ) {
-		return self::getCache()->get( self::getSeenCacheKey( $user ) );
+		return $this->cache->get( $this->getSeenCacheKey( $user ) );
 	}
 
 	/**
@@ -224,7 +257,7 @@ class ModerationNotifyModerator {
 	 * @param User $user
 	 * @param string $timestamp
 	 */
-	public static function setSeen( User $user, $timestamp ) {
-		self::getCache()->set( self::getSeenCacheKey( $user ), $timestamp, 604800 ); /* 7 days */
+	public function setSeen( User $user, $timestamp ) {
+		$this->cache->set( $this->getSeenCacheKey( $user ), $timestamp, 604800 ); /* 7 days */
 	}
 }
