@@ -211,6 +211,8 @@ class QueueUploadConsequenceTest extends ModerationUnitTestCase {
 		if ( !method_exists( 'MediaWiki\\MediaWikiServices', 'getRepoGroup' ) ) {
 			// MediaWiki 1.31-1.33 need RepoGroup to be reset when changing $wgLocalFileRepo
 			RepoGroup::destroySingleton();
+
+			// @phan-suppress-next-line PhanUnusedVariable
 			$cleanupScope = new Wikimedia\ScopedCallback( function () {
 				RepoGroup::destroySingleton();
 			} );

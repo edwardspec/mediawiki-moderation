@@ -126,6 +126,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	 * @covers ModerationEditHooks::onPageContentSave
 	 */
 	public function testSectionEditAndWatchthis( $watch ) {
+		// @phan-suppress-next-line PhanUnusedVariable
 		$cleanupScope = new ScopedCallback( function () {
 			// Undo all changes that this test makes to static fields of ModerationEditHooks class.
 			$wrapper = TestingAccessWrapper::newFromClass( ModerationEditHooks::class );

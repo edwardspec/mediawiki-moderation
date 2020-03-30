@@ -63,6 +63,9 @@ class ModerationTestsuiteLogger extends MediaWiki\Logger\LegacyLogger {
 
 	/**
 	 * Add new log entry to accumulator.
+	 * @param int $level @phan-unused-param
+	 * @param mixed $message
+	 * @param array $context
 	 */
 	public function log( $level, $message, array $context = [] ) {
 		self::$buffer[] = [ 'event' => $message ] + $context;

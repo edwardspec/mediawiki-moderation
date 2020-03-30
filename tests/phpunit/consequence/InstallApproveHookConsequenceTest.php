@@ -543,7 +543,7 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 		}
 
 		foreach ( $todo as $testParameters ) {
-			list( $title, $user, $type, $task, $extraInfo ) = $testParameters;
+			list( $title, $user, $type, $_, $extraInfo ) = $testParameters;
 
 			if ( $type == ModerationNewChange::MOD_TYPE_EDIT ) {
 				$this->makeEdit( $title, $user );

@@ -91,7 +91,7 @@ class ModerationTestsuiteApiBot extends ModerationTestsuiteBot {
 			'token' => null,
 			'file' => curl_file_create( $srcPath ),
 			'ignorewarnings' => 1
-		] );
+		] + $extraParams );
 
 		return $this->makeResponse( $ret, 'moderation-image-queued' );
 	}

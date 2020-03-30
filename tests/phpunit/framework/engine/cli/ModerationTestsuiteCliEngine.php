@@ -43,6 +43,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 	/**
 	 * Sets MediaWiki global variable.
 	 * @param string $name Name of variable without the $wg prefix.
+	 * @param mixed $value
 	 */
 	public function setMwConfig( $name, $value ) {
 		$this->config[$name] = $value;
@@ -59,7 +60,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 
 	/**
 	 * CliEngine doesn't need any login logic - it auto-logins as the current user.
-	 * @param User $user
+	 * @param User $user @phan-unused-param
 	 */
 	protected function loginAsInternal( User $user ) {
 	}
@@ -195,7 +196,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 		try {
 			// @phan-suppress-next-line SecurityCheck-PHPSerializeInjection - false positive
 			$result = unserialize( $output );
-		} catch ( Exception $e ) {
+		} catch ( Exception $_ ) {
 			$this->getLogger()->error( '[CliEngine] Non-serialized text printed by cliInvoke.php', [
 				'printedOutput' => $output
 			] );

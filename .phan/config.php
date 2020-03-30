@@ -34,18 +34,9 @@ if ( getenv( 'PHAN_CHECK_TESTSUITE' ) ) {
 	$cfg['directory_list'][] = $IP . '/tests';
 	$cfg['exclude_analysis_directory_list'][] = $IP . '/tests';
 
-	# Testsuite only: don't emit "unused parameter" warnings for testsuite (for now?),
+	# Testsuite only: don't emit "unused closure parameter" warnings for testsuite (for now?),
 	# because almost every setTemporaryHook() needs @suppress.
-	$cfg['suppress_issue_types'] = array_merge( $cfg['suppress_issue_types'], [
-		'PhanUnusedClosureParameter',
-		'PhanUnusedClosureUseVariable',
-		'PhanUnusedProtectedMethodParameter',
-		'PhanUnusedPublicMethodParameter',
-		'PhanUnusedPublicNoOverrideMethodParameter',
-		'PhanUnusedVariable',
-		'PhanUnusedVariableCaughtException',
-		'PhanUnusedVariableValueOfForeachWithKey'
-	] );
+	$cfg['suppress_issue_types'][] = 'PhanUnusedClosureParameter';
 }
 
 # Exclude .mocked.*.php files (they are created by PHPUnit testsuite with CliEngine)

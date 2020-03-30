@@ -148,7 +148,7 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 
 		// Create and run the Consequence.
 		$consequence = new InsertRowIntoModerationTableConsequence( $fields );
-		$modid = $consequence->run();
+		$consequence->run();
 
 		// Simulate situation when caller of doEditContent (some third-party extension)
 		// throws an MWException, in which case transaction is aborted.
