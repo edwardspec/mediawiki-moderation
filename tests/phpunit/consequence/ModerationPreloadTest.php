@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\MockConsequenceManager;
+use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
 
 require_once __DIR__ . "/autoload.php";
@@ -166,5 +167,122 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		$this->assertFalse( $pendingEdit,
 			"findPendingEdit() should return false for anonymous users who haven't edited." );
 		$this->assertNoConsequences( $manager );
+	}
+
+	/**
+	 * Ensure that EditFormPreloadText hook correctly preloads text/comment of PendingEdit.
+	 * This happens when user is creating a new article via the UI (action=edit).
+	 * @covers ModerationPreload
+	 */
+	public function testNewArticlePreloadHook() {
+		list( $title, $pendingEdit ) = $this->beginShowTest();
+		$origTitle = clone $title;
+
+		// Because EditFormPreloadText hook doesn't receive EditPage object as parameter, EditPage
+		// is instead remembered in AlternateEdit hook, which is called before EditFormPreloadText.
+		// See testNewArticlePreloadHookNoEditPage() below for situation when this doesn't happen.
+		$editPage = new EditPage( new Article( $title ) );
+		$hookResult = Hooks::run( 'AlternateEdit', [ &$editPage ] );
+		$this->assertTrue( $hookResult, 'Handler of AlternateEdit hook should return true.' );
+
+		// Call the tested hook.
+		$hookResult = Hooks::run( 'EditFormPreloadText', [ &$text, &$title ] );
+		$this->assertTrue( $hookResult, 'Handler of EditFormPreloadText hook should return true.' );
+		$this->assertSame( $pendingEdit->getText(), $text,
+			"Text wasn't modified by EditFormPreloadText hook." );
+		$this->assertSame( $pendingEdit->getComment(), $editPage->summary,
+			"Edit summary wasn't preloaded into EditPage by EditFormPreloadText hook." );
+		$this->assertSame( $origTitle->getFullText(), $title->getFullText(),
+			"Title shouldn't have been modified by EditFormPreloadText hook." );
+
+		$this->checkOutputAfterShowTest();
+	}
+
+	/**
+	 * Ensure that EditFormPreloadText hook works even if AlternateEdit hook wasn't called.
+	 * This doesn't happen when editing normally via UI, but it is possible in ApiQueryInfo, etc.
+	 * @see testNewArticlePreloadHook() - checks the situation when AlternateEdit hook is called.
+	 * @covers ModerationPreload
+	 */
+	public function testNewArticlePreloadHookNoEditPage() {
+		list( $title, $pendingEdit ) = $this->beginShowTest();
+		$origTitle = clone $title;
+
+		// Call the tested hook.
+		$hookResult = Hooks::run( 'EditFormPreloadText', [ &$text, &$title ] );
+		$this->assertTrue( $hookResult, 'Handler of EditFormPreloadText hook should return true.' );
+		$this->assertSame( $pendingEdit->getText(), $text,
+			"Text wasn't modified by EditFormPreloadText hook." );
+		$this->assertSame( $origTitle->getFullText(), $title->getFullText(),
+			"Title shouldn't have been modified by EditFormPreloadText hook." );
+
+		$this->checkOutputAfterShowTest();
+	}
+
+	/**
+	 * Ensure that onEditFormInitialText hook correctly preloads text/comment of PendingEdit.
+	 * This happens when user is editing an existing article via the UI (action=edit).
+	 * @covers ModerationPreload
+	 */
+	public function testExistingArticlePreloadHook() {
+		list( $title, $pendingEdit ) = $this->beginShowTest();
+		$editPage = new EditPage( new Article( $title ) );
+
+		// Call the tested hook.
+		$hookResult = Hooks::run( 'EditFormInitialText', [ $editPage ] );
+		$this->assertTrue( $hookResult, 'Handler of EditFormInitialText hook should return true.' );
+		$this->assertSame( $pendingEdit->getText(), $editPage->textbox1,
+			"Text wasn't modified by EditFormInitialText hook." );
+		$this->assertSame( $pendingEdit->getComment(), $editPage->summary,
+			"Edit summary wasn't preloaded into EditPage by EditFormInitialText hook." );
+		$this->assertSame( $title->getFullText(), $editPage->getTitle()->getFullText(),
+			"Title shouldn't have been modified by EditFormInitialText hook." );
+
+		$this->checkOutputAfterShowTest();
+	}
+
+	/**
+	 * Begin the test of Preload hooks: create ModerationPreload object and set it as a service,
+	 * and have its EntryFactory return the mocked PendingEdit object.
+	 * @return array
+	 * @phan-return array{0:Title,1:PendingEdit}
+	 */
+	private function beginShowTest() {
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$pendingEdit = new PendingEdit( 12345, 'Preloaded text ' . rand( 0, 100000 ),
+			'Preloaded comment' . rand( 0, 100000 ) );
+
+		$mainContext = RequestContext::getMain();
+		$mainContext->getRequest()->setSessionData( 'anon_id', 'ExistingAnonId' );
+		$mainContext->setTitle( $title ); // FIXME: that might not be set in maintenance scripts
+		$mainContext->setLanguage( 'qqx' );
+
+		$entryFactory = $this->createMock( EntryFactory::class );
+		$entryFactory->expects( $this->once() )->method( 'findPendingEdit' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( ']ExistingAnonId' ),
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( $title )
+		)->willReturn( $pendingEdit );
+
+		'@phan-var EntryFactory $entryFactory';
+
+		// Install this ModerationPreload object (which we are testing) as a service.
+		$preload = new ModerationPreload( $entryFactory, new MockConsequenceManager() );
+		$this->setService( 'Moderation.Preload', $preload );
+
+		return [ $title, $pendingEdit ];
+	}
+
+	/**
+	 * Assert that "You are editing your version of this article" message was added to OutputPage.
+	 */
+	private function checkOutputAfterShowTest() {
+		$out = RequestContext::getMain()->getOutput();
+		$this->assertEquals( [ 'ext.moderation.edit' ], $out->getModules() );
+		$this->assertContains(
+			'<div id="mw-editing-your-version">(moderation-editing-your-version)</div>',
+			$out->getHTML()
+		);
 	}
 }
