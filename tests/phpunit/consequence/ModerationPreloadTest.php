@@ -254,7 +254,6 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 
 		$mainContext = RequestContext::getMain();
 		$mainContext->getRequest()->setSessionData( 'anon_id', 'ExistingAnonId' );
-		$mainContext->setTitle( $title ); // FIXME: that might not be set in maintenance scripts
 		$mainContext->setLanguage( 'qqx' );
 
 		$entryFactory = $this->createMock( EntryFactory::class );
