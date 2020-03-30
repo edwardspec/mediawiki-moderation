@@ -186,6 +186,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		$this->assertTrue( $hookResult, 'Handler of AlternateEdit hook should return true.' );
 
 		// Call the tested hook.
+		$text = 'Unmodified text';
 		$hookResult = Hooks::run( 'EditFormPreloadText', [ &$text, &$title ] );
 		$this->assertTrue( $hookResult, 'Handler of EditFormPreloadText hook should return true.' );
 		$this->assertSame( $pendingEdit->getText(), $text,
@@ -209,6 +210,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		$origTitle = clone $title;
 
 		// Call the tested hook.
+		$text = 'Unmodified text';
 		$hookResult = Hooks::run( 'EditFormPreloadText', [ &$text, &$title ] );
 		$this->assertTrue( $hookResult, 'Handler of EditFormPreloadText hook should return true.' );
 		$this->assertSame( $pendingEdit->getText(), $text,
@@ -242,15 +244,63 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	}
 
 	/**
+	 * Check situation when EditFormPreloadText hook doesn't find a PendingEdit (nothing to preload).
+	 * @covers ModerationPreload
+	 */
+	public function testNothingToPreloadNewArticleHook() {
+		list( $title ) = $this->beginShowTest( true );
+		$origTitle = clone $title;
+		$origText = $text = 'Original text ' . rand( 0, 100000 );
+
+		// Call the tested hook.
+		$hookResult = Hooks::run( 'EditFormPreloadText', [ &$text, &$title ] );
+		$this->assertTrue( $hookResult, 'Handler of EditFormPreloadText hook should return true.' );
+		$this->assertSame( $origText, $text,
+			"Text shouldn't have be modified when PendingEdit doesn't exist." );
+		$this->assertSame( $origTitle->getFullText(), $title->getFullText(),
+			"Title shouldn't have been modified by EditFormPreloadText hook." );
+
+		$this->checkOutputAfterNothingToShowTest();
+	}
+
+	/**
+	 * Check situation when onEditFormInitialText hook doesn't find a PendingEdit (nothing to preload).
+	 * @covers ModerationPreload
+	 */
+	public function testNothingToPreloadExistingArticleHook() {
+		list( $title ) = $this->beginShowTest( true );
+		$editPage = new EditPage( new Article( $title ) );
+
+		$origText = $editPage->textbox1 = 'Original summary ' . rand( 0, 100000 );
+		$origSummary = $editPage->summary = 'Original summary ' . rand( 0, 100000 );
+
+		// Call the tested hook.
+		$hookResult = Hooks::run( 'EditFormInitialText', [ $editPage ] );
+		$this->assertTrue( $hookResult, 'Handler of EditFormInitialText hook should return true.' );
+		$this->assertSame( $origText, $editPage->textbox1,
+			"Text shouldn't have be modified when PendingEdit doesn't exist." );
+		$this->assertSame( $origSummary, $editPage->summary,
+			"Edit summary shouldn't have be modified when PendingEdit doesn't exist." );
+		$this->assertSame( $title->getFullText(), $editPage->getTitle()->getFullText(),
+			"Title shouldn't have been modified by EditFormInitialText hook." );
+
+		$this->checkOutputAfterNothingToShowTest();
+	}
+
+	/**
 	 * Begin the test of Preload hooks: create ModerationPreload object and set it as a service,
 	 * and have its EntryFactory return the mocked PendingEdit object.
+	 * @param bool $notFound If true, PendingEdit won't be found and false will be returned instead.
 	 * @return array
-	 * @phan-return array{0:Title,1:PendingEdit}
+	 * @phan-return array{0:Title,1:PendingEdit|false}
 	 */
-	private function beginShowTest() {
+	private function beginShowTest( $notFound = false ) {
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
-		$pendingEdit = new PendingEdit( 12345, 'Preloaded text ' . rand( 0, 100000 ),
-			'Preloaded comment' . rand( 0, 100000 ) );
+		$pendingEdit = $notFound ? false : new PendingEdit(
+			rand( 100, 10000 ),
+			'Preloaded text ' . rand( 0, 100000 ),
+			'Preloaded comment' . rand( 0, 100000 )
+		);
 
 		$mainContext = RequestContext::getMain();
 		$mainContext->getRequest()->setSessionData( 'anon_id', 'ExistingAnonId' );
@@ -283,5 +333,14 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 			'<div id="mw-editing-your-version">(moderation-editing-your-version)</div>',
 			$out->getHTML()
 		);
+	}
+
+	/**
+	 * Assert that "You are editing your version of this article" message wasn't added to OutputPage.
+	 */
+	private function checkOutputAfterNothingToShowTest() {
+		$out = RequestContext::getMain()->getOutput();
+		$this->assertNotContains( 'ext.moderation.edit', $out->getModules() );
+		$this->assertNotContains( '(moderation-editing-your-version)', $out->getHTML() );
 	}
 }
