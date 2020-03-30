@@ -86,6 +86,14 @@ trait ConsequenceTestTrait {
 	}
 
 	/**
+	 * Assert that no consequences were added to $manager.
+	 * @param MockConsequenceManager $manager
+	 */
+	public function assertNoConsequences( MockConsequenceManager $manager ) {
+		$this->assertConsequencesEqual( [], $manager->getConsequences() );
+	}
+
+	/**
 	 * Convert $consequence into a human-readable array of properties (for logging and comparison).
 	 * Properties with types like Title are replaced by [ className, mixed, ... ] arrays.
 	 * @param IConsequence $consequence
