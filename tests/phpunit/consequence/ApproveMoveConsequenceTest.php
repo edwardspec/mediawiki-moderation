@@ -86,7 +86,7 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 
 		// Monitor TitleMoveComplete hook
 		$hookFired = false;
-		$this->setTemporaryHook( 'TitleMoveComplete', function () use ( &$hookFiredv ) {
+		$this->setTemporaryHook( 'TitleMoveComplete', function () use ( &$hookFired ) {
 			$hookFired = true;
 		} );
 
@@ -135,7 +135,7 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 
 		// Monitor TitleMoveComplete hook
 		$hookFired = false;
-		$this->setTemporaryHook( 'TitleMoveComplete', function () use ( &$hookFiredv ) {
+		$this->setTemporaryHook( 'TitleMoveComplete', function () use ( &$hookFired ) {
 			$hookFired = true;
 		} );
 
