@@ -70,7 +70,7 @@ class WatchCheckbox {
 	/**
 	 * Detect "watch this" checkboxes on Special:Movepage and Special:Upload.
 	 * @param SpecialPage $special
-	 * @param string $subPage
+	 * @param string $subPage @phan-unused-param
 	 */
 	public static function onSpecialPageBeforeExecute( SpecialPage $special, $subPage ) {
 		$title = $special->getPageTitle();

@@ -127,7 +127,7 @@ class ModerationViewableEntry extends ModerationEntry {
 		try {
 			$meta = $stash->getMetadata( $row->stash_key );
 			$type = $meta['us_media_type'];
-		} catch ( UploadStashException $e ) {
+		} catch ( UploadStashException $_ ) {
 			return false; /* File not found. */
 		}
 

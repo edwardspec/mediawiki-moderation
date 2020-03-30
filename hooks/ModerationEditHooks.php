@@ -47,8 +47,8 @@ class ModerationEditHooks {
 	 * @param EditPage $editor
 	 * @param string $text
 	 * @param string $section
-	 * @param string &$error
-	 * @param string $summary
+	 * @param string &$error @phan-unused-param
+	 * @param string $summary @phan-unused-param
 	 * @return true
 	 */
 	public static function onEditFilter( $editor, $text, $section, &$error, $summary ) {
@@ -198,15 +198,15 @@ class ModerationEditHooks {
 	 * Here we mark this entry as merged.
 	 * @param WikiPage $page
 	 * @param User $user
-	 * @param Content $content
-	 * @param string|CommentStoreComment $summary
-	 * @param bool $is_minor
-	 * @param mixed $is_watch Unused
-	 * @param mixed $section Unused
-	 * @param int $flags
+	 * @param Content $content @phan-unused-param
+	 * @param string|CommentStoreComment $summary @phan-unused-param
+	 * @param bool $is_minor @phan-unused-param
+	 * @param mixed $is_watch @phan-unused-param
+	 * @param mixed $section @phan-unused-param
+	 * @param int $flags @phan-unused-param
 	 * @param Revision $revision
-	 * @param Status $status
-	 * @param bool|int $baseRevId
+	 * @param Status $status @phan-unused-param
+	 * @param bool|int $baseRevId @phan-unused-param
 	 * @return true
 	 */
 	public static function onPageContentSaveComplete(
@@ -252,7 +252,7 @@ class ModerationEditHooks {
 	/**
 	 * EditPage::showEditForm:fields hook handler.
 	 * Add wpMergeID field to edit form when moderator is doing a manual merge.
-	 * @param EditPage $editpage
+	 * @param EditPage $editpage @phan-unused-param
 	 * @param OutputPage $out
 	 * @return true
 	 */

@@ -57,6 +57,10 @@ class ModerationActionMerge extends ModerationAction {
 		];
 	}
 
+	/**
+	 * @param array $result
+	 * @param OutputPage $out @phan-unused-param
+	 */
 	public function outputResult( array $result, OutputPage $out ) {
 		$title = Title::makeTitle( $result['namespace'], $result['title'] );
 		$article = Article::newFromTitle( $title, $this->getContext() );

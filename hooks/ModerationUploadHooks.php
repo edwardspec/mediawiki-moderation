@@ -30,13 +30,13 @@ class ModerationUploadHooks {
 	 * Intercept image uploads and queue them for moderation.
 	 * @param UploadBase $upload
 	 * @param User $user
-	 * @param mixed $__unused
+	 * @param mixed $props @phan-unused-param
 	 * @param string $comment
 	 * @param string $pageText
 	 * @param array &$error
 	 * @return bool
 	 */
-	public static function onUploadVerifyUpload( $upload, $user, $__unused,
+	public static function onUploadVerifyUpload( $upload, $user, $props,
 		$comment, $pageText, &$error
 	) {
 		if ( ModerationCanSkip::canUploadSkip( $user ) ) {
@@ -75,9 +75,9 @@ class ModerationUploadHooks {
 
 	/**
 	 * Prevent non-automoderated users from using action=revert.
-	 * @param Title $title
+	 * @param Title $title @phan-unused-param
 	 * @param User $user
-	 * @param string $action
+	 * @param string $action @phan-unused-param
 	 * @param string &$result
 	 * @return bool
 	 */

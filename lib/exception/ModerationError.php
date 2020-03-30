@@ -40,7 +40,7 @@ class ModerationError extends ErrorPageError {
 	 * Completely override report() from ErrorPageError in order to wrap the message
 	 * in <div id='mw-mod-error'></div>
 	 */
-	public function report( $action = 0 ) {
+	public function report( $_ = 0 ) {
 		global $wgOut;
 
 		$msg = ( $this->msg instanceof Message ) ?

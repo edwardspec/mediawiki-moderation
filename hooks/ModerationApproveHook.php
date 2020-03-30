@@ -99,7 +99,7 @@ class ModerationApproveHook {
 	 * TitleMoveComplete hook.
 	 * Here we modify rev_timestamp of a newly created redirect after the page move.
 	 * @param Title $title
-	 * @param Title $newTitle
+	 * @param Title $newTitle @phan-unused-param
 	 * @param User $user
 	 * @return true
 	 */
@@ -357,10 +357,10 @@ class ModerationApproveHook {
 	/**
 	 * NewRevisionFromEditComplete hook.
 	 * Here we determine $lastRevId.
-	 * @param Article $article
+	 * @param Article $article @phan-unused-param
 	 * @param Revision $rev
-	 * @param string $baseID
-	 * @param User $user
+	 * @param string $baseID @phan-unused-param
+	 * @param User $user @phan-unused-param
 	 * @return bool
 	 */
 	public static function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
@@ -480,7 +480,7 @@ class ModerationApproveHook {
 	 *
 	 * @param LocalFile $file
 	 * @param bool $reupload
-	 * @param bool $hasDescription
+	 * @param bool $hasDescription @phan-unused-param
 	 * @return bool
 	 */
 	public static function onFileUpload( LocalFile $file, $reupload, $hasDescription ) {

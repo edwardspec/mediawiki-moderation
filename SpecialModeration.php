@@ -76,6 +76,10 @@ class SpecialModeration extends QueryPage {
 		return false;
 	}
 
+	/**
+	 * @param Wikimedia\Rdbms\IDatabase $db @phan-unused-param
+	 * @param Wikimedia\Rdbms\IResultWrapper $res
+	 */
 	public function preprocessResults( $db, $res ) {
 		/* Check all pages for whether they exist or not -
 			improves performance of makeLink() in ModerationEntryFormatter */
@@ -207,7 +211,7 @@ class SpecialModeration extends QueryPage {
 	}
 
 	/**
-	 * @param Skin $skin
+	 * @param Skin $skin @phan-unused-param
 	 * @param object $row Result row
 	 * @return string
 	 */

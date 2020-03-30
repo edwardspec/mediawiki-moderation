@@ -2,6 +2,9 @@
 
 $cfg = require __DIR__ . '/../vendor/mediawiki/mediawiki-phan-config/src/config.php';
 
+# Detect unused method parameters, etc.
+$cfg['unused_variable_detection'] = true;
+
 # Moderation doesn't keep all of its .php files under includes/ directory
 # (something that should probably be fixed), so provide the proper paths here.
 
@@ -30,6 +33,19 @@ if ( getenv( 'PHAN_CHECK_TESTSUITE' ) ) {
 	# PHPUnit classes, etc. Should be parsed, but not analyzed.
 	$cfg['directory_list'][] = $IP . '/tests';
 	$cfg['exclude_analysis_directory_list'][] = $IP . '/tests';
+
+	# Testsuite only: don't emit "unused parameter" warnings for testsuite (for now?),
+	# because almost every setTemporaryHook() needs @suppress.
+	$cfg['suppress_issue_types'] = array_merge( $cfg['suppress_issue_types'], [
+		'PhanUnusedClosureParameter',
+		'PhanUnusedClosureUseVariable',
+		'PhanUnusedProtectedMethodParameter',
+		'PhanUnusedPublicMethodParameter',
+		'PhanUnusedPublicNoOverrideMethodParameter',
+		'PhanUnusedVariable',
+		'PhanUnusedVariableCaughtException',
+		'PhanUnusedVariableValueOfForeachWithKey'
+	] );
 }
 
 # Exclude .mocked.*.php files (they are created by PHPUnit testsuite with CliEngine)

@@ -127,7 +127,7 @@ class ModerationPreload {
 	 * If the user did some anonymous edits before registering,
 	 * this hook makes them non-anonymous, so that they could be preloaded.
 	 * @param User $user
-	 * @param bool $autocreated
+	 * @param bool $autocreated @phan-unused-param
 	 * @return true
 	 */
 	public static function onLocalUserCreated( $user, $autocreated ) {
