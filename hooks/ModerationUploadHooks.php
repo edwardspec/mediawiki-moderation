@@ -39,7 +39,8 @@ class ModerationUploadHooks {
 	public static function onUploadVerifyUpload( $upload, $user, $props,
 		$comment, $pageText, &$error
 	) {
-		if ( ModerationCanSkip::canUploadSkip( $user ) ) {
+		$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
+		if ( $canSkip->canUploadSkip( $user ) ) {
 			return true;
 		}
 
@@ -89,9 +90,12 @@ class ModerationUploadHooks {
 		*/
 		$context = RequestContext::getMain();
 		$exactAction = Action::getActionName( $context );
-		if ( $exactAction == 'revert' && !ModerationCanSkip::canUploadSkip( $user ) ) {
-			$result = 'moderation-revert-not-allowed';
-			return false;
+		if ( $exactAction == 'revert' ) {
+			$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
+			if ( !$canSkip->canUploadSkip( $user ) ) {
+				$result = 'moderation-revert-not-allowed';
+				return false;
+			}
 		}
 
 		return true;

@@ -20,6 +20,7 @@
  * Parent class for all entry types (edit, upload, move, etc.).
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
@@ -119,7 +120,8 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 
 		# Disable moderation hook (ModerationEditHooks::onPageContentSave),
 		# so that it won't queue this edit again.
-		ModerationCanSkip::enterApproveMode();
+		$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
+		$canSkip->enterApproveMode();
 
 		# Install hooks to modify CheckUser database after approval, etc.
 		$this->installApproveHook();

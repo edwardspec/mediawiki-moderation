@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\Linker\LinkRenderer;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\TimestampFormatter;
 
@@ -246,7 +247,8 @@ class ModerationEntryFormatter extends ModerationEntry {
 				$class .= ' modconflict';
 
 				// In order to merge, moderator must also be automoderated
-				if ( ModerationCanSkip::canEditSkip( $this->getModerator(), $row->namespace ) ) {
+				$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
+				if ( $canSkip->canEditSkip( $this->getModerator(), $row->namespace ) ) {
 					$line .= $actionLinkRenderer->makeLink( 'merge', $row->id );
 				} else {
 					$line .= $this->msg(

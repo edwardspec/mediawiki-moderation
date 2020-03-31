@@ -80,7 +80,8 @@ class ModerationEditHooks {
 		$is_watch, $section, &$flags, &$status
 	) {
 		$title = $page->getTitle();
-		if ( ModerationCanSkip::canEditSkip( $user, $title->getNamespace() ) ) {
+		$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
+		if ( $canSkip->canEditSkip( $user, $title->getNamespace() ) ) {
 			return true;
 		}
 
@@ -177,7 +178,8 @@ class ModerationEditHooks {
 	 * @return true
 	 */
 	public static function onBeforePageDisplay( &$out, &$skin ) {
-		$isAutomoderated = ModerationCanSkip::canEditSkip(
+		$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
+		$isAutomoderated = $canSkip->canEditSkip(
 			$out->getUser(),
 			$out->getTitle()->getNamespace()
 		);

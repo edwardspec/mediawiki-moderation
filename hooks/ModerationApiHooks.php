@@ -35,7 +35,8 @@ class ModerationApiHooks {
 	 * @return bool
 	 */
 	public static function onApiCheckCanExecute( $module, $user, &$message ) {
-		if ( ModerationCanSkip::canUploadSkip( $user ) ) {
+		$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
+		if ( $canSkip->canUploadSkip( $user ) ) {
 			return true; /* No need to limit automoderated users */
 		}
 

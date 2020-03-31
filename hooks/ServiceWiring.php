@@ -41,6 +41,12 @@ return [
 			SpecialPage::getTitleFor( 'Moderation' )
 		);
 	},
+	'Moderation.CanSkip' => function ( MediaWikiServices $services ) : ModerationCanSkip {
+		return new ModerationCanSkip(
+			// Will be eventually replaced by ServiceOptions (MW 1.34+).
+			$services->getMainConfig()
+		);
+	},
 	'Moderation.ConsequenceManager' => function () : ConsequenceManager {
 		return new ConsequenceManager();
 	},
