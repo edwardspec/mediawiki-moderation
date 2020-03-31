@@ -41,6 +41,12 @@ return [
 			SpecialPage::getTitleFor( 'Moderation' )
 		);
 	},
+	'Moderation.CanSkip' => function ( MediaWikiServices $services ) : ModerationCanSkip {
+		return new ModerationCanSkip(
+			// Will be eventually replaced by ServiceOptions (MW 1.34+).
+			$services->getMainConfig()
+		);
+	},
 	'Moderation.ConsequenceManager' => function () : ConsequenceManager {
 		return new ConsequenceManager();
 	},
@@ -49,7 +55,8 @@ return [
 			$services->getLinkRenderer(),
 			$services->getService( 'Moderation.ActionLinkRenderer' ),
 			$services->getService( 'Moderation.TimestampFormatter' ),
-			$services->getService( 'Moderation.ConsequenceManager' )
+			$services->getService( 'Moderation.ConsequenceManager' ),
+			$services->getService( 'Moderation.CanSkip' )
 		);
 	},
 	'Moderation.NotifyModerator' =>
@@ -58,6 +65,12 @@ return [
 			$services->getLinkRenderer(),
 			$services->getService( 'Moderation.EntryFactory' ),
 			wfGetMainCache()
+		);
+	},
+	'Moderation.Preload' => function ( MediaWikiServices $services ) : ModerationPreload {
+		return new ModerationPreload(
+			$services->getService( 'Moderation.EntryFactory' ),
+			$services->getService( 'Moderation.ConsequenceManager' )
 		);
 	},
 	'Moderation.TimestampFormatter' => function () : TimestampFormatter {

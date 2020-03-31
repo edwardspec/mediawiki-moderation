@@ -47,7 +47,8 @@ class ModerationMoveHooks {
 			return true;
 		}
 
-		if ( ModerationCanSkip::canMoveSkip(
+		$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
+		if ( $canSkip->canMoveSkip(
 			$user,
 			$oldTitle->getNamespace(),
 			$newTitle->getNamespace()

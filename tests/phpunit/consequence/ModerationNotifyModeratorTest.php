@@ -308,9 +308,11 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 		// This test checks whether this method correctly works as a hook, so install it as a hook.
 		$notify = new ModerationNotifyModerator( $linkRenderer, $entryFactory, $cache );
 		$this->setService( 'Moderation.NotifyModerator', $notify );
-		$this->setTemporaryHook( 'BeforeInitialize', 'ModerationNotifyModerator::onBeforeInitialize' );
 
+		global $wgHooks;
+		$wgHooks['GetNewMessagesAlert'] = []; // Not cleaned by Hooks::clear(), must clean explicitly.
 		Hooks::clear( 'GetNewMessagesAlert' );
+
 		foreach ( $thirdPartyHooks as $handler ) {
 			// Only $wgHooks are saved, hooks from Hooks::register() are not.
 			global $wgHooks;
@@ -319,7 +321,8 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 
 		// Run the tested hook.
 		$unused = null;
-		$result = Hooks::run( 'BeforeInitialize', [ &$title, &$unused, &$out, &$user ] );
+		$result = Hooks::run( 'BeforeInitialize',
+			[ &$title, &$unused, &$out, &$user, new FauxRequest( [] ), new MediaWiki() ] );
 		$this->assertTrue( $result, "BeforeInitialize hook didn't return true." );
 
 		$hooksAfterTest = Hooks::getHandlers( 'GetNewMessagesAlert' );

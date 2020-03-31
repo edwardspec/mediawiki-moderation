@@ -22,6 +22,9 @@
  * This can be used by API-based JavaScript editors,
  * for example Extension:VisualEditor or Extension:MobileFrontend.
  */
+
+use MediaWiki\MediaWikiServices;
+
 class ApiQueryModerationPreload extends ApiQueryBase {
 
 	public function __construct( $query, $moduleName ) {
@@ -42,7 +45,8 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 		];
 
 		/* Load text which is currently awaiting moderation */
-		$pendingEdit = ModerationPreload::singleton()->loadUnmoderatedEdit( $title );
+		$preload = MediaWikiServices::getInstance()->getService( 'Moderation.Preload' );
+		$pendingEdit = $preload->findPendingEdit( $title );
 		if ( !$pendingEdit ) {
 			$r['missing'] = ''; /* There is no pending edit */
 		} else {

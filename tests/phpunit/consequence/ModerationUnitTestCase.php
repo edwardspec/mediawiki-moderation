@@ -20,8 +20,6 @@
  * Subclass of MediaWikiTestCase that is used for Consequence tests. (NOT for blackbox tests)
  */
 
-use Wikimedia\TestingAccessWrapper;
-
 class ModerationUnitTestCase extends MediaWikiTestCase {
 	protected function addCoreDBData() {
 		// Do nothing. Normally this method creates test user, etc.,
@@ -43,15 +41,9 @@ class ModerationUnitTestCase extends MediaWikiTestCase {
 	}
 
 	/**
-	 * Exit "approve mode" and destroy the ApproveHook singleton.
+	 * Forget about previous ApproveHook tasks by destroying the object with their list.
 	 */
 	public function tearDown() : void {
-		// If the previous test used Approve, it enabled "all edits should bypass moderation" mode.
-		// Disable it now.
-		$canSkip = TestingAccessWrapper::newFromClass( ModerationCanSkip::class );
-		$canSkip->inApprove = false;
-
-		// Forget about previous ApproveHook tasks by destroying the object with their list.
 		ModerationApproveHook::destroySingleton();
 
 		parent::tearDown();

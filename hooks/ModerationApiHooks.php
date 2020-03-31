@@ -20,6 +20,8 @@
  * Hooks related to edits/uploads via API.
  */
 
+use MediaWiki\MediaWikiServices;
+
 class ModerationApiHooks {
 
 	/**
@@ -33,7 +35,8 @@ class ModerationApiHooks {
 	 * @return bool
 	 */
 	public static function onApiCheckCanExecute( $module, $user, &$message ) {
-		if ( ModerationCanSkip::canUploadSkip( $user ) ) {
+		$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
+		if ( $canSkip->canUploadSkip( $user ) ) {
 			return true; /* No need to limit automoderated users */
 		}
 
@@ -73,7 +76,8 @@ class ModerationApiHooks {
 		$pageObj = $main->getTitleOrPageId( $request->getValues( 'title', 'pageid' ) );
 		$title = $pageObj->getTitle();
 
-		$pendingEdit = ModerationPreload::singleton()->loadUnmoderatedEdit( $title );
+		$preload = MediaWikiServices::getInstance()->getService( 'Moderation.Preload' );
+		$pendingEdit = $preload->findPendingEdit( $title );
 		if ( !$pendingEdit ) {
 			return true; /* No pending version - ApiEdit will handle this correctly */
 		}

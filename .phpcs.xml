@@ -44,6 +44,10 @@
 			to avoid class name collision with [tests/phpunit/consequence/ModerationNotifyModeratorTest.php] -->
 		<exclude-pattern>*/tests/phpunit/blackbox/ModerationNotifyModeratorTest.php</exclude-pattern>
 
+		<!-- This test is named ModerationPreloadIntegrationTest
+			to avoid class name collision with [tests/phpunit/consequence/ModerationPreloadTest.php] -->
+		<exclude-pattern>*/tests/phpunit/blackbox/ModerationPreloadTest.php</exclude-pattern>
+
 		<!-- Excluded (temporarily?) to not rename the existing files -->
 		<exclude-pattern>*/tests/phpunit/framework/ModerationTestSet\.php</exclude-pattern>
 		<exclude-pattern>*/tests/phpunit/framework/ModerationPendingChangeTestSet\.php</exclude-pattern>

@@ -14,6 +14,7 @@ the author did the change) not being applied:
 * PostgreSQL: fixed incorrect value returned by NewChange::queue().
 * PostgreSQL: order of edits during ApproveAll is now the same as with MySQL.
 * PostgreSQL: Special:Moderation no longer shows day/month in today's timestamps.
+* Fixed error when returning false from ModerationIntercept hook.
 
 Refactoring, performance optimizations:
 * Major refactoring of everything (Consequence classes).

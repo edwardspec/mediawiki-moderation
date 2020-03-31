@@ -20,7 +20,6 @@
  * Parent class for all moderation actions.
  */
 
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\IConsequenceManager;
 
@@ -46,17 +45,6 @@ abstract class ModerationAction extends ContextSource {
 
 	/** @var IConsequenceManager */
 	protected $consequenceManager;
-
-	/**
-	 * Construct new ModerationAction.
-	 * @param IContextSource $context
-	 * @return ModerationAction
-	 * @throws ModerationError
-	 */
-	public static function factory( IContextSource $context ) {
-		return MediaWikiServices::getInstance()->getService( 'Moderation.ActionFactory' )
-			->makeAction( $context );
-	}
 
 	/**
 	 * Regular constructor with no "detect class from modaction=" logic. Use factory() instead.

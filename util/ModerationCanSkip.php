@@ -22,15 +22,25 @@
 
 class ModerationCanSkip {
 	/** @var bool Flag used in enterApproveMode() */
-	protected static $inApprove = false;
+	protected $inApprove = false;
 
 	/**
 	 * Enters "approve mode", making all further calls of canSkip() return true.
 	 * This is used in modaction=approve, so that newly approved edit
 	 * wouldn't be stopped by Moderation again.
 	 */
-	public static function enterApproveMode() {
-		self::$inApprove = true;
+	public function enterApproveMode() {
+		$this->inApprove = true;
+	}
+
+	/** @var Config */
+	protected $config;
+
+	/**
+	 * @param Config $config
+	 */
+	public function __construct( Config $config ) {
+		$this->config = $config;
 	}
 
 	/**
@@ -39,8 +49,8 @@ class ModerationCanSkip {
 	 * @param int $namespaceNumber
 	 * @return bool
 	 */
-	public static function canEditSkip( User $user, $namespaceNumber ) {
-		return self::canSkip( $user, 'skip-moderation', [ $namespaceNumber ] );
+	public function canEditSkip( User $user, $namespaceNumber ) {
+		return $this->canSkip( $user, 'skip-moderation', [ $namespaceNumber ] );
 	}
 
 	/**
@@ -48,8 +58,8 @@ class ModerationCanSkip {
 	 * @param User $user
 	 * @return bool
 	 */
-	public static function canUploadSkip( User $user ) {
-		return self::canEditSkip( $user, NS_FILE );
+	public function canUploadSkip( User $user ) {
+		return $this->canEditSkip( $user, NS_FILE );
 	}
 
 	/**
@@ -59,8 +69,8 @@ class ModerationCanSkip {
 	 * @param int $toNamespace Namespace of the new title.
 	 * @return bool
 	 */
-	public static function canMoveSkip( User $user, $fromNamespace, $toNamespace ) {
-		return self::canSkip( $user, 'skip-move-moderation', [
+	public function canMoveSkip( User $user, $fromNamespace, $toNamespace ) {
+		return $this->canSkip( $user, 'skip-move-moderation', [
 			$fromNamespace,
 			$toNamespace
 		] );
@@ -75,9 +85,8 @@ class ModerationCanSkip {
 	 * @param int[] $affectedNamespaces Array of namespace numbers of all affected pages.
 	 * @return bool
 	 */
-	protected static function canSkip( User $user, $permission, array $affectedNamespaces ) {
-		global $wgModerationEnable;
-		if ( !$wgModerationEnable || self::$inApprove ) {
+	protected function canSkip( User $user, $permission, array $affectedNamespaces ) {
+		if ( !$this->config->get( 'ModerationEnable' ) || $this->inApprove ) {
 			return true; /* Moderation is disabled */
 		}
 
@@ -97,7 +106,7 @@ class ModerationCanSkip {
 		}
 
 		/* Is moderation disabled in ALL affected namespace(s)? */
-		return self::canSkipInAllNamespaces( $affectedNamespaces );
+		return $this->canSkipInAllNamespaces( $affectedNamespaces );
 	}
 
 	/**
@@ -107,9 +116,9 @@ class ModerationCanSkip {
 	 * True if all $namespaces are non-moderated,
 	 * false if at least one of $namespaces is moderated.
 	 */
-	protected static function canSkipInAllNamespaces( array $namespaces ) {
+	protected function canSkipInAllNamespaces( array $namespaces ) {
 		foreach ( array_unique( $namespaces ) as $ns ) {
-			if ( !self::canSkipInNamespace( $ns ) ) {
+			if ( !$this->canSkipInNamespace( $ns ) ) {
 				return false;
 			}
 		}
@@ -122,18 +131,13 @@ class ModerationCanSkip {
 	 * @param int $namespaceNumber
 	 * @return bool
 	 */
-	protected static function canSkipInNamespace( $namespaceNumber ) {
-		global $wgModerationOnlyInNamespaces,
-			$wgModerationIgnoredInNamespaces;
-
-		if ( in_array( $namespaceNumber, $wgModerationIgnoredInNamespaces ) ) {
+	protected function canSkipInNamespace( $namespaceNumber ) {
+		if ( in_array( $namespaceNumber, $this->config->get( 'ModerationIgnoredInNamespaces' ) ) ) {
 			return true; /* This namespace is NOT moderated, e.g. Sandbox:Something */
 		}
 
-		if ( $wgModerationOnlyInNamespaces && !in_array(
-			$namespaceNumber,
-			$wgModerationOnlyInNamespaces
-		) ) {
+		$onlyInNamespaces = $this->config->get( 'ModerationOnlyInNamespaces' );
+		if ( $onlyInNamespaces && !in_array( $namespaceNumber, $onlyInNamespaces ) ) {
 			return true; /* This namespace is NOT moderated */
 		}
 

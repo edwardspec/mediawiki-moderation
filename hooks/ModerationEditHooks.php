@@ -64,23 +64,24 @@ class ModerationEditHooks {
 	/**
 	 * PageContentSave hook handler.
 	 * Intercept normal edits and queue them for moderation.
-	 * @param WikiPage &$page
-	 * @param User &$user
-	 * @param Content &$content
-	 * @param string|CommentStoreComment &$summary
+	 * @param WikiPage $page
+	 * @param User $user
+	 * @param Content $content
+	 * @param string|CommentStoreComment $summary
 	 * @param int $is_minor
 	 * @param mixed $is_watch Unused.
 	 * @param mixed $section Unused.
-	 * @param int &$flags
-	 * @param Status &$status
+	 * @param int $flags
+	 * @param Status $status
 	 * @return bool
 	 */
 	public static function onPageContentSave(
-		&$page, &$user, &$content, &$summary, $is_minor,
-		$is_watch, $section, &$flags, &$status
+		$page, $user, $content, $summary, $is_minor,
+		$is_watch, $section, $flags, $status
 	) {
 		$title = $page->getTitle();
-		if ( ModerationCanSkip::canEditSkip( $user, $title->getNamespace() ) ) {
+		$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
+		if ( $canSkip->canEditSkip( $user, $title->getNamespace() ) ) {
 			return true;
 		}
 
@@ -110,7 +111,7 @@ class ModerationEditHooks {
 			NOTE: edits to Flow discussions will bypass moderation.
 		*/
 		$handler = $page->getContentHandler();
-		if ( !is_a( $handler, 'TextContentHandler' ) ) {
+		if ( !( $handler instanceof TextContentHandler ) ) {
 			return true;
 		}
 
@@ -177,7 +178,8 @@ class ModerationEditHooks {
 	 * @return true
 	 */
 	public static function onBeforePageDisplay( &$out, &$skin ) {
-		$isAutomoderated = ModerationCanSkip::canEditSkip(
+		$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
+		$isAutomoderated = $canSkip->canEditSkip(
 			$out->getUser(),
 			$out->getTitle()->getNamespace()
 		);

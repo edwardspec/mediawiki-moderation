@@ -20,13 +20,16 @@
  * Unit test of ActionFactory.
  */
 
+use MediaWiki\Moderation\ActionFactory;
+use MediaWiki\Moderation\EntryFactory;
+use MediaWiki\Moderation\MockConsequenceManager;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
 class ActionFactoryTest extends ModerationUnitTestCase {
 	/**
-	 * Test ModerationAction::factory() on all known actions,
+	 * Test ActionFactory::makeAction() on all known actions,
 	 * as well as requiresWrite() and requiresEditToken() of these actions.
 	 * @param string $modaction
 	 * @param string $expectedClass
@@ -57,7 +60,9 @@ class ActionFactoryTest extends ModerationUnitTestCase {
 		] ) );
 		$context->setUser( $user );
 
-		$action = ModerationAction::factory( $context );
+		$actionFactory = $this->makeFactory();
+		$action = $actionFactory->makeAction( $context );
+
 		$this->assertInstanceof( $expectedClass, $action );
 
 		$this->assertEquals( $requiresWrite, $action->requiresWrite(),
@@ -76,7 +81,7 @@ class ActionFactoryTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Test ModerationAction::factory() on unknown action.
+	 * Test ActionFactory::makeAction() on unknown action.
 	 * @covers MediaWiki\Moderation\ActionFactory
 	 */
 	public function testFactoryUnknownAction() {
@@ -84,7 +89,9 @@ class ActionFactoryTest extends ModerationUnitTestCase {
 		$context->setRequest( new FauxRequest( [ 'modaction' => 'makesandwich' ] ) );
 
 		$this->expectExceptionObject( new ModerationError( 'moderation-unknown-modaction' ) );
-		ModerationAction::factory( $context );
+
+		$actionFactory = $this->makeFactory();
+		$actionFactory->makeAction( $context );
 	}
 
 	/**
@@ -107,5 +114,16 @@ class ActionFactoryTest extends ModerationUnitTestCase {
 			'showimg' => [ 'showimg', ModerationActionShowImage::class, false, false ],
 			'unblock' => [ 'unblock', ModerationActionBlock::class, true, true ]
 		];
+	}
+
+	/**
+	 * Make a clean ActionFactory object with mocked parameters.
+	 * @return ActionFactory
+	 */
+	private function makeFactory() {
+		$entryFactory = $this->createMock( EntryFactory::class );
+		'@phan-var EntryFactory $entryFactory';
+
+		return new ActionFactory( $entryFactory, new MockConsequenceManager() );
 	}
 }

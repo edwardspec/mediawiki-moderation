@@ -21,10 +21,8 @@
  */
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
-use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
-use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
 use MediaWiki\Moderation\WatchCheckbox;
@@ -55,9 +53,6 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	/** @var string */
 	protected $summary;
 
-	/** @var MockConsequenceManager */
-	protected $manager;
-
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'moderation' ];
 
@@ -67,11 +62,25 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	 */
 	public function testEdit() {
 		// Replace real ConsequenceManager with a mock.
-		$this->manager = $this->mockConsequenceManager();
-
+		$manager = $this->mockConsequenceManager();
 		$this->user = self::getTestUser()->getUser();
-		$this->makeEdit();
-		$this->assertConsequences( [
+		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+
+		// Mock the result of canEditSkip()
+		$canSkip = $this->createMock( ModerationCanSkip::class );
+		$canSkip->expects( $this->once() )->method( 'canEditSkip' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->user,
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->title->getNamespace()
+		)->willReturn( false ); // Can't bypass moderation
+		$this->setService( 'Moderation.CanSkip', $canSkip );
+
+		$status = $this->makeEdit();
+		$this->assertTrue( $status->hasMessage( 'moderation-edit-queued' ),
+			"Status returned by doEditContent doesn't include \"moderation-edit-queued\"." );
+
+		$this->assertConsequencesEqual( [
 			new QueueEditConsequence(
 				WikiPage::factory( $this->title ), $this->user, $this->content, $this->summary,
 				'', // section
@@ -79,7 +88,106 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 				false, // isBot
 				false // isMinor
 			)
+		], $manager->getConsequences() );
+	}
+
+	/**
+	 * Test consequences of normal edit when User is automoderated (can bypass moderation of edits).
+	 * @covers ModerationEditHooks::onPageContentSave
+	 */
+	public function testAutomoderatedEdit() {
+		// Replace real ConsequenceManager with a mock.
+		$manager = $this->mockConsequenceManager();
+		$this->user = self::getTestUser()->getUser();
+		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+
+		// Mock the result of canEditSkip()
+		$canSkip = $this->createMock( ModerationCanSkip::class );
+		$canSkip->expects( $this->once() )->method( 'canEditSkip' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->user,
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->title->getNamespace()
+		)->willReturn( true ); // Can bypass moderation
+		$this->setService( 'Moderation.CanSkip', $canSkip );
+
+		$status = $this->makeEdit();
+		$this->assertTrue( $status->isGood(),
+			"User can bypass moderation, but doEditContent() didn't return successful Status." );
+
+		$this->assertNoConsequences( $manager );
+	}
+
+	/**
+	 * Verify that ModerationIntercept hook is called when edit is about to be queued for moderation.
+	 * Also verify that returning false from this hook will allow this edit to bypass moderation.
+	 * @covers ModerationEditHooks::onPageContentSave
+	 */
+	public function testModerationInterceptHook() {
+		// Replace real ConsequenceManager with a mock.
+		$manager = $this->mockConsequenceManager();
+		$this->user = self::getTestUser()->getUser();
+		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+
+		$this->setTemporaryHook( 'ModerationIntercept',
+			function ( WikiPage $page, User $user, Content $content,
+				$summary, $is_minor, $is_watch,
+				$section, $flags, Status $status
+			) {
+				$this->assertSame( $this->title->getFullText(), $page->getTitle()->getFullText() );
+				$this->assertSame( $this->user->getName(), $user->getName() );
+				$this->assertSame( $this->user->getId(), $user->getId() );
+				$this->assertEquals( $this->summary, $summary );
+
+				// Returning false from this hook means "this edit should bypass moderation".
+				return false;
+			}
+		);
+
+		$status = $this->makeEdit();
+		$this->assertTrue( $status->isGood(), "ModerationIntercept hook returned false, " .
+			"but doEditContent() didn't return successful Status." );
+
+		// This edit shouldn't have been queued for moderation.
+		$this->assertNoConsequences( $manager );
+	}
+
+	/**
+	 * Verify that editing non-text content (such as Flow forums) will bypass moderation.
+	 * @covers ModerationEditHooks::onPageContentSave
+	 */
+	public function testEditNonTextContent() {
+		// Replace real ConsequenceManager with a mock.
+		$manager = $this->mockConsequenceManager();
+		$content = new DummyNonTextContent( 'not a TextContent' );
+
+		$this->setMwGlobals( [
+			'wgExtraNamespaces' => [
+				12314 => 'DummyNonText',
+				12315 => 'DummyNonTextTalk'
+			],
+			'wgNamespaceContentModels' => [
+				12314 => 'testing-nontext'
+			],
 		] );
+		$this->mergeMwGlobalArrayValue( 'wgContentHandlers', [
+			'testing-nontext' => DummyNonTextContentHandler::class,
+		] );
+		$title = Title::makeTitle( 12314, 'UTPage-' . rand( 0, 100000 ) );
+
+		$page = WikiPage::factory( $title );
+		$status = $page->doEditContent(
+			$content,
+			'Some summary',
+			EDIT_INTERNAL,
+			false,
+			self::getTestUser()->getUser()
+		);
+		$this->assertTrue( $status->isGood(), "Moderation shouldn't have intercepted non-text Content, " .
+			"but doEditContent() didn't return successful Status." );
+
+		// This edit shouldn't have been queued for moderation.
+		$this->assertNoConsequences( $manager );
 	}
 
 	/**
@@ -88,13 +196,14 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	 */
 	public function testMergedEdit() {
 		// Replace real ConsequenceManager with a mock.
-		$this->manager = $this->mockConsequenceManager();
+		$manager = $this->mockConsequenceManager();
 
 		$modid = 12345;
 		RequestContext::getMain()->getRequest()->setVal( 'wpMergeID', $modid );
 
 		$this->user = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
-		$this->manager->mockResult( MarkAsMergedConsequence::class, true );
+		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$manager->mockResult( MarkAsMergedConsequence::class, true );
 
 		$status = $this->makeEdit();
 		$this->assertTrue( $status->isOK(), 'Failed to save an edit.' );
@@ -102,7 +211,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
 		$revid = $status->value['revision']->getId();
 
-		$this->assertConsequences( [
+		$this->assertConsequencesEqual( [
 			new MarkAsMergedConsequence( $modid, $revid ),
 			new AddLogEntryConsequence(
 				'merge',
@@ -115,7 +224,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 			),
 			new InvalidatePendingTimeCacheConsequence(),
 			new TagRevisionAsMergedConsequence( $revid )
-		] );
+		], $manager->getConsequences() );
 	}
 
 	/**
@@ -145,7 +254,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		$user = self::getTestUser()->getUser();
 
 		// Replace real ConsequenceManager with a mock.
-		$this->manager = $this->mockConsequenceManager();
+		$manager = $this->mockConsequenceManager();
 
 		$editPage = new EditPage( Article::newFromTitle( $title, RequestContext::getMain() ) );
 		$editPage->watchthis = $watch;
@@ -165,7 +274,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 			$user
 		);
 
-		$this->assertConsequences( [
+		$this->assertConsequencesEqual( [
 			new QueueEditConsequence(
 				$page, $user, $content, $summary,
 				$section,
@@ -174,7 +283,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 				false // isMinor
 			),
 			new WatchOrUnwatchConsequence( $watch, $title, $user )
-		] );
+		], $manager->getConsequences() );
 	}
 
 	/**
@@ -193,7 +302,6 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	 * @return Status
 	 */
 	private function makeEdit() {
-		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 		$this->content = ContentHandler::makeContent( 'Some text', null, CONTENT_MODEL_WIKITEXT );
 		$this->summary = 'Some edit summary';
 
@@ -205,14 +313,5 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 			false,
 			$this->user
 		);
-	}
-
-	/**
-	 * Assert that ConsequenceManager received $expectedConsequences and nothing else.
-	 * @param IConsequence[] $expectedConsequences
-	 */
-	public function assertConsequences( $expectedConsequences ) {
-		$actualConsequences = $this->manager->getConsequences();
-		$this->assertConsequencesEqual( $expectedConsequences, $actualConsequences );
 	}
 }
