@@ -20,6 +20,8 @@
  * API to invoke moderation actions like Approve, Reject, etc.
  */
 
+use MediaWiki\MediaWikiServices;
+
 class ApiModeration extends ApiBase {
 
 	public function execute() {
@@ -27,15 +29,16 @@ class ApiModeration extends ApiBase {
 			$this->dieWithError( 'badaccess-groups' );
 		}
 
-		$A = ModerationAction::factory( $this->getContext() );
+		$actionFactory = MediaWikiServices::getInstance()->getService( 'Moderation.ActionFactory' );
+		$A = $actionFactory->makeAction( $this->getContext() );
 
 		try {
 			$result = $A->run();
-		}
-		catch ( ModerationError $e ) {
+		} catch ( ModerationError $e ) {
 			$this->dieStatus( $e->status );
 		}
 
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable - Phan doesn't understand dieStatus()
 		$this->getResult()->addValue( null, $this->getModuleName(), $result );
 	}
 

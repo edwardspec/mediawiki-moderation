@@ -20,6 +20,7 @@
  * Trait that provides assertConsequencesEqual(), which is useful for Consequence tests.
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
@@ -193,7 +194,8 @@ trait ConsequenceTestTrait {
 		$out->setContext( $context );
 
 		try {
-			$action = ModerationAction::factory( $context );
+			$actionFactory = MediaWikiServices::getInstance()->getService( 'Moderation.ActionFactory' );
+			$action = $actionFactory->makeAction( $context );
 			$this->result = $action->run();
 		} catch ( ModerationError $error ) {
 			$this->thrownError = $error->status->getMessage()->getKey();

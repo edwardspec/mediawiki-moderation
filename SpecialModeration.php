@@ -170,7 +170,8 @@ class SpecialModeration extends QueryPage {
 	 * Run ModerationAction.
 	 */
 	public function runModerationAction() {
-		$A = ModerationAction::factory( $this->getContext() );
+		$actionFactory = MediaWikiServices::getInstance()->getService( 'Moderation.ActionFactory' );
+		$A = $actionFactory->makeAction( $this->getContext() );
 		if ( $A->requiresEditToken() ) {
 			$token = $this->getRequest()->getVal( 'token' );
 			if ( !$this->getUser()->matchEditToken( $token ) ) {
