@@ -57,7 +57,6 @@ matrix:
     # master branch of MediaWiki core is in constant development, tests against it are advisory
     - env: branch=master
     # Coverage calculation is optional.
-    # Also "phpdbg" really likes to segfault on exit (after the coverage has already been generated).
     - env: TESTSUITE_TYPE=coverage branch=REL1_34
   include:
     # Linters (phpcs, eslint, etc.)
@@ -161,7 +160,8 @@ matrix:
       script:
         # Run consequence tests only. We won't be able to calculate coverage of blackbox tests,
         # because CliEngine invokes them as a separate process, and PHPUnit has no way to track that.
-        - phpdbg -qrr tests/phpunit/phpunit.php --coverage-text --coverage-clover coverage-report.xml --configuration extensions/Moderation/tests/phpunit/coverage.suite.xml
+        # Note: "phpdbg" really likes to segfault on exit (after the coverage has already been generated), so we ignore exit code 139.
+        - phpdbg -qrr tests/phpunit/phpunit.php --coverage-text --coverage-clover coverage-report.xml --configuration extensions/Moderation/tests/phpunit/coverage.suite.xml || [[ $? = 139 ]]
       after_script:
         - bash <(curl -s https://codecov.io/bash)
 
