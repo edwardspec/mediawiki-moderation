@@ -244,6 +244,54 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	}
 
 	/**
+	 * Ensure that onEditFormInitialText hook correctly handles "section=NUMBER" parameter.
+	 * This happens when user is editing one section of existing article via the UI.
+	 * @covers ModerationPreload
+	 */
+	public function testEditSectionPreloadHook() {
+		$sections = [ "Text 0", "==Header1==\nText 1", "==Header2==\nText2", "==Header3==\nText3" ];
+
+		list( $title ) = $this->beginShowTest( false, implode( "\n", $sections ) );
+		$editPage = new EditPage( new Article( $title ) );
+
+		// When user visits "action=edit&section=2", only the text of section 2 should be preloaded.
+		$sectionId = 2;
+		$expectedText = $sections[$sectionId];
+		RequestContext::getMain()->getRequest()->setVal( 'section', $sectionId );
+
+		// Call the tested hook.
+		$hookResult = Hooks::run( 'EditFormInitialText', [ $editPage ] );
+		$this->assertTrue( $hookResult, 'Handler of EditFormInitialText hook should return true.' );
+		$this->assertSame( $expectedText, $editPage->textbox1,
+			"Text in section=$sectionId doesn't match the text that should have been preloaded." );
+
+		$this->checkOutputAfterShowTest();
+	}
+
+	/**
+	 * Ensure that onEditFormInitialText ignores "section=NUMBER" if section #NUMBER doesn't exist.
+	 * Normally this doesn't happen in production.
+	 * @covers ModerationPreload
+	 */
+	public function testEditNonexistentSectionPreloadHook() {
+		$fullText = "Text without section #4\n==Header1==\nText1\n";
+		list( $title ) = $this->beginShowTest( false, $fullText );
+		$editPage = new EditPage( new Article( $title ) );
+
+		// Because section #4 doesn't exist in $fullText, parameter "section=4" should be disregarded.
+		// As fallback behavior, full text should be preloaded instead of only one section.
+		RequestContext::getMain()->getRequest()->setVal( 'section', 4 );
+
+		// Call the tested hook.
+		$hookResult = Hooks::run( 'EditFormInitialText', [ $editPage ] );
+		$this->assertTrue( $hookResult, 'Handler of EditFormInitialText hook should return true.' );
+		$this->assertSame( $fullText, $editPage->textbox1,
+			"Full text wasn't preloaded when section= had a nonexistent section number." );
+
+		$this->checkOutputAfterShowTest();
+	}
+
+	/**
 	 * Check situation when EditFormPreloadText hook doesn't find a PendingEdit (nothing to preload).
 	 * @covers ModerationPreload
 	 */
@@ -291,14 +339,15 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	 * Begin the test of Preload hooks: create ModerationPreload object and set it as a service,
 	 * and have its EntryFactory return the mocked PendingEdit object.
 	 * @param bool $notFound If true, PendingEdit won't be found and false will be returned instead.
+	 * @param string|null $textOfPendingEdit
 	 * @return array
 	 * @phan-return array{0:Title,1:PendingEdit|false}
 	 */
-	private function beginShowTest( $notFound = false ) {
+	private function beginShowTest( $notFound = false, $textOfPendingEdit = null ) {
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 		$pendingEdit = $notFound ? false : new PendingEdit(
 			rand( 100, 10000 ),
-			'Preloaded text ' . rand( 0, 100000 ),
+			$textOfPendingEdit ?? 'Preloaded text ' . rand( 0, 100000 ),
 			'Preloaded comment' . rand( 0, 100000 )
 		);
 
@@ -342,5 +391,34 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		$out = RequestContext::getMain()->getOutput();
 		$this->assertNotContains( 'ext.moderation.edit', $out->getModules() );
 		$this->assertNotContains( '(moderation-editing-your-version)', $out->getHTML() );
+	}
+
+	/**
+	 * Ensure that EditFormPreloadText hook skips preloading if Request contains "section=new".
+	 * @covers ModerationPreload
+	 */
+	public function testPreloadingSkippedForNewSection() {
+		RequestContext::getMain()->getRequest()->setVal( 'section', 'new' );
+
+		// In case of section=new there shouldn't even be any search for PendingEdit.
+		$entryFactory = $this->createMock( EntryFactory::class );
+		$entryFactory->expects( $this->never() )->method( 'findPendingEdit' );
+
+		'@phan-var EntryFactory $entryFactory';
+
+		// Install this ModerationPreload object (which we are testing) as a service.
+		$preload = new ModerationPreload( $entryFactory, new MockConsequenceManager() );
+		$this->setService( 'Moderation.Preload', $preload );
+
+		$text = 'old text';
+		$title = Title::newFromText( 'Whatever' );
+		$editPage = new EditPage( new Article( $title ) );
+
+		// Call the tested hooks.
+		$hookResult = Hooks::run( 'EditFormPreloadText', [ &$text, &$title ] );
+		$this->assertTrue( $hookResult, 'Handler of EditFormPreloadText hook should return true.' );
+
+		$hookResult = Hooks::run( 'EditFormInitialText', [ $editPage ] );
+		$this->assertTrue( $hookResult, 'Handler of EditFormInitialText hook should return true.' );
 	}
 }
