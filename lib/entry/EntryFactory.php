@@ -25,6 +25,7 @@ namespace MediaWiki\Moderation;
 use IContextSource;
 use MediaWiki\Linker\LinkRenderer;
 use ModerationApprovableEntry;
+use ModerationCanSkip;
 use ModerationEntryEdit;
 use ModerationEntryFormatter;
 use ModerationEntryMove;
@@ -48,21 +49,27 @@ class EntryFactory {
 	/** @var IConsequenceManager */
 	protected $consequenceManager;
 
+	/** @var ModerationCanSkip */
+	protected $canSkip;
+
 	/**
 	 * @param LinkRenderer $linkRenderer
 	 * @param ActionLinkRenderer $actionLinkRenderer
 	 * @param TimestampFormatter $timestampFormatter
 	 * @param IConsequenceManager $consequenceManager
+	 * @param ModerationCanSkip $canSkip
 	 */
 	public function __construct( LinkRenderer $linkRenderer,
 		ActionLinkRenderer $actionLinkRenderer,
 		TimestampFormatter $timestampFormatter,
-		IConsequenceManager $consequenceManager
+		IConsequenceManager $consequenceManager,
+		ModerationCanSkip $canSkip
 	) {
 		$this->linkRenderer = $linkRenderer;
 		$this->actionLinkRenderer = $actionLinkRenderer;
 		$this->timestampFormatter = $timestampFormatter;
 		$this->consequenceManager = $consequenceManager;
+		$this->canSkip = $canSkip;
 	}
 
 	/**
@@ -77,7 +84,8 @@ class EntryFactory {
 			$context,
 			$this->linkRenderer,
 			$this->actionLinkRenderer,
-			$this->timestampFormatter
+			$this->timestampFormatter,
+			$this->canSkip
 		);
 	}
 

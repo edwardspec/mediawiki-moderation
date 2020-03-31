@@ -55,7 +55,8 @@ return [
 			$services->getLinkRenderer(),
 			$services->getService( 'Moderation.ActionLinkRenderer' ),
 			$services->getService( 'Moderation.TimestampFormatter' ),
-			$services->getService( 'Moderation.ConsequenceManager' )
+			$services->getService( 'Moderation.ConsequenceManager' ),
+			$services->getService( 'Moderation.CanSkip' )
 		);
 	},
 	'Moderation.NotifyModerator' =>

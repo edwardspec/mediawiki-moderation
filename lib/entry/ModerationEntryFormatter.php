@@ -21,7 +21,6 @@
  */
 
 use MediaWiki\Linker\LinkRenderer;
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\TimestampFormatter;
 
@@ -38,15 +37,20 @@ class ModerationEntryFormatter extends ModerationEntry {
 	/** @var TimestampFormatter */
 	protected $timestampFormatter;
 
+	/** @var ModerationCanSkip */
+	protected $canSkip;
+
 	/**
 	 * @param stdClass $row
 	 * @param IContextSource $context
 	 * @param LinkRenderer $linkRenderer
 	 * @param ActionLinkRenderer $actionLinkRenderer
 	 * @param TimestampFormatter $timestampFormatter
+	 * @param ModerationCanSkip $canSkip
 	 */
 	public function __construct( $row, IContextSource $context, LinkRenderer $linkRenderer,
-		ActionLinkRenderer $actionLinkRenderer, TimestampFormatter $timestampFormatter
+		ActionLinkRenderer $actionLinkRenderer, TimestampFormatter $timestampFormatter,
+		ModerationCanSkip $canSkip
 	) {
 		parent::__construct( $row );
 
@@ -54,6 +58,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 		$this->linkRenderer = $linkRenderer;
 		$this->actionLinkRenderer = $actionLinkRenderer;
 		$this->timestampFormatter = $timestampFormatter;
+		$this->canSkip = $canSkip;
 	}
 
 	/**
@@ -247,8 +252,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 				$class .= ' modconflict';
 
 				// In order to merge, moderator must also be automoderated
-				$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
-				if ( $canSkip->canEditSkip( $this->getModerator(), $row->namespace ) ) {
+				if ( $this->canSkip->canEditSkip( $this->getModerator(), $row->namespace ) ) {
 					$line .= $actionLinkRenderer->makeLink( 'merge', $row->id );
 				} else {
 					$line .= $this->msg(

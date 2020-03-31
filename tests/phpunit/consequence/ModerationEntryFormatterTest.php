@@ -48,6 +48,11 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 	private $context;
 
 	/**
+	 * @var mixed
+	 */
+	private $canSkip;
+
+	/**
 	 * Test that ModerationEntryFormatter::getModerator() returns current User from $context.
 	 * @covers ModerationEntryFormatter
 	 */
@@ -148,7 +153,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 		$row = (object)( ( $options['fields'] ?? [] ) + [
 			'user' => $authorUser->getId(),
 			'user_text' => $authorUser->getName(),
-			'namespace' => 0,
+			'namespace' => rand( 0, 1 ),
 			'title' => 'Test_page_' . rand( 0, 100000 ),
 			'type' => 'edit',
 			'page2_namespace' => 0,
@@ -173,8 +178,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 
 		$this->setMwGlobals( $options['globals'] ?? [] );
 
-		$groups = array_merge( $options['groups'] ?? [], [ 'moderator' ] );
-		$moderator = self::getTestUser( $groups )->getUser();
+		$moderator = self::getTestUser( [ 'moderator' ] )->getUser();
 		$lang = Language::factory( 'qqx' );
 
 		$this->context->expects( $this->any() )->method( 'getUser' )->willReturn( $moderator );
@@ -218,6 +222,18 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $row->timestamp )
 		)->willReturn( '{FormattedTime}' );
+
+		if ( isset( $options['moderatorIsAutomoderated'] ) ) {
+			// Edit conflict test: $canSkip will be used to confirm that moderator is automoderated.
+			$this->canSkip->expects( $this->once() )->method( 'canEditSkip' )->with(
+				// @phan-suppress-next-line PhanTypeMismatchArgument
+				$this->identicalTo( $moderator ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
+				$this->identicalTo( $row->namespace )
+			)->willReturn( $options['moderatorIsAutomoderated'] );
+		} else {
+			$this->canSkip->expects( $this->never() )->method( 'canEditSkip' );
+		}
 
 		$expectedResult = str_replace( [ '{AuthorUserLink}', '{CharDiff}' ],
 			[
@@ -328,11 +344,12 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 				'expectedResult' => '<span class="modline">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}{WhoisLink:10.20.30.40}  <span class="comment">({Row:comment})</span> [{ActionLink:approve} {ActionLink:approveall} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>'
 			] ],
 			'pending edit, edit conflict, moderator is automoderated' => [ [
-				'groups' => [ 'automoderated' ],
+				'moderatorIsAutomoderated' => true,
 				'fields' => [ 'conflict' => 1 ],
 				'expectedResult' => '<span class="modline modconflict">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:merge} . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>'
 			] ],
 			'pending edit, edit conflict, moderator is NOT automoderated' => [ [
+				'moderatorIsAutomoderated' => false,
 				'fields' => [ 'conflict' => 1 ],
 				'expectedResult' => '<span class="modline modconflict">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [(moderation-no-merge-link-not-automoderated) . . {ActionLink:reject} {ActionLink:rejectall}] . . [{ActionLink:block}]</span>'
 			] ],
@@ -393,11 +410,11 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 	private function makeTestFormatter( $row = null ) {
 		return new ModerationEntryFormatter( $row ?? new stdClass, $this->context,
 			$this->linkRenderer, $this->actionLinkRenderer,
-			$this->timestampFormatter );
+			$this->timestampFormatter, $this->canSkip );
 	}
 
 	/**
-	 * Precreate new mocks for $linkRenderer, $actionLinkRenderer and $context before each test.
+	 * Precreate new mocks for all dependencies before each test.
 	 */
 	public function setUp() : void {
 		parent::setUp();
@@ -406,5 +423,6 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 		$this->actionLinkRenderer = $this->createMock( ActionLinkRenderer::class );
 		$this->timestampFormatter = $this->createMock( TimestampFormatter::class );
 		$this->context = $this->createMock( IContextSource::class );
+		$this->canSkip = $this->createMock( ModerationCanSkip::class );
 	}
 }
