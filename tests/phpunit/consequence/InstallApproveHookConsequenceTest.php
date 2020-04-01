@@ -490,15 +490,6 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 
 		'@phan-var list<array{0:Title,1:User,2:string,3:array<string,?string>,4:array}> $todo';
 
-		foreach ( $todo as $testParameters ) {
-			list( $title, $user, $type, $task ) = $testParameters;
-			if ( $task ) {
-				// Create and run the Consequence.
-				$consequence = new InstallApproveHookConsequence( $title, $user, $type, $task );
-				$consequence->run();
-			}
-		}
-
 		// Track ChangeTagsAfterUpdateTags hook to ensure that $task['tags'] are actually added.
 		$taggedRevIds = [];
 		$taggedLogIds = [];
@@ -530,7 +521,6 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 			return true;
 		} );
 
-		// Now make new edits and double-check that all changes from $task were applied to them.
 		$this->setMwGlobals( 'wgModerationEnable', false ); // Edits shouldn't be intercepted
 
 		if ( $deferUpdates ) {
@@ -542,6 +532,17 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 			RequestContext::getMain()->setRequest( new FauxRequest() );
 		}
 
+		// Step 1: run InstallApproveHookConsequence (tested class) to install ApproveHook.
+		foreach ( $todo as $testParameters ) {
+			list( $title, $user, $type, $task ) = $testParameters;
+			if ( $task ) {
+				// Create and run the Consequence.
+				$consequence = new InstallApproveHookConsequence( $title, $user, $type, $task );
+				$consequence->run();
+			}
+		}
+
+		// Step 2: make new edits and double-check that all changes from $task were applied to them.
 		foreach ( $todo as $testParameters ) {
 			list( $title, $user, $type, $_, $extraInfo ) = $testParameters;
 
