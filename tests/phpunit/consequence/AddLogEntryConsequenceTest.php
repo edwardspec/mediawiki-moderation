@@ -50,6 +50,7 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 
 		// This variable is set in mocked ApproveHook::checkLogEntry() for further checks.
 		$checkedLogId = null;
+		$checkedLogEntry = null;
 
 		// Check whether ApproveHook will queue this LogEntry for modification.
 		$approveHook = $this->createMock( ModerationApproveHook::class );
@@ -60,8 +61,9 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->IsInstanceOf( ManualLogEntry::class )
 			)->will( $this->returnCallback(
-				function ( $logid, ManualLogEntry $logEntry ) use ( &$checkedLogId ) {
+				function ( $logid, ManualLogEntry $logEntry ) use ( &$checkedLogId, &$checkedLogEntry ) {
 					$checkedLogId = $logid;
+					$checkedLogEntry = $logEntry;
 				}
 			) );
 		} else {
@@ -90,6 +92,13 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 		if ( $runApproveHook ) {
 			$this->assertEquals( $logid, $checkedLogId,
 				"logid passed to ApproveHook:checkLogEntry() doesn't match expected." );
+
+			$this->assertEquals( 'moderation', $checkedLogEntry->getType() );
+			$this->assertEquals( $subtype, $checkedLogEntry->getSubtype() );
+			$this->assertEquals( $user->getName(), $checkedLogEntry->getPerformer()->getName() );
+			$this->assertEquals( $title->getPrefixedText(),
+				$checkedLogEntry->getTarget()->getPrefixedText() );
+			$this->assertEquals( $params, $checkedLogEntry->getParameters() );
 		}
 	}
 
