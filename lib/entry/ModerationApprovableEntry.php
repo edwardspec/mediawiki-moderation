@@ -20,7 +20,6 @@
  * Parent class for all entry types (edit, upload, move, etc.).
  */
 
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
@@ -30,10 +29,21 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	/** @var IConsequenceManager */
 	protected $consequenceManager;
 
-	public function __construct( $row, IConsequenceManager $consequenceManager ) {
+	/** @var ModerationApproveHook */
+	protected $approveHook;
+
+	/**
+	 * @param object $row
+	 * @param IConsequenceManager $consequenceManager
+	 * @param ModerationApproveHook $approveHook
+	 */
+	public function __construct( $row, IConsequenceManager $consequenceManager,
+		ModerationApproveHook $approveHook
+	) {
 		parent::__construct( $row );
 
 		$this->consequenceManager = $consequenceManager;
+		$this->approveHook = $approveHook;
 	}
 
 	/**
@@ -158,8 +168,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	 * @return array
 	 */
 	protected function getApproveLogParameters() {
-		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
-		return [ 'revid' => $approveHook->getLastRevId() ];
+		return [ 'revid' => $this->approveHook->getLastRevId() ];
 	}
 
 	/**
