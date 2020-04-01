@@ -118,11 +118,6 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 			throw new ModerationError( 'moderation-rejected-long-ago' );
 		}
 
-		# Disable moderation hook (ModerationEditHooks::onPageContentSave),
-		# so that it won't queue this edit again.
-		$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
-		$canSkip->enterApproveMode();
-
 		# Install hooks to modify CheckUser database after approval, etc.
 		$this->installApproveHook();
 

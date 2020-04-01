@@ -37,6 +37,12 @@ class ModerationCanSkipTest extends ModerationUnitTestCase {
 	public function testCanSkip( $expectedResult, $method, array $args, array $isAllowed,
 		array $configVars
 	) {
+		$approveHook = $this->createMock( ModerationApproveHook::class );
+		$approveHook->expects( $this->any() )->method( 'isApprovingNow' )
+			->willReturn( $configVars['__inApprove'] ?? false );
+
+		'@phan-var ModerationApproveHook $approveHook';
+
 		$config = new HashConfig( [
 			'ModerationEnable' => $configVars['ModerationEnable'] ?? true,
 			'ModerationIgnoredInNamespaces' =>
@@ -44,7 +50,7 @@ class ModerationCanSkipTest extends ModerationUnitTestCase {
 			'ModerationOnlyInNamespaces' =>
 				$configVars['ModerationOnlyInNamespaces'] ?? []
 		] );
-		$canSkip = new ModerationCanSkip( $config );
+		$canSkip = new ModerationCanSkip( $config, $approveHook );
 
 		// Mock User::isAllowed() to return values from $isAllowed array.
 		$user = $this->createMock( User::class );
@@ -83,6 +89,14 @@ class ModerationCanSkipTest extends ModerationUnitTestCase {
 				[ true, 'canMoveSkip', [ NS_MAIN, NS_PROJECT ], [], [ 'ModerationEnable' => false ] ],
 			'canUploadSkip()=true, because $wgModerationEnable=false' =>
 				[ true, 'canUploadSkip', [], [], [ 'ModerationEnable' => false ] ],
+
+			// During modaction=approve, when ApproveHook::isApprovingNow() returns true.
+			'canEditSkip()=true, because ApproveHook is installed' =>
+				[ true, 'canEditSkip', [ NS_MAIN ], [], [ '__inApprove' => true ] ],
+			'canMoveSkip()=true, because ApproveHook is installed' =>
+				[ true, 'canMoveSkip', [ NS_MAIN, NS_PROJECT ], [], [ '__inApprove' => true ] ],
+			'canUploadSkip()=true, because ApproveHook is installed' =>
+				[ true, 'canUploadSkip', [], [], [ '__inApprove' => true ] ],
 
 			// "skip-moderation" right
 			'canEditSkip()=true, because user has skip-moderation right' =>

@@ -50,7 +50,8 @@ return [
 	'Moderation.CanSkip' => function ( MediaWikiServices $services ) : ModerationCanSkip {
 		return new ModerationCanSkip(
 			// Will be eventually replaced by ServiceOptions (MW 1.34+).
-			$services->getMainConfig()
+			$services->getMainConfig(),
+			$services->getService( 'Moderation.ApproveHook' )
 		);
 	},
 	'Moderation.ConsequenceManager' => function () : ConsequenceManager {

@@ -21,26 +21,19 @@
  */
 
 class ModerationCanSkip {
-	/** @var bool Flag used in enterApproveMode() */
-	protected $inApprove = false;
-
-	/**
-	 * Enters "approve mode", making all further calls of canSkip() return true.
-	 * This is used in modaction=approve, so that newly approved edit
-	 * wouldn't be stopped by Moderation again.
-	 */
-	public function enterApproveMode() {
-		$this->inApprove = true;
-	}
-
 	/** @var Config */
 	protected $config;
 
+	/** @var ModerationApproveHook */
+	protected $approveHook;
+
 	/**
 	 * @param Config $config
+	 * @param ModerationApproveHook $approveHook
 	 */
-	public function __construct( Config $config ) {
+	public function __construct( Config $config, ModerationApproveHook $approveHook ) {
 		$this->config = $config;
+		$this->approveHook = $approveHook;
 	}
 
 	/**
@@ -86,7 +79,7 @@ class ModerationCanSkip {
 	 * @return bool
 	 */
 	protected function canSkip( User $user, $permission, array $affectedNamespaces ) {
-		if ( !$this->config->get( 'ModerationEnable' ) || $this->inApprove ) {
+		if ( !$this->config->get( 'ModerationEnable' ) || $this->approveHook->isApprovingNow() ) {
 			return true; /* Moderation is disabled */
 		}
 

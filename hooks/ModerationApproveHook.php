@@ -320,6 +320,11 @@ class ModerationApproveHook {
 		}
 
 		$dbw->endAtomic( __METHOD__ );
+
+		// Clean both $dbUpdates and $tasks (everything is done).
+		// Further calls to isApprovingNow() will return false.
+		$this->dbUpdates = [];
+		$this->tasks = [];
 	}
 
 	/**
@@ -404,6 +409,15 @@ class ModerationApproveHook {
 	public function addTask( Title $title, User $user, $type, array $task ) {
 		$key = $this->getTaskKey( $title, $user->getName(), $type );
 		$this->tasks[$key] = $task;
+	}
+
+	/**
+	 * Returns true if any ApproveHook tasks were installed, false otherwise.
+	 * This is used by CanSkip service to allow Moderation to be bypassed during modaction=approve.
+	 * @return bool
+	 */
+	public function isApprovingNow() {
+		return !empty( $this->tasks );
 	}
 
 	/**
