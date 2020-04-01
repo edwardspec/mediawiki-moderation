@@ -20,9 +20,7 @@
  * Unit test of AddLogEntryConsequence.
  */
 
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\AddLogEntryConsequence;
-use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -42,7 +40,6 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 	 * @param array $params
 	 * @param bool $runApproveHook
 	 * @covers MediaWiki\Moderation\AddLogEntryConsequence
-	 * @covers ModerationApproveHook::checkLogEntry
 	 * @dataProvider dataProviderAddLogEntry
 	 */
 	public function testAddLogEntry( $subtype, $username, $pageName, array $params,
@@ -50,6 +47,27 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 	) {
 		$user = User::createNew( $username );
 		$title = Title::newFromText( $pageName );
+
+		// This variable is set in mocked ApproveHook::checkLogEntry() for further checks.
+		$checkedLogId = null;
+
+		// Check whether ApproveHook will queue this LogEntry for modification.
+		$approveHook = $this->createMock( ModerationApproveHook::class );
+		if ( $runApproveHook ) {
+			$approveHook->expects( $this->once() )->method( 'checkLogEntry' )->with(
+				// @phan-suppress-next-line PhanTypeMismatchArgument
+				$this->isType( 'int' ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
+				$this->IsInstanceOf( ManualLogEntry::class )
+			)->will( $this->returnCallback(
+				function ( $logid, ManualLogEntry $logEntry ) use ( &$checkedLogId ) {
+					$checkedLogId = $logid;
+				}
+			) );
+		} else {
+			$approveHook->expects( $this->never() )->method( 'checkLogEntry' );
+		}
+		$this->setService( 'Moderation.ApproveHook', $approveHook );
 
 		// Create and run the Consequence.
 		$consequence = new AddLogEntryConsequence( $subtype, $user, $title, $params,
@@ -69,18 +87,9 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 			$logEntry->getTarget()->getPrefixedText() );
 		$this->assertEquals( $params, $logEntry->getParameters() );
 
-		// Check whether ApproveHook has queued this LogEntry for modification.
-		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
-		$wrapper = TestingAccessWrapper::newFromObject( $approveHook );
-		$entriesToFix = $wrapper->logEntriesToFix;
-
-		if ( $runApproveHook && empty( $params['revid'] ) ) {
-			// ApproveHook must populate "revid" parameter of this LogEntry.
-			$this->assertArrayHasKey( $logid, $entriesToFix );
-			$this->assertInstanceOf( ManualLogEntry::class, $entriesToFix[$logid] );
-		} else {
-			// This logentry doesn't need ApproveHook.
-			$this->assertArrayNotHasKey( $logid, $entriesToFix );
+		if ( $runApproveHook ) {
+			$this->assertEquals( $logid, $checkedLogId,
+				"logid passed to ApproveHook:checkLogEntry() doesn't match expected." );
 		}
 	}
 
