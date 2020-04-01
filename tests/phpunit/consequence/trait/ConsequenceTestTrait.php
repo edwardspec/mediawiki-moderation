@@ -229,10 +229,11 @@ trait ConsequenceTestTrait {
 	 * @return int
 	 */
 	public function mockLastRevId() {
+		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
 		$revid = rand( 1, 100000 );
 
-		$approveHook = TestingAccessWrapper::newFromObject( ModerationApproveHook::singleton() );
-		$approveHook->lastRevId = $revid;
+		$wrapper = TestingAccessWrapper::newFromObject( $approveHook );
+		$wrapper->lastRevId = $revid;
 
 		return $revid;
 	}

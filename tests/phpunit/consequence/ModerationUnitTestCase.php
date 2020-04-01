@@ -39,13 +39,4 @@ class ModerationUnitTestCase extends MediaWikiTestCase {
 			}
 		}
 	}
-
-	/**
-	 * Forget about previous ApproveHook tasks by destroying the object with their list.
-	 */
-	public function tearDown() : void {
-		ModerationApproveHook::destroySingleton();
-
-		parent::tearDown();
-	}
 }

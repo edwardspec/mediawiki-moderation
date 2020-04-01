@@ -23,7 +23,7 @@
 namespace MediaWiki\Moderation;
 
 use ManualLogEntry;
-use ModerationApproveHook;
+use MediaWiki\MediaWikiServices;
 use Title;
 use User;
 
@@ -73,7 +73,8 @@ class AddLogEntryConsequence implements IConsequence {
 		$logEntry->publish( $logid );
 
 		if ( $this->runApproveHook ) {
-			ModerationApproveHook::checkLogEntry( $logid, $logEntry );
+			$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
+			$approveHook->checkLogEntry( $logid, $logEntry );
 		}
 	}
 }

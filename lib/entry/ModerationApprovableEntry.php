@@ -163,7 +163,8 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	 * @return array
 	 */
 	protected function getApproveLogParameters() {
-		return [ 'revid' => ModerationApproveHook::singleton()->getLastRevId() ];
+		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
+		return [ 'revid' => $approveHook->getLastRevId() ];
 	}
 
 	/**

@@ -20,6 +20,7 @@
  * Unit test of AddLogEntryConsequence.
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use Wikimedia\TestingAccessWrapper;
 
@@ -69,8 +70,10 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 		$this->assertEquals( $params, $logEntry->getParameters() );
 
 		// Check whether ApproveHook has queued this LogEntry for modification.
-		$approveHook = TestingAccessWrapper::newFromObject( ModerationApproveHook::singleton() );
-		$entriesToFix = $approveHook->logEntriesToFix;
+		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
+		$wrapper = TestingAccessWrapper::newFromObject( $approveHook );
+		$entriesToFix = $wrapper->logEntriesToFix;
+
 		if ( $runApproveHook && empty( $params['revid'] ) ) {
 			// ApproveHook must populate "revid" parameter of this LogEntry.
 			$this->assertArrayHasKey( $logid, $entriesToFix );
