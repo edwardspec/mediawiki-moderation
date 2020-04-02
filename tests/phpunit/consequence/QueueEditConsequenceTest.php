@@ -22,8 +22,8 @@
 
 use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
+use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\QueueEditConsequence;
-use MediaWiki\Moderation\RememberAnonIdConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 
 require_once __DIR__ . "/autoload.php";
@@ -56,14 +56,18 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 		$opt->notifyNewOnly = $opt->notifyNewOnly ?? false;
 		$opt->anonymously = $opt->anonymously ?? false;
 		$opt->editedBefore = $opt->editedBefore ?? false;
+		$opt->section = $opt->section ?? '';
+		$opt->sectionText = $opt->sectionText ?? '';
+		$opt->preloadedText = $opt->preloadedText ?? '';
 
 		$user = $opt->anonymously ? User::newFromName( '127.0.0.1', false ) :
 			self::getTestUser()->getUser();
 		$title = Title::newFromText( $opt->title ?? 'UTPage-' . rand( 0, 100000 ) );
 		$page = WikiPage::factory( $title );
-		$content = ContentHandler::makeContent( 'Some text' . rand( 0, 100000 ),
+		$content = ContentHandler::makeContent( $opt->text ?? ( 'Some text' . rand( 0, 100000 ) ),
 			null, CONTENT_MODEL_WIKITEXT );
 		$summary = $opt->summary ?? 'Some summary ' . rand( 0, 100000 );
+		$opt->expectedText = $opt->expectedText ?? $content->getNativeData();
 
 		if ( $opt->existing ) {
 			// Precreate the page.
@@ -100,22 +104,28 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 			'wgModerationNotificationNewOnly' => $opt->notifyNewOnly ?? false
 		] );
 
+		// Mock ModerationPreload service.
+		$preloadId = '{MockedPreloadId}';
+		$preload = $this->createMock( ModerationPreload::class );
+
+		$preload->expects( $this->any() )->method( 'findPendingEdit' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( $title )
+		)->willReturn( new PendingEdit( $title, 123, $opt->preloadedText, '' ) );
+		$preload->expects( $this->once() )->method( 'getId' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( true )
+		)->willReturn( $preloadId );
+
+		$this->setService( 'Moderation.Preload', $preload );
+
 		// No actual DB operations will be happening, so mock the returned mod_id.
 		$modid = 12345;
 		$manager->mockResult( InsertRowIntoModerationTableConsequence::class, $modid );
 
-		$anonId = 67890;
-		$manager->mockResult( RememberAnonIdConsequence::class, $anonId );
-
-		if ( $opt->anonymously && $opt->editedBefore ) {
-			// Simulate situation when this anonymous user has already edited before,
-			// meaning that this edit wouldn't cause RememberAnonIdConsequence.
-			RequestContext::getMain()->getRequest()->setSessionData( 'anon_id', $anonId );
-		}
-
 		// Create and run the Consequence.
 		$consequence = new QueueEditConsequence(
-			$page, $user, $content, $summary, '', '', $opt->bot, $opt->minor );
+			$page, $user, $content, $summary, $opt->section, $opt->sectionText, $opt->bot, $opt->minor );
 		$consequence->run();
 
 		// This is very similar to ModerationQueueTest::getExpectedRow().
@@ -136,10 +146,10 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 			'mod_ip' => '127.0.0.1',
 			'mod_old_len' => $opt->existing ?
 				$title->getLength( IDBAccessObject::READ_LATEST ) : 0,
-			'mod_new_len' => $content->getSize(),
+			'mod_new_len' => strlen( $opt->expectedText ),
 			'mod_header_xff' => $opt->xff ?? null,
 			'mod_header_ua' => $opt->userAgent ?? null,
-			'mod_preload_id' => $opt->anonymously ? ']' . $anonId : '[' . $user->getName(),
+			'mod_preload_id' => $preloadId,
 			'mod_rejected' => $opt->modblocked ? 1 : 0,
 			'mod_rejected_by_user' => 0,
 			'mod_rejected_by_user_text' => $opt->modblocked ?
@@ -149,7 +159,7 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 			'mod_preloadable' => 0,
 			'mod_conflict' => 0,
 			'mod_merged_revid' => 0,
-			'mod_text' => $content->getNativeData(), // Won't work if $content needs PST
+			'mod_text' => $opt->expectedText,
 			'mod_stash_key' => null,
 			'mod_tags' => null,
 			'mod_type' => 'edit',
@@ -159,10 +169,6 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 
 		// Check secondary consequences.
 		$expectedConsequences = [];
-		if ( $opt->anonymously && !$opt->editedBefore ) {
-			$expectedConsequences[] = new RememberAnonIdConsequence();
-		}
-
 		$expectedConsequences[] = new InsertRowIntoModerationTableConsequence( $expectedFields );
 
 		if ( !$opt->modblocked && $opt->notifyEmail && ( !$opt->notifyNewOnly || !$opt->existing ) ) {
@@ -208,6 +214,20 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 					'modblocked' => true,
 					'notifyEmail' => 'noreply@localhost'
 				] ],
+			'section edit' =>
+				[ [
+					'section' => 2,
+					'sectionText' => "==NewHeader 2==\n\nNewText 2",
+					'preloadedText' => "Text 0\n\n== Header 1 ==\n\nText 1\n\n" .
+						"== Header 2 ==\n\nText 2\n\n== Header 3 ==\n\nText 3",
+					'expectedText' => "Text 0\n\n== Header 1 ==\n\nText 1\n\n" .
+						"==NewHeader 2==\n\nNewText 2\n\n== Header 3 ==\n\nText 3"
+				] ],
+			'edit with PreSaveTransform' =>
+				[ [
+					'text' => '[[Project:PipeTrick|]]',
+					'expectedText' => "[[Project:PipeTrick|PipeTrick]]"
+				] ]
 		];
 	}
 }
