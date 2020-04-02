@@ -40,18 +40,23 @@ trait UploadTestTrait {
 	/**
 	 * Prepare a test upload. It won't actually start until its performUpload() method is called.
 	 * @param Title $title
+	 * @param string $srcPath
 	 * @return UploadBase
 	 */
-	protected function prepareTestUpload( Title $title ) {
+	protected function prepareTestUpload( Title $title, $srcPath = '' ) {
+		if ( !$srcPath ) {
+			$srcPath = $this->sampleImageFile;
+		}
+
 		/* Create a temporary copy of this file,
 			so that the original file won't be deleted after the upload */
-		$tmpFile = TempFSFile::factory( 'testsuite.upload', basename( $this->sampleImageFile ) );
+		$tmpFile = TempFSFile::factory( 'testsuite.upload', basename( $srcPath ) );
 		$tmpFile->preserve(); // Otherwise it will be deleted after exiting prepareTestUpload()
 
-		$srcPath = $tmpFile->getPath();
-		copy( $this->sampleImageFile, $srcPath );
+		$tmpFilePath = $tmpFile->getPath();
+		copy( $srcPath, $tmpFilePath );
 
-		$curlFile = new CURLFile( $srcPath );
+		$curlFile = new CURLFile( $tmpFilePath );
 		$_FILES['wpUploadFile'] = [
 			'name' => 'whatever', # Not used anywhere
 			'type' => $curlFile->getMimeType(),

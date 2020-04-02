@@ -39,8 +39,8 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 	 * @param string $pageName
 	 * @param array $params
 	 * @param bool $runApproveHook
-	 * @covers MediaWiki\Moderation\AddLogEntryConsequence
 	 * @dataProvider dataProviderAddLogEntry
+	 * @covers MediaWiki\Moderation\AddLogEntryConsequence
 	 */
 	public function testAddLogEntry( $subtype, $username, $pageName, array $params,
 		$runApproveHook
@@ -51,6 +51,8 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 		// This variable is set in mocked ApproveHook::checkLogEntry() for further checks.
 		$checkedLogId = null;
 		$checkedLogEntry = null;
+
+		'@phan-var ManualLogEntry $checkedLogEntry';
 
 		// Check whether ApproveHook will queue this LogEntry for modification.
 		$approveHook = $this->createMock( ModerationApproveHook::class );
@@ -108,7 +110,7 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 	 */
 	public function dataProviderAddLogEntry() {
 		return [
-			'normal LogEntry' => [
+			'without ApproveHook' => [
 				'reject',
 				'Some moderator',
 				'Talk:Title in non-main namespace, spaces_and_underscores',
@@ -120,18 +122,11 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 				],
 				false // Don't run ApproveHook
 			],
-			'logEntry with missing revid parameter (must be fixed by ApproveHook)' => [
+			'with ApproveHook' => [
 				'approve',
 				'AnotherModerator',
 				'SampleArticle',
 				[ 'revid' => null ],
-				true // Run ApproveHook
-			],
-			'logEntry that doesn\'t need to be fixed by ApproveHook' => [
-				'approve',
-				'AnotherModerator',
-				'SampleArticle',
-				[ 'revid' => 123 ],
 				true // Run ApproveHook
 			]
 		];

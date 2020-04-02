@@ -30,10 +30,11 @@ require_once __DIR__ . "/autoload.php";
  */
 class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	use MakeEditTestTrait;
+	use UploadTestTrait;
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'revision', 'page', 'user', 'recentchanges', 'cu_changes',
-		'change_tag', 'logging', 'log_search' ];
+		'change_tag', 'logging', 'log_search', 'image', 'oldimage' ];
 
 	/**
 	 * Verify that InstallApproveHookConsequence calls ApproveHook::addTask().
@@ -43,7 +44,7 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 		$user = User::newFromName( '10.11.12.13', false );
 		$type = 'move';
-		$task = [ 'ua' => 'some User-Agent', 'ip' => '127.0.0.5' ];
+		$task = [ 'ip' => 'a', 'xff' => 'b', 'ua' => 'c', 'tags' => 'd', 'timestamp' => 'e' ];
 
 		$approveHook = $this->createMock( ModerationApproveHook::class );
 		$approveHook->expects( $this->once() )->method( 'addTask' )->with(
@@ -61,6 +62,69 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 		// Create and run the Consequence.
 		$consequence = new InstallApproveHookConsequence( $title, $user, $type, $task );
 		$consequence->run();
+	}
+
+	/**
+	 * Verify that uploading a file adds missing "revid" to LogEntry passed to checkLogEntry().
+	 * @param array $logEntryParams Parameters for ManualLogEntry.
+	 * @param bool $isReupload True to reupload the image, false to upload a new image.
+	 * @dataProvider dataProviderCheckLogEntry
+	 * @covers ModerationApproveHook
+	 */
+	public function testCheckLogEntry( array $logEntryParams, $isReupload ) {
+		$title = Title::newFromText( 'File:UTUpload-' . rand( 0, 100000 ) . '.png' );
+		$user =	self::getTestUser( [ 'automoderated' ] )->getUser();
+
+		if ( $isReupload ) {
+			// Precreate file with the same name.
+			$upload = $this->prepareTestUpload( $title );
+			$status = $upload->performUpload( '', '', false, $user );
+			$this->assertTrue( $status->isGood(), "Upload failed: " . $status->getMessage()->plain() );
+		}
+
+		$approveHook = new ModerationApproveHook( new NullLogger() );
+		$this->setService( 'Moderation.ApproveHook', $approveHook );
+
+		$logEntry = new ManualLogEntry( 'moderation', 'SomeLogAction' );
+		$logEntry->setTarget( $title );
+		$logEntry->setPerformer( $user );
+		$logEntry->setParameters( $logEntryParams );
+		$logid = $logEntry->insert();
+
+		$approveHook->checkLogEntry( $logid, $logEntry );
+
+		// Now trigger an upload and determine if LogEntry was changed in the database.
+		$upload = $this->prepareTestUpload( $title, $this->anotherSampleImageFile );
+		$status = $upload->performUpload( '', '', false, $user );
+		$this->assertTrue( $status->isGood(), "Upload failed: " . $status->getMessage()->plain() );
+
+		// Only uploading a new file should modify log_params (reuploads should leave it unmodified).
+		// Furthermore, if "revid" parameter is already not null, then it shouldn't be modified either.
+		$expectedParams = $logEntryParams;
+		if ( !$isReupload && !isset( $logEntryParams['revid'] ) ) {
+			$expectedParams['revid'] = $title->getLatestRevId( IDBAccessObject::READ_LATEST );
+		}
+
+		$this->assertSelect( 'logging',
+			[ 'log_params' ],
+			[ 'log_action' => 'SomeLogAction' ],
+			[ [ LogEntryBase::makeParamBlob( $expectedParams ) ] ]
+		);
+	}
+
+	/**
+	 * Provide datasets for testCheckLogEntry() runs.
+	 * @return array
+	 */
+	public function dataProviderCheckLogEntry() {
+		return [
+			'logEntry with missing revid parameter (must be fixed by ApproveHook)' =>
+				[ [ 'revid' => null ], false ],
+			'logEntry that doesn\'t need to be fixed by ApproveHook' =>
+				[ [ 'revid' => 12345 ], false ],
+			'reupload (checkLogEntry shouldn\'t do anything)' =>
+				[ [ 'revid' => null ], true ],
+		];
 	}
 
 	/**
