@@ -21,34 +21,12 @@
  * Corrects rev_timestamp, rc_ip and checkuser logs when edit is approved.
  */
 
-use MediaWiki\Logger\LoggerFactory;
+use MediaWiki\MediaWikiServices;
 use Psr\Log\LoggerInterface;
 
 class ModerationApproveHook {
-	/** @var ModerationApproveHook|null Singleton instance */
-	protected static $instance = null;
-
 	/** @var LoggerInterface */
 	private $logger;
-
-	/**
-	 * Return a singleton instance of ModerationApproveHook
-	 * @return ModerationApproveHook
-	 */
-	public static function singleton() {
-		if ( self::$instance === null ) {
-			self::$instance = new self;
-		}
-
-		return self::$instance;
-	}
-
-	/**
-	 * Destroy the singleton instance
-	 */
-	public static function destroySingleton() {
-		self::$instance = null;
-	}
 
 	/**
 	 * @var int
@@ -82,8 +60,11 @@ class ModerationApproveHook {
 	 */
 	protected $logEntriesToFix = [];
 
-	protected function __construct() {
-		$this->logger = LoggerFactory::getInstance( 'ModerationApproveHook' );
+	/**
+	 * @param LoggerInterface $logger
+	 */
+	public function __construct( LoggerInterface $logger ) {
+		$this->logger = $logger;
 	}
 
 	/**
@@ -91,7 +72,9 @@ class ModerationApproveHook {
 	 * @return true
 	 */
 	public static function onPageContentSaveComplete() {
-		self::scheduleDoUpdate();
+		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
+		$approveHook->scheduleDoUpdate();
+
 		return true;
 	}
 
@@ -104,36 +87,40 @@ class ModerationApproveHook {
 	 * @return true
 	 */
 	public static function onTitleMoveComplete( Title $title, Title $newTitle, User $user ) {
-		$hook = self::singleton();
-		$task = $hook->getTask( $title, $user, ModerationNewChange::MOD_TYPE_MOVE );
+		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
+		$approveHook->modifyRedirectAfterMove( $title, $user );
+
+		return true;
+	}
+
+	/**
+	 * Main logic of TitleMoveComplete hook.
+	 * @param Title $title
+	 * @param User $user
+	 */
+	protected function modifyRedirectAfterMove( Title $title, User $user ) {
+		$task = $this->getTask( $title, $user, ModerationNewChange::MOD_TYPE_MOVE );
 		if ( !$task ) {
-			return true;
+			return;
 		}
 
 		$revid = $title->getLatestRevID();
-		if ( !$revid ) {
-			// Nothing to do: redirect wasn't created.
-			return true;
+		if ( $revid ) {
+			// Redirect was created. Its timestamp should also be modified.
+			$dbr = wfGetDB( DB_REPLICA );
+			$timestamp = $dbr->timestamp( $task['timestamp'] ); // Possibly in PostgreSQL format
+
+			$this->queueUpdate( 'revision', [ $revid ], [ 'rev_timestamp' => $timestamp ] );
 		}
 
-		$dbr = wfGetDB( DB_REPLICA );
-		$timestamp = $dbr->timestamp( $task['timestamp'] ); // Possibly in PostgreSQL format
-
-		/* Fix rev_timestamp to be equal to mod_timestamp
-			(time when edit was queued, i.e. made by the user)
-			instead of current time (time of approval). */
-		$hook->queueUpdate( 'revision', [ $revid ], [ 'rev_timestamp' => $timestamp ] );
-
-		self::scheduleDoUpdate();
-		return true;
+		$this->scheduleDoUpdate();
 	}
 
 	/**
 	 * Schedule doUpdate() to run after all other DeferredUpdates that are caused by new edits.
 	 */
-	public static function scheduleDoUpdate() {
-		$hook = self::singleton();
-		$hook->useCount ++;
+	public function scheduleDoUpdate() {
+		$this->useCount ++;
 		DeferredUpdates::addCallableUpdate( __CLASS__ . '::doUpdate' );
 	}
 
@@ -145,12 +132,12 @@ class ModerationApproveHook {
 			Only the last of these updates should run, because
 			all RecentChange_save hooks must be completed before it.
 		*/
-		$hook = self::singleton();
-		if ( --$hook->useCount > 0 ) {
+		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
+		if ( --$approveHook->useCount > 0 ) {
 			return;
 		}
 
-		$hook->reallyDoUpdate();
+		$approveHook->reallyDoUpdate();
 	}
 
 	/**
@@ -328,6 +315,11 @@ class ModerationApproveHook {
 		}
 
 		$dbw->endAtomic( __METHOD__ );
+
+		// Clean both $dbUpdates and $tasks (everything is done).
+		// Further calls to isApprovingNow() will return false.
+		$this->dbUpdates = [];
+		$this->tasks = [];
 	}
 
 	/**
@@ -335,11 +327,10 @@ class ModerationApproveHook {
 	 * @param int $logid
 	 * @param ManualLogEntry $logEntry
 	 */
-	public static function checkLogEntry( $logid, ManualLogEntry $logEntry ) {
+	public function checkLogEntry( $logid, ManualLogEntry $logEntry ) {
 		$params = $logEntry->getParameters();
 		if ( array_key_exists( 'revid', $params ) && $params['revid'] === null ) {
-			$hook = self::singleton();
-			$hook->logEntriesToFix[$logid] = $logEntry;
+			$this->logEntriesToFix[$logid] = $logEntry;
 		}
 	}
 
@@ -361,12 +352,13 @@ class ModerationApproveHook {
 	 * @param Revision $rev
 	 * @param string $baseID @phan-unused-param
 	 * @param User $user @phan-unused-param
-	 * @return bool
+	 * @return true
 	 */
 	public static function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
 		/* Remember ID of this revision for getLastRevId() */
-		$hook = self::singleton();
-		$hook->lastRevId = $rev->getId();
+		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
+		$approveHook->lastRevId = $rev->getId();
+
 		return true;
 	}
 
@@ -415,6 +407,15 @@ class ModerationApproveHook {
 	}
 
 	/**
+	 * Returns true if any ApproveHook tasks were installed, false otherwise.
+	 * This is used by CanSkip service to allow Moderation to be bypassed during modaction=approve.
+	 * @return bool
+	 */
+	public function isApprovingNow() {
+		return !empty( $this->tasks );
+	}
+
+	/**
 	 * Find the entry in $tasks about change $rc.
 	 * @param RecentChange $rc
 	 * @return array|false
@@ -442,15 +443,26 @@ class ModerationApproveHook {
 	 *
 	 * @param RecentChange $rc
 	 * @param array &$fields
-	 * @return bool
+	 * @return true
 	 *
 	 * @phan-param array<string,string|int|null> &$fields
 	 */
-	public static function onCheckUserInsertForRecentChange( $rc, &$fields ) {
-		$hook = self::singleton();
-		$task = $hook->getTaskByRC( $rc );
+	public static function onCheckUserInsertForRecentChange( RecentChange $rc, array &$fields ) {
+		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
+		$approveHook->modifyCheckUserFields( $rc, $fields );
+
+		return true;
+	}
+
+	/**
+	 * Main logic of CheckUserInsertForRecentChange hook.
+	 * @param RecentChange $rc
+	 * @param array &$fields
+	 */
+	protected function modifyCheckUserFields( RecentChange $rc, array &$fields ) {
+		$task = $this->getTaskByRC( $rc );
 		if ( !$task ) {
-			return true;
+			return;
 		}
 
 		$fields['cuc_ip'] = IP::sanitizeIP( $task['ip'] );
@@ -466,8 +478,6 @@ class ModerationApproveHook {
 			$fields['cuc_xff'] = '';
 			$fields['cuc_xff_hex'] = null;
 		}
-
-		return true;
 	}
 
 	/**
@@ -481,29 +491,37 @@ class ModerationApproveHook {
 	 * @param LocalFile $file
 	 * @param bool $reupload
 	 * @param bool $hasDescription @phan-unused-param
-	 * @return bool
+	 * @return true
 	 */
 	public static function onFileUpload( LocalFile $file, $reupload, $hasDescription ) {
 		if ( $reupload ) {
 			return true; // rev_id is not missing for reuploads
 		}
 
+		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
+		$approveHook->fixLogEntry( $file->getTitle() );
+
+		return true;
+	}
+
+	/**
+	 * Main logic of FileUpload hook.
+	 * @param Title $title
+	 */
+	protected function fixLogEntry( Title $title ) {
 		$dbw = wfGetDB( DB_MASTER );
-		$hook = self::singleton();
-		foreach ( $hook->logEntriesToFix as $logid => $logEntry ) {
-			$title = $file->getTitle();
+		foreach ( $this->logEntriesToFix as $logid => $logEntry ) {
 			if ( $logEntry->getTarget()->equals( $title ) ) {
 				$params = $logEntry->getParameters();
 				$params['revid'] = $title->getLatestRevID();
 
+				// TODO: should we use queueUpdate() here?
 				$dbw->update( 'logging',
 					[ 'log_params' => $logEntry->makeParamBlob( $params ) ],
 					[ 'log_id' => $logid ]
 				);
 			}
 		}
-
-		return true;
 	}
 
 	/**
@@ -548,19 +566,29 @@ class ModerationApproveHook {
 	 * so that it matches the user who made the edit, not the moderator.
 	 *
 	 * @param RecentChange &$rc
-	 * @return bool
+	 * @return true
 	 */
-	public static function onRecentChange_save( &$rc ) {
+	public static function onRecentChange_save( RecentChange &$rc ) {
+		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
+		$approveHook->modifyRecentChange( $rc );
+
+		return true;
+	}
+
+	/**
+	 * Main logic of RecentChange_save hook.
+	 * @param RecentChange &$rc
+	 */
+	protected function modifyRecentChange( RecentChange &$rc ) {
 		global $wgPutIPinRC;
 
-		$hook = self::singleton();
-		$task = $hook->getTaskByRC( $rc );
+		$task = $this->getTaskByRC( $rc );
 		if ( !$task ) {
-			return true;
+			return;
 		}
 
 		if ( $wgPutIPinRC ) {
-			$hook->queueUpdate( 'recentchanges',
+			$this->queueUpdate( 'recentchanges',
 				$rc->mAttribs['rc_id'],
 				[ 'rc_ip' => IP::sanitizeIP( $task['ip'] ) ]
 			);
@@ -572,7 +600,7 @@ class ModerationApproveHook {
 		/* Fix rev_timestamp to be equal to mod_timestamp
 			(time when edit was queued, i.e. made by the user)
 			instead of current time (time of approval). */
-		$hook->queueUpdate( 'revision',
+		$this->queueUpdate( 'revision',
 			[ $rc->mAttribs['rc_this_oldid'] ],
 			[ 'rev_timestamp' => $timestamp ]
 		);
@@ -588,7 +616,5 @@ class ModerationApproveHook {
 				$rc
 			);
 		}
-
-		return true;
 	}
 }

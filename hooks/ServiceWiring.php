@@ -20,6 +20,7 @@
  * Register services like ActionFactory in MediaWikiServices container.
  */
 
+use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionFactory;
 use MediaWiki\Moderation\ActionLinkRenderer;
@@ -41,10 +42,16 @@ return [
 			SpecialPage::getTitleFor( 'Moderation' )
 		);
 	},
+	'Moderation.ApproveHook' => function () : ModerationApproveHook {
+		return new ModerationApproveHook(
+			LoggerFactory::getInstance( 'ModerationApproveHook' )
+		);
+	},
 	'Moderation.CanSkip' => function ( MediaWikiServices $services ) : ModerationCanSkip {
 		return new ModerationCanSkip(
 			// Will be eventually replaced by ServiceOptions (MW 1.34+).
-			$services->getMainConfig()
+			$services->getMainConfig(),
+			$services->getService( 'Moderation.ApproveHook' )
 		);
 	},
 	'Moderation.ConsequenceManager' => function () : ConsequenceManager {
@@ -56,7 +63,8 @@ return [
 			$services->getService( 'Moderation.ActionLinkRenderer' ),
 			$services->getService( 'Moderation.TimestampFormatter' ),
 			$services->getService( 'Moderation.ConsequenceManager' ),
-			$services->getService( 'Moderation.CanSkip' )
+			$services->getService( 'Moderation.CanSkip' ),
+			$services->getService( 'Moderation.ApproveHook' )
 		);
 	},
 	'Moderation.NotifyModerator' =>

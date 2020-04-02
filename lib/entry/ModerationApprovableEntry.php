@@ -20,7 +20,6 @@
  * Parent class for all entry types (edit, upload, move, etc.).
  */
 
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
@@ -30,10 +29,21 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	/** @var IConsequenceManager */
 	protected $consequenceManager;
 
-	public function __construct( $row, IConsequenceManager $consequenceManager ) {
+	/** @var ModerationApproveHook */
+	protected $approveHook;
+
+	/**
+	 * @param object $row
+	 * @param IConsequenceManager $consequenceManager
+	 * @param ModerationApproveHook $approveHook
+	 */
+	public function __construct( $row, IConsequenceManager $consequenceManager,
+		ModerationApproveHook $approveHook
+	) {
 		parent::__construct( $row );
 
 		$this->consequenceManager = $consequenceManager;
+		$this->approveHook = $approveHook;
 	}
 
 	/**
@@ -118,11 +128,6 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 			throw new ModerationError( 'moderation-rejected-long-ago' );
 		}
 
-		# Disable moderation hook (ModerationEditHooks::onPageContentSave),
-		# so that it won't queue this edit again.
-		$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
-		$canSkip->enterApproveMode();
-
 		# Install hooks to modify CheckUser database after approval, etc.
 		$this->installApproveHook();
 
@@ -163,7 +168,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	 * @return array
 	 */
 	protected function getApproveLogParameters() {
-		return [ 'revid' => ModerationApproveHook::singleton()->getLastRevId() ];
+		return [ 'revid' => $this->approveHook->getLastRevId() ];
 	}
 
 	/**

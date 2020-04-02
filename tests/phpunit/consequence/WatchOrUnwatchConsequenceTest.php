@@ -20,65 +20,63 @@
  * Unit test of WatchOrUnwatchConsequence.
  */
 
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\WatchOrUnwatchConsequence;
 
 require_once __DIR__ . "/autoload.php";
 
-/**
- * @group Database
- */
 class WatchOrUnwatchConsequenceTest extends ModerationUnitTestCase {
-	/** @var string[] */
-	protected $tablesUsed = [ 'watchlist' ];
-
 	/**
 	 * Verify that WatchOrUnwatchConsequence watches/unwatches a page.
 	 * @covers MediaWiki\Moderation\WatchOrUnwatchConsequence
 	 * @param bool $watch
-	 * @param string $hookName WatchArticleComplete or UnwatchArticleComplete
 	 * @param bool $noop If true, "watch this" will be tested on already watched page
 	 * (and "unwatch this" will be tested on non-watched page).
 	 * @dataProvider dataProviderWatchUnwatch
 	 */
-	public function testWatchUnwatch( $watch, $hookName, $noop ) {
-		$title = Title::newFromText( 'UTPage' ); // Was created in parent::addCoreDBData()
-		$expectedUser = self::getTestUser()->getUser();
+	public function testWatchUnwatch( $watch, $noop ) {
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$user = self::getTestUser()->getUser();
 
-		$watchedItemStore = MediaWikiServices::getInstance()->getWatchedItemStore();
-		$watchedItemStore->clearUserWatchedItems( $expectedUser );
+		$watchedItemStore = $this->createMock( WatchedItemStore::class );
+		$watchedItemStore->expects( $this->once() )->method( 'isWatched' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( $user ),
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( $title )
+		)->willReturn( ( $watch && $noop ) || ( !$watch && !$noop ) );
 
-		if ( !$watch && !$noop ) {
-			// Unwatch test was requested.
-			// Page should be in the watchlist before the test.
-			WatchAction::doWatch( $title, $expectedUser );
-		} elseif ( $watch && $noop ) {
-			// Noop test: trying to watch an already watched page.
-			WatchAction::doWatch( $title, $expectedUser );
+		if ( $noop || !$watch ) {
+			$watchedItemStore->expects( $this->never() )->method( 'addWatchBatchForUser' );
+		} else {
+			$watchedItemStore->expects( $this->once() )->method( 'addWatchBatchForUser' )->with(
+				// @phan-suppress-next-line PhanTypeMismatchArgument
+				$this->identicalTo( $user ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
+				$this->equalTo( [ $title->getSubjectPage(), $title->getTalkPage() ] )
+			);
 		}
 
-		$hookFired = false;
-
-		$this->setTemporaryHook( $hookName,
-			function ( $user, $page ) use ( &$hookFired, $expectedUser, $title ) {
-				$hookFired = true;
-
-				$this->assertEquals( $expectedUser, $user );
-				$this->assertEquals( $title->getFullText(), $page->getTitle()->getFullText() );
-
-				return true;
-			} );
+		if ( $noop || $watch ) {
+			$watchedItemStore->expects( $this->never() )->method( 'removeWatch' );
+		} else {
+			$watchedItemStore->expects( $this->at( 1 ) )->method( 'removeWatch' )->with(
+				// @phan-suppress-next-line PhanTypeMismatchArgument
+				$this->identicalTo( $user ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
+				$this->equalTo( $title->getSubjectPage() )
+			);
+			$watchedItemStore->expects( $this->at( 2 ) )->method( 'removeWatch' )->with(
+				// @phan-suppress-next-line PhanTypeMismatchArgument
+				$this->identicalTo( $user ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
+				$this->equalTo( $title->getTalkPage() )
+			);
+		}
+		$this->setService( 'WatchedItemStore', $watchedItemStore );
 
 		// Create and run the Consequence.
-		$consequence = new WatchOrUnwatchConsequence( $watch, $title, $expectedUser );
+		$consequence = new WatchOrUnwatchConsequence( $watch, $title, $user );
 		$consequence->run();
-
-		if ( $noop ) {
-			$this->assertFalse( $hookFired,
-				"WatchOrUnwatchConsequence: hook $hookName was called when it wasn't expected." );
-		} else {
-			$this->assertTrue( $hookFired, "WatchOrUnwatchConsequence: didn't watch/unwatch anything." );
-		}
 	}
 
 	/**
@@ -89,12 +87,11 @@ class WatchOrUnwatchConsequenceTest extends ModerationUnitTestCase {
 		return [
 			'watch' => [
 				true, // True means "Watch", false means "Unwatch"
-				'WatchArticleComplete',
 				false // True means "noop test" (trying to watch already watched page)
 			],
-			'unwatch' => [ false, 'UnwatchArticleComplete', false ],
-			'watch (noop)' => [ true, 'WatchArticleComplete', true ],
-			'unwatch (noop)' => [ false, 'UnwatchArticleComplete', true ]
+			'unwatch' => [ false, false ],
+			'watch (noop)' => [ true, true ],
+			'unwatch (noop)' => [ false, true ]
 		];
 	}
 }

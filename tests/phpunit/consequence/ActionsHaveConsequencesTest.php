@@ -228,7 +228,9 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 	 * @covers ModerationEntry
 	 */
 	public function testApprove() {
-		$expectedRevId = $this->mockLastRevId();
+		$expectedRevId = rand( 1, 100000 );
+		$this->mockApproveHook( $expectedRevId );
+
 		$actual = $this->getConsequences( $this->modid, 'approve',
 			[ [ ApproveEditConsequence::class, Status::newGood() ] ]
 		);
@@ -276,7 +278,9 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 	public function testApproveUpload() {
 		$stashKey = 'sample-stash-key';
 		$title = Title::newFromText( 'File:UTUpload-' . rand( 0, 100000 ) . '.png' );
-		$expectedRevId = $this->mockLastRevId();
+
+		$expectedRevId = rand( 1, 100000 );
+		$this->mockApproveHook( $expectedRevId );
 
 		$this->db->update( 'moderation',
 			[
@@ -428,7 +432,8 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 	 * @covers ModerationActionApprove::executeApproveAll
 	 */
 	public function testApproveAllOneEdit() {
-		$expectedRevId = $this->mockLastRevId();
+		$expectedRevId = rand( 1, 100000 );
+		$this->mockApproveHook( $expectedRevId );
 
 		$actual = $this->getConsequences( $this->modid, 'approveall',
 			[ [ ApproveEditConsequence::class, Status::newGood() ] ]

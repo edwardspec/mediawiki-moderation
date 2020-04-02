@@ -25,9 +25,9 @@ use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\RejectBatchConsequence;
-use Wikimedia\TestingAccessWrapper;
 
 /**
+ * @method static mixed any()
  * @method static assertEquals($a, $b, $message='', $d=0.0, $e=10, $f=null, $g=null)
  * @method static assertNotEquals($a, $b, $message='', $d=0.0, $e=10, $f=null, $g=null)
  * @method static assertSame($a, $b, $message='')
@@ -225,16 +225,14 @@ trait ConsequenceTestTrait {
 	}
 
 	/**
-	 * Set "revision ID of last edit" in ApproveHook to a random number (and return this number).
-	 * @return int
+	 * Replace ApproveHook service with the mock that will return $revid from getLastRevId().
+	 * @param int $revid
 	 */
-	public function mockLastRevId() {
-		$revid = rand( 1, 100000 );
+	public function mockApproveHook( $revid ) {
+		$approveHook = $this->createMock( ModerationApproveHook::class );
+		$approveHook->expects( $this->any() )->method( 'getLastRevId' )->willReturn( $revid );
 
-		$approveHook = TestingAccessWrapper::newFromObject( ModerationApproveHook::singleton() );
-		$approveHook->lastRevId = $revid;
-
-		return $revid;
+		$this->setService( 'Moderation.ApproveHook', $approveHook );
 	}
 
 	/**
@@ -252,4 +250,7 @@ trait ConsequenceTestTrait {
 
 	/** @inheritDoc */
 	abstract protected function setService( $name, $service );
+
+	/** @inheritDoc */
+	abstract protected function createMock( $originalClassName );
 }

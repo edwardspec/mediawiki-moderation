@@ -297,14 +297,16 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 		$timestampFormatter = $this->createMock( TimestampFormatter::class );
 		$consequenceManager = $this->createMock( IConsequenceManager::class );
 		$canSkip = $this->createMock( ModerationCanSkip::class );
+		$approveHook = $this->createMock( ModerationApproveHook::class );
 
 		'@phan-var LinkRenderer $linkRenderer';
 		'@phan-var ActionLinkRenderer $actionLinkRenderer';
 		'@phan-var TimestampFormatter $timestampFormatter';
 		'@phan-var IConsequenceManager $consequenceManager';
 		'@phan-var ModerationCanSkip $canSkip';
+		'@phan-var ModerationApproveHook $approveHook';
 
 		return new EntryFactory( $linkRenderer, $actionLinkRenderer, $timestampFormatter,
-			$consequenceManager, $canSkip );
+			$consequenceManager, $canSkip, $approveHook );
 	}
 }

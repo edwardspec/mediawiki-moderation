@@ -40,12 +40,13 @@ class ModerationUnitTestCase extends MediaWikiTestCase {
 		}
 	}
 
-	/**
-	 * Forget about previous ApproveHook tasks by destroying the object with their list.
-	 */
-	public function tearDown() : void {
-		ModerationApproveHook::destroySingleton();
+	public function setUp() : void {
+		parent::setUp();
 
-		parent::tearDown();
+		// Workaround for bug in MediaWiki 1.31: services are not always reset before the test.
+		global $wgVersion;
+		if ( version_compare( $wgVersion, '1.32.0', '<' ) ) {
+			$this->overrideMwServices();
+		}
 	}
 }

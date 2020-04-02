@@ -17,10 +17,11 @@
 
 /**
  * @file
- * Unit test of InstallApproveHookConsequence.
+ * Unit test of ModerationApproveHook and InstallApproveHookConsequence.
  */
 
 use MediaWiki\Moderation\InstallApproveHookConsequence;
+use Psr\Log\NullLogger;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -29,10 +30,146 @@ require_once __DIR__ . "/autoload.php";
  */
 class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	use MakeEditTestTrait;
+	use UploadTestTrait;
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'revision', 'page', 'user', 'recentchanges', 'cu_changes',
-		'change_tag', 'logging', 'log_search' ];
+		'change_tag', 'logging', 'log_search', 'image', 'oldimage' ];
+
+	/**
+	 * Verify that InstallApproveHookConsequence calls ApproveHook::addTask().
+	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 */
+	public function testInstallConsequence() {
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$user = User::newFromName( '10.11.12.13', false );
+		$type = 'move';
+		$task = [ 'ip' => 'a', 'xff' => 'b', 'ua' => 'c', 'tags' => 'd', 'timestamp' => 'e' ];
+
+		$approveHook = $this->createMock( ModerationApproveHook::class );
+		$approveHook->expects( $this->once() )->method( 'addTask' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( $title ),
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( $user ),
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( $type ),
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( $task )
+		);
+		$this->setService( 'Moderation.ApproveHook', $approveHook );
+
+		// Create and run the Consequence.
+		$consequence = new InstallApproveHookConsequence( $title, $user, $type, $task );
+		$consequence->run();
+	}
+
+	/**
+	 * Verify that uploading a file adds missing "revid" to LogEntry passed to checkLogEntry().
+	 * @param array $logEntryParams Parameters for ManualLogEntry.
+	 * @param bool $isReupload True to reupload the image, false to upload a new image.
+	 * @dataProvider dataProviderCheckLogEntry
+	 * @covers ModerationApproveHook
+	 */
+	public function testCheckLogEntry( array $logEntryParams, $isReupload ) {
+		$title = Title::newFromText( 'File:UTUpload-' . rand( 0, 100000 ) . '.png' );
+		$user =	self::getTestUser( [ 'automoderated' ] )->getUser();
+
+		if ( $isReupload ) {
+			// Precreate file with the same name.
+			$upload = $this->prepareTestUpload( $title );
+			$status = $upload->performUpload( '', '', false, $user );
+			$this->assertTrue( $status->isGood(), "Upload failed: " . $status->getMessage()->plain() );
+		}
+
+		$approveHook = new ModerationApproveHook( new NullLogger() );
+		$this->setService( 'Moderation.ApproveHook', $approveHook );
+
+		$logEntry = new ManualLogEntry( 'moderation', 'SomeLogAction' );
+		$logEntry->setTarget( $title );
+		$logEntry->setPerformer( $user );
+		$logEntry->setParameters( $logEntryParams );
+		$logid = $logEntry->insert();
+
+		$approveHook->checkLogEntry( $logid, $logEntry );
+
+		// Now trigger an upload and determine if LogEntry was changed in the database.
+		$upload = $this->prepareTestUpload( $title, $this->anotherSampleImageFile );
+		$status = $upload->performUpload( '', '', false, $user );
+		$this->assertTrue( $status->isGood(), "Upload failed: " . $status->getMessage()->plain() );
+
+		// Only uploading a new file should modify log_params (reuploads should leave it unmodified).
+		// Furthermore, if "revid" parameter is already not null, then it shouldn't be modified either.
+		$expectedParams = $logEntryParams;
+		if ( !$isReupload && !isset( $logEntryParams['revid'] ) ) {
+			$expectedParams['revid'] = $title->getLatestRevId( IDBAccessObject::READ_LATEST );
+		}
+
+		$this->assertSelect( 'logging',
+			[ 'log_params' ],
+			[ 'log_action' => 'SomeLogAction' ],
+			[ [ LogEntryBase::makeParamBlob( $expectedParams ) ] ]
+		);
+	}
+
+	/**
+	 * Verify that getLastRevId() returns rev_id of the most recently created revision.
+	 * @covers ModerationApproveHook::getLastRevId
+	 * @covers ModerationApproveHook::onNewRevisionFromEditComplete
+	 */
+	public function testGetLastRevId() {
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$user =	self::getTestUser( [ 'automoderated' ] )->getUser();
+
+		$approveHook = new ModerationApproveHook( new NullLogger() );
+		$this->setService( 'Moderation.ApproveHook', $approveHook );
+
+		$revid = $this->makeEdit( $title, $user );
+		$this->assertSame( $revid, $approveHook->getLastRevId(),
+			'Value returned by getLastRevId() is different from rev_id of newly created revision.' );
+	}
+
+	/**
+	 * Verify that isApprovingNow() returns false if no tasks were added to ApproveHook.
+	 * @covers ModerationApproveHook::isApprovingNow
+	 */
+	public function testIsApprovingNowNo() {
+		$approveHook = new ModerationApproveHook( new NullLogger() );
+		$this->assertFalse( $approveHook->isApprovingNow(),
+			'No tasks were added to ApproveHook, but isApprovingNow() returned true.' );
+	}
+
+	/**
+	 * Verify that isApprovingNow() returns false if no tasks were added to ApproveHook.
+	 * @covers ModerationApproveHook::isApprovingNow
+	 */
+	public function testIsApprovingNowYes() {
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$user = User::newFromName( '10.11.12.13', false );
+		$type = 'move';
+		$task = [ 'ip' => 'a', 'xff' => 'b', 'ua' => 'c', 'tags' => 'd', 'timestamp' => 'e' ];
+
+		$approveHook = new ModerationApproveHook( new NullLogger() );
+		$approveHook->addTask( $title, $user, $type, $task );
+
+		$this->assertTrue( $approveHook->isApprovingNow(),
+			'A task was added to ApproveHook, but isApprovingNow() returned false.' );
+	}
+
+	/**
+	 * Provide datasets for testCheckLogEntry() runs.
+	 * @return array
+	 */
+	public function dataProviderCheckLogEntry() {
+		return [
+			'logEntry with missing revid parameter (must be fixed by ApproveHook)' =>
+				[ [ 'revid' => null ], false ],
+			'logEntry that doesn\'t need to be fixed by ApproveHook' =>
+				[ [ 'revid' => 12345 ], false ],
+			'reupload (checkLogEntry shouldn\'t do anything)' =>
+				[ [ 'revid' => null ], true ],
+		];
+	}
 
 	/**
 	 * @return array
@@ -49,10 +186,9 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Verify that InstallApproveHookConsequence (without tags) works with one edit.
+	 * Verify that ApproveHook (without tags) works with one edit.
 	 * This is the most common situation of ApproveHook being used in production,
 	 * because tags are optional, and most edits won't have them.
-	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 * @covers ModerationApproveHook
 	 */
 	public function testOneEdit() {
@@ -60,9 +196,8 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Verify that InstallApproveHookConsequence works when DeferredUpdates are immediate.
+	 * Verify that ApproveHook works when DeferredUpdates are immediate.
 	 * This doesn't happen in production (unless ApproveHook is used in a maintenance script).
-	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 * @covers ModerationApproveHook
 	 */
 	public function testOneEditImmediateDeferredUpdates() {
@@ -72,8 +207,7 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Verify that InstallApproveHookConsequence (with tags) works with one edit.
-	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 * Verify that ApproveHook (with tags) works with one edit.
 	 * @covers ModerationApproveHook
 	 */
 	public function testOneEditWithTags() {
@@ -83,8 +217,7 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Verify that ApproveHook changes wouldn't happen if ApproveHook wasn't installed.
-	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 * Verify that ApproveHook changes wouldn't happen if ApproveHook wasn't installed for this edit.
 	 * @covers ModerationApproveHook
 	 */
 	public function testEditWithoutApproveHook() {
@@ -95,8 +228,7 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Verify that InstallApproveHookConsequence (without tags) works with one move.
-	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
+	 * Verify that ApproveHook (without tags) works with one move.
 	 * @covers ModerationApproveHook
 	 */
 	public function testOneMove() {
@@ -107,9 +239,33 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Verify that InstallApproveHookConsequence won't affect edits that weren't targeted by it,
+	 * Verify that ApproveHook works with one move with suppressed redirect.
+	 * @covers ModerationApproveHook
+	 */
+	public function testOneMoveWithoutRedirect() {
+		$this->setGroupPermissions( '*', 'suppressredirect', true );
+
+		$this->runApproveHookTest( [ [
+			'type' => ModerationNewChange::MOD_TYPE_MOVE,
+			'task' => $this->defaultTask(),
+			'extra' => [ 'createRedirect' => false ]
+		] ] );
+	}
+
+	/**
+	 * Verify that ApproveHook changes wouldn't happen if ApproveHook wasn't installed for this move.
+	 * @covers ModerationApproveHook
+	 */
+	public function testMoveWithoutApproveHook() {
+		$this->runApproveHookTest( [ [
+			'type' => ModerationNewChange::MOD_TYPE_MOVE,
+			'task' => null
+		] ] );
+	}
+
+	/**
+	 * Verify that ApproveHook won't affect edits that weren't targeted by it,
 	 * e.g. changes without ApproveHook or with another $title OR $user OR $type.
-	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 * @covers ModerationApproveHook
 	 */
 	public function testSomeEditsWithoutApproveHook() {
@@ -127,7 +283,6 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test situation when ApproveHook uses "CASE...WHEN...THEN" to reduce the number of SQL queries.
-	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 * @covers ModerationApproveHook
 	 */
 	public function testCaseWhenThenChanges() {
@@ -158,9 +313,8 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Verify that InstallApproveHookConsequence works when a user edits AND moves the same page.
+	 * Verify that ApproveHook works when a user edits AND moves the same page.
 	 * This is what happens during modaction=approveall, where moves are approved after edits.
-	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 * @covers ModerationApproveHook
 	 */
 	public function testEditAndMoveWithSameUserAndPage() {
@@ -195,9 +349,8 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Verify that InstallApproveHookConsequence works when a user moves AND edits the same page.
+	 * Verify that ApproveHook works when a user moves AND edits the same page.
 	 * Same as testEditAndMoveWithSameUserAndPage(), but move is performed before the edit.
-	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 * @covers ModerationApproveHook
 	 */
 	public function testMoveAndEditWithSameUserAndPage() {
@@ -229,6 +382,15 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 				]
 			]
 		] );
+	}
+
+	/**
+	 * Verify that ApproveHook won't populate rc_id if $wgPutIPinRC=false.
+	 * @covers ModerationApproveHook
+	 */
+	public function testOneEditDisabledPutIPinRC() {
+		$this->setMwGlobals( 'wgPutIPinRC', false );
+		$this->runApproveHookTest( [ [ 'task' => $this->defaultTask() ] ] );
 	}
 
 	/**
@@ -272,7 +434,6 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that timestamp of edit is ignored if more recent revisions exist in the history.
-	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 * @covers ModerationApproveHook
 	 */
 	public function testOneEditWithIgnoredTimestamp() {
@@ -297,7 +458,6 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that timestamp of move is ignored if more recent revisions exist in the history.
-	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 * @covers ModerationApproveHook
 	 */
 	public function testOneMoveWithIgnoredTimestamp() {
@@ -316,7 +476,6 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test situation when ApproveHook uses "CASE...WHEN...THEN", but SOME timestamps are ignored.
-	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 * @covers ModerationApproveHook
 	 */
 	public function testCaseWhenThenIgnoredTimestamp() {
@@ -356,7 +515,6 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test situation when ApproveHook uses "CASE...WHEN...THEN", but ALL timestamps are ignored.
-	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 * @covers ModerationApproveHook
 	 */
 	public function testCaseWhenThenIgnoredAllTimestamps() {
@@ -396,9 +554,8 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Verify that InstallApproveHookConsequence works with a move that overwrites a redirect,
+	 * Verify that ApproveHook works with a move that overwrites a redirect,
 	 * i.e. when before the move $oldTitle was an article and $newTitle a redirect to $oldTitle.
-	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 * @covers ModerationApproveHook
 	 */
 	public function testOneMoveOverwriteRedirect() {
@@ -417,7 +574,6 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 
 	/**
 	 * Same as testOneMoveOverwriteRedirect(), but with ignored timestamp.
-	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
 	 * @covers ModerationApproveHook
 	 */
 	public function testOneMoveOverwriteRedirectWithIgnoredTimestamp() {
@@ -483,21 +639,16 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 			$extraInfo = $testParameters['extra'] ?? [];
 			if ( isset( $extraInfo['newTitle'] ) ) {
 				$extraInfo['newTitle'] = Title::newFromText( $extraInfo['newTitle'] );
+			} else {
+				$extraInfo['newTitle'] = Title::newFromText( $title->getPrefixedText() . '-newTitle' );
 			}
+
+			$extraInfo['createRedirect'] = $extraInfo['createRedirect'] ?? true;
 
 			return [ $title, $user, $type, $task, $extraInfo ];
 		}, $todo );
 
 		'@phan-var list<array{0:Title,1:User,2:string,3:array<string,?string>,4:array}> $todo';
-
-		foreach ( $todo as $testParameters ) {
-			list( $title, $user, $type, $task ) = $testParameters;
-			if ( $task ) {
-				// Create and run the Consequence.
-				$consequence = new InstallApproveHookConsequence( $title, $user, $type, $task );
-				$consequence->run();
-			}
-		}
 
 		// Track ChangeTagsAfterUpdateTags hook to ensure that $task['tags'] are actually added.
 		$taggedRevIds = [];
@@ -530,7 +681,6 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 			return true;
 		} );
 
-		// Now make new edits and double-check that all changes from $task were applied to them.
 		$this->setMwGlobals( 'wgModerationEnable', false ); // Edits shouldn't be intercepted
 
 		if ( $deferUpdates ) {
@@ -542,13 +692,25 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 			RequestContext::getMain()->setRequest( new FauxRequest() );
 		}
 
+		// Step 1: install ApproveHook for edits that will happen later.
+		$approveHook = new ModerationApproveHook( new NullLogger() );
+		foreach ( $todo as $testParameters ) {
+			list( $title, $user, $type, $task ) = $testParameters;
+			if ( $task ) {
+				// Install ApproveHook.
+				$approveHook->addTask( $title, $user, $type, $task );
+			}
+		}
+		$this->setService( 'Moderation.ApproveHook', $approveHook );
+
+		// Step 2: make new edits and double-check that all changes from $task were applied to them.
 		foreach ( $todo as $testParameters ) {
 			list( $title, $user, $type, $_, $extraInfo ) = $testParameters;
 
 			if ( $type == ModerationNewChange::MOD_TYPE_EDIT ) {
 				$this->makeEdit( $title, $user );
 			} elseif ( $type == ModerationNewChange::MOD_TYPE_MOVE ) {
-				$this->makeMove( $title, $user, $extraInfo['newTitle'] ?? null );
+				$this->makeMove( $title, $user, $extraInfo['newTitle'], $extraInfo['createRedirect'] );
 			} else {
 				throw new MWException( "Unknown type: $type" );
 			}
@@ -568,6 +730,12 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 			$expectedIP = $task ? $task['ip'] : '127.0.0.1';
 			if ( $this->db->getType() == 'postgres' ) {
 				$expectedIP .= '/32';
+			}
+
+			global $wgPutIPinRC;
+			if ( !$wgPutIPinRC ) {
+				// Ensure that ApproveHook respects $wgPutIPinRC.
+				$expectedIP = '';
 			}
 
 			$rcWhere = [
@@ -599,7 +767,7 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 			$rc_id = $rc->mAttribs['rc_id'];
 
 			$revIds = [ $rc->mAttribs['rc_this_oldid'] ];
-			if ( $rc->mAttribs['rc_log_action'] == 'move' ) {
+			if ( $rc->mAttribs['rc_log_action'] == 'move' && $extraInfo['createRedirect'] ) {
 				// For page moves, two revisions should have been modified:
 				// 1) "page was moved" null revision. (which is rc_this_oldid)
 				// 2) revision in newly created redirect. (next revision after (1))
@@ -698,20 +866,14 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	 * Make one test renaming of $title on behalf of $user, return new title.
 	 * @param Title $title
 	 * @param User $user
-	 * @param Title|null $newTitle
+	 * @param Title $newTitle
+	 * @param bool $createRedirect
 	 */
-	private function makeMove( Title $title, User $user, Title $newTitle = null ) {
-		if ( !$newTitle ) {
-			$newTitle = Title::newFromText( $title->getPrefixedText() . '-newTitle' );
-		}
-
+	private function makeMove( Title $title, User $user, Title $newTitle, $createRedirect ) {
 		$this->assertTrue( $title->exists(),
 			"makeMove(): page doesn't exist: " . $title->getFullText() );
 
 		$reason = 'Some reason to rename the page';
-		$createRedirect = true;
-
-		// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
 		$mp = new MovePage( $title, $newTitle );
 
 		/* Sanity checks like "page with the new name should not exist" */

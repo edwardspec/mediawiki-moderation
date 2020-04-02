@@ -25,6 +25,7 @@ namespace MediaWiki\Moderation;
 use IContextSource;
 use MediaWiki\Linker\LinkRenderer;
 use ModerationApprovableEntry;
+use ModerationApproveHook;
 use ModerationCanSkip;
 use ModerationEntryEdit;
 use ModerationEntryFormatter;
@@ -52,24 +53,30 @@ class EntryFactory {
 	/** @var ModerationCanSkip */
 	protected $canSkip;
 
+	/** @var ModerationApproveHook */
+	protected $approveHook;
+
 	/**
 	 * @param LinkRenderer $linkRenderer
 	 * @param ActionLinkRenderer $actionLinkRenderer
 	 * @param TimestampFormatter $timestampFormatter
 	 * @param IConsequenceManager $consequenceManager
 	 * @param ModerationCanSkip $canSkip
+	 * @param ModerationApproveHook $approveHook
 	 */
 	public function __construct( LinkRenderer $linkRenderer,
 		ActionLinkRenderer $actionLinkRenderer,
 		TimestampFormatter $timestampFormatter,
 		IConsequenceManager $consequenceManager,
-		ModerationCanSkip $canSkip
+		ModerationCanSkip $canSkip,
+		ModerationApproveHook $approveHook
 	) {
 		$this->linkRenderer = $linkRenderer;
 		$this->actionLinkRenderer = $actionLinkRenderer;
 		$this->timestampFormatter = $timestampFormatter;
 		$this->consequenceManager = $consequenceManager;
 		$this->canSkip = $canSkip;
+		$this->approveHook = $approveHook;
 	}
 
 	/**
@@ -118,15 +125,17 @@ class EntryFactory {
 	 * @return ModerationApprovableEntry
 	 */
 	public function makeApprovableEntry( $row ) {
+		$args = [ $row, $this->consequenceManager, $this->approveHook ];
+
 		if ( isset( $row->type ) && $row->type == ModerationNewChange::MOD_TYPE_MOVE ) {
-			return new ModerationEntryMove( $row, $this->consequenceManager );
+			return new ModerationEntryMove( ...$args );
 		}
 
 		if ( $row->stash_key ) {
-			return new ModerationEntryUpload( $row, $this->consequenceManager );
+			return new ModerationEntryUpload( ...$args );
 		}
 
-		return new ModerationEntryEdit( $row, $this->consequenceManager );
+		return new ModerationEntryEdit( ...$args );
 	}
 
 	/**

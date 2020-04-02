@@ -22,7 +22,7 @@
 
 namespace MediaWiki\Moderation;
 
-use ModerationApproveHook;
+use MediaWiki\MediaWikiServices;
 use Title;
 use User;
 
@@ -58,7 +58,7 @@ class InstallApproveHookConsequence implements IConsequence {
 	 * Execute the consequence.
 	 */
 	public function run() {
-		$hook = ModerationApproveHook::singleton();
-		$hook->addTask( $this->title, $this->user, $this->type, $this->task );
+		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
+		$approveHook->addTask( $this->title, $this->user, $this->type, $this->task );
 	}
 }

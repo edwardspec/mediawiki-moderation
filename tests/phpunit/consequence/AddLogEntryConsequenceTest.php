@@ -21,7 +21,6 @@
  */
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
-use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -40,15 +39,39 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 	 * @param string $pageName
 	 * @param array $params
 	 * @param bool $runApproveHook
-	 * @covers MediaWiki\Moderation\AddLogEntryConsequence
-	 * @covers ModerationApproveHook::checkLogEntry
 	 * @dataProvider dataProviderAddLogEntry
+	 * @covers MediaWiki\Moderation\AddLogEntryConsequence
 	 */
 	public function testAddLogEntry( $subtype, $username, $pageName, array $params,
 		$runApproveHook
 	) {
 		$user = User::createNew( $username );
 		$title = Title::newFromText( $pageName );
+
+		// This variable is set in mocked ApproveHook::checkLogEntry() for further checks.
+		$checkedLogId = null;
+		$checkedLogEntry = null;
+
+		'@phan-var ManualLogEntry $checkedLogEntry';
+
+		// Check whether ApproveHook will queue this LogEntry for modification.
+		$approveHook = $this->createMock( ModerationApproveHook::class );
+		if ( $runApproveHook ) {
+			$approveHook->expects( $this->once() )->method( 'checkLogEntry' )->with(
+				// @phan-suppress-next-line PhanTypeMismatchArgument
+				$this->isType( 'int' ),
+				// @phan-suppress-next-line PhanTypeMismatchArgument
+				$this->IsInstanceOf( ManualLogEntry::class )
+			)->will( $this->returnCallback(
+				function ( $logid, ManualLogEntry $logEntry ) use ( &$checkedLogId, &$checkedLogEntry ) {
+					$checkedLogId = $logid;
+					$checkedLogEntry = $logEntry;
+				}
+			) );
+		} else {
+			$approveHook->expects( $this->never() )->method( 'checkLogEntry' );
+		}
+		$this->setService( 'Moderation.ApproveHook', $approveHook );
 
 		// Create and run the Consequence.
 		$consequence = new AddLogEntryConsequence( $subtype, $user, $title, $params,
@@ -68,16 +91,16 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 			$logEntry->getTarget()->getPrefixedText() );
 		$this->assertEquals( $params, $logEntry->getParameters() );
 
-		// Check whether ApproveHook has queued this LogEntry for modification.
-		$approveHook = TestingAccessWrapper::newFromObject( ModerationApproveHook::singleton() );
-		$entriesToFix = $approveHook->logEntriesToFix;
-		if ( $runApproveHook && empty( $params['revid'] ) ) {
-			// ApproveHook must populate "revid" parameter of this LogEntry.
-			$this->assertArrayHasKey( $logid, $entriesToFix );
-			$this->assertInstanceOf( ManualLogEntry::class, $entriesToFix[$logid] );
-		} else {
-			// This logentry doesn't need ApproveHook.
-			$this->assertArrayNotHasKey( $logid, $entriesToFix );
+		if ( $runApproveHook ) {
+			$this->assertEquals( $logid, $checkedLogId,
+				"logid passed to ApproveHook:checkLogEntry() doesn't match expected." );
+
+			$this->assertEquals( 'moderation', $checkedLogEntry->getType() );
+			$this->assertEquals( $subtype, $checkedLogEntry->getSubtype() );
+			$this->assertEquals( $user->getName(), $checkedLogEntry->getPerformer()->getName() );
+			$this->assertEquals( $title->getPrefixedText(),
+				$checkedLogEntry->getTarget()->getPrefixedText() );
+			$this->assertEquals( $params, $checkedLogEntry->getParameters() );
 		}
 	}
 
@@ -87,7 +110,7 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 	 */
 	public function dataProviderAddLogEntry() {
 		return [
-			'normal LogEntry' => [
+			'without ApproveHook' => [
 				'reject',
 				'Some moderator',
 				'Talk:Title in non-main namespace, spaces_and_underscores',
@@ -99,18 +122,11 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 				],
 				false // Don't run ApproveHook
 			],
-			'logEntry with missing revid parameter (must be fixed by ApproveHook)' => [
+			'with ApproveHook' => [
 				'approve',
 				'AnotherModerator',
 				'SampleArticle',
 				[ 'revid' => null ],
-				true // Run ApproveHook
-			],
-			'logEntry that doesn\'t need to be fixed by ApproveHook' => [
-				'approve',
-				'AnotherModerator',
-				'SampleArticle',
-				[ 'revid' => 123 ],
 				true // Run ApproveHook
 			]
 		];

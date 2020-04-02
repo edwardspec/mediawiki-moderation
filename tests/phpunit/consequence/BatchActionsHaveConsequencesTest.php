@@ -51,7 +51,8 @@ class BatchActionsHaveConsequencesTest extends ModerationUnitTestCase {
 		$this->moderatorUser = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
 
 		// FIXME: need ability to mock multiple consecutive values
-		$expectedRevId = $this->mockLastRevId();
+		$expectedRevId = rand( 1, 100000 );
+		$this->mockApproveHook( $expectedRevId );
 
 		// First, let's queue some edits by the same user for moderation.
 		$numberOfEdits = 3;
