@@ -17,7 +17,7 @@
 
 /**
  * @file
- * Trait that helps to mock the result of Revision::newFromId().
+ * Trait that helps to mock the result of RevisionLookup::getRevisionById()
  */
 
 use MediaWiki\Revision\MutableRevisionRecord;
