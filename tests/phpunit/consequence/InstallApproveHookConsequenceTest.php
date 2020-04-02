@@ -316,6 +316,15 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	}
 
 	/**
+	 * Verify that ApproveHook won't populate rc_id if $wgPutIPinRC=false.
+	 * @covers ModerationApproveHook
+	 */
+	public function testOneEditDisabledPutIPinRC() {
+		$this->setMwGlobals( 'wgPutIPinRC', false );
+		$this->runApproveHookTest( [ [ 'task' => $this->defaultTask() ] ] );
+	}
+
+	/**
 	 * Precreate a page for IgnoredTimestamp tests.
 	 * @param string $pageName
 	 * @param string|null $text
@@ -648,6 +657,12 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 			$expectedIP = $task ? $task['ip'] : '127.0.0.1';
 			if ( $this->db->getType() == 'postgres' ) {
 				$expectedIP .= '/32';
+			}
+
+			global $wgPutIPinRC;
+			if ( !$wgPutIPinRC ) {
+				// Ensure that ApproveHook respects $wgPutIPinRC.
+				$expectedIP = '';
 			}
 
 			$rcWhere = [
