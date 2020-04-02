@@ -267,6 +267,7 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 				"findPendingEdit() returned false when an edit should have been found." );
 			$this->assertInstanceOf( PendingEdit::class, $pendingEdit );
 
+			$this->assertSame( $title, $pendingEdit->getTitle(), 'Wrong title' );
 			$this->assertSame( $modid, $pendingEdit->getId(), 'Wrong mod_id' );
 			$this->assertSame( $expectedComment, $pendingEdit->getComment(), 'wrong comment' );
 			$this->assertSame( $expectedText, $pendingEdit->getText(), 'Wrong text' );

@@ -22,7 +22,13 @@
 
 namespace MediaWiki\Moderation;
 
+use ContentHandler;
+use Title;
+
 class PendingEdit {
+	/** @var Title */
+	protected $title;
+
 	/**
 	 * @var int
 	 * mod_id of this pending edit.
@@ -36,14 +42,24 @@ class PendingEdit {
 	protected $comment;
 
 	/**
+	 * @param Title $title
 	 * @param int $id
 	 * @param string $text
 	 * @param string $comment
 	 */
-	public function __construct( $id, $text, $comment ) {
+	public function __construct( Title $title, $id, $text, $comment ) {
+		$this->title = $title;
 		$this->id = $id;
 		$this->text = $text;
 		$this->comment = $comment;
+	}
+
+	/**
+	 * Get Title of this pending edit.
+	 * @return Title
+	 */
+	public function getTitle() {
+		return $this->title;
 	}
 
 	/**
@@ -68,5 +84,26 @@ class PendingEdit {
 	 */
 	public function getComment() {
 		return $this->comment;
+	}
+
+	/**
+	 * Get text of one section of this pending edit.
+	 * @param string|int $sectionId Section identifier as a number or string (e.g. 0, 1 or 'T-1').
+	 * @return string
+	 */
+	public function getSectionText( $sectionId ) {
+		if ( $sectionId === '' ) {
+			// Return full text (no particular section was requested).
+			return $this->text;
+		}
+
+		$fullContent = ContentHandler::makeContent( $this->text, $this->title );
+		$sectionContent = $fullContent->getSection( $sectionId );
+		if ( $sectionContent ) {
+			return $sectionContent->getNativeData();
+		}
+
+		// Return full text (requested section wasn't found).
+		return $this->text;
 	}
 }

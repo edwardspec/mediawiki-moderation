@@ -50,17 +50,7 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 		if ( !$pendingEdit ) {
 			$r['missing'] = ''; /* There is no pending edit */
 		} else {
-			$wikitext = $pendingEdit->getText();
-
-			if ( isset( $params['section'] ) ) {
-				/* Only one section should be preloaded */
-				$fullContent = ContentHandler::makeContent( $wikitext, $title );
-				$sectionContent = $fullContent->getSection( $params['section'] );
-
-				if ( $sectionContent ) {
-					$wikitext = $sectionContent->getNativeData();
-				}
-			}
+			$wikitext = $pendingEdit->getSectionText( $params['section'] ?? '' );
 
 			if ( $params['mode'] == 'wikitext' ) {
 				$r['wikitext'] = $wikitext;

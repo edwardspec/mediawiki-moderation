@@ -346,6 +346,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	private function beginShowTest( $notFound = false, $textOfPendingEdit = null ) {
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 		$pendingEdit = $notFound ? false : new PendingEdit(
+			$title,
 			rand( 100, 10000 ),
 			$textOfPendingEdit ?? 'Preloaded text ' . rand( 0, 100000 ),
 			'Preloaded comment' . rand( 0, 100000 )

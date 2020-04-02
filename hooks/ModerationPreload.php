@@ -198,18 +198,9 @@ class ModerationPreload {
 			$out->msg( 'moderation-editing-your-version' )->parse()
 		) );
 
-		$text = $pendingEdit->getText();
+		$text = $pendingEdit->getSectionText( $section );
 		if ( $editPage ) {
 			$editPage->summary = $pendingEdit->getComment();
-		}
-
-		if ( $section !== '' ) {
-			$fullContent = ContentHandler::makeContent( $text, $title );
-			$sectionContent = $fullContent->getSection( $section );
-
-			if ( $sectionContent ) {
-				$text = $sectionContent->getNativeData();
-			}
 		}
 	}
 
