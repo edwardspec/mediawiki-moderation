@@ -173,7 +173,7 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Verify that ApproveHook changes wouldn't happen if ApproveHook wasn't installed.
+	 * Verify that ApproveHook changes wouldn't happen if ApproveHook wasn't installed for this edit.
 	 * @covers ModerationApproveHook
 	 */
 	public function testEditWithoutApproveHook() {
@@ -191,6 +191,17 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 		$this->runApproveHookTest( [ [
 			'type' => ModerationNewChange::MOD_TYPE_MOVE,
 			'task' => $this->defaultTask()
+		] ] );
+	}
+
+	/**
+	 * Verify that ApproveHook changes wouldn't happen if ApproveHook wasn't installed for this move.
+	 * @covers ModerationApproveHook
+	 */
+	public function testMoveWithoutApproveHook() {
+		$this->runApproveHookTest( [ [
+			'type' => ModerationNewChange::MOD_TYPE_MOVE,
+			'task' => null
 		] ] );
 	}
 
