@@ -113,6 +113,50 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	}
 
 	/**
+	 * Verify that getLastRevId() returns rev_id of the most recently created revision.
+	 * @covers ModerationApproveHook::getLastRevId
+	 * @covers ModerationApproveHook::onNewRevisionFromEditComplete
+	 */
+	public function testGetLastRevId() {
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$user =	self::getTestUser( [ 'automoderated' ] )->getUser();
+
+		$approveHook = new ModerationApproveHook( new NullLogger() );
+		$this->setService( 'Moderation.ApproveHook', $approveHook );
+
+		$revid = $this->makeEdit( $title, $user );
+		$this->assertSame( $revid, $approveHook->getLastRevId(),
+			'Value returned by getLastRevId() is different from rev_id of newly created revision.' );
+	}
+
+	/**
+	 * Verify that isApprovingNow() returns false if no tasks were added to ApproveHook.
+	 * @covers ModerationApproveHook::isApprovingNow
+	 */
+	public function testIsApprovingNowNo() {
+		$approveHook = new ModerationApproveHook( new NullLogger() );
+		$this->assertFalse( $approveHook->isApprovingNow(),
+			'No tasks were added to ApproveHook, but isApprovingNow() returned true.' );
+	}
+
+	/**
+	 * Verify that isApprovingNow() returns false if no tasks were added to ApproveHook.
+	 * @covers ModerationApproveHook::isApprovingNow
+	 */
+	public function testIsApprovingNowYes() {
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$user = User::newFromName( '10.11.12.13', false );
+		$type = 'move';
+		$task = [ 'ip' => 'a', 'xff' => 'b', 'ua' => 'c', 'tags' => 'd', 'timestamp' => 'e' ];
+
+		$approveHook = new ModerationApproveHook( new NullLogger() );
+		$approveHook->addTask( $title, $user, $type, $task );
+
+		$this->assertTrue( $approveHook->isApprovingNow(),
+			'A task was added to ApproveHook, but isApprovingNow() returned false.' );
+	}
+
+	/**
 	 * Provide datasets for testCheckLogEntry() runs.
 	 * @return array
 	 */
