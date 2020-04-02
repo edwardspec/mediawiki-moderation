@@ -105,18 +105,13 @@ class ModerationApproveHook {
 		}
 
 		$revid = $title->getLatestRevID();
-		if ( !$revid ) {
-			// Nothing to do: redirect wasn't created.
-			return;
+		if ( $revid ) {
+			// Redirect was created. Its timestamp should also be modified.
+			$dbr = wfGetDB( DB_REPLICA );
+			$timestamp = $dbr->timestamp( $task['timestamp'] ); // Possibly in PostgreSQL format
+
+			$this->queueUpdate( 'revision', [ $revid ], [ 'rev_timestamp' => $timestamp ] );
 		}
-
-		$dbr = wfGetDB( DB_REPLICA );
-		$timestamp = $dbr->timestamp( $task['timestamp'] ); // Possibly in PostgreSQL format
-
-		/* Fix rev_timestamp to be equal to mod_timestamp
-			(time when edit was queued, i.e. made by the user)
-			instead of current time (time of approval). */
-		$this->queueUpdate( 'revision', [ $revid ], [ 'rev_timestamp' => $timestamp ] );
 
 		$this->scheduleDoUpdate();
 	}

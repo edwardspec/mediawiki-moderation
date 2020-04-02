@@ -195,6 +195,20 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	}
 
 	/**
+	 * Verify that ApproveHook works with one move with suppressed redirect.
+	 * @covers ModerationApproveHook
+	 */
+	public function testOneMoveWithoutRedirect() {
+		$this->setGroupPermissions( '*', 'suppressredirect', true );
+
+		$this->runApproveHookTest( [ [
+			'type' => ModerationNewChange::MOD_TYPE_MOVE,
+			'task' => $this->defaultTask(),
+			'extra' => [ 'createRedirect' => false ]
+		] ] );
+	}
+
+	/**
 	 * Verify that ApproveHook changes wouldn't happen if ApproveHook wasn't installed for this move.
 	 * @covers ModerationApproveHook
 	 */
@@ -581,7 +595,11 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 			$extraInfo = $testParameters['extra'] ?? [];
 			if ( isset( $extraInfo['newTitle'] ) ) {
 				$extraInfo['newTitle'] = Title::newFromText( $extraInfo['newTitle'] );
+			} else {
+				$extraInfo['newTitle'] = Title::newFromText( $title->getPrefixedText() . '-newTitle' );
 			}
+
+			$extraInfo['createRedirect'] = $extraInfo['createRedirect'] ?? true;
 
 			return [ $title, $user, $type, $task, $extraInfo ];
 		}, $todo );
@@ -648,7 +666,7 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 			if ( $type == ModerationNewChange::MOD_TYPE_EDIT ) {
 				$this->makeEdit( $title, $user );
 			} elseif ( $type == ModerationNewChange::MOD_TYPE_MOVE ) {
-				$this->makeMove( $title, $user, $extraInfo['newTitle'] ?? null );
+				$this->makeMove( $title, $user, $extraInfo['newTitle'], $extraInfo['createRedirect'] );
 			} else {
 				throw new MWException( "Unknown type: $type" );
 			}
@@ -705,7 +723,7 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 			$rc_id = $rc->mAttribs['rc_id'];
 
 			$revIds = [ $rc->mAttribs['rc_this_oldid'] ];
-			if ( $rc->mAttribs['rc_log_action'] == 'move' ) {
+			if ( $rc->mAttribs['rc_log_action'] == 'move' && $extraInfo['createRedirect'] ) {
 				// For page moves, two revisions should have been modified:
 				// 1) "page was moved" null revision. (which is rc_this_oldid)
 				// 2) revision in newly created redirect. (next revision after (1))
@@ -804,20 +822,14 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	 * Make one test renaming of $title on behalf of $user, return new title.
 	 * @param Title $title
 	 * @param User $user
-	 * @param Title|null $newTitle
+	 * @param Title $newTitle
+	 * @param bool $createRedirect
 	 */
-	private function makeMove( Title $title, User $user, Title $newTitle = null ) {
-		if ( !$newTitle ) {
-			$newTitle = Title::newFromText( $title->getPrefixedText() . '-newTitle' );
-		}
-
+	private function makeMove( Title $title, User $user, Title $newTitle, $createRedirect ) {
 		$this->assertTrue( $title->exists(),
 			"makeMove(): page doesn't exist: " . $title->getFullText() );
 
 		$reason = 'Some reason to rename the page';
-		$createRedirect = true;
-
-		// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
 		$mp = new MovePage( $title, $newTitle );
 
 		/* Sanity checks like "page with the new name should not exist" */
