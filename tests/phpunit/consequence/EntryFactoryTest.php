@@ -240,7 +240,6 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 	 * @dataProvider dataProviderFindPendingEdit
 	 *
 	 * @covers MediaWiki\Moderation\EntryFactory
-	 * @covers MediaWiki\Moderation\PendingEdit
 	 */
 	public function testFindPendingEdit( $isFound ) {
 		$title = Title::newFromText( "Talk:UTPage-" . rand( 0, 100000 ) );
