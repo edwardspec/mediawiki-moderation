@@ -21,7 +21,6 @@
  */
 
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Moderation\ActionFactory;
 use MediaWiki\Moderation\EntryFactory;
 use Wikimedia\Rdbms\FakeResultWrapper;
 use Wikimedia\TestingAccessWrapper;
@@ -32,6 +31,8 @@ require_once __DIR__ . "/autoload.php";
  * @group Database
  */
 class SpecialModerationTest extends ModerationUnitTestCase {
+	use MockModerationActionTrait;
+
 	protected $tablesUsed = [ 'moderation', 'moderation_block' ];
 
 	/**
@@ -436,33 +437,4 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		$this->assertSame( 0, $seekPosition );
 	}
 
-	/**
-	 * Make a mock for ModerationAction class and make ActionFactory always return it.
-	 * @param string $actionName
-	 * @return \PHPUnit\Framework\MockObject\MockObject
-	 */
-	private function addMockedAction( $actionName ) {
-		$actionMock = $this->getMockBuilder( ModerationAction::class )
-			->disableOriginalConstructor()
-			->disableProxyingToOriginalMethods()
-			->setMethods( [ 'requiresEditToken', 'execute' ] )
-			->getMockForAbstractClass();
-
-		$factoryMock = $this->createMock( ActionFactory::class );
-		$factoryMock->method( 'makeAction' )->will( $this->returnCallback(
-			function ( IContextSource $context ) use ( $actionMock, $actionName ) {
-				if ( $context->getRequest()->getVal( 'modaction' ) !== $actionName ) {
-					throw new MWException(
-						"This mocked ActionFactory only supports modaction=$actionName." );
-				}
-
-				// @phan-suppress-next-line PhanUndeclaredMethod
-				$actionMock->setContext( $context );
-				return $actionMock;
-			}
-		) );
-
-		$this->setService( 'Moderation.ActionFactory', $factoryMock );
-		return $actionMock;
-	}
 }

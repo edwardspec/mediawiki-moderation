@@ -1,0 +1,156 @@
+<?php
+
+/*
+	Extension:Moderation - MediaWiki extension.
+	Copyright (C) 2020 Edward Chernenko.
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+*/
+
+/**
+ * @file
+ * Unit test of ApiModeration.
+ */
+
+use Wikimedia\TestingAccessWrapper;
+
+require_once __DIR__ . "/autoload.php";
+
+/**
+ * @group medium
+ */
+class ApiModerationTest extends ApiTestCase {
+	use MockModerationActionTrait;
+
+	/**
+	 * Verify that api.php?action=moderation will throw ApiUsageException for non-moderators.
+	 * @covers ApiModeration
+	 */
+	public function testNotPermitted() {
+		$notModerator = self::getTestUser()->getUser();
+
+		$mock = $this->addMockedAction( 'reject' );
+		$mock->expects( $this->never() )->method( 'execute' );
+
+		$exceptionThrown = false;
+		try {
+			$this->doApiRequestWithToken( [
+				'action' => 'moderation',
+				'modaction' => 'reject',
+				'modid' => 12345
+			], null, $notModerator );
+		} catch ( ApiUsageException $e ) {
+			$exceptionThrown = true;
+			$this->assertEquals( '(apierror-permissiondenied: (action-moderation))',
+				$e->getMessageObject()->inLanguage( 'qqx' )->plain() );
+		}
+
+		$this->assertTrue( $exceptionThrown, "ApiUsageException wasn't thrown for non-moderator." );
+	}
+
+	/**
+	 * Verify that api.php?action=moderation will throw ApiUsageException if token= is invalid.
+	 * @covers ApiModeration
+	 */
+	public function testNoToken() {
+		$mock = $this->addMockedAction( 'reject' );
+		$mock->expects( $this->never() )->method( 'execute' );
+
+		$exceptionThrown = false;
+		try {
+			$this->doApiRequest( [
+				'action' => 'moderation',
+				'modaction' => 'reject',
+				'modid' => 12345,
+				'token' => 'INVALID TOKEN'
+			], null, false, self::getTestUser( [ 'moderator' ] )->getUser() );
+		} catch ( ApiUsageException $e ) {
+			$exceptionThrown = true;
+			$this->assertEquals( '(apierror-badtoken)',
+				$e->getMessageObject()->inLanguage( 'qqx' )->plain() );
+		}
+
+		$this->assertTrue( $exceptionThrown, "ApiUsageException wasn't thrown for invalid token." );
+	}
+
+	/**
+	 * Verify that api.php?action=moderation catches ModerationError from execute()
+	 * and throws a properly formatted ApiUsageException instead.
+	 * @covers ApiModeration
+	 */
+	public function testThrownModerationError() {
+		$mock = $this->addMockedAction( 'reject' );
+		$mock->expects( $this->once() )->method( 'execute' )->will( $this->returnCallback(
+			function () {
+				throw new ModerationError( 'error-thrown-by-tested-action' );
+			}
+		) );
+
+		$exceptionThrown = false;
+		try {
+			$this->doApiRequestWithToken( [
+				'action' => 'moderation',
+				'modaction' => 'reject',
+				'modid' => 12345,
+			], null, self::getTestUser( [ 'moderator' ] )->getUser() );
+		} catch ( ApiUsageException $e ) {
+			$exceptionThrown = true;
+			$this->assertEquals( '(error-thrown-by-tested-action)',
+				$e->getMessageObject()->inLanguage( 'qqx' )->plain() );
+		}
+
+		$this->assertTrue( $exceptionThrown,
+			"ApiUsageException wasn't thrown when execute() resulted in a ModerationError." );
+	}
+
+	/**
+	 * Verify that api.php?action=moderation runs execute() and adds its result into API response.
+	 * @covers ApiModeration
+	 */
+	public function testSuccessfulAction() {
+		$mockedResult = [ 'cat' => 'feline', 'fennec fox' => 'canine' ];
+
+		$mock = $this->addMockedAction( 'reject' );
+		$mock->expects( $this->once() )->method( 'execute' )->willReturn( $mockedResult );
+
+		list( $result ) = $this->doApiRequestWithToken( [
+			'action' => 'moderation',
+			'modaction' => 'reject',
+			'modid' => 12345
+		], null, self::getTestUser( [ 'moderator' ] )->getUser() );
+
+		$this->assertEquals( [ 'moderation' => $mockedResult ], $result );
+	}
+
+	/**
+	 * Test that ApiModeration subclass overrides some methods of ApiBase class.
+	 * @covers ApiModeration
+	 */
+	public function testApiBaseSubclass() {
+		$api = new ApiModeration( new ApiMain(), 'moderation' );
+
+		$this->assertTrue( $api->isWriteMode(), 'isWriteMode' );
+		$this->assertTrue( $api->isWriteMode(), 'mustBePosted' );
+		$this->assertSame( 'csrf', $api->needsToken(), 'needsToken' );
+
+		$allowedParams = $api->getAllowedParams();
+		$this->assertArrayHasKey( 'modaction', $allowedParams );
+		$this->assertArrayHasKey( 'modid', $allowedParams );
+
+		$this->assertFalse( empty( $allowedParams['modaction'][ApiBase::PARAM_REQUIRED] ),
+			'Parameter modaction= must be required.' );
+		$this->assertFalse( empty( $allowedParams['modid'][ApiBase::PARAM_REQUIRED] ),
+			'Parameter modid= must be required.' );
+
+		$wrapper = TestingAccessWrapper::newFromObject( $api );
+		$this->assertNotEmpty( $wrapper->getExamplesMessages(), 'getExamplesMessages' );
+	}
+}
