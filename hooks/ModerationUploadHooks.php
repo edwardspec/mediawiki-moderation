@@ -61,8 +61,8 @@ class ModerationUploadHooks {
 
 		/* Watch/Unwatch this file immediately:
 			watchlist is the user's own business, no reason to wait for approval of the upload */
-		$watchCheckbox = MediaWikiServices::getInstance()->getService( 'Moderation.WatchCheckbox' );
-		$watchCheckbox->watchIfNeeded( $user, [ $upload->getTitle() ] );
+		$editFormOptions = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
+		$editFormOptions->watchIfNeeded( $user, [ $upload->getTitle() ] );
 
 		/* Display user-friendly results page if the upload was caused
 			by Special:Upload (not API, other extension, etc.) */

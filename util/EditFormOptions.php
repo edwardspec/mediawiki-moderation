@@ -17,7 +17,7 @@
 
 /**
  * @file
- * Keeps track of things like section= parameter in EditForm or wpMergeID field.
+ * Keeps track of things like section= parameter in EditForm, wpMergeID and "Watch this" checkbox.
  */
 
 namespace MediaWiki\Moderation;
@@ -25,6 +25,9 @@ namespace MediaWiki\Moderation;
 use EditPage;
 use MediaWiki\MediaWikiServices;
 use RequestContext;
+use SpecialPage;
+use Title;
+use User;
 
 class EditFormOptions {
 	/**
@@ -39,14 +42,22 @@ class EditFormOptions {
 	/** @var string Text of edited section, if any (populated in onEditFilter) */
 	protected $sectionText = '';
 
-	/** @var WatchCheckbox */
-	protected $watchCheckbox;
+	/**
+	 * @var bool|null
+	 * Value of "Watch this page" checkbox, if any.
+	 * If true, pages passed to watchIfNeeded() will be Watched, if false, Unwatched.
+	 * If null, then neither Watching nor Unwatching is necessary.
+	 */
+	protected $watchthis = null;
+
+	/** @var IConsequenceManager */
+	protected $consequenceManager;
 
 	/**
-	 * @param WatchCheckbox $watchCheckbox
+	 * @param IConsequenceManager $consequenceManager
 	 */
-	public function __construct( WatchCheckbox $watchCheckbox ) {
-		$this->watchCheckbox = $watchCheckbox;
+	public function __construct( IConsequenceManager $consequenceManager ) {
+		$this->consequenceManager = $consequenceManager;
 	}
 
 	/**
@@ -60,22 +71,31 @@ class EditFormOptions {
 	 * @return true
 	 */
 	public static function onEditFilter( EditPage $editor, $text, $section, &$error, $summary ) {
-		$editFormOptions = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
+		$opt = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
 		if ( $section !== '' ) {
-			$editFormOptions->section = $section;
-			$editFormOptions->sectionText = $text;
+			$opt->section = $section;
+			$opt->sectionText = $text;
 		}
 
-		$editFormOptions->setWatch( (bool)$editor->watchthis );
+		$opt->watchthis = (bool)$editor->watchthis;
 		return true;
 	}
 
 	/**
-	 * @param bool $watch
+	 * Detect "watch this" checkboxes on Special:Movepage and Special:Upload.
+	 * @param SpecialPage $special
+	 * @param string $subPage @phan-unused-param
 	 */
-	public function setWatch( $watch ) {
-		// TODO: maybe just move WatchCheckbox here?
-		$this->watchCheckbox->setWatch( $watch );
+	public static function onSpecialPageBeforeExecute( SpecialPage $special, $subPage ) {
+		$opt = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
+		$title = $special->getPageTitle();
+		$request = $special->getRequest();
+
+		if ( $title->isSpecial( 'Movepage' ) ) {
+			$opt->watchthis = $request->getCheck( 'wpWatch' );
+		} elseif ( $title->isSpecial( 'Upload' ) ) {
+			$opt->watchthis = $request->getBool( 'wpWatchthis' );
+		}
 	}
 
 	/**
@@ -108,5 +128,23 @@ class EditFormOptions {
 	 */
 	public function getSectionText() {
 		return $this->sectionText;
+	}
+
+	/**
+	 * Watch or Unwatch the pages depending on the current value of $watchthis.
+	 * @param User $user
+	 * @param Title[] $titles
+	 */
+	public function watchIfNeeded( User $user, array $titles ) {
+		if ( $this->watchthis === null ) {
+			// Neither Watch nor Unwatch were requested.
+			return;
+		}
+
+		foreach ( $titles as $title ) {
+			$this->consequenceManager->add(
+				new WatchOrUnwatchConsequence( $this->watchthis, $title, $user )
+			);
+		}
 	}
 }

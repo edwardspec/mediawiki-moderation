@@ -28,7 +28,6 @@ use MediaWiki\Moderation\ConsequenceManager;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\TimestampFormatter;
-use MediaWiki\Moderation\WatchCheckbox;
 
 return [
 	'Moderation.ActionFactory' => function ( MediaWikiServices $services ) : ActionFactory {
@@ -61,7 +60,7 @@ return [
 	},
 	'Moderation.EditFormOptions' => function ( MediaWikiServices $services ) : EditFormOptions {
 		return new EditFormOptions(
-			$services->getService( 'Moderation.WatchCheckbox' )
+			$services->getService( 'Moderation.ConsequenceManager' )
 		);
 	},
 	'Moderation.EntryFactory' => function ( MediaWikiServices $services ) : EntryFactory {
@@ -90,10 +89,5 @@ return [
 	},
 	'Moderation.TimestampFormatter' => function () : TimestampFormatter {
 		return new TimestampFormatter();
-	},
-	'Moderation.WatchCheckbox' => function ( MediaWikiServices $services ) : WatchCheckbox {
-		return new WatchCheckbox(
-			$services->getService( 'Moderation.ConsequenceManager' )
-		);
 	},
 ];

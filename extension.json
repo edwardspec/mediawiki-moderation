@@ -132,7 +132,6 @@
 		"MediaWiki\\Moderation\\TagRevisionAsMergedConsequence": "lib/consequence/TagRevisionAsMergedConsequence.php",
 		"MediaWiki\\Moderation\\TimestampFormatter": "util/TimestampFormatter.php",
 		"MediaWiki\\Moderation\\UnblockUserConsequence": "lib/consequence/UnblockUserConsequence.php",
-		"MediaWiki\\Moderation\\WatchCheckbox": "util/WatchCheckbox.php",
 		"MediaWiki\\Moderation\\WatchOrUnwatchConsequence": "lib/consequence/WatchOrUnwatchConsequence.php",
 		"ModerationAction": "action/ModerationAction.php",
 		"ModerationActionApprove": "action/ModerationActionApprove.php",
@@ -322,7 +321,7 @@
 		"PageForms::EditFormInitialText": "ModerationPageForms::preloadText",
 		"PageForms::EditFormPreloadText": "ModerationPageForms::preloadText",
 		"RecentChange_save": "ModerationApproveHook::onRecentChange_save",
-		"SpecialPageBeforeExecute": "MediaWiki\\Moderation\\WatchCheckbox::onSpecialPageBeforeExecute",
+		"SpecialPageBeforeExecute": "MediaWiki\\Moderation\\EditFormOptions::onSpecialPageBeforeExecute",
 		"TitleMoveComplete": "ModerationApproveHook::onTitleMoveComplete",
 		"UploadVerifyUpload": "ModerationUploadHooks::onUploadVerifyUpload",
 		"wgQueryPages": "ModerationApiHooks::onwgQueryPages"
