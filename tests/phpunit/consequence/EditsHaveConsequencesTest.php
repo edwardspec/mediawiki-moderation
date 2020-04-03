@@ -28,7 +28,6 @@ use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
 use MediaWiki\Moderation\WatchCheckbox;
 use MediaWiki\Moderation\WatchOrUnwatchConsequence;
 use Wikimedia\ScopedCallback;
-use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -231,16 +230,13 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	 * Test consequences of 1) editing a section, 2) "Watch this page" checkbox being (un)checked.
 	 * @param bool $watch
 	 * @dataProvider dataProviderSectionEditAndWatchthis
-	 * @covers ModerationEditHooks::onEditFilter
+	 * @covers MediaWiki\Moderation\EditFormOptions::onEditFilter
 	 * @covers ModerationEditHooks::onPageContentSave
 	 */
 	public function testSectionEditAndWatchthis( $watch ) {
 		// @phan-suppress-next-line PhanUnusedVariable
 		$cleanupScope = new ScopedCallback( function () {
-			// Undo all changes that this test makes to static fields of ModerationEditHooks class.
-			$wrapper = TestingAccessWrapper::newFromClass( ModerationEditHooks::class );
-			$wrapper->section = '';
-			$wrapper->sectionText = '';
+			// Undo all changes that this test makes to WatchCheckbox.
 			WatchCheckbox::clear();
 		} );
 
