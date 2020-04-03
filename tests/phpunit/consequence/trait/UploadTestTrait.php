@@ -74,4 +74,17 @@ trait UploadTestTrait {
 
 		return $upload;
 	}
+
+	/**
+	 * Store test image into the ModerationUploadStorage and return its stash_key.
+	 * @param string|null $srcPath
+	 * @return string Valid stash_key of newly stored file.
+	 */
+	protected function stashSampleImage( $srcPath = null ) {
+		$file = TempFSFile::factory( '', 'png' );
+		$path = $file->getPath();
+
+		file_put_contents( $path, file_get_contents( $srcPath ?? $this->sampleImageFile ) );
+		return ModerationUploadStorage::getStash()->stashFile( $path )->getFileKey();
+	}
 }

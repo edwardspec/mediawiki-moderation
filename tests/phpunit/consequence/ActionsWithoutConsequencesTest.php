@@ -18,6 +18,8 @@
 /**
  * @file
  * Verifies that readonly, failed or non-applicable actions have no consequences.
+ *
+ * TODO: dismantle most of this test in favor of per-action unit tests.
  */
 
 use Wikimedia\ScopedCallback;
@@ -50,7 +52,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	 * @covers ModerationActionMerge
 	 * @covers ModerationActionPreview
 	 * @covers ModerationActionReject
-	 * @covers ModerationActionShowImage
 	 * @covers ModerationEntry
 	 * @covers ModerationApprovableEntry
 	 * @covers ModerationError
@@ -103,7 +104,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	public function dataProviderNoConsequenceActions() {
 		$sets = [
 			// Actions that are always readonly and shouldn't have any consequences.
-			'showimg' => [ [ 'action' => 'showimg' ] ],
 			'preview' => [ [ 'action' => 'preview' ] ],
 			'merge' => [ [ 'action' => 'merge', 'fields' => [ 'mod_conflict' => 1 ] ] ],
 			'editchange' =>
@@ -207,7 +207,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 			'merge' => false,
 			'editchange' => false,
 			'editchangesubmit' => false,
-			'showimg' => true,
 			'preview' => true
 		];
 		foreach ( $actionIsReadOnly as $action => $isReadOnly ) {

@@ -147,18 +147,12 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	 * @covers ModerationViewableEntry
 	 */
 	public function testThumbImage() {
-		$file = TempFSFile::factory( '', '.png' );
-		$path = $file->getPath();
-
-		file_put_contents( $path, file_get_contents( $this->sampleImageFile ) );
-		$stashKey = ModerationUploadStorage::getStash()->stashFile( $path )->getFileKey();
-
 		$title = Title::newFromText( 'File:UTUpload ' . rand( 0, 100000 ) . '.png' );
 		$modid = 12345;
 
 		$entry = $this->makeViewableEntry( (object)[
 			'id' => $modid,
-			'stash_key' => $stashKey,
+			'stash_key' => $this->stashSampleImage(),
 			'namespace' => $title->getNamespace(),
 			'title' => $title->getDBKey(),
 		] );
