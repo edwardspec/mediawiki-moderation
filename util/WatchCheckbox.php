@@ -34,20 +34,23 @@ class WatchCheckbox {
 	 * If true, pages passed to watchIfNeeded() will be Watched, if false, Unwatched.
 	 * If null, then neither Watching nor Unwatching is necessary.
 	 */
-	protected static $watchthis = null;
+	protected $watchthis = null;
+
+	/** @var IConsequenceManager */
+	protected $consequenceManager;
+
+	/**
+	 * @param IConsequenceManager $consequenceManager
+	 */
+	public function __construct( IConsequenceManager $consequenceManager ) {
+		$this->consequenceManager = $consequenceManager;
+	}
 
 	/**
 	 * @param bool $watch If true, pages should be Watched. If false, they should be Unwatched.
 	 */
-	public static function setWatch( $watch ) {
-		self::$watchthis = $watch;
-	}
-
-	/**
-	 * Disable Watching/Unwatching in watchIfNeeded() until the next setWatch() call.
-	 */
-	public static function clear() {
-		self::$watchthis = null;
+	public function setWatch( $watch ) {
+		$this->watchthis = $watch;
 	}
 
 	/**
@@ -55,15 +58,16 @@ class WatchCheckbox {
 	 * @param User $user
 	 * @param Title[] $titles
 	 */
-	public static function watchIfNeeded( User $user, array $titles ) {
-		if ( self::$watchthis === null ) {
+	public function watchIfNeeded( User $user, array $titles ) {
+		if ( $this->watchthis === null ) {
 			// Neither Watch nor Unwatch were requested.
 			return;
 		}
 
-		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
 		foreach ( $titles as $title ) {
-			$manager->add( new WatchOrUnwatchConsequence( self::$watchthis, $title, $user ) );
+			$this->consequenceManager->add(
+				new WatchOrUnwatchConsequence( $this->watchthis, $title, $user )
+			);
 		}
 	}
 
@@ -73,13 +77,14 @@ class WatchCheckbox {
 	 * @param string $subPage @phan-unused-param
 	 */
 	public static function onSpecialPageBeforeExecute( SpecialPage $special, $subPage ) {
+		$watchCheckbox = MediaWikiServices::getInstance()->getService( 'Moderation.WatchCheckbox' );
 		$title = $special->getPageTitle();
 		$request = $special->getRequest();
 
 		if ( $title->isSpecial( 'Movepage' ) ) {
-			self::setWatch( $request->getCheck( 'wpWatch' ) );
+			$watchCheckbox->setWatch( $request->getCheck( 'wpWatch' ) );
 		} elseif ( $title->isSpecial( 'Upload' ) ) {
-			self::setWatch( $request->getBool( 'wpWatchthis' ) );
+			$watchCheckbox->setWatch( $request->getBool( 'wpWatchthis' ) );
 		}
 	}
 }

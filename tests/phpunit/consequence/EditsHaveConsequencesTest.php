@@ -25,9 +25,7 @@ use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
-use MediaWiki\Moderation\WatchCheckbox;
 use MediaWiki\Moderation\WatchOrUnwatchConsequence;
-use Wikimedia\ScopedCallback;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -234,12 +232,6 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	 * @covers ModerationEditHooks::onPageContentSave
 	 */
 	public function testSectionEditAndWatchthis( $watch ) {
-		// @phan-suppress-next-line PhanUnusedVariable
-		$cleanupScope = new ScopedCallback( function () {
-			// Undo all changes that this test makes to WatchCheckbox.
-			WatchCheckbox::clear();
-		} );
-
 		$section = "2"; // Section is a string (not integer), because it can be "new", etc.
 		$sectionText = 'New text of section #2';
 		$fullText = "Text #0\n== Section 1 ==\nText #1\n\n " .

@@ -26,7 +26,6 @@ use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
-use MediaWiki\Moderation\WatchCheckbox;
 
 class ModerationEditHooks {
 	/**
@@ -95,7 +94,8 @@ class ModerationEditHooks {
 
 		/* Watch/Unwatch the page immediately:
 			watchlist is the user's own business, no reason to wait for approval of the edit */
-		WatchCheckbox::watchIfNeeded( $user, [ $title ] );
+		$watchCheckbox = MediaWikiServices::getInstance()->getService( 'Moderation.WatchCheckbox' );
+		$watchCheckbox->watchIfNeeded( $user, [ $title ] );
 
 		/*
 			We have queued this edit for moderation.

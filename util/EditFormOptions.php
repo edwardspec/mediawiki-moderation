@@ -39,6 +39,16 @@ class EditFormOptions {
 	/** @var string Text of edited section, if any (populated in onEditFilter) */
 	protected $sectionText = '';
 
+	/** @var WatchCheckbox */
+	protected $watchCheckbox;
+
+	/**
+	 * @param WatchCheckbox $watchCheckbox
+	 */
+	public function __construct( WatchCheckbox $watchCheckbox ) {
+		$this->watchCheckbox = $watchCheckbox;
+	}
+
 	/**
 	 * EditFilter hook handler.
 	 * Save sections-related information, which will then be used in onPageContentSave.
@@ -51,15 +61,21 @@ class EditFormOptions {
 	 */
 	public static function onEditFilter( EditPage $editor, $text, $section, &$error, $summary ) {
 		$editFormOptions = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
-		if ( $section != '' ) {
+		if ( $section !== '' ) {
 			$editFormOptions->section = $section;
 			$editFormOptions->sectionText = $text;
 		}
 
-		// TODO: WatchCheckbox should also be a service (we could theoretically place it here,
-		// but does watchIfNeeded() really belong here?)
-		WatchCheckbox::setWatch( (bool)$editor->watchthis );
+		$editFormOptions->setWatch( (bool)$editor->watchthis );
 		return true;
+	}
+
+	/**
+	 * @param bool $watch
+	 */
+	public function setWatch( $watch ) {
+		// TODO: maybe just move WatchCheckbox here?
+		$this->watchCheckbox->setWatch( $watch );
 	}
 
 	/**
