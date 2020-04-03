@@ -50,8 +50,6 @@ class ModerationActionShowImage extends ModerationAction {
 
 	public function execute() {
 		$row = $this->entryFactory->loadRowOrThrow( $this->id, [
-			'mod_user AS user',
-			'mod_user_text AS user_text',
 			'mod_title AS title',
 			'mod_stash_key AS stash_key'
 		], DB_REPLICA );
@@ -80,10 +78,6 @@ class ModerationActionShowImage extends ModerationAction {
 					);
 				}
 			}
-		}
-
-		if ( !$file ) {
-			return [ 'missing' => '' ];
 		}
 
 		$thumbFilename = '';

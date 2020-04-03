@@ -67,11 +67,6 @@ class ModerationActionShowImageTest extends ModerationUnitTestCase {
 			$this->identicalTo( $params['modid'] ),
 			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( [
-				// FIXME: we don't need user and user_text in this query anymore.
-				// (it was needed when user-specific UploadStash was used, but it is no longer so)
-				// Remove this from the tested class itself.
-				'mod_user AS user',
-				'mod_user_text AS user_text',
 				'mod_title AS title',
 				'mod_stash_key AS stash_key'
 			] ),
