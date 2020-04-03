@@ -25,6 +25,7 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionFactory;
 use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\ConsequenceManager;
+use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\TimestampFormatter;
 
@@ -56,6 +57,11 @@ return [
 	},
 	'Moderation.ConsequenceManager' => function () : ConsequenceManager {
 		return new ConsequenceManager();
+	},
+	'Moderation.EditFormOptions' => function ( MediaWikiServices $services ) : EditFormOptions {
+		return new EditFormOptions(
+			$services->getService( 'Moderation.ConsequenceManager' )
+		);
 	},
 	'Moderation.EntryFactory' => function ( MediaWikiServices $services ) : EntryFactory {
 		return new EntryFactory(

@@ -26,41 +26,8 @@ use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
-use MediaWiki\Moderation\WatchCheckbox;
 
 class ModerationEditHooks {
-	/**
-	 * @var int
-	 * mod_id of the pending edit which is currently being merged (during modaction=merge)
-	 */
-	public static $NewMergeID = null;
-
-	/** @var int|string Number of edited section, if any (populated in onEditFilter) */
-	protected static $section = '';
-
-	/** @var string Text of edited section, if any (populated in onEditFilter) */
-	protected static $sectionText = '';
-
-	/**
-	 * EditFilter hook handler.
-	 * Save sections-related information, which will then be used in onPageContentSave.
-	 * @param EditPage $editor
-	 * @param string $text
-	 * @param string $section
-	 * @param string &$error @phan-unused-param
-	 * @param string $summary @phan-unused-param
-	 * @return true
-	 */
-	public static function onEditFilter( $editor, $text, $section, &$error, $summary ) {
-		if ( $section != '' ) {
-			self::$section = $section;
-			self::$sectionText = $text;
-		}
-
-		WatchCheckbox::setWatch( (bool)$editor->watchthis );
-		return true;
-	}
-
 	/**
 	 * PageContentSave hook handler.
 	 * Intercept normal edits and queue them for moderation.
@@ -115,17 +82,20 @@ class ModerationEditHooks {
 			return true;
 		}
 
+		$editFormOptions = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
+
 		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
 		$manager->add( new QueueEditConsequence(
 			$page, $user, $content, $summary,
-			self::$section, self::$sectionText,
+			$editFormOptions->getSection(), $editFormOptions->getSectionText(),
 			(bool)( $flags & EDIT_FORCE_BOT ),
 			(bool)$is_minor
 		) );
 
 		/* Watch/Unwatch the page immediately:
 			watchlist is the user's own business, no reason to wait for approval of the edit */
-		WatchCheckbox::watchIfNeeded( $user, [ $title ] );
+		$editFormOptions = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
+		$editFormOptions->watchIfNeeded( $user, [ $title ] );
 
 		/*
 			We have queued this edit for moderation.
@@ -259,17 +229,12 @@ class ModerationEditHooks {
 	 * @return true
 	 */
 	public static function prepareEditForm( $editpage, $out ) {
-		$mergeID = self::$NewMergeID;
-		if ( !$mergeID ) {
-			$mergeID = $out->getRequest()->getVal( 'wpMergeID' );
+		$editFormOptions = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
+		$mergeID = $editFormOptions->getMergeID();
+		if ( $mergeID ) {
+			$out->addHTML( Html::hidden( 'wpMergeID', (string)$mergeID ) );
+			$out->addHTML( Html::hidden( 'wpIgnoreBlankSummary', '1' ) );
 		}
-
-		if ( !$mergeID ) {
-			return true;
-		}
-
-		$out->addHTML( Html::hidden( 'wpMergeID', (string)$mergeID ) );
-		$out->addHTML( Html::hidden( 'wpIgnoreBlankSummary', '1' ) );
 
 		return true;
 	}

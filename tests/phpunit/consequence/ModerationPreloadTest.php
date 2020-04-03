@@ -175,7 +175,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	 * @covers ModerationPreload
 	 */
 	public function testNewArticlePreloadHook() {
-		list( $title, $pendingEdit ) = $this->beginShowTest();
+		list( $title, $preloadedText, $preloadedComment ) = $this->beginShowTest();
 		$origTitle = clone $title;
 
 		// Because EditFormPreloadText hook doesn't receive EditPage object as parameter, EditPage
@@ -189,9 +189,9 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		$text = 'Unmodified text';
 		$hookResult = Hooks::run( 'EditFormPreloadText', [ &$text, &$title ] );
 		$this->assertTrue( $hookResult, 'Handler of EditFormPreloadText hook should return true.' );
-		$this->assertSame( $pendingEdit->getText(), $text,
+		$this->assertSame( $preloadedText, $text,
 			"Text wasn't modified by EditFormPreloadText hook." );
-		$this->assertSame( $pendingEdit->getComment(), $editPage->summary,
+		$this->assertSame( $preloadedComment, $editPage->summary,
 			"Edit summary wasn't preloaded into EditPage by EditFormPreloadText hook." );
 		$this->assertSame( $origTitle->getFullText(), $title->getFullText(),
 			"Title shouldn't have been modified by EditFormPreloadText hook." );
@@ -206,14 +206,14 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	 * @covers ModerationPreload
 	 */
 	public function testNewArticlePreloadHookNoEditPage() {
-		list( $title, $pendingEdit ) = $this->beginShowTest();
+		list( $title, $preloadedText ) = $this->beginShowTest();
 		$origTitle = clone $title;
 
 		// Call the tested hook.
 		$text = 'Unmodified text';
 		$hookResult = Hooks::run( 'EditFormPreloadText', [ &$text, &$title ] );
 		$this->assertTrue( $hookResult, 'Handler of EditFormPreloadText hook should return true.' );
-		$this->assertSame( $pendingEdit->getText(), $text,
+		$this->assertSame( $preloadedText, $text,
 			"Text wasn't modified by EditFormPreloadText hook." );
 		$this->assertSame( $origTitle->getFullText(), $title->getFullText(),
 			"Title shouldn't have been modified by EditFormPreloadText hook." );
@@ -227,15 +227,15 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	 * @covers ModerationPreload
 	 */
 	public function testExistingArticlePreloadHook() {
-		list( $title, $pendingEdit ) = $this->beginShowTest();
+		list( $title, $preloadedText, $preloadedComment ) = $this->beginShowTest();
 		$editPage = new EditPage( new Article( $title ) );
 
 		// Call the tested hook.
 		$hookResult = Hooks::run( 'EditFormInitialText', [ $editPage ] );
 		$this->assertTrue( $hookResult, 'Handler of EditFormInitialText hook should return true.' );
-		$this->assertSame( $pendingEdit->getText(), $editPage->textbox1,
+		$this->assertSame( $preloadedText, $editPage->textbox1,
 			"Text wasn't modified by EditFormInitialText hook." );
-		$this->assertSame( $pendingEdit->getComment(), $editPage->summary,
+		$this->assertSame( $preloadedComment, $editPage->summary,
 			"Edit summary wasn't preloaded into EditPage by EditFormInitialText hook." );
 		$this->assertSame( $title->getFullText(), $editPage->getTitle()->getFullText(),
 			"Title shouldn't have been modified by EditFormInitialText hook." );
@@ -249,44 +249,15 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	 * @covers ModerationPreload
 	 */
 	public function testEditSectionPreloadHook() {
-		$sections = [ "Text 0", "==Header1==\nText 1", "==Header2==\nText2", "==Header3==\nText3" ];
-
-		list( $title ) = $this->beginShowTest( false, implode( "\n", $sections ) );
-		$editPage = new EditPage( new Article( $title ) );
-
-		// When user visits "action=edit&section=2", only the text of section 2 should be preloaded.
 		$sectionId = 2;
-		$expectedText = $sections[$sectionId];
-		RequestContext::getMain()->getRequest()->setVal( 'section', $sectionId );
-
-		// Call the tested hook.
-		$hookResult = Hooks::run( 'EditFormInitialText', [ $editPage ] );
-		$this->assertTrue( $hookResult, 'Handler of EditFormInitialText hook should return true.' );
-		$this->assertSame( $expectedText, $editPage->textbox1,
-			"Text in section=$sectionId doesn't match the text that should have been preloaded." );
-
-		$this->checkOutputAfterShowTest();
-	}
-
-	/**
-	 * Ensure that onEditFormInitialText ignores "section=NUMBER" if section #NUMBER doesn't exist.
-	 * Normally this doesn't happen in production.
-	 * @covers ModerationPreload
-	 */
-	public function testEditNonexistentSectionPreloadHook() {
-		$fullText = "Text without section #4\n==Header1==\nText1\n";
-		list( $title ) = $this->beginShowTest( false, $fullText );
+		list( $title, $preloadedText ) = $this->beginShowTest( false, $sectionId );
 		$editPage = new EditPage( new Article( $title ) );
 
-		// Because section #4 doesn't exist in $fullText, parameter "section=4" should be disregarded.
-		// As fallback behavior, full text should be preloaded instead of only one section.
-		RequestContext::getMain()->getRequest()->setVal( 'section', 4 );
-
 		// Call the tested hook.
 		$hookResult = Hooks::run( 'EditFormInitialText', [ $editPage ] );
 		$this->assertTrue( $hookResult, 'Handler of EditFormInitialText hook should return true.' );
-		$this->assertSame( $fullText, $editPage->textbox1,
-			"Full text wasn't preloaded when section= had a nonexistent section number." );
+		$this->assertSame( $preloadedText, $editPage->textbox1,
+			"Text in section=$sectionId doesn't match the text that should have been preloaded." );
 
 		$this->checkOutputAfterShowTest();
 	}
@@ -339,17 +310,30 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	 * Begin the test of Preload hooks: create ModerationPreload object and set it as a service,
 	 * and have its EntryFactory return the mocked PendingEdit object.
 	 * @param bool $notFound If true, PendingEdit won't be found and false will be returned instead.
-	 * @param string|null $textOfPendingEdit
+	 * @param string|int $sectionId
 	 * @return array
-	 * @phan-return array{0:Title,1:PendingEdit|false}
+	 * @phan-return array{0:Title,1:string,2:string} Title, preload text and preloaded comment.
 	 */
-	private function beginShowTest( $notFound = false, $textOfPendingEdit = null ) {
+	private function beginShowTest( $notFound = false, $sectionId = '' ) {
+		if ( $sectionId ) {
+			RequestContext::getMain()->getRequest()->setVal( 'section', $sectionId );
+		}
+
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
-		$pendingEdit = $notFound ? false : new PendingEdit(
-			rand( 100, 10000 ),
-			$textOfPendingEdit ?? 'Preloaded text ' . rand( 0, 100000 ),
-			'Preloaded comment' . rand( 0, 100000 )
-		);
+		$text = 'Preloaded text ' . rand( 0, 100000 );
+		$comment = 'Preloaded comment' . rand( 0, 100000 );
+
+		$pendingEdit = false;
+		if ( !$notFound ) {
+			$pendingEdit = $this->createMock( PendingEdit::class );
+			$pendingEdit->expects( $this->once() )->method( 'getSectionText' )->with(
+				// @phan-suppress-next-line PhanTypeMismatchArgument
+				$this->equalTo( $sectionId )
+			)->willReturn( $text );
+
+			$pendingEdit->expects( $this->any() )->method( 'getComment' )
+				->willReturn( $comment );
+		}
 
 		$mainContext = RequestContext::getMain();
 		$mainContext->getRequest()->setSessionData( 'anon_id', 'ExistingAnonId' );
@@ -369,7 +353,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		$preload = new ModerationPreload( $entryFactory, new MockConsequenceManager() );
 		$this->setService( 'Moderation.Preload', $preload );
 
-		return [ $title, $pendingEdit ];
+		return [ $title, $text, $comment ];
 	}
 
 	/**

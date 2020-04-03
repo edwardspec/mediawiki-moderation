@@ -68,7 +68,8 @@ class ModerationActionMerge extends ModerationAction {
 		$title = Title::makeTitle( $result['namespace'], $result['title'] );
 		$article = Article::newFromTitle( $title, $this->getContext() );
 
-		ModerationEditHooks::$NewMergeID = $result['id'];
+		$editFormOptions = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
+		$editFormOptions->setMergeID( $result['id'] );
 
 		$editPage = new EditPage( $article );
 

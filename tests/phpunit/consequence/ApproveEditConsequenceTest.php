@@ -20,6 +20,7 @@
  * Unit test of ApproveEditConsequence.
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ApproveEditConsequence;
 
 require_once __DIR__ . "/autoload.php";
@@ -93,9 +94,10 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 			$revid = $rc->getAttribute( 'rc_this_oldid' );
 			$this->assertNotSame( 0, $revid );
 
-			$rev = Revision::newFromId( $revid );
-			$this->assertEquals( $baseRevId, $rev->getParentId() );
-			$this->assertEquals( $newText, $rev->getContent()->getNativeData() );
+			$rec = MediaWikiServices::getInstance()->getRevisionLookup()->getRevisionById( $revid );
+			$this->assertEquals( $baseRevId, $rec->getParentId() );
+			// B/C: SlotRecord::MAIN wasn't defined in MW 1.31.
+			$this->assertEquals( $newText, $rec->getSlot( 'main' )->getContent()->getNativeData() );
 
 			return true;
 		};
@@ -156,9 +158,12 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 			"ApproveEditConsequence failed: " . $status->getMessage()->plain() );
 
 		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
-		$rev = Revision::newFromId( $status->value['revision']->getId() );
-		$this->assertEquals( $revid2, $rev->getParentId() );
-		$this->assertEquals( $expectedText, $rev->getContent()->getNativeData() );
+		$revid = $status->value['revision']->getId();
+		$rec = MediaWikiServices::getInstance()->getRevisionLookup()->getRevisionById( $revid );
+
+		$this->assertEquals( $revid2, $rec->getParentId() );
+		// B/C: SlotRecord::MAIN wasn't defined in MW 1.31.
+		$this->assertEquals( $expectedText, $rec->getSlot( 'main' )->getContent()->getNativeData() );
 	}
 
 	/**

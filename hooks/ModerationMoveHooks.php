@@ -22,7 +22,6 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\QueueMoveConsequence;
-use MediaWiki\Moderation\WatchCheckbox;
 
 class ModerationMoveHooks {
 
@@ -98,7 +97,8 @@ class ModerationMoveHooks {
 
 		/* Watch/Unwatch $oldTitle/$newTitle immediately:
 			watchlist is the user's own business, no reason to wait for approval of the move */
-		WatchCheckbox::watchIfNeeded( $user, [ $oldTitle, $newTitle ] );
+		$editFormOptions = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
+		$editFormOptions->watchIfNeeded( $user, [ $oldTitle, $newTitle ] );
 
 		$errorMsg = 'moderation-move-queued';
 		ModerationQueuedSuccessException::throwIfNeeded( $errorMsg );

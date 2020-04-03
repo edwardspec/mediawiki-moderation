@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\Linker\LinkRenderer;
+use MediaWiki\MediaWikiServices;
 
 class ModerationViewableEntry extends ModerationEntry {
 	/** @var LinkRenderer */
@@ -82,25 +83,22 @@ class ModerationViewableEntry extends ModerationEntry {
 		}
 
 		$model = $title->getContentModel();
+		$handler = ContentHandler::getForModelID( $model );
 
-		$oldContent = false;
+		$oldContent = $handler->makeEmptyContent();
 		if ( !$row->new ) {
-			# Page existed at the moment when this edit was queued
-			$rev = Revision::newFromId( $row->last_oldid );
-			if ( $rev ) {
-				$oldContent = $rev->getContent( Revision::RAW );
-				$model = $oldContent->getModel();
+			// Page existed at the moment when this edit was queued
+			$revisionLookup = MediaWikiServices::getInstance()->getRevisionLookup();
+			$rec = $revisionLookup->getRevisionById( $row->last_oldid );
+
+			// Note: $rec may be null if page was deleted.
+			if ( $rec ) {
+				// B/C: SlotRecord::MAIN wasn't defined in MW 1.31.
+				$oldContent = $rec->getSlot( 'main', Revision::RAW )->getContent();
 			}
 		}
 
-		if ( !$oldContent ) { # New or previously deleted page
-			$oldContent = ContentHandler::makeContent( '', null, $model );
-		}
-
-		$de = ContentHandler::getForModelID( $model )->createDifferenceEngine(
-			$context,
-			$row->last_oldid, 0, 0, false, false
-		);
+		$de = $handler->createDifferenceEngine( $context, $row->last_oldid, 0, 0, false, false );
 		$newContent = ContentHandler::makeContent( $row->text, null, $model );
 
 		$diff = $de->generateContentDiffBody( $oldContent, $newContent );

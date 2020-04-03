@@ -23,6 +23,7 @@
 namespace MediaWiki\Moderation;
 
 use ContentHandler;
+use MediaWiki\MediaWikiServices;
 use Revision;
 use Status;
 use Title;
@@ -117,13 +118,21 @@ class ApproveEditConsequence implements IConsequence {
 		# Let's try to merge this automatically (resolve the conflict),
 		# as MediaWiki does in private EditPage::mergeChangesIntoContent().
 
-		$baseContent = $this->baseRevId ?
-			Revision::newFromId( $this->baseRevId )->getContent( Revision::RAW ) :
-			ContentHandler::makeContent( '', null, $model );
+		$handler = ContentHandler::getForModelID( $model );
+		$baseContent = $handler->makeEmptyContent();
+
+		if ( $this->baseRevId ) {
+			$revisionLookup = MediaWikiServices::getInstance()->getRevisionLookup();
+			$rec = $revisionLookup->getRevisionById( $this->baseRevId );
+
+			// Note: $rec may be null if page was deleted.
+			if ( $rec ) {
+				// B/C: SlotRecord::MAIN wasn't defined in MW 1.31.
+				$baseContent = $rec->getSlot( 'main', Revision::RAW )->getContent();
+			}
+		}
 
 		$latestContent = $page->getContent( Revision::RAW );
-
-		$handler = ContentHandler::getForModelID( $baseContent->getModel() );
 		$mergedContent = $handler->merge3( $baseContent, $newContent, $latestContent );
 
 		if ( $mergedContent ) {

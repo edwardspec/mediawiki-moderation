@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017 Edward Chernenko.
+	Copyright (C) 2017-2020 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,9 +25,7 @@ use MediaWiki\MediaWikiServices;
 class ApiModeration extends ApiBase {
 
 	public function execute() {
-		if ( !$this->getUser()->isAllowed( 'moderation' ) ) {
-			$this->dieWithError( 'badaccess-groups' );
-		}
+		$this->checkUserRightsAny( [ 'moderation' ] );
 
 		$actionFactory = MediaWikiServices::getInstance()->getService( 'Moderation.ActionFactory' );
 		$A = $actionFactory->makeAction( $this->getContext() );

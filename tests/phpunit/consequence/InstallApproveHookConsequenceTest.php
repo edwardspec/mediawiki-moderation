@@ -20,6 +20,7 @@
  * Unit test of ModerationApproveHook and InstallApproveHookConsequence.
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\InstallApproveHookConsequence;
 use Psr\Log\NullLogger;
 
@@ -779,14 +780,15 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 			}
 
 			if ( $task ) {
+				$revisionLookup = MediaWikiServices::getInstance()->getRevisionLookup();
 				foreach ( $revIds as $rev_id ) {
-					$rev = Revision::newFromId( $rev_id, Revision::READ_LATEST );
+					$rec = $revisionLookup->getRevisionById( $rev_id, IDBAccessObject::READ_LATEST );
 
-					if ( empty( $extraInfo['expectUnchangedTimestamp'] ) || !$rev->getParentId() ) {
+					if ( empty( $extraInfo['expectUnchangedTimestamp'] ) || !$rec->getParentId() ) {
 						// Verify that ApproveHook has modified revision.rev_timestamp field.
-						$this->assertEquals( $task['timestamp'], $rev->getTimestamp() );
+						$this->assertEquals( $task['timestamp'], $rec->getTimestamp() );
 					} else {
-						$this->assertNotEquals( $task['timestamp'], $rev->getTimestamp() );
+						$this->assertNotEquals( $task['timestamp'], $rec->getTimestamp() );
 					}
 				}
 			}

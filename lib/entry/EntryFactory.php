@@ -182,7 +182,7 @@ class EntryFactory {
 			return false;
 		}
 
-		return new PendingEdit( (int)$row->id, $row->text, $row->comment );
+		return new PendingEdit( $title, (int)$row->id, $row->text, $row->comment );
 	}
 
 	/**

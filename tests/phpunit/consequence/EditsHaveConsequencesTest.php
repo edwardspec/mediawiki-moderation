@@ -21,14 +21,11 @@
  */
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
+use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
-use MediaWiki\Moderation\WatchCheckbox;
-use MediaWiki\Moderation\WatchOrUnwatchConsequence;
-use Wikimedia\ScopedCallback;
-use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -229,21 +226,9 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of 1) editing a section, 2) "Watch this page" checkbox being (un)checked.
-	 * @param bool $watch
-	 * @dataProvider dataProviderSectionEditAndWatchthis
-	 * @covers ModerationEditHooks::onEditFilter
 	 * @covers ModerationEditHooks::onPageContentSave
 	 */
-	public function testSectionEditAndWatchthis( $watch ) {
-		// @phan-suppress-next-line PhanUnusedVariable
-		$cleanupScope = new ScopedCallback( function () {
-			// Undo all changes that this test makes to static fields of ModerationEditHooks class.
-			$wrapper = TestingAccessWrapper::newFromClass( ModerationEditHooks::class );
-			$wrapper->section = '';
-			$wrapper->sectionText = '';
-			WatchCheckbox::clear();
-		} );
-
+	public function testSectionEditAndWatchthis() {
 		$section = "2"; // Section is a string (not integer), because it can be "new", etc.
 		$sectionText = 'New text of section #2';
 		$fullText = "Text #0\n== Section 1 ==\nText #1\n\n " .
@@ -252,18 +237,22 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 		$summary = 'Some edit summary';
 		$user = self::getTestUser()->getUser();
+		$content = ContentHandler::makeContent( $fullText, null, CONTENT_MODEL_WIKITEXT );
+
+		$editFormOptions = $this->createMock( EditFormOptions::class );
+		$editFormOptions->expects( $this->once() )->method( 'watchIfNeeded' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( $user ),
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( [ $title ] )
+		);
+		$editFormOptions->expects( $this->once() )->method( 'getSection' )->willReturn( $section );
+		$editFormOptions->expects( $this->once() )->method( 'getSectionText' )
+			->willReturn( $sectionText );
+		$this->setService( 'Moderation.EditFormOptions', $editFormOptions );
 
 		// Replace real ConsequenceManager with a mock.
 		$manager = $this->mockConsequenceManager();
-
-		$editPage = new EditPage( Article::newFromTitle( $title, RequestContext::getMain() ) );
-		$editPage->watchthis = $watch;
-
-		$hookError = null;
-		Hooks::run( 'EditFilter',
-			[ $editPage, $sectionText, $section, &$hookError, $summary ] );
-
-		$content = ContentHandler::makeContent( $fullText, null, CONTENT_MODEL_WIKITEXT );
 
 		$page = WikiPage::factory( $title );
 		$page->doEditContent(
@@ -281,20 +270,8 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 				$sectionText,
 				false, // isBot
 				false // isMinor
-			),
-			new WatchOrUnwatchConsequence( $watch, $title, $user )
+			)
 		], $manager->getConsequences() );
-	}
-
-	/**
-	 * Provide datasets for testSectionEditAndWatchthis() runs.
-	 * @return array
-	 */
-	public function dataProviderSectionEditAndWatchthis() {
-		return [
-			'watch' => [ true ],
-			'unwatch' => [ true ]
-		];
 	}
 
 	/**
