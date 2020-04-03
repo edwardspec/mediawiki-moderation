@@ -50,7 +50,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	 * @covers ModerationActionMerge
 	 * @covers ModerationActionPreview
 	 * @covers ModerationActionReject
-	 * @covers ModerationActionShow
 	 * @covers ModerationActionShowImage
 	 * @covers ModerationEntry
 	 * @covers ModerationApprovableEntry
@@ -104,7 +103,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	public function dataProviderNoConsequenceActions() {
 		$sets = [
 			// Actions that are always readonly and shouldn't have any consequences.
-			'show' => [ [ 'action' => 'show' ] ],
 			'showimg' => [ [ 'action' => 'showimg' ] ],
 			'preview' => [ [ 'action' => 'preview' ] ],
 			'merge' => [ [ 'action' => 'merge', 'fields' => [ 'mod_conflict' => 1 ] ] ],
@@ -209,7 +207,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 			'merge' => false,
 			'editchange' => false,
 			'editchangesubmit' => false,
-			'show' => true,
 			'showimg' => true,
 			'preview' => true
 		];
