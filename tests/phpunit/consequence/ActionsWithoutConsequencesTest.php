@@ -22,8 +22,6 @@
  * TODO: dismantle most of this test in favor of per-action unit tests.
  */
 
-use Wikimedia\ScopedCallback;
-
 require_once __DIR__ . "/autoload.php";
 
 /**
@@ -42,14 +40,13 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	 * @dataProvider dataProviderNoConsequenceActions
 	 *
 	 * @codingStandardsIgnoreStart
-	 * @phan-param array{action:string,globals?:array,fields?:array|false,expectedError?:string,getModerator?:(callable():User)} $options
+	 * @phan-param array{action:string,globals?:array,fields?:array|false,expectedError?:string} $options
 	 * @codingStandardsIgnoreEnd
 	 *
 	 * @covers ModerationActionApprove
 	 * @covers ModerationActionBlock
 	 * @covers ModerationActionEditChange
 	 * @covers ModerationActionEditChangeSubmit
-	 * @covers ModerationActionMerge
 	 * @covers ModerationActionPreview
 	 * @covers ModerationActionReject
 	 * @covers ModerationEntry
@@ -62,15 +59,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 		// Have to create test user before $wgReadOnly is set in readonly tests.
 		$this->moderatorUser = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
 		$this->setMwGlobals( $options['globals'] ?? [] );
-
-		if ( isset( $options['getModerator'] ) ) {
-			$this->moderatorUser = $options['getModerator']();
-
-			// @phan-suppress-next-line PhanUnusedVariable
-			$scope = new ScopedCallback( function () {
-				$this->moderatorUser = null;
-			} );
-		}
 
 		$options['fields'] = $options['fields'] ?? [];
 		if ( $options['fields'] !== false ) {
@@ -105,7 +93,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 		$sets = [
 			// Actions that are always readonly and shouldn't have any consequences.
 			'preview' => [ [ 'action' => 'preview' ] ],
-			'merge' => [ [ 'action' => 'merge', 'fields' => [ 'mod_conflict' => 1 ] ] ],
 			'editchange' =>
 				[ [
 					'action' => 'editchange',
@@ -137,23 +124,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 					'globals' => [ 'wgModerationEnableEditChange' => true ],
 					'fields' => [ 'mod_type' => ModerationNewChange::MOD_TYPE_MOVE ],
 					'expectedError' => 'moderation-edit-not-found'
-				] ],
-			'merge (when not a conflict)' =>
-				[ [ 'action' => 'merge', 'expectedError' => 'moderation-merge-not-needed' ] ],
-			'merge (when not automoderated)' =>
-				[ [
-					'action' => 'merge',
-					'fields' => [ 'mod_conflict' => 1 ],
-					'getModerator' => function () {
-						return self::getTestUser( [ 'moderator' ] )->getUser();
-					},
-					'expectedError' => 'moderation-merge-not-automoderated'
-				] ],
-			'merge (when already merged)' =>
-				[ [
-					'action' => 'merge',
-					'fields' => [ 'mod_conflict' => 1, 'mod_merged_revid' => 123 ],
-					'expectedError' => 'moderation-already-merged'
 				] ],
 			'reject (when already rejected)' =>
 				[ [
@@ -204,7 +174,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 			'rejectall' => false,
 			'block' => false,
 			'unblock' => false,
-			'merge' => false,
 			'editchange' => false,
 			'editchangesubmit' => false,
 			'preview' => true
