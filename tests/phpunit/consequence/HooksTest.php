@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\EditFormOptions;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -156,6 +157,58 @@ class HooksTest extends ModerationUnitTestCase {
 			'action=filerevert, NOT automoderated (should be disallowed)' => [ false, 'filerevert' ],
 			'action=query, automoderated (should be allowed)' => [ true, 'query' ],
 			'action=query, NOT automoderated (should be disallowed)' => [ false, 'query' ],
+		];
+	}
+
+	/**
+	 * Ensure that EditPage::showEditForm:fields hook adds merge-related fields to the EditPage form.
+	 * @param int $mergeID
+	 * @dataProvider dataProviderMergeFieldsInEditForm
+	 * @covers ModerationEditHooks::prepareEditForm
+	 */
+	public function testMergeFieldsInEditForm( $mergeID ) {
+		// Mock the EditFormOptions service.
+		$editFormOptions = $this->createMock( EditFormOptions::class );
+		$editFormOptions->expects( $this->once() )->method( 'getMergeID' )->willReturn( $mergeID );
+		$this->setService( 'Moderation.EditFormOptions', $editFormOptions );
+
+		// Show the EditPage form.
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$context = new RequestContext;
+		$context->setTitle( $title );
+
+		$editPage = new EditPage( Article::newFromTitle( $title, $context ) );
+		$editPage->setContextTitle( $title );
+		$editPage->showEditForm();
+
+		$html = new ModerationTestHTML;
+		$html->loadString( $editPage->getContext()->getOutput()->getHTML() );
+
+		$mergeInput = $html->getElementByXPath( '//input[@name="wpMergeID"]' );
+		$blankSummaryInput = $html->getElementByXPath( '//input[@name="wpIgnoreBlankSummary"]' );
+
+		if ( $mergeID ) {
+			$this->assertNotNull( $mergeInput, 'wpMergeID field not found.' );
+			$this->assertEquals( $mergeID, $mergeInput->getAttribute( 'value' ), 'wpMergeID.value' );
+
+			$this->assertNotNull( $blankSummaryInput, 'wpIgnoreBlankSummary field not found.' );
+			$this->assertEquals( 1, $blankSummaryInput->getAttribute( 'value' ),
+				'wpIgnoreBlankSummary.value' );
+		} else {
+			$this->assertNull( $mergeInput, 'wpMergeID field found where it is not needed.' );
+			$this->assertNull( $blankSummaryInput,
+				'wpIgnoreBlankSummary field found where it is not needed.' );
+		}
+	}
+
+	/**
+	 * Provide datasets for testMergeFieldsInEditForm() runs.
+	 * @return array
+	 */
+	public function dataProviderMergeFieldsInEditForm() {
+		return [
+			'getMergeID() returned 12345' => [ 12345 ],
+			'Not in the process of merging: getMergeID() returned 0' => [ 0 ]
 		];
 	}
 }
