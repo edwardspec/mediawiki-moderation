@@ -211,4 +211,60 @@ class HooksTest extends ModerationUnitTestCase {
 			'Not in the process of merging: getMergeID() returned 0' => [ 0 ]
 		];
 	}
+
+	/**
+	 * Ensure that BeforePageDisplay hook adds CSS/JS modules of postedit notifications, etc.
+	 * @param bool $isAutomoderated
+	 * @dataProvider dataProviderBeforePageDisplayHook
+	 * @covers ModerationEditHooks::onBeforePageDisplay
+	 */
+	public function testBeforePageDisplayHook( $isAutomoderated ) {
+		$title = Title::newFromText( 'Project:UTPage-' . rand( 0, 100000 ) );
+		$user = self::getTestUser()->getUser();
+
+		// Mock the result of canEditSkip()
+		$canSkip = $this->createMock( ModerationCanSkip::class );
+		$canSkip->expects( $this->once() )->method( 'canEditSkip' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( $user ),
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( $title->getNamespace() )
+		)->willReturn( $isAutomoderated );
+		$this->setService( 'Moderation.CanSkip', $canSkip );
+
+		$context = new RequestContext();
+		$context->setUser( $user );
+		$context->setTitle( $title );
+
+		$out = $context->getOutput();
+
+		// Call OutputPage::output(), which is what triggers BeforePageDisplay hook.
+		ob_start();
+		$out->output();
+		ob_end_clean();
+
+		// Check if ResourceLoader modules were added to $out, but only for non-automoderated users.
+		$modules = $out->getModules();
+		if ( $isAutomoderated ) {
+			$this->assertNotContains( 'ext.moderation.notify', $modules, 'getModules()' );
+			$this->assertNotContains( 'ext.moderation.notify.desktop', $modules, 'getModules()' );
+		} else {
+			$this->assertContains( 'ext.moderation.notify', $modules, 'getModules()' );
+			$this->assertContains( 'ext.moderation.notify.desktop', $modules, 'getModules()' );
+		}
+
+		// TODO: double-check that ModerationAjaxHook::add() was called.
+		// Should it be made into a service just to simplify the test?
+	}
+
+	/**
+	 * Provide datasets for testBeforePageDisplayHook() runs.
+	 * @return array
+	 */
+	public function dataProviderBeforePageDisplayHook() {
+		return [
+			'is automoderated' => [ true ],
+			'is NOT automoderated' => [ false ]
+		];
+	}
 }
