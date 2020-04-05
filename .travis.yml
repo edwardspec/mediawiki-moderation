@@ -37,8 +37,6 @@ env:
     - DBUSER=root
     - MEDIAWIKI_USER="Moderator User"
     - MEDIAWIKI_PASSWORD="123456"
-    - SAUCE_USERNAME=edwardspec
-    - secure: "YzZDIDMvMH4xKsFC9f/Z5algUXnY9kMpBpD0i9k8Iew6ci6mCG73V0t+65MpTcUxLDEExMjjkdnzmKGULw1vgSLwwKya8BjmqT2GCHPwuiMvIAdpnXg0SES3QohR99C9OpF3g2LlSIZn3hPTt0SkfNPgE+tE+3PJnMtKNPMOMgyWIByRJFS9ZhAl+Z3paYhLg3iRJq0uRHfdxFEBwJQpv3WmqaKL5M4lnD5uzVNysvfK8pvxZUM/BdnAc6dPb62BjsySnv45TAbAsk2XOaFSdoldKNN1mw0bqxV8Bz0Ew4b6u7lafsoQgyISINJWkIEYTvGmZzV8AS5j7POyNtRG3Mzwlyt3mMV7EQNZh1fWmFXEoyIfu9k+5dmJkhoHM6qJlttvpKRPU7GThBAWJiN5pZ0s34yH2JdcvPtQ7pY3XWJjPfLxoX1WIRJe/XepzKOE3I5/c7ILcW/OsCFWDH55hFN2lGjNrp6X6DXcMfU+lrreRjx1qMi4l/oqieR7/j/cQQScqtMnIMp4jSmtMii0+Wc7mr9Mg5azrHJ3uwBRbWvtGppM0fuZsdTiBtvZQOEckAz2Zge33ZmMGcb8t+9AFLWH7PJAIQlK3SDzc9V0YAOrQfckZFcIARdy310hB0Pey5MWJHFOEpzffOtLWrde5C6vvNAgQJ29LeGPm7DG/pM="
     # Number of parallel PHPUnit runs.
     # Note: Travis uses 2 CPU cores, but these testsuite processes are often blocked on IO, etc.,
     # so we are still seeing performance improvement when increasing it from 2 to 4.
@@ -125,7 +123,7 @@ matrix:
     - <<: *phpunit-build
       env: branch=REL1_34
       php: 7.3
-# FIXME: ModerationTestsuite is currently incompatible with 1.31+PostgreSQL combination.
+# Note: 1.31+PostgreSQL combination is not supported by testsuite itself.
 #    - <<: *phpunit-build
 #      env: branch=REL1_31 DBTYPE=postgres
     - <<: *phpunit-build
