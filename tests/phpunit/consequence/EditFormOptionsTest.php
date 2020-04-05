@@ -123,6 +123,11 @@ class EditFormOptionsTest extends ModerationUnitTestCase {
 		$editPage = new EditPage( new Article( Title::newFromText( 'whatever' ) ) );
 		$editPage->importFormData( $request );
 
+		// Prevent internalAttemptSave() from actually saving the edit.
+		$this->setTemporaryHook( 'PageContentSave', function () {
+			return false;
+		} );
+
 		$unusedResult = [];
 		$editPage->internalAttemptSave( $unusedResult );
 
