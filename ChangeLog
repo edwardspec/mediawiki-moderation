@@ -18,10 +18,12 @@ the author did the change) not being applied:
 
 Refactoring, performance optimizations:
 * Major refactoring of everything (Consequence classes).
+* Major refactoring of everything (replacing static methods with Services).
 * Better performance of move/upload via API.
 * Reduced the number of SQL queries when upload is intercepted.
 * Refactoring of ModerationApproveHook class.
 * Removed static variables like NewChange::$LastInsertId.
+* Removed unneeded configuration variables like $wgModerationForceAjaxHook.
 
 Troubleshooting tools:
 * Added debug log to ModerationApproveHook.

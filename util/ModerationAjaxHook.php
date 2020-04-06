@@ -17,67 +17,22 @@
 
 /**
  * @file
- * Adds ajaxhook-related JavaScript modules when they are needed.
- *
- * Default behavior: automatically check for presence of extension.
- * For example, if Extension:VisualEditor is detected,
- * then module 'ext.moderation.ve' will be attached.
- *
- * This can be overridden in LocalSettings.php:
- * $wgModerationSupportVisualEditor = true; - attach even if not detected.
- * $wgModerationSupportVisualEditor = false; - don't attach even if detected.
- * $wgModerationSupportVisualEditor = "guess"; - default behavior.
- *
- * If at least one module is attached (or if $wgModerationForceAjaxHook is
- * set to true), "ext.moderation.ajaxhook" will also be attached.
+ * Adds ajaxhook-related JavaScript modules when they are needed
+ * (when MobileFrontend and/or VisualEditor extensions are installed and used).
  */
 
 use MediaWiki\MediaWikiServices;
 
 class ModerationAjaxHook {
-
-	/**
-	 * Depending on $configName being true/false/"guess", return true/false/$default.
-	 * @param string $configName
-	 * @param bool $default
-	 * @return bool
-	 */
-	protected static function need( $configName, $default ) {
-		$config = RequestContext::getMain()->getConfig();
-		$val = $config->get( $configName );
-		return ( is_bool( $val ) ? $val : $default );
-	}
-
-	/**
-	 * Convenience method: returns true if in Mobile skin, false otherwise
-	 * @return bool
-	 */
-	protected static function isMobile() {
-		return ( class_exists( 'MobileContext' ) &&
-			MobileContext::singleton()->shouldDisplayMobileView() );
-	}
-
-	/**
-	 * Guess whether VisualEditor needs to be supported
-	 * @return bool
-	 */
-	protected static function guessVE() {
-		return ( class_exists( 'ApiVisualEditorEdit' ) && !self::isMobile() );
-	}
-
 	/**
 	 * Add needed modules to $out.
 	 * @param OutputPage &$out
 	 */
 	public static function add( OutputPage &$out ) {
 		global $wgVersion;
+
 		$modules = [];
-
-		if ( self::need( 'ModerationSupportVisualEditor', self::guessVE() ) ) {
-			$modules[] = 'ext.moderation.ve';
-		}
-
-		if ( self::need( 'ModerationSupportMobileFrontend', self::isMobile() ) ) {
+		if ( class_exists( 'MobileContext' ) && MobileContext::singleton()->shouldDisplayMobileView() ) {
 			$modules[] = 'ext.moderation.mf.notify';
 
 			if ( version_compare( $wgVersion, '1.33.0', '>=' ) ) {
@@ -98,6 +53,8 @@ class ModerationAjaxHook {
 				// For MediaWiki 1.31-1.32
 				$modules[] = 'ext.moderation.mf.preload31';
 			}
+		} elseif ( class_exists( 'ApiVisualEditorEdit' ) ) {
+			$modules[] = 'ext.moderation.ve';
 		}
 
 		if ( $modules || $out->getConfig()->get( 'ModerationForceAjaxHook' ) ) {

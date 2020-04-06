@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.5.15",
+	"version": "1.5.16",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -350,18 +350,6 @@
 		"ModerationEmail": {
 			"value": "",
 			"description": "Email address to send notifications to."
-		},
-		"ModerationSupportVisualEditor": {
-			"value": "guess",
-			"description": "If true/false, assume presence/absence of VisualEditor. Default: auto-detect."
-		},
-		"ModerationSupportMobileFrontend":  {
-			"value": "guess",
-			"description":  "If true/false, assume presence/absence of MobileFrontend. Default: auto-detect."
-		},
-		"ModerationForceAjaxHook":  {
-			"value": false,
-			"description":  "If true, supports third-party JavaScript editors even if both VisualEditor and MobileFrontend are not installed."
 		},
 		"ModerationUseAjax":  {
 			"value": false,
