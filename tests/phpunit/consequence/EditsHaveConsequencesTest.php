@@ -56,6 +56,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	/**
 	 * Test consequences when normal edit is queued for moderation.
 	 * @covers ModerationEditHooks::onPageContentSave
+	 * @covers ModerationEditHooks::getRedirectURL
 	 */
 	public function testEdit() {
 		// Replace real ConsequenceManager with a mock.
@@ -67,9 +68,9 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		$canSkip = $this->createMock( ModerationCanSkip::class );
 		$canSkip->expects( $this->once() )->method( 'canEditSkip' )->with(
 			// @phan-suppress-next-line PhanTypeMismatchArgument
-			$this->user,
+			$this->identicalTo( $this->user ),
 			// @phan-suppress-next-line PhanTypeMismatchArgument
-			$this->title->getNamespace()
+			$this->identicalTo( $this->title->getNamespace() )
 		)->willReturn( false ); // Can't bypass moderation
 		$this->setService( 'Moderation.CanSkip', $canSkip );
 
@@ -86,6 +87,12 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 				false // isMinor
 			)
 		], $manager->getConsequences() );
+
+		$redirectURL = RequestContext::getMain()->getOutput()->getRedirect();
+		$this->assertNotEmpty( $redirectURL, "User wasn't redirected after making an edit." );
+
+		$this->assertSame( $this->title->getFullURL( [ 'modqueued' => 1 ] ), $redirectURL,
+			"Incorrect redirect URL." );
 	}
 
 	/**
@@ -113,6 +120,8 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 			"User can bypass moderation, but doEditContent() didn't return successful Status." );
 
 		$this->assertNoConsequences( $manager );
+		$this->assertNotContains( 'modqueued', RequestContext::getMain()->getOutput()->getRedirect(),
+			"Redirect URL shouldn't contain modqueued= when the moderation was skipped." );
 	}
 
 	/**
@@ -147,6 +156,44 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 		// This edit shouldn't have been queued for moderation.
 		$this->assertNoConsequences( $manager );
+		$this->assertNotContains( 'modqueued', RequestContext::getMain()->getOutput()->getRedirect(),
+			"Redirect URL shouldn't contain modqueued= when the moderation was skipped." );
+	}
+
+	/**
+	 * Verify that ModerationContinueEditingLink hook can override redirect URL when edit is queued.
+	 * @covers ModerationEditHooks::getRedirectURL
+	 */
+	public function testModerationContinueEditingLinkHook() {
+		$this->user = User::newFromName( '127.0.0.1', false );
+		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+
+		$expectedReturnTo = FormatJSON::encode( [ 'Another page',
+			[ 'param1' => 'val1', 'anotherparam' => 'anotherval' ] ] );
+
+		$this->setTemporaryHook( 'ModerationContinueEditingLink',
+			function ( &$returnto, array &$returntoquery, Title $title, IContextSource $context ) {
+				$returnto = 'Another page';
+				$returntoquery = [ 'param1' => 'val1', 'anotherparam' => 'anotherval' ];
+			}
+		);
+
+		$this->makeEdit();
+
+		$redirectURL = RequestContext::getMain()->getOutput()->getRedirect();
+		$this->assertNotEmpty( $redirectURL, "User wasn't redirected after making an edit." );
+
+		// Parse $redirectURL, extract query string parameters and check "returnto" parameter.
+		$bits = wfParseUrl( wfExpandUrl( $redirectURL ) );
+		$this->assertArrayHasKey( 'query', $bits, 'No querystring in the redirect URL.' );
+
+		$query = wfCgiToArray( $bits['query'] );
+		$this->assertArrayHasKey( 'modqueued', $query );
+		$this->assertEquals( 1, $query['modqueued'], 'query.modqueued' );
+
+		$this->assertArrayHasKey( 'returnto', $query );
+		$this->assertSame( $expectedReturnTo, $query['returnto'],
+			"Query string parameter returnto= wasn't populated by ModerationContinueEditingLink hook." );
 	}
 
 	/**
@@ -185,6 +232,8 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 		// This edit shouldn't have been queued for moderation.
 		$this->assertNoConsequences( $manager );
+		$this->assertNotContains( 'modqueued', RequestContext::getMain()->getOutput()->getRedirect(),
+			"Redirect URL shouldn't contain modqueued= when the moderation was skipped." );
 	}
 
 	/**
