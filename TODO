@@ -37,8 +37,9 @@ some new feature (that requires DB update) is disabled because it wasn't done.
 * (feature) Should ApproveHook update timestamps of upload/move logs?
 * (UX) Improve handling of null edits. (having to reject them manually doesn't feel right)
 
-Tests needed:
-* PageForms plugin ("continue editing" link in postedit notification)
+Unit tests:
+* Use mocks to decouple unit tests (under tests/consequence/) to such a degree
+that generating code coverage with --strict-coverage would be possible.
 
 FIXME:
 * When approving, tags related to moderator (and unrelated to original author)

@@ -23,8 +23,10 @@
 class ModerationPageForms {
 
 	public static function install() {
-		$hook = [ new self, 'onModerationContinueEditingLink' ];
-		Hooks::register( 'ModerationContinueEditingLink', $hook );
+		Hooks::register(
+			'ModerationContinueEditingLink',
+			'ModerationPageForms::onModerationContinueEditingLink'
+		);
 	}
 
 	/**
@@ -35,7 +37,7 @@ class ModerationPageForms {
 	 * PageForms::EditFormInitialText (when editing existing page)
 	 *
 	 * @param string &$preloadContent
-	 * @param Title $targetTitle
+	 * @param Title|null $targetTitle
 	 * @param Title $formTitle @phan-unused-param
 	 * @return bool
 	 */
@@ -60,21 +62,19 @@ class ModerationPageForms {
 	 * @param IContextSource $context
 	 * @return bool
 	 */
-	public function onModerationContinueEditingLink(
+	public static function onModerationContinueEditingLink(
 		&$returnto,
 		array &$returntoquery,
 		Title $title,
 		IContextSource $context
 	) {
-		$request = $context->getRequest();
-
 		// Are we editing via ?action=formedit?
 		$action = Action::getActionName( $context );
 		if ( $action == 'formedit' ) {
 			$returntoquery = [ 'action' => 'formedit' ];
 		} else {
 			// Are we editing via Special:FormEdit?
-			$specialTitle = Title::newFromText( $request->getVal( 'title' ) );
+			$specialTitle = Title::newFromText( $context->getRequest()->getVal( 'title' ) );
 			if ( $specialTitle && $specialTitle->isSpecial( 'FormEdit' ) ) {
 				$returnto = $specialTitle->getFullText();
 			}
