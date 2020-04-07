@@ -29,6 +29,10 @@ use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\TimestampFormatter;
 
+// @codeCoverageIgnoreStart
+// (PHPUnit doesn't support @covers for out-of-class code)
+// See also: T248172 "Allow static methods to be used for wiring"
+
 return [
 	'Moderation.ActionFactory' => function ( MediaWikiServices $services ) : ActionFactory {
 		return new ActionFactory(
@@ -91,3 +95,5 @@ return [
 		return new TimestampFormatter();
 	},
 ];
+
+// @codeCoverageIgnoreEnd

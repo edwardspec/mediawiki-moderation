@@ -45,7 +45,8 @@ $cfg['exclude_file_regex'] = preg_replace( '/^@/', '@\/\..*\.mocked\.php$|',
 
 # Class name collision with testsuite of MediaWiki core. TODO: place tests into the namespace too.
 $cfg['exclude_file_list'] = array_merge( $cfg['exclude_file_list'], [
-	'../../tests/phpunit/includes/HooksTest.php'
+	'../../tests/phpunit/includes/HooksTest.php',
+	'../../tests/phpunit/unit/includes/ServiceWiringTest.php'
 ] );
 
 # Parse the soft dependencies (like MobileFrontend), but don't analyze them.
