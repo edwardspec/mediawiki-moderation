@@ -118,12 +118,15 @@ class ModerationApiHooks {
 				ApiEditPage will incorrectly complain "nosuchsection"
 				(even when section N exists in the pending version).
 			*/
+			$sectionTitle = $query['sectiontitle'] ?? '';
+
 			$newSectionContent = ContentHandler::makeContent( $query['text'], $title );
-			$newContent = $oldContent->replaceSection( $section, $newSectionContent );
+			$newContent = $oldContent->replaceSection( $section, $newSectionContent, $sectionTitle );
 
 			// @phan-suppress-next-line PhanNonClassMethodCall <-- false positive, see gerrit:571030
 			$query['text'] = $newContent->getNativeData();
 			unset( $query['section'] );
+			unset( $query['sectiontitle'] );
 		}
 
 		$req = new DerivativeRequest( $request, $query, true );

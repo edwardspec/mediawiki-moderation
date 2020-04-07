@@ -2,6 +2,9 @@ List of changes between releases of Extension:Moderation.
 
 == master branch (1.5.x versions) ==
 
+Features:
+* API: Support sectiontitle= parameter of api.php?action=edit.
+
 Bugfixes:
 * Move/upload via API won't unnecessarily Unwatch affected pages.
 * Fixed rare error during ApproveAll when some of the timestamp changes

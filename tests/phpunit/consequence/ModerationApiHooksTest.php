@@ -114,7 +114,15 @@ class ModerationApiHooksTest extends ModerationUnitTestCase {
 				'pendingText' => 'Dogs',
 				'expectedParams' => [ 'text' => "Dogs\n\nFoxes" ]
 			] ],
-			// TODO: sectiontitle= parameter (not yet supported)
+			'has section=new, non-empty sectiontitle= and pending edit' => [ [
+				'inputParams' => [
+					'section' => 'new',
+					'sectiontitle' => 'A very new header',
+					'text' => 'Foxes'
+				],
+				'pendingText' => 'Dogs',
+				'expectedParams' => [ 'text' => "Dogs\n\n== A very new header ==\n\nFoxes" ]
+			] ],
 			'has section=2 and pending edit, and that pending edit has section #2' => [ [
 				'inputParams' => [ 'section' => '2', 'text' => "==Newheader2==\nNewtext2" ],
 				'pendingText' => "Text0\n\n==Header1==\nText1\n\n==Header2==\nText2\n\n==Header3==\nText3",
