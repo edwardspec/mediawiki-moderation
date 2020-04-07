@@ -21,7 +21,10 @@
  */
 
 abstract class ModerationEntry {
-	/** @var stdClass Return value of Database::selectRow() */
+	/**
+	 * @var object
+	 * Return value of Database::selectRow()
+	 */
 	private $row;
 
 	/** @var User Author of this change */
@@ -33,10 +36,14 @@ abstract class ModerationEntry {
 	/** @var string|null Cache used by canReapproveRejected() */
 	protected static $earliestReapprovableTimestamp = null;
 
+	/** @return object */
 	protected function getRow() {
 		return $this->row;
 	}
 
+	/**
+	 * @param object $row
+	 */
 	public function __construct( $row ) {
 		if ( !isset( $row->type ) ) { // !ModerationVersionCheck::hasModType()
 			$row->type = ModerationNewChange::MOD_TYPE_EDIT;

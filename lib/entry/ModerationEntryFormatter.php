@@ -41,7 +41,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 	protected $canSkip;
 
 	/**
-	 * @param stdClass $row
+	 * @param object $row
 	 * @param IContextSource $context
 	 * @param LinkRenderer $linkRenderer
 	 * @param ActionLinkRenderer $actionLinkRenderer
@@ -81,7 +81,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 	 * Add all titles needed by getHTML() to $batch.
 	 * This method is for QueryPage::preprocessResults().
 	 * It optimizes makeLink() calls by detecting all redlinks in one SQL query.
-	 * @param stdClass $row
+	 * @param object $row
 	 * @param LinkBatch $batch
 	 */
 	public static function addToLinkBatch( $row, LinkBatch $batch ) {

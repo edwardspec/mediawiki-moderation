@@ -28,7 +28,7 @@ class ModerationViewableEntry extends ModerationEntry {
 	protected $linkRenderer;
 
 	/**
-	 * @param stdClass $row
+	 * @param object $row
 	 * @param LinkRenderer $linkRenderer
 	 */
 	public function __construct( $row, LinkRenderer $linkRenderer ) {
