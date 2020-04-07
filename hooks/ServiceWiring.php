@@ -27,6 +27,7 @@ use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\ConsequenceManager;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
+use MediaWiki\Moderation\RollbackResistantQuery;
 use MediaWiki\Moderation\TimestampFormatter;
 
 // @codeCoverageIgnoreStart
@@ -89,6 +90,12 @@ return [
 		return new ModerationPreload(
 			$services->getService( 'Moderation.EntryFactory' ),
 			$services->getService( 'Moderation.ConsequenceManager' )
+		);
+	},
+	'Moderation.RollbackResistantQuery' =>
+	function ( MediaWikiServices $services ) : RollbackResistantQuery {
+		return new RollbackResistantQuery(
+			$services->getDBLoadBalancer()
 		);
 	},
 	'Moderation.TimestampFormatter' => function () : TimestampFormatter {

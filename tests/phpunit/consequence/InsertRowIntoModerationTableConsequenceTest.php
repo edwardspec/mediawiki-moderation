@@ -22,7 +22,6 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
-use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -116,27 +115,10 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 
 	/**
 	 * Verify that changes of InsertRowIntoModerationTableConsequence are repeated on DB rollback.
-	 * @param bool $initialized Value of RollbackResistantQuery::$initialized before the test.
-	 * @dataProvider dataProviderRollbackResistance
-	 *
 	 * @covers MediaWiki\Moderation\InsertRowIntoModerationTableConsequence
-	 * @covers RollbackResistantQuery
+	 * @covers MediaWiki\Moderation\RollbackResistantQuery
 	 */
-	public function testRollbackResistance( $initialized ) {
-		$wrapper = TestingAccessWrapper::newFromClass( RollbackResistantQuery::class );
-		if ( $initialized && !$wrapper->initialized ) {
-			throw new MWException(
-				'Test with initialized=true should run after the test with initialized=false' );
-		} elseif ( !$initialized && $wrapper->initialized ) {
-			// Some previous test has already initialized the listener.
-			// TODO: this should probably be a destructible singleton (like ModerationApproveHook).
-			$wrapper->initialized = false;
-			$wrapper->performedQueries = [];
-
-			$loadBalancer = MediaWikiServices::getInstance()->getDBLoadBalancer();
-			$loadBalancer->setTransactionListener( 'moderation-on-rollback-or-commit', null );
-		}
-
+	public function testRollbackResistance() {
 		$fields = $this->getSampleFields();
 
 		// Ensure that rollback() won't reinsert any changes from previous tests.
@@ -165,18 +147,6 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 		$lbFactory->beginMasterChanges( __METHOD__ );
 		$lbFactory->rollbackMasterChanges( __METHOD__ );
 		$this->assertSelect( 'moderation', 'mod_id', [ 'mod_id' => $reinsertedModId ], [] );
-	}
-
-	/**
-	 * Provide datasets for testRollbackResistance() runs.
-	 * @return array
-	 */
-	public function dataProviderRollbackResistance() {
-		return [
-			'when RollbackResistantQuery::$initialized=false' => [ false ],
-			'when RollbackResistantQuery::$initialized=true' => [ true ],
-			'when RollbackResistantQuery::$initialized=false (attempt #2)' => [ false ]
-		];
 	}
 
 	/**
