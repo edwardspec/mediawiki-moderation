@@ -26,6 +26,7 @@ use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\ConsequenceManager;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
+use MediaWiki\Moderation\RollbackResistantQuery;
 use MediaWiki\Moderation\TimestampFormatter;
 
 require_once __DIR__ . "/autoload.php";
@@ -59,7 +60,9 @@ class ServiceWiringTest extends ModerationUnitTestCase {
 			[ 'Moderation.EntryFactory', EntryFactory::class ],
 			[ 'Moderation.NotifyModerator', ModerationNotifyModerator::class ],
 			[ 'Moderation.Preload', ModerationPreload::class ],
+			[ 'Moderation.RollbackResistantQuery', RollbackResistantQuery::class ],
 			[ 'Moderation.TimestampFormatter', TimestampFormatter::class ],
+			[ 'Moderation.VersionCheck', ModerationVersionCheck::class ],
 		];
 	}
 }

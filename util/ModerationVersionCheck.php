@@ -20,7 +20,18 @@
  * Functions for seamless database updates between versions.
  */
 
+use MediaWiki\MediaWikiServices;
+
 class ModerationVersionCheck {
+	/** @var BagOStuff */
+	protected $cache;
+
+	/**
+	 * @param BagOStuff $cache
+	 */
+	public function __construct( BagOStuff $cache ) {
+		$this->cache = $cache;
+	}
 
 	/**
 	 * Returns true if the database has mod_tags field, false otherwise.
@@ -100,54 +111,37 @@ class ModerationVersionCheck {
 
 	/*-------------------------------------------------------------------*/
 
-	/** @var string|null Local cache used by getDbUpdatedVersion() */
-	protected static $dbUpdatedVersion = null;
-
-	/**
-	 * Returns memcached key used by getDbUpdatedVersion() and invalidateCache()
-	 * @return string
-	 */
-	protected static function getCacheKey() {
-		return self::getCache()->makeKey( 'moderation-lastDbUpdateVersion' );
-	}
-
-	/**
-	 * Returns cache used by getDbUpdatedVersion().
-	 * @return BagOStuff
-	 */
-	protected static function getCache() {
-		return wfGetMainCache();
-	}
-
 	/**
 	 * Check if update.php was called after $versionOfModeration was installed.
 	 * @param string $versionOfModeration Version of Extension:Moderation, as listed in extension.json.
 	 * @return bool True if update.php was called, false otherwise.
 	 */
 	protected static function wasDbUpdatedAfter( $versionOfModeration ) {
-		return version_compare( $versionOfModeration, self::getDbUpdatedVersion(), '<=' );
+		$versionCheck = MediaWikiServices::getInstance()->getService( 'Moderation.VersionCheck' );
+		return version_compare( $versionOfModeration, $versionCheck->getDbUpdatedVersion(), '<=' );
+	}
+
+	/**
+	 * Returns memcached key used by getDbUpdatedVersion() and invalidateCache()
+	 * @return string
+	 */
+	protected function getCacheKey() {
+		return $this->cache->makeKey( 'moderation-lastDbUpdateVersion' );
 	}
 
 	/**
 	 * Returns version that Moderation had during the latest invocation of update.php.
 	 * @return string Version number, e.g. "1.2.3".
 	 */
-	protected static function getDbUpdatedVersion() {
-		if ( self::$dbUpdatedVersion ) {
-			/* Already known, no need to look in Memcached */
-			return self::$dbUpdatedVersion;
-		}
+	protected function getDbUpdatedVersion() {
+		$cacheKey = $this->getCacheKey();
 
-		$cache = self::getCache();
-		$cacheKey = self::getCacheKey();
-
-		$result = $cache->get( $cacheKey );
+		$result = $this->cache->get( $cacheKey );
 		if ( $result === false ) { /* Not found in the cache */
-			$result = self::getDbUpdatedVersionUncached();
-			$cache->set( $cacheKey, $result, 86400 ); /* 24 hours */
+			$result = $this->getDbUpdatedVersionUncached();
+			$this->cache->set( $cacheKey, $result, 86400 ); /* 24 hours */
 		}
 
-		self::$dbUpdatedVersion = $result;
 		return $result;
 	}
 
@@ -156,7 +150,7 @@ class ModerationVersionCheck {
 	 * @note Shouldn't be used outside of getDbUpdatedVersion()
 	 * @return string Version number, e.g. "1.2.3".
 	 */
-	protected static function getDbUpdatedVersionUncached() {
+	protected function getDbUpdatedVersionUncached() {
 		$dbr = wfGetDB( DB_REPLICA );
 
 		// These checks are sorted "most recent changes first",
@@ -193,6 +187,14 @@ class ModerationVersionCheck {
 	 * Note: this won't affect CACHE_ACCEL, update.php has no access to it.
 	 */
 	public static function invalidateCache() {
-		self::getCache()->delete( self::getCacheKey() );
+		$versionCheck = MediaWikiServices::getInstance()->getService( 'Moderation.VersionCheck' );
+		$versionCheck->invalidateCacheInternal();
+	}
+
+	/**
+	 * Main logic of invalidateCache().
+	 */
+	protected function invalidateCacheInternal() {
+		$this->cache->delete( $this->getCacheKey() );
 	}
 }

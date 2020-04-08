@@ -30,6 +30,9 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 	 * @covers ModerationVersionCheck
 	 */
 	public function testModernSchema() {
+		$versionCheck = new ModerationVersionCheck( new HashBagOStuff() );
+		$this->setService( 'Moderation.VersionCheck', $versionCheck );
+
 		$this->assertTrue( ModerationVersionCheck::areTagsSupported(), 'areTagsSupported' );
 		$this->assertTrue( ModerationVersionCheck::usesDbKeyAsTitle(), 'usesDbKeyAsTitle' );
 		$this->assertTrue( ModerationVersionCheck::hasModType(), 'hasModType' );
