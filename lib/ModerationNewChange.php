@@ -368,20 +368,21 @@ class ModerationNewChange {
 		$pendingEdit = $this->getPendingEdit();
 		$id = $pendingEdit ? $pendingEdit->getId() : false;
 
+		$rrQuery = MediaWikiServices::getInstance()->getService( 'Moderation.RollbackResistantQuery' );
+
 		$dbw = wfGetDB( DB_MASTER );
 		if ( $id ) {
-			RollbackResistantQuery::update( $dbw, [
-				'moderation',
-				$this->getFields(),
-				[ 'mod_id' => $id ],
-				__METHOD__
-			] );
+			$rrQuery->perform( function () use ( $dbw, $id ) {
+				$dbw->update(
+					'moderation',
+					$this->getFields(),
+					[ 'mod_id' => $id ]
+				);
+			} );
 		} else {
-			RollbackResistantQuery::insert( $dbw, [
-				'moderation',
-				$this->getFields(),
-				__METHOD__
-			] );
+			$rrQuery->perform( function () use ( $dbw ) {
+				$dbw->insert( 'moderation', $this->getFields() );
+			} );
 			$id = $dbw->insertId();
 		}
 

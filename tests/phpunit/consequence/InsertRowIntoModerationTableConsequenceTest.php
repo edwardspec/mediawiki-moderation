@@ -20,9 +20,8 @@
  * Unit test of InsertRowIntoModerationTableConsequence.
  */
 
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
-use Wikimedia\TestingAccessWrapper;
+use MediaWiki\Moderation\RollbackResistantQuery;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -38,6 +37,7 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 	 * @covers MediaWiki\Moderation\InsertRowIntoModerationTableConsequence
 	 */
 	public function testInsert() {
+		$this->mockRollbackResistantQueryService( 1 );
 		$fields = $this->getSampleFields();
 
 		// Create and run the Consequence.
@@ -53,6 +53,8 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 	 * @covers MediaWiki\Moderation\InsertRowIntoModerationTableConsequence
 	 */
 	public function testUpdateExistingRow() {
+		$this->mockRollbackResistantQueryService( 2 );
+
 		// First, create an existing row.
 		$fields = $this->getSampleFields();
 		$consequence = new InsertRowIntoModerationTableConsequence( $fields );
@@ -77,6 +79,8 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 	 * @covers MediaWiki\Moderation\InsertRowIntoModerationTableConsequence
 	 */
 	public function testNoChangesToUnrelatedRows() {
+		$this->mockRollbackResistantQueryService( 6 );
+
 		// First, create an existing row.
 		$fields = $this->getSampleFields();
 		$consequence = new InsertRowIntoModerationTableConsequence( $fields );
@@ -112,71 +116,6 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 			'',
 			[ [ $expectedNumberOfRows ] ]
 		);
-	}
-
-	/**
-	 * Verify that changes of InsertRowIntoModerationTableConsequence are repeated on DB rollback.
-	 * @param bool $initialized Value of RollbackResistantQuery::$initialized before the test.
-	 * @dataProvider dataProviderRollbackResistance
-	 *
-	 * @covers MediaWiki\Moderation\InsertRowIntoModerationTableConsequence
-	 * @covers RollbackResistantQuery
-	 */
-	public function testRollbackResistance( $initialized ) {
-		$wrapper = TestingAccessWrapper::newFromClass( RollbackResistantQuery::class );
-		if ( $initialized && !$wrapper->initialized ) {
-			throw new MWException(
-				'Test with initialized=true should run after the test with initialized=false' );
-		} elseif ( !$initialized && $wrapper->initialized ) {
-			// Some previous test has already initialized the listener.
-			// TODO: this should probably be a destructible singleton (like ModerationApproveHook).
-			$wrapper->initialized = false;
-			$wrapper->performedQueries = [];
-
-			$loadBalancer = MediaWikiServices::getInstance()->getDBLoadBalancer();
-			$loadBalancer->setTransactionListener( 'moderation-on-rollback-or-commit', null );
-		}
-
-		$fields = $this->getSampleFields();
-
-		// Ensure that rollback() won't reinsert any changes from previous tests.
-		$lbFactory = MediaWikiServices::getInstance()->getDBLoadBalancerFactory();
-		$lbFactory->commitMasterChanges( __METHOD__ );
-
-		// Begin a new transaction.
-		$lbFactory->beginMasterChanges( __METHOD__ );
-
-		// Create and run the Consequence.
-		$consequence = new InsertRowIntoModerationTableConsequence( $fields );
-		$consequence->run();
-
-		// Simulate situation when caller of doEditContent (some third-party extension)
-		// throws an MWException, in which case transaction is aborted.
-		$lbFactory->rollbackMasterChanges( __METHOD__ );
-
-		$reinsertedModId = $this->db->selectField( 'moderation', 'mod_id', '', __METHOD__ );
-		$this->assertRowExistsAndCorrect( $reinsertedModId, $fields );
-
-		// Verify that row won't be reinserted after commit and another rollback.
-		$lbFactory->beginMasterChanges( __METHOD__ );
-		$this->db->delete( 'moderation', [ 'mod_id' => $reinsertedModId ], __METHOD__ );
-		$lbFactory->commitMasterChanges( __METHOD__ );
-
-		$lbFactory->beginMasterChanges( __METHOD__ );
-		$lbFactory->rollbackMasterChanges( __METHOD__ );
-		$this->assertSelect( 'moderation', 'mod_id', [ 'mod_id' => $reinsertedModId ], [] );
-	}
-
-	/**
-	 * Provide datasets for testRollbackResistance() runs.
-	 * @return array
-	 */
-	public function dataProviderRollbackResistance() {
-		return [
-			'when RollbackResistantQuery::$initialized=false' => [ false ],
-			'when RollbackResistantQuery::$initialized=true' => [ true ],
-			'when RollbackResistantQuery::$initialized=false (attempt #2)' => [ false ]
-		];
 	}
 
 	/**
@@ -244,5 +183,21 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 			'mod_page2_namespace' => 0,
 			'mod_page2_title' => 'Test page 2'
 		];
+	}
+
+	/**
+	 * Replace RollbackResistantQuery service with a mock that expects $numberOfCalls to perform().
+	 * @param int $numberOfCalls
+	 */
+	private function mockRollbackResistantQueryService( $numberOfCalls ) {
+		$rrQuery = $this->createMock( RollbackResistantQuery::class );
+		$rrQuery->expects( $this->exactly( $numberOfCalls ) )
+			->method( 'perform' )->will( $this->returnCallback(
+				function ( callable $cb ) {
+					// Run it immediately, nothing else.
+					$cb();
+				}
+			) );
+		$this->setService( 'Moderation.RollbackResistantQuery', $rrQuery );
 	}
 }

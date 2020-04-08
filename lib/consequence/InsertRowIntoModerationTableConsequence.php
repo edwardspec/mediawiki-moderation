@@ -22,8 +22,8 @@
 
 namespace MediaWiki\Moderation;
 
+use MediaWiki\MediaWikiServices;
 use ModerationVersionCheck;
-use RollbackResistantQuery;
 
 class InsertRowIntoModerationTableConsequence implements IConsequence {
 	/** @var array */
@@ -52,13 +52,17 @@ class InsertRowIntoModerationTableConsequence implements IConsequence {
 		}
 
 		$dbw = wfGetDB( DB_MASTER );
-		RollbackResistantQuery::upsert( $dbw, [
-			'moderation',
-			$this->fields,
-			[ $uniqueFields ],
-			$this->fields,
-			__METHOD__
-		] );
+
+		$rrQuery = MediaWikiServices::getInstance()->getService( 'Moderation.RollbackResistantQuery' );
+		$rrQuery->perform( function () use ( $dbw, $uniqueFields ) {
+			$dbw->upsert(
+				'moderation',
+				$this->fields,
+				[ $uniqueFields ],
+				$this->fields,
+				'InsertRowIntoModerationTableConsequence::run'
+			);
+		} );
 
 		if ( $dbw->getType() == 'postgres' ) {
 			// It's a bit of a shame to do an extra SELECT query just for that,

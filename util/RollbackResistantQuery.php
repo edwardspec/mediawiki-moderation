@@ -20,118 +20,66 @@
  * Performs database query that is not rolled back by MWException.
  */
 
-class RollbackResistantQuery {
+namespace MediaWiki\Moderation;
 
-	/** @var bool Becomes true after initialize() */
-	protected static $initialized = false;
+use Wikimedia\Rdbms\IDatabase;
+use Wikimedia\Rdbms\ILoadBalancer;
+use Wikimedia\Services\DestructibleService;
 
-	/** @var array All created RollbackResistantQuery objects */
-	protected static $performedQueries = [];
+// @codeCoverageIgnoreStart
+if ( !interface_exists( DestructibleService::class ) ) {
+	// MediaWiki 1.31-1.33
+	// @phan-suppress-next-line PhanRedefineClassAlias
+	class_alias( 'MediaWiki\Services\DestructibleService', 'Wikimedia\Services\DestructibleService' );
+}
+// @codeCoverageIgnoreEnd
 
-	/** @var IDatabase */
-	protected $dbw;
+class RollbackResistantQuery implements DestructibleService {
+	/** @var callable[] All callables that were passed to perform() */
+	protected $operations = [];
 
-	/** @var string Database method, e.g. 'insert' or 'update' */
-	protected $methodName;
-
-	/** @var array Arguments to be passed to Database::insert(), etc. */
-	protected $args;
-
-	/**
-	 * Perform Database::insert() that won't be undone by Database::rollback().
-	 * @param IDatabase $dbw Database object.
-	 * @param array $args Arguments of Database::insert call.
-	 * @codeCoverageIgnore This method is only used in B/C code that will eventually be removed.
-	 */
-	public static function insert( IDatabase $dbw, array $args ) {
-		// @phan-suppress-next-line PhanNoopNew
-		new self( 'insert', $dbw, $args );
-	}
+	/** @var ILoadBalancer */
+	protected $loadBalancer;
 
 	/**
-	 * Perform Database::update() that won't be undone by Database::rollback().
-	 * @param IDatabase $dbw Database object.
-	 * @param array $args Arguments of Database::update call.
-	 * @codeCoverageIgnore This method is only used in B/C code that will eventually be removed.
+	 * @param ILoadBalancer $loadBalancer
 	 */
-	public static function update( IDatabase $dbw, array $args ) {
-		// @phan-suppress-next-line PhanNoopNew
-		new self( 'update', $dbw, $args );
-	}
+	public function __construct( ILoadBalancer $loadBalancer ) {
+		$this->loadBalancer = $loadBalancer;
 
-	/**
-	 * Perform Database::upsert() that won't be undone by Database::rollback().
-	 * @param IDatabase $dbw Database object.
-	 * @param array $args Arguments of Database::upsert call.
-	 */
-	public static function upsert( IDatabase $dbw, array $args ) {
-		// @phan-suppress-next-line PhanNoopNew
-		new self( 'upsert', $dbw, $args );
-	}
-
-	/**
-	 * Create and immediately execute a new query.
-	 * @param string $methodName One of the following: 'insert', 'update' or 'replace'.
-	 * @param IDatabase $dbw Database object.
-	 * @param array $args Arguments of the method.
-	 */
-	protected function __construct( $methodName, IDatabase $dbw, array $args ) {
-		$this->dbw = $dbw;
-		$this->methodName = $methodName;
-		$this->args = $args;
-
-		/* Install the hooks (only happens once) */
-		$this->initialize();
-
-		/* The query is invoked immediately.
-			If rollback() happens, the query will be repeated. */
-		$this->executeNow();
-
-		self::$performedQueries[] = $this; /* All $performedQueries will be re-run after rollback() */
-	}
-
-	/**
-	 * Install hooks that can detect a database rollback.
-	 */
-	protected function initialize() {
-		if ( self::$initialized ) {
-			return;
-		}
-
-		self::$initialized = true;
-		$query = $this;
-
-		$this->dbw->setTransactionListener( 'moderation-on-rollback-or-commit',
-			function ( $trigger ) use ( $query ) {
-				if ( $trigger == Database::TRIGGER_ROLLBACK ) {
-					$query->onRollback();
-				} elseif ( $trigger == Database::TRIGGER_COMMIT ) {
+		// Install hooks that can detect a database rollback.
+		$this->loadBalancer->setTransactionListener( 'moderation-on-rollback-or-commit',
+			function ( $trigger ) {
+				if ( $trigger == IDatabase::TRIGGER_ROLLBACK ) {
+					// Redo all operations, because rollback just undid them.
+					foreach ( $this->operations as $func ) {
+						$func();
+					}
+				} elseif ( $trigger == IDatabase::TRIGGER_COMMIT ) {
 					// COMMIT was successful (previous queries will no longer be rolled back),
 					// so there is no longer any need to repeat them.
-					self::$performedQueries = [];
+					$this->operations = [];
 				}
 			}
 		);
 	}
 
 	/**
-	 * Re-run all $performedQueries. Called after the database rollback.
+	 * Unbind the listener, so that it wouldn't be called with reference to the destroyed service.
 	 */
-	protected function onRollback() {
-		foreach ( self::$performedQueries as $query ) {
-			$query->executeNow();
-		}
-
-		self::$performedQueries = [];
+	public function destroy() {
+		$this->loadBalancer->setTransactionListener( 'moderation-on-rollback-or-commit', null );
 	}
 
 	/**
-	 * Run the scheduled query immediately.
+	 * Perform some database operation that won't be undone by Database::rollback().
+	 * @param callable $func A callback that uses methods like DB::insert(), etc.
 	 */
-	protected function executeNow() {
-		call_user_func_array(
-			[ $this->dbw, $this->methodName ],
-			$this->args
-		);
+	public function perform( callable $func ) {
+		// The query is invoked immediately. If rollback() happens, the query will be repeated.
+		$func();
+
+		// All operations will be re-run after rollback()
+		$this->operations[] = $func;
 	}
 }

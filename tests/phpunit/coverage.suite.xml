@@ -31,6 +31,8 @@
 			<exclude>
 				<directory suffix=".php">..</directory>
 				<directory suffix=".php">../../vendor/</directory>
+				<file>../../Moderation.php</file>
+				<file>../../Moderation.alias.php</file>
 			</exclude>
 		</whitelist>
 	</filter>
