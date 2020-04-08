@@ -20,6 +20,8 @@
  * Unit test of ModerationVersionCheck and ModerationCompatTools.
  */
 
+use Wikimedia\TestingAccessWrapper;
+
 require_once __DIR__ . "/autoload.php";
 
 class ModerationVersionCheckTest extends ModerationUnitTestCase {
@@ -45,6 +47,150 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 		$this->assertSame( 0, ModerationVersionCheck::preloadableYes(), 'preloadableYes' );
 		$this->assertSame( 'mod_preloadable=mod_id', ModerationVersionCheck::setPreloadableToNo(),
 			'setPreloadableToNo' );
+	}
+
+	/**
+	 * Verify that static methods like areTagsSupported() work for different DbUpdatedVersion values.
+	 * @param string $method Name of static method in the ModerationVersionCheck:: class.
+	 * @param string $version
+	 * @param mixed $expectedResult
+	 * @dataProvider dataProviderFeatureChecks
+	 * @covers ModerationVersionCheck
+	 */
+	public function testFeatureChecks( $method, $version, $expectedResult ) {
+		$this->mockDbUpdatedVersion( $version );
+		$this->assertSame( $expectedResult, ModerationVersionCheck::$method(),
+			"Result of $method() doesn't match expected when DbUpdatedVersion=$version" );
+	}
+
+	/**
+	 * Provide datasets for testFeatureChecks() runs.
+	 * @return array
+	 */
+	public function dataProviderFeatureChecks() {
+		return [
+			[ 'areTagsSupported', '1.1.28', false ],
+			[ 'areTagsSupported', '1.1.29', true ],
+			[ 'areTagsSupported', '1.1.30', true ],
+			[ 'usesDbKeyAsTitle', '1.1.30', false ],
+			[ 'usesDbKeyAsTitle', '1.1.31', true ],
+			[ 'usesDbKeyAsTitle', '1.1.32', true ],
+			[ 'hasModType', '1.2.16', false ],
+			[ 'hasModType', '1.2.17', true ],
+			[ 'hasModType', '1.2.18', true ],
+			[ 'hasUniqueIndex', '1.2.8', false ],
+			[ 'hasUniqueIndex', '1.2.9', true ],
+			[ 'hasUniqueIndex', '1.2.10', true ],
+			[ 'preloadableYes', '1.2.8', 1 ],
+			[ 'preloadableYes', '1.2.9', 0 ],
+			[ 'preloadableYes', '1.2.10', 0 ],
+			[ 'setPreloadableToNo', '1.2.8', 'mod_preloadable=0' ],
+			[ 'setPreloadableToNo', '1.2.9', 'mod_preloadable=mod_id' ],
+			[ 'setPreloadableToNo', '1.2.10', 'mod_preloadable=mod_id' ]
+		];
+	}
+
+	/**
+	 * Verify that getDbUpdatedVersion() checks the cache and (if found) returns the cached value.
+	 * @covers ModerationVersionCheck
+	 */
+	public function testDbUpdatedVersionFromCache() {
+		$cache = $this->createMock( BagOStuff::class );
+		$cache->expects( $this->once() )->method( 'makeKey' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( 'moderation-lastDbUpdateVersion' )
+		)->willReturn( '{MockedCacheKey}' );
+
+		$cache->expects( $this->once() )->method( 'get' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( '{MockedCacheKey}' )
+		)->willReturn( '{MockedResult}' );
+
+		$cache->expects( $this->never() )->method( 'set' );
+
+		'@phan-var BagOStuff $cache';
+
+		$versionCheck = new ModerationVersionCheck( $cache );
+		$result = TestingAccessWrapper::newFromObject( $versionCheck )->getDbUpdatedVersion();
+
+		$this->assertSame( '{MockedResult}', $result, 'Unexpected result from getDbUpdatedVersion()' );
+	}
+
+	/**
+	 * Verify that getDbUpdatedVersion() uses *Uncached() method if value is not found in cache.
+	 * @covers ModerationVersionCheck
+	 */
+	public function testDbUpdatedVersionNotFoundInCache() {
+		$cache = $this->createMock( BagOStuff::class );
+		$cache->expects( $this->once() )->method( 'makeKey' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( 'moderation-lastDbUpdateVersion' )
+		)->willReturn( '{MockedCacheKey}' );
+
+		$cache->expects( $this->once() )->method( 'get' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( '{MockedCacheKey}' )
+		)->willReturn( false ); // Not found in cache
+
+		$cache->expects( $this->once() )->method( 'set' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( '{MockedCacheKey}' ),
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( '{MockedResult}' ),
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( 86400 )
+		);
+
+		'@phan-var BagOStuff $cache';
+
+		// Create a partial mock: getDbUpdatedVersionUncached() is mocked, but all other methods are real.
+		$versionCheck = $this->getMockBuilder( ModerationVersionCheck::class )
+			->setConstructorArgs( [ $cache ] )
+			->setMethods( [ 'getDbUpdatedVersionUncached' ] )
+			->getMock();
+
+		$versionCheck->expects( $this->once() )->method( 'getDbUpdatedVersionUncached' )
+			->willReturn( '{MockedResult}' );
+
+		$result = TestingAccessWrapper::newFromObject( $versionCheck )->getDbUpdatedVersion();
+		$this->assertSame( '{MockedResult}', $result, 'Unexpected result from getDbUpdatedVersion()' );
+	}
+
+	/**
+	 * Verify that invalidateCache() clears the cache.
+	 * @covers ModerationVersionCheck
+	 */
+	public function testInvalidateCache() {
+		$cache = $this->createMock( BagOStuff::class );
+		$cache->expects( $this->once() )->method( 'makeKey' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( 'moderation-lastDbUpdateVersion' )
+		)->willReturn( '{MockedCacheKey}' );
+
+		$cache->expects( $this->once() )->method( 'delete' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( '{MockedCacheKey}' )
+		);
+
+		'@phan-var BagOStuff $cache';
+
+		$versionCheck = new ModerationVersionCheck( $cache );
+		$this->setService( 'Moderation.VersionCheck', $versionCheck );
+
+		ModerationVersionCheck::invalidateCache();
+	}
+
+	/**
+	 * Replace VersionCheck service with a mock that returns $version from getDbUpdatedVersion().
+	 * @param string $version
+	 */
+	private function mockDbUpdatedVersion( $version ) {
+		$versionCheck = $this->getMockBuilder( ModerationVersionCheck::class )
+			->setConstructorArgs( [ new EmptyBagOStuff() ] )
+			->setMethods( [ 'getDbUpdatedVersion' ] )
+			->getMock();
+		$versionCheck->expects( $this->once() )->method( 'getDbUpdatedVersion' )->willReturn( $version );
+		$this->setService( 'Moderation.VersionCheck', $versionCheck );
 	}
 
 	/**
