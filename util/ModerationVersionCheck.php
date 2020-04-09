@@ -21,16 +21,23 @@
  */
 
 use MediaWiki\MediaWikiServices;
+use Wikimedia\Rdbms\ILoadBalancer;
+use Wikimedia\Rdbms\IMaintainableDatabase;
 
 class ModerationVersionCheck {
 	/** @var BagOStuff */
 	protected $cache;
 
+	/** @var ILoadBalancer */
+	protected $loadBalancer;
+
 	/**
 	 * @param BagOStuff $cache
+	 * @param ILoadBalancer $loadBalancer
 	 */
-	public function __construct( BagOStuff $cache ) {
+	public function __construct( BagOStuff $cache, ILoadBalancer $loadBalancer ) {
 		$this->cache = $cache;
+		$this->loadBalancer = $loadBalancer;
 	}
 
 	/**
@@ -138,7 +145,8 @@ class ModerationVersionCheck {
 
 		$result = $this->cache->get( $cacheKey );
 		if ( $result === false ) { /* Not found in the cache */
-			$result = $this->getDbUpdatedVersionUncached( wfGetDB( DB_REPLICA ) );
+			$db = $this->loadBalancer->getMaintenanceConnectionRef( DB_REPLICA );
+			$result = $this->getDbUpdatedVersionUncached( $db );
 			$this->cache->set( $cacheKey, $result, 86400 ); /* 24 hours */
 		}
 
@@ -163,7 +171,7 @@ class ModerationVersionCheck {
 			return '1.2.17';
 		}
 
-		if ( $db->indexUnique( 'moderation', 'moderation_load', __METHOD__ ) ) {
+		if ( $db->indexUnique( 'moderation', 'moderation_load' ) ) {
 			return '1.2.9';
 		}
 

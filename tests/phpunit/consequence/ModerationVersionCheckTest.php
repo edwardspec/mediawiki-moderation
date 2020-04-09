@@ -20,6 +20,8 @@
  * Unit test of ModerationVersionCheck and ModerationCompatTools.
  */
 
+use MediaWiki\MediaWikiServices;
+use Wikimedia\Rdbms\ILoadBalancer;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -32,7 +34,9 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 	 * @covers ModerationVersionCheck
 	 */
 	public function testModernSchema() {
-		$versionCheck = new ModerationVersionCheck( new HashBagOStuff() );
+		$loadBalancer = MediaWikiServices::getInstance()->getDBLoadBalancer();
+
+		$versionCheck = new ModerationVersionCheck( new HashBagOStuff(), $loadBalancer );
 		$this->setService( 'Moderation.VersionCheck', $versionCheck );
 
 		$this->assertTrue( ModerationVersionCheck::areTagsSupported(), 'areTagsSupported' );
@@ -95,6 +99,7 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 	 * @covers ModerationVersionCheck
 	 */
 	public function testDbUpdatedVersionFromCache() {
+		$loadBalancer = $this->createMock( ILoadBalancer::class );
 		$cache = $this->createMock( BagOStuff::class );
 		$cache->expects( $this->once() )->method( 'makeKey' )->with(
 			// @phan-suppress-next-line PhanTypeMismatchArgument
@@ -109,8 +114,9 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 		$cache->expects( $this->never() )->method( 'set' );
 
 		'@phan-var BagOStuff $cache';
+		'@phan-var ILoadBalancer $loadBalancer';
 
-		$versionCheck = new ModerationVersionCheck( $cache );
+		$versionCheck = new ModerationVersionCheck( $cache, $loadBalancer );
 		$result = TestingAccessWrapper::newFromObject( $versionCheck )->getDbUpdatedVersion();
 
 		$this->assertSame( '{MockedResult}', $result, 'Unexpected result from getDbUpdatedVersion()' );
@@ -141,17 +147,26 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 			$this->identicalTo( 86400 )
 		);
 
+		$mockedConnRef = $this->createMock( IMaintainableDatabase::class );
+
+		$loadBalancer = $this->createMock( ILoadBalancer::class );
+		$loadBalancer->expects( $this->once() )->method( 'getMaintenanceConnectionRef' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( DB_REPLICA )
+		)->willReturn( $mockedConnRef );
+
 		'@phan-var BagOStuff $cache';
+		'@phan-var ILoadBalancer $loadBalancer';
 
 		// Create a partial mock: getDbUpdatedVersionUncached() is mocked, but all other methods are real.
 		$versionCheck = $this->getMockBuilder( ModerationVersionCheck::class )
-			->setConstructorArgs( [ $cache ] )
+			->setConstructorArgs( [ $cache, $loadBalancer ] )
 			->setMethods( [ 'getDbUpdatedVersionUncached' ] )
 			->getMock();
 
 		$versionCheck->expects( $this->once() )->method( 'getDbUpdatedVersionUncached' )->with(
 			// @phan-suppress-next-line PhanTypeMismatchArgument
-			$this->isInstanceOf( IDatabase::class )
+			$this->identicalTo( $mockedConnRef )
 		)->willReturn( '{MockedResult}' );
 
 		$result = TestingAccessWrapper::newFromObject( $versionCheck )->getDbUpdatedVersion();
@@ -163,6 +178,7 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 	 * @covers ModerationVersionCheck
 	 */
 	public function testInvalidateCache() {
+		$loadBalancer = $this->createMock( ILoadBalancer::class );
 		$cache = $this->createMock( BagOStuff::class );
 		$cache->expects( $this->once() )->method( 'makeKey' )->with(
 			// @phan-suppress-next-line PhanTypeMismatchArgument
@@ -175,8 +191,9 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 		);
 
 		'@phan-var BagOStuff $cache';
+		'@phan-var ILoadBalancer $loadBalancer';
 
-		$versionCheck = new ModerationVersionCheck( $cache );
+		$versionCheck = new ModerationVersionCheck( $cache, $loadBalancer );
 		$this->setService( 'Moderation.VersionCheck', $versionCheck );
 
 		ModerationVersionCheck::invalidateCache();
@@ -216,7 +233,10 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 		// as no wikis are using it.
 		$db->expects( $this->any() )->method( 'selectRowCount' )->willReturn( 0 );
 
-		$versionCheck = new ModerationVersionCheck( new EmptyBagOStuff() );
+		$loadBalancer = $this->createMock( ILoadBalancer::class );
+		'@phan-var ILoadBalancer $loadBalancer';
+
+		$versionCheck = new ModerationVersionCheck( new EmptyBagOStuff(), $loadBalancer );
 
 		$wrapper = TestingAccessWrapper::newFromObject( $versionCheck );
 		$result = $wrapper->getDbUpdatedVersionUncached( $db );
@@ -244,8 +264,12 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 	 * @param string $version
 	 */
 	private function mockDbUpdatedVersion( $version ) {
+		$loadBalancer = $this->createMock( ILoadBalancer::class );
+
+		'@phan-var ILoadBalancer $loadBalancer';
+
 		$versionCheck = $this->getMockBuilder( ModerationVersionCheck::class )
-			->setConstructorArgs( [ new EmptyBagOStuff() ] )
+			->setConstructorArgs( [ new EmptyBagOStuff(), $loadBalancer ] )
 			->setMethods( [ 'getDbUpdatedVersion' ] )
 			->getMock();
 		$versionCheck->expects( $this->once() )->method( 'getDbUpdatedVersion' )->willReturn( $version );
