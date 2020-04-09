@@ -44,7 +44,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	 * @codingStandardsIgnoreEnd
 	 *
 	 * @covers ModerationActionApprove
-	 * @covers ModerationActionBlock
 	 * @covers ModerationActionEditChange
 	 * @covers ModerationActionEditChangeSubmit
 	 * @covers ModerationActionPreview
@@ -172,8 +171,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 			'approveall' => false,
 			'reject' => false,
 			'rejectall' => false,
-			'block' => false,
-			'unblock' => false,
 			'editchange' => false,
 			'editchangesubmit' => false,
 			'preview' => true
