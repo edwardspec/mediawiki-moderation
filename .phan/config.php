@@ -23,6 +23,14 @@ $cfg['directory_list'] = array_merge(
 	]
 );
 
+# Stubs for "detect unused code" mode
+if ( getopt( 'x', [ 'dead-code-detection' ] ) ) {
+	$cfg['file_list'][] = '.phan/NotUnusedCode.php';
+	$cfg['suppress_issue_types'][] = 'PhanUnreferencedClosure';
+	$cfg['suppress_issue_types'][] = 'PhanReadOnlyPublicProperty';
+	$cfg['suppress_issue_types'][] = 'PhanReadOnlyProtectedProperty';
+}
+
 if ( getenv( 'PHAN_CHECK_TESTSUITE' ) ) {
 	# Also check the ModerationTestsuite, but only if PHAN_CHECK_TESTSUITE=1 in the environment.
 	# Shouldn't be included by default, because Phan assumes all present files to be included,

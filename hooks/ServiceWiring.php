@@ -101,6 +101,12 @@ return [
 	'Moderation.TimestampFormatter' => function () : TimestampFormatter {
 		return new TimestampFormatter();
 	},
+	'Moderation.VersionCheck' => function ( MediaWikiServices $services ) : ModerationVersionCheck {
+		return new ModerationVersionCheck(
+			new CachedBagOStuff( wfGetMainCache() ),
+			$services->getDBLoadBalancer()
+		);
+	},
 ];
 
 // @codeCoverageIgnoreEnd
