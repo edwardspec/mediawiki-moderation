@@ -138,7 +138,7 @@ class ModerationVersionCheck {
 
 		$result = $this->cache->get( $cacheKey );
 		if ( $result === false ) { /* Not found in the cache */
-			$result = $this->getDbUpdatedVersionUncached();
+			$result = $this->getDbUpdatedVersionUncached( wfGetDB( DB_REPLICA ) );
 			$this->cache->set( $cacheKey, $result, 86400 ); /* 24 hours */
 		}
 
@@ -148,31 +148,30 @@ class ModerationVersionCheck {
 	/**
 	 * Uncached version of getDbUpdatedVersion().
 	 * @note Shouldn't be used outside of getDbUpdatedVersion()
+	 * @param IMaintainableDatabase $db
 	 * @return string Version number, e.g. "1.2.3".
 	 */
-	protected function getDbUpdatedVersionUncached() {
-		$dbr = wfGetDB( DB_REPLICA );
-
+	protected function getDbUpdatedVersionUncached( IMaintainableDatabase $db ) {
 		// These checks are sorted "most recent changes first",
 		// so that the wiki with the most recent schema would only need one check.
 
-		if ( $dbr->getType() == 'postgres' ) {
+		if ( $db->getType() == 'postgres' ) {
 			return '1.4.12';
 		}
 
-		if ( $dbr->fieldExists( 'moderation', 'mod_type', __METHOD__ ) ) {
+		if ( $db->fieldExists( 'moderation', 'mod_type', __METHOD__ ) ) {
 			return '1.2.17';
 		}
 
-		if ( $dbr->indexUnique( 'moderation', 'moderation_load', __METHOD__ ) ) {
+		if ( $db->indexUnique( 'moderation', 'moderation_load', __METHOD__ ) ) {
 			return '1.2.9';
 		}
 
-		if ( !$dbr->fieldExists( 'moderation', 'mod_tags', __METHOD__ ) ) {
+		if ( !$db->fieldExists( 'moderation', 'mod_tags', __METHOD__ ) ) {
 			return '1.0.0';
 		}
 
-		$titlesWithSpace = $dbr->selectRowCount(
+		$titlesWithSpace = $db->selectRowCount(
 			'moderation',
 			'*',
 			[ 'mod_title LIKE "% %"' ],

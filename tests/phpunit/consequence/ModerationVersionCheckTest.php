@@ -149,8 +149,10 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 			->setMethods( [ 'getDbUpdatedVersionUncached' ] )
 			->getMock();
 
-		$versionCheck->expects( $this->once() )->method( 'getDbUpdatedVersionUncached' )
-			->willReturn( '{MockedResult}' );
+		$versionCheck->expects( $this->once() )->method( 'getDbUpdatedVersionUncached' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->isInstanceOf( IDatabase::class )
+		)->willReturn( '{MockedResult}' );
 
 		$result = TestingAccessWrapper::newFromObject( $versionCheck )->getDbUpdatedVersion();
 		$this->assertSame( '{MockedResult}', $result, 'Unexpected result from getDbUpdatedVersion()' );
@@ -178,6 +180,63 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 		$this->setService( 'Moderation.VersionCheck', $versionCheck );
 
 		ModerationVersionCheck::invalidateCache();
+	}
+
+	/**
+	 * Verify that getDbUpdatedVersionUncached() correctly detects the DB schema version.
+	 * @param string $expectedResult
+	 * @param string $dbType Mocked result of $db->getType()
+	 * @param array $fieldExists E.g. [ 'mod_type' => true ]
+	 * @param bool $isLoadIndexUnique Mocked result of $db->indexUnique(..., 'moderation_load')
+	 * @dataProvider dataProviderDbUpdatedVersionUncached
+	 * @covers ModerationVersionCheck
+	 */
+	public function testDbUpdatedVersionUncached( $expectedResult, $dbType, array $fieldExists,
+		$isLoadIndexUnique
+	) {
+		// Mock the database (which is a parameter of getDbUpdatedVersionUncached).
+		$db = $this->createMock( IMaintainableDatabase::class );
+		$db->expects( $this->any() )->method( 'getType' )->willReturn( $dbType );
+
+		$db->expects( $this->any() )->method( 'fieldExists' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( 'moderation' )
+		)->will( $this->returnCallback( function ( $_, $field ) use ( $fieldExists ) {
+			return $fieldExists[$field] ?? false;
+		} ) );
+
+		$db->expects( $this->any() )->method( 'indexUnique' )->with(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( 'moderation' ),
+			// @phan-suppress-next-line PhanTypeMismatchArgument
+			$this->identicalTo( 'moderation_load' )
+		)->willReturn( $isLoadIndexUnique );
+
+		// We are not testing the differences between 1.1.29/1.1.31 DB schema,
+		// as no wikis are using it.
+		$db->expects( $this->any() )->method( 'selectRowCount' )->willReturn( 0 );
+
+		$versionCheck = new ModerationVersionCheck( new EmptyBagOStuff() );
+
+		$wrapper = TestingAccessWrapper::newFromObject( $versionCheck );
+		$result = $wrapper->getDbUpdatedVersionUncached( $db );
+
+		$this->assertSame( $expectedResult, $result,
+			'Unexpected result from getDbUpdatedVersionUncached()' );
+	}
+
+	/**
+	 * Provide datasets for testDbUpdatedVersionUncached() runs.
+	 * @return array
+	 */
+	public function dataProviderDbUpdatedVersionUncached() {
+		return [
+			'1.4.12' => [ '1.4.12', 'postgres', [ 'mod_type' => true, 'mod_tags' => true ], true ],
+			'1.2.17' => [ '1.2.17', 'mysql', [ 'mod_type' => true, 'mod_tags' => true ], true ],
+			'1.2.9' => [ '1.2.9', 'mysql', [ 'mod_type' => false, 'mod_tags' => true ], true ],
+			'1.1.31' => [ '1.1.31', 'mysql', [ 'mod_type' => false, 'mod_tags' => true ], false ],
+			'1.0.0' => [ '1.0.0', 'mysql', [ 'mod_type' => false, 'mod_tags' => false ], false ]
+		];
 	}
 
 	/**
