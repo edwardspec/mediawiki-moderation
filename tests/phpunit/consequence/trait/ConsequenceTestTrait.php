@@ -22,9 +22,7 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\IConsequence;
-use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
-use MediaWiki\Moderation\RejectBatchConsequence;
 
 /**
  * @method static mixed any()
@@ -60,90 +58,6 @@ trait ConsequenceTestTrait {
 	 * Moderator that will perform the action during getConsequences().
 	 */
 	protected $moderatorUser = null;
-
-	/**
-	 * Assert that $expectedConsequences are exactly the same as $actualConsequences.
-	 * @param IConsequence[] $expectedConsequences
-	 * @param IConsequence[] $actualConsequences
-	 */
-	private function assertConsequencesEqual(
-		array $expectedConsequences,
-		array $actualConsequences
-	) {
-		$this->assertEquals(
-			array_map( 'get_class', $expectedConsequences ),
-			array_map( 'get_class', $actualConsequences ),
-			"List of consequences doesn't match expected."
-		);
-
-		array_map( function ( $expected, $actual ) {
-			$class = get_class( $expected );
-			$this->assertSame(
-				$this->toArray( $expected ),
-				$this->toArray( $actual ),
-				"Parameters of consequence $class don't match expected."
-			);
-		}, $expectedConsequences, $actualConsequences );
-	}
-
-	/**
-	 * Assert that no consequences were added to $manager.
-	 * @param MockConsequenceManager $manager
-	 */
-	public function assertNoConsequences( MockConsequenceManager $manager ) {
-		$this->assertConsequencesEqual( [], $manager->getConsequences() );
-	}
-
-	/**
-	 * Convert $consequence into a human-readable array of properties (for logging and comparison).
-	 * Properties with types like Title are replaced by [ className, mixed, ... ] arrays.
-	 * @param IConsequence $consequence
-	 * @return array
-	 */
-	protected function toArray( IConsequence $consequence ) {
-		$fields = [];
-
-		$rc = new ReflectionClass( $consequence );
-		foreach ( $rc->getProperties() as $prop ) {
-			$prop->setAccessible( true );
-			$value = $prop->getValue( $consequence );
-
-			$type = gettype( $value );
-			if ( $type == 'object' ) {
-				if ( $value instanceof Title ) {
-					$value = [ 'Title', (string)$value ];
-				} elseif ( $value instanceof WikiPage ) {
-					$value = [ 'WikiPage', (string)$value->getTitle() ];
-				} elseif ( $value instanceof User ) {
-					$value = [ 'User', $value->getId(), $value->getName() ];
-				}
-			}
-
-			$name = $prop->getName();
-
-			if ( $consequence instanceof InsertRowIntoModerationTableConsequence &&
-				$name == 'fields'
-			) {
-				# Cast all values to strings. 2 and "2" are the same for DB::insert(),
-				# so caller shouldn't have to write "mod_namespace => (string)2" explicitly.
-				# We also don't want it to prevent Phan from typechecking inside $fields array.
-				$value = array_map( 'strval', $value );
-				ksort( $value );
-
-				// Having timestamps in normalized form leads to flaky comparison results,
-				// because it's possible that "expected timestamp" was calculated
-				// in a different second than mod_timestamp in an actual Consequence.
-				$value['mod_timestamp'] = '<<< MOCKED TIMESTAMP >>>';
-			} elseif ( $consequence instanceof RejectBatchConsequence && $name == 'ids' ) {
-				// Order of elements in $ids doesn't matter and is different for MySQL/PosgreSQL.
-				sort( $value );
-			}
-
-			$fields[$name] = $value;
-		}
-
-		return [ get_class( $consequence ), $fields ];
-	}
 
 	/**
 	 * Get an array of consequences after running $modaction on an edit that was queued in setUp().

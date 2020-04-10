@@ -20,6 +20,10 @@
  * Subclass of MediaWikiTestCase that is used for Consequence tests. (NOT for blackbox tests)
  */
 
+use MediaWiki\Moderation\IConsequence;
+use MediaWiki\Moderation\IsConsequenceEqual;
+use MediaWiki\Moderation\MockConsequenceManager;
+
 class ModerationUnitTestCase extends MediaWikiTestCase {
 	protected function addCoreDBData() {
 		// Do nothing. Normally this method creates test user, etc.,
@@ -48,5 +52,57 @@ class ModerationUnitTestCase extends MediaWikiTestCase {
 		if ( version_compare( $wgVersion, '1.32.0', '<' ) ) {
 			$this->overrideMwServices();
 		}
+	}
+
+	/**
+	 * Get PHPUnit constraint to compare consequences.
+	 * @param IConsequence $value
+	 * @return IsConsequenceEqual
+	 */
+	public static function consequenceEqualTo( IConsequence $value ) : IsConsequenceEqual {
+		return new IsConsequenceEqual( $value );
+	}
+
+	/**
+	 * Asserts that two consequences are equal.
+	 * @param IConsequence $expected
+	 * @param IConsequence $actual
+	 * @param string $message
+	 */
+	public static function assertConsequence( $expected, $actual, string $message = '' ) : void {
+		static::assertThat(
+			$actual,
+			new IsConsequenceEqual( $expected ),
+			$message
+		);
+	}
+
+	/**
+	 * Assert that $expectedConsequences are exactly the same as $actualConsequences.
+	 * @param IConsequence[] $expectedConsequences
+	 * @param IConsequence[] $actualConsequences
+	 */
+	public static function assertConsequencesEqual(
+		array $expectedConsequences,
+		array $actualConsequences
+	) {
+		self::assertEquals(
+			array_map( 'get_class', $expectedConsequences ),
+			array_map( 'get_class', $actualConsequences ),
+			"List of consequences doesn't match expected."
+		);
+
+		array_map( function ( $expected, $actual ) {
+			self::assertConsequence( $expected, $actual,
+				"Parameters of consequence " . get_class( $expected ) . " don't match expected." );
+		}, $expectedConsequences, $actualConsequences );
+	}
+
+	/**
+	 * Assert that no consequences were added to $manager.
+	 * @param MockConsequenceManager $manager
+	 */
+	public static function assertNoConsequences( MockConsequenceManager $manager ) {
+		self::assertConsequencesEqual( [], $manager->getConsequences() );
 	}
 }

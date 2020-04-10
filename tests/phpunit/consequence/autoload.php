@@ -30,6 +30,7 @@ $wgAutoloadClasses += [
 	'MockLoadRowTestTrait' => __DIR__ . '/trait/MockLoadRowTestTrait.php',
 	'MockModerationActionTrait' => __DIR__ . '/trait/MockModerationActionTrait.php',
 	'MockRevisionLookupTestTrait' => __DIR__ . '/trait/MockRevisionLookupTestTrait.php',
+	'MediaWiki\\Moderation\\IsConsequenceEqual' => __DIR__ . '/trait/IsConsequenceEqual.php',
 	'MediaWiki\\Moderation\\MockConsequenceManager' => __DIR__ . '/MockConsequenceManager.php',
 	'ModerationUnitTestCase' => __DIR__ . '/ModerationUnitTestCase.php',
 	'ModifyDbRowTestTrait' => __DIR__ . '/trait/ModifyDbRowTestTrait.php',
