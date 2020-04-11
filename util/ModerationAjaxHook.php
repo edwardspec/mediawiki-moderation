@@ -57,7 +57,7 @@ class ModerationAjaxHook {
 			$modules[] = 'ext.moderation.ve';
 		}
 
-		if ( $modules || $out->getConfig()->get( 'ModerationForceAjaxHook' ) ) {
+		if ( $modules ) {
 			$modules[] = 'ext.moderation.ajaxhook';
 			$out->addModules( $modules );
 		}
