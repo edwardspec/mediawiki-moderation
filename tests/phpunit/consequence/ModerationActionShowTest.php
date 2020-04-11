@@ -21,12 +21,11 @@
  */
 
 use MediaWiki\Moderation\ActionLinkRenderer;
-use MediaWiki\Moderation\EntryFactory;
-use MediaWiki\Moderation\IConsequenceManager;
 
 require_once __DIR__ . "/autoload.php";
 
 class ModerationActionShowTest extends ModerationUnitTestCase {
+	use ActionTestTrait;
 	use ConsequenceTestTrait;
 
 	/**
@@ -56,23 +55,19 @@ class ModerationActionShowTest extends ModerationUnitTestCase {
 		}
 
 		// Mock EntryFactory that will return $entry
-		$modid = 12345;
-		$context = new RequestContext();
-		$context->setRequest( new FauxRequest( [ 'modid' => $modid ] ) );
+		$action = $this->makeActionForTesting( ModerationActionShow::class,
+			function ( $context, $entryFactory, $manager ) use ( $entry ) {
+				$modid = 56789;
+				$context->setRequest( new FauxRequest( [ 'modid' => $modid ] ) );
 
-		$entryFactory = $this->createMock( EntryFactory::class );
-		$entryFactory->expects( $this->once() )->method( 'findViewableEntry' )->with(
-			$this->identicalTo( $modid )
-		)->willReturn( $entry );
+				$entryFactory->expects( $this->once() )->method( 'findViewableEntry' )->with(
+					$this->identicalTo( $modid )
+				)->willReturn( $entry );
 
-		// This is a readonly action. Ensure that it has no consequences.
-		$manager = $this->createMock( IConsequenceManager::class );
-		$manager->expects( $this->never() )->method( 'add' );
-
-		'@phan-var EntryFactory $entryFactory';
-		'@phan-var IConsequenceManager $manager';
-
-		$action = new ModerationActionShow( $context, $entryFactory, $manager );
+				// This is a readonly action. Ensure that it has no consequences.
+				$manager->expects( $this->never() )->method( 'add' );
+			}
+		);
 		$result = $action->execute();
 
 		$this->assertSame( $expectedResult, $result, "Result of execute() doesn't match expected." );
@@ -152,15 +147,6 @@ class ModerationActionShowTest extends ModerationUnitTestCase {
 	 */
 	public function testOutputResult( $expectedHtml, array $executeResult ) {
 		$modid = 12345;
-		$context = new RequestContext();
-		$context->setRequest( new FauxRequest( [ 'modid' => $modid ] ) );
-		$context->setLanguage( 'qqx' );
-
-		// This is a readonly action. Ensure that it has no consequences.
-		$manager = $this->createMock( IConsequenceManager::class );
-		$manager->expects( $this->never() )->method( 'add' );
-
-		$entryFactory = $this->createMock( EntryFactory::class );
 
 		// Mock ActionLinkRenderer::makeLink()
 		$actionLinkRenderer = $this->createMock( ActionLinkRenderer::class );
@@ -171,15 +157,14 @@ class ModerationActionShowTest extends ModerationUnitTestCase {
 			} );
 		$this->setService( 'Moderation.ActionLinkRenderer', $actionLinkRenderer );
 
-		'@phan-var EntryFactory $entryFactory';
-		'@phan-var IConsequenceManager $manager';
+		$action = $this->makeActionForTesting( ModerationActionShow::class,
+			function ( $context, $entryFactory, $manager ) use ( $modid ) {
+				$context->setRequest( new FauxRequest( [ 'modid' => $modid ] ) );
+				$manager->expects( $this->never() )->method( 'add' );
+			}
+		);
 
-		$action = new ModerationActionShow( $context, $entryFactory, $manager );
-
-		// Obtain a new OutputPage object that is different from OutputPage in $context.
-		// This verifies that outputResult() does indeed use its second parameter for output
-		// rather than printing into $this->getContext()->getOutput() (which would be incorrect).
-		$output = clone $context->getOutput();
+		$output = clone $action->getOutput();
 		$action->outputResult( $executeResult, $output );
 
 		$this->assertSame( $expectedHtml, $output->getHTML(),

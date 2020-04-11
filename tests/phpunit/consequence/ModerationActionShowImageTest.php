@@ -20,12 +20,10 @@
  * Unit test of ModerationActionShowImage.
  */
 
-use MediaWiki\Moderation\EntryFactory;
-use MediaWiki\Moderation\IConsequenceManager;
-
 require_once __DIR__ . "/autoload.php";
 
 class ModerationActionShowImageTest extends ModerationUnitTestCase {
+	use ActionTestTrait;
 	use ConsequenceTestTrait;
 	use UploadTestTrait;
 
@@ -53,32 +51,28 @@ class ModerationActionShowImageTest extends ModerationUnitTestCase {
 			'stash_key' => $isMissing ? 'MissingStashKey.png' : $this->stashSampleImage( $srcPath )
 		];
 
-		// Mock EntryFactory that will return $row
-		$params = [ 'modid' => 12345 ];
-		if ( $isThumb ) {
-			$params['thumb'] = 1;
-		}
-		$context = new RequestContext();
-		$context->setRequest( new FauxRequest( $params ) );
+		// Mock EntryFactory that will return $entry
+		$action = $this->makeActionForTesting( ModerationActionShowImage::class,
+			function ( $context, $entryFactory, $manager ) use ( $row, $isThumb ) {
+				$params = [ 'modid' => 12345 ];
+				if ( $isThumb ) {
+					$params['thumb'] = 1;
+				}
+				$context->setRequest( new FauxRequest( $params ) );
 
-		$entryFactory = $this->createMock( EntryFactory::class );
-		$entryFactory->expects( $this->once() )->method( 'loadRowOrThrow' )->with(
-			$this->identicalTo( $params['modid'] ),
-			$this->identicalTo( [
-				'mod_title AS title',
-				'mod_stash_key AS stash_key'
-			] ),
-			DB_REPLICA
-		)->willReturn( $row );
+				$entryFactory->expects( $this->once() )->method( 'loadRowOrThrow' )->with(
+					$this->identicalTo( $params['modid'] ),
+					$this->identicalTo( [
+						'mod_title AS title',
+						'mod_stash_key AS stash_key'
+					] ),
+					DB_REPLICA
+				)->willReturn( $row );
 
-		// This is a readonly action. Ensure that it has no consequences.
-		$manager = $this->createMock( IConsequenceManager::class );
-		$manager->expects( $this->never() )->method( 'add' );
-
-		'@phan-var EntryFactory $entryFactory';
-		'@phan-var IConsequenceManager $manager';
-
-		$action = new ModerationActionShowImage( $context, $entryFactory, $manager );
+				// This is a readonly action. Ensure that it has no consequences.
+				$manager->expects( $this->never() )->method( 'add' );
+			}
+		);
 		$result = $action->execute();
 
 		// Assert the result
@@ -159,11 +153,6 @@ class ModerationActionShowImageTest extends ModerationUnitTestCase {
 	 * @covers ModerationActionShowImage
 	 */
 	public function testOutputResult( $expectFound, array $executeResult ) {
-		$modid = 12345;
-		$context = new RequestContext();
-		$context->setRequest( new FauxRequest( [ 'modid' => $modid ] ) );
-		$context->setLanguage( 'qqx' );
-
 		$srcPath = $this->sampleImageFile;
 
 		if ( ( $executeResult['thumb-path'] ?? '' ) === '{VALID_VIRTUAL_URL}' ) {
@@ -174,15 +163,12 @@ class ModerationActionShowImageTest extends ModerationUnitTestCase {
 		}
 
 		// This is a readonly action. Ensure that it has no consequences.
-		$manager = $this->createMock( IConsequenceManager::class );
-		$manager->expects( $this->never() )->method( 'add' );
-
-		$entryFactory = $this->createMock( EntryFactory::class );
-
-		'@phan-var EntryFactory $entryFactory';
-		'@phan-var IConsequenceManager $manager';
-
-		$action = new ModerationActionShowImage( $context, $entryFactory, $manager );
+		$action = $this->makeActionForTesting( ModerationActionShowImage::class,
+			function ( $context, $entryFactory, $manager ) {
+				$context->setRequest( new FauxRequest( [ 'modid' => 12345 ] ) );
+				$manager->expects( $this->never() )->method( 'add' );
+			}
+		);
 
 		if ( $expectFound ) {
 			// NOTE: Unfortunately there is no way to test Content-Disposition header in PHP CLI.
@@ -194,7 +180,7 @@ class ModerationActionShowImageTest extends ModerationUnitTestCase {
 		}
 
 		// Obtain a clean OutputPage.
-		$output = clone $context->getOutput();
+		$output = clone $action->getOutput();
 		$action->outputResult( $executeResult, $output );
 
 		$this->assertTrue( $output->isDisabled(), "OutputPage wasn't disabled before streaming." );

@@ -23,6 +23,9 @@
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\IConsequenceManager;
 
+/**
+ * @method static \PHPUnit\Framework\MockObject\Rule\InvokedCount never()
+ */
 trait ActionTestTrait {
 	/**
 	 * Create ModerationAction using $setupMocks() callback, which receives all mocked dependencies.
@@ -40,8 +43,14 @@ trait ActionTestTrait {
 		$entryFactory = $this->createMock( EntryFactory::class );
 		$manager = $this->createMock( IConsequenceManager::class );
 
+		$context->setLanguage( 'qqx' );
+
 		if ( $setupMocks ) {
 			$setupMocks( $context, $entryFactory, $manager );
+		} else {
+			// Since we are not configuring a mock of ConsequenceManager,
+			// it means that we expect no consequences to be added.
+			$manager->expects( $this->never() )->method( 'add' );
 		}
 
 		'@phan-var EntryFactory $entryFactory';

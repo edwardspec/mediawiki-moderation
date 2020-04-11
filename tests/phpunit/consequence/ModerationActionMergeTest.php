@@ -21,12 +21,11 @@
  */
 
 use MediaWiki\Moderation\EditFormOptions;
-use MediaWiki\Moderation\EntryFactory;
-use MediaWiki\Moderation\IConsequenceManager;
 
 require_once __DIR__ . "/autoload.php";
 
 class ModerationActionMergeTest extends ModerationUnitTestCase {
+	use ActionTestTrait;
 	use ConsequenceTestTrait;
 
 	/**
@@ -42,6 +41,8 @@ class ModerationActionMergeTest extends ModerationUnitTestCase {
 		$isAlreadyMerged = $opt['isAlreadyMerged'] ?? false;
 
 		$user = self::getTestUser()->getUser();
+		$moderator = User::newFromName( '127.0.0.30', false );
+
 		$row = (object)[
 			'namespace' => rand( 0, 1 ),
 			'title' => 'UTPage_' . rand( 0, 100000 ),
@@ -51,29 +52,8 @@ class ModerationActionMergeTest extends ModerationUnitTestCase {
 			'merged_revid' => $isAlreadyMerged ? 56789 : 0
 		];
 
-		// Mock EntryFactory that will return $row
-		$modid = 12345;
-		$context = new RequestContext();
-		$context->setRequest( new FauxRequest( [ 'modid' => $modid ] ) );
-
-		$moderator = User::newFromName( '127.0.0.30', false );
-		$context->setUser( $moderator );
-
 		// $result['summary'] should have a message in ContentLanguage
 		$this->setContentLang( 'qqx' );
-
-		$entryFactory = $this->createMock( EntryFactory::class );
-		$entryFactory->expects( $this->once() )->method( 'loadRowOrThrow' )->with(
-			$this->identicalTo( $modid ),
-			$this->identicalTo( [
-				'mod_namespace AS namespace',
-				'mod_title AS title',
-				'mod_user_text AS user_text',
-				'mod_text AS text',
-				'mod_conflict AS conflict',
-				'mod_merged_revid AS merged_revid'
-			] )
-		)->willReturn( $row );
 
 		// Mock the result of canEditSkip()
 		$canSkip = $this->createMock( ModerationCanSkip::class );
@@ -83,14 +63,27 @@ class ModerationActionMergeTest extends ModerationUnitTestCase {
 		)->willReturn( $isModeratorAutomoderated );
 		$this->setService( 'Moderation.CanSkip', $canSkip );
 
-		// This is a readonly action. Ensure that it has no consequences.
-		$manager = $this->createMock( IConsequenceManager::class );
-		$manager->expects( $this->never() )->method( 'add' );
+		$action = $this->makeActionForTesting( ModerationActionMerge::class,
+			function ( $context, $entryFactory, $manager ) use ( $row, $moderator ) {
+				$context->setRequest( new FauxRequest( [ 'modid' => 12345 ] ) );
+				$context->setUser( $moderator );
 
-		'@phan-var EntryFactory $entryFactory';
-		'@phan-var IConsequenceManager $manager';
+				$entryFactory->expects( $this->once() )->method( 'loadRowOrThrow' )->with(
+					$this->identicalTo( 12345 ),
+					$this->identicalTo( [
+						'mod_namespace AS namespace',
+						'mod_title AS title',
+						'mod_user_text AS user_text',
+						'mod_text AS text',
+						'mod_conflict AS conflict',
+						'mod_merged_revid AS merged_revid'
+					] )
+				)->willReturn( $row );
 
-		$action = new ModerationActionMerge( $context, $entryFactory, $manager );
+				// This is a readonly action. Ensure that it has no consequences.
+				$manager->expects( $this->never() )->method( 'add' );
+			}
+		);
 
 		if ( $expectedError ) {
 			$this->expectExceptionObject( new ModerationError( $expectedError ) );
@@ -98,7 +91,7 @@ class ModerationActionMergeTest extends ModerationUnitTestCase {
 		$result = $action->execute();
 
 		$expectedResult = [
-			'id' => $modid,
+			'id' => 12345,
 			'namespace' => $row->namespace,
 			'title' => $row->title,
 			'text' => $row->text,
@@ -160,32 +153,24 @@ class ModerationActionMergeTest extends ModerationUnitTestCase {
 			}
 		);
 
-		$context = new RequestContext();
-		$context->setRequest( new FauxRequest( [ 'modid' => $modid ] ) );
-		$context->setTitle( $title );
-		$context->setLanguage( 'qqx' );
-
 		// Mock EditFormOptions service to ensure that setMergeID() will be called.
 		$editFormOptions = $this->createMock( EditFormOptions::class );
 		$editFormOptions->expects( $this->once() )->method( 'setMergeID' )->with(
-			$modid
+			$this->identicalTo( $modid )
 		);
 		$this->setService( 'Moderation.EditFormOptions', $editFormOptions );
 
-		// This is a readonly action. Ensure that it has no consequences.
-		$manager = $this->createMock( IConsequenceManager::class );
-		$manager->expects( $this->never() )->method( 'add' );
+		$action = $this->makeActionForTesting( ModerationActionMerge::class,
+			function ( $context, $entryFactory, $manager ) use ( $title, $modid ) {
+				$context->setRequest( new FauxRequest( [ 'modid' => $modid ] ) );
+				$context->setTitle( $title );
 
-		$entryFactory = $this->createMock( EntryFactory::class );
+				// This is a readonly action. Ensure that it has no consequences.
+				$manager->expects( $this->never() )->method( 'add' );
+			}
+		);
 
-		'@phan-var EntryFactory $entryFactory';
-		'@phan-var IConsequenceManager $manager';
-
-		$action = new ModerationActionMerge( $context, $entryFactory, $manager );
-
-		// Note: EditPage class (that is used by ActionMerge) obtains output from $context->getOutput(),
-		// so it makes no sense to clone $output for testing purposes (see ActionShowTest for details).
-		$action->outputResult( $executeResult, $context->getOutput() );
+		$action->outputResult( $executeResult, $action->getOutput() );
 		$this->assertTrue( $hookFired, "outputResult() didn't cause $hookName hook to be fired." );
 	}
 }

@@ -124,11 +124,7 @@ class ModerationActionBlockTest extends ModerationUnitTestCase {
 	 * @covers ModerationActionBlock
 	 */
 	public function testOutputResult( $expectedHtml, array $executeResult ) {
-		$action = $this->makeActionForTesting( ModerationActionBlock::class,
-			function ( $context, $entryFactory, $manager ) {
-				$context->setLanguage( 'qqx' );
-			}
-		);
+		$action = $this->makeActionForTesting( ModerationActionBlock::class );
 
 		// Obtain a new OutputPage object that is different from OutputPage in $context.
 		// This verifies that outputResult() does indeed use its second parameter for output
