@@ -221,6 +221,7 @@ function efModerationTestsuiteSetup() {
 				// which is not yet defined in SetupAfterCache hook.
 				global $wgContLang, $wgLanguageCode;
 				$wgContLang = Language::factory( $wgLanguageCode );
+				// @phan-suppress-next-line PhanUndeclaredMethod
 				$wgContLang->initContLang();
 			}
 

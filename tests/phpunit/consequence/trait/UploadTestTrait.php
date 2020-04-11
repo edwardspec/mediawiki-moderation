@@ -21,7 +21,9 @@
  */
 
 /**
- * @method static assertEquals($a, $b, $message='', $d=0.0, $e=10, $f=null, $g=null)
+ * @codingStandardsIgnoreStart
+ * @method static assertEquals($a, $b, string $message='', float $d=0.0, int $e=10, bool $f=false, bool $g=false)
+ * @codingStandardsIgnoreEnd
  */
 trait UploadTestTrait {
 	/**

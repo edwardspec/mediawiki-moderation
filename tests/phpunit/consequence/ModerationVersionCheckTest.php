@@ -102,12 +102,10 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 		$loadBalancer = $this->createMock( ILoadBalancer::class );
 		$cache = $this->createMock( BagOStuff::class );
 		$cache->expects( $this->once() )->method( 'makeKey' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( 'moderation-lastDbUpdateVersion' )
 		)->willReturn( '{MockedCacheKey}' );
 
 		$cache->expects( $this->once() )->method( 'get' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( '{MockedCacheKey}' )
 		)->willReturn( '{MockedResult}' );
 
@@ -129,21 +127,16 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 	public function testDbUpdatedVersionNotFoundInCache() {
 		$cache = $this->createMock( BagOStuff::class );
 		$cache->expects( $this->once() )->method( 'makeKey' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( 'moderation-lastDbUpdateVersion' )
 		)->willReturn( '{MockedCacheKey}' );
 
 		$cache->expects( $this->once() )->method( 'get' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( '{MockedCacheKey}' )
 		)->willReturn( false ); // Not found in cache
 
 		$cache->expects( $this->once() )->method( 'set' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( '{MockedCacheKey}' ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( '{MockedResult}' ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( 86400 )
 		);
 
@@ -151,7 +144,6 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 
 		$loadBalancer = $this->createMock( ILoadBalancer::class );
 		$loadBalancer->expects( $this->once() )->method( 'getMaintenanceConnectionRef' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( DB_REPLICA )
 		)->willReturn( $mockedConnRef );
 
@@ -165,7 +157,6 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 			->getMock();
 
 		$versionCheck->expects( $this->once() )->method( 'getDbUpdatedVersionUncached' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $mockedConnRef )
 		)->willReturn( '{MockedResult}' );
 
@@ -181,12 +172,10 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 		$loadBalancer = $this->createMock( ILoadBalancer::class );
 		$cache = $this->createMock( BagOStuff::class );
 		$cache->expects( $this->once() )->method( 'makeKey' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( 'moderation-lastDbUpdateVersion' )
 		)->willReturn( '{MockedCacheKey}' );
 
 		$cache->expects( $this->once() )->method( 'delete' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( '{MockedCacheKey}' )
 		);
 
@@ -216,16 +205,13 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 		$db->expects( $this->any() )->method( 'getType' )->willReturn( $dbType );
 
 		$db->expects( $this->any() )->method( 'fieldExists' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( 'moderation' )
 		)->will( $this->returnCallback( function ( $_, $field ) use ( $fieldExists ) {
 			return $fieldExists[$field] ?? false;
 		} ) );
 
 		$db->expects( $this->any() )->method( 'indexUnique' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( 'moderation' ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( 'moderation_load' )
 		)->willReturn( $isLoadIndexUnique );
 

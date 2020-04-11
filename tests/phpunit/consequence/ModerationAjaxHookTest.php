@@ -60,7 +60,6 @@ class ModerationAjaxHookTest extends ModerationUnitTestCase {
 			// Mock findPendingEdit() in the Moderation.Preload service.
 			$preload = $this->createMock( ModerationPreload::class );
 			$preload->expects( $this->any() )->method( 'findPendingEdit' )->with(
-				 // @phan-suppress-next-line PhanTypeMismatchArgument
 				 $this->identicalTo( $title )
 			)->willReturn( $opt['hasPendingEdit'] ? $this->createMock( PendingEdit::class ) : false );
 			$this->setService( 'Moderation.Preload', $preload );

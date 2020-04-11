@@ -62,7 +62,6 @@ class TimestampFormatterTest extends ModerationUnitTestCase {
 		// but it MUST be converted, as userAdjust() can only receive TS_MW.
 		$lang->expects( $this->at( 1 ) )->method( 'userAdjust' )
 			->with(
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( wfTimestamp( TS_MW, $timestamp ) )
 			)->willReturn( $mockedAdjustedTimestamp );
 
@@ -70,7 +69,6 @@ class TimestampFormatterTest extends ModerationUnitTestCase {
 			$mockedResult = '{mocked result: time only ' . rand( 0, 100000 ) . '}';
 			$lang->expects( $this->once() )->method( 'userTime' )
 				->with(
-					// @phan-suppress-next-line PhanTypeMismatchArgument
 					$this->identicalTo( $timestamp )
 				)->willReturn( $mockedResult );
 			$lang->expects( $this->never() )->method( 'userTimeAndDate' );
@@ -78,7 +76,6 @@ class TimestampFormatterTest extends ModerationUnitTestCase {
 			$mockedResult = '{mocked result: time AND date ' . rand( 0, 100000 ) . '}';
 			$lang->expects( $this->once() )->method( 'userTimeAndDate' )
 				->with(
-					// @phan-suppress-next-line PhanTypeMismatchArgument
 					$this->identicalTo( $timestamp )
 				)->willReturn( $mockedResult );
 			$lang->expects( $this->never() )->method( 'userTime' );
@@ -111,7 +108,6 @@ class TimestampFormatterTest extends ModerationUnitTestCase {
 			$lang->expects( $this->never() )->method( 'userTime' );
 			$lang->expects( $this->once() )->method( 'userTimeAndDate' )
 				->with(
-					// @phan-suppress-next-line PhanTypeMismatchArgument
 					$this->identicalTo( $timestamp )
 				)->willReturn( $mockedResult );
 

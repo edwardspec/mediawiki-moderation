@@ -25,12 +25,14 @@ use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 
 /**
- * @method static mixed any()
- * @method static assertEquals($a, $b, $message='', $d=0.0, $e=10, $f=null, $g=null)
- * @method static assertNotEquals($a, $b, $message='', $d=0.0, $e=10, $f=null, $g=null)
- * @method static assertSame($a, $b, $message='')
- * @method static assertCount($a, $b, $message='')
- * @method static assertInstanceOf($a, $b, $message='')
+ * @method static \PHPUnit\Framework\MockObject\Rule\AnyInvokedCount any()
+ * @codingStandardsIgnoreStart
+ * @method static assertEquals($a, $b, string $message='', float $d=0.0, int $e=10, bool $f=false, bool $g=false)
+ * @codingStandardsIgnoreEnd
+ * @method static assertNotEquals($a, $b, string $message='', $d=0.0, $e=10, $f=false, $g=false)
+ * @method static assertSame($a, $b, string $message='')
+ * @method static assertCount(int $a, $b, string $message='')
+ * @method static assertInstanceOf(string $a, $b, string $message='')
  * @method static TestUser getTestUser($groups=null)
  */
 trait ConsequenceTestTrait {

@@ -67,9 +67,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		// Mock the result of canEditSkip()
 		$canSkip = $this->createMock( ModerationCanSkip::class );
 		$canSkip->expects( $this->once() )->method( 'canEditSkip' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $this->user ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $this->title->getNamespace() )
 		)->willReturn( false ); // Can't bypass moderation
 		$this->setService( 'Moderation.CanSkip', $canSkip );
@@ -108,9 +106,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		// Mock the result of canEditSkip()
 		$canSkip = $this->createMock( ModerationCanSkip::class );
 		$canSkip->expects( $this->once() )->method( 'canEditSkip' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->user,
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->title->getNamespace()
 		)->willReturn( true ); // Can bypass moderation
 		$this->setService( 'Moderation.CanSkip', $canSkip );
@@ -290,9 +286,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 		$editFormOptions = $this->createMock( EditFormOptions::class );
 		$editFormOptions->expects( $this->once() )->method( 'watchIfNeeded' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $user ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( [ $title ] )
 		);
 		$editFormOptions->expects( $this->once() )->method( 'getSection' )->willReturn( $section );

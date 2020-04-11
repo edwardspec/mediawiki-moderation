@@ -73,7 +73,6 @@ class ModerationErrorTest extends ModerationUnitTestCase {
 		// Mock LinkRendererFactory service to ensure that OutputPage::addReturnTo() added expected link.
 		$linkRenderer = $this->createMock( LinkRenderer::class );
 		$linkRenderer->expects( $this->once() )->method( 'makeLink' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $title )
 		)->willReturn( '{MockedReturnToLink}' );
 

@@ -64,9 +64,7 @@ class ModerationActionMergeTest extends ModerationUnitTestCase {
 
 		$entryFactory = $this->createMock( EntryFactory::class );
 		$entryFactory->expects( $this->once() )->method( 'loadRowOrThrow' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $modid ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( [
 				'mod_namespace AS namespace',
 				'mod_title AS title',
@@ -80,9 +78,7 @@ class ModerationActionMergeTest extends ModerationUnitTestCase {
 		// Mock the result of canEditSkip()
 		$canSkip = $this->createMock( ModerationCanSkip::class );
 		$canSkip->expects( $this->any() )->method( 'canEditSkip' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $moderator ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $row->namespace )
 		)->willReturn( $isModeratorAutomoderated );
 		$this->setService( 'Moderation.CanSkip', $canSkip );
@@ -172,7 +168,6 @@ class ModerationActionMergeTest extends ModerationUnitTestCase {
 		// Mock EditFormOptions service to ensure that setMergeID() will be called.
 		$editFormOptions = $this->createMock( EditFormOptions::class );
 		$editFormOptions->expects( $this->once() )->method( 'setMergeID' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$modid
 		);
 		$this->setService( 'Moderation.EditFormOptions', $editFormOptions );

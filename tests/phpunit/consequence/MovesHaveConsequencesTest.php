@@ -55,11 +55,8 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 		// Mock the result of canMoveSkip()
 		$canSkip = $this->createMock( ModerationCanSkip::class );
 		$canSkip->expects( $this->once() )->method( 'canMoveSkip' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$user,
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->title->getNamespace(),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$newTitle->getNamespace()
 		)->willReturn( false ); // Can't bypass moderation
 		$this->setService( 'Moderation.CanSkip', $canSkip );
@@ -100,11 +97,8 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 		// Mock the result of canMoveSkip()
 		$canSkip = $this->createMock( ModerationCanSkip::class );
 		$canSkip->expects( $this->once() )->method( 'canMoveSkip' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$user,
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->title->getNamespace(),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$newTitle->getNamespace()
 		)->willReturn( true ); // Can bypass moderation
 		$this->setService( 'Moderation.CanSkip', $canSkip );

@@ -23,7 +23,7 @@
 use MediaWiki\Moderation\ActionFactory;
 
 /**
- * @method static mixed returnCallback($a)
+ * @method static \PHPUnit\Framework\MockObject\Stub\ReturnCallback returnCallback($a)
  */
 trait MockModerationActionTrait {
 	/**

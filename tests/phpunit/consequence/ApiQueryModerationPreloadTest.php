@@ -51,7 +51,6 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 		if ( !$notFound ) {
 			$pendingEdit = $this->createMock( PendingEdit::class );
 			$pendingEdit->expects( $this->once() )->method( 'getSectionText' )->with(
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->equalTo( $extraParams['mpsection'] ?? '' )
 			)->willReturn( $text );
 
@@ -62,7 +61,6 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 		// Mock ModerationPreload service.
 		$preload = $this->createMock( ModerationPreload::class );
 		$preload->expects( $this->any() )->method( 'findPendingEdit' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $title )
 		)->willReturn( $pendingEdit );
 		$this->setService( 'Moderation.Preload', $preload );

@@ -49,13 +49,9 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 
 		$approveHook = $this->createMock( ModerationApproveHook::class );
 		$approveHook->expects( $this->once() )->method( 'addTask' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $title ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $user ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $type ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $task )
 		);
 		$this->setService( 'Moderation.ApproveHook', $approveHook );
@@ -799,7 +795,7 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 				if ( $task ) {
 					$expectedRow = [
 						$task['ip'],
-						// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
+						// @phan-suppress-next-line PhanTypeMismatchArgumentNullable - false positive
 						$task['ip'] ? IP::toHex( $task['ip'] ) : null,
 						$task['ua']
 					];
@@ -828,8 +824,7 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 			}
 
 			// Verify that ChangeTagsAfterUpdateTags hook was called for all revisions, etc.
-
-			// @phan-suppress-next-line PhanTypeMismatchArgumentNullableInternal
+			// @phan-suppress-next-line PhanTypeMismatchArgumentNullableInternal - false positive
 			$expectedTags = empty( $task['tags'] ) ? null : explode( "\n", $task['tags'] );
 
 			foreach ( $revIds as $rev_id ) {

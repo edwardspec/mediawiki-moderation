@@ -62,7 +62,6 @@ class ModerationActionShowTest extends ModerationUnitTestCase {
 
 		$entryFactory = $this->createMock( EntryFactory::class );
 		$entryFactory->expects( $this->once() )->method( 'findViewableEntry' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $modid )
 		)->willReturn( $entry );
 

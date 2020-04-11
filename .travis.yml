@@ -78,7 +78,7 @@ matrix:
     # Phan (PHP static analyzer)
     - &phan-build
       if: NOT branch IN (selenium,troubleshooting,linters,consequence,coverage)
-      env: TESTSUITE_TYPE=phan branch=REL1_34
+      env: TESTSUITE_TYPE=phan branch=master
       php: 7.3
       before_script:
         - pecl install ast
@@ -94,7 +94,7 @@ matrix:
     # Phan for ModerationTestsuite framework
     - <<: *phan-build
       if: branch IN (phan,phpunit,consequence)
-      env: TESTSUITE_TYPE=phan branch=REL1_34 PHAN_CHECK_TESTSUITE=1
+      env: TESTSUITE_TYPE=phan branch=master PHAN_CHECK_TESTSUITE=1
 
     # PHPUnit tests
     - &phpunit-build

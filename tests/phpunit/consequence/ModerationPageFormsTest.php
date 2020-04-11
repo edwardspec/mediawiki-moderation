@@ -143,7 +143,6 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 
 		$preload = $this->createMock( ModerationPreload::class );
 		$preload->expects( $this->any() )->method( 'findPendingEdit' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $targetTitle )
 		)->willReturn( $pendingEdit );
 		$this->setService( 'Moderation.Preload', $preload );

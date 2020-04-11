@@ -21,7 +21,7 @@
  */
 
 /**
- * @method static assertTrue($a, $message='')
+ * @method static assertTrue($a, string $message='')
  */
 trait MakeEditTestTrait {
 	/**

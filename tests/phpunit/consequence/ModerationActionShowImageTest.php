@@ -63,14 +63,11 @@ class ModerationActionShowImageTest extends ModerationUnitTestCase {
 
 		$entryFactory = $this->createMock( EntryFactory::class );
 		$entryFactory->expects( $this->once() )->method( 'loadRowOrThrow' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $params['modid'] ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( [
 				'mod_title AS title',
 				'mod_stash_key AS stash_key'
 			] ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			DB_REPLICA
 		)->willReturn( $row );
 
