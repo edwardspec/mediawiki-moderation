@@ -46,7 +46,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	 * @covers ModerationActionApprove
 	 * @covers ModerationActionEditChange
 	 * @covers ModerationActionEditChangeSubmit
-	 * @covers ModerationActionPreview
 	 * @covers ModerationActionReject
 	 * @covers ModerationEntry
 	 * @covers ModerationApprovableEntry
@@ -91,7 +90,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	public function dataProviderNoConsequenceActions() {
 		$sets = [
 			// Actions that are always readonly and shouldn't have any consequences.
-			'preview' => [ [ 'action' => 'preview' ] ],
 			'editchange' =>
 				[ [
 					'action' => 'editchange',
@@ -172,8 +170,7 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 			'reject' => false,
 			'rejectall' => false,
 			'editchange' => false,
-			'editchangesubmit' => false,
-			'preview' => true
+			'editchangesubmit' => false
 		];
 		foreach ( $actionIsReadOnly as $action => $isReadOnly ) {
 			$sets["readonly modaction=$action"] = [ [
