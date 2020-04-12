@@ -20,6 +20,7 @@ the author did the change) not being applied:
 * Fixed error when returning false from ModerationIntercept hook.
 
 Refactoring, performance optimizations:
+* Reduced the number of SQL queries during RejectAll.
 * Major refactoring of everything (Consequence classes).
 * Major refactoring of everything (replacing static methods with Services).
 * Better performance of move/upload via API.

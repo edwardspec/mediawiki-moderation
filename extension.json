@@ -125,6 +125,7 @@
 		"MediaWiki\\Moderation\\QueueEditConsequence": "lib/consequence/QueueEditConsequence.php",
 		"MediaWiki\\Moderation\\QueueMoveConsequence": "lib/consequence/QueueMoveConsequence.php",
 		"MediaWiki\\Moderation\\QueueUploadConsequence": "lib/consequence/QueueUploadConsequence.php",
+		"MediaWiki\\Moderation\\RejectAllConsequence": "lib/consequence/RejectAllConsequence.php",
 		"MediaWiki\\Moderation\\RejectBatchConsequence": "lib/consequence/RejectBatchConsequence.php",
 		"MediaWiki\\Moderation\\RejectOneConsequence": "lib/consequence/RejectOneConsequence.php",
 		"MediaWiki\\Moderation\\RememberAnonIdConsequence": "lib/consequence/RememberAnonIdConsequence.php",

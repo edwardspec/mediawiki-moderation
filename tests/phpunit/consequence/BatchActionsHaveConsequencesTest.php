@@ -25,7 +25,7 @@ use MediaWiki\Moderation\ApproveEditConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\InstallApproveHookConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
-use MediaWiki\Moderation\RejectBatchConsequence;
+use MediaWiki\Moderation\RejectAllConsequence;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -135,12 +135,10 @@ class BatchActionsHaveConsequencesTest extends ModerationUnitTestCase {
 			$ids[] = $this->makeDbRow();
 		}
 
-		// It's possible for RejectBatchConsequence to return a number other than $numberOfEdits
-		// in case of a race condition (e.g. another moderator just approved one of these edits).
 		$mockedNumberOfAffectedRows = 456;
 
 		$expected = [
-			new RejectBatchConsequence( $ids, $this->moderatorUser ),
+			new RejectAllConsequence( $this->authorUser->getName(), $this->moderatorUser ),
 			new AddLogEntryConsequence(
 				'rejectall',
 				$this->moderatorUser,
@@ -152,7 +150,7 @@ class BatchActionsHaveConsequencesTest extends ModerationUnitTestCase {
 			new InvalidatePendingTimeCacheConsequence()
 		];
 		$actual = $this->getConsequences( $ids[0], 'rejectall',
-			[ [ RejectBatchConsequence::class, $mockedNumberOfAffectedRows ] ] );
+			[ [ RejectAllConsequence::class, $mockedNumberOfAffectedRows ] ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
 

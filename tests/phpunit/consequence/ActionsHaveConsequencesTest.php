@@ -26,7 +26,7 @@ use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\InstallApproveHookConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\ModifyPendingChangeConsequence;
-use MediaWiki\Moderation\RejectBatchConsequence;
+use MediaWiki\Moderation\RejectAllConsequence;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -209,7 +209,7 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 	 */
 	public function testRejectAllOneEdit() {
 		$expected = [
-			new RejectBatchConsequence( [ $this->modid ], $this->moderatorUser ),
+			new RejectAllConsequence( $this->authorUser->getName(), $this->moderatorUser ),
 			new AddLogEntryConsequence(
 				'rejectall',
 				$this->moderatorUser,
@@ -221,7 +221,7 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 			new InvalidatePendingTimeCacheConsequence()
 		];
 		$actual = $this->getConsequences( $this->modid, 'rejectall',
-			[ [ RejectBatchConsequence::class, 1 ] ] );
+			[ [ RejectAllConsequence::class, 1 ] ] );
 
 		$this->assertConsequencesEqual( $expected, $actual );
 

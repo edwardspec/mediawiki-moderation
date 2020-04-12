@@ -17,9 +17,7 @@
 
 /**
  * @file
- * Consequence that marks several pending changes as rejected.
- *
- * @deprecated Replaced with RejectAllConsequence.
+ * Consequence that marks all pending changes of one User as rejected.
  */
 
 namespace MediaWiki\Moderation;
@@ -27,19 +25,19 @@ namespace MediaWiki\Moderation;
 use ModerationVersionCheck;
 use User;
 
-class RejectBatchConsequence implements IConsequence {
-	/** @var int[] */
-	protected $ids;
+class RejectAllConsequence implements IConsequence {
+	/** @var string */
+	protected $username;
 
 	/** @var User */
 	protected $moderator;
 
 	/**
-	 * @param int[] $ids Array of mod_id values of changes that should be rejected.
+	 * @param string $username
 	 * @param User $moderator
 	 */
-	public function __construct( $ids, User $moderator ) {
-		$this->ids = $ids;
+	public function __construct( $username, User $moderator ) {
+		$this->username = $username;
 		$this->moderator = $moderator;
 	}
 
@@ -58,7 +56,9 @@ class RejectBatchConsequence implements IConsequence {
 				ModerationVersionCheck::setPreloadableToNo()
 			],
 			[
-				'mod_id' => $this->ids
+				'mod_user_text' => $this->username,
+				'mod_rejected' => 0,
+				'mod_merged_revid' => 0
 			],
 			__METHOD__
 		);

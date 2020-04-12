@@ -46,7 +46,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	 * @covers ModerationActionApprove::executeApproveAll
 	 * @covers ModerationActionEditChange
 	 * @covers ModerationActionEditChangeSubmit
-	 * @covers ModerationActionReject::executeRejectAll
 	 */
 	public function testNoConsequenceActions( $options ) {
 		$this->assertArrayHasKey( 'action', $options );
@@ -112,19 +111,12 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 					'action' => 'approveall',
 					'fields' => [ 'mod_rejected' => 1 ],
 					'expectedError' => 'moderation-nothing-to-approveall'
-				] ],
-			'rejectall (no edits to reject)' =>
-				[ [
-					'action' => 'rejectall',
-					'fields' => [ 'mod_rejected' => 1 ],
-					'expectedError' => 'moderation-nothing-to-rejectall'
 				] ]
 		];
 
 		// ReadOnlyError exception from non-readonly actions
 		$actionIsReadOnly = [
 			'approveall' => false,
-			'rejectall' => false,
 			'editchange' => false,
 			'editchangesubmit' => false
 		];
