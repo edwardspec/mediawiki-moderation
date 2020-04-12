@@ -24,15 +24,12 @@ use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ApproveEditConsequence;
 use MediaWiki\Moderation\ApproveMoveConsequence;
 use MediaWiki\Moderation\ApproveUploadConsequence;
-use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\InstallApproveHookConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsConflictConsequence;
 use MediaWiki\Moderation\ModifyPendingChangeConsequence;
 use MediaWiki\Moderation\RejectBatchConsequence;
-use MediaWiki\Moderation\RejectOneConsequence;
-use MediaWiki\Moderation\UnblockUserConsequence;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -74,151 +71,7 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 	protected $timestamp;
 
 	/** @var string[] */
-	protected $tablesUsed = [ 'user', 'moderation', 'moderation_block' ];
-
-	/**
-	 * Test consequences of modaction=reject.
-	 * @covers ModerationActionReject
-	 */
-	public function testReject() {
-		$expected = [
-			new RejectOneConsequence( $this->modid, $this->moderatorUser ),
-			new AddLogEntryConsequence(
-				'reject',
-				$this->moderatorUser,
-				$this->title,
-				[
-					'modid' => $this->modid,
-					'user' => $this->authorUser->getId(),
-					'user_text' => $this->authorUser->getName()
-				]
-			),
-			new InvalidatePendingTimeCacheConsequence()
-		];
-		$actual = $this->getConsequences( $this->modid, 'reject',
-			[ [ RejectOneConsequence::class, 1 ] ] );
-
-		$this->assertConsequencesEqual( $expected, $actual );
-
-		$this->assertSame( $this->result, [ 'rejected-count' => 1 ] );
-		$this->assertEquals( $this->outputText, '(moderation-rejected-ok: 1)' );
-	}
-
-	/**
-	 * Test consequences of modaction=block.
-	 * @covers ModerationActionBlock
-	 */
-	public function testBlock() {
-		$expected = [
-			new BlockUserConsequence(
-				$this->authorUser->getId(),
-				$this->authorUser->getName(),
-				$this->moderatorUser
-			),
-			new AddLogEntryConsequence(
-				'block',
-				$this->moderatorUser,
-				$this->authorUser->getUserPage()
-			)
-		];
-		$actual = $this->getConsequences( $this->modid, 'block',
-			[ [ BlockUserConsequence::class, true ] ] );
-
-		$this->assertConsequencesEqual( $expected, $actual );
-
-		$this->assertSame( $this->result, [
-			'action' => 'block',
-			'username' => $this->authorUser->getName(),
-			'noop' => false
-		] );
-		$this->assertEquals( $this->outputText,
-			'(moderation-block-ok: ' . $this->authorUser->getName() . ')' );
-	}
-
-	/**
-	 * Test consequences of modaction=block when the user is already blocked.
-	 * @covers ModerationActionBlock
-	 */
-	public function testNoopBlock() {
-		$expected = [
-			new BlockUserConsequence(
-				$this->authorUser->getId(),
-				$this->authorUser->getName(),
-				$this->moderatorUser
-			)
-			// No AddLogEntryConsequence, because the user was already modblocked.
-		];
-		$actual = $this->getConsequences( $this->modid, 'block', [ [
-			// Mocked manager won't run BlockUserConsequence and would instead return "false",
-			// which is what BlockUserConsequence does when the user is already modblocked.
-			// That fact should be checked by unit test of BlockUserConsequence itself, not here.
-			BlockUserConsequence::class,
-			false
-		] ] );
-
-		$this->assertConsequencesEqual( $expected, $actual );
-
-		$this->assertSame( $this->result, [
-			'action' => 'block',
-			'username' => $this->authorUser->getName(),
-			'noop' => true
-		] );
-		$this->assertEquals( $this->outputText,
-			'(moderation-block-ok: ' . $this->authorUser->getName() . ')' );
-	}
-
-	/**
-	 * Test consequences of modaction=unblock.
-	 * @covers ModerationActionBlock
-	 */
-	public function testUnblock() {
-		$expected = [
-			new UnblockUserConsequence( $this->authorUser->getName() ),
-			new AddLogEntryConsequence(
-				'unblock',
-				$this->moderatorUser,
-				$this->authorUser->getUserPage()
-			)
-		];
-		$actual = $this->getConsequences( $this->modid, 'unblock',
-			[ [ UnblockUserConsequence::class, true ] ] );
-
-		$this->assertConsequencesEqual( $expected, $actual );
-
-		$this->assertSame( $this->result, [
-			'action' => 'unblock',
-			'username' => $this->authorUser->getName(),
-			'noop' => false
-		] );
-		$this->assertEquals( $this->outputText,
-			'(moderation-unblock-ok: ' . $this->authorUser->getName() . ')' );
-	}
-
-	/**
-	 * Test consequences of modaction=unblock when the user is already not blocked.
-	 * @covers ModerationActionBlock
-	 */
-	public function testNoopUnblock() {
-		$expected = [
-			new UnblockUserConsequence( $this->authorUser->getName() ),
-			// No AddLogEntryConsequence, because the user wasn't modblocked to begin with.
-		];
-		$actual = $this->getConsequences( $this->modid, 'unblock', [ [
-			// Mocked return value from UnblockUserConsequence: simulate "nothing changed".
-			UnblockUserConsequence::class,
-			false
-		] ] );
-
-		$this->assertConsequencesEqual( $expected, $actual );
-
-		$this->assertSame( $this->result, [
-			'action' => 'unblock',
-			'username' => $this->authorUser->getName(),
-			'noop' => true
-		] );
-		$this->assertEquals( $this->outputText,
-			'(moderation-unblock-ok: ' . $this->authorUser->getName() . ')' );
-	}
+	protected $tablesUsed = [ 'user', 'moderation' ];
 
 	/**
 	 * Test consequences of modaction=approve.

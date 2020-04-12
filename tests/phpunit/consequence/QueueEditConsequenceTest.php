@@ -109,11 +109,9 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 		$preload = $this->createMock( ModerationPreload::class );
 
 		$preload->expects( $this->any() )->method( 'findPendingEdit' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $title )
 		)->willReturn( new PendingEdit( $title, 123, $opt->preloadedText, '' ) );
 		$preload->expects( $this->once() )->method( 'getId' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( true )
 		)->willReturn( $preloadId );
 

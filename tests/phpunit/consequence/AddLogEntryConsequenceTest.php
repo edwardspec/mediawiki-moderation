@@ -58,9 +58,7 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 		$approveHook = $this->createMock( ModerationApproveHook::class );
 		if ( $runApproveHook ) {
 			$approveHook->expects( $this->once() )->method( 'checkLogEntry' )->with(
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->isType( 'int' ),
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->IsInstanceOf( ManualLogEntry::class )
 			)->will( $this->returnCallback(
 				function ( $logid, ManualLogEntry $logEntry ) use ( &$checkedLogId, &$checkedLogEntry ) {

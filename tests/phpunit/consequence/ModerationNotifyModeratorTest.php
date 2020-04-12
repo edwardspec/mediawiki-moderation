@@ -36,11 +36,9 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 		$cache = $this->createMock( BagOStuff::class );
 
 		$cache->expects( $this->once() )->method( 'makeKey' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( 'moderation-newest-pending-timestamp' )
 		)->willReturn( '{MockedCacheKey}' );
 		$cache->expects( $this->once() )->method( 'delete' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( '{MockedCacheKey}' )
 		);
 
@@ -64,15 +62,11 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 		$timestamp = '20100102030405';
 
 		$cache->expects( $this->once() )->method( 'makeKey' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( 'moderation-newest-pending-timestamp' )
 		)->willReturn( '{MockedCacheKey}' );
 		$cache->expects( $this->once() )->method( 'set' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( '{MockedCacheKey}' ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $timestamp ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( 24 * 60 * 60 )
 		);
 
@@ -100,17 +94,12 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 		$user->expects( $this->once() )->method( 'getId' )->willReturn( $userId );
 
 		$cache->expects( $this->once() )->method( 'makeKey' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( 'moderation-seen-timestamp' ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( "$userId" )
 		)->willReturn( '{MockedCacheKey}' );
 		$cache->expects( $this->once() )->method( 'set' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( '{MockedCacheKey}' ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $timestamp ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( 7 * 24 * 60 * 60 )
 		);
 
@@ -140,14 +129,11 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 
 		if ( $expectShown ) {
 			$out->expects( $this->once() )->method( 'msg' )->with(
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( 'moderation-new-changes-appeared' )
 			)->willReturn( new RawMessage( '{TextOfNotificationLink}' ) );
 
 			$linkRenderer->expects( $this->once() )->method( 'makeLink' )->with(
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->IsInstanceOf( Title::class ),
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( '{TextOfNotificationLink}' )
 			)->will( $this->returnCallback( function ( Title $title, $text ) {
 				$this->assertTrue( $title->isSpecial( 'Moderation' ),
@@ -264,7 +250,6 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 		$user->expects( $this->any() )->method( 'getId' )->willReturn( $userId );
 
 		$user->expects( $this->once() )->method( 'isAllowed' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( 'moderation' )
 		)->willReturn( $isModerator );
 
@@ -279,20 +264,15 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 			$title->expects( $this->never() )->method( 'isSpecial' );
 		} else {
 			$title->expects( $this->once() )->method( 'isSpecial' )->with(
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( 'Moderation' )
 			)->willReturn( $isSpecialModeration );
 
 			if ( !$isSpecialModeration && $pendingTimeCached === false ) {
 				// PendingTime wasn't found in the cache, so it will be loaded from the database.
 				$entryFactory->expects( $this->once() )->method( 'loadRow' )->with(
-					// @phan-suppress-next-line PhanTypeMismatchArgument
 					$this->identicalTo( [ 'mod_rejected' => 0, 'mod_merged_revid' => 0 ] ),
-					// @phan-suppress-next-line PhanTypeMismatchArgument
 					$this->identicalTo( [ 'mod_timestamp AS timestamp' ] ),
-					// @phan-suppress-next-line PhanTypeMismatchArgument
 					$this->identicalTo( DB_REPLICA ),
-					// @phan-suppress-next-line PhanTypeMismatchArgument
 					$this->identicalTo( [ 'USE INDEX' => 'moderation_folder_pending' ] )
 				)->willReturn( $pendingTimeUncached ? (object)[ 'timestamp' => $pendingTimeUncached ] : false );
 

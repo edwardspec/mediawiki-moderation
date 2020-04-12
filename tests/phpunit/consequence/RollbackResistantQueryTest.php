@@ -116,9 +116,7 @@ class RollbackResistantQueryTest extends ModerationUnitTestCase {
 		// Mock the LoadBalancer to remember TransactionListener callback that was added to it.
 		$loadBalancer = $this->createMock( ILoadBalancer::class );
 		$loadBalancer->expects( $this->any() )->method( 'setTransactionListener' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( 'moderation-on-rollback-or-commit' ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->logicalOr( $this->isType( 'callable' ), $this->isNull() )
 		)->will( $this->returnCallback( function ( $_, $callback ) {
 			$this->listenerFunc = $callback;

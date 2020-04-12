@@ -57,7 +57,6 @@ class UploadsHaveConsequencesTest extends ModerationUnitTestCase {
 		// Mock the result of canUploadSkip()
 		$canSkip = $this->createMock( ModerationCanSkip::class );
 		$canSkip->expects( $this->once() )->method( 'canUploadSkip' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$user
 		)->willReturn( false ); // Can't bypass moderation
 		$this->setService( 'Moderation.CanSkip', $canSkip );
@@ -97,14 +96,11 @@ class UploadsHaveConsequencesTest extends ModerationUnitTestCase {
 		$canSkip = $this->createMock( ModerationCanSkip::class );
 
 		$canSkip->expects( $this->once() )->method( 'canUploadSkip' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$user
 		)->willReturn( true ); // Can bypass moderation and Upload the file
 
 		$canSkip->expects( $this->once() )->method( 'canEditSkip' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$user,
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			NS_FILE
 		)->willReturn( true ); // Can bypass moderation to create [[File:Something]] page.
 
@@ -138,7 +134,6 @@ class UploadsHaveConsequencesTest extends ModerationUnitTestCase {
 		// Mock the result of canUploadSkip()
 		$canSkip = $this->createMock( ModerationCanSkip::class );
 		$canSkip->expects( $this->once() )->method( 'canUploadSkip' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$user
 		)->willReturn( false ); // Can't bypass moderation
 		$this->setService( 'Moderation.CanSkip', $canSkip );

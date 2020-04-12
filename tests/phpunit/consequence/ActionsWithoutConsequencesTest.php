@@ -44,11 +44,9 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	 * @codingStandardsIgnoreEnd
 	 *
 	 * @covers ModerationActionApprove
-	 * @covers ModerationActionBlock
 	 * @covers ModerationActionEditChange
 	 * @covers ModerationActionEditChangeSubmit
-	 * @covers ModerationActionPreview
-	 * @covers ModerationActionReject
+	 * @covers ModerationActionReject::executeRejectAll
 	 * @covers ModerationEntry
 	 * @covers ModerationApprovableEntry
 	 * @covers ModerationError
@@ -92,7 +90,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	public function dataProviderNoConsequenceActions() {
 		$sets = [
 			// Actions that are always readonly and shouldn't have any consequences.
-			'preview' => [ [ 'action' => 'preview' ] ],
 			'editchange' =>
 				[ [
 					'action' => 'editchange',
@@ -124,18 +121,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 					'globals' => [ 'wgModerationEnableEditChange' => true ],
 					'fields' => [ 'mod_type' => ModerationNewChange::MOD_TYPE_MOVE ],
 					'expectedError' => 'moderation-edit-not-found'
-				] ],
-			'reject (when already rejected)' =>
-				[ [
-					'action' => 'reject',
-					'fields' => [ 'mod_rejected' => 1 ],
-					'expectedError' => 'moderation-already-rejected'
-				] ],
-			'reject (when already merged)' =>
-				[ [
-					'action' => 'reject',
-					'fields' => [ 'mod_merged_revid' => 123 ],
-					'expectedError' => 'moderation-already-merged'
 				] ],
 			'approve (when already merged)' =>
 				[ [
@@ -170,13 +155,9 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 		$actionIsReadOnly = [
 			'approve' => false,
 			'approveall' => false,
-			'reject' => false,
 			'rejectall' => false,
-			'block' => false,
-			'unblock' => false,
 			'editchange' => false,
-			'editchangesubmit' => false,
-			'preview' => true
+			'editchangesubmit' => false
 		];
 		foreach ( $actionIsReadOnly as $action => $isReadOnly ) {
 			$sets["readonly modaction=$action"] = [ [

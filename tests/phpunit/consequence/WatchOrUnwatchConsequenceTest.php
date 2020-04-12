@@ -39,9 +39,7 @@ class WatchOrUnwatchConsequenceTest extends ModerationUnitTestCase {
 
 		$watchedItemStore = $this->createMock( WatchedItemStore::class );
 		$watchedItemStore->expects( $this->once() )->method( 'isWatched' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $user ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $title )
 		)->willReturn( ( $watch && $noop ) || ( !$watch && !$noop ) );
 
@@ -49,9 +47,7 @@ class WatchOrUnwatchConsequenceTest extends ModerationUnitTestCase {
 			$watchedItemStore->expects( $this->never() )->method( 'addWatchBatchForUser' );
 		} else {
 			$watchedItemStore->expects( $this->once() )->method( 'addWatchBatchForUser' )->with(
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( $user ),
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->equalTo( [ $title->getSubjectPage(), $title->getTalkPage() ] )
 			);
 		}
@@ -60,15 +56,11 @@ class WatchOrUnwatchConsequenceTest extends ModerationUnitTestCase {
 			$watchedItemStore->expects( $this->never() )->method( 'removeWatch' );
 		} else {
 			$watchedItemStore->expects( $this->at( 1 ) )->method( 'removeWatch' )->with(
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( $user ),
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->equalTo( $title->getSubjectPage() )
 			);
 			$watchedItemStore->expects( $this->at( 2 ) )->method( 'removeWatch' )->with(
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( $user ),
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->equalTo( $title->getTalkPage() )
 			);
 		}

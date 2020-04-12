@@ -117,7 +117,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	 * @param User $moderator
 	 * @throws ModerationError
 	 */
-	final public function approve( User $moderator ) {
+	public function approve( User $moderator ) {
 		$row = $this->getRow();
 
 		/* Can this change be approved? */

@@ -62,7 +62,6 @@ class HooksTest extends ModerationUnitTestCase {
 		$canSkip = $this->createMock( ModerationCanSkip::class );
 		$canSkip->expects( $mwActionName == 'revert' ? $this->once() : $this->never() )
 			->method( 'canUploadSkip' )->with(
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( $user )
 			)->willReturn( $isAutomoderated );
 		$this->setService( 'Moderation.CanSkip', $canSkip );
@@ -120,7 +119,6 @@ class HooksTest extends ModerationUnitTestCase {
 		// Mock the result of canUploadSkip()
 		$canSkip = $this->createMock( ModerationCanSkip::class );
 		$canSkip->expects( $this->once() )->method( 'canUploadSkip' )->with(
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( $context->getUser() )
 			)->willReturn( $isAutomoderated );
 		$this->setService( 'Moderation.CanSkip', $canSkip );
@@ -225,9 +223,7 @@ class HooksTest extends ModerationUnitTestCase {
 		// Mock the result of canEditSkip()
 		$canSkip = $this->createMock( ModerationCanSkip::class );
 		$canSkip->expects( $this->once() )->method( 'canEditSkip' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $user ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $title->getNamespace() )
 		)->willReturn( $isAutomoderated );
 		$this->setService( 'Moderation.CanSkip', $canSkip );

@@ -132,9 +132,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		$manager = new MockConsequenceManager();
 
 		$entryFactory->expects( $this->once() )->method( 'findPendingEdit' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( ']ExistingAnonId' ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $title )
 		)->willReturn( '{MockedResultFromFactory}' );
 
@@ -327,7 +325,6 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		if ( !$notFound ) {
 			$pendingEdit = $this->createMock( PendingEdit::class );
 			$pendingEdit->expects( $this->once() )->method( 'getSectionText' )->with(
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->equalTo( $sectionId )
 			)->willReturn( $text );
 
@@ -341,9 +338,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 
 		$entryFactory = $this->createMock( EntryFactory::class );
 		$entryFactory->expects( $this->once() )->method( 'findPendingEdit' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( ']ExistingAnonId' ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $title )
 		)->willReturn( $pendingEdit );
 

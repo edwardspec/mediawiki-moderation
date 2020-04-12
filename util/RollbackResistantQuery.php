@@ -29,7 +29,7 @@ use Wikimedia\Services\DestructibleService;
 // @codeCoverageIgnoreStart
 if ( !interface_exists( DestructibleService::class ) ) {
 	// MediaWiki 1.31-1.33
-	// @phan-suppress-next-line PhanRedefineClassAlias
+	// @phan-suppress-next-line PhanUndeclaredClassAliasOriginal
 	class_alias( 'MediaWiki\Services\DestructibleService', 'Wikimedia\Services\DestructibleService' );
 }
 // @codeCoverageIgnoreEnd

@@ -69,15 +69,10 @@ class ActionLinkRendererTest extends ModerationUnitTestCase {
 
 		$linkRenderer->expects( $this->once() )->method( 'makePreloadedLink' )
 			->with(
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( $specialTitle ),
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( $expectedLinkText ),
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( '' ),
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( [ 'title' => $expectedTooltip ] ),
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( $expectedQueryParameters )
 			)
 			->willReturn( $expectedResult );

@@ -23,8 +23,8 @@
 use MediaWiki\Moderation\EntryFactory;
 
 /**
- * @method static mixed once()
- * @method static mixed identicalTo($a)
+ * @method static \PHPUnit\Framework\MockObject\Rule\InvokedCount once()
+ * @method static \PHPUnit\Framework\Constraint\IsIdentical identicalTo($a)
  */
 trait MockLoadRowTestTrait {
 	/**

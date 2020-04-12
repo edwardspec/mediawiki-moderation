@@ -30,9 +30,9 @@ use MediaWiki\Storage\RevisionLookup as OldRevisionLookup31;
 use MediaWiki\Storage\SlotRecord as OldSlotRecord31;
 
 /**
- * @method static mixed any()
- * @method static mixed identicalTo($a)
- * @method static mixed returnCallback($a)
+ * @method static \PHPUnit\Framework\MockObject\Rule\AnyInvokedCount any()
+ * @method static \PHPUnit\Framework\Constraint\IsIdentical identicalTo($a)
+ * @method static \PHPUnit\Framework\MockObject\Stub\ReturnCallback returnCallback($a)
  */
 trait MockRevisionLookupTestTrait {
 	/**

@@ -107,9 +107,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 
 		$mock->expects( $this->once() )->method( 'execute' )->willReturn( $mockedResult );
 		$mock->expects( $this->once() )->method( 'outputResult' )->with(
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->identicalTo( $mockedResult ),
-			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$this->isInstanceOf( OutputPage::class )
 		)->will( $this->returnCallback(
 			function ( $result, OutputPage $out ) use ( $mockedHtml ) {
@@ -348,9 +346,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		$factory = $this->createMock( EntryFactory::class );
 		$factory->expects( $this->once() )->method( 'makeFormatter' )
 			->with(
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( $sampleRow ),
-				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$this->identicalTo( $context )
 			)->will( $this->returnCallback( function () use ( $expectedResult ) {
 				$formatter = $this->createMock( ModerationEntryFormatter::class );
