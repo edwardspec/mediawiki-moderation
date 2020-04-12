@@ -23,7 +23,6 @@
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ApproveEditConsequence;
 use MediaWiki\Moderation\ApproveMoveConsequence;
-use MediaWiki\Moderation\ApproveUploadConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\InstallApproveHookConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
@@ -108,65 +107,6 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 				'approve',
 				$this->moderatorUser,
 				$this->title,
-				[ 'revid' => $expectedRevId ],
-				true // ApproveHook enabled
-			),
-			new DeleteRowFromModerationTableConsequence( $this->modid ),
-			new InvalidatePendingTimeCacheConsequence()
-		];
-
-		$this->assertConsequencesEqual( $expected, $actual );
-
-		$this->assertSame( $this->result, [ 'approved' => [ $this->modid ] ] );
-		$this->assertEquals( $this->outputText, '(moderation-approved-ok: 1)' );
-	}
-
-	/**
-	 * Test consequences of modaction=approve on a pending upload.
-	 * @covers ModerationActionApprove
-	 * @covers ModerationEntryUpload
-	 * @covers ModerationApprovableEntry
-	 * @covers ModerationEntry
-	 */
-	public function testApproveUpload() {
-		$stashKey = 'sample-stash-key';
-		$title = Title::newFromText( 'File:UTUpload-' . rand( 0, 100000 ) . '.png' );
-
-		$expectedRevId = rand( 1, 100000 );
-		$this->mockApproveHook( $expectedRevId );
-
-		$this->db->update( 'moderation',
-			[
-				'mod_stash_key' => $stashKey,
-				'mod_namespace' => $title->getNamespace(),
-				'mod_title' => $title->getDBKey()
-			],
-			[ 'mod_id' => $this->modid ],
-			__METHOD__
-		);
-
-		$actual = $this->getConsequences( $this->modid, 'approve',
-			[ [ ApproveUploadConsequence::class, Status::newGood() ] ]
-		);
-		$expected = [
-			new InstallApproveHookConsequence( $title, $this->authorUser, 'edit', [
-				'ip' => $this->ip,
-				'xff' => $this->xff,
-				'ua' => $this->userAgent,
-				'tags' => $this->tags,
-				'timestamp' => $this->timestamp
-			] ),
-			new ApproveUploadConsequence(
-				$stashKey,
-				$title,
-				$this->authorUser,
-				$this->summary,
-				$this->text
-			),
-			new AddLogEntryConsequence(
-				'approve',
-				$this->moderatorUser,
-				$title,
 				[ 'revid' => $expectedRevId ],
 				true // ApproveHook enabled
 			),
