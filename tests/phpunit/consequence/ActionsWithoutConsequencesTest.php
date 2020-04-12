@@ -43,13 +43,10 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	 * @phan-param array{action:string,globals?:array,fields?:array|false,expectedError?:string} $options
 	 * @codingStandardsIgnoreEnd
 	 *
-	 * @covers ModerationActionApprove
+	 * @covers ModerationActionApprove::executeApproveAll
 	 * @covers ModerationActionEditChange
 	 * @covers ModerationActionEditChangeSubmit
 	 * @covers ModerationActionReject::executeRejectAll
-	 * @covers ModerationEntry
-	 * @covers ModerationApprovableEntry
-	 * @covers ModerationError
 	 */
 	public function testNoConsequenceActions( $options ) {
 		$this->assertArrayHasKey( 'action', $options );
@@ -69,18 +66,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 
 		$this->assertEquals( $options['expectedError'] ?? null, $this->thrownError,
 			"Thrown ModerationError doesn't match expected." );
-	}
-
-	/**
-	 * Get value of mod_timestamp that is too long ago to reapprove already rejected edit.
-	 * @return string
-	 */
-	public function longAgoTimestamp() {
-		global $wgModerationTimeToOverrideRejection;
-
-		$dbr = wfGetDB( DB_REPLICA );
-		return $dbr->timestamp(
-			wfTimestamp( TS_MW, (int)wfTimestamp() - $wgModerationTimeToOverrideRejection - 1 ) );
 	}
 
 	/**
@@ -121,15 +106,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 					'globals' => [ 'wgModerationEnableEditChange' => true ],
 					'fields' => [ 'mod_type' => ModerationNewChange::MOD_TYPE_MOVE ],
 					'expectedError' => 'moderation-edit-not-found'
-				] ],
-			'approve (when rejected too long ago)' =>
-				[ [
-					'action' => 'approve',
-					'fields' => [
-						'mod_rejected' => 1,
-						'mod_timestamp' => $this->longAgoTimestamp()
-					],
-					'expectedError' => 'moderation-rejected-long-ago'
 				] ],
 			'approveall (no edits to approve)' =>
 				[ [

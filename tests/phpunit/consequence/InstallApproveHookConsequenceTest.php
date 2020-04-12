@@ -421,15 +421,6 @@ class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Get timestamp in the past (N seconds ago).
-	 * @param int $secondsAgo.
-	 * @return string MediaWiki timestamp (14 digits).
-	 */
-	private function pastTimestamp( $secondsAgo = 10000 ) {
-		return wfTimestamp( TS_MW, (int)wfTimestamp() - $secondsAgo );
-	}
-
-	/**
 	 * Verify that timestamp of edit is ignored if more recent revisions exist in the history.
 	 * @covers ModerationApproveHook
 	 */

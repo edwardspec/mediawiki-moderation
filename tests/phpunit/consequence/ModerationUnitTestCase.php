@@ -105,4 +105,13 @@ class ModerationUnitTestCase extends MediaWikiTestCase {
 	public static function assertNoConsequences( MockConsequenceManager $manager ) {
 		self::assertConsequencesEqual( [], $manager->getConsequences() );
 	}
+
+	/**
+	 * Get timestamp in the past (N seconds ago).
+	 * @param int $secondsAgo
+	 * @return string MediaWiki timestamp (14 digits).
+	 */
+	protected function pastTimestamp( $secondsAgo = 10000 ) {
+		return wfTimestamp( TS_MW, (int)wfTimestamp() - $secondsAgo );
+	}
 }

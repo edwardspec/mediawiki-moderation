@@ -30,7 +30,7 @@ require_once __DIR__ . "/autoload.php";
 
 class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 	/**
-	 * Check result/consequences of modaction=reject.
+	 * Check possible errors and consequences of ModerationApprovableEntry::approve().
 	 * @param array $opt
 	 * @covers ModerationApprovableEntry
 	 * @dataProvider dataProviderApprove

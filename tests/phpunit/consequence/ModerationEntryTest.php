@@ -161,6 +161,42 @@ class ModerationEntryTest extends ModerationUnitTestCase {
 	}
 
 	/**
+	 * Check the return value of canReapproveRejected().
+	 * @param bool $expectedResult
+	 * @param int $timeDiffFromNow How long ago did "timestamp" take place.
+	 * @param int $maxTimeDiffFromNow Value of $wgModerationTimeToOverrideRejection.
+	 * @dataProvider dataProviderCanReapproveRejected
+	 * @covers ModerationEntry
+	 */
+	public function testCanReapproveRejected( $expectedResult,
+		$timeDiffFromNow, $maxTimeDiffFromNow
+	) {
+		// Clear the cache. FIXME: this cache should be in some self-cleaning Service or something.
+		$wrapper = TestingAccessWrapper::newFromClass( 'ModerationEntry' );
+		$wrapper->earliestReapprovableTimestamp = null;
+
+		$this->setMwGlobals( 'wgModerationTimeToOverrideRejection', $maxTimeDiffFromNow );
+
+		$entry = $this->makeEntry( [ 'timestamp' => $this->pastTimestamp( $timeDiffFromNow ) ] );
+		$this->assertSame( $expectedResult, $entry->canReapproveRejected(), 'canReapproveRejected' );
+	}
+
+	/**
+	 * Provide datasets for testCanReapproveRejected() runs.
+	 * @return array
+	 */
+	public function dataProviderCanReapproveRejected() {
+		return [
+			'allowed: rejected 1000 seconds ago, default time to override (2 weeks)' =>
+				[ true, 1000, 1209600 ],
+			'allowed: rejected 500 seconds ago, time to override is 501 second' =>
+				[ true, 500, 501 ],
+			'NOT allowed: rejected 500 seconds ago, time to override is 499 seconds' =>
+				[ false, 500, 499 ],
+		];
+	}
+
+	/**
 	 * Test the return value of ModerationEntry::getFields().
 	 * @covers ModerationEntry
 	 */
