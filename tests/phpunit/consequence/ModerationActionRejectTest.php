@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
+use MediaWiki\Moderation\RejectAllConsequence;
 use MediaWiki\Moderation\RejectOneConsequence;
 
 require_once __DIR__ . "/autoload.php";
@@ -133,6 +134,90 @@ class ModerationActionRejectTest extends ModerationUnitTestCase {
 			'error: already merged' => [ [
 				'expectedError' => 'moderation-already-merged',
 				'isAlreadyMerged' => true
+			] ]
+		];
+	}
+
+	/**
+	 * Check result/consequences of modaction=reject.
+	 * @param array $opt
+	 * @dataProvider dataProviderExecuteRejectAll
+	 * @covers ModerationActionReject
+	 */
+	public function testExecuteRejectAll( array $opt ) {
+		$username = $opt['usernameOfPerformer'] ?? "Author's username";
+		$affectedRows = $opt['affectedRows'] ?? 6;
+
+		$action = $this->makeActionForTesting( ModerationActionReject::class,
+			function ( $context, $entryFactory, $manager ) use ( $username, $affectedRows ) {
+				$moderator = self::getTestUser()->getUser();
+				$modid = 12345;
+
+				$context->setRequest( new FauxRequest( [
+					'modid' => $modid,
+					'modaction' => 'rejectall'
+				] ) );
+				$context->setUser( $moderator );
+
+				// TODO: maybe allow makeActionForTesting() to create a partial mock,
+				// and then just mock ModerationAction::getUserpageOfPerformer()?
+				$entryFactory->expects( $this->once() )->method( 'loadRow' )->with(
+					$this->identicalTo( $modid ),
+					$this->identicalTo( [ 'mod_user_text AS user_text' ] )
+				)->willReturn( $username ? (object)[ 'user_text' => $username ] : false );
+
+				if ( !$username ) {
+					// Exception will be thrown, so no further consequences are expected.
+					$manager->expects( $this->never() )->method( 'add' );
+					return;
+				}
+
+				$manager->expects( $this->at( 0 ) )->method( 'add' )->with( $this->consequenceEqualTo(
+					new RejectAllConsequence( $username, $moderator )
+				) )->willReturn( $affectedRows );
+
+				if ( !$affectedRows ) {
+					// Exception will be thrown, so no further consequences are expected.
+					$manager->expects( $this->once() )->method( 'add' );
+					return;
+				}
+
+				$manager->expects( $this->at( 1 ) )->method( 'add' )->with( $this->consequenceEqualTo(
+					new AddLogEntryConsequence(
+						'rejectall',
+						$moderator,
+						Title::makeTitle( NS_USER, $username ),
+						[ '4::count' => $affectedRows ]
+					)
+				) );
+				$manager->expects( $this->at( 2 ) )->method( 'add' )->with( $this->consequenceEqualTo(
+					new InvalidatePendingTimeCacheConsequence()
+				) );
+				$manager->expects( $this->exactly( 3 ) )->method( 'add' );
+			}
+		);
+
+		$expectedError = $opt['expectedError'] ?? null;
+		if ( $expectedError ) {
+			$this->expectExceptionObject( new ModerationError( $expectedError ) );
+		}
+		$this->assertSame( [ 'rejected-count' => $affectedRows ], $action->execute() );
+	}
+
+	/**
+	 * Provide datasets for testExecuteRejectAll() runs.
+	 * @return array
+	 */
+	public function dataProviderExecuteRejectAll() {
+		return [
+			'successful rejectall' => [ [] ],
+			'no-op reject (no rows affected)' => [ [
+				'expectedError' => 'moderation-nothing-to-rejectall',
+				'affectedRows' => 0
+			] ],
+			'error: pending edit not found' => [ [
+				'expectedError' => 'moderation-edit-not-found',
+				'usernameOfPerformer' => false
 			] ]
 		];
 	}
