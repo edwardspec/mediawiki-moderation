@@ -30,7 +30,6 @@ use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsConflictConsequence;
 use MediaWiki\Moderation\ModifyPendingChangeConsequence;
 use MediaWiki\Moderation\RejectBatchConsequence;
-use MediaWiki\Moderation\RejectOneConsequence;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -73,34 +72,6 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'moderation' ];
-
-	/**
-	 * Test consequences of modaction=reject.
-	 * @covers ModerationActionReject
-	 */
-	public function testReject() {
-		$expected = [
-			new RejectOneConsequence( $this->modid, $this->moderatorUser ),
-			new AddLogEntryConsequence(
-				'reject',
-				$this->moderatorUser,
-				$this->title,
-				[
-					'modid' => $this->modid,
-					'user' => $this->authorUser->getId(),
-					'user_text' => $this->authorUser->getName()
-				]
-			),
-			new InvalidatePendingTimeCacheConsequence()
-		];
-		$actual = $this->getConsequences( $this->modid, 'reject',
-			[ [ RejectOneConsequence::class, 1 ] ] );
-
-		$this->assertConsequencesEqual( $expected, $actual );
-
-		$this->assertSame( $this->result, [ 'rejected-count' => 1 ] );
-		$this->assertEquals( $this->outputText, '(moderation-rejected-ok: 1)' );
-	}
 
 	/**
 	 * Test consequences of modaction=approve.

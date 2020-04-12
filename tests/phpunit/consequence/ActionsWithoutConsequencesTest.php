@@ -46,7 +46,7 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	 * @covers ModerationActionApprove
 	 * @covers ModerationActionEditChange
 	 * @covers ModerationActionEditChangeSubmit
-	 * @covers ModerationActionReject
+	 * @covers ModerationActionReject::executeRejectAll
 	 * @covers ModerationEntry
 	 * @covers ModerationApprovableEntry
 	 * @covers ModerationError
@@ -122,18 +122,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 					'fields' => [ 'mod_type' => ModerationNewChange::MOD_TYPE_MOVE ],
 					'expectedError' => 'moderation-edit-not-found'
 				] ],
-			'reject (when already rejected)' =>
-				[ [
-					'action' => 'reject',
-					'fields' => [ 'mod_rejected' => 1 ],
-					'expectedError' => 'moderation-already-rejected'
-				] ],
-			'reject (when already merged)' =>
-				[ [
-					'action' => 'reject',
-					'fields' => [ 'mod_merged_revid' => 123 ],
-					'expectedError' => 'moderation-already-merged'
-				] ],
 			'approve (when already merged)' =>
 				[ [
 					'action' => 'approve',
@@ -167,7 +155,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 		$actionIsReadOnly = [
 			'approve' => false,
 			'approveall' => false,
-			'reject' => false,
 			'rejectall' => false,
 			'editchange' => false,
 			'editchangesubmit' => false
