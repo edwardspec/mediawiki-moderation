@@ -25,7 +25,6 @@ use MediaWiki\Moderation\ApproveEditConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\InstallApproveHookConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
-use MediaWiki\Moderation\MarkAsConflictConsequence;
 use MediaWiki\Moderation\ModifyPendingChangeConsequence;
 use MediaWiki\Moderation\RejectBatchConsequence;
 
@@ -70,95 +69,6 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'moderation' ];
-
-	/**
-	 * Test consequences of modaction=approve.
-	 * @covers ModerationActionApprove
-	 * @covers ModerationEntryEdit
-	 * @covers ModerationApprovableEntry
-	 * @covers ModerationEntry
-	 */
-	public function testApprove() {
-		$expectedRevId = rand( 1, 100000 );
-		$this->mockApproveHook( $expectedRevId );
-
-		$actual = $this->getConsequences( $this->modid, 'approve',
-			[ [ ApproveEditConsequence::class, Status::newGood() ] ]
-		);
-		$expected = [
-			new InstallApproveHookConsequence( $this->title, $this->authorUser, 'edit', [
-				'ip' => $this->ip,
-				'xff' => $this->xff,
-				'ua' => $this->userAgent,
-				'tags' => $this->tags,
-				'timestamp' => $this->timestamp
-			] ),
-			new ApproveEditConsequence(
-				$this->authorUser,
-				$this->title,
-				$this->text,
-				$this->summary,
-				false, // isBot
-				false, // isMinor
-				0 // $baseRevId
-			),
-			new AddLogEntryConsequence(
-				'approve',
-				$this->moderatorUser,
-				$this->title,
-				[ 'revid' => $expectedRevId ],
-				true // ApproveHook enabled
-			),
-			new DeleteRowFromModerationTableConsequence( $this->modid ),
-			new InvalidatePendingTimeCacheConsequence()
-		];
-
-		$this->assertConsequencesEqual( $expected, $actual );
-
-		$this->assertSame( $this->result, [ 'approved' => [ $this->modid ] ] );
-		$this->assertEquals( $this->outputText, '(moderation-approved-ok: 1)' );
-	}
-
-	/**
-	 * Test consequences of modaction=approve when it results in edit conflict.
-	 * @covers ModerationActionApprove
-	 * @covers ModerationEntryEdit
-	 * @covers ModerationApprovableEntry
-	 * @covers ModerationEntry
-	 * @covers ModerationError
-	 */
-	public function testApproveEditConflict() {
-		$actual = $this->getConsequences( $this->modid, 'approve',
-			[ [ ApproveEditConsequence::class, Status::newFatal( 'moderation-edit-conflict' ) ] ]
-		);
-		$expected = [
-			new InstallApproveHookConsequence( $this->title, $this->authorUser, 'edit', [
-				'ip' => $this->ip,
-				'xff' => $this->xff,
-				'ua' => $this->userAgent,
-				'tags' => $this->tags,
-				'timestamp' => $this->timestamp
-			] ),
-			new ApproveEditConsequence(
-				$this->authorUser,
-				$this->title,
-				$this->text,
-				$this->summary,
-				false, // isBot
-				false, // isMinor
-				0 // $baseRevId
-			),
-			new MarkAsConflictConsequence( $this->modid )
-		];
-
-		$this->assertConsequencesEqual( $expected, $actual );
-		$this->assertEquals( 'moderation-edit-conflict', $this->thrownError,
-			"Despite the edit conflict, modaction=approve didn't throw an exception." );
-	}
-
-	// NOTE: running Approve without process isolation (like in ModerationTestsuite framework)
-	// would confuse ApproveHooks class. Need a way to clean ApproveHooks between tests.
-	// If ApproveHooks themselves use consequences, mocked Manager can be used too.
 
 	/**
 	 * Test consequences of modaction=approveall.
