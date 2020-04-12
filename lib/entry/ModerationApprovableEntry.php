@@ -145,7 +145,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 			$moderator,
 			$this->getTitle(),
 			$this->getApproveLogParameters(),
-			true // Run ApproveHook on newly create log entry
+			true // Run ApproveHook on newly created log entry
 		) );
 
 		# Approved edits are removed from "moderation" table,

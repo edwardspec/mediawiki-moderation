@@ -122,12 +122,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 					'fields' => [ 'mod_type' => ModerationNewChange::MOD_TYPE_MOVE ],
 					'expectedError' => 'moderation-edit-not-found'
 				] ],
-			'approve (when already merged)' =>
-				[ [
-					'action' => 'approve',
-					'fields' => [ 'mod_merged_revid' => 123 ],
-					'expectedError' => 'moderation-already-merged'
-				] ],
 			'approve (when rejected too long ago)' =>
 				[ [
 					'action' => 'approve',
@@ -153,7 +147,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 
 		// ReadOnlyError exception from non-readonly actions
 		$actionIsReadOnly = [
-			'approve' => false,
 			'approveall' => false,
 			'rejectall' => false,
 			'editchange' => false,
