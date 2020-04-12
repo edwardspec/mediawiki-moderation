@@ -22,7 +22,6 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ApproveEditConsequence;
-use MediaWiki\Moderation\ApproveMoveConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\InstallApproveHookConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
@@ -108,65 +107,6 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 				$this->moderatorUser,
 				$this->title,
 				[ 'revid' => $expectedRevId ],
-				true // ApproveHook enabled
-			),
-			new DeleteRowFromModerationTableConsequence( $this->modid ),
-			new InvalidatePendingTimeCacheConsequence()
-		];
-
-		$this->assertConsequencesEqual( $expected, $actual );
-
-		$this->assertSame( $this->result, [ 'approved' => [ $this->modid ] ] );
-		$this->assertEquals( $this->outputText, '(moderation-approved-ok: 1)' );
-	}
-
-	/**
-	 * Test consequences of modaction=approve on a pending move.
-	 * @covers ModerationActionApprove
-	 * @covers ModerationEntryMove
-	 * @covers ModerationApprovableEntry
-	 * @covers ModerationEntry
-	 */
-	public function testApproveMove() {
-		$newTitle = Title::newFromText( 'Project:' . $this->title->getFullText() . '-new' );
-
-		$this->db->update( 'moderation',
-			[
-				'mod_type' => ModerationNewChange::MOD_TYPE_MOVE,
-				'mod_page2_namespace' => $newTitle->getNamespace(),
-				'mod_page2_title' => $newTitle->getDBKey()
-			],
-			[ 'mod_id' => $this->modid ],
-			__METHOD__
-		);
-
-		$actual = $this->getConsequences( $this->modid, 'approve',
-			[ [ ApproveMoveConsequence::class, Status::newGood() ] ]
-		);
-		$expected = [
-			new InstallApproveHookConsequence( $this->title, $this->authorUser, 'move', [
-				'ip' => $this->ip,
-				'xff' => $this->xff,
-				'ua' => $this->userAgent,
-				'tags' => $this->tags,
-				'timestamp' => $this->timestamp
-			] ),
-			new ApproveMoveConsequence(
-				$this->moderatorUser,
-				$this->title,
-				$newTitle,
-				$this->authorUser,
-				$this->summary
-			),
-			new AddLogEntryConsequence(
-				'approve-move',
-				$this->moderatorUser,
-				$this->title,
-				[
-					'4::target' => $newTitle->getFullText(),
-					'user' => $this->authorUser->getId(),
-					'user_text' => $this->authorUser->getName()
-				],
 				true // ApproveHook enabled
 			),
 			new DeleteRowFromModerationTableConsequence( $this->modid ),
