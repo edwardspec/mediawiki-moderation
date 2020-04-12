@@ -22,7 +22,7 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
-use MediaWiki\Moderation\RejectBatchConsequence;
+use MediaWiki\Moderation\RejectAllConsequence;
 use MediaWiki\Moderation\RejectOneConsequence;
 
 class ModerationActionReject extends ModerationAction {
@@ -91,31 +91,12 @@ class ModerationActionReject extends ModerationAction {
 			throw new ModerationError( 'moderation-edit-not-found' );
 		}
 
-		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
-		$res = $dbw->select( 'moderation',
-			[ 'mod_id AS id' ],
-			[
-				'mod_user_text' => $userpage->getText(),
-				'mod_rejected' => 0,
-				'mod_merged_revid' => 0
-			],
-			__METHOD__,
-			[ 'USE INDEX' => 'moderation_rejectall' ]
-		);
-		if ( !$res || $res->numRows() == 0 ) {
-			throw new ModerationError( 'moderation-nothing-to-rejectall' );
-		}
-
-		$ids = [];
-		foreach ( $res as $row ) {
-			$ids[] = (int)$row->id;
-		}
-
-		$rejectedCount = $this->consequenceManager->add( new RejectBatchConsequence(
-			$ids, $this->moderator
+		$rejectedCount = $this->consequenceManager->add( new RejectAllConsequence(
+			$userpage->getText(),
+			$this->moderator
 		) );
 		if ( !$rejectedCount ) {
-			throw new ModerationError( 'moderation-edit-not-found' );
+			throw new ModerationError( 'moderation-nothing-to-rejectall' );
 		}
 
 		$this->consequenceManager->add( new AddLogEntryConsequence( 'rejectall', $this->moderator,

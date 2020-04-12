@@ -38,7 +38,7 @@ class GiveAnonChangesToNewUserConsequenceTest extends ModerationUnitTestCase {
 	 * @covers MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence
 	 */
 	public function testGiveChanges() {
-		list( $idsToAffect, $idsToPreserve ) = array_chunk( $this->makeSeveralDbRows(), 2 );
+		list( $idsToAffect, $idsToPreserve ) = array_chunk( $this->makeSeveralDbRows( 6 ), 3 );
 
 		$oldPreloadId = 'some anonymous preload ID';
 		$newPreloadId = 'new non-anonymous preload ID';
@@ -102,7 +102,7 @@ class GiveAnonChangesToNewUserConsequenceTest extends ModerationUnitTestCase {
 	 * @covers MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence
 	 */
 	public function testIgnoreNonPreloadableChanges() {
-		list( $idsToAffect, $idsToPreserve ) = array_chunk( $this->makeSeveralDbRows(), 2 );
+		list( $idsToAffect, $idsToPreserve ) = array_chunk( $this->makeSeveralDbRows( 6 ), 3 );
 
 		$oldPreloadId = 'some anonymous preload ID';
 		$newPreloadId = 'new non-anonymous preload ID';

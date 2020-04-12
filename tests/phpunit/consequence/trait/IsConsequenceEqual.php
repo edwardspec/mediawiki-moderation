@@ -107,9 +107,6 @@ class IsConsequenceEqual extends Constraint {
 				// because it's possible that "expected timestamp" was calculated
 				// in a different second than mod_timestamp in an actual Consequence.
 				$value['mod_timestamp'] = '<<< MOCKED TIMESTAMP >>>';
-			} elseif ( $consequence instanceof RejectBatchConsequence && $name == 'ids' ) {
-				// Order of elements in $ids doesn't matter and is different for MySQL/PosgreSQL.
-				sort( $value );
 			}
 
 			$fields[$name] = $value;

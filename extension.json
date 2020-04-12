@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.5.21",
+	"version": "1.5.22",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -125,7 +125,7 @@
 		"MediaWiki\\Moderation\\QueueEditConsequence": "lib/consequence/QueueEditConsequence.php",
 		"MediaWiki\\Moderation\\QueueMoveConsequence": "lib/consequence/QueueMoveConsequence.php",
 		"MediaWiki\\Moderation\\QueueUploadConsequence": "lib/consequence/QueueUploadConsequence.php",
-		"MediaWiki\\Moderation\\RejectBatchConsequence": "lib/consequence/RejectBatchConsequence.php",
+		"MediaWiki\\Moderation\\RejectAllConsequence": "lib/consequence/RejectAllConsequence.php",
 		"MediaWiki\\Moderation\\RejectOneConsequence": "lib/consequence/RejectOneConsequence.php",
 		"MediaWiki\\Moderation\\RememberAnonIdConsequence": "lib/consequence/RememberAnonIdConsequence.php",
 		"MediaWiki\\Moderation\\RollbackResistantQuery": "util/RollbackResistantQuery.php",
