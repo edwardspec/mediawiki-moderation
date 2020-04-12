@@ -23,6 +23,7 @@
 namespace MediaWiki\Moderation;
 
 use PHPUnit\Framework\Constraint\Constraint;
+use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
 use Title;
 use User;
@@ -81,7 +82,7 @@ class IsConsequenceEqual extends Constraint {
 			$value = $prop->getValue( $consequence );
 
 			$type = gettype( $value );
-			if ( $type == 'object' ) {
+			if ( $type == 'object' && !( $value instanceof MockObject ) ) {
 				if ( $value instanceof Title ) {
 					$value = [ 'Title', (string)$value ];
 				} elseif ( $value instanceof WikiPage ) {
