@@ -41,7 +41,7 @@ class RejectBatchConsequenceTest extends ModerationUnitTestCase {
 		$moderator = User::createNew( 'Some moderator' );
 
 		// Let's reject half of the rows. This allows us to test that other rows are unmodified.
-		list( $idsToReject, $idsToPreserve ) = array_chunk( $this->makeSeveralDbRows(), 2 );
+		list( $idsToReject, $idsToPreserve ) = array_chunk( $this->makeSeveralDbRows( 6 ), 3 );
 
 		// Create and run the Consequence.
 		$consequence = new RejectBatchConsequence( $idsToReject, $moderator );
