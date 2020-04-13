@@ -20,6 +20,7 @@
  * Unit test of ModerationActionApprove.
  */
 
+use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 
 require_once __DIR__ . "/autoload.php";
@@ -55,6 +56,137 @@ class ModerationActionApproveTest extends ModerationUnitTestCase {
 		);
 
 		$this->assertSame( [ 'approved' => [ $modid ] ], $action->execute() );
+	}
+
+	/**
+	 * Check result/consequences of modaction=approveall.
+	 * @param array $opt
+	 * @dataProvider dataProviderExecuteApproveAll
+	 * @covers ModerationActionApprove
+	 */
+	public function testExecuteApproveAll( array $opt = [] ) {
+		$username = $opt['usernameOfPerformer'] ?? "Author's username";
+		$expectedError = $opt['expectedError'] ?? null;
+		$numberOfEntriesFound = $opt['numberOfEntriesFound'] ?? 5;
+		$approvedCount = $opt['approvedCount'] ?? $numberOfEntriesFound;
+		$failedCount = $opt['failedCount'] ?? 0;
+
+		$entries = [];
+		$expectedResult = [ 'approved' => [], 'failed' => [] ];
+
+		// Use "qqx" pseudo-language to assert 'info' keys caused by ModerationError exceptions
+		$this->setContentLang( 'qqx' );
+
+		// B/C for MediaWiki 1.32 only: it used $wgLang global variable in Status::getMessage()
+		$this->setMwGlobals( 'wgLang', Language::factory( 'qqx' ) );
+
+		for ( $i = 0; $i < $numberOfEntriesFound; $i++ ) {
+			$modid = 10000 + $i;
+
+			$entry = $this->createMock( ModerationApprovableEntry::class );
+			$entry->expects( $this->any() )->method( 'getId' )->willReturn( $modid );
+
+			if ( $expectedError ) {
+				$entry->expects( $this->never() )->method( 'approve' );
+			} else {
+				if ( $i < $failedCount ) {
+					$entry->expects( $this->once() )->method( 'approve' )->willThrowException(
+						new ModerationError( 'some-mocked-error-code' )
+					);
+					$expectedResult['failed'][$modid] = [
+						'code' => 'some-mocked-error-code',
+						'info' => '(some-mocked-error-code)'
+					];
+				} else {
+					$entry->expects( $this->once() )->method( 'approve' );
+					$expectedResult['approved'][$modid] = '';
+				}
+			}
+
+			$entries[] = $entry;
+		}
+
+		$action = $this->makeActionForTesting( ModerationActionApprove::class,
+			function ( $context, $entryFactory, $manager )
+			use ( $entries, $username, $approvedCount ) {
+				$moderator = self::getTestUser()->getUser();
+
+				$context->setRequest( new FauxRequest( [
+					'modid' => 12345,
+					'modaction' => 'approveall'
+				] ) );
+				$context->setUser( $moderator );
+
+				// TODO: maybe allow makeActionForTesting() to create a partial mock,
+				// and then just mock ModerationAction::getUserpageOfPerformer()?
+				$entryFactory->expects( $this->once() )->method( 'loadRow' )->with(
+					$this->identicalTo( 12345 ),
+					$this->identicalTo( [ 'mod_user_text AS user_text' ] )
+				)->willReturn( $username ? (object)[ 'user_text' => $username ] : false );
+
+				if ( !$username ) {
+					// Exception will be thrown, so no further consequences are expected.
+					$manager->expects( $this->never() )->method( 'add' );
+					return;
+				}
+
+				$entryFactory->expects( $this->once() )->method( 'findAllApprovableEntries' )->with(
+					$this->identicalTo( $username )
+				)->willReturn( $entries );
+
+				if ( !$entries || !$approvedCount ) {
+					// Exception will be thrown, so no further consequences are expected.
+					$manager->expects( $this->never() )->method( 'add' );
+					return;
+				}
+
+				$manager->expects( $this->at( 0 ) )->method( 'add' )->with( $this->consequenceEqualTo(
+					new AddLogEntryConsequence(
+						'approveall',
+						$moderator,
+						Title::makeTitle( NS_USER, $username ),
+						[ '4::count' => $approvedCount ]
+					)
+				) );
+				$manager->expects( $this->at( 1 ) )->method( 'add' )->with( $this->consequenceEqualTo(
+					new InvalidatePendingTimeCacheConsequence()
+				) );
+				$manager->expects( $this->exactly( 2 ) )->method( 'add' );
+			}
+		);
+
+		if ( $expectedError ) {
+			$this->expectExceptionObject( new ModerationError( $expectedError ) );
+		}
+		$this->assertSame( $expectedResult, $action->execute() );
+	}
+
+	/**
+	 * Provide datasets for testExecuteApproveAll() runs.
+	 * @return array
+	 */
+	public function dataProviderExecuteApproveAll() {
+		return [
+			'successful approveall' => [ [] ],
+			'partially successful approveall: approved 3 edits, failed to approve 2 edits' => [ [
+				'numberOfEntriesFound' => 5,
+				'approvedCount' => 3,
+				'failedCount' => 2
+			] ],
+			'unsuccessful approveall: approved 0 edits, failed to approve 5 edits' => [ [
+				'numberOfEntriesFound' => 5,
+				'approvedCount' => 0,
+				'failedCount' => 5
+			] ],
+			'error: no approvable entries found' => [ [
+				'expectedError' => 'moderation-nothing-to-approveall',
+				'numberOfEntriesFound' => 0
+			] ],
+			'error: pending edit not found' => [ [
+				'expectedError' => 'moderation-edit-not-found',
+				'usernameOfPerformer' => false
+			] ]
+		];
 	}
 
 	/**

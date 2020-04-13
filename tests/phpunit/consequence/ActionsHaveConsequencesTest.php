@@ -21,10 +21,6 @@
  */
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
-use MediaWiki\Moderation\ApproveEditConsequence;
-use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
-use MediaWiki\Moderation\InstallApproveHookConsequence;
-use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\ModifyPendingChangeConsequence;
 
 require_once __DIR__ . "/autoload.php";
@@ -68,62 +64,6 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'moderation' ];
-
-	/**
-	 * Test consequences of modaction=approveall.
-	 * @covers ModerationActionApprove::executeApproveAll
-	 */
-	public function testApproveAllOneEdit() {
-		$expectedRevId = rand( 1, 100000 );
-		$this->mockApproveHook( $expectedRevId );
-
-		$actual = $this->getConsequences( $this->modid, 'approveall',
-			[ [ ApproveEditConsequence::class, Status::newGood() ] ]
-		);
-		$expected = [
-			new InstallApproveHookConsequence( $this->title, $this->authorUser, 'edit', [
-				'ip' => $this->ip,
-				'xff' => $this->xff,
-				'ua' => $this->userAgent,
-				'tags' => $this->tags,
-				'timestamp' => $this->timestamp
-			] ),
-			new ApproveEditConsequence(
-				$this->authorUser,
-				$this->title,
-				$this->text,
-				$this->summary,
-				false, // isBot
-				false, // isMinor
-				0 // $baseRevId
-			),
-			new AddLogEntryConsequence(
-				'approve',
-				$this->moderatorUser,
-				$this->title,
-				[ 'revid' => $expectedRevId ],
-				true // ApproveHook enabled
-			),
-			new DeleteRowFromModerationTableConsequence( $this->modid ),
-			new AddLogEntryConsequence(
-				'approveall',
-				$this->moderatorUser,
-				$this->authorUser->getUserPage(),
-				[
-					'4::count' => 1
-				]
-			),
-			new InvalidatePendingTimeCacheConsequence()
-		];
-
-		$this->assertConsequencesEqual( $expected, $actual );
-
-		$this->assertSame( $this->result, [
-			'approved' => [ $this->modid => '' ],
-			'failed' => []
-		] );
-		$this->assertEquals( $this->outputText, '(moderation-approved-ok: 1)' );
-	}
 
 	/**
 	 * Test consequences of modaction=editchangesubmit.

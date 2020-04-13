@@ -43,7 +43,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	 * @phan-param array{action:string,globals?:array,fields?:array|false,expectedError?:string} $options
 	 * @codingStandardsIgnoreEnd
 	 *
-	 * @covers ModerationActionApprove::executeApproveAll
 	 * @covers ModerationActionEditChange
 	 * @covers ModerationActionEditChangeSubmit
 	 */
@@ -105,18 +104,11 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 					'globals' => [ 'wgModerationEnableEditChange' => true ],
 					'fields' => [ 'mod_type' => ModerationNewChange::MOD_TYPE_MOVE ],
 					'expectedError' => 'moderation-edit-not-found'
-				] ],
-			'approveall (no edits to approve)' =>
-				[ [
-					'action' => 'approveall',
-					'fields' => [ 'mod_rejected' => 1 ],
-					'expectedError' => 'moderation-nothing-to-approveall'
 				] ]
 		];
 
 		// ReadOnlyError exception from non-readonly actions
 		$actionIsReadOnly = [
-			'approveall' => false,
 			'editchange' => false,
 			'editchangesubmit' => false
 		];
