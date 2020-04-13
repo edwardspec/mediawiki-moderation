@@ -186,6 +186,21 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 	}
 
 	/**
+	 * Test return value of getId().
+	 * @covers ModerationApprovableEntry
+	 */
+	public function testGetId() {
+		$entry = $this->makeEntry( function ( $row, $manager, $approveHook ) {
+			$manager->expects( $this->never() )->method( 'add' );
+			$row->id = 34567;
+		} );
+
+		'@phan-var ModerationApprovableEntry $entry';
+
+		$this->assertSame( 34567, $entry->getId() );
+	}
+
+	/**
 	 * Create ModerationApprovableEntry using callback that receives all mocked dependencies.
 	 * @param callable|null $setupMocks Callback that can configure MockObject dependencies.
 	 * @param string[] $methods Array of method names to mock (for MockBuilder::setMethods()).
