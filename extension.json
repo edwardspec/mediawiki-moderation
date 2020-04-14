@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.5.23",
+	"version": "1.5.24",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -116,7 +116,6 @@
 		"MediaWiki\\Moderation\\IConsequence": "lib/consequence/IConsequence.php",
 		"MediaWiki\\Moderation\\IConsequenceManager": "lib/consequence/manager/IConsequenceManager.php",
 		"MediaWiki\\Moderation\\InsertRowIntoModerationTableConsequence": "lib/consequence/InsertRowIntoModerationTableConsequence.php",
-		"MediaWiki\\Moderation\\InstallApproveHookConsequence": "lib/consequence/InstallApproveHookConsequence.php",
 		"MediaWiki\\Moderation\\InvalidatePendingTimeCacheConsequence": "lib/consequence/InvalidatePendingTimeCacheConsequence.php",
 		"MediaWiki\\Moderation\\MarkAsConflictConsequence": "lib/consequence/MarkAsConflictConsequence.php",
 		"MediaWiki\\Moderation\\MarkAsMergedConsequence": "lib/consequence/MarkAsMergedConsequence.php",

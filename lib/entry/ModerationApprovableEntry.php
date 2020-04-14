@@ -23,7 +23,6 @@
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
-use MediaWiki\Moderation\InstallApproveHookConsequence;
 
 abstract class ModerationApprovableEntry extends ModerationEntry {
 	/** @var IConsequenceManager */
@@ -98,11 +97,10 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	 */
 	protected function installApproveHook() {
 		$row = $this->getRow();
-		$user = $this->getUser();
 
-		$this->consequenceManager->add( new InstallApproveHookConsequence(
+		$this->approveHook->addTask(
 			$this->getTitle(),
-			$user,
+			$this->getUser(),
 			$row->type,
 			[
 				# For CheckUser extension to work properly, IP, XFF and UA
@@ -121,7 +119,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 				# without the edits surprisingly appearing somewhere in the past.
 				'timestamp' => $row->timestamp
 			]
-		) );
+		);
 	}
 
 	/**

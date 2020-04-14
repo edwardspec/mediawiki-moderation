@@ -18,6 +18,8 @@
 /**
  * @file
  * Verifies that ModerationAction subclasses have consequences like AddLogEntryConsequence.
+ *
+ * TODO: dismantle this test in favor of per-action unit tests.
  */
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
@@ -163,9 +165,6 @@ class ActionsHaveConsequencesTest extends ModerationUnitTestCase {
 		$this->xff = '10.11.12.13';
 		$this->timestamp = $this->db->timestamp(
 			wfTimestamp( TS_MW, (int)wfTimestamp() - rand( 100, 100000 ) ) );
-
-		// TODO: additionally check entries without any tags
-		// (important for testing InstallApproveHookConsequence)
 		$this->tags = "Sample tag1\nSample tag2";
 
 		$this->modid = $this->makeDbRow( [

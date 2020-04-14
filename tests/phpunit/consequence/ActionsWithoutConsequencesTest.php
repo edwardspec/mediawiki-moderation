@@ -19,7 +19,7 @@
  * @file
  * Verifies that readonly, failed or non-applicable actions have no consequences.
  *
- * TODO: dismantle most of this test in favor of per-action unit tests.
+ * TODO: dismantle this test in favor of per-action unit tests.
  */
 
 require_once __DIR__ . "/autoload.php";

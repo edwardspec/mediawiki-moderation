@@ -17,11 +17,10 @@
 
 /**
  * @file
- * Unit test of ModerationApproveHook and InstallApproveHookConsequence.
+ * Unit test of ModerationApproveHook.
  */
 
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Moderation\InstallApproveHookConsequence;
 use Psr\Log\NullLogger;
 
 require_once __DIR__ . "/autoload.php";
@@ -29,37 +28,13 @@ require_once __DIR__ . "/autoload.php";
 /**
  * @group Database
  */
-class InstallApproveHookConsequenceTest extends ModerationUnitTestCase {
+class ModerationApproveHookTest extends ModerationUnitTestCase {
 	use MakeEditTestTrait;
 	use UploadTestTrait;
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'revision', 'page', 'user', 'recentchanges', 'cu_changes',
 		'change_tag', 'logging', 'log_search', 'image', 'oldimage' ];
-
-	/**
-	 * Verify that InstallApproveHookConsequence calls ApproveHook::addTask().
-	 * @covers MediaWiki\Moderation\InstallApproveHookConsequence
-	 */
-	public function testInstallConsequence() {
-		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
-		$user = User::newFromName( '10.11.12.13', false );
-		$type = 'move';
-		$task = [ 'ip' => 'a', 'xff' => 'b', 'ua' => 'c', 'tags' => 'd', 'timestamp' => 'e' ];
-
-		$approveHook = $this->createMock( ModerationApproveHook::class );
-		$approveHook->expects( $this->once() )->method( 'addTask' )->with(
-			$this->identicalTo( $title ),
-			$this->identicalTo( $user ),
-			$this->identicalTo( $type ),
-			$this->identicalTo( $task )
-		);
-		$this->setService( 'Moderation.ApproveHook', $approveHook );
-
-		// Create and run the Consequence.
-		$consequence = new InstallApproveHookConsequence( $title, $user, $type, $task );
-		$consequence->run();
-	}
 
 	/**
 	 * Verify that uploading a file adds missing "revid" to LogEntry passed to checkLogEntry().

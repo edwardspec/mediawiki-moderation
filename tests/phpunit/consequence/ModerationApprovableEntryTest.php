@@ -23,7 +23,6 @@
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
-use MediaWiki\Moderation\InstallApproveHookConsequence;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -41,8 +40,7 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 		$moderatorUser = User::newFromName( '10.60.110.160', false );
 
 		$entry = $this->makeEntry(
-		function ( &$row, $manager, $approveHook )
-		use ( $moderatorUser, $opt, $expectedError, $doApproveError ) {
+		function ( &$row, $manager, $approveHook ) use ( $moderatorUser, $opt, $expectedError ) {
 			$authorUser = self::getTestUser()->getUser();
 			$title = Title::newFromText( "Project:Some page" );
 
@@ -68,45 +66,42 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 				$row->merged_revid = 56789;
 			}
 
-			if ( $expectedError && !$doApproveError ) {
+			if ( $expectedError ) {
 				// Unsuccessful action shouldn't have any consequences,
 				// except for situation when doApprove() returns unsuccessful Status object.
 				$manager->expects( $this->never() )->method( 'add' );
 			} else {
-				$manager->expects( $this->at( 0 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-					new InstallApproveHookConsequence(
-						$title,
-						$authorUser,
-						$row->type,
-						[
-							'ip' => $row->ip,
-							'xff' => $row->header_xff,
-							'ua' => $row->header_ua,
-							'tags' => $row->tags,
-							'timestamp' => $row->timestamp
-						]
-					)
+				$approveHook->expects( $this->once() )->method( 'addTask' )->with(
+					$this->isInstanceOf( Title::class ),
+					$this->isInstanceOf( User::class ),
+					$this->identicalTo( $row->type ),
+					$this->identicalTo( [
+						'ip' => $row->ip,
+						'xff' => $row->header_xff,
+						'ua' => $row->header_ua,
+						'tags' => $row->tags,
+						'timestamp' => $row->timestamp
+					] )
+				)->will( $this->returnCallback(
+					function ( Title $approveHookTitle, User $user ) use ( $title, $authorUser ) {
+						$this->assertTrue( $title->equals( $approveHookTitle ), 'ApproveHook: unexpected title' );
+						$this->assertTrue( $authorUser->equals( $user ), 'ApproveHook: unexpected title' );
+					}
 				) );
 
-				if ( $doApproveError ) {
-					// If doApprove() has failed, then no consequences will happen
-					// (except InstallApproveHookConsequence, which was added before doApprove).
-					$manager->expects( $this->once() )->method( 'add' );
-				} else {
-					$manager->expects( $this->at( 1 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-						new AddLogEntryConsequence(
-							'mocked-approve-subtype',
-							$moderatorUser,
-							$title,
-							[ 'mocked-log-param' => 'mocked-param-value' ],
-							true // Run ApproveHook on newly created log entry
-						)
-					) );
-					$manager->expects( $this->at( 2 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-						new DeleteRowFromModerationTableConsequence( $row->id )
-					) );
-					$manager->expects( $this->exactly( 3 ) )->method( 'add' );
-				}
+				$manager->expects( $this->at( 0 ) )->method( 'add' )->with( $this->consequenceEqualTo(
+					new AddLogEntryConsequence(
+						'mocked-approve-subtype',
+						$moderatorUser,
+						$title,
+						[ 'mocked-log-param' => 'mocked-param-value' ],
+						true // Run ApproveHook on newly created log entry
+					)
+				) );
+				$manager->expects( $this->at( 1 ) )->method( 'add' )->with( $this->consequenceEqualTo(
+					new DeleteRowFromModerationTableConsequence( $row->id )
+				) );
+				$manager->expects( $this->exactly( 2 ) )->method( 'add' );
 			}
 		}, [ 'doApprove', 'getApproveLogSubtype', 'getApproveLogParameters', 'canReapproveRejected' ] );
 
