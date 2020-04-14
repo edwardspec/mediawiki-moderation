@@ -43,7 +43,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	 * @phan-param array{action:string,globals?:array,fields?:array|false,expectedError?:string} $options
 	 * @codingStandardsIgnoreEnd
 	 *
-	 * @covers ModerationActionEditChange
 	 * @covers ModerationActionEditChangeSubmit
 	 */
 	public function testNoConsequenceActions( $options ) {
@@ -72,31 +71,15 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 	 */
 	public function dataProviderNoConsequenceActions() {
 		$sets = [
-			// Actions that are always readonly and shouldn't have any consequences.
-			'editchange' =>
-				[ [
-					'action' => 'editchange',
-					'globals' => [ 'wgModerationEnableEditChange' => true ]
-				] ],
-
 			// Situations when actions return errors.
 			'unknown modaction' => [ [
 				'action' => 'makesandwich',
 				'expectedError' => 'moderation-unknown-modaction'
 			] ],
-			'editchange (when not enabled via $wgModerationEnableEditChange)' =>
-				[ [ 'action' => 'editchange', 'expectedError' => 'moderation-unknown-modaction' ] ],
 			'editchangesubmit (when not enabled via $wgModerationEnableEditChange)' =>
 				[ [
 					'action' => 'editchangesubmit',
 					'expectedError' => 'moderation-unknown-modaction'
-				] ],
-			'editchange (on a move)' =>
-				[ [
-					'action' => 'editchange',
-					'globals' => [ 'wgModerationEnableEditChange' => true ],
-					'fields' => [ 'mod_type' => ModerationNewChange::MOD_TYPE_MOVE ],
-					'expectedError' => 'moderation-editchange-not-edit'
 				] ],
 			'editchangesubmit (on a move)' =>
 				[ [
@@ -109,7 +92,6 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 
 		// ReadOnlyError exception from non-readonly actions
 		$actionIsReadOnly = [
-			'editchange' => false,
 			'editchangesubmit' => false
 		];
 		foreach ( $actionIsReadOnly as $action => $isReadOnly ) {
@@ -127,7 +109,7 @@ class ActionsWithoutConsequencesTest extends ModerationUnitTestCase {
 				'fields' => false, // Don't create a row in "moderation" table
 				'expectedError' => 'moderation-edit-not-found'
 			];
-			if ( $action == 'editchange' || $action == 'editchangesubmit' ) {
+			if ( $action == 'editchangesubmit' ) {
 				$options['globals']['wgModerationEnableEditChange'] = true;
 			}
 
