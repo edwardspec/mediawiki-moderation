@@ -62,7 +62,7 @@ class ModerationActionEditChange extends ModerationAction {
 
 	public function outputResult( array $result, OutputPage $out ) {
 		$title = Title::makeTitle( $result['namespace'], $result['title'] );
-		$article = new Article( $title );
+		$article = Article::newFromTitle( $title, $this->getContext() );
 
 		$editPage = new ModerationEditChangePage( $article );
 
