@@ -68,57 +68,21 @@ class ModerationActionApprove extends ModerationAction {
 			throw new ModerationError( 'moderation-edit-not-found' );
 		}
 
-		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
-
-		$orderBy = [];
-		if ( ModerationVersionCheck::hasModType() ) {
-			# Page moves are approved last, so that situation
-			# "user A (1) changed page B and (2) renamed B to C"
-			# wouldn't result in newly created redirect B being
-			# edited instead of the page.
-			$orderBy[] = 'mod_type=' . $dbw->addQuotes( ModerationNewChange::MOD_TYPE_MOVE );
-		}
-
-		# Images are approved first.
-		# Otherwise the page can be rendered with the
-		# image redlink, because the image didn't exist
-		# when the edit to this page was approved.
-		$orderBy[] = 'mod_stash_key IS NULL';
-
-		if ( $dbw->getType() == 'postgres' ) {
-			# Earlier edits are approved first.
-			# This is already a default sorting order for MySQL, so only PostgreSQL needs this.
-			$orderBy[] = 'mod_id';
-		}
-
-		$res = $dbw->select( 'moderation',
-			ModerationApprovableEntry::getFields(),
-			[
-				'mod_user_text' => $userpage->getText(),
-				'mod_rejected' => 0, # Previously rejected edits are not approved by "Approve all"
-				'mod_conflict' => 0 # No previously detected conflicts (they need manual merging).
-			],
-			__METHOD__,
-			[
-				'ORDER BY' => $orderBy,
-				'USE INDEX' => 'moderation_approveall'
-			]
-		);
-		if ( !$res || $res->numRows() == 0 ) {
+		$entries = $this->entryFactory->findAllApprovableEntries( $userpage->getText() );
+		if ( !$entries ) {
 			throw new ModerationError( 'moderation-nothing-to-approveall' );
 		}
 
 		$approved = [];
 		$failed = [];
-		foreach ( $res as $row ) {
+		foreach ( $entries as $entry ) {
+			$modid = $entry->getId();
 			try {
-				$entry = $this->entryFactory->makeApprovableEntry( $row );
 				$entry->approve( $this->moderator );
-
-				$approved[$row->id] = '';
+				$approved[$modid] = '';
 			} catch ( ModerationError $e ) {
 				$msg = $e->status->getMessage();
-				$failed[$row->id] = [
+				$failed[$modid] = [
 					'code' => $msg->getKey(),
 					'info' => $msg->plain()
 				];

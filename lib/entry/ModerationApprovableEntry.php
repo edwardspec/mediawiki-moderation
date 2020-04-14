@@ -75,6 +75,18 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 		return $fields;
 	}
 
+	/**
+	 * Returns mod_id of this ApprovableEntry.
+	 * @return int
+	 */
+	public function getId() {
+		$row = $this->getRow();
+		return (int)$row->id;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	protected function getUser( $_ = 0 ) {
 		/* User could have been recently renamed or deleted.
 			Make sure we have the correct data when approving. */

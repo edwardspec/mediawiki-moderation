@@ -46,7 +46,7 @@ class RejectAllConsequenceTest extends ModerationUnitTestCase {
 		// Let's reject half of the rows. This allows us to test that other rows are unmodified.
 		list( $idsToReject, $idsToPreserve ) = array_chunk( $this->makeSeveralDbRows( 6 ), 3 );
 
-		// Make $idsToPreserve ineligible for modification due to having another mod_user_text.
+		// Make $idsToPreserve ineligible for modification (e.g. due to having another mod_user_text).
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'moderation',
 			$ineligibleFieldValues,

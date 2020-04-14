@@ -288,6 +288,53 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 	}
 
 	/**
+	 * Test findAllApprovableEntries().
+	 * @param array $ineligibleFieldValues Changes to DB fields that should make edit non-selectable.
+	 * @dataProvider dataProviderFindAllApprovableEntries
+	 * @covers MediaWiki\Moderation\EntryFactory
+	 */
+	public function testFindAllApprovableEntries( array $ineligibleFieldValues ) {
+		$this->authorUser = self::getTestUser()->getUser();
+		list( $idsToFind, $idsToSkip ) = array_chunk( $this->makeSeveralDbRows( 7 ), 4 );
+
+		// Make $idsToSkip ineligible for selecting (e.g. due to having another mod_user_text).
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->update( 'moderation',
+			$ineligibleFieldValues,
+			[ 'mod_id' => $idsToSkip ],
+			__METHOD__
+		);
+
+		$factory = $this->makeFactory();
+		$entries = $factory->findAllApprovableEntries( $this->authorUser->getName() );
+
+		$this->assertCount( count( $idsToFind ), $entries );
+		$this->assertContainsOnlyInstancesOf( ModerationApprovableEntry::class, $entries );
+
+		$foundIds = array_map( function ( $entry ) {
+			return $entry->getId();
+		}, $entries );
+		$this->assertArrayEquals( $idsToFind, $foundIds );
+
+		// TODO: test that DB::select() was using correct ORDER BY options. (by mocking LoadBalancer)
+	}
+
+	/**
+	 * Provide datasets for testFindAllApprovableEntries() runs.
+	 * @return array
+	 */
+	public function dataProviderFindAllApprovableEntries() {
+		return [
+			'ensure that edits by another mod_user_text are not selected' =>
+				[ [ 'mod_user_text' => 'Another username' ] ],
+			'ensure that edits with mod_rejected=1 are not selected' =>
+				[ [ 'mod_rejected' => 1 ] ],
+			'ensure that edits with mod_conflict=1 are not selected' =>
+				[ [ 'mod_conflict' => 1 ] ],
+		];
+	}
+
+	/**
 	 * Create one EntryFactory with mocked parameters.
 	 * @return EntryFactory
 	 */
