@@ -26,7 +26,6 @@ require_once __DIR__ . "/autoload.php";
 
 class ModerationActionShowTest extends ModerationUnitTestCase {
 	use ActionTestTrait;
-	use ConsequenceTestTrait;
 
 	/**
 	 * Verify that execute() returns expected result for different ViewableEntry objects.

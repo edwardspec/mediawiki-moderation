@@ -26,7 +26,6 @@ require_once __DIR__ . "/autoload.php";
 
 class ModerationActionMergeTest extends ModerationUnitTestCase {
 	use ActionTestTrait;
-	use ConsequenceTestTrait;
 
 	/**
 	 * Verify that execute() returns expected result.

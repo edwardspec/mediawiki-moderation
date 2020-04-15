@@ -28,8 +28,6 @@ use MediaWiki\Moderation\RememberAnonIdConsequence;
 require_once __DIR__ . "/autoload.php";
 
 class ModerationPreloadTest extends ModerationUnitTestCase {
-	use ConsequenceTestTrait;
-
 	/**
 	 * Verify that getId() returns correct values for both logged-in and anonymous users.
 	 * @param string|false $expectedResult Value that getId() should return.

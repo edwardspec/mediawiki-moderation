@@ -28,8 +28,6 @@ require_once __DIR__ . "/autoload.php";
  * @group Database
  */
 class MovesHaveConsequencesTest extends ModerationUnitTestCase {
-	use ConsequenceTestTrait;
-
 	/** @var Title */
 	protected $title;
 

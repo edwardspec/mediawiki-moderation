@@ -32,7 +32,6 @@ require_once __DIR__ . "/autoload.php";
  * @group Database
  */
 class QueueUploadConsequenceTest extends ModerationUnitTestCase {
-	use ConsequenceTestTrait;
 	use UploadTestTrait;
 
 	/** @var string[] */

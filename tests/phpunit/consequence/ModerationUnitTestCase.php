@@ -114,4 +114,15 @@ class ModerationUnitTestCase extends MediaWikiTestCase {
 	protected function pastTimestamp( $secondsAgo = 10000 ) {
 		return wfTimestamp( TS_MW, (int)wfTimestamp() - $secondsAgo );
 	}
+
+	/**
+	 * Install new MockConsequenceManager for the duration of the test.
+	 * @return MockConsequenceManager
+	 */
+	public function mockConsequenceManager() {
+		$manager = new MockConsequenceManager;
+		$this->setService( 'Moderation.ConsequenceManager', $manager );
+
+		return $manager;
+	}
 }

@@ -31,8 +31,6 @@ require_once __DIR__ . "/autoload.php";
  * @group medium
  */
 class CreatingNewUserHasConsequencesTest extends ModerationUnitTestCase {
-	use ConsequenceTestTrait;
-
 	/** @var string[] */
 	protected $tablesUsed = [ 'user' ];
 

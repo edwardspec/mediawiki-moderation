@@ -24,7 +24,6 @@ require_once __DIR__ . "/autoload.php";
 
 class ModerationActionShowImageTest extends ModerationUnitTestCase {
 	use ActionTestTrait;
-	use ConsequenceTestTrait;
 	use UploadTestTrait;
 
 	/**

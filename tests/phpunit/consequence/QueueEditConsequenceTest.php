@@ -32,8 +32,6 @@ require_once __DIR__ . "/autoload.php";
  * @group Database
  */
 class QueueEditConsequenceTest extends ModerationUnitTestCase {
-	use ConsequenceTestTrait;
-
 	/** @var string[] */
 	protected $tablesUsed = [ 'moderation', 'user' ];
 

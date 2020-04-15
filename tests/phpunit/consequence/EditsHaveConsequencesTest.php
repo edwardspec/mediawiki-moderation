@@ -33,8 +33,6 @@ require_once __DIR__ . "/autoload.php";
  * @group Database
  */
 class EditsHaveConsequencesTest extends ModerationUnitTestCase {
-	use ConsequenceTestTrait;
-
 	/** @var int */
 	protected $modid;
 

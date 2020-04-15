@@ -28,8 +28,6 @@ use Wikimedia\TestingAccessWrapper;
 require_once __DIR__ . "/autoload.php";
 
 class EditFormOptionsTest extends ModerationUnitTestCase {
-	use ConsequenceTestTrait;
-
 	/**
 	 * Test setMergeID() and getMergeID().
 	 * @covers MediaWiki\Moderation\EditFormOptions
