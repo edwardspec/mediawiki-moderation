@@ -22,6 +22,7 @@
 
 namespace MediaWiki\Moderation;
 
+use FormatJson;
 use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
@@ -43,11 +44,21 @@ class IsConsequenceEqual extends Constraint {
 	}
 
 	/**
+	 * Returns a string representation of Consequence object.
+	 * Used in toString() and failureDescription().
+	 * @param IConsequence $consequence
+	 * @return string
+	 */
+	private function stringify( IConsequence $consequence ) {
+		return FormatJson::encode( self::toArray( $consequence ), true );
+	}
+
+	/**
 	 * Returns a string representation of the constraint.
 	 * @return string
 	 */
 	public function toString(): string {
-		return 'equals to ' . get_class( $this->value );
+		return 'equals to ' . $this->stringify( $this->value );
 	}
 
 	/**
@@ -64,7 +75,7 @@ class IsConsequenceEqual extends Constraint {
 	 * @return string
 	 */
 	protected function failureDescription( $other ) : string {
-		return get_class( $other ) . ' ' . $this->toString();
+		return $this->stringify( $other ) . ' ' . $this->toString();
 	}
 
 	/**
