@@ -86,7 +86,7 @@
 	"moderation-revert-not-allowed": "Yalnızca otomatik kayıtlı moderatörler görüntüleri önceki düzeltmelere geri döndürebilir.",
 	"moderation-show": "fark",
 	"moderation-suggest-signup": "Gelecekte moderasyonu geçmek için lütfen [[Special:CreateAccount|kaydolun]].",
-	"moderation-text": "Bu özel sayfa, denetlemeyi bekleyen tüm düzenlemeleri (onaylama veya reddetme) listeler.<br>Ayrıca bkz: [[Special:Log/moderation|denetleme günlüğü]].",
+	"moderation-text": "Bu özel sayfa, denetlemeyi bekleyen tüm düzenlemeleri (onaylama veya reddetme) listeler.<br>Ayrıca bakınız: [[Special:Log/moderation|denetleme günlüğü]].",
 	"moderation-unblock": "Artık spam yapan yok",
 	"moderation-unblock-ok": "[[Special:Contributions/$1|$1]] kullanıcısı artık spam gönderici olarak değerlendirilmiyor.",
 	"moderation-unknown-modaction": "Bilinmeyen moderasyon eylemi.",
