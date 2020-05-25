@@ -17,7 +17,7 @@
 
 /**
  * @file
- * Hooks that are only needed for moderators.
+ * Hooks that notify the moderators that new pending edit has appeared in the moderation queue.
  */
 
 use MediaWiki\Linker\LinkRenderer;
@@ -48,58 +48,32 @@ class ModerationNotifyModerator {
 	}
 
 	/**
-	 * Name of our hook that runs third-party handlers of GetNewMessagesAlert hook,
-	 * but only for "You have new messages" and NOT for "new edits are pending moderation".
-	 * See install() for details.
-	 */
-	const SAVED_HOOK_NAME = 'Moderation__SavedGetNewMessagesAlert';
-
-	/**
-	 * BeforeInitialize hook.
+	 * SkinTemplateOutputPageBeforeExec hook.
+	 * Shows in-wiki notification "new edits are pending moderation" to moderators.
 	 * Here we install GetNewMessagesAlert hook and prevent Extension:Echo from suppressing it.
-	 * @param Title &$title
-	 * @param mixed &$unused
-	 * @param OutputPage &$out
-	 * @param User &$user
+	 * @param SkinTemplate $skin
+	 * @param QuickTemplate $tpl
 	 * @return true
 	 */
-	public static function onBeforeInitialize( &$title, &$unused, &$out, &$user ) {
+	public static function onSkinTemplateOutputPageBeforeExec( $skin, $tpl ) {
 		$notifyModerator = MediaWikiServices::getInstance()->getService( 'Moderation.NotifyModerator' );
-		$notifyModerator->considerInstall( $user, $title );
+		$notifyModerator->runHookInternal( $skin, $tpl );
 
 		return true;
 	}
 
 	/**
-	 * GetNewMessagesAlert hook. This hook is installed dynamically (NOT via extension.json).
-	 * Shows in-wiki notification "new edits are pending moderation" to moderators.
-	 * @param string &$newMessagesAlert
-	 * @param array $newtalks
-	 * @param User $user
-	 * @param OutputPage $out
-	 * @return bool
+	 * Main logic of SkinTemplateOutputPageBeforeExec hook.
+	 * @param SkinTemplate $skin
+	 * @param QuickTemplate $tpl
 	 */
-	public static function onGetNewMessagesAlert(
-		&$newMessagesAlert,
-		array $newtalks,
-		User $user,
-		OutputPage $out
-	) {
-		$notifyModerator = MediaWikiServices::getInstance()->getService( 'Moderation.NotifyModerator' );
-		return $notifyModerator->runHookInternal( $newMessagesAlert, $newtalks, $user, $out );
-	}
-
-	/**
-	 * Install GetNewMessagesAlert hook if "new edits are pending moderation" should be shown.
-	 * @param User $user
-	 * @param Title $title
-	 */
-	protected function considerInstall( User $user, Title $title ) {
+	protected function runHookInternal( $skin, $tpl ) {
+		$user = $skin->getUser();
 		if ( !$user->isAllowed( 'moderation' ) ) {
 			return; /* Not a moderator */
 		}
 
-		if ( $title->isSpecial( 'Moderation' ) ) {
+		if ( $skin->getTitle()->isSpecial( 'Moderation' ) ) {
 			return; /* No need to show on Special:Moderation */
 		}
 
@@ -120,57 +94,12 @@ class ModerationNotifyModerator {
 			return; /* No new changes appeared after this moderator last visited Special:Moderation */
 		}
 
-		$this->install();
-	}
-
-	/**
-	 * Install GetNewMessagesAlert hook. Prevent other handlers from interfering.
-	 */
-	protected function install() {
-		global $wgHooks;
-
-		// Assign existing handlers of GetNewMessagesAlert to SAVED_HOOK_NAME hook.
-		// We will call them in onGetNewMessagesAlert if/when we show "You have new messages"
-		// instead of our notification, but we won't allow them to hide/modify our notification.
-		// For example, Extension:Echo aborts GetNewMessagesAlert hook (always hides the notice).
-		$hookName = 'GetNewMessagesAlert';
-		if ( isset( $wgHooks[$hookName] ) ) {
-			$wgHooks[self::SAVED_HOOK_NAME] = $wgHooks[$hookName];
-			$wgHooks[$hookName] = []; // Delete existing handlers
-		}
-
-		// Install our own handler.
-		$handler = __CLASS__ . '::onGetNewMessagesAlert';
-		Hooks::register( $hookName, $handler );
-	}
-
-	/**
-	 * Main logic of GetNewMessagesAlert hook.
-	 * @param string &$newMessagesAlert
-	 * @param array $newtalks
-	 * @param User $user
-	 * @param OutputPage $out
-	 * @return bool
-	 */
-	protected function runHookInternal(
-		&$newMessagesAlert,
-		array $newtalks,
-		User $user,
-		OutputPage $out
-	) {
-		if ( $newtalks ) {
-			// Don't suppress "You have new messages" notification, it's more important.
-			// Also call the hooks suppressed in install(), e.g. hook of Extension:Echo.
-			$args = [ &$newMessagesAlert, $newtalks, $user, $out ];
-			return Hooks::run( self::SAVED_HOOK_NAME, $args );
-		}
-
 		/* Need to notify */
-		$newMessagesAlert .= $this->linkRenderer->makeLink(
+		$notificationHtml = "\n" . $this->linkRenderer->makeLink(
 			SpecialPage::getTitleFor( 'Moderation' ),
-			$out->msg( 'moderation-new-changes-appeared' )->plain()
+			$skin->msg( 'moderation-new-changes-appeared' )->plain()
 		);
-		return true;
+		$tpl->extend( 'newtalk', $notificationHtml );
 	}
 
 	/**

@@ -113,138 +113,26 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Check the handler of "GetNewMessagesAlert" hook (which is called by MediaWiki core).
-	 * @param array $newtalks Parameter of GetNewMessagesAlert hook.
+	 * Check the handler of SkinTemplateOutputPageBeforeExec hook (which is called by MediaWiki core).
 	 * @param bool $expectShown If true, our notification is expected to be shown.
-	 * @param bool|null $thirdPartyHookResult If not null, another hook handler will return this value.
+	 * @param array $opt
 	 * @dataProvider dataProviderNotifyHook
 	 *
 	 * @covers ModerationNotifyModerator
 	 */
-	public function testNotifyHook( array $newtalks, $expectShown, $thirdPartyHookResult ) {
-		$linkRenderer = $this->createMock( LinkRenderer::class );
-		$entryFactory = $this->createMock( EntryFactory::class );
-		$user = $this->createMock( User::class );
-		$out = $this->createMock( OutputPage::class );
-
-		if ( $expectShown ) {
-			$out->expects( $this->once() )->method( 'msg' )->with(
-				$this->identicalTo( 'moderation-new-changes-appeared' )
-			)->willReturn( new RawMessage( '{TextOfNotificationLink}' ) );
-
-			$linkRenderer->expects( $this->once() )->method( 'makeLink' )->with(
-				$this->IsInstanceOf( Title::class ),
-				$this->identicalTo( '{TextOfNotificationLink}' )
-			)->will( $this->returnCallback( function ( Title $title, $text ) {
-				$this->assertTrue( $title->isSpecial( 'Moderation' ),
-					"Link in the notification doesn't point to Special:Moderation." );
-				return '{NotificationLink}';
-			} ) );
-		}
-
-		'@phan-var LinkRenderer $linkRenderer';
-		'@phan-var EntryFactory $entryFactory';
-
-		// This test checks whether this method correctly works as a hook, so install it as a hook.
-		$notify = new ModerationNotifyModerator( $linkRenderer, $entryFactory, new HashBagOStuff() );
-		$this->setService( 'Moderation.NotifyModerator', $notify );
-		$this->setTemporaryHook( 'GetNewMessagesAlert',
-			'ModerationNotifyModerator::onGetNewMessagesAlert' );
-
-		$newMessagesAlert = '{AnotherExistingNotification}';
-
-		if ( $thirdPartyHookResult !== null ) {
-			// Install third-party handler of GetNewMessagesAlert hook,
-			// simulating situation when another extension (like Echo) has such a handler.
-			$hookArgs = [ &$newMessagesAlert, $newtalks, $user, $out ];
-			$this->setTemporaryHook( ModerationNotifyModerator::SAVED_HOOK_NAME,
-				function ( &$newMessagesAlert2, array $newtalks2,
-					User $user2, OutputPage $out2 ) use ( $hookArgs, $thirdPartyHookResult )
-				{
-					$this->assertSame( $hookArgs[0], $newMessagesAlert2 );
-					$this->assertSame( $hookArgs[1], $newtalks2 );
-					$this->assertSame( $hookArgs[2], $user2 );
-					$this->assertSame( $hookArgs[3], $out2 );
-
-					$newMessagesAlert2 = '{Notification From Third-Party Hook}';
-
-					// Additionally test that return value of this third-party hook
-					// is returned by ModerationNotifyModerator::onGetNewMessagesAlert().
-					return $thirdPartyHookResult;
-				}
-			);
-		}
-
-		$result = Hooks::run( 'GetNewMessagesAlert',
-			[ &$newMessagesAlert, $newtalks, $user, $out ] );
-
-		$this->assertEquals( $thirdPartyHookResult ?? true, $result,
-			"Return value of GetNewMessagesAlert hook doesn't match expected." );
-
-		if ( $expectShown ) {
-			$this->assertSame( '{AnotherExistingNotification}{NotificationLink}', $newMessagesAlert,
-				"Our notification wasn't added." );
-		} else {
-			if ( $thirdPartyHookResult === null ) {
-				$this->assertSame( '{AnotherExistingNotification}', $newMessagesAlert,
-					"Text of \$newMessagesAlert was modified when we didn't intend to add our notification." );
-			} else {
-				$this->assertSame( '{Notification From Third-Party Hook}', $newMessagesAlert,
-					"Text of \$newMessagesAlert wasn't modified by third-party hook." );
-			}
-		}
-	}
-
-	/**
-	 * Provide datasets for testNotifyHook() runs.
-	 * @return array
-	 */
-	public function dataProviderNotifyHook() {
-		return [
-
-			// Situation 1: "You have new messages" notification (from user's talkpage) doesn't exist.
-			// Then ModerationNotifyModerator::onGetNewMessagesAlert() must add its own notification.
-			'no "You have new messages", should show our notification' => [ [], true, null ],
-
-			// Situation 2: "You have new messages" notification already exists.
-			// Because it is more important than "new changes are awaiting moderation",
-			// in this case we purposely don't show notification of ModerationNotifyModerator.
-			'existing "You have new messages" should suppress our notification' =>
-				[ [ 'something' => 'here' ], false, null ],
-
-			// Situation 3: both "You have new messages" AND third-party handlers of this hook exist
-			// (for example, Extension:Echo adds a handler of GetNewMessagesAlert hook too), and they
-			// were saved under ModerationNotifyModerator::SAVED_HOOK_NAME by onBeforeInitialize.
-			// In this case these saved handlers should be called,
-			// and their return value (true or false) should be returned by our own handler.
-			'existing "You have new messages", no notification. Third-party hook returns true' =>
-				[ [ 'something' => 'here' ], false, true ],
-			'existing "You have new messages",  no notification. Third-party hook returns false' =>
-				[ [ 'something' => 'here' ], false, false ]
-		];
-	}
-
-	/**
-	 * Check the handler of "BeforeInitialize" hook (which is called by MediaWiki core).
-	 * @param bool $expectInstalled True to assert that GetNewMessagesAlert hook handler was installed.
-	 * @dataProvider dataProviderInstallHook
-	 *
-	 * @covers ModerationNotifyModerator
-	 */
-	public function testInstallHook( $expectInstalled, array $opt ) {
+	public function testNotifyHook( $expectShown, array $opt ) {
 		$isModerator = $opt['isModerator'] ?? true;
 		$isSpecialModeration = $opt['isSpecialModeration'] ?? false;
 		$pendingTimeCached = $opt['pendingTimeCached'] ?? false;
 		$pendingTimeUncached = $opt['pendingTimeUncached'] ?? false;
 		$seenTime = $opt['seenTime'] ?? false;
-		$thirdPartyHooks = $opt['thirdPartyHooks'] ?? [];
 
 		$linkRenderer = $this->createMock( LinkRenderer::class );
 		$entryFactory = $this->createMock( EntryFactory::class );
-
 		$title = $this->createMock( Title::class );
-		$out = $this->createMock( OutputPage::class );
 		$user = $this->createMock( User::class );
+		$skin = $this->createMock( SkinTemplate::class );
+		$tpl = $this->createMock( QuickTemplate::class );
 
 		$userId = 456;
 		$user->expects( $this->any() )->method( 'getId' )->willReturn( $userId );
@@ -252,6 +140,9 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 		$user->expects( $this->once() )->method( 'isAllowed' )->with(
 			$this->identicalTo( 'moderation' )
 		)->willReturn( $isModerator );
+
+		$skin->expects( $this->any() )->method( 'getUser' )->willReturn( $user );
+		$skin->expects( $this->any() )->method( 'getTitle' )->willReturn( $title );
 
 		$cache = new HashBagOStuff();
 		$cache->set( $cache->makeKey( 'moderation-newest-pending-timestamp' ), $pendingTimeCached );
@@ -282,100 +173,94 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 			}
 		}
 
+		if ( $expectShown ) {
+			$skin->expects( $this->once() )->method( 'msg' )->with(
+				$this->identicalTo( 'moderation-new-changes-appeared' )
+			)->willReturn( new RawMessage( '{TextOfNotificationLink}' ) );
+
+			$linkRenderer->expects( $this->once() )->method( 'makeLink' )->with(
+				$this->IsInstanceOf( Title::class ),
+				$this->identicalTo( '{TextOfNotificationLink}' )
+			)->will( $this->returnCallback( function ( Title $title, $text ) {
+				$this->assertTrue( $title->isSpecial( 'Moderation' ),
+					"Link in the notificatio ndoesn't point to Special:Moderation." );
+				return '{NotificationLink}';
+			} ) );
+
+			$tpl->expects( $this->once() )->method( 'extend' )->with(
+				$this->identicalTo( 'newtalk' ),
+				$this->identicalTo( "\n{NotificationLink}" )
+			);
+		} else {
+			$tpl->expects( $this->never() )->method( 'extend' );
+		}
+
 		'@phan-var LinkRenderer $linkRenderer';
 		'@phan-var EntryFactory $entryFactory';
+		'@phan-var SkinTemplate $skin';
+		'@phan-var QuickTemplate $tpl';
 
-		// This test checks whether this method correctly works as a hook, so install it as a hook.
+		// Install the newly constructed ModerationNotifyModerator object as a service.
 		$notify = new ModerationNotifyModerator( $linkRenderer, $entryFactory, $cache );
 		$this->setService( 'Moderation.NotifyModerator', $notify );
 
-		global $wgHooks;
-		$wgHooks['GetNewMessagesAlert'] = []; // Not cleaned by Hooks::clear(), must clean explicitly.
-		Hooks::clear( 'GetNewMessagesAlert' );
-
-		foreach ( $thirdPartyHooks as $handler ) {
-			// Only $wgHooks are saved, hooks from Hooks::register() are not.
-			global $wgHooks;
-			$wgHooks['GetNewMessagesAlert'][] = $handler;
-		}
-
 		// Run the tested hook.
-		$unused = null;
-		$result = Hooks::run( 'BeforeInitialize',
-			[ &$title, &$unused, &$out, &$user, new FauxRequest( [] ), new MediaWiki() ] );
-		$this->assertTrue( $result, "BeforeInitialize hook didn't return true." );
-
-		$hooksAfterTest = Hooks::getHandlers( 'GetNewMessagesAlert' );
+		$result = ModerationNotifyModerator::onSkinTemplateOutputPageBeforeExec( $skin, $tpl );
+		$this->assertTrue( $result, "SkinTemplateOutputPageBeforeExec hook didn't return true." );
 
 		// Analyze the situation afterwards.
 		foreach ( $expectedCacheContents as $key => $val ) {
 			$this->assertSame( $val, $cache->get( $key ), "Cache[$key] != $val" );
 		}
-
-		if ( !$expectInstalled ) {
-			$this->assertEquals( $thirdPartyHooks, $hooksAfterTest,
-				'Unexpected changes in \$wgHooks when no hooks should have been installed.' );
-			return;
-		}
-
-		$this->assertEquals(
-			[ 'ModerationNotifyModerator::onGetNewMessagesAlert' ],
-			Hooks::getHandlers( 'GetNewMessagesAlert' ),
-			"onGetNewMessagesAlert must be installed and be the only handler of this hook."
-		);
-
-		$this->assertEquals( $thirdPartyHooks,
-			Hooks::getHandlers( ModerationNotifyModerator::SAVED_HOOK_NAME ),
-			"Third-party handlers of GetNewMessagesAlert hook weren't saved."
-		);
 	}
 
 	/**
-	 * Provide datasets for testInstallHook() runs.
+	 * Provide datasets for testNotifyHook() runs.
 	 * @return array
 	 */
-	public function dataProviderInstallHook() {
+	public function dataProviderNotifyHook() {
 		return [
-			'Not installed (not a moderator)' => [ false, [ 'isModerator' => false ] ],
-			'Not installed (on Special:Moderation)' =>
+			'Not shown (not a moderator)' => [ false, [ 'isModerator' => false ] ],
+			'Not shown (on Special:Moderation)' =>
 				[ false, [ 'isSpecialModeration' => true ] ],
-			'Not installed (no pending edits, according to cache)' =>
+			'Not shown (no pending edits, according to cache)' =>
 				[ false, [ 'pendingTimeCached' => 0 ] ],
-			'Not installed (no pending edits, according to the database)' =>
+			'Not shown (no pending edits, according to the database)' =>
 				[ false, [ 'pendingTimeUncached' => 0 ] ],
-			'Not installed (SeenTime is newer than the most recent pending edit)' =>
+			'Not shown (SeenTime is newer than the most recent pending edit)' =>
 				[ false, [
 					'pendingTimeUncached' => '2010010203040506',
 					'seenTime' => '2015010203040506'
 				] ],
-			'Not installed (SeenTime is newer than the most recent pending edit), have third-party hooks' =>
-				[ false, [
-					'pendingTimeUncached' => '2010010203040506',
-					'seenTime' => '2015010203040506',
-					'thirdPartyHooks' => [ 'fakeHandler1', 'fakeHandler2' ]
-				] ],
-			'Installed (SeenTime is unknown, which means that this moderator hasn\'t visited for a while)' =>
+			'Shown (SeenTime is unknown, which means that this moderator hasn\'t visited for a while)' =>
 				[ true, [
 					'pendingTimeUncached' => '2010010203040506',
 					'seenTime' => false
 				] ],
-			'Installed (SeenTime is less than pendingTimeUncached)' =>
+			'Shown (SeenTime is less than pendingTimeUncached)' =>
 				[ true, [
 					'pendingTimeUncached' => '2010010203040506',
 					'seenTime' => '2005010203040506'
 				] ],
-			'Installed (SeenTime is less than pendingTimeCached)' =>
+			'Shown (SeenTime is less than pendingTimeCached)' =>
 				[ true, [
 					'pendingTimeCached' => '2010010203040506',
 					'seenTime' => '2005010203040506'
 				] ],
-			'Installed (SeenTime is less than pendingTimeCached), have third-party hooks' =>
-				[ true, [
-					'pendingTimeCached' => '2010010203040506',
-					'seenTime' => '2005010203040506',
-					'thirdPartyHooks' => [ 'fakeHandler1', 'fakeHandler2' ]
-				] ]
 		];
 	}
 
+	/**
+	 * Ensure that the SkinTemplateOutputPageBeforeExec hook is installed.
+	 * We make this into a separate test, so that testNotifyHook() can just check our own handler
+	 * without invoking SkinTemplateOutputPageBeforeExec handlers of all other extensions.
+	 * @coversNothing
+	 */
+	public function testHookInstalled() {
+		$this->assertContains(
+			'ModerationNotifyModerator::onSkinTemplateOutputPageBeforeExec',
+			Hooks::getHandlers( 'SkinTemplateOutputPageBeforeExec' ),
+			"Hook handler is not installed."
+		);
+	}
 }

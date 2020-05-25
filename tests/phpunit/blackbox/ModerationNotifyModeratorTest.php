@@ -36,7 +36,7 @@ class ModerationNotifyModeratorIntegrationTest extends ModerationTestCase {
 		/* Notification "New changes await!" is shown to moderator on all pages... */
 		$t->loginAs( $t->moderator );
 		$this->assertEquals(
-			'(moderation-new-changes-appeared)',
+			"\n(moderation-new-changes-appeared)",
 			$this->getNotice( $t ),
 			"Notification not shown to moderator"
 		);
@@ -53,44 +53,6 @@ class ModerationNotifyModeratorIntegrationTest extends ModerationTestCase {
 		$this->assertNull(
 			$this->getNotice( $t ),
 			"Notification shown to non-moderator"
-		);
-	}
-
-	/**
-	 * Ensure that "You have new messages" (which is more important) suppresses this notification.
-	 */
-	public function testNoNotificationIfHasMessages( ModerationTestsuite $t ) {
-		$t->loginAs( $t->unprivilegedUser );
-		$t->doTestEdit();
-
-		// Make sure that moderator has "You have new messages" notification (from MediaWiki core)
-		$t->loginAs( $t->automoderated );
-		$t->doTestEdit( 'User_talk:' . $t->moderator->getName(), "Hello, moderator! ~~~~" );
-
-		$t->loginAs( $t->moderator );
-
-		$noticeText = $this->getNotice( $t );
-		$this->assertNotEquals(
-			'(moderation-new-changes-appeared)',
-			$noticeText,
-			"Notification shown even when moderator should get \"You have new messages\" instead"
-		);
-
-		return $noticeText; // Pass to testEchoHookCalledIfHasMessages()
-	}
-
-	/**
-	 * Ensure that GetNewMessagesAlert hook of Extension:Echo is not suppressed
-	 * when showing "You have new messages" instead of our notification.
-	 * @depends testNoNotificationIfHasMessages
-	 * @requires function EchoHooks::initEchoExtension
-	 */
-	public function testEchoHookCalledIfHasMessages( $noticeText ) {
-		// Extension:Echo suppresses "You have new messages" notice in GetNewMessagesAlert hook,
-		// so if the hook handlers were correctly invoked, then $noticeText will be null.
-		$this->assertNull(
-			$noticeText,
-			"GetNewMessagesAlert hook handlers weren't called for \"You have new messages\" notice"
 		);
 	}
 
@@ -139,7 +101,7 @@ class ModerationNotifyModeratorIntegrationTest extends ModerationTestCase {
 		/* ... notification should still be shown to another moderator #2 */
 		$t->loginAs( $t->moderatorButNotAutomoderated );
 		$this->assertEquals(
-			'(moderation-new-changes-appeared)',
+			"\n(moderation-new-changes-appeared)",
 			$this->getNotice( $t ),
 			"Notification not shown to the second moderator"
 		);

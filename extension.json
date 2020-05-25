@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.5.24",
+	"version": "1.5.25",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -295,10 +295,7 @@
 		"AlternateEdit": "ModerationPreload::onAlternateEdit",
 		"ApiBeforeMain": "ModerationApiHooks::onApiBeforeMain",
 		"ApiCheckCanExecute": "ModerationApiHooks::onApiCheckCanExecute",
-		"BeforeInitialize": [
-			"ModerationPlugins::install",
-			"ModerationNotifyModerator::onBeforeInitialize"
-		],
+		"BeforeInitialize": "ModerationPlugins::install",
 		"BeforePageDisplay": "ModerationEditHooks::onBeforePageDisplay",
 		"CheckUserInsertForRecentChange": "ModerationApproveHook::onCheckUserInsertForRecentChange",
 		"EditFilter": "MediaWiki\\Moderation\\EditFormOptions::onEditFilter",
@@ -320,6 +317,7 @@
 		"PageForms::EditFormInitialText": "ModerationPageForms::preloadText",
 		"PageForms::EditFormPreloadText": "ModerationPageForms::preloadText",
 		"RecentChange_save": "ModerationApproveHook::onRecentChange_save",
+		"SkinTemplateOutputPageBeforeExec": "ModerationNotifyModerator::onSkinTemplateOutputPageBeforeExec",
 		"SpecialPageBeforeExecute": "MediaWiki\\Moderation\\EditFormOptions::onSpecialPageBeforeExecute",
 		"TitleMoveComplete": "ModerationApproveHook::onTitleMoveComplete",
 		"UploadVerifyUpload": "ModerationUploadHooks::onUploadVerifyUpload",
