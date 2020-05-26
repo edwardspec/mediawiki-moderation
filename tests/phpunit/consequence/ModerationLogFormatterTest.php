@@ -49,7 +49,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 			$html,
 			$matches
 		);
-		$this->assertEquals( 1, $isMatched, "Malformed log line." );
+		$this->assertSame( 1, $isMatched, "Malformed log line." );
 
 		list( , $subtype, $paramLine ) = $matches;
 		$this->assertEquals( $options['subtype'], $subtype, "Incorrect subtype." );

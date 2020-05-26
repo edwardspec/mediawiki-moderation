@@ -248,7 +248,7 @@ trait ModerationTestsuitePendingChangeTestSet {
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->insert( 'moderation', $this->fields, __METHOD__ );
 
-		$this->assertEquals( 1, $dbw->affectedRows(),
+		$this->assertSame( 1, $dbw->affectedRows(),
 			"Failed to insert a row into the 'moderation' SQL table."
 		);
 

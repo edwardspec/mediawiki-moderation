@@ -183,7 +183,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 		$query = wfCgiToArray( $bits['query'] );
 		$this->assertArrayHasKey( 'modqueued', $query );
-		$this->assertEquals( 1, $query['modqueued'], 'query.modqueued' );
+		$this->assertSame( "1", $query['modqueued'], 'query.modqueued' );
 
 		$this->assertArrayHasKey( 'returnto', $query );
 		$this->assertSame( $expectedReturnTo, $query['returnto'],

@@ -47,7 +47,7 @@ class ModerationInterceptEditTest extends ModerationTestCase {
 			$t->lastEdit['Title'],
 			preg_replace( '/_/', ' ', $params['title'] ),
 			"testPostEditRedirect(): Title in the redirect URL doesn't match the title of page we edited" );
-		$this->assertEquals( 1, $params['modqueued'],
+		$this->assertSame( "1", $params['modqueued'],
 			"testPostEditRedirect(): parameter modqueued=1 not found in the redirect URL" );
 
 		# Check the page where the user is being redirected to

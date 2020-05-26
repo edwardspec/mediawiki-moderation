@@ -392,7 +392,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 			[ 'rev_id' => $revid ],
 			__METHOD__
 		);
-		$this->assertEquals( 1, $this->db->affectedRows() );
+		$this->assertSame( 1, $this->db->affectedRows() );
 	}
 
 	/**

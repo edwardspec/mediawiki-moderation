@@ -45,7 +45,7 @@ class RejectOneConsequenceTest extends ModerationUnitTestCase {
 		$consequence = new RejectOneConsequence( $modid, $moderator );
 		$rejectedCount = $consequence->run();
 
-		$this->assertEquals( 1, $rejectedCount );
+		$this->assertSame( 1, $rejectedCount );
 
 		// Check the state of the database.
 		$this->assertWasRejected( $modid, $moderator );

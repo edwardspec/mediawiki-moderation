@@ -123,7 +123,7 @@ class ModerationMergeTest extends ModerationTestCase {
 
 		$this->assertArrayHasKey( 'wpIgnoreBlankSummary', $inputs,
 			"testMerge(): Edit form doesn't contain wpIgnoreBlankSummary field" );
-		$this->assertEquals( 1, $inputs['wpIgnoreBlankSummary'],
+		$this->assertSame( "1", $inputs['wpIgnoreBlankSummary'],
 			"testMerge(): Value of wpIgnoreBlankSummary field isn't 1" );
 
 		$this->assertArrayHasKey( 'wpMergeID', $inputs,
@@ -217,7 +217,7 @@ class ModerationMergeTest extends ModerationTestCase {
 
 		$this->assertArrayHasKey( 'wpIgnoreBlankSummary', $inputs,
 			"testPreserveMergeID(): Edit form doesn't contain wpIgnoreBlankSummary field" );
-		$this->assertEquals( 1, $inputs['wpIgnoreBlankSummary'],
+		$this->assertSame( "1", $inputs['wpIgnoreBlankSummary'],
 			"testPreserveMergeID(): Value of wpIgnoreBlankSummary field isn't 1" );
 
 		$this->assertArrayHasKey( 'wpMergeID', $inputs,

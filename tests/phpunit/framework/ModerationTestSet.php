@@ -26,6 +26,7 @@
  * @codingStandardsIgnoreStart
  * @method static assertEquals($a, $b, string $message='', float $d=0.0, int $e=10, bool $f=false, bool $g=false)
  * @codingStandardsIgnoreEnd
+ * @method static assertSame($a, $b, string $message='')
  * @method static assertLessThanOrEqual($a, $b, string $message='')
  * @method static assertGreaterThan($a, $b, string $message='')
  */

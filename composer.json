@@ -3,7 +3,7 @@
 		"jakub-onderka/php-parallel-lint": "1.0.0",
 		"jakub-onderka/php-console-highlighter": "0.4",
 		"mediawiki/minus-x": "0.3.2",
-		"mediawiki/mediawiki-codesniffer": "30.0.0",
+		"mediawiki/mediawiki-codesniffer": "31.0.0",
 		"liuggio/fastest": "dev-master",
 		"mediawiki/mediawiki-phan-config": "0.10.1"
 	},

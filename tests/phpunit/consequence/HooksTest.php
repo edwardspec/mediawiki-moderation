@@ -190,7 +190,7 @@ class HooksTest extends ModerationUnitTestCase {
 			$this->assertEquals( $mergeID, $mergeInput->getAttribute( 'value' ), 'wpMergeID.value' );
 
 			$this->assertNotNull( $blankSummaryInput, 'wpIgnoreBlankSummary field not found.' );
-			$this->assertEquals( 1, $blankSummaryInput->getAttribute( 'value' ),
+			$this->assertSame( "1", $blankSummaryInput->getAttribute( 'value' ),
 				'wpIgnoreBlankSummary.value' );
 		} else {
 			$this->assertNull( $mergeInput, 'wpMergeID field found where it is not needed.' );

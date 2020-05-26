@@ -63,7 +63,7 @@ class ModerationUploadStorageTest extends ModerationTestCase {
 				__METHOD__
 			);
 			if ( $row->mod_stash_key ) {
-				$this->assertEquals( 1, $dbw->affectedRows() );
+				$this->assertSame( 1, $dbw->affectedRows() );
 			}
 		}
 
