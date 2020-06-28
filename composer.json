@@ -4,7 +4,8 @@
 		"jakub-onderka/php-console-highlighter": "0.4",
 		"mediawiki/minus-x": "0.3.2",
 		"mediawiki/mediawiki-codesniffer": "31.0.0",
-		"liuggio/fastest": "dev-master",
+		"liuggio/fastest": "dev-master#ef64d09bae9dfaef890cbcef3f0cb78eb314a1c8",
+		"symfony/process": "<5",
 		"mediawiki/mediawiki-phan-config": "0.10.1"
 	},
 	"scripts": {
