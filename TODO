@@ -27,6 +27,9 @@ Low-prio:
 	and would allow to log what exactly did the moderator change.
 	Note: this backup must be in a separate SQL table.
 	Not having "edit history" in moderation table simplifies everything.
+* (feature) Support MCR (multi-content revisions) - editing of non-main slots.
+	Note: this is easier to implement after MW 1.31 becomes deprecated,
+	because 1.31 didn't support MCR.
 
 Background-prio (may not be needed):
 * (meta) Display notification "Please run update.php" on Special:Moderation if
@@ -49,3 +52,6 @@ FIXME:
 * When modaction=merge results in null edit (because some other user previously
 	modified the target page to have exactly the same text),
 	edit of this other user shouldn't be tagged as [moderation-merged].
+* "Move associated talk page" checkbox should work for intercepted page moves.
+	Note: this is easier to implement after MW 1.31 becomes deprecated,
+	allowing MovePageCheckPermissions hook to be replaced with TitleMove.
