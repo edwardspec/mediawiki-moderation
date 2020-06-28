@@ -94,7 +94,6 @@ class ModerationEditHooks {
 
 		/* Watch/Unwatch the page immediately:
 			watchlist is the user's own business, no reason to wait for approval of the edit */
-		$editFormOptions = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
 		$editFormOptions->watchIfNeeded( $user, [ $title ] );
 
 		/*
