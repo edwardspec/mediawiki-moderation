@@ -32,7 +32,7 @@
 	"moderation-already-rejected": "Ова уредување веќе е одбиено.",
 	"moderation-approveall": "Одобри ги сите",
 	"moderation-approve": "Одобри",
-	"moderation-approved-errors": "Не успеав да одобрам $1 {{plural:$1|уредување|уредувања}}: спротиставености во уредувањата и тн.",
+	"moderation-approved-errors": "Не успеав да одобрам $1 {{plural:$1|уредување|уредувања}}: спротиставености во уредувањата итн.",
 	"moderation-approved-ok": "{{plural:$1|Одобрено $1 уредување|Одобрени $1 уредувања}}.",
 	"moderation-blocker": "Модерациски блок",
 	"moderation-block": "Означи како спамер",
