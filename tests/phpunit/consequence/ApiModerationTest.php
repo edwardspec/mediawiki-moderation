@@ -138,7 +138,7 @@ class ApiModerationTest extends ApiTestCase {
 		$api = new ApiModeration( new ApiMain(), 'moderation' );
 
 		$this->assertTrue( $api->isWriteMode(), 'isWriteMode' );
-		$this->assertTrue( $api->isWriteMode(), 'mustBePosted' );
+		$this->assertTrue( $api->mustBePosted(), 'mustBePosted' );
 		$this->assertSame( 'csrf', $api->needsToken(), 'needsToken' );
 
 		$allowedParams = $api->getAllowedParams();
