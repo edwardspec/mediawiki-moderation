@@ -20,6 +20,8 @@
  * Creates/updates the SQL tables when 'update.php' is invoked.
  */
 
+use MediaWiki\MediaWikiServices;
+
 class ModerationUpdater {
 	/**
 	 * @param DatabaseUpdater $updater
@@ -61,6 +63,14 @@ class ModerationUpdater {
 			// ... to Moderation 1.2.17
 			$updater->addExtensionField( 'moderation', 'mod_type',
 				"$sqlDir/patch-moderation-mod_type.sql" );
+		}
+
+		// Workaround for T258159 (extension-provided services are not loaded during the Web Updater,
+		// but Moderation.VersionCheck service is needed for invalidateCache() call below).
+		// This code is not needed during normal installation (when running update.php via the console).
+		$services = MediaWikiServices::getInstance();
+		if ( !$services->hasService( 'Moderation.VersionCheck' ) ) {
+			$services->loadWiringFiles( [ __DIR__ . '/ServiceWiring.php' ] );
 		}
 
 		$updater->addExtensionUpdate( [ 'ModerationVersionCheck::invalidateCache' ] );
