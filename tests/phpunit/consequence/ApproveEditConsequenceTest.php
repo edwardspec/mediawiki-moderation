@@ -158,7 +158,8 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 			"ApproveEditConsequence failed: " . $status->getMessage()->plain() );
 
 		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
-		$revid = $status->value['revision']->getId();
+		$rev = $status->value['revision-record'] ?? $status->value['revision'];
+		$revid = $rev->getId();
 		$rec = MediaWikiServices::getInstance()->getRevisionLookup()->getRevisionById( $revid );
 
 		$this->assertEquals( $revid2, $rec->getParentId() );

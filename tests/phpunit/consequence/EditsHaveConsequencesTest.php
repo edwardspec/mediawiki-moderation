@@ -249,7 +249,8 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		$this->assertTrue( $status->isOK(), 'Failed to save an edit.' );
 
 		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
-		$revid = $status->value['revision']->getId();
+		$rev = $status->value['revision-record'] ?? $status->value['revision'];
+		$revid = $rev->getId();
 
 		$this->assertConsequencesEqual( [
 			new MarkAsMergedConsequence( $modid, $revid ),

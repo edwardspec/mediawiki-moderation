@@ -40,10 +40,6 @@ class ModerationTestUtil {
 		// See https://github.com/edwardspec/mediawiki-moderation/commit/ec8a9534 for details.
 		$tc->hideDeprecated( 'SkinTemplateOutputPageBeforeExec hook' );
 
-		// TODO: replace uses of this in MW 1.35+ (used in PageContentSaveComplete).
-		$tc->hideDeprecated( 'MediaWiki\Storage\PageUpdater::doCreate status get \'revision\'' );
-		$tc->hideDeprecated( 'MediaWiki\Storage\PageUpdater::doModify status get \'revision\'' );
-
 		// TODO: replace this in MW 1.35+ (only used in testsuite, not in production code)
 		$tc->hideDeprecated( 'Hooks::clear' );
 
