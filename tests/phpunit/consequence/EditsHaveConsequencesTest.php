@@ -114,7 +114,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 			"User can bypass moderation, but doEditContent() didn't return successful Status." );
 
 		$this->assertNoConsequences( $manager );
-		$this->assertNotContains( 'modqueued', RequestContext::getMain()->getOutput()->getRedirect(),
+		$this->assertStringNotContainsString( 'modqueued', RequestContext::getMain()->getOutput()->getRedirect(),
 			"Redirect URL shouldn't contain modqueued= when the moderation was skipped." );
 	}
 
@@ -150,7 +150,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 		// This edit shouldn't have been queued for moderation.
 		$this->assertNoConsequences( $manager );
-		$this->assertNotContains( 'modqueued', RequestContext::getMain()->getOutput()->getRedirect(),
+		$this->assertStringNotContainsString( 'modqueued', RequestContext::getMain()->getOutput()->getRedirect(),
 			"Redirect URL shouldn't contain modqueued= when the moderation was skipped." );
 	}
 
@@ -226,7 +226,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 		// This edit shouldn't have been queued for moderation.
 		$this->assertNoConsequences( $manager );
-		$this->assertNotContains( 'modqueued', RequestContext::getMain()->getOutput()->getRedirect(),
+		$this->assertStringNotContainsString( 'modqueued', RequestContext::getMain()->getOutput()->getRedirect(),
 			"Redirect URL shouldn't contain modqueued= when the moderation was skipped." );
 	}
 

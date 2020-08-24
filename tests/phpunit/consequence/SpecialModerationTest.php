@@ -116,7 +116,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		) );
 
 		$html = ModerationTestUtil::runSpecialModeration( $moderator, $params );
-		$this->assertContains( $mockedHtml, $html );
+		$this->assertStringContainsString( $mockedHtml, $html );
 
 		// TODO: assert that $html contains "return to Special:Moderation" link
 	}
@@ -306,7 +306,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 
 		$context = null;
 		$html = ModerationTestUtil::runSpecialModeration( $moderator, [], false, $context );
-		$this->assertContains( '(moderation-text)', $html );
+		$this->assertStringContainsString( '(moderation-text)', $html );
 
 		$out = $context->getOutput();
 		$this->assertEquals( $expectedStyles, $out->getModuleStyles() );

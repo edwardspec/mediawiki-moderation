@@ -130,13 +130,13 @@ class ModerationPreloadIntegrationTest extends ModerationTestCase {
 		$this->assertArrayHasKey( 'categorieshtml', $parsed );
 		$this->assertArrayHasKey( 'displaytitle', $parsed );
 
-		$this->assertContains( '<b>' . $boldText . '</b>', $parsed['text'] );
-		$this->assertContains( '<i>' . $italicText . '</i>', $parsed['text'] );
+		$this->assertStringContainsString( '<b>' . $boldText . '</b>', $parsed['text'] );
+		$this->assertStringContainsString( '<i>' . $italicText . '</i>', $parsed['text'] );
 
-		$this->assertContains( '(pagecategories: ' . count( $categories ) . ')',
+		$this->assertStringContainsString( '(pagecategories: ' . count( $categories ) . ')',
 			$parsed['categorieshtml'] );
 		foreach ( $categories as $name ) {
-			$this->assertContains( $name, $parsed['categorieshtml'] );
+			$this->assertStringContainsString( $name, $parsed['categorieshtml'] );
 		}
 
 		/* Test 3: mpsection=N */

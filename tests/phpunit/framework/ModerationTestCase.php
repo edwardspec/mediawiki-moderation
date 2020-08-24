@@ -21,6 +21,8 @@
  */
 
 class ModerationTestCase extends MediaWikiTestCase {
+	use CompatPHPUnit6Trait;
+
 	/** @var ModerationTestsuite|null */
 	private $testsuite = null;
 
