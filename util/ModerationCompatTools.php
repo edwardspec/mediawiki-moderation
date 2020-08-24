@@ -38,4 +38,15 @@ class ModerationCompatTools {
 		return $wgContLang;
 		// phpcs:enable MediaWiki.Usage.DeprecatedGlobalVariables.Deprecated$wgContLang
 	}
+
+	/**
+	 * Install backward compatibility hooks when using older versions of MediaWiki.
+	 */
+	public static function installCompatHooks() {
+		if ( !interface_exists( 'MediaWiki\Page\Hook\RevisionFromEditCompleteHook' ) ) {
+			// MediaWiki 1.31-1.34
+			Hooks::register( 'NewRevisionFromEditComplete',
+				'ModerationApproveHook::onNewRevisionFromEditComplete' );
+		}
+	}
 }

@@ -22,6 +22,8 @@
  */
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\RevisionRecord;
+use MediaWiki\User\UserIdentity;
 use Psr\Log\LoggerInterface;
 
 class ModerationApproveHook {
@@ -346,7 +348,8 @@ class ModerationApproveHook {
 	}
 
 	/**
-	 * NewRevisionFromEditComplete hook.
+	 * [Deprecated] NewRevisionFromEditComplete hook.
+	 * This is backward compatibility hook (MW 1.31-1.34), replaced by onRevisionFromEditComplete().
 	 * Here we determine $lastRevId.
 	 * @param Article $article @phan-unused-param
 	 * @param Revision $rev
@@ -355,6 +358,23 @@ class ModerationApproveHook {
 	 * @return true
 	 */
 	public static function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
+		/* Remember ID of this revision for getLastRevId() */
+		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
+		$approveHook->lastRevId = $rev->getId();
+
+		return true;
+	}
+
+	/**
+	 * RevisionFromEditComplete hook.
+	 * Here we determine $lastRevId.
+	 * @param Article $article @phan-unused-param
+	 * @param RevisionRecord $rev
+	 * @param int|bool $originalRevId @phan-unused-param
+	 * @param UserIdentity $user @phan-unused-param
+	 * @return true
+	 */
+	public static function onRevisionFromEditComplete( $article, $rev, $originalRevId, $user ) {
 		/* Remember ID of this revision for getLastRevId() */
 		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
 		$approveHook->lastRevId = $rev->getId();
