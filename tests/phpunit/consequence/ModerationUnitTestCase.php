@@ -25,6 +25,8 @@ use MediaWiki\Moderation\IsConsequenceEqual;
 use MediaWiki\Moderation\MockConsequenceManager;
 
 class ModerationUnitTestCase extends MediaWikiTestCase {
+	use CompatPHPUnit6Trait;
+
 	protected function addCoreDBData() {
 		// Do nothing. Normally this method creates test user, etc.,
 		// but our unit tests don't need this.
@@ -46,6 +48,8 @@ class ModerationUnitTestCase extends MediaWikiTestCase {
 
 	public function setUp() : void {
 		parent::setUp();
+
+		ModerationTestUtil::ignoreKnownDeprecations( $this );
 
 		// Workaround for bug in MediaWiki 1.31: services are not always reset before the test.
 		global $wgVersion;

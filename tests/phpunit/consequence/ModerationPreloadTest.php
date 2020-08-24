@@ -355,7 +355,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	private function checkOutputAfterShowTest() {
 		$out = RequestContext::getMain()->getOutput();
 		$this->assertEquals( [ 'ext.moderation.edit' ], $out->getModules() );
-		$this->assertContains(
+		$this->assertStringContainsString(
 			'<div id="mw-editing-your-version">(moderation-editing-your-version)</div>',
 			$out->getHTML()
 		);
@@ -367,7 +367,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	private function checkOutputAfterNothingToShowTest() {
 		$out = RequestContext::getMain()->getOutput();
 		$this->assertNotContains( 'ext.moderation.edit', $out->getModules() );
-		$this->assertNotContains( '(moderation-editing-your-version)', $out->getHTML() );
+		$this->assertStringNotContainsString( '(moderation-editing-your-version)', $out->getHTML() );
 	}
 
 	/**

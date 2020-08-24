@@ -21,6 +21,8 @@
  */
 
 class ModerationTestCase extends MediaWikiTestCase {
+	use CompatPHPUnit6Trait;
+
 	/** @var ModerationTestsuite|null */
 	private $testsuite = null;
 
@@ -109,6 +111,8 @@ class ModerationTestCase extends MediaWikiTestCase {
 	protected function setUp() : void {
 		ModerationTestsuiteLogger::prepareCleanBuffer( $this->getName() );
 		parent::setUp();
+
+		ModerationTestUtil::ignoreKnownDeprecations( $this );
 
 		$name = $this->getName();
 		if ( $name == 'testValidCovers' || $name == 'testMediaWikiTestCaseParentSetupCalled' ) {

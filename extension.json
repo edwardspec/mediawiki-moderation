@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.5.28",
+	"version": "1.5.29",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -308,21 +308,24 @@
 		"ListDefinedTags": "ModerationEditHooks::onListDefinedTags",
 		"LocalUserCreated": "ModerationPreload::onLocalUserCreated",
 		"MovePageCheckPermissions": "ModerationMoveHooks::onMovePageCheckPermissions",
-		"NewRevisionFromEditComplete": "ModerationApproveHook::onNewRevisionFromEditComplete",
 		"PageContentSave": "ModerationEditHooks::onPageContentSave",
-		"PageContentSaveComplete": [
-			"ModerationApproveHook::onPageContentSaveComplete",
-			"ModerationEditHooks::onPageContentSaveComplete"
+		"PageSaveComplete": [
+			"ModerationApproveHook::onPageSaveComplete",
+			"ModerationEditHooks::onPageSaveComplete"
 		],
 		"PageForms::EditFormInitialText": "ModerationPageForms::preloadText",
 		"PageForms::EditFormPreloadText": "ModerationPageForms::preloadText",
+		"PageMoveComplete": "ModerationApproveHook::onPageMoveComplete",
 		"RecentChange_save": "ModerationApproveHook::onRecentChange_save",
+		"RevisionFromEditComplete": "ModerationApproveHook::onRevisionFromEditComplete",
 		"SkinTemplateOutputPageBeforeExec": "ModerationNotifyModerator::onSkinTemplateOutputPageBeforeExec",
 		"SpecialPageBeforeExecute": "MediaWiki\\Moderation\\EditFormOptions::onSpecialPageBeforeExecute",
-		"TitleMoveComplete": "ModerationApproveHook::onTitleMoveComplete",
 		"UploadVerifyUpload": "ModerationUploadHooks::onUploadVerifyUpload",
 		"wgQueryPages": "ModerationApiHooks::onwgQueryPages"
 	},
+	"ExtensionFunctions": [
+		"ModerationCompatTools::installCompatHooks"
+	],
 	"config": {
 		"ModerationEnable": {
 			"value": true,

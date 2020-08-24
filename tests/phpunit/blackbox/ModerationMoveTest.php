@@ -81,7 +81,8 @@ class ModerationMoveTest extends ModerationTestCase {
 		*/
 
 		$showLink = $entry->expectedActionLink( 'show', false );
-		$this->assertContains( '(movepage-page-moved: ' . $this->oldTitle . ', ' . $this->newTitle . ')',
+		$this->assertStringContainsString(
+			'(movepage-page-moved: ' . $this->oldTitle . ', ' . $this->newTitle . ')',
 			$t->html->loadUrl( $showLink )->getMainText() );
 
 		/* Check if we can approve this move */

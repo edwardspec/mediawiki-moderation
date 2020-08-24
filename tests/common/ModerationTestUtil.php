@@ -20,7 +20,36 @@
  * Utility functions used in both benchmark and PHPUnit Testsuite.
  */
 
+use MediaWiki\MediaWikiServices;
+
 class ModerationTestUtil {
+	/**
+	 * Suppress unneeded/temporary deprecation messages caused by keeping compatibility with MW 1.31.
+	 * @param MediaWikiTestCase $tc
+	 */
+	public static function ignoreKnownDeprecations( MediaWikiTestCase $tc ) {
+		// Temporary: MediaWiki core itself calls this in PageUpdater.php.
+		$tc->hideDeprecated( 'Revision::__construct' );
+		$tc->hideDeprecated( 'Revision::getId' );
+
+		// TODO/WARNING: You've got to be kidding me with this hook being deprecated without replacement.
+		// I just replaced a completely non-suitable, dirty and hacky use of GetNewMessagesAlert hook
+		// (which basically can't be used without dirty hacks in any wiki that also has Extension:Echo),
+		// and now some unwise person tells me "good news, SkinTemplateOutputPageBeforeExec is deprecated,
+		// so go use GetNewMessagesAlert, because it is so much better for the task".
+		// See https://github.com/edwardspec/mediawiki-moderation/commit/ec8a9534 for details.
+		$tc->hideDeprecated( 'SkinTemplateOutputPageBeforeExec hook' );
+
+		// TODO: replace this in MW 1.35+ (only used in testsuite, not in production code)
+		$tc->hideDeprecated( 'Hooks::clear' );
+
+		// Warning from Extension:Echo (which we need in Echo-related tests), unrelated to Moderation.
+		$tc->hideDeprecated( 'Revision::getRevisionRecord' );
+
+		// Warning from Extension:Cite, unrelated to Moderation.
+		$tc->hideDeprecated( 'ResourceLoaderTestModules hook' );
+	}
+
 	/**
 	 * Edit the page by directly modifying the database. Very fast.
 	 *
@@ -39,6 +68,7 @@ class ModerationTestUtil {
 		$summary = '',
 		User $user = null
 	) {
+		global $wgVersion;
 		$dbw = wfGetDB( DB_MASTER );
 
 		$page = WikiPage::factory( $title );
@@ -48,18 +78,26 @@ class ModerationTestUtil {
 			$user = User::newFromName( '127.0.0.1', false );
 		}
 
-		$revision = new Revision( [
-			'page'       => $page->getId(),
-			'comment'    => $summary,
-			'text'       => $newText, # No preSaveTransform or serialization
-			'user'       => $user->getId(),
-			'user_text'  => $user->getName(),
+		$store = MediaWikiServices::getInstance()->getRevisionStore();
+		$rev = $store->newMutableRevisionFromArray( [
+			'page' => $page->getId(),
+			'comment' => $summary,
+			'user' => $user,
 			'timestamp'  => $dbw->timestamp(),
-			'content_model' => CONTENT_MODEL_WIKITEXT
 		] );
 
-		$revision->insertOn( $dbw );
-		$page->updateRevisionOn( $dbw, $revision );
+		$content = ContentHandler::makeContent( $newText, null, CONTENT_MODEL_WIKITEXT );
+		$rev->setContent( 'main', $content );
+
+		$storedRecord = $store->insertRevisionOn( $rev, $dbw );
+
+		if ( version_compare( $wgVersion, '1.35-rc.0', '>=' ) ) {
+			// MediaWiki 1.35+
+			$page->updateRevisionOn( $dbw, $storedRecord );
+		} else {
+			// MediaWiki 1.31-1.34: WikiPage::updateRevisionOn() expects Revision object.
+			$page->updateRevisionOn( $dbw, Revision::newFromId( $storedRecord->getId() ) );
+		}
 	}
 
 	/**

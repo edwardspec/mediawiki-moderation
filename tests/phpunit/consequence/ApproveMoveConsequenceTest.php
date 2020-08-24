@@ -33,6 +33,14 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'page', 'logging', 'log_search' ];
 
+	public function setUp() : void {
+		parent::setUp();
+
+		// TODO: replace this deprecated hook in tests,
+		// but only if practical/necessary before discarding support for MediaWiki 1.31.
+		$this->hideDeprecated( 'TitleMoveComplete hook' );
+	}
+
 	/**
 	 * Verify that ApproveMoveConsequence renames the page.
 	 * @covers MediaWiki\Moderation\ApproveMoveConsequence

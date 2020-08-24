@@ -23,6 +23,7 @@
 global $wgAutoloadClasses;
 
 $wgAutoloadClasses += [
+	'CompatPHPUnit6Trait' => __DIR__ . '/../../common/CompatPHPUnit6Trait.php',
 	'ModerationTestHTML' => __DIR__ . '/../../common/ModerationTestHTML.php',
 	'ModerationTestUtil' => __DIR__ . '/../../common/ModerationTestUtil.php',
 	'ActionTestTrait' => __DIR__ . '/trait/ActionTestTrait.php',

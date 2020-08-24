@@ -26,6 +26,9 @@ use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
+use MediaWiki\Revision\RevisionRecord;
+use MediaWiki\Storage\EditResult;
+use MediaWiki\User\UserIdentity;
 
 class ModerationEditHooks {
 	/**
@@ -164,7 +167,8 @@ class ModerationEditHooks {
 	}
 
 	/**
-	 * PageContentSaveComplete hook handler.
+	 * [Deprecated] PageContentSaveComplete hook handler.
+	 * This is backward compatibility hook (MW 1.31-1.34), replaced by onPageSaveComplete().
 	 * If this is a merged edit, then 'wpMergeID' is the ID of moderation entry.
 	 * Here we mark this entry as merged.
 	 * @param WikiPage $page
@@ -184,29 +188,68 @@ class ModerationEditHooks {
 		$page, $user, $content, $summary, $is_minor, $is_watch,
 		$section, $flags, $revision, $status, $baseRevId
 	) {
-		if ( !$revision ) { # Double edit - nothing to do on the second time
+		if ( !$revision ) {
+			// Double edit - nothing to do on the second time
 			return true;
 		}
 
+		self::markAsMergedIfNeeded( $page, $revision->getId(), $user );
+		return true;
+	}
+
+	/**
+	 * PageSaveComplete hook handler.
+	 * If this is a merged edit, then 'wpMergeID' is the ID of moderation entry.
+	 * Here we mark this entry as merged.
+	 *
+	 * @param WikiPage $wikiPage
+	 * @param UserIdentity $user
+	 * @param string $summary @phan-unused-param
+	 * @param int $flags @phan-unused-param
+	 * @param RevisionRecord $revisionRecord
+	 * @param EditResult $editResult @phan-unused-param
+	 * @return true
+	 */
+	public static function onPageSaveComplete(
+		$wikiPage, $user, $summary, $flags, $revisionRecord, $editResult
+	) {
+		if ( !$revisionRecord ) {
+			// Double edit - nothing to do on the second time
+			return true;
+		}
+
+		self::markAsMergedIfNeeded(
+			$wikiPage,
+			$revisionRecord->getId(),
+			User::newFromIdentity( $user )
+		);
+		return true;
+	}
+
+	/**
+	 * Mark the revision as "merged edit" if this edit was made via modaction=merge.
+	 * @param WikiPage $wikiPage
+	 * @param int $revid
+	 * @param User $user
+	 */
+	protected static function markAsMergedIfNeeded( $wikiPage, $revid, $user ) {
 		/* Only moderators can merge. If someone else adds wpMergeID to the edit form, ignore it */
 		if ( !$user->isAllowed( 'moderation' ) ) {
-			return true;
+			return;
 		}
 
 		$mergeID = RequestContext::getMain()->getRequest()->getInt( 'wpMergeID' );
 		if ( !$mergeID ) {
-			return true;
+			return;
 		}
-
-		$revid = $revision->getId();
 
 		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
 		$somethingChanged = $manager->add( new MarkAsMergedConsequence( $mergeID, $revid ) );
 
 		if ( $somethingChanged ) {
-			$manager->add( new AddLogEntryConsequence( 'merge', $user, $page->getTitle(), [
+			$manager->add( new AddLogEntryConsequence( 'merge', $user, $wikiPage->getTitle(), [
 				'modid' => $mergeID,
-				'revid' => $revision->getId()
+				'revid' => $revid
 			] ) );
 
 			/* Clear the cache of "Most recent mod_timestamp of pending edit"
@@ -216,8 +259,6 @@ class ModerationEditHooks {
 			/* Tag this edit as "manually merged" */
 			$manager->add( new TagRevisionAsMergedConsequence( $revid ) );
 		}
-
-		return true;
 	}
 
 	/**

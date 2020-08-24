@@ -34,41 +34,69 @@ class WatchOrUnwatchConsequenceTest extends ModerationUnitTestCase {
 	 * @dataProvider dataProviderWatchUnwatch
 	 */
 	public function testWatchUnwatch( $watch, $noop ) {
+		global $wgVersion;
+
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 		$user = self::getTestUser()->getUser();
 
 		$watchedItemStore = $this->createMock( WatchedItemStore::class );
-		$watchedItemStore->expects( $this->once() )->method( 'isWatched' )->with(
-			$this->identicalTo( $user ),
-			$this->identicalTo( $title )
-		)->willReturn( ( $watch && $noop ) || ( !$watch && !$noop ) );
+		$isWatched = ( $watch && $noop ) || ( !$watch && !$noop );
 
-		if ( $noop || !$watch ) {
-			$watchedItemStore->expects( $this->never() )->method( 'addWatchBatchForUser' );
-		} else {
-			$watchedItemStore->expects( $this->once() )->method( 'addWatchBatchForUser' )->with(
+		if ( version_compare( $wgVersion, '1.35-rc.0', '>=' ) ) {// MediaWiki 1.35+
+			$watchedItemStore->expects( $this->once() )->method( 'getWatchedItem' )->with(
 				$this->identicalTo( $user ),
-				$this->equalTo( [ $title->getSubjectPage(), $title->getTalkPage() ] )
-			);
+				$this->identicalTo( $title )
+			)->willReturn( $isWatched ? new WatchedItem( $user, $title, null ) : false );
+		} else {
+			// MediaWiki 1.31-1.34
+			$watchedItemStore->expects( $this->once() )->method( 'isWatched' )->with(
+				$this->identicalTo( $user ),
+				$this->identicalTo( $title )
+			)->willReturn( $isWatched );
 		}
 
-		if ( $noop || $watch ) {
-			$watchedItemStore->expects( $this->never() )->method( 'removeWatch' );
-		} else {
-			$watchedItemStore->expects( $this->at( 1 ) )->method( 'removeWatch' )->with(
-				$this->identicalTo( $user ),
-				$this->equalTo( $title->getSubjectPage() )
-			);
-			$watchedItemStore->expects( $this->at( 2 ) )->method( 'removeWatch' )->with(
-				$this->identicalTo( $user ),
-				$this->equalTo( $title->getTalkPage() )
-			);
-		}
+		$watchHookFired = false;
+		$this->setTemporaryHook( 'WatchArticle',
+			function ( $userIdentity, $wikiPage ) use ( &$watchHookFired, $title, $user ) {
+				$watchHookFired = true;
+
+				$this->assertEquals( $title, $wikiPage->getTitle()->getFullText() );
+				$this->assertEquals( $user->getName(), $userIdentity->getName() );
+
+				return true;
+			}
+		);
+
+		$unwatchHookFired = false;
+		$this->setTemporaryHook( 'UnwatchArticle',
+			function ( $userIdentity, $wikiPage ) use ( &$unwatchHookFired, $title, $user ) {
+				$unwatchHookFired = true;
+
+				$this->assertEquals( $title, $wikiPage->getTitle()->getFullText() );
+				$this->assertEquals( $user->getName(), $userIdentity->getName() );
+
+				return true;
+			}
+		);
+
 		$this->setService( 'WatchedItemStore', $watchedItemStore );
 
 		// Create and run the Consequence.
 		$consequence = new WatchOrUnwatchConsequence( $watch, $title, $user );
 		$consequence->run();
+
+		$this->assertSame(
+			[
+				// Expected results
+				'WatchArticle hook fired' => ( !$noop && $watch ),
+				'UnwatchArticle hook fired' => ( !$noop && !$watch )
+			],
+			[
+				// Actual results
+				'WatchArticle hook fired' => $watchHookFired,
+				'UnwatchArticle hook fired' => $unwatchHookFired
+			]
+		);
 	}
 
 	/**

@@ -38,4 +38,37 @@ class ModerationCompatTools {
 		return $wgContLang;
 		// phpcs:enable MediaWiki.Usage.DeprecatedGlobalVariables.Deprecated$wgContLang
 	}
+
+	/**
+	 * Install backward compatibility hooks when using older versions of MediaWiki.
+	 * This method won't be needed after we drop compatibility with 1.31, because MediaWiki 1.35
+	 * provides "acknowledged deprecation of hooks" feature (see docs/Hooks.md), which is better.
+	 */
+	public static function installCompatHooks() {
+		if ( !interface_exists( 'MediaWiki\Page\Hook\RevisionFromEditCompleteHook' ) ) {
+			// MediaWiki 1.31-1.34
+			Hooks::register( 'NewRevisionFromEditComplete',
+				'ModerationApproveHook::onNewRevisionFromEditComplete' );
+		}
+
+		if ( !interface_exists( 'MediaWiki\Storage\Hook\PageSaveCompleteHook' ) ) {
+			// MediaWiki 1.31-1.34
+			Hooks::register( 'PageContentSaveComplete',
+				'ModerationEditHooks::onPageContentSaveComplete' );
+
+			// Same handler as for non-deprecated PageSaveComplete (not a typo),
+			// as it doesn't use any parameters. It just needs to run at the moment
+			// when this hook is called.
+			Hooks::register( 'PageContentSaveComplete',
+				'ModerationApproveHook::onPageSaveComplete' );
+		}
+
+		if ( !interface_exists( 'MediaWiki\Hook\PageMoveCompleteHook' ) ) {
+			// MediaWiki 1.31-1.34
+			// Can use the same handler as for new PageMoveComplete hook,
+			// because we don't use the only parameter that is different (Revision/RevisionRecord).
+			Hooks::register( 'TitleMoveComplete',
+				'ModerationApproveHook::onPageMoveComplete' );
+		}
+	}
 }
