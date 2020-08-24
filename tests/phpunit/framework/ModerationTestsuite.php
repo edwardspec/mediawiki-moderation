@@ -686,19 +686,35 @@ class ModerationTestsuite {
 	 */
 	public function getLastRevision( $title ) {
 		$page = WikiPage::factory( Title::newFromText( $title ) );
-		$rev = $page->getRevision();
 
-		if ( !$rev ) {
-			return false;
+		if ( $this->mwVersionCompare( '1.32.0', '<' ) ) {
+			// For MediaWiki 1.31 only: it doesn't have getRevisionRecord().
+			$rev = $page->getRevision();
+			if ( !$rev ) {
+				return false;
+			}
+			$username = $rev->getUserText();
+		} else {
+			// MediaWiki 1.32+
+			$rev = $page->getRevisionRecord();
+			if ( !$rev ) {
+				return false;
+			}
+			$username = $rev->getUser()->getName();
+		}
+
+		$comment = $rev->getComment() ?? '';
+		if ( $comment instanceof CommentStoreComment ) {
+			$comment = $comment->text;
 		}
 
 		// Response in the same format as returned by api.php?action=query&prop=revisions.
 		$result = [
-			'*' => $page->getContent()->getNativeData(),
-			'user' => $rev->getUserText(),
+			'*' => strval( $page->getContent()->getNativeData() ),
+			'user' => $username,
 			'revid' => $rev->getId(),
-			'comment' => $rev->getComment(),
-			'timestamp' => wfTimestamp( TS_ISO_8601, $rev->getTimestamp() )
+			'comment' => $comment,
+			'timestamp' => wfTimestamp( TS_ISO_8601, $rev->getTimestamp() ) ?: ''
 		];
 		if ( $rev->isMinor() ) {
 			$result['minor'] = '';
