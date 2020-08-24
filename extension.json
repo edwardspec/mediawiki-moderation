@@ -309,9 +309,9 @@
 		"LocalUserCreated": "ModerationPreload::onLocalUserCreated",
 		"MovePageCheckPermissions": "ModerationMoveHooks::onMovePageCheckPermissions",
 		"PageContentSave": "ModerationEditHooks::onPageContentSave",
-		"PageContentSaveComplete": [
-			"ModerationApproveHook::onPageContentSaveComplete",
-			"ModerationEditHooks::onPageContentSaveComplete"
+		"PageSaveComplete": [
+			"ModerationApproveHook::onPageSaveComplete",
+			"ModerationEditHooks::onPageSaveComplete"
 		],
 		"PageForms::EditFormInitialText": "ModerationPageForms::preloadText",
 		"PageForms::EditFormPreloadText": "ModerationPageForms::preloadText",

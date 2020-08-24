@@ -32,7 +32,7 @@ class ModerationApproveHook {
 
 	/**
 	 * @var int
-	 * Counter used in onPageContentSaveComplete() to ensure that doUpdate() is called only once.
+	 * Counter used in onPageSaveComplete() to ensure that doUpdate() is called only once.
 	 */
 	protected $useCount = 0;
 
@@ -70,10 +70,10 @@ class ModerationApproveHook {
 	}
 
 	/**
-	 * PageContentSaveComplete hook.
+	 * PageSaveComplete hook.
 	 * @return true
 	 */
-	public static function onPageContentSaveComplete() {
+	public static function onPageSaveComplete() {
 		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
 		$approveHook->scheduleDoUpdate();
 
