@@ -47,6 +47,8 @@ class ModerationUnitTestCase extends MediaWikiTestCase {
 	public function setUp() : void {
 		parent::setUp();
 
+		ModerationTestUtil::ignoreKnownDeprecations( $this );
+
 		// Workaround for bug in MediaWiki 1.31: services are not always reset before the test.
 		global $wgVersion;
 		if ( version_compare( $wgVersion, '1.32.0', '<' ) ) {

@@ -22,6 +22,37 @@
 
 class ModerationTestUtil {
 	/**
+	 * Suppress unneeded/temporary deprecation messages caused by keeping compatibility with MW 1.31.
+	 * @param MediaWikiTestCase $tc
+	 */
+	public static function ignoreKnownDeprecations( MediaWikiTestCase $tc ) {
+		// Temporary: MediaWiki core itself calls this in PageUpdater.php.
+		$tc->hideDeprecated( 'Revision::__construct' );
+
+		// TODO: replace these hooks in MW 1.35+ (still needed for MW 1.31).
+		$tc->hideDeprecated( 'NewRevisionFromEditComplete hook' );
+		$tc->hideDeprecated( 'PageContentSaveComplete hook' );
+		$tc->hideDeprecated( 'TitleMoveComplete hook' );
+		$tc->hideDeprecated( 'SkinTemplateOutputPageBeforeExec hook' );
+
+		// TODO: replace uses of this in MW 1.35+ (used in NewRevisionFromEditComplete).
+		$tc->hideDeprecated( 'Revision::getId' );
+
+		// TODO: replace uses of this in MW 1.35+ (used in PageContentSaveComplete).
+		$tc->hideDeprecated( 'MediaWiki\Storage\PageUpdater::doCreate status get \'revision\'' );
+		$tc->hideDeprecated( 'MediaWiki\Storage\PageUpdater::doModify status get \'revision\'' );
+
+		// TODO: replace this in MW 1.35+ (only used in testsuite, not in production code)
+		$tc->hideDeprecated( 'Hooks::clear' );
+
+		// Warning from Extension:Echo (which we need in Echo-related tests), unrelated to Moderation.
+		$tc->hideDeprecated( 'Revision::getRevisionRecord' );
+
+		// Warning from Extension:Cite, unrelated to Moderation.
+		$tc->hideDeprecated( 'ResourceLoaderTestModules hook' );
+	}
+
+	/**
 	 * Edit the page by directly modifying the database. Very fast.
 	 *
 	 * This is used for initialization of tests.

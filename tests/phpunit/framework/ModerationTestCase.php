@@ -110,6 +110,8 @@ class ModerationTestCase extends MediaWikiTestCase {
 		ModerationTestsuiteLogger::prepareCleanBuffer( $this->getName() );
 		parent::setUp();
 
+		ModerationTestUtil::ignoreKnownDeprecations( $this );
+
 		$name = $this->getName();
 		if ( $name == 'testValidCovers' || $name == 'testMediaWikiTestCaseParentSetupCalled' ) {
 			// These meta-tests are basically linters,
