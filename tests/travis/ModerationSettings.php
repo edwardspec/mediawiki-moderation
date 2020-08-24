@@ -50,7 +50,9 @@ $wgGroupPermissions['*']['noratelimit'] = true;
 
 if ( version_compare( $wgVersion, '1.34-rc.0', '>=' ) ) {
 	# Allow testsuite accounts to have "123456" as a password.
-	$wgPasswordPolicy['policies']['default']['PasswordNotInLargeBlacklist'] = false;
+	foreach ( [ 'default', 'bureaucrat', 'sysop', 'interface-admin', 'bot' ] as $group ) {
+		$wgPasswordPolicy['policies'][$group] = [];
+	}
 }
 
 if ( getenv( 'MODERATION_TEST_ENGINE' ) == 'realhttp' ) {
