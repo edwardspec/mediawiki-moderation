@@ -21,6 +21,7 @@
  * Corrects rev_timestamp, rc_ip and checkuser logs when edit is approved.
  */
 
+use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\User\UserIdentity;
@@ -81,27 +82,27 @@ class ModerationApproveHook {
 	}
 
 	/**
-	 * TitleMoveComplete hook.
+	 * PageMoveComplete hook.
 	 * Here we modify rev_timestamp of a newly created redirect after the page move.
-	 * @param Title $title
-	 * @param Title $newTitle @phan-unused-param
-	 * @param User $user
+	 * @param LinkTarget $oldTitle
+	 * @param LinkTarget $newTitle @phan-unused-param
+	 * @param UserIdentity $user
 	 * @return true
 	 */
-	public static function onTitleMoveComplete( Title $title, Title $newTitle, User $user ) {
+	public static function onPageMoveComplete( $oldTitle, $newTitle, $user ) {
 		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
-		$approveHook->modifyRedirectAfterMove( $title, $user );
+		$approveHook->modifyRedirectAfterMove( Title::newFromLinkTarget( $oldTitle ), $user );
 
 		return true;
 	}
 
 	/**
-	 * Main logic of TitleMoveComplete hook.
+	 * Main logic of PageMoveComplete hook.
 	 * @param Title $title
-	 * @param User $user
+	 * @param UserIdentity $user
 	 */
-	protected function modifyRedirectAfterMove( Title $title, User $user ) {
-		$task = $this->getTask( $title, $user, ModerationNewChange::MOD_TYPE_MOVE );
+	protected function modifyRedirectAfterMove( Title $title, UserIdentity $user ) {
+		$task = $this->getTask( $title, $user->getName(), ModerationNewChange::MOD_TYPE_MOVE );
 		if ( !$task ) {
 			return;
 		}

@@ -62,5 +62,13 @@ class ModerationCompatTools {
 			Hooks::register( 'PageContentSaveComplete',
 				'ModerationApproveHook::onPageSaveComplete' );
 		}
+
+		if ( !interface_exists( 'MediaWiki\Hook\PageMoveCompleteHook' ) ) {
+			// MediaWiki 1.31-1.34
+			// Can use the same handler as for new PageMoveComplete hook,
+			// because we don't use the only parameter that is different (Revision/RevisionRecord).
+			Hooks::register( 'TitleMoveComplete',
+				'ModerationApproveHook::onPageMoveComplete' );
+		}
 	}
 }

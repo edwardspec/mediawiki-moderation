@@ -33,7 +33,6 @@ class ModerationTestUtil {
 		$tc->hideDeprecated( 'Revision::getId' );
 
 		// TODO: replace these hooks in MW 1.35+ (still needed for MW 1.31).
-		$tc->hideDeprecated( 'TitleMoveComplete hook' );
 		$tc->hideDeprecated( 'SkinTemplateOutputPageBeforeExec hook' );
 
 		// TODO: replace uses of this in MW 1.35+ (used in PageContentSaveComplete).
