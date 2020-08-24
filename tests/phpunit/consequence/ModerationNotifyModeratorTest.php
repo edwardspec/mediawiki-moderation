@@ -22,6 +22,7 @@
 
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\EntryFactory;
+use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -113,14 +114,14 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Check the handler of SkinTemplateOutputPageBeforeExec hook (which is called by MediaWiki core).
+	 * Check the result of getNotificationHTML().
 	 * @param bool $expectShown If true, our notification is expected to be shown.
 	 * @param array $opt
-	 * @dataProvider dataProviderNotifyHook
+	 * @dataProvider dataProviderGetNotificationHTML
 	 *
 	 * @covers ModerationNotifyModerator
 	 */
-	public function testNotifyHook( $expectShown, array $opt ) {
+	public function testGetNotificationHTML( $expectShown, array $opt ) {
 		$isModerator = $opt['isModerator'] ?? true;
 		$isSpecialModeration = $opt['isSpecialModeration'] ?? false;
 		$pendingTimeCached = $opt['pendingTimeCached'] ?? false;
@@ -131,8 +132,7 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 		$entryFactory = $this->createMock( EntryFactory::class );
 		$title = $this->createMock( Title::class );
 		$user = $this->createMock( User::class );
-		$skin = $this->createMock( SkinTemplate::class );
-		$tpl = $this->createMock( QuickTemplate::class );
+		$context = $this->createMock( IContextSource::class );
 
 		$userId = 456;
 		$user->expects( $this->any() )->method( 'getId' )->willReturn( $userId );
@@ -141,14 +141,15 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 			$this->identicalTo( 'moderation' )
 		)->willReturn( $isModerator );
 
-		$skin->expects( $this->any() )->method( 'getUser' )->willReturn( $user );
-		$skin->expects( $this->any() )->method( 'getTitle' )->willReturn( $title );
+		$context->expects( $this->any() )->method( 'getUser' )->willReturn( $user );
+		$context->expects( $this->any() )->method( 'getTitle' )->willReturn( $title );
 
 		$cache = new HashBagOStuff();
 		$cache->set( $cache->makeKey( 'moderation-newest-pending-timestamp' ), $pendingTimeCached );
 		$cache->set( $cache->makeKey( 'moderation-seen-timestamp', "$userId" ), $seenTime );
 
 		$expectedCacheContents = [];
+		$expectedHTML = '';
 
 		if ( !$isModerator ) {
 			// Hook won't be installed.
@@ -174,7 +175,7 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 		}
 
 		if ( $expectShown ) {
-			$skin->expects( $this->once() )->method( 'msg' )->with(
+			$context->expects( $this->once() )->method( 'msg' )->with(
 				$this->identicalTo( 'moderation-new-changes-appeared' )
 			)->willReturn( new RawMessage( '{TextOfNotificationLink}' ) );
 
@@ -183,30 +184,25 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 				$this->identicalTo( '{TextOfNotificationLink}' )
 			)->will( $this->returnCallback( function ( Title $title, $text ) {
 				$this->assertTrue( $title->isSpecial( 'Moderation' ),
-					"Link in the notificatio ndoesn't point to Special:Moderation." );
+					"Link in the notification doesn't point to Special:Moderation." );
 				return '{NotificationLink}';
 			} ) );
 
-			$tpl->expects( $this->once() )->method( 'extend' )->with(
-				$this->identicalTo( 'newtalk' ),
-				$this->identicalTo( "\n{NotificationLink}" )
-			);
-		} else {
-			$tpl->expects( $this->never() )->method( 'extend' );
+			$expectedHTML = "{NotificationLink}";
 		}
 
 		'@phan-var LinkRenderer $linkRenderer';
 		'@phan-var EntryFactory $entryFactory';
-		'@phan-var SkinTemplate $skin';
-		'@phan-var QuickTemplate $tpl';
+		'@phan-var IContextSource $context';
 
 		// Install the newly constructed ModerationNotifyModerator object as a service.
 		$notify = new ModerationNotifyModerator( $linkRenderer, $entryFactory, $cache );
 		$this->setService( 'Moderation.NotifyModerator', $notify );
 
-		// Run the tested hook.
-		$result = ModerationNotifyModerator::onSkinTemplateOutputPageBeforeExec( $skin, $tpl );
-		$this->assertTrue( $result, "SkinTemplateOutputPageBeforeExec hook didn't return true." );
+		// Run the tested method.
+		$wrapper = TestingAccessWrapper::newFromObject( $notify );
+		$result = $wrapper->getNotificationHTML( $context );
+		$this->assertSame( $expectedHTML, $result, "Unexpected result of getNotificationHTML()." );
 
 		// Analyze the situation afterwards.
 		foreach ( $expectedCacheContents as $key => $val ) {
@@ -215,10 +211,10 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Provide datasets for testNotifyHook() runs.
+	 * Provide datasets for testGetNotificationHTML() runs.
 	 * @return array
 	 */
-	public function dataProviderNotifyHook() {
+	public function dataProviderGetNotificationHTML() {
 		return [
 			'Not shown (not a moderator)' => [ false, [ 'isModerator' => false ] ],
 			'Not shown (on Special:Moderation)' =>
@@ -251,16 +247,114 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Ensure that the SkinTemplateOutputPageBeforeExec hook is installed.
-	 * We make this into a separate test, so that testNotifyHook() can just check our own handler
-	 * without invoking SkinTemplateOutputPageBeforeExec handlers of all other extensions.
-	 * @coversNothing
+	 * Create a partial mock of ModerationNotifyModerator class with all mocked parameters.
+	 * @param string[] $methodsToMock
+	 * @return \PHPUnit\Framework\MockObject\MockObject
 	 */
-	public function testHookInstalled() {
-		$this->assertContains(
-			'ModerationNotifyModerator::onSkinTemplateOutputPageBeforeExec',
-			Hooks::getHandlers( 'SkinTemplateOutputPageBeforeExec' ),
-			"Hook handler is not installed."
+	private function makePartialNotifyMock( array $methodsToMock ) {
+		$linkRenderer = $this->createMock( LinkRenderer::class );
+		$entryFactory = $this->createMock( EntryFactory::class );
+		$cache = $this->createMock( BagOStuff::class );
+
+		// Create partial mock: getNotificationHTML() gets overridden, but everything else is not.
+		return $this->getMockBuilder( ModerationNotifyModerator::class )
+			->setConstructorArgs( [ $linkRenderer, $entryFactory, $cache ] )
+			->setMethods( $methodsToMock )
+			->getMockForAbstractClass();
+	}
+
+	/**
+	 * Verify that SkinTemplateOutputPageBeforeExec hook shows result of getNotificationHTML().
+	 * @param bool $mustNotify If true, getNotificationHTML() will return non-empty string.
+	 * @dataProvider dataProviderNotifyHook
+	 *
+	 * @covers ModerationNotifyModerator
+	 */
+	public function testLegacyNotifyHook( $mustNotify ) {
+		$skin = $this->createMock( SkinTemplate::class );
+		$tpl = $this->createMock( QuickTemplate::class );
+
+		// Create partial mock: getNotificationHTML() gets overridden, but everything else is not.
+		$notify = $this->makePartialNotifyMock( [ 'getNotificationHTML' ] );
+
+		$notify->expects( $this->once() )->method( 'getNotificationHTML' )->with(
+			$this->identicalTo( $skin )
+		)->willReturn( $mustNotify ? '{MockedResult}' : '' );
+
+		if ( $mustNotify ) {
+			$tpl->expects( $this->once() )->method( 'extend' )->with(
+				$this->identicalTo( 'newtalk' ),
+				$this->identicalTo( "\n{MockedResult}" )
+			);
+		} else {
+			$tpl->expects( $this->never() )->method( 'extend' );
+		}
+
+		'@phan-var SkinTemplate $skin';
+		'@phan-var QuickTemplate $tpl';
+
+		// Install the newly constructed ModerationNotifyModerator object as a service,
+		// then call the tested hook handler directly.
+		$this->setService( 'Moderation.NotifyModerator', $notify );
+		ModerationNotifyModerator::onSkinTemplateOutputPageBeforeExec( $skin, $tpl );
+	}
+
+	/**
+	 * Verify that GetNewMessagesAlert hook shows result of getNotificationHTML().
+	 * @param bool $mustNotify If true, getNotificationHTML() will return non-empty string.
+	 * @dataProvider dataProviderNotifyHook
+	 *
+	 * @covers ModerationNotifyModerator
+	 */
+	public function testNotifyHook( $mustNotify ) {
+		$out = $this->createMock( OutputPage::class );
+		$user = $this->createMock( User::class );
+
+		// Create partial mock: getNotificationHTML() gets overridden, but everything else is not.
+		$notify = $this->makePartialNotifyMock( [ 'getNotificationHTML' ] );
+
+		$notify->expects( $this->once() )->method( 'getNotificationHTML' )->with(
+			$this->identicalTo( $out )
+		)->willReturn( $mustNotify ? '{MockedResult}' : '' );
+
+		'@phan-var OutputPage $out';
+		'@phan-var User $user';
+
+		// Install the newly constructed ModerationNotifyModerator object as a service,
+		// then call the tested hook handler directly.
+		$this->setService( 'Moderation.NotifyModerator', $notify );
+
+		$newMessagesAlert = '{ThirdPartyNotification}';
+		ModerationNotifyModerator::onGetNewMessagesAlert( $newMessagesAlert, [], $user, $out );
+
+		$this->assertSame(
+			$mustNotify ? "{ThirdPartyNotification}\n{MockedResult}" : '{ThirdPartyNotification}',
+			$newMessagesAlert,
+			'Value of $newMessagesAlert after GetNewMessagesAlert hook doesn\'t match expected.'
 		);
 	}
+
+	/**
+	 * Provide datasets for testLegacyNotifyHook() and testNotifyHook() runs.
+	 * @return array
+	 */
+	public function dataProviderNotifyHook() {
+		return [
+			'Don\'t need to add notification' => [ false ],
+			'Must add notification' => [ true ]
+		];
+	}
+
+	/**
+	 * Verify that EchoCanAbortNewMessagesAlert hook returns false ("Echo can't disable notification").
+	 * @covers ModerationNotifyModerator
+	 */
+	public function testEchoHook() {
+		$this->assertFalse( ModerationNotifyModerator::onEchoCanAbortNewMessagesAlert(),
+			'EchoCanAbortNewMessagesAlert hook must return false.' );
+	}
+
+	// TODO: add tests that ensure that getNotificationHTML() was indeed called from hooks:
+	// both for MediaWiki 1.35 (GetNewMessagesAlert hook)
+	// and for MediaWiki 1.31-1.34 (deprecated hook SkinTemplateOutputPageBeforeExec).
 }

@@ -48,39 +48,76 @@ class ModerationNotifyModerator {
 	}
 
 	/**
-	 * SkinTemplateOutputPageBeforeExec hook.
+	 * EchoCanAbortNewMessagesAlert hook.
+	 * Here we prevent Extension:Echo from suppressing our notification.
+	 * @return bool
+	 */
+	public static function onEchoCanAbortNewMessagesAlert() {
+		return false;
+	}
+
+	/**
+	 * GetNewMessagesAlert hook.
 	 * Shows in-wiki notification "new edits are pending moderation" to moderators.
-	 * Here we install GetNewMessagesAlert hook and prevent Extension:Echo from suppressing it.
+	 * @param string &$newMessagesAlert
+	 * @param array $newtalks @phan-unused-param
+	 * @param User $user @phan-unused-param
+	 * @param OutputPage $out
+	 * @return true
+	 */
+	public static function onGetNewMessagesAlert( &$newMessagesAlert, $newtalks, $user, $out ) {
+		$notifyModerator = MediaWikiServices::getInstance()->getService( 'Moderation.NotifyModerator' );
+		$notifyModerator->runHookInternal( $newMessagesAlert, $out );
+
+		return true;
+	}
+
+	/**
+	 * Main logic of GetNewMessagesAlert hook.
+	 * @param string &$newMessagesAlert
+	 * @param OutputPage $out
+	 */
+	protected function runHookInternal( &$newMessagesAlert, $out ) {
+		$notificationHtml = $this->getNotificationHTML( $out );
+		if ( $notificationHtml ) {
+			$newMessagesAlert .= "\n" . $notificationHtml;
+		}
+	}
+
+	/**
+	 * [Deprecated] SkinTemplateOutputPageBeforeExec hook.
+	 * This is backward compatibility hook (MW 1.31-1.34), replaced by onGetNewMessagesAlert().
+	 * Shows in-wiki notification "new edits are pending moderation" to moderators.
 	 * @param SkinTemplate $skin
 	 * @param QuickTemplate $tpl
 	 * @return true
 	 */
 	public static function onSkinTemplateOutputPageBeforeExec( $skin, $tpl ) {
 		$notifyModerator = MediaWikiServices::getInstance()->getService( 'Moderation.NotifyModerator' );
-		$notifyModerator->runHookInternal( $skin, $tpl );
+		$notifyModerator->runLegacyHookInternal( $skin, $tpl );
 
 		return true;
 	}
 
 	/**
-	 * Main logic of SkinTemplateOutputPageBeforeExec hook.
-	 * @param SkinTemplate $skin
-	 * @param QuickTemplate $tpl
+	 * Get the HTML of "new edits are pending" notification. Empty string if notification isn't needed.
+	 * @param IContextSource $context
+	 * @return string
 	 */
-	protected function runHookInternal( $skin, $tpl ) {
-		$user = $skin->getUser();
+	protected function getNotificationHTML( IContextSource $context ) {
+		$user = $context->getUser();
 		if ( !$user->isAllowed( 'moderation' ) ) {
-			return; /* Not a moderator */
+			return ''; /* Not a moderator */
 		}
 
-		if ( $skin->getTitle()->isSpecial( 'Moderation' ) ) {
-			return; /* No need to show on Special:Moderation */
+		if ( $context->getTitle()->isSpecial( 'Moderation' ) ) {
+			return ''; /* No need to show on Special:Moderation */
 		}
 
 		/* Determine the most recent mod_timestamp of pending edit */
 		$pendingTime = $this->getPendingTime();
 		if ( !$pendingTime ) {
-			return; /* No pending changes */
+			return ''; /* No pending changes */
 		}
 
 		/*
@@ -91,15 +128,25 @@ class ModerationNotifyModerator {
 		*/
 		$seenTime = $this->getSeen( $user );
 		if ( $seenTime && $seenTime >= $pendingTime ) {
-			return; /* No new changes appeared after this moderator last visited Special:Moderation */
+			return ''; /* No new changes appeared after this moderator last visited Special:Moderation */
 		}
 
-		/* Need to notify */
-		$notificationHtml = "\n" . $this->linkRenderer->makeLink(
+		return $this->linkRenderer->makeLink(
 			SpecialPage::getTitleFor( 'Moderation' ),
-			$skin->msg( 'moderation-new-changes-appeared' )->plain()
+			$context->msg( 'moderation-new-changes-appeared' )->plain()
 		);
-		$tpl->extend( 'newtalk', $notificationHtml );
+	}
+
+	/**
+	 * Main logic of (deprecated) SkinTemplateOutputPageBeforeExec hook.
+	 * @param SkinTemplate $skin
+	 * @param QuickTemplate $tpl
+	 */
+	protected function runLegacyHookInternal( $skin, $tpl ) {
+		$notificationHtml = $this->getNotificationHTML( $skin );
+		if ( $notificationHtml ) {
+			$tpl->extend( 'newtalk', "\n" . $notificationHtml );
+		}
 	}
 
 	/**

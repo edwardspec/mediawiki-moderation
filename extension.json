@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.5.29",
+	"version": "1.5.30",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -318,7 +318,6 @@
 		"PageMoveComplete": "ModerationApproveHook::onPageMoveComplete",
 		"RecentChange_save": "ModerationApproveHook::onRecentChange_save",
 		"RevisionFromEditComplete": "ModerationApproveHook::onRevisionFromEditComplete",
-		"SkinTemplateOutputPageBeforeExec": "ModerationNotifyModerator::onSkinTemplateOutputPageBeforeExec",
 		"SpecialPageBeforeExecute": "MediaWiki\\Moderation\\EditFormOptions::onSpecialPageBeforeExecute",
 		"UploadVerifyUpload": "ModerationUploadHooks::onUploadVerifyUpload",
 		"wgQueryPages": "ModerationApiHooks::onwgQueryPages"

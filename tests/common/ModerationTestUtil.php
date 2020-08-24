@@ -32,14 +32,6 @@ class ModerationTestUtil {
 		$tc->hideDeprecated( 'Revision::__construct' );
 		$tc->hideDeprecated( 'Revision::getId' );
 
-		// TODO/WARNING: You've got to be kidding me with this hook being deprecated without replacement.
-		// I just replaced a completely non-suitable, dirty and hacky use of GetNewMessagesAlert hook
-		// (which basically can't be used without dirty hacks in any wiki that also has Extension:Echo),
-		// and now some unwise person tells me "good news, SkinTemplateOutputPageBeforeExec is deprecated,
-		// so go use GetNewMessagesAlert, because it is so much better for the task".
-		// See https://github.com/edwardspec/mediawiki-moderation/commit/ec8a9534 for details.
-		$tc->hideDeprecated( 'SkinTemplateOutputPageBeforeExec hook' );
-
 		// TODO: replace this in MW 1.35+ (only used in testsuite, not in production code)
 		$tc->hideDeprecated( 'Hooks::clear' );
 

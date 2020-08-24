@@ -70,5 +70,21 @@ class ModerationCompatTools {
 			Hooks::register( 'TitleMoveComplete',
 				'ModerationApproveHook::onPageMoveComplete' );
 		}
+
+		if ( !interface_exists( 'MediaWiki\Hook\GetNewMessagesAlertHook' ) ) {
+			// MediaWiki 1.31-1.34, where SkinTemplateOutputPageBeforeExec hook is not deprecated,
+			// can use it to show "New changes are awaiting moderation".
+			// MediaWiki 1.35 leaves us with no other choice than much worse GetNewMessagesAlert
+			// (which is worse due to Extension:Echo returning "false" from its handler).
+			// However, in MW 1.35+ we can use EchoCanAbortNewMessagesAlert hook to workaround that.
+			Hooks::register( 'SkinTemplateOutputPageBeforeExec',
+				'ModerationNotifyModerator::onSkinTemplateOutputPageBeforeExec' );
+		} else {
+			// MediaWiki 1.35+
+			Hooks::register( 'GetNewMessagesAlert',
+				'ModerationNotifyModerator::onGetNewMessagesAlert' );
+			Hooks::register( 'EchoCanAbortNewMessagesAlert',
+				'ModerationNotifyModerator::onEchoCanAbortNewMessagesAlert' );
+		}
 	}
 }
