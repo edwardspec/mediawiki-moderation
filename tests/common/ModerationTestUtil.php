@@ -20,6 +20,8 @@
  * Utility functions used in both benchmark and PHPUnit Testsuite.
  */
 
+use MediaWiki\MediaWikiServices;
+
 class ModerationTestUtil {
 	/**
 	 * Suppress unneeded/temporary deprecation messages caused by keeping compatibility with MW 1.31.
@@ -70,6 +72,7 @@ class ModerationTestUtil {
 		$summary = '',
 		User $user = null
 	) {
+		global $wgVersion;
 		$dbw = wfGetDB( DB_MASTER );
 
 		$page = WikiPage::factory( $title );
@@ -79,18 +82,26 @@ class ModerationTestUtil {
 			$user = User::newFromName( '127.0.0.1', false );
 		}
 
-		$revision = new Revision( [
-			'page'       => $page->getId(),
-			'comment'    => $summary,
-			'text'       => $newText, # No preSaveTransform or serialization
-			'user'       => $user->getId(),
-			'user_text'  => $user->getName(),
+		$store = MediaWikiServices::getInstance()->getRevisionStore();
+		$rev = $store->newMutableRevisionFromArray( [
+			'page' => $page->getId(),
+			'comment' => $summary,
+			'user' => $user,
 			'timestamp'  => $dbw->timestamp(),
-			'content_model' => CONTENT_MODEL_WIKITEXT
 		] );
 
-		$revision->insertOn( $dbw );
-		$page->updateRevisionOn( $dbw, $revision );
+		$content = ContentHandler::makeContent( $newText, null, CONTENT_MODEL_WIKITEXT );
+		$rev->setContent( 'main', $content );
+
+		$storedRecord = $store->insertRevisionOn( $rev, $dbw );
+
+		if ( version_compare( $wgVersion, '1.35-rc.0', '>=' ) ) {
+			// MediaWiki 1.35+
+			$page->updateRevisionOn( $dbw, $storedRecord );
+		} else {
+			// MediaWiki 1.31-1.34: WikiPage::updateRevisionOn() expects Revision object.
+			$page->updateRevisionOn( $dbw, Revision::newFromId( $storedRecord->getId() ) );
+		}
 	}
 
 	/**
