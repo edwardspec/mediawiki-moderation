@@ -21,6 +21,9 @@
  */
 
 class ModerationTestSetRegex {
+	/**
+	 * @var string
+	 */
 	protected $regex;
 
 	public function __construct( $regex ) {

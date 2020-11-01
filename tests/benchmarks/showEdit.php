@@ -26,8 +26,11 @@
 require_once __DIR__ . '/ModerationBenchmark.php';
 
 class BenchmarkShowEdit extends ModerationBenchmark {
-
-	public $id; /* mod_id of the change */
+	/**
+	 * @var int
+	 * mod_id of the change
+	 */
+	public $id;
 
 	const TEXT_BEFORE = 'Text before';
 	const TEXT_AFTER = 'Newtext after';

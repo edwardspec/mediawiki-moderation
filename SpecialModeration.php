@@ -213,7 +213,7 @@ class SpecialModeration extends QueryPage {
 
 	/**
 	 * @param Skin $skin @phan-unused-param
-	 * @param object $row Result row
+	 * @param stdClass $row Result row
 	 * @return string
 	 */
 	public function formatResult( $skin, $row ) {

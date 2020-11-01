@@ -787,7 +787,7 @@ class ModerationActionTest extends ModerationTestCase {
 		}
 
 		if ( $this->expectedOutputHtml ) {
-			$this->assertContains(
+			$this->assertStringContainsString(
 				$this->expectedOutputHtml,
 				$html->saveHTML( $html->getMainContent() ),
 				"modaction={$this->modaction}: unexpected HTML output."
@@ -796,16 +796,16 @@ class ModerationActionTest extends ModerationTestCase {
 
 		$output = $html->getMainText();
 		if ( $this->expectedOutput ) {
-			$this->assertContains( $this->expectedOutput, $output,
+			$this->assertStringContainsString( $this->expectedOutput, $output,
 				"modaction={$this->modaction}: unexpected output." );
 		}
 
 		$expectedReadOnlyText = '(readonlytext: ' . self::READONLY_REASON . ')';
 		if ( $this->expectReadOnlyError ) {
-			$this->assertContains( $expectedReadOnlyText, $output,
+			$this->assertStringContainsString( $expectedReadOnlyText, $output,
 				"modaction={$this->modaction}: no ReadOnlyError exception in ReadOnly mode." );
 		} else {
-			$this->assertNotContains( $expectedReadOnlyText, $output,
+			$this->assertStringNotContainsString( $expectedReadOnlyText, $output,
 				"modaction={$this->modaction}: unexpected ReadOnlyError exception." );
 		}
 

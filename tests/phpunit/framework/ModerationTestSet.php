@@ -136,7 +136,7 @@ trait ModerationTestsuiteTestSet {
 	 * Assert that recent row in 'moderation' SQL table consists of $expectedFields.
 	 * @param array $expectedFields Key-value list of all mod_* fields.
 	 * @throws PHPUnit\Framework\AssertionFailedError
-	 * @return object $row
+	 * @return stdClass $row
 	 */
 	protected function assertRowEquals( array $expectedFields ) {
 		$dbw = wfGetDB( DB_MASTER );

@@ -27,7 +27,11 @@ require_once __DIR__ . '/ModerationBenchmark.php';
 
 class BenchmarkApproveAll extends ModerationBenchmark {
 
-	public $ids = []; /* mod_id of rows where ApproveAll should be applied */
+	/**
+	 * @var int[]
+	 * mod_id of rows where ApproveAll should be applied
+	 */
+	public $ids = [];
 
 	/**
 	 * Default number of loops.

@@ -194,7 +194,6 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 			wfArrayToCgi( $descriptor['_POST'] ) . ']';
 
 		try {
-			// @phan-suppress-next-line SecurityCheck-PHPSerializeInjection - false positive
 			$result = unserialize( $output );
 		} catch ( Exception $_ ) {
 			$this->getLogger()->error( '[CliEngine] Non-serialized text printed by cliInvoke.php', [

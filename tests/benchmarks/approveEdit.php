@@ -26,8 +26,11 @@
 require_once __DIR__ . '/ModerationBenchmark.php';
 
 class BenchmarkApproveEdit extends ModerationBenchmark {
-
-	public $ids = []; /* mod_id of all changes to approve */
+	/**
+	 * @var int[]
+	 * mod_id of all changes to approve
+	 */
+	public $ids = [];
 
 	/**
 	 * Default number of loops.

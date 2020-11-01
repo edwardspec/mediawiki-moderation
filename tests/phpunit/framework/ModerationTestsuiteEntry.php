@@ -25,34 +25,79 @@
  * Represents one line on [[Special:Moderation]]
  */
 class ModerationTestsuiteEntry {
+	/** @var string|null */
 	public $id = null;
+
+	/** @var string|null */
 	public $user = null;
+
+	/** @var string|null */
 	public $title = null;
+
+	/** @var string|null */
 	public $page2Title = null;
+
+	/** @var string|null */
 	public $commentHtml = null;
 
+	/** @var string|null */
 	public $showLink = null;
+
+	/** @var string|null */
 	public $previewLink = null;
+
+	/** @var string|null */
 	public $editChangeLink = null;
+
+	/** @var string|null */
 	public $approveLink = null;
+
+	/** @var string|null */
 	public $approveAllLink = null;
+
+	/** @var string|null */
 	public $rejectLink = null;
+
+	/** @var string|null */
 	public $rejectAllLink = null;
+
+	/** @var string|null */
 	public $blockLink = null;
+
+	/** @var string|null */
 	public $unblockLink = null;
+
+	/** @var string|null */
 	public $mergeLink = null;
+
+	/** @var string|null */
 	public $mergedDiffLink = null;
+
+	/** @var string|null */
 	public $ip = null;
 
+	/** @var string|null */
 	public $rejected_by_user = null;
+
+	/** @var bool */
 	public $rejected_batch = false;
+
+	/** @var bool */
 	public $rejected_auto = false;
 
+	/** @var bool */
 	public $conflict = false;
+
+	/** @var bool */
 	public $isMove = false;
 
+	/** @var bool */
 	public $minor = false;
+
+	/** @var bool */
 	public $bot = false;
+
+	/** @var bool */
 	public $new = false;
 
 	/** @var string Time of the timestamp, e.g. '08:30' */
@@ -61,6 +106,10 @@ class ModerationTestsuiteEntry {
 	/** @var string Full human-readable timestamp, e.g. '12:20, 22 June 2018' */
 	public $datetime = null;
 
+	/**
+	 * @var bool
+	 * True if "can't merge: current user is not automoderated" is shown instead of Merge link.
+	 */
 	public $noMergeNotAutomoderated = false;
 
 	/** @var int Difference between old_len and new_len, e.g. -25 or +600 */

@@ -32,7 +32,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	protected $approveHook;
 
 	/**
-	 * @param object $row
+	 * @param stdClass $row
 	 * @param IConsequenceManager $consequenceManager
 	 * @param ModerationApproveHook $approveHook
 	 */

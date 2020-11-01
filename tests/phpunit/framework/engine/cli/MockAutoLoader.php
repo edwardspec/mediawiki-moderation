@@ -34,7 +34,7 @@ class ModerationTestsuiteMockAutoLoader {
 	protected $replacements = [];
 
 	/**
-	 * array List of classnames which have already been mocked.
+	 * @var array List of classnames which have already been mocked.
 	 * Format: [ 'WebRequest' => true, 'FauxRequest' => true, ... ]
 	 */
 	private $alreadyMockedClasses = [];

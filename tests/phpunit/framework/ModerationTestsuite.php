@@ -122,9 +122,19 @@ class ModerationTestsuite {
 	#
 	# Functions for parsing Special:Moderation.
 	#
+
+	/**
+	 * @var array
+	 * Contents of folders of Special:Moderation after the last call of fetchSpecial().
+	 *
+	 * @phan-var array<string,ModerationTestsuiteEntry[]>
+	 */
 	private $lastFetchedSpecial = [];
 
+	/** @var ModerationTestsuiteEntry[] */
 	public $new_entries;
+
+	/** @var ModerationTestsuiteEntry[] */
 	public $deleted_entries;
 
 	public function getSpecialURL( $query = [] ) {
@@ -248,8 +258,6 @@ class ModerationTestsuite {
 			$dbw->commit( __METHOD__, 'flush' );
 		}
 
-		$dbw->begin( __METHOD__ );
-
 		$tablesToTruncate = [
 			'moderation',
 			'moderation_block',
@@ -283,18 +291,8 @@ class ModerationTestsuite {
 		}
 
 		foreach ( $tablesToTruncate as $table ) {
-			# Short version of MediaWikiIntegrationTestCase::truncateTable(),
-			# which doesn't exist in MW 1.31 and is a protected method.
-
-			if ( $dbw->tableExists( $table ) ) {
-				$dbw->delete( $table, '*', __METHOD__ );
-				if ( $dbw->getType() == 'postgres' ) {
-					$dbw->resetSequenceForTable( $table, __METHOD__ );
-				}
-			}
+			$this->truncateDbTable( $table );
 		}
-
-		$dbw->commit( __METHOD__ );
 
 		// Create test users like $t->moderator.
 		$this->prepopulateDb();
@@ -310,6 +308,28 @@ class ModerationTestsuite {
 
 		// Clear the buffer of getCapturedHooks()
 		$this->capturedHooks = [];
+	}
+
+	/**
+	 * Delete all contents of the SQL table.
+	 * @param string $table
+	 */
+	protected function truncateDbTable( $table ) {
+		$dbw = wfGetLB()->getMaintenanceConnectionRef( DB_MASTER );
+		if ( !$dbw->tableExists( $table ) ) {
+			return;
+		}
+
+		if ( method_exists( $dbw, 'truncate' ) ) {
+			// MediaWiki 1.35+
+			$dbw->truncate( $table );
+		} else {
+			// MediaWiki 1.31-1.34
+			$dbw->delete( $table, '*', __METHOD__ );
+			if ( $dbw->getType() == 'postgres' ) {
+				$dbw->resetSequenceForTable( $table, __METHOD__ );
+			}
+		}
 	}
 
 	/**
@@ -444,10 +464,7 @@ class ModerationTestsuite {
 			}
 
 			// Truncate the table. prepopulateDb() will load it from cache.
-			$dbw->delete( $table, '*', __METHOD__ );
-			if ( $dbw->getType() == 'postgres' ) {
-				$dbw->resetSequenceForTable( $table, __METHOD__ );
-			}
+			$this->truncateDbTable( $table );
 		}
 	}
 
@@ -470,12 +487,26 @@ class ModerationTestsuite {
 	#
 	# High-level test functions.
 	#
+
+	/** @var User */
 	public $moderator;
+
+	/** @var User */
 	public $moderatorButNotAutomoderated;
+
+	/** @var User */
 	public $rollback;
+
+	/** @var User */
 	public $automoderated;
+
+	/** @var User */
 	public $unprivilegedUser;
+
+	/** @var User */
 	public $unprivilegedUser2;
+
+	/** @var User */
 	public $moderatorAndCheckuser;
 
 	/**
@@ -561,7 +592,11 @@ class ModerationTestsuite {
 		return $this->getBot( 'nonApi' )->edit( $title, $text, $summary, $section, $extraParams );
 	}
 
-	public $TEST_EDITS_COUNT = 3; /* See doNTestEditsWith() */
+	/**
+	 * @var int
+	 * See doNTestEditsWith()
+	 */
+	public $TEST_EDITS_COUNT = 3;
 
 	/**
 	 * Do 2*N alternated edits - N by $user1 and N by $user2.

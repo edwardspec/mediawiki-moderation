@@ -157,7 +157,7 @@ class ModerationMoveTest extends ModerationTestCase {
 		] ) );
 		$html = $t->html->loadReq( $req );
 
-		$this->assertNotContains( '(moderation-move-queued)', $html->getMainText(),
+		$this->assertStringNotContainsString( '(moderation-move-queued)', $html->getMainText(),
 			"testNoPrematureMoveInShowForm(): Special:MovePage has queued the move " .
 			"before Submit was clicked" );
 
