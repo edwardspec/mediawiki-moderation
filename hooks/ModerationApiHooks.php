@@ -141,11 +141,11 @@ class ModerationApiHooks {
 
 	/**
 	 * Adds qppage=Moderation to api.php?action=query&list=querypage.
-	 * @param array &$wgQueryPages
+	 * @param array &$pages
 	 * @return bool
 	 */
-	public static function onwgQueryPages( &$wgQueryPages ) {
-		$wgQueryPages[] = [ SpecialModeration::class, 'Moderation' ];
+	public static function onwgQueryPages( &$pages ) {
+		$pages[] = [ SpecialModeration::class, 'Moderation' ];
 		return true;
 	}
 }

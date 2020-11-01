@@ -81,7 +81,7 @@ class EntryFactory {
 
 	/**
 	 * Construct new ModerationEntryFormatter.
-	 * @param object $row
+	 * @param \stdClass $row
 	 * @param IContextSource $context
 	 * @return ModerationEntryFormatter
 	 */
@@ -98,7 +98,7 @@ class EntryFactory {
 
 	/**
 	 * Construct new ModerationViewableEntry from $row.
-	 * @param object $row
+	 * @param \stdClass $row
 	 * @return ModerationViewableEntry
 	 */
 	public function makeViewableEntry( $row ) {
@@ -121,7 +121,7 @@ class EntryFactory {
 
 	/**
 	 * Construct new ModerationApprovableEntry from $row.
-	 * @param object $row
+	 * @param \stdClass $row
 	 * @return ModerationApprovableEntry
 	 */
 	public function makeApprovableEntry( $row ) {
@@ -247,7 +247,7 @@ class EntryFactory {
 	 * @param string[] $fields
 	 * @param int $dbType DB_MASTER or DB_REPLICA
 	 * @param array $options This parameter is passed to DB::select().
-	 * @return object|false
+	 * @return \stdClass|false
 	 */
 	public function loadRow( $where, array $fields, $dbType = DB_MASTER, array $options = [] ) {
 		if ( !is_array( $where ) ) {
@@ -270,7 +270,7 @@ class EntryFactory {
 	 * @param string[] $fields
 	 * @param int $dbType DB_MASTER or DB_REPLICA
 	 * @param array $options
-	 * @return object
+	 * @return \stdClass
 	 * @throws ModerationError
 	 */
 	public function loadRowOrThrow( $where, array $fields, $dbType = DB_MASTER,

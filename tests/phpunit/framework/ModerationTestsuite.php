@@ -122,9 +122,19 @@ class ModerationTestsuite {
 	#
 	# Functions for parsing Special:Moderation.
 	#
+
+	/**
+	 * @var array
+	 * Contents of folders of Special:Moderation after the last call of fetchSpecial().
+	 *
+	 * @phan-var array<string,ModerationTestsuiteEntry[]>
+	 */
 	private $lastFetchedSpecial = [];
 
+	/** @var ModerationTestsuiteEntry[] */
 	public $new_entries;
+
+	/** @var ModerationTestsuiteEntry[] */
 	public $deleted_entries;
 
 	public function getSpecialURL( $query = [] ) {
@@ -470,12 +480,26 @@ class ModerationTestsuite {
 	#
 	# High-level test functions.
 	#
+
+	/** @var User */
 	public $moderator;
+
+	/** @var User */
 	public $moderatorButNotAutomoderated;
+
+	/** @var User */
 	public $rollback;
+
+	/** @var User */
 	public $automoderated;
+
+	/** @var User */
 	public $unprivilegedUser;
+
+	/** @var User */
 	public $unprivilegedUser2;
+
+	/** @var User */
 	public $moderatorAndCheckuser;
 
 	/**
@@ -561,7 +585,11 @@ class ModerationTestsuite {
 		return $this->getBot( 'nonApi' )->edit( $title, $text, $summary, $section, $extraParams );
 	}
 
-	public $TEST_EDITS_COUNT = 3; /* See doNTestEditsWith() */
+	/**
+	 * @var int
+	 * See doNTestEditsWith()
+	 */
+	public $TEST_EDITS_COUNT = 3;
 
 	/**
 	 * Do 2*N alternated edits - N by $user1 and N by $user2.

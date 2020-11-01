@@ -31,7 +31,7 @@ trait MockLoadRowTestTrait {
 	 * Returns mock of EntryFactory that will return $row when asked for $where and $fields.
 	 * @param int|array $where
 	 * @param array $fields
-	 * @param object $row
+	 * @param stdClass $row
 	 * @return EntryFactory
 	 */
 	public function mockLoadRow( $where, array $fields, $row ) {

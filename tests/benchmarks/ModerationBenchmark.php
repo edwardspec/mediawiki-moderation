@@ -24,6 +24,7 @@ require_once __DIR__ . '/../common/ModerationTestUtil.php';
 
 abstract class ModerationBenchmark extends Maintenance {
 	/**
+	 * @var string
 	 * Prefix that is always prepended to all titles, etc.
 	 * 	This ensures that two benchmarks won't work with the same pages,
 	 *	causing errors like "benchmark #1 was creating a new page,
@@ -33,7 +34,8 @@ abstract class ModerationBenchmark extends Maintenance {
 	private $uniquePrefix = null;
 
 	/**
-	 * User object. Always created before the benchmark.
+	 * @var User
+	 * User who is always created before the benchmark.
 	 */
 	private $testUser = null;
 
