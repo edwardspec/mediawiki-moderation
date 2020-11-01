@@ -3,10 +3,10 @@
 		"jakub-onderka/php-parallel-lint": "1.0.0",
 		"jakub-onderka/php-console-highlighter": "0.4",
 		"mediawiki/minus-x": "0.3.2",
-		"mediawiki/mediawiki-codesniffer": "31.0.0",
+		"mediawiki/mediawiki-codesniffer": "33.0.0",
 		"liuggio/fastest": "1.7.1",
 		"symfony/process": "<5",
-		"mediawiki/mediawiki-phan-config": "0.10.1"
+		"mediawiki/mediawiki-phan-config": "0.10.3"
 	},
 	"scripts": {
 		"test": [
