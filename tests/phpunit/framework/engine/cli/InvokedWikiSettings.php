@@ -68,7 +68,10 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 		);
 		$GLOBALS['wgCachePrefix'] = $newDomain->getId();
 
-		Hooks::register( 'SetupAfterCache', function () use ( $newDomain ) {
+		// Can't use Hooks::register(): MediaWiki 1.35+ prints a warning when it's called before boostrap,
+		// but this must be called before boostrap.
+		global $wgHooks;
+		$wgHooks['SetupAfterCache'][] = function () use ( $newDomain ) {
 			$lbFactory = MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancerFactory();
 			if ( !method_exists( $lbFactory, 'redefineLocalDomain' ) ) {
 				// MediaWiki 1.31
@@ -77,7 +80,7 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 			}
 
 			$lbFactory->redefineLocalDomain( $newDomain );
-		} );
+		};
 	} else {
 		$GLOBALS["wg$name"] = $value;
 	}

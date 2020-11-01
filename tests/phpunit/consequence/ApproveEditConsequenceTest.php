@@ -76,6 +76,7 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 		// Note: we can't use $this->setTemporaryHook(), because it removes existing hook (if any),
 		// and Moderation itself uses this hook (so it can't be removed during tests).
 		global $wgHooks;
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable - false positive
 		$hooks = $wgHooks; // For setMwGlobals() below
 
 		$hookFired = false;
