@@ -33,8 +33,17 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 	use UploadTestTrait;
 
 	/** @var string[] */
-	protected $tablesUsed = [ 'revision', 'page', 'user', 'recentchanges', 'cu_changes',
+	protected $tablesUsed = [ 'revision', 'page', 'user', 'recentchanges',
 		'change_tag', 'logging', 'log_search', 'image', 'oldimage' ];
+
+	public function setUp() : void {
+		parent::setUp();
+
+		if ( ExtensionRegistry::getInstance()->isLoaded( 'CheckUser' ) ) {
+			// PostgreSQL tests may run without Extension:CheckUser due to T241827.
+			$this->tablesUsed[] = 'cu_changes';
+		}
+	}
 
 	/**
 	 * Verify that uploading a file adds missing "revid" to LogEntry passed to checkLogEntry().
