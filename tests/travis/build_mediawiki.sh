@@ -61,11 +61,6 @@ if [ ! -f buildcache/mediawiki/COMPLETE ]; then
 			wget https://raw.githubusercontent.com/wikimedia/mediawiki/master/includes/DevelopmentSettings.php \
 				-O includes/DevelopmentSettings.php
 
-		if [ "$branch" = "REL1_35" ]; then
-			# T252183 causes warnings when running PostgreSQL tests in 1.35
-			patch -p1 <$TRAVIS_BUILD_DIR/tests/travis/patches/gerrit616856.patch
-		fi
-
 		find . -name .git | xargs rm -rf
 
 		composer install --no-interaction

@@ -63,7 +63,7 @@ matrix:
       if: NOT branch IN (selenium,phan,coverage)
       env: TESTSUITE_TYPE=linter-php
       addons:
-      before_script: composer install
+      before_script: composer self-update --1 && composer install
       script: composer test
 
     - &linter-js-build
@@ -82,6 +82,7 @@ matrix:
       env: TESTSUITE_TYPE=phan branch=REL1_35
       php: 7.3
       before_script:
+        - composer self-update --1
         - pecl install ast
         - phpenv config-rm xdebug.ini
         - php -i
@@ -201,7 +202,7 @@ cache:
 before_script:
   - echo $TESTSUITE_TYPE
   # Revert Composer to 1.10, because wikimedia/composer-merge-plugin v1.4.1 (used by MediaWiki 1.31) is not compatible with Composer 2.
-  - composer self-update 1.10.17
+  - composer self-update --1
 
   - if [ ${TRAVIS_PHP_VERSION} != "nightly" ]; then phpenv config-rm xdebug.ini; fi
   - phpenv config-add tests/travis/phpconf/php.ini
