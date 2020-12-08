@@ -85,8 +85,9 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 
 	/**
 	 * @inheritDoc
+	 * @param int $flags @phan-unused-param
 	 */
-	protected function getUser( $_ = 0 ) {
+	protected function getUser( $flags = 0 ) {
 		/* User could have been recently renamed or deleted.
 			Make sure we have the correct data when approving. */
 		return parent::getUser( User::READ_LATEST );

@@ -122,7 +122,10 @@ class SpecialModeration extends QueryPage {
 		);
 	}
 
-	public function execute( $unused ) {
+	/**
+	 * @param string|null $param @phan-unused-param
+	 */
+	public function execute( $param ) {
 		// Throw an exception if current user doesn't have "moderation" right.
 		$this->checkPermissions();
 

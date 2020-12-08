@@ -127,13 +127,16 @@ class ModerationShowTest extends ModerationTestCase {
 		$this->assertNotNull( $thumb,
 			"testShowUpload(): Thumbnail image not found" );
 
-		$src = $img->getAttribute( 'src' );
+		'@phan-var DomElement $thumb';
+
+		$src = $thumb->getAttribute( 'src' );
 		$this->assertRegExp( '/thumb=1/', $src,
 			"testShowUpload(): Thumbnail image URL doesn't contain thumb=1" );
 
 		# Is the image thumbnail inside the link to the full image?
-		// @phan-suppress-next-line PhanTypeExpectedObjectPropAccessButGotNull
 		$link = $thumb->parentNode;
+		'@phan-var DomElement $link';
+
 		$this->assertEquals( 'a', $link->nodeName,
 			"testShowUpload(): Thumbnail image isn't encased in <a> tag" );
 
