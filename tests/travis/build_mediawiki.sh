@@ -57,10 +57,6 @@ if [ ! -f buildcache/mediawiki/COMPLETE ]; then
 		done
 		)
 
-		[[ -f includes/DevelopmentSettings.php ]] || \
-			wget https://raw.githubusercontent.com/wikimedia/mediawiki/master/includes/DevelopmentSettings.php \
-				-O includes/DevelopmentSettings.php
-
 		find . -name .git | xargs rm -rf
 
 		composer install --no-interaction
