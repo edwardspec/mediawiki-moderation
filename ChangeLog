@@ -29,6 +29,9 @@ Refactoring, performance optimizations:
 * Removed static variables like NewChange::$LastInsertId.
 * Removed unneeded configuration variables like $wgModerationForceAjaxHook.
 
+Warnings fixed:
+* Fixed post-approval warning when using Moderation with Extension:Flow.
+
 Troubleshooting tools:
 * Added debug log to ModerationApproveHook.
 
