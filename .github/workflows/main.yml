@@ -1,0 +1,134 @@
+name: Run PHPUnit testsuite
+
+on: [push, pull_request, workflow_dispatch]
+
+env:
+  PARALLEL_PHPUNIT_TESTS: 4
+  DBTYPE: mysql
+  DBNAME: testwiki
+  MEDIAWIKI_USER: "Moderator User"
+  MEDIAWIKI_PASSWORD: "123456"
+
+jobs:
+  # Job #1: PHPUnit testsuite (unit tests + integration tests)
+  phpunit:
+    strategy:
+      matrix:
+        php: [7.4]
+        branch: [REL1_35]
+        include:
+          - php: 7.3
+            branch: REL1_31
+    env:
+      branch: ${{ matrix.branch }}
+    runs-on: ubuntu-20.04
+    services:
+      memcached:
+        image: memcached:latest
+        ports:
+          - 11211:11211
+        options: --health-cmd "timeout 5 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/11211'" --health-interval 10s --health-timeout 5s --health-retries 5
+      mariadb:
+        image: mariadb
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 1
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.composer/cache
+            buildcache
+          key: buildcache-${{ env.branch }}-${{ hashFiles('**/no/files/need/to/invalidate/cache/for/now') }}
+      - uses: shivammathur/setup-php@v2
+        with:
+            php-version: ${{ matrix.php }}
+            extensions: mbstring, intl, opcache, mysqli
+            tools: composer:v1
+            ini-values: zend.enable_gc=Off, opcache.enable_cli=1, opcache.file_cache="/dev/shm", opcache.file_cache_only=1, opcache.file_cache_consistency_checks=0, opcache.validate_timestamps=0
+      - name: (debug) Print "php -i"
+        run: php -i
+      - uses: edwardspec/github-action-build-mediawiki@v1
+        with:
+          branch: ${{ env.branch }}
+          extraLocalSettings: tests/travis/ModerationSettings.php
+          extensions: "AbuseFilter CheckUser Echo MobileFrontend PageForms VisualEditor"
+          skins: "MinervaNeue"
+          dbtype: ${{ env.DBTYPE }}
+          dbname: ${{ env.DBNAME }}
+
+      - name: Finalize the installation of MediaWiki
+        run: |
+          cp -fv tests/travis/my.cnf ~/.my.cnf
+          rsync -a --exclude buildcache --exclude mediawiki --exclude .git . mediawiki/extensions/Moderation/
+          cd mediawiki && echo 'DELETE FROM recentchanges;' | php maintenance/sql.php
+          WITH_ECHO=1 php maintenance/update.php --quick
+          php maintenance/createAndPromote.php "$MEDIAWIKI_USER" "$MEDIAWIKI_PASSWORD" --custom-groups moderator,automoderated
+          ( cd extensions/Moderation && composer install )
+          echo '{{CURRENTVERSION}}' | php maintenance/parse.php
+
+        # Start by running non-blackbox unit tests that can use temporary DB tables.
+        # These tests are much faster than the integration testsuite.
+      - name: Run non-blackbox unit tests (very fast)
+        run: cd mediawiki && php tests/phpunit/phpunit.php extensions/Moderation/tests/phpunit/consequence/
+
+        # First run the smallest test without --reuse-db, so that the cloned database tables are created,
+        # then run the remaining testsuite with --reuse-db to save time.
+      - name: Create temporary database for blackbox unit tests
+        run: cd mediawiki && php tests/phpunit/phpunit.php --use-normal-tables extensions/Moderation/tests/phpunit/blackbox/ModerationPermissionsTest.php
+
+        # Run all tests in parallel via Fastest.
+        # Note: test files are sorted by filesize (from smallest to largest).
+      - name: Run integration tests
+        run: cd mediawiki && find extensions/Moderation/tests/phpunit/{blackbox,decoupled} -name "*Test.php" -exec ls -1Sr {} + | ./extensions/Moderation/vendor/liuggio/fastest/fastest -p "$PARALLEL_PHPUNIT_TESTS" --before="./extensions/Moderation/tests/travis/fastest_init_thread.sh" --preserve-order --verbose "php tests/phpunit/phpunit.php --use-normal-tables --reuse-db {};"
+
+  # Job #2: phpcs, parallel-lint, etc.
+  linter:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+            php-version: '7.4'
+            tools: composer:v1
+      - uses: actions/cache@v2
+        with:
+          path: ~/.composer/cache
+          key: composer-cache
+      - run: sudo apt-get install -y composer && composer install
+      - run: composer test
+
+  # Job #3: Phan (PHP static analyzer)
+  phan:
+    runs-on: ubuntu-20.04
+    env:
+      branch: REL1_35
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+            php-version: '7.4'
+            tools: composer:v1
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.composer/cache
+            buildcache
+          key: buildcache-${{ env.branch }}
+      - run: sudo apt-get install -y composer php-ast
+      - uses: edwardspec/github-action-build-mediawiki@v1
+        with:
+          branch: ${{ env.branch }}
+          noinstall: 1
+          extensions: "AbuseFilter CheckUser Echo MobileFrontend PageForms VisualEditor"
+          skins: "MinervaNeue"
+      - name: Install dependencies
+        run: |
+          rsync -a --exclude buildcache --exclude mediawiki --exclude .git . mediawiki/extensions/Moderation/
+          cd mediawiki/extensions/Moderation
+          composer install
+      - name: RUN -- phan
+        run: cd mediawiki/extensions/Moderation && ./vendor/bin/phan --analyze-twice
