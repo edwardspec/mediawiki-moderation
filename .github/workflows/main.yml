@@ -4,8 +4,8 @@ on: [push, pull_request, workflow_dispatch]
 
 env:
   PARALLEL_PHPUNIT_TESTS: 4
-  DBTYPE: mysql
   DBNAME: testwiki
+  DBPASS: "123456"
   MEDIAWIKI_USER: "Moderator User"
   MEDIAWIKI_PASSWORD: "123456"
 
@@ -13,14 +13,18 @@ jobs:
   # Job #1: PHPUnit testsuite (unit tests + integration tests)
   phpunit:
     strategy:
+      fail-fast: false
       matrix:
         php: [7.4]
         branch: [REL1_35]
+        dbtype: [mysql, postgres]
         include:
           - php: 7.3
             branch: REL1_31
+            dbtype: mysql
     env:
       branch: ${{ matrix.branch }}
+      DBTYPE: ${{ matrix.dbtype }}
     runs-on: ubuntu-20.04
     services:
       memcached:
@@ -31,10 +35,18 @@ jobs:
       mariadb:
         image: mariadb
         env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: 1
+          MYSQL_ROOT_PASSWORD: ${{ env.DBPASS }}
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: ${{ env.DBPASS }}
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
@@ -59,10 +71,14 @@ jobs:
           skins: "MinervaNeue"
           dbtype: ${{ env.DBTYPE }}
           dbname: ${{ env.DBNAME }}
+          dbpass: ${{ env.DBPASS }}
+          dbserver: ${{ env.DBTYPE == 'mysql' && '127.0.0.1:3306' || '127.0.0.1' }}
 
       - name: Finalize the installation of MediaWiki
         run: |
           cp -fv tests/travis/my.cnf ~/.my.cnf
+          cp -fv tests/travis/pgpass.conf ~/.pgpass
+          chmod 0600 ~/.my.cnf ~/.pgpass
           rsync -a --exclude buildcache --exclude mediawiki --exclude .git . mediawiki/extensions/Moderation/
           cd mediawiki && echo 'DELETE FROM recentchanges;' | php maintenance/sql.php
           WITH_ECHO=1 php maintenance/update.php --quick
