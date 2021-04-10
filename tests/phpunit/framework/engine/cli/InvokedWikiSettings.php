@@ -89,7 +89,7 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 function efModerationTestsuiteMockedHeader( $string, $replace = true, $http_response_code = null ) {
 	$response = RequestContext::getMain()->getRequest()->response();
 	if ( !( $response instanceof FauxResponse ) ) {
-		// This is WebRequest(), meaning header() was called before efModerationTestsuiteSetup(),
+		// This is WebRequest, meaning header() was called before efModerationTestsuiteSetup(),
 		// typically due to some early initialization error.
 		return;
 	}
@@ -98,7 +98,7 @@ function efModerationTestsuiteMockedHeader( $string, $replace = true, $http_resp
 }
 
 /**
- * Sanity check: log "what user is currently logged in",
+ * Sanity check: log "which user is currently logged in",
  * and ensure that request is executed on behalf on an expected user.
  */
 function efModerationTestsuiteCliLogin() {
