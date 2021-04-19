@@ -448,7 +448,7 @@ class ModerationTestsuite {
 		$dbw = wfGetDB( DB_MASTER );
 		self::$prepopulateDbCache = [];
 		foreach ( self::$prepopulateDbNeededTables as $table ) {
-			if ( $table == 'user' && $dbw->getType() == 'postgres' ) {
+			if ( $table == 'user' && $dbw->getType() == 'postgres' && !$dbw->tableExists( 'user' ) ) {
 				$table = 'mwuser';
 			}
 
