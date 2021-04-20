@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         php: [7.4]
-        branch: [REL1_35]
+        branch: [REL1_35, REL1_36]
         dbtype: [mysql, postgres]
         include:
           - php: 7.3
