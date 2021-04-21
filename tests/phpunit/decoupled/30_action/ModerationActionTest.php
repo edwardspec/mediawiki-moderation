@@ -1041,7 +1041,7 @@ class ModerationActionTest extends ModerationTestCase {
 				"modaction={$this->modaction}: incorrect LogEntry subtype" );
 			$this->assertEquals(
 				$this->getModerator()->getName(),
-				$logEntry->getPerformer()->getName(),
+				ModerationTestUtil::getLogEntryPerformer( $logEntry )->getName(),
 				"modaction={$this->modaction}: incorrect name of moderator in LogEntry" );
 			$this->assertEquals( $this->getExpectedLogTarget(), $logEntry->getTarget(),
 				"modaction={$this->modaction}: incorrect LogEntry target" );

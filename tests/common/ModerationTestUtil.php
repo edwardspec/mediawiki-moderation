@@ -116,4 +116,19 @@ class ModerationTestUtil {
 
 		return $context->getOutput()->getHTML();
 	}
+
+	/**
+	 * Get performer of LogEntry (for B/C with MediaWiki 1.31-1.35).
+	 * @param LogEntry $logEntry
+	 * @return UserIdentity
+	 */
+	public static function getLogEntryPerformer( LogEntry $logEntry ) {
+		if ( method_exists( $logEntry, 'getPerformerIdentity' ) ) {
+			// MediaWiki 1.36+
+			return $logEntry->getPerformerIdentity();
+		}
+
+		// MediaWiki 1.31-1.35
+		return $logEntry->getPerformer();
+	}
 }
