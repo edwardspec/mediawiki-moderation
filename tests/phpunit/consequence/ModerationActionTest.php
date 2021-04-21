@@ -80,11 +80,17 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 		$profilerWrapper = TestingAccessWrapper::newFromObject( $profiler );
 		$differentExpectations = array_unique( array_values( $profilerWrapper->expect ), SORT_REGULAR );
 
+		$unchanged = [ INF ]; // MediaWiki 1.31-1.35
+		if ( is_array( $profilerWrapper->expect['writes'] ) ) {
+			// MediaWiki 1.36+
+			$unchanged = [ [ INF, null ] ];
+		}
+
 		if ( $requiresWrite && !$simulateReadOnlyMode ) {
-			$this->assertNotEquals( [ INF ], $differentExpectations,
+			$this->assertNotEquals( $unchanged, $differentExpectations,
 				"TransactionProfiler expectations weren't set by non-readonly action." );
 		} else {
-			$this->assertEquals( [ INF ], $differentExpectations,
+			$this->assertEquals( $unchanged, $differentExpectations,
 				"TransactionProfiler expectations were changed when they shouldn't have been." );
 		}
 	}
