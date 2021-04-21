@@ -78,7 +78,7 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 		// and that expectations are unchanged after readonly actions.
 		// Because we called resetExpectations() above, "unchanged" means "INF for everything".
 		$profilerWrapper = TestingAccessWrapper::newFromObject( $profiler );
-		$differentExpectations = array_unique( array_values( $profilerWrapper->expect ) );
+		$differentExpectations = array_unique( array_values( $profilerWrapper->expect ), SORT_REGULAR );
 
 		if ( $requiresWrite && !$simulateReadOnlyMode ) {
 			$this->assertNotEquals( [ INF ], $differentExpectations,
