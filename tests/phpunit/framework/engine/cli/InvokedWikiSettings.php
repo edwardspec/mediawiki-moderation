@@ -27,6 +27,7 @@
 require_once "$IP/LocalSettings.php";
 
 use MediaWiki\Auth\AuthManager;
+use MediaWiki\MediaWikiServices;
 use Wikimedia\Rdbms\DatabaseDomain;
 
 # Replace Memcached with our caching class. This is needed for Parallel PHPUnit testing,
@@ -118,7 +119,14 @@ function efModerationTestsuiteCliLogin() {
 	if ( $user->getId() != $expectedId || $user->getName() != $expectedName ) {
 		$user = User::newFromName( $expectedName, false );
 
-		$manager = AuthManager::singleton();
+		// Login as $user. If this user doesn't exist, it will be created.
+		if ( method_exists( MediaWikiServices::class, 'getAuthManager' ) ) {
+			// MediaWiki 1.35+
+			$manager = MediaWikiServices::getInstance()->getAuthManager();
+		} else {
+			// MediaWiki 1.31-1.34
+			$manager = AuthManager::singleton();
+		}
 		$status = $manager->autoCreateUser( $user, AuthManager::AUTOCREATE_SOURCE_SESSION, true );
 
 		if ( !$status->isOK() ) {

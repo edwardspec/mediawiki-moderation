@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\Auth\AuthManager;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ForgetAnonIdConsequence;
 use MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence;
 
@@ -83,12 +84,26 @@ class CreatingNewUserHasConsequencesTest extends ModerationUnitTestCase {
 	 */
 	private function createAccount( $username ) {
 		$user = User::newFromName( $username, false );
-		$status = AuthManager::singleton()->autoCreateUser(
+		$status = $this->getAuthManager()->autoCreateUser(
 			$user,
 			AuthManager::AUTOCREATE_SOURCE_SESSION,
 			false
 		);
 		$this->assertTrue( $status->isOK(),
 			"CreateAccount failed: " . $status->getMessage()->plain() );
+	}
+
+	/**
+	 * Returns AuthManager service (for B/C with MediaWiki 1.31-1.34).
+	 * @return AuthManager
+	 */
+	private function getAuthManager() {
+		if ( method_exists( MediaWikiServices::class, 'getAuthManager' ) ) {
+			// MediaWiki 1.35+
+			return MediaWikiServices::getInstance()->getAuthManager();
+		}
+
+		// MediaWiki 1.31-1.34
+		return AuthManager::singleton();
 	}
 }
