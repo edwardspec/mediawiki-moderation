@@ -20,6 +20,8 @@
  * Checks SQL table 'moderation' after the edit.
  */
 
+use MediaWiki\MediaWikiServices;
+
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 
 /**
@@ -367,7 +369,7 @@ class ModerationQueueTest extends ModerationTestCase {
 
 		if ( $this->watch === false ) {
 			/* Unwatch test requested, add $this->title into the Watchlist */
-			WatchAction::doWatch( $this->title, $this->user );
+			MediaWikiServices::getInstance()->getWatchlistManager()->addWatch( $this->user, $this->title );
 		}
 
 		$extraParams = [];
@@ -697,7 +699,7 @@ class ModerationQueueTest extends ModerationTestCase {
 	protected function assertWatched( $expectedState, Title $title ) {
 		// Note: $user->isWatched() can't be used,
 		// because it would return cached results.
-		$watchedItemStore = MediaWiki\MediaWikiServices::getInstance()->getWatchedItemStore();
+		$watchedItemStore = MediaWikiServices::getInstance()->getWatchedItemStore();
 
 		$isWatched = (bool)$watchedItemStore->loadWatchedItem( $this->user, $title );
 		if ( $expectedState ) {

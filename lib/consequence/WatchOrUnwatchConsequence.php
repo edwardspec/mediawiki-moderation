@@ -22,6 +22,7 @@
 
 namespace MediaWiki\Moderation;
 
+use MediaWiki\MediaWikiServices;
 use Title;
 use User;
 use WatchAction;
@@ -51,6 +52,7 @@ class WatchOrUnwatchConsequence implements IConsequence {
 	 * Execute the consequence.
 	 */
 	public function run() {
-		WatchAction::doWatchOrUnwatch( $this->watch, $this->title, $this->user );
+		MediaWikiServices::getInstance()->getWatchlistManager()
+			->setWatch( $this->watch, $this->user, $this->title );
 	}
 }
