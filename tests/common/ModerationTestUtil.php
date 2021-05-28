@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\MutableRevisionRecord;
 
 class ModerationTestUtil {
 	/**
@@ -70,17 +71,22 @@ class ModerationTestUtil {
 			$user = User::newFromName( '127.0.0.1', false );
 		}
 
-		$store = MediaWikiServices::getInstance()->getRevisionStore();
-		$rev = $store->newMutableRevisionFromArray( [
-			'page' => $page->getId(),
-			'comment' => $summary,
-			'user' => $user,
-			'timestamp'  => $dbw->timestamp(),
-		] );
+		if ( class_exists( MutableRevisionRecord::class ) ) {
+			// MediaWiki 1.32+
+			$rev = new MutableRevisionRecord( $title );
+		} else {
+			// B/C for MediaWiki 1.31
+			$rev = new \MediaWiki\Storage\MutableRevisionRecord( $title );
+		}
+
+		$rev->setComment( CommentStoreComment::newUnsavedComment( $summary ) );
+		$rev->setUser( $user );
+		$rev->setTimestamp( $dbw->timestamp() );
 
 		$content = ContentHandler::makeContent( $newText, null, CONTENT_MODEL_WIKITEXT );
 		$rev->setContent( 'main', $content );
 
+		$store = MediaWikiServices::getInstance()->getRevisionStore();
 		$storedRecord = $store->insertRevisionOn( $rev, $dbw );
 
 		if ( version_compare( $wgVersion, '1.35-rc.0', '>=' ) ) {
