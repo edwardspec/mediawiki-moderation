@@ -701,7 +701,11 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 			$expectedIP = $task ? $task['ip'] : '127.0.0.1';
 			if ( $this->db->getType() == 'postgres' ) {
-				$expectedIP .= '/32';
+				global $wgVersion;
+				if ( version_compare( $wgVersion, '1.36.0', '<' ) ) {
+					// MediaWiki 1.32-1.35 only.
+					$expectedIP .= '/32';
+				}
 			}
 
 			global $wgPutIPinRC;

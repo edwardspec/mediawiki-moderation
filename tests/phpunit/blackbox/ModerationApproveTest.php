@@ -181,7 +181,8 @@ class ModerationApproveTest extends ModerationTestCase {
 				"testApproveAllTimestamp(): approved edit has incorrect timestamp in the page history" );
 
 			$expectedIP = $task['ip'];
-			if ( $dbw->getType() == 'postgres' ) {
+			if ( $dbw->getType() == 'postgres' && $t->mwVersionCompare( '1.36.0', '<' ) ) {
+				// MediaWiki 1.32-1.35 only.
 				$expectedIP .= '/32';
 			}
 
