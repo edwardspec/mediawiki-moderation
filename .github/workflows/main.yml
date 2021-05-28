@@ -91,15 +91,10 @@ jobs:
       - name: Run non-blackbox unit tests (very fast)
         run: cd mediawiki && php tests/phpunit/phpunit.php extensions/Moderation/tests/phpunit/consequence/
 
-        # First run the smallest test without --reuse-db, so that the cloned database tables are created,
-        # then run the remaining testsuite with --reuse-db to save time.
-      - name: Create temporary database for blackbox unit tests
-        run: cd mediawiki && php tests/phpunit/phpunit.php --use-normal-tables extensions/Moderation/tests/phpunit/blackbox/ModerationPermissionsTest.php
-
         # Run all tests in parallel via Fastest.
         # Note: test files are sorted by filesize (from smallest to largest).
       - name: Run integration tests
-        run: cd mediawiki && find extensions/Moderation/tests/phpunit/{blackbox,decoupled} -name "*Test.php" -exec ls -1Sr {} + | ./extensions/Moderation/vendor/liuggio/fastest/fastest -p "$PARALLEL_PHPUNIT_TESTS" --before="./extensions/Moderation/tests/travis/fastest_init_thread.sh 2>&1 | tee before.log" --preserve-order --verbose "php tests/phpunit/phpunit.php --use-normal-tables --reuse-db {};" || ( for i in fastest.log*; do echo $i && cat $i; done; false )
+        run: cd mediawiki && find extensions/Moderation/tests/phpunit/{blackbox,decoupled} -name "*Test.php" -exec ls -1Sr {} + | ./extensions/Moderation/vendor/liuggio/fastest/fastest -p "$PARALLEL_PHPUNIT_TESTS" --before="./extensions/Moderation/tests/travis/fastest_init_thread.sh 2>&1 | tee before.log" --preserve-order --verbose "php tests/phpunit/phpunit.php --use-normal-tables {};" || ( for i in fastest.log*; do echo $i && cat $i; done; false )
 
   # Job #2: phpcs, parallel-lint, etc.
   linter:
