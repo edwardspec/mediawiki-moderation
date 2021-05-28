@@ -725,19 +725,18 @@ class ModerationActionTest extends ModerationTestCase {
 		}
 
 		if ( $this->simulateDeletedAuthor ) {
-			$dbw = wfGetDB( DB_MASTER );
-
 			// Approving edits of deleted users is not supported in most recent MediaWiki,
 			// because User::getActorId() won't allow a non-registered user to have a usable username.
 			// However, MW 1.31 can still have compatibility mode enabled (which supports this).
 			try {
-				User::newFromName( "There is no such user" )->getActorId( $dbw );
+				User::newFromName( "There is no such user" )->getActorId();
 			} catch ( CannotCreateActorException $_ ) {
 				$this->markTestSkipped(
 					'Test skipped: approving edits of deleted users is not supported in MediaWiki 1.33+' );
 			}
 
 			// Delete the author from the database (similar to Extension:UserMerge)
+			$dbw = wfGetDB( DB_MASTER );
 			$dbw->delete( 'user', [
 				'user_id' => $this->fields['mod_user']
 			], __METHOD__ );
