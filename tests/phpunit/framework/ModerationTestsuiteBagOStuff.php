@@ -145,4 +145,13 @@ class ModerationTestsuiteBagOStuff extends MediumSpecificBagOStuff {
 	public function delete( $key, $flags = 0 ) {
 		return $this->doDelete( $key, $flags );
 	}
+
+	/** @inheritDoc */
+	public function makeKeyInternal( $keyspace, $args ) {
+		$key = $keyspace;
+		foreach ( $args as $arg ) {
+			$key .= ':' . str_replace( ':', '%3A', $arg );
+		}
+		return strtr( $key, ' ', '_' );
+	}
 }
