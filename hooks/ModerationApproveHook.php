@@ -157,6 +157,12 @@ class ModerationApproveHook {
 		] );
 
 		$dbw = wfGetDB( DB_MASTER );
+
+		// In MediaWiki 1.31-1.35, PostgreSQL used CIDR field for rc_ip (we can't insert strings into it).
+		// In MediaWiki 1.36+, rc_ip is TEXT field and requires no special handling.
+		global $wgVersion;
+		$isIpFieldCIDR = ( $dbw->getType() == 'postgres' && version_compare( $wgVersion, '1.36.0', '<' ) );
+
 		$dbw->startAtomic( __METHOD__ );
 
 		foreach ( $this->dbUpdates as $table => $updates ) {
@@ -279,16 +285,14 @@ class ModerationApproveHook {
 						} else {
 							$thenQuoted = $dbw->addQuotes( $then );
 
-							if ( $dbw->getType() == 'postgres' ) {
-								if ( $field == 'rc_ip' ) {
-									// In PostgreSQL, rc_ip is of type CIDR, and we can't insert strings into it.
-									$thenQuoted .= '::cidr';
-								} elseif ( $field == 'rev_timestamp' ) {
-									// In PostgreSQL, rc_timestamp is of type TIMESTAMPZ,
-									// and we can't insert strings into it.
-									$thenQuoted = 'to_timestamp(' . $thenQuoted .
-										', \'YYYY-MM-DD HH24:MI:SS\' )';
-								}
+							if ( $isIpFieldCIDR && $field == 'rc_ip' ) {
+								// PostgreSQL, MediaWiki 1.31-1.35 only.
+								$thenQuoted .= '::cidr';
+							} elseif ( $dbw->getType() == 'postgres' && $field == 'rev_timestamp' ) {
+								// In PostgreSQL, rc_timestamp is of type TIMESTAMPZ,
+								// and we can't insert strings into it.
+								$thenQuoted = 'to_timestamp(' . $thenQuoted .
+									', \'YYYY-MM-DD HH24:MI:SS\' )';
 							}
 						}
 
