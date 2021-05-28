@@ -24,6 +24,7 @@ namespace MediaWiki\Moderation;
 
 use EditPage;
 use MediaWiki\MediaWikiServices;
+use ReflectionProperty;
 use RequestContext;
 use SpecialPage;
 use Title;
@@ -77,7 +78,15 @@ class EditFormOptions {
 			$opt->sectionText = $text;
 		}
 
-		$opt->watchthis = (bool)$editor->watchthis;
+		// HACK: as much as I dislike using Reflection in production code,
+		// the only alternative is to copy a lot of code that calculates EditPage::$watchlist
+		// from MediaWiki core, since none of this logic is accessible via public methods.
+		// We might still have to do so in the future versions.
+		$reflection = new ReflectionProperty( $editor, 'watchthis' );
+		$reflection->setAccessible( true );
+		$watchthis = $reflection->getValue( $editor );
+
+		$opt->watchthis = (bool)$watchthis;
 		return true;
 	}
 
