@@ -118,6 +118,9 @@ class ModerationTestsuiteEntry {
 	/** @var bool True if the character change is highlighted (due to being large) */
 	public $charChangeBold = false;
 
+	/** @var string Raw HTML of this entry. Useless for tests, but handy for troubleshooting */
+	public $rawHTML;
+
 	public function __construct( DomElement $span ) {
 		if ( strpos( $span->getAttribute( 'class' ), 'modconflict' ) !== false ) {
 			$this->conflict = true;
@@ -265,6 +268,9 @@ class ModerationTestsuiteEntry {
 		$matches = null;
 		preg_match( '/modid=([0-9]+)/', $this->getAnyLink(), $matches );
 		$this->id = $matches[1];
+
+		// Save the entire entry as HTML (not really used in tests, but handy for troubleshooting)
+		$this->rawHTML = $span->ownerDocument->saveXML( $span );
 	}
 
 	/**
