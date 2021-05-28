@@ -20,6 +20,8 @@
  * Unit test of ModerationLogFormatter.
  */
 
+use Wikimedia\TestingAccessWrapper;
+
 require_once __DIR__ . "/autoload.php";
 
 class ModerationLogFormatterTest extends ModerationUnitTestCase {
@@ -325,8 +327,10 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 		// Split $href (URL of this link as a string)
 		// into an array of querystring parameters.
 
+		$wrapper = TestingAccessWrapper::newFromClass( 'WebRequest' );
+
 		$_SERVER['REQUEST_URI'] = $href;
-		$parsed['query'] = WebRequest::getPathInfo(); // Will find 'title', if any.
+		$parsed['query'] = $wrapper->getPathInfo(); // Will find 'title', if any.
 		unset( $_SERVER['REQUEST_URI'] );
 
 		$bits = wfParseUrl( wfExpandUrl( $href ) );
