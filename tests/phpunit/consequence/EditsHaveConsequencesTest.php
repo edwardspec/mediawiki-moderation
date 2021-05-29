@@ -162,7 +162,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		$this->user = User::newFromName( '127.0.0.1', false );
 		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 
-		$expectedReturnTo = FormatJSON::encode( [ 'Another page',
+		$expectedReturnTo = FormatJson::encode( [ 'Another page',
 			[ 'param1' => 'val1', 'anotherparam' => 'anotherval' ] ] );
 
 		$this->setTemporaryHook( 'ModerationContinueEditingLink',

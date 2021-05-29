@@ -134,7 +134,7 @@ class ModerationEditHooks {
 		// @phan-suppress-next-line PhanImpossibleCondition
 		if ( $returnto || $returntoquery ) {
 			/* Pack into one parameter to simplify the JavaScript part. */
-			$query['returnto'] = FormatJSON::encode( [
+			$query['returnto'] = FormatJson::encode( [
 				$returnto,
 				$returntoquery
 			] );
