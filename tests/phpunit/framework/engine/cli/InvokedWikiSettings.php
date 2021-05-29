@@ -82,6 +82,14 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 
 			$lbFactory->redefineLocalDomain( $newDomain );
 		};
+
+		// This approach causes a deprecation warning (which must be suppressed) in MediaWiki 1.36+.
+		$reflection = new ReflectionProperty( 'MWDebug', 'deprecationFilters' );
+		$reflection->setAccessible( true );
+		$deprecationFilters = $reflection->getValue();
+
+		$deprecationFilters[] = '/Deprecated cross-wiki access.*/';
+		$reflection->setValue( $deprecationFilters );
 	} else {
 		$GLOBALS["wg$name"] = $value;
 	}
