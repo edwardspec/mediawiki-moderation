@@ -728,9 +728,7 @@ class ModerationActionTest extends ModerationTestCase {
 			// Approving edits of deleted users is not supported in most recent MediaWiki,
 			// because User::getActorId() won't allow a non-registered user to have a usable username.
 			// However, MW 1.31 can still have compatibility mode enabled (which supports this).
-			try {
-				User::newFromName( "There is no such user" )->getActorId();
-			} catch ( CannotCreateActorException $_ ) {
+			if ( $t->mwVersionCompare( '1.33.0', '>=' ) ) {
 				$this->markTestSkipped(
 					'Test skipped: approving edits of deleted users is not supported in MediaWiki 1.33+' );
 			}
