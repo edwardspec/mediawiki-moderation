@@ -85,6 +85,14 @@ class ModerationEditHooks {
 			return true;
 		}
 
+		global $wgCommentStreamsNamespaceIndex;
+		if ( $wgCommentStreamsNamespaceIndex && $title->getNamespace() == $wgCommentStreamsNamespaceIndex ) {
+			// Edits in discussions of Extension:CommentStreams will bypass moderation,
+			// because CommentStreams treats "edit queued for moderation" as an error.
+			// This can only be fixed in Extension:CommentStreams itself.
+			return true;
+		}
+
 		$editFormOptions = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
 
 		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );

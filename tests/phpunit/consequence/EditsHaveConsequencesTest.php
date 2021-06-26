@@ -24,6 +24,7 @@ use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
+use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
 
@@ -149,9 +150,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 			"but doEditContent() didn't return successful Status." );
 
 		// This edit shouldn't have been queued for moderation.
-		$this->assertNoConsequences( $manager );
-		$this->assertStringNotContainsString( 'modqueued', RequestContext::getMain()->getOutput()->getRedirect(),
-			"Redirect URL shouldn't contain modqueued= when the moderation was skipped." );
+		$this->assertNotIntercepted( $manager );
 	}
 
 	/**
@@ -225,9 +224,26 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 			"but doEditContent() didn't return successful Status." );
 
 		// This edit shouldn't have been queued for moderation.
-		$this->assertNoConsequences( $manager );
-		$this->assertStringNotContainsString( 'modqueued', RequestContext::getMain()->getOutput()->getRedirect(),
-			"Redirect URL shouldn't contain modqueued= when the moderation was skipped." );
+		$this->assertNotIntercepted( $manager );
+	}
+
+	/**
+	 * Verify that edits in namespace of Extension:CommentStreams will bypass moderation.
+	 * @covers ModerationEditHooks::onPageContentSave
+	 */
+	public function testEditCommentStreams() {
+		$excludedNamespace = 4; // Arbitrary namespace number
+		$this->setMwGlobals( 'wgCommentStreamsNamespaceIndex', $excludedNamespace );
+
+		// Replace real ConsequenceManager with a mock.
+		$manager = $this->mockConsequenceManager();
+
+		$this->title = Title::makeTitle( $excludedNamespace, 'UTPage-' . rand( 0, 100000 ) );
+		$status = $this->makeEdit();
+		$this->assertTrue( $status->isOK(), 'Edit in CommentStreams namespace has failed.' );
+
+		// This edit shouldn't have been queued for moderation.
+		$this->assertNotIntercepted( $manager );
 	}
 
 	/**
@@ -332,5 +348,15 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 			false,
 			$this->user
 		);
+	}
+
+	/**
+	 * Throw an exception if an edit was intercepted by Moderation.
+	 * @param MockConsequenceManager $manager
+	 */
+	private function assertNotIntercepted( MockConsequenceManager $manager ) {
+		$this->assertNoConsequences( $manager );
+		$this->assertStringNotContainsString( 'modqueued', RequestContext::getMain()->getOutput()->getRedirect(),
+			"Redirect URL shouldn't contain modqueued= when the moderation was skipped." );
 	}
 }

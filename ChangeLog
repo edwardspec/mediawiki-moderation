@@ -30,6 +30,10 @@ Refactoring, performance optimizations:
 * Removed static variables like NewChange::$LastInsertId.
 * Removed unneeded configuration variables like $wgModerationForceAjaxHook.
 
+Compatibility:
+* Moderation won't intercept comments of Extension:CommentStreams,
+because CommentStreams incorrectly assumes "edit queued" to be an error.
+
 Warnings fixed:
 * Fixed post-approval warning when using Moderation with Extension:Flow.
 
