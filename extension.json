@@ -1,13 +1,13 @@
 {
 	"name": "Moderation",
-	"version": "1.5.36",
+	"version": "1.6.0",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
 	"license-name": "GPL-3.0+",
 	"type": "antispam",
 	"requires": {
-		"MediaWiki": ">= 1.31.0"
+		"MediaWiki": ">= 1.35.0"
 	},
 	"GroupPermissions": {
 		"automoderated": {
