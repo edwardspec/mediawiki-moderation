@@ -30,7 +30,7 @@ class ModerationUnitTestCase extends MediaWikiTestCase {
 		// but our unit tests don't need this.
 	}
 
-	public function setUp() : void {
+	public function setUp(): void {
 		parent::setUp();
 
 		ModerationTestUtil::ignoreKnownDeprecations( $this );
@@ -41,7 +41,7 @@ class ModerationUnitTestCase extends MediaWikiTestCase {
 	 * @param IConsequence $value
 	 * @return IsConsequenceEqual
 	 */
-	public static function consequenceEqualTo( IConsequence $value ) : IsConsequenceEqual {
+	public static function consequenceEqualTo( IConsequence $value ): IsConsequenceEqual {
 		return new IsConsequenceEqual( $value );
 	}
 
@@ -51,7 +51,7 @@ class ModerationUnitTestCase extends MediaWikiTestCase {
 	 * @param IConsequence $actual
 	 * @param string $message
 	 */
-	public static function assertConsequence( $expected, $actual, string $message = '' ) : void {
+	public static function assertConsequence( $expected, $actual, string $message = '' ): void {
 		static::assertThat(
 			$actual,
 			new IsConsequenceEqual( $expected ),

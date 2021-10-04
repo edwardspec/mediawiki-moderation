@@ -33,7 +33,7 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'page', 'logging', 'log_search' ];
 
-	public function setUp() : void {
+	public function setUp(): void {
 		parent::setUp();
 	}
 
@@ -93,7 +93,7 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 
 		// Monitor PageMoveComplete hook
 		$hookFired = false;
-		$this->setTemporaryHook( 'PageMoveComplete', function () use ( &$hookFired ) {
+		$this->setTemporaryHook( 'PageMoveComplete', static function () use ( &$hookFired ) {
 			$hookFired = true;
 		} );
 
@@ -130,7 +130,7 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 
 		// Monitor PageMoveComplete hook
 		$hookFired = false;
-		$this->setTemporaryHook( 'PageMoveComplete', function () use ( &$hookFired ) {
+		$this->setTemporaryHook( 'PageMoveComplete', static function () use ( &$hookFired ) {
 			$hookFired = true;
 		} );
 

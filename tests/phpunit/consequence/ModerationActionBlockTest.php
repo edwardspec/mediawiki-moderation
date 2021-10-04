@@ -194,7 +194,7 @@ class ModerationActionBlockTest extends ModerationUnitTestCase {
 		$this->assertSame( $expectedResult, $action->execute() );
 	}
 
-	public function setUp() : void {
+	public function setUp(): void {
 		parent::setUp();
 		$this->moderatorUser = User::newFromName( '10.30.50.70', false );
 	}

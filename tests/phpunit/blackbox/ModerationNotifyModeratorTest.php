@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -162,6 +162,7 @@ class ModerationNotifyModeratorIntegrationTest extends ModerationTestCase {
 
 	/**
 	 * Find NewMessages notice in HTML of some randomly chosen page.
+	 * @param ModerationTestsuite $t
 	 * @return string|null
 	 */
 	protected function getNotice( ModerationTestsuite $t ) {

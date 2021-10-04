@@ -249,6 +249,7 @@ class ModerationQueueTest extends ModerationTestCase {
 
 	/**
 	 * Initialize this TestSet from the input of dataProvider.
+	 * @param array $options
 	 */
 	protected function applyOptions( array $options ) {
 		foreach ( $options as $key => $value ) {
@@ -655,7 +656,7 @@ class ModerationQueueTest extends ModerationTestCase {
 
 	/**
 	 * Assert the state of UploadStash after the test.
-	 * @param $stashKey Value of mod_stash_key (as found in the database after the test).
+	 * @param string $stashKey Value of mod_stash_key (as found in the database after the test).
 	 */
 	protected function checkUpload( $stashKey ) {
 		if ( !$this->filename ) {
@@ -676,6 +677,7 @@ class ModerationQueueTest extends ModerationTestCase {
 
 	/**
 	 * Assert the state of Watchlist after the test.
+	 * @param bool|null $expected
 	 */
 	protected function checkWatchlist( $expected ) {
 		if ( $expected === null ) {
@@ -694,7 +696,8 @@ class ModerationQueueTest extends ModerationTestCase {
 
 	/**
 	 * Assert that $title is watched/unwatched.
-	 * @param $expectedState True if $title should be watched, false if not.
+	 * @param bool $expectedState True if $title should be watched, false if not.
+	 * @param Title $title
 	 */
 	protected function assertWatched( $expectedState, Title $title ) {
 		// Note: $user->isWatched() can't be used,

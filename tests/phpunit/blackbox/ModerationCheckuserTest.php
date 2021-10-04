@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2020 Edward Chernenko.
+	Copyright (C) 2015-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -26,7 +26,10 @@ require_once __DIR__ . "/../framework/ModerationTestsuite.php";
  * @covers ModerationApproveHook
  */
 class ModerationCheckuserTest extends ModerationTestCase {
+	/** @var string */
 	public $moderatorUA = 'UserAgent of Moderator/1.0';
+
+	/** @var string */
 	public $userUA = 'UserAgent of UnprivilegedUser/1.0';
 
 	/**
@@ -48,6 +51,8 @@ class ModerationCheckuserTest extends ModerationTestCase {
 
 	/**
 	 * Returns mod_ip of the last edit (if provided to the current user by QueryPage API) or null.
+	 * @param ModerationTestsuite $t
+	 * @param User $user
 	 * @return string|null
 	 */
 	protected function getIpFromApi( ModerationTestsuite $t, User $user ) {

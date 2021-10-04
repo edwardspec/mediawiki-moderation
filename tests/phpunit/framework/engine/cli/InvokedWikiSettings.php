@@ -64,7 +64,7 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 		// Can't use Hooks::register(): MediaWiki 1.35+ prints a warning when it's called before boostrap,
 		// but this must be called before boostrap.
 		global $wgHooks;
-		$wgHooks['SetupAfterCache'][] = function () use ( $newDomain ) {
+		$wgHooks['SetupAfterCache'][] = static function () use ( $newDomain ) {
 			$lbFactory = MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancerFactory();
 			$lbFactory->redefineLocalDomain( $newDomain );
 		};
@@ -81,10 +81,10 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 	}
 }
 
-function efModerationTestsuiteMockedHeader( $string, $replace = true, $http_response_code = null ) {
+function wfModerationTestsuiteMockedHeader( $string, $replace = true, $http_response_code = null ) {
 	$response = RequestContext::getMain()->getRequest()->response();
 	if ( !( $response instanceof FauxResponse ) ) {
-		// This is WebRequest, meaning header() was called before efModerationTestsuiteSetup(),
+		// This is WebRequest, meaning header() was called before wfModerationTestsuiteSetup(),
 		// typically due to some early initialization error.
 		return;
 	}
@@ -96,7 +96,7 @@ function efModerationTestsuiteMockedHeader( $string, $replace = true, $http_resp
  * Sanity check: log "which user is currently logged in",
  * and ensure that request is executed on behalf on an expected user.
  */
-function efModerationTestsuiteCliLogin() {
+function wfModerationTestsuiteCliLogin() {
 	global $wgModerationTestsuiteCliDescriptor;
 	list( $expectedId, $expectedName ) = $wgModerationTestsuiteCliDescriptor['expectedUser'];
 
@@ -135,7 +135,7 @@ function efModerationTestsuiteCliLogin() {
 	wfDebugLog( 'ModerationTestsuite', FormatJson::encode( $event, true, FormatJson::ALL_OK ) );
 }
 
-function efModerationTestsuiteSetup() {
+function wfModerationTestsuiteSetup() {
 	global $wgModerationTestsuiteCliDescriptor, $wgRequest, $wgHooks, $wgAutoloadClasses;
 
 	$wgAutoloadClasses['ModerationTestsuiteCliApiMain'] =
@@ -168,7 +168,7 @@ function efModerationTestsuiteSetup() {
 		[MockAutoLoader.php] replaces header() calls with our function.
 	*/
 	ModerationTestsuiteMockAutoLoader::replaceFunction( 'header',
-		'efModerationTestsuiteMockedHeader'
+		'wfModerationTestsuiteMockedHeader'
 	);
 
 	/*
@@ -176,18 +176,18 @@ function efModerationTestsuiteSetup() {
 			with ModerationTestsuiteCliApiMain (subclass of ApiMain)
 			that always prints the result, even in "internal mode".
 	*/
-	$wgHooks['ApiBeforeMain'][] = function ( ApiMain &$apiMain ) {
+	$wgHooks['ApiBeforeMain'][] = static function ( ApiMain &$apiMain ) {
 		$apiMain = new ModerationTestsuiteCliApiMain(
 			$apiMain->getContext(),
 			true
 		);
 
-		efModerationTestsuiteCliLogin();
+		wfModerationTestsuiteCliLogin();
 		return true;
 	};
 
-	$wgHooks['BeforeInitialize'] = function ( &$unused1, &$unused2, &$unused3, &$user ) {
-		efModerationTestsuiteCliLogin();
+	$wgHooks['BeforeInitialize'] = static function ( &$unused1, &$unused2, &$unused3, &$user ) {
+		wfModerationTestsuiteCliLogin();
 
 		// Make sure that ModerationNotifyModerator::onBeforeInitialize() runs as this new user.
 		$user = RequestContext::getMain()->getUser();
@@ -199,7 +199,7 @@ function efModerationTestsuiteSetup() {
 		Initialize the session from the session cookie (if such cookie exists).
 		FIXME: determine why exactly didn't SessionManager do this automatically.
 	*/
-	$wgHooks['SetupAfterCache'][] = function () {
+	$wgHooks['SetupAfterCache'][] = static function () {
 		/* Earliest hook where $wgCookiePrefix (needed by getCookie())
 			is available (when not set in LocalSettings.php)  */
 		$request = RequestContext::getMain()->getRequest();
@@ -219,13 +219,13 @@ function efModerationTestsuiteSetup() {
 	foreach ( $wgModerationTestsuiteCliDescriptor['trackedHooks'] as $hook ) {
 		$wgModerationTestsuiteCliDescriptor['capturedHooks'][$hook] = [];
 
-		$wgHooks[$hook][] = function () use ( $hook ) {
+		$wgHooks[$hook][] = static function () use ( $hook ) {
 			global $wgModerationTestsuiteCliDescriptor;
 
 			// The testsuite would want to analyze types of received parameters,
 			// and well as parameter values (assuming they can be serialized).
 			$params = func_get_args();
-			$paramTypes = array_map( function ( $param ) {
+			$paramTypes = array_map( static function ( $param ) {
 				$type = gettype( $param );
 				return $type == 'object' ? get_class( $param ) : $type;
 			}, $params );
@@ -240,10 +240,10 @@ function efModerationTestsuiteSetup() {
 		};
 	}
 
-	$wgHooks['AlternateUserMailer'][] = function () {
+	$wgHooks['AlternateUserMailer'][] = static function () {
 		// Prevent any emails from actually being sent during the testsuite runs.
 		return false;
 	};
 }
 
-efModerationTestsuiteSetup();
+wfModerationTestsuiteSetup();

@@ -55,7 +55,7 @@ class ModerationCanSkipTest extends ModerationUnitTestCase {
 		// Mock User::isAllowed() to return values from $isAllowed array.
 		$user = $this->createMock( User::class );
 		$user->expects( $this->any() )->method( 'isAllowed' )->will( $this->returnCallback(
-			function ( $right ) use ( $isAllowed ) {
+			static function ( $right ) use ( $isAllowed ) {
 				return $isAllowed[$right] ?? false;
 			}
 		) );

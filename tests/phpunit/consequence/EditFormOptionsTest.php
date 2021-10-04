@@ -122,7 +122,7 @@ class EditFormOptionsTest extends ModerationUnitTestCase {
 		$editPage->importFormData( $request );
 
 		// Prevent internalAttemptSave() from actually saving the edit.
-		$this->setTemporaryHook( 'PageContentSave', function () {
+		$this->setTemporaryHook( 'PageContentSave', static function () {
 			return false;
 		} );
 

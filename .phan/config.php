@@ -85,7 +85,7 @@ if ( getenv( 'PHAN_CHECK_DEPRECATED' ) ) {
 	# Not enabled by default (without PHAN_CHECK_DEPRECATED=1) for backward compatibility.
 	# (e.g. while we support MediaWiki 1.31, then warnings about something being deprecated in 1.34
 	# shouldn't cause the Travis builds to fail).
-	$cfg['suppress_issue_types'] = array_filter( $cfg['suppress_issue_types'], function ( $issue ) {
+	$cfg['suppress_issue_types'] = array_filter( $cfg['suppress_issue_types'], static function ( $issue ) {
 		return strpos( $issue, 'PhanDeprecated' ) === false;
 	} );
 }

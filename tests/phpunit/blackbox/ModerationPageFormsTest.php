@@ -90,6 +90,7 @@ class ModerationPageFormsIntegrationTest extends ModerationTestCase {
 
 	/**
 	 * Provide datasets for testPageFormsPreload() runs.
+	 * @return array
 	 */
 	public function dataProviderPageFormsPreload() {
 		/* Sections are handled differently in API and non-API editing.

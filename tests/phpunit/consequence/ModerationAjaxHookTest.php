@@ -75,7 +75,7 @@ class ModerationAjaxHookTest extends ModerationUnitTestCase {
 			MobileContext::singleton()->setContext( $context );
 
 			// @phan-suppress-next-line PhanUnusedVariable
-			$cleanupScope = new ScopedCallback( function () {
+			$cleanupScope = new ScopedCallback( static function () {
 				MobileContext::resetInstanceForTesting();
 			} );
 		}

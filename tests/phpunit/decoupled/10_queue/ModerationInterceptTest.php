@@ -193,6 +193,7 @@ class ModerationInterceptTest extends ModerationTestCase {
 
 	/**
 	 * Initialize this TestSet from the input of dataProvider.
+	 * @param array $options
 	 */
 	protected function applyOptions( array $options ) {
 		foreach ( $options as $key => $value ) {

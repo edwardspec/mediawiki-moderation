@@ -39,7 +39,7 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 	 * Verify that ApproveEditConsequence makes a new edit.
 	 * @covers MediaWiki\Moderation\ApproveEditConsequence
 	 * @dataProvider dataProviderApproveEdit
-	 * @param $params
+	 * @param array $params
 	 */
 	public function testApproveEdit( array $params ) {
 		$opt = (object)$params;
@@ -203,6 +203,9 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 
 	/**
 	 * Make two edits in the same page with two different users.
+	 * @param Title $title
+	 * @param string $text1
+	 * @param string $text2
 	 * @return int[] Array of rev_id of both edits
 	 */
 	public function makeTwoEdits( Title $title, $text1, $text2 ) {

@@ -92,7 +92,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 		}
 
 		// Check preload titles
-		$preloadTitles = array_map( function ( Title $title ) {
+		$preloadTitles = array_map( static function ( Title $title ) {
 			return $title->getFullText();
 		}, $formatter->getPreloadTitles() );
 		$this->assertEquals( $options['expectedPreloadTitles'] ?? [], $preloadTitles,

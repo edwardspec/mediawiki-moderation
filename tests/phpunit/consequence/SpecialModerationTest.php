@@ -33,6 +33,7 @@ require_once __DIR__ . "/autoload.php";
 class SpecialModerationTest extends ModerationUnitTestCase {
 	use MockModerationActionTrait;
 
+	/** @var string[] */
 	protected $tablesUsed = [ 'moderation', 'moderation_block' ];
 
 	/**
@@ -110,7 +111,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 			$this->identicalTo( $mockedResult ),
 			$this->isInstanceOf( OutputPage::class )
 		)->will( $this->returnCallback(
-			function ( $result, OutputPage $out ) use ( $mockedHtml ) {
+			static function ( $result, OutputPage $out ) use ( $mockedHtml ) {
 				$out->addHTML( $mockedHtml );
 			}
 		) );
@@ -204,7 +205,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 
 		$allFolders = [ 'pending', 'rejected', 'merged', 'spam' ];
 		$expectedFolderLinks = array_filter( $allFolders,
-			function ( $folder ) use ( $expectedFolder ) {
+			static function ( $folder ) use ( $expectedFolder ) {
 				return $folder !== $expectedFolder;
 			}
 		);

@@ -35,40 +35,40 @@ use MediaWiki\Moderation\TimestampFormatter;
 // See also: T248172 "Allow static methods to be used for wiring"
 
 return [
-	'Moderation.ActionFactory' => function ( MediaWikiServices $services ) : ActionFactory {
+	'Moderation.ActionFactory' => static function ( MediaWikiServices $services ): ActionFactory {
 		return new ActionFactory(
 			$services->getService( 'Moderation.EntryFactory' ),
 			$services->getService( 'Moderation.ConsequenceManager' )
 		);
 	},
-	'Moderation.ActionLinkRenderer' => function ( MediaWikiServices $services ) : ActionLinkRenderer {
+	'Moderation.ActionLinkRenderer' => static function ( MediaWikiServices $services ): ActionLinkRenderer {
 		return new ActionLinkRenderer(
 			RequestContext::getMain(),
 			$services->getLinkRenderer(),
 			SpecialPage::getTitleFor( 'Moderation' )
 		);
 	},
-	'Moderation.ApproveHook' => function () : ModerationApproveHook {
+	'Moderation.ApproveHook' => static function (): ModerationApproveHook {
 		return new ModerationApproveHook(
 			LoggerFactory::getInstance( 'ModerationApproveHook' )
 		);
 	},
-	'Moderation.CanSkip' => function ( MediaWikiServices $services ) : ModerationCanSkip {
+	'Moderation.CanSkip' => static function ( MediaWikiServices $services ): ModerationCanSkip {
 		return new ModerationCanSkip(
 			// Will be eventually replaced by ServiceOptions (MW 1.34+).
 			$services->getMainConfig(),
 			$services->getService( 'Moderation.ApproveHook' )
 		);
 	},
-	'Moderation.ConsequenceManager' => function () : ConsequenceManager {
+	'Moderation.ConsequenceManager' => static function (): ConsequenceManager {
 		return new ConsequenceManager();
 	},
-	'Moderation.EditFormOptions' => function ( MediaWikiServices $services ) : EditFormOptions {
+	'Moderation.EditFormOptions' => static function ( MediaWikiServices $services ): EditFormOptions {
 		return new EditFormOptions(
 			$services->getService( 'Moderation.ConsequenceManager' )
 		);
 	},
-	'Moderation.EntryFactory' => function ( MediaWikiServices $services ) : EntryFactory {
+	'Moderation.EntryFactory' => static function ( MediaWikiServices $services ): EntryFactory {
 		return new EntryFactory(
 			$services->getLinkRenderer(),
 			$services->getService( 'Moderation.ActionLinkRenderer' ),
@@ -79,29 +79,29 @@ return [
 		);
 	},
 	'Moderation.NotifyModerator' =>
-	function ( MediaWikiServices $services ) : ModerationNotifyModerator {
+	static function ( MediaWikiServices $services ): ModerationNotifyModerator {
 		return new ModerationNotifyModerator(
 			$services->getLinkRenderer(),
 			$services->getService( 'Moderation.EntryFactory' ),
 			wfGetMainCache()
 		);
 	},
-	'Moderation.Preload' => function ( MediaWikiServices $services ) : ModerationPreload {
+	'Moderation.Preload' => static function ( MediaWikiServices $services ): ModerationPreload {
 		return new ModerationPreload(
 			$services->getService( 'Moderation.EntryFactory' ),
 			$services->getService( 'Moderation.ConsequenceManager' )
 		);
 	},
 	'Moderation.RollbackResistantQuery' =>
-	function ( MediaWikiServices $services ) : RollbackResistantQuery {
+	static function ( MediaWikiServices $services ): RollbackResistantQuery {
 		return new RollbackResistantQuery(
 			$services->getDBLoadBalancer()
 		);
 	},
-	'Moderation.TimestampFormatter' => function () : TimestampFormatter {
+	'Moderation.TimestampFormatter' => static function (): TimestampFormatter {
 		return new TimestampFormatter();
 	},
-	'Moderation.VersionCheck' => function ( MediaWikiServices $services ) : ModerationVersionCheck {
+	'Moderation.VersionCheck' => static function ( MediaWikiServices $services ): ModerationVersionCheck {
 		return new ModerationVersionCheck(
 			new CachedBagOStuff( wfGetMainCache() ),
 			$services->getDBLoadBalancer()

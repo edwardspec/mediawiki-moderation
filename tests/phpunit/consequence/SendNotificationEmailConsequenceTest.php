@@ -77,9 +77,9 @@ class SendNotificationEmailConsequenceTest extends ModerationUnitTestCase {
 	/**
 	 * Restore original AlternateUserMailer hook that suppresses all emails during PHPUnit tests.
 	 */
-	public function tearDown() : void {
+	public function tearDown(): void {
 		\Hooks::clear( 'AlternateUserMailer' );
-		\Hooks::register( 'AlternateUserMailer', function () {
+		\Hooks::register( 'AlternateUserMailer', static function () {
 			return false;
 		} );
 

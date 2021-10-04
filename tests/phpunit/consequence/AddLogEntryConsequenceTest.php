@@ -61,7 +61,7 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 				$this->isType( 'int' ),
 				$this->IsInstanceOf( ManualLogEntry::class )
 			)->will( $this->returnCallback(
-				function ( $logid, ManualLogEntry $logEntry ) use ( &$checkedLogId, &$checkedLogEntry ) {
+				static function ( $logid, ManualLogEntry $logEntry ) use ( &$checkedLogId, &$checkedLogEntry ) {
 					$checkedLogId = $logid;
 					$checkedLogEntry = $logEntry;
 				}

@@ -156,7 +156,7 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 	/**
 	 * Cleanup after the tests that call ModerationPlugins::install().
 	 */
-	protected function tearDown() : void {
+	protected function tearDown(): void {
 		Hooks::clear( 'ModerationContinueEditingLink' );
 		parent::tearDown();
 	}

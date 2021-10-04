@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -220,7 +220,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 		'@phan-var IContextSource $context';
 
 		// This makes Title::exists() to always return true.
-		$this->setTemporaryHook( 'TitleExists', function ( $_, &$exists ) {
+		$this->setTemporaryHook( 'TitleExists', static function ( $_, &$exists ) {
 			$exists = true;
 			return true;
 		} );
@@ -333,7 +333,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Make ModerationViewableEntry for $row with mocks that were created in setUp().
-	 * @param object|null $row
+	 * @param stdClass|null $row
 	 * @return ModerationViewableEntry
 	 */
 	private function makeViewableEntry( $row = null ) {
@@ -343,7 +343,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	/**
 	 * Precreate new mocks for $linkRenderer before each test.
 	 */
-	public function setUp() : void {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->linkRenderer = $this->createMock( LinkRenderer::class );

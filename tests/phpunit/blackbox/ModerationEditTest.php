@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2020 Edward Chernenko.
+	Copyright (C) 2015-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ class ModerationEditTest extends ModerationTestCase {
 
 	/**
 	 * Provide datasets for testEditSections() runs.
+	 * @return array
 	 */
 	public function dataProviderEditSections() {
 		/* Sections are handled differently in API and non-API editing.

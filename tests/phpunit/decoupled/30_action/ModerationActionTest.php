@@ -568,6 +568,7 @@ class ModerationActionTest extends ModerationTestCase {
 
 	/**
 	 * Initialize this TestSet from the input of dataProvider.
+	 * @param array $options
 	 */
 	protected function applyOptions( array $options ) {
 		foreach ( $options as $key => $value ) {
@@ -740,6 +741,7 @@ class ModerationActionTest extends ModerationTestCase {
 
 	/**
 	 * Check HTML output printed by the action URL.
+	 * @param ModerationTestsuiteHTML $html
 	 * @see assertBinaryOutput
 	 */
 	protected function assertHtmlOutput( ModerationTestsuiteHTML $html ) {
@@ -794,6 +796,7 @@ class ModerationActionTest extends ModerationTestCase {
 
 	/**
 	 * Check non-HTML output printed by the action URL.
+	 * @param IModerationTestsuiteResponse $req
 	 * @see assertHtmlOutput
 	 */
 	protected function assertBinaryOutput( IModerationTestsuiteResponse $req ) {
@@ -1057,6 +1060,7 @@ class ModerationActionTest extends ModerationTestCase {
 
 	/**
 	 * Calculates the URL of modaction requested by this TestSet.
+	 * @return string
 	 */
 	protected function getActionURL() {
 		$q = [

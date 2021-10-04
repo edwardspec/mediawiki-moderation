@@ -165,7 +165,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 			[ 'param1' => 'val1', 'anotherparam' => 'anotherval' ] ] );
 
 		$this->setTemporaryHook( 'ModerationContinueEditingLink',
-			function ( &$returnto, array &$returntoquery, Title $title, IContextSource $context ) {
+			static function ( &$returnto, array &$returntoquery, Title $title, IContextSource $context ) {
 				$returnto = 'Another page';
 				$returntoquery = [ 'param1' => 'val1', 'anotherparam' => 'anotherval' ];
 			}

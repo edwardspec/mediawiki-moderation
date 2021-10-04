@@ -102,7 +102,7 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 	private function getModerationActionMock() {
 		return $this->getMockBuilder( ModerationAction::class )
 			->disableOriginalConstructor()
-			->setMethods( [ 'requiresWrite', 'execute' ] )
+			->onlyMethods( [ 'requiresWrite', 'execute' ] )
 			->getMockForAbstractClass();
 	}
 

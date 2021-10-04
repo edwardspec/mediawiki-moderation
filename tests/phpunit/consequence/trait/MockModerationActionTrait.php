@@ -40,7 +40,7 @@ trait MockModerationActionTrait {
 
 		$factoryMock = $this->createMock( ActionFactory::class );
 		$factoryMock->method( 'makeAction' )->will( $this->returnCallback(
-			function ( IContextSource $context ) use ( $actionMock, $actionName ) {
+			static function ( IContextSource $context ) use ( $actionMock, $actionName ) {
 				if ( $context->getRequest()->getVal( 'modaction' ) !== $actionName ) {
 					throw new MWException(
 						"This mocked ActionFactory only supports modaction=$actionName." );

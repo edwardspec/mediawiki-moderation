@@ -23,6 +23,7 @@
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 class ModerationAbuseFilterTest extends ModerationTestCase {
+	/** @var string[] */
 	private $expectedTags = [
 		'Author of edit likes cats',
 		'Author of edit likes dogs'

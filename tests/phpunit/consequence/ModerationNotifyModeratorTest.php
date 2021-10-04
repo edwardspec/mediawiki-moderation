@@ -259,7 +259,7 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 		// Create partial mock: getNotificationHTML() gets overridden, but everything else is not.
 		return $this->getMockBuilder( ModerationNotifyModerator::class )
 			->setConstructorArgs( [ $linkRenderer, $entryFactory, $cache ] )
-			->setMethods( $methodsToMock )
+			->onlyMethods( $methodsToMock )
 			->getMockForAbstractClass();
 	}
 

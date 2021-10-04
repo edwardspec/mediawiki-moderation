@@ -771,7 +771,7 @@ class ModerationTestsuite {
 			[ 'ORDER BY' => 'rc_timestamp DESC' ]
 		);
 
-		return function ( $numberOfEdits ) use ( $dbw, $lastRcId ) {
+		return static function ( $numberOfEdits ) use ( $dbw, $lastRcId ) {
 			$pollTimeLimitSeconds = 5; /* Polling will fail after these many seconds */
 			$pollRetryPeriodSeconds = 0.2; /* How often to check recentchanges */
 

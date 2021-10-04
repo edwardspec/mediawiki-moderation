@@ -36,7 +36,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 	protected $tablesUsed = [ 'revision', 'page', 'user', 'recentchanges',
 		'change_tag', 'logging', 'log_search', 'image', 'oldimage' ];
 
-	public function setUp() : void {
+	public function setUp(): void {
 		parent::setUp();
 
 		if ( ExtensionRegistry::getInstance()->isLoaded( 'CheckUser' ) ) {

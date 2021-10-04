@@ -156,6 +156,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 
 	/**
 	 * Initialize this TestSet from the input of dataProvider.
+	 * @param array $options
 	 */
 	protected function applyOptions( array $options ) {
 		foreach ( $options as $key => $value ) {
@@ -217,6 +218,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 
 	/**
 	 * Check whether user, title, comment and ID of $entry are correct.
+	 * @param ModerationTestsuiteEntry $entry
 	 */
 	protected function assertBasicInfo( ModerationTestsuiteEntry $entry ) {
 		$this->assertEquals( $this->fields['mod_id'], $entry->id,
@@ -238,6 +240,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 
 	/**
 	 * Check whether timestamp of $entry is correct.
+	 * @param ModerationTestsuiteEntry $entry
 	 */
 	protected function assertTimestamp( ModerationTestsuiteEntry $entry ) {
 		$timestamp = wfTimestamp( TS_MW, $this->fields['mod_timestamp'] );
@@ -268,6 +271,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 
 	/**
 	 * Check whether minor/bot/newpage edits are properly marked.
+	 * @param ModerationTestsuiteEntry $entry
 	 */
 	protected function assertFlags( ModerationTestsuiteEntry $entry ) {
 		$expectedFlags = [
@@ -287,6 +291,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 
 	/**
 	 * Check whether the difference between len_old/len_new is properly shown.
+	 * @param ModerationTestsuiteEntry $entry
 	 */
 	protected function assertLengthChange( ModerationTestsuiteEntry $entry ) {
 		global $wgRCChangedSizeThreshold;
@@ -305,6 +310,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 
 	/**
 	 * Check whether the change is marked as edit conflict.
+	 * @param ModerationTestsuiteEntry $entry
 	 */
 	protected function assertConflictStatus( ModerationTestsuiteEntry $entry ) {
 		$this->assertEquals( [
@@ -335,6 +341,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 	/**
 	 * Assert that Whois link is always shown for anonymous users,
 	 * and only to checkusers for registered users.
+	 * @param ModerationTestsuiteEntry $entry
 	 */
 	protected function assertWhoisLink( ModerationTestsuiteEntry $entry ) {
 		if ( $this->fields['mod_user'] == 0 ) {
@@ -353,6 +360,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 
 	/**
 	 * Check that the formatting of "suggested move" entry is correct.
+	 * @param ModerationTestsuiteEntry $entry
 	 */
 	protected function assertMoveEntry( ModerationTestsuiteEntry $entry ) {
 		if ( $this->fields['mod_type'] == 'move' ) {
@@ -366,6 +374,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 
 	/**
 	 * Verify that only the needed action links are shown.
+	 * @param ModerationTestsuiteEntry $entry
 	 */
 	protected function assertActionLinks( ModerationTestsuiteEntry $entry ) {
 		$expectedLinks = array_fill_keys( [
@@ -442,7 +451,8 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 
 	/**
 	 * Check whether the URL of action link is correct.
-	 * @param $action Name of modaction (e.g. 'rejectall') or 'mergedDiff'.
+	 * @param string $action Name of modaction (e.g. 'rejectall') or 'mergedDiff'.
+	 * @param string $url
 	 */
 	protected function assertActionLinkURL( $action, $url ) {
 		if ( $action == 'mergedDiff' ) {
@@ -466,7 +476,8 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 
 	/**
 	 * Parse $url and assert the presence of needed QueryString parameters.
-	 * @param $expectedQuery array( key1 => value1, ... )
+	 * @param string $url
+	 * @param array $expectedQuery Querystring arguments: [ key1 => value1, ... ]
 	 */
 	protected function assertQueryString( $url, array $expectedQuery ) {
 		$bits = wfParseUrl( wfExpandUrl( $url ) );
@@ -490,6 +501,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 
 	/**
 	 * Check information about who and how rejected this edit.
+	 * @param ModerationTestsuiteEntry $entry
 	 */
 	protected function assertRejectedBy( ModerationTestsuiteEntry $entry ) {
 		$this->assertEquals(

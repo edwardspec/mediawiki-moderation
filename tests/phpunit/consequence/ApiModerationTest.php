@@ -89,7 +89,7 @@ class ApiModerationTest extends ApiTestCase {
 	public function testThrownModerationError() {
 		$mock = $this->addMockedAction( 'reject' );
 		$mock->expects( $this->once() )->method( 'execute' )->will( $this->returnCallback(
-			function () {
+			static function () {
 				throw new ModerationError( 'error-thrown-by-tested-action' );
 			}
 		) );

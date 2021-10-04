@@ -153,7 +153,7 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 		// Create a partial mock: getDbUpdatedVersionUncached() is mocked, but all other methods are real.
 		$versionCheck = $this->getMockBuilder( ModerationVersionCheck::class )
 			->setConstructorArgs( [ $cache, $loadBalancer ] )
-			->setMethods( [ 'getDbUpdatedVersionUncached' ] )
+			->onlyMethods( [ 'getDbUpdatedVersionUncached' ] )
 			->getMock();
 
 		$versionCheck->expects( $this->once() )->method( 'getDbUpdatedVersionUncached' )->with(
@@ -206,7 +206,7 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 
 		$db->expects( $this->any() )->method( 'fieldExists' )->with(
 			$this->identicalTo( 'moderation' )
-		)->will( $this->returnCallback( function ( $_, $field ) use ( $fieldExists ) {
+		)->will( $this->returnCallback( static function ( $_, $field ) use ( $fieldExists ) {
 			return $fieldExists[$field] ?? false;
 		} ) );
 
@@ -256,7 +256,7 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 
 		$versionCheck = $this->getMockBuilder( ModerationVersionCheck::class )
 			->setConstructorArgs( [ new EmptyBagOStuff(), $loadBalancer ] )
-			->setMethods( [ 'getDbUpdatedVersion' ] )
+			->onlyMethods( [ 'getDbUpdatedVersion' ] )
 			->getMock();
 		$versionCheck->expects( $this->once() )->method( 'getDbUpdatedVersion' )->willReturn( $version );
 		$this->setService( 'Moderation.VersionCheck', $versionCheck );
