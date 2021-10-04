@@ -21,27 +21,5 @@
  */
 
 class ModerationCompatTools {
-
-	/**
-	 * Returns content language (mainly for constructing ParserOptions).
-	 * @return Language
-	 */
-	public static function getContentLanguage() {
-		return MediaWiki\MediaWikiServices::getInstance()->getContentLanguage();
-	}
-
-	/**
-	 * Install backward compatibility hooks when using older versions of MediaWiki.
-	 * This method won't be needed after we drop compatibility with 1.31, because MediaWiki 1.35
-	 * provides "acknowledged deprecation of hooks" feature (see docs/Hooks.md), which is better.
-	 */
-	public static function installCompatHooks() {
-		if ( !interface_exists( 'MediaWiki\Hook\PageMoveCompleteHook' ) ) {
-			// MediaWiki 1.31-1.34
-			// Can use the same handler as for new PageMoveComplete hook,
-			// because we don't use the only parameter that is different (Revision/RevisionRecord).
-			Hooks::register( 'TitleMoveComplete',
-				'ModerationApproveHook::onPageMoveComplete' );
-		}
-	}
+	// Nothing needed at the moment.
 }

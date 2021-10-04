@@ -16,7 +16,6 @@ ModerationApproveHook::onPageMoveComplete();
 ModerationApproveHook::onPageSaveComplete();
 ModerationApproveHook::onRecentChange_save();
 ModerationApproveHook::onRevisionFromEditComplete();
-ModerationCompatTools::installCompatHooks();
 ModerationEditHooks::onBeforePageDisplay();
 ModerationEditHooks::onListDefinedTags();
 ModerationEditHooks::onPageContentSave();

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ class ModerationMoveHooks {
 	 * @param Status $status
 	 * @return bool
 	 */
-	public static function onMovePageCheckPermissions(
+	public static function onTitleMove(
 		Title $oldTitle,
 		Title $newTitle,
 		User $user,
@@ -60,34 +60,6 @@ class ModerationMoveHooks {
 			/* Database schema is outdated (intercepting moves is not supported),
 				administrator must run update.php */
 			return true;
-		}
-
-		$globalTitle = RequestContext::getMain()->getTitle();
-		if ( $globalTitle && $globalTitle->isSpecial( 'Movepage' ) &&
-			!$user->getRequest()->wasPosted()
-		) {
-			/* Special:MovePage can call MovePageCheckPermissions hook
-				while still in showForm(), before the actual Submit.
-				At this point we don't need to queue the move yet.
-			*/
-			return true;
-		}
-
-		if ( method_exists( 'AbuseFilterHooks', 'onTitleMove' ) ) {
-			/* Since MediaWiki 1.33, AbuseFilter uses TitleMove hook to filter the moves,
-				and this hook never gets called,
-				because Moderation aborts the move earlier (in MovePageCheckPermissions hook).
-
-				Workaround is to call TitleMove handler of Extension:AbuseFilter right here.
-
-				NOTE: Moderation can't use TitleMove hook yet, because this hook can abort the move
-				only in MediaWiki 1.33+, and we need backward compatibility with earlier MediaWiki.
-			*/
-			AbuseFilterHooks::onTitleMove( $oldTitle, $newTitle, $user, $reason, $status );
-			if ( !$status->isOK() ) {
-				// AbuseFilter prohibited the move.
-				return true;
-			}
 		}
 
 		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
