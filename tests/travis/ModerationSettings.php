@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -48,11 +48,9 @@ $wgMemCachedServers = [ "127.0.0.1:11211" ];
 # Don't trigger $wgRateLimits in simultaneous Selenium tests
 $wgGroupPermissions['*']['noratelimit'] = true;
 
-if ( version_compare( $wgVersion, '1.34-rc.0', '>=' ) ) {
-	# Allow testsuite accounts to have "123456" as a password.
-	foreach ( [ 'default', 'bureaucrat', 'sysop', 'interface-admin', 'bot' ] as $group ) {
-		$wgPasswordPolicy['policies'][$group] = [];
-	}
+# Allow testsuite accounts to have "123456" as a password.
+foreach ( [ 'default', 'bureaucrat', 'sysop', 'interface-admin', 'bot' ] as $group ) {
+	$wgPasswordPolicy['policies'][$group] = [];
 }
 
 if ( getenv( 'MODERATION_TEST_ENGINE' ) == 'realhttp' ) {
@@ -89,8 +87,8 @@ wfLoadExtensions( [
 ] );
 
 # ModerationNotifyModeratorTest should be tested with and without Extension:Echo.
-# NOTE: Extension:Echo doesn't support PostgreSQL yet.
-# gerrit:565045 adds such support, but it's unlikely to be backported to MediaWiki 1.31, etc.
+# NOTE: Extension:Echo for MediaWiki 1.35 (LTS) doesn't support PostgreSQL.
+# gerrit:565045 adds such support, but it hasn't been merged/backported yet.
 if ( getenv( 'WITH_ECHO' ) && $wgDBtype != 'postgres' ) {
 	wfLoadExtension( 'Echo' );
 }

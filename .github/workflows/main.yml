@@ -18,10 +18,6 @@ jobs:
         php: [7.4]
         branch: [REL1_35, REL1_36]
         dbtype: [mysql, postgres]
-        include:
-          - php: 7.3
-            branch: REL1_31
-            dbtype: mysql
     env:
       branch: ${{ matrix.branch }}
       DBTYPE: ${{ matrix.dbtype }}

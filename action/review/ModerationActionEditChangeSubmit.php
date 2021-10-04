@@ -22,6 +22,7 @@
  * @see ModerationActionEditChange - handles the edit form
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ModifyPendingChangeConsequence;
 
@@ -64,7 +65,7 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 			$originalAuthor,
 			ParserOptions::newFromUserAndLang(
 				$originalAuthor,
-				ModerationCompatTools::getContentLanguage()
+				MediaWikiServices::getInstance()->getContentLanguage()
 			)
 		);
 

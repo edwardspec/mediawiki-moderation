@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2020 Edward Chernenko.
+	Copyright (C) 2014-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -171,37 +171,6 @@ class ModerationEditHooks {
 			ModerationAjaxHook::add( $out );
 		}
 
-		return true;
-	}
-
-	/**
-	 * [Deprecated] PageContentSaveComplete hook handler.
-	 * This is backward compatibility hook (MW 1.31-1.34), replaced by onPageSaveComplete().
-	 * If this is a merged edit, then 'wpMergeID' is the ID of moderation entry.
-	 * Here we mark this entry as merged.
-	 * @param WikiPage $page
-	 * @param User $user
-	 * @param Content $content @phan-unused-param
-	 * @param string|CommentStoreComment $summary @phan-unused-param
-	 * @param bool $is_minor @phan-unused-param
-	 * @param mixed $is_watch @phan-unused-param
-	 * @param mixed $section @phan-unused-param
-	 * @param int $flags @phan-unused-param
-	 * @param Revision $revision
-	 * @param Status $status @phan-unused-param
-	 * @param bool|int $baseRevId @phan-unused-param
-	 * @return true
-	 */
-	public static function onPageContentSaveComplete(
-		$page, $user, $content, $summary, $is_minor, $is_watch,
-		$section, $flags, $revision, $status, $baseRevId
-	) {
-		if ( !$revision ) {
-			// Double edit - nothing to do on the second time
-			return true;
-		}
-
-		self::markAsMergedIfNeeded( $page, $revision->getId(), $user );
 		return true;
 	}
 

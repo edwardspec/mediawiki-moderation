@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ApproveEditConsequence;
+use MediaWiki\Revision\SlotRecord;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -97,8 +98,7 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 
 			$rec = MediaWikiServices::getInstance()->getRevisionLookup()->getRevisionById( $revid );
 			$this->assertEquals( $baseRevId, $rec->getParentId() );
-			// B/C: SlotRecord::MAIN wasn't defined in MW 1.31.
-			$this->assertEquals( $newText, $rec->getSlot( 'main' )->getContent()->getNativeData() );
+			$this->assertEquals( $newText, $rec->getSlot( SlotRecord::MAIN )->getContent()->getNativeData() );
 
 			return true;
 		};
@@ -164,8 +164,7 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 		$rec = MediaWikiServices::getInstance()->getRevisionLookup()->getRevisionById( $revid );
 
 		$this->assertEquals( $revid2, $rec->getParentId() );
-		// B/C: SlotRecord::MAIN wasn't defined in MW 1.31.
-		$this->assertEquals( $expectedText, $rec->getSlot( 'main' )->getContent()->getNativeData() );
+		$this->assertEquals( $expectedText, $rec->getSlot( SlotRecord::MAIN )->getContent()->getNativeData() );
 	}
 
 	/**

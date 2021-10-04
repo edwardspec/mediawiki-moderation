@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
  */
 
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
+
+use MediaWiki\MediaWikiServices;
 
 /**
  * @covers ModerationNewChange
@@ -593,7 +595,7 @@ class ModerationQueueTest extends ModerationTestCase {
 			/* Not done for all tests to make tests faster.
 				DataSet must explicitly indicate that its text needs PreSaveTransform.
 			*/
-			$lang = ModerationCompatTools::getContentLanguage();
+			$lang = MediaWikiServices::getInstance()->getContentLanguage();
 			$expectedContent = $expectedContent->preSaveTransform(
 				$this->title,
 				$this->user,
@@ -697,7 +699,7 @@ class ModerationQueueTest extends ModerationTestCase {
 	protected function assertWatched( $expectedState, Title $title ) {
 		// Note: $user->isWatched() can't be used,
 		// because it would return cached results.
-		$watchedItemStore = MediaWiki\MediaWikiServices::getInstance()->getWatchedItemStore();
+		$watchedItemStore = MediaWikiServices::getInstance()->getWatchedItemStore();
 
 		$isWatched = (bool)$watchedItemStore->loadWatchedItem( $this->user, $title );
 		if ( $expectedState ) {

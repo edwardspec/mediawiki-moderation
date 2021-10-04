@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -264,42 +264,6 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Verify that SkinTemplateOutputPageBeforeExec hook shows result of getNotificationHTML().
-	 * @param bool $mustNotify If true, getNotificationHTML() will return non-empty string.
-	 * @dataProvider dataProviderNotifyHook
-	 *
-	 * @covers ModerationNotifyModerator
-	 */
-	public function testLegacyNotifyHook( $mustNotify ) {
-		$skin = $this->createMock( SkinTemplate::class );
-		$tpl = $this->createMock( QuickTemplate::class );
-
-		// Create partial mock: getNotificationHTML() gets overridden, but everything else is not.
-		$notify = $this->makePartialNotifyMock( [ 'getNotificationHTML' ] );
-
-		$notify->expects( $this->once() )->method( 'getNotificationHTML' )->with(
-			$this->identicalTo( $skin )
-		)->willReturn( $mustNotify ? '{MockedResult}' : '' );
-
-		if ( $mustNotify ) {
-			$tpl->expects( $this->once() )->method( 'extend' )->with(
-				$this->identicalTo( 'newtalk' ),
-				$this->identicalTo( "\n{MockedResult}" )
-			);
-		} else {
-			$tpl->expects( $this->never() )->method( 'extend' );
-		}
-
-		'@phan-var SkinTemplate $skin';
-		'@phan-var QuickTemplate $tpl';
-
-		// Install the newly constructed ModerationNotifyModerator object as a service,
-		// then call the tested hook handler directly.
-		$this->setService( 'Moderation.NotifyModerator', $notify );
-		ModerationNotifyModerator::onSkinTemplateOutputPageBeforeExec( $skin, $tpl );
-	}
-
-	/**
 	 * Verify that GetNewMessagesAlert hook shows result of getNotificationHTML().
 	 * @param bool $mustNotify If true, getNotificationHTML() will return non-empty string.
 	 * @dataProvider dataProviderNotifyHook
@@ -335,7 +299,7 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Provide datasets for testLegacyNotifyHook() and testNotifyHook() runs.
+	 * Provide datasets for testNotifyHook() runs.
 	 * @return array
 	 */
 	public function dataProviderNotifyHook() {
@@ -353,8 +317,4 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 		$this->assertFalse( ModerationNotifyModerator::onEchoCanAbortNewMessagesAlert(),
 			'EchoCanAbortNewMessagesAlert hook must return false.' );
 	}
-
-	// TODO: add tests that ensure that getNotificationHTML() was indeed called from hooks:
-	// both for MediaWiki 1.35 (GetNewMessagesAlert hook)
-	// and for MediaWiki 1.31-1.34 (deprecated hook SkinTemplateOutputPageBeforeExec).
 }

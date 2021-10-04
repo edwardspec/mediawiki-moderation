@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -93,9 +93,6 @@ class ModerationErrorTest extends ModerationUnitTestCase {
 		$out = $wgOut = $context->getOutput();
 
 		$this->setContentLang( 'qqx' );
-
-		// B/C for MediaWiki 1.32 only: it used $wgLang global variable in Status::getMessage()
-		$this->setMwGlobals( 'wgLang', Language::factory( 'qqx' ) );
 
 		// Create and report() an exception.
 		if ( $isMadeFromString ) {

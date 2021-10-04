@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -260,16 +260,5 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 			->getMock();
 		$versionCheck->expects( $this->once() )->method( 'getDbUpdatedVersion' )->willReturn( $version );
 		$this->setService( 'Moderation.VersionCheck', $versionCheck );
-	}
-
-	/**
-	 * @covers ModerationCompatTools::getContentLanguage
-	 */
-	public function testContentLanguage() {
-		global $wgLanguageCode;
-
-		$lang = ModerationCompatTools::getContentLanguage();
-		$this->assertInstanceOf( Language::class, $lang );
-		$this->assertEquals( $wgLanguageCode, $lang->getCode() );
 	}
 }

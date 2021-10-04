@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2020 Edward Chernenko.
+	Copyright (C) 2015-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -320,16 +320,7 @@ class ModerationTestsuite {
 			return;
 		}
 
-		if ( method_exists( $dbw, 'truncate' ) ) {
-			// MediaWiki 1.35+
-			$dbw->truncate( $table );
-		} else {
-			// MediaWiki 1.31-1.34
-			$dbw->delete( $table, '*', __METHOD__ );
-			if ( $dbw->getType() == 'postgres' ) {
-				$dbw->resetSequenceForTable( $table, __METHOD__ );
-			}
-		}
+		$dbw->truncate( $table );
 	}
 
 	/**
@@ -721,23 +712,12 @@ class ModerationTestsuite {
 	 */
 	public function getLastRevision( $title ) {
 		$page = WikiPage::factory( Title::newFromText( $title ) );
-
-		if ( $this->mwVersionCompare( '1.32.0', '<' ) ) {
-			// For MediaWiki 1.31 only: it doesn't have getRevisionRecord().
-			$rev = $page->getRevision();
-			if ( !$rev ) {
-				return false;
-			}
-			$username = $rev->getUserText();
-		} else {
-			// MediaWiki 1.32+
-			$rev = $page->getRevisionRecord();
-			if ( !$rev ) {
-				return false;
-			}
-			$username = $rev->getUser()->getName();
+		$rev = $page->getRevisionRecord();
+		if ( !$rev ) {
+			return false;
 		}
 
+		$username = $rev->getUser()->getName();
 		$comment = $rev->getComment() ?? '';
 		if ( $comment instanceof CommentStoreComment ) {
 			$comment = $comment->text;

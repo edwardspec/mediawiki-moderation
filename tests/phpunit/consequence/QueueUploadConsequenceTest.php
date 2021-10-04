@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -206,16 +206,6 @@ class QueueUploadConsequenceTest extends ModerationUnitTestCase {
 		$repo = RequestContext::getMain()->getConfig()->get( 'LocalFileRepo' );
 		$repo['directory'] = '/dev/null/clearly/incorrect/path';
 		$this->setMwGlobals( 'wgLocalFileRepo', $repo );
-
-		if ( !method_exists( 'MediaWiki\\MediaWikiServices', 'getRepoGroup' ) ) {
-			// MediaWiki 1.31-1.33 need RepoGroup to be reset when changing $wgLocalFileRepo
-			RepoGroup::destroySingleton();
-
-			// @phan-suppress-next-line PhanUnusedVariable
-			$cleanupScope = new Wikimedia\ScopedCallback( function () {
-				RepoGroup::destroySingleton();
-			} );
-		}
 
 		// Replace real ConsequenceManager with a mock.
 		$manager = $this->mockConsequenceManager();

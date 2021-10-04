@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ namespace MediaWiki\Moderation;
 
 use ContentHandler;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\SlotRecord;
 use Revision;
 use Status;
 use Title;
@@ -127,8 +128,7 @@ class ApproveEditConsequence implements IConsequence {
 
 			// Note: $rec may be null if page was deleted.
 			if ( $rec ) {
-				// B/C: SlotRecord::MAIN wasn't defined in MW 1.31.
-				$baseContent = $rec->getSlot( 'main', Revision::RAW )->getContent();
+				$baseContent = $rec->getSlot( SlotRecord::MAIN, Revision::RAW )->getContent();
 			}
 		}
 

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2020 Edward Chernenko.
+	Copyright (C) 2014-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -158,7 +158,7 @@ class ModerationApproveHook {
 
 		$dbw = wfGetDB( DB_MASTER );
 
-		// In MediaWiki 1.31-1.35, PostgreSQL used CIDR field for rc_ip (we can't insert strings into it).
+		// In MediaWiki 1.35, PostgreSQL used CIDR field for rc_ip (we can't insert strings into it).
 		// In MediaWiki 1.36+, rc_ip is TEXT field and requires no special handling.
 		global $wgVersion;
 		$isIpFieldCIDR = ( $dbw->getType() == 'postgres' && version_compare( $wgVersion, '1.36.0', '<' ) );
@@ -286,7 +286,7 @@ class ModerationApproveHook {
 							$thenQuoted = $dbw->addQuotes( $then );
 
 							if ( $isIpFieldCIDR && $field == 'rc_ip' ) {
-								// PostgreSQL, MediaWiki 1.31-1.35 only.
+								// PostgreSQL, MediaWiki 1.35 only.
 								$thenQuoted .= '::cidr';
 							} elseif ( $dbw->getType() == 'postgres' && $field == 'rev_timestamp' ) {
 								// In PostgreSQL, rc_timestamp is of type TIMESTAMPZ,
@@ -341,7 +341,7 @@ class ModerationApproveHook {
 		}
 	}
 
-	/** @var int|null Revid of the last edit, populated in onNewRevisionFromEditComplete */
+	/** @var int|null Revid of the last edit, populated in onRevisionFromEditComplete */
 	protected $lastRevId = null;
 
 	/**
@@ -350,24 +350,6 @@ class ModerationApproveHook {
 	 */
 	public function getLastRevId() {
 		return $this->lastRevId;
-	}
-
-	/**
-	 * [Deprecated] NewRevisionFromEditComplete hook.
-	 * This is backward compatibility hook (MW 1.31-1.34), replaced by onRevisionFromEditComplete().
-	 * Here we determine $lastRevId.
-	 * @param Article $article @phan-unused-param
-	 * @param Revision $rev
-	 * @param string $baseID @phan-unused-param
-	 * @param User $user @phan-unused-param
-	 * @return true
-	 */
-	public static function onNewRevisionFromEditComplete( $article, $rev, $baseID, $user ) {
-		/* Remember ID of this revision for getLastRevId() */
-		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
-		$approveHook->lastRevId = $rev->getId();
-
-		return true;
 	}
 
 	/**

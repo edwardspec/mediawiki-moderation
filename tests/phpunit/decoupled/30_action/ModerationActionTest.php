@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -81,12 +81,6 @@ class ModerationActionTest extends ModerationTestCase {
 			'successful Approve should preserve the timestamp of original edit' => [ [
 				'modaction' => 'approve',
 				'mod_timestamp' => '-6 hours',
-				'expectedOutput' => '(moderation-approved-ok: 1)',
-				'expectApproved' => true
-			] ],
-			'successful Approve (when author\'s user account was deleted from the database)' => [ [
-				'modaction' => 'approve',
-				'simulateDeletedAuthor' => true,
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true
 			] ],
@@ -557,13 +551,6 @@ class ModerationActionTest extends ModerationTestCase {
 	protected $readonly = false;
 
 	/**
-	 * @var bool If true, author of this change will be deleted from the database.
-	 * This mimicks situation when the user account was deleted via Extension:UserMerge.
-	 * This is used in the test "can we still Approve a pending edit by deleted author?"
-	 */
-	protected $simulateDeletedAuthor = false;
-
-	/**
 	 * @var bool If true, page will be of JSON model and content of this edit will be invalid JSON.
 	 * This is used for test "does modaction=approve detect errors from doEditContent?"
 	 */
@@ -606,7 +593,6 @@ class ModerationActionTest extends ModerationTestCase {
 				case 'modaction':
 				case 'postData':
 				case 'readonly':
-				case 'simulateDeletedAuthor':
 				case 'simulateInvalidJsonContent':
 				case 'simulateNoSuchEntry':
 				case 'showThumb':
@@ -722,24 +708,6 @@ class ModerationActionTest extends ModerationTestCase {
 
 		if ( $this->enableEditChange ) {
 			$t->setMwConfig( 'ModerationEnableEditChange', true );
-		}
-
-		if ( $this->simulateDeletedAuthor ) {
-			// Approving edits of deleted users is not supported in most recent MediaWiki,
-			// because User::getActorId() won't allow a non-registered user to have a usable username.
-			// However, MW 1.31 can still have compatibility mode enabled (which supports this).
-			if ( $t->mwVersionCompare( '1.33.0', '>=' ) ) {
-				$this->markTestSkipped(
-					'Test skipped: approving edits of deleted users is not supported in MediaWiki 1.33+' );
-			}
-
-			// Delete the author from the database (similar to Extension:UserMerge)
-			$dbw = wfGetDB( DB_MASTER );
-			$dbw->delete( 'user', [
-				'user_id' => $this->fields['mod_user']
-			], __METHOD__ );
-
-			User::purge( wfWikiID(), $this->fields['mod_user'] );
 		}
 
 		if ( $this->existing && $this->filename && $this->expectApproved ) {

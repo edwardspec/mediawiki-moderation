@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -61,7 +61,6 @@ class ModerationTestUtil {
 		$summary = '',
 		User $user = null
 	) {
-		global $wgVersion;
 		$dbw = wfGetDB( DB_MASTER );
 
 		$page = WikiPage::factory( $title );
@@ -71,13 +70,7 @@ class ModerationTestUtil {
 			$user = User::newFromName( '127.0.0.1', false );
 		}
 
-		if ( class_exists( MutableRevisionRecord::class ) ) {
-			// MediaWiki 1.32+
-			$rev = new MutableRevisionRecord( $title );
-		} else {
-			// B/C for MediaWiki 1.31
-			$rev = new \MediaWiki\Storage\MutableRevisionRecord( $title );
-		}
+		$rev = new MutableRevisionRecord( $title );
 
 		$rev->setComment( CommentStoreComment::newUnsavedComment( $summary ) );
 		$rev->setUser( $user );
@@ -89,13 +82,7 @@ class ModerationTestUtil {
 		$store = MediaWikiServices::getInstance()->getRevisionStore();
 		$storedRecord = $store->insertRevisionOn( $rev, $dbw );
 
-		if ( version_compare( $wgVersion, '1.35-rc.0', '>=' ) ) {
-			// MediaWiki 1.35+
-			$page->updateRevisionOn( $dbw, $storedRecord );
-		} else {
-			// MediaWiki 1.31-1.34: WikiPage::updateRevisionOn() expects Revision object.
-			$page->updateRevisionOn( $dbw, Revision::newFromId( $storedRecord->getId() ) );
-		}
+		$page->updateRevisionOn( $dbw, $storedRecord );
 	}
 
 	/**
@@ -124,7 +111,7 @@ class ModerationTestUtil {
 	}
 
 	/**
-	 * Get performer of LogEntry (for B/C with MediaWiki 1.31-1.35).
+	 * Get performer of LogEntry (for B/C with MediaWiki 1.35).
 	 * @param LogEntry $logEntry
 	 * @return UserIdentity
 	 */
@@ -134,7 +121,7 @@ class ModerationTestUtil {
 			return $logEntry->getPerformerIdentity();
 		}
 
-		// MediaWiki 1.31-1.35
+		// MediaWiki 1.35
 		return $logEntry->getPerformer();
 	}
 }

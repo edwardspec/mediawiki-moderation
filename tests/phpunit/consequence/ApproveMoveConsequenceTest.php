@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -124,19 +124,7 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 		$reason = 'Some reasons why the page was renamed';
 
 		// Simulate situation when the moderator is not allowed to rename pages.
-		global $wgVersion;
-		if ( version_compare( $wgVersion, '1.32.0', '>=' ) ) {
-			// MediaWiki 1.32+
-			$this->setMwGlobals( 'wgRevokePermissions', [ 'moderator' => [ 'move' => true ] ] );
-		} else {
-			// MediaWiki 1.31 doesn't have $wgRevokePermissions
-			$this->setTemporaryHook( 'UserGetRights', function ( $user, &$rights ) use ( $moderator ) {
-				if ( $user->equals( $moderator ) ) {
-					$rights = array_diff( $rights, [ 'move' ] );
-				}
-				return true;
-			} );
-		}
+		$this->setMwGlobals( 'wgRevokePermissions', [ 'moderator' => [ 'move' => true ] ] );
 
 		// Precreate the page that will be renamed.
 		$this->makeEdit( $title, $moderator );

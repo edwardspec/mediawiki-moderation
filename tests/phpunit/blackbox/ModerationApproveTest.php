@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2020 Edward Chernenko.
+	Copyright (C) 2015-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -182,7 +182,7 @@ class ModerationApproveTest extends ModerationTestCase {
 
 			$expectedIP = $task['ip'];
 			if ( $dbw->getType() == 'postgres' && $t->mwVersionCompare( '1.36.0', '<' ) ) {
-				// MediaWiki 1.32-1.35 only.
+				// MediaWiki 1.35 only.
 				$expectedIP .= '/32';
 			}
 

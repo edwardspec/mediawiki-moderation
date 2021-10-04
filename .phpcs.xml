@@ -24,14 +24,6 @@
 		<exclude-pattern>*/tests/phpunit/framework/*</exclude-pattern>
 	</rule>
 
-	<rule ref="MediaWiki.Usage.DeprecatedGlobalVariables.Deprecated$wgContLang">
-		<!-- $wgContLang was deprecated in MediaWiki 1.32,
-			but we still support MediaWiki 1.31 (which didn't have a method that replaced it).
-		-->
-		<exclude-pattern>*/util/ModerationCompatTools.php</exclude-pattern>
-		<exclude-pattern>*/tests/phpunit/framework/engine/cli/InvokedWikiSettings.php</exclude-pattern>
-	</rule>
-
 	<rule ref="MediaWiki.Files.ClassMatchesFilename.NotMatch">
 		<!-- Benchmark scripts should have short names, not full class names -->
 		<exclude-pattern>*/tests/benchmarks/*</exclude-pattern>

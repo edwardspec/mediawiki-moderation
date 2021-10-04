@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -34,26 +34,16 @@ class WatchOrUnwatchConsequenceTest extends ModerationUnitTestCase {
 	 * @dataProvider dataProviderWatchUnwatch
 	 */
 	public function testWatchUnwatch( $watch, $noop ) {
-		global $wgVersion;
-
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 		$user = self::getTestUser()->getUser();
 
 		$watchedItemStore = $this->createMock( WatchedItemStore::class );
 		$isWatched = ( $watch && $noop ) || ( !$watch && !$noop );
 
-		if ( version_compare( $wgVersion, '1.35-rc.0', '>=' ) ) {// MediaWiki 1.35+
-			$watchedItemStore->expects( $this->once() )->method( 'getWatchedItem' )->with(
-				$this->identicalTo( $user ),
-				$this->identicalTo( $title )
-			)->willReturn( $isWatched ? new WatchedItem( $user, $title, null ) : false );
-		} else {
-			// MediaWiki 1.31-1.34
-			$watchedItemStore->expects( $this->once() )->method( 'isWatched' )->with(
-				$this->identicalTo( $user ),
-				$this->identicalTo( $title )
-			)->willReturn( $isWatched );
-		}
+		$watchedItemStore->expects( $this->once() )->method( 'getWatchedItem' )->with(
+			$this->identicalTo( $user ),
+			$this->identicalTo( $title )
+		)->willReturn( $isWatched ? new WatchedItem( $user, $title, null ) : false );
 
 		$watchHookFired = false;
 		$this->setTemporaryHook( 'WatchArticle',

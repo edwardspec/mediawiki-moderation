@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@
  */
 
 class ModerationTestCase extends MediaWikiTestCase {
-	use CompatPHPUnit6Trait;
-
 	/** @var ModerationTestsuite|null */
 	private $testsuite = null;
 
@@ -73,20 +71,6 @@ class ModerationTestCase extends MediaWikiTestCase {
 
 			$key = preg_replace( '/^wg/', '', $key ); // setMwConfig() expects no "wg" prefix
 			$this->getTestsuite()->setMwConfig( $key, $value );
-		}
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function setGroupPermissions( $newPerms, $newKey = null, $newValue = null ) {
-		parent::setGroupPermissions( $newPerms, $newKey, $newValue );
-
-		// Backward compatibility workaround: only needed for MediaWiki 1.31,
-		// where setGroupPermissions() wasn't calling setMWGlobals().
-		if ( $this->getTestsuite()->mwVersionCompare( '1.32.0', '<' ) ) {
-			global $wgGroupPermissions;
-			$this->setMWGlobals( 'wgGroupPermissions', $wgGroupPermissions );
 		}
 	}
 

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -85,21 +85,6 @@ class ModerationNotifyModerator {
 	}
 
 	/**
-	 * [Deprecated] SkinTemplateOutputPageBeforeExec hook.
-	 * This is backward compatibility hook (MW 1.31-1.34), replaced by onGetNewMessagesAlert().
-	 * Shows in-wiki notification "new edits are pending moderation" to moderators.
-	 * @param SkinTemplate $skin
-	 * @param QuickTemplate $tpl
-	 * @return true
-	 */
-	public static function onSkinTemplateOutputPageBeforeExec( $skin, $tpl ) {
-		$notifyModerator = MediaWikiServices::getInstance()->getService( 'Moderation.NotifyModerator' );
-		$notifyModerator->runLegacyHookInternal( $skin, $tpl );
-
-		return true;
-	}
-
-	/**
 	 * Get the HTML of "new edits are pending" notification. Empty string if notification isn't needed.
 	 * @param IContextSource $context
 	 * @return string
@@ -135,18 +120,6 @@ class ModerationNotifyModerator {
 			SpecialPage::getTitleFor( 'Moderation' ),
 			$context->msg( 'moderation-new-changes-appeared' )->plain()
 		);
-	}
-
-	/**
-	 * Main logic of (deprecated) SkinTemplateOutputPageBeforeExec hook.
-	 * @param SkinTemplate $skin
-	 * @param QuickTemplate $tpl
-	 */
-	protected function runLegacyHookInternal( $skin, $tpl ) {
-		$notificationHtml = $this->getNotificationHTML( $skin );
-		if ( $notificationHtml ) {
-			$tpl->extend( 'newtalk', "\n" . $notificationHtml );
-		}
 	}
 
 	/**

@@ -11,5 +11,5 @@
 if ( function_exists( 'wfLoadExtension' ) ) {
 	wfLoadExtension( 'Moderation' );
 } else {
-	die( 'This version of the Moderation extension requires MediaWiki 1.31+' );
+	die( 'This version of the Moderation extension requires MediaWiki 1.35+' );
 }

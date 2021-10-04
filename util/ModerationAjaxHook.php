@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2016-2020 Edward Chernenko.
+	Copyright (C) 2016-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -29,29 +29,20 @@ class ModerationAjaxHook {
 	 * @param OutputPage &$out
 	 */
 	public static function add( OutputPage &$out ) {
-		global $wgVersion;
-
 		$modules = [];
 		if ( class_exists( 'MobileContext' ) && MobileContext::singleton()->shouldDisplayMobileView() ) {
 			$modules[] = 'ext.moderation.mf.notify';
+			$modules[] = 'ext.moderation.mf.preload33';
 
-			if ( version_compare( $wgVersion, '1.33.0', '>=' ) ) {
-				$modules[] = 'ext.moderation.mf.preload33';
+			$title = $out->getTitle();
+			$preload = MediaWikiServices::getInstance()->getService( 'Moderation.Preload' );
 
-				$title = $out->getTitle();
-				$preload = MediaWikiServices::getInstance()->getService( 'Moderation.Preload' );
-
-				if ( !$title->exists() && $preload->findPendingEdit( $title ) ) {
-					// This user has a pending revision in $title, but $title doesn't exist.
-					// Non-existent pages have wgArticleId=0, and MobileFrontend won't even try
-					// to load their text.
-					// HACK: fake wgArticleId makes MobileFrontend think that this page exists.
-					$out->addJsConfigVars( 'wgArticleId', -1 ); // Not 0 means "page exists"
-				}
-
-			} else {
-				// For MediaWiki 1.31-1.32
-				$modules[] = 'ext.moderation.mf.preload31';
+			if ( !$title->exists() && $preload->findPendingEdit( $title ) ) {
+				// This user has a pending revision in $title, but $title doesn't exist.
+				// Non-existent pages have wgArticleId=0, and MobileFrontend won't even try
+				// to load their text.
+				// HACK: fake wgArticleId makes MobileFrontend think that this page exists.
+				$out->addJsConfigVars( 'wgArticleId', -1 ); // Not 0 means "page exists"
 			}
 		} elseif ( class_exists( 'ApiVisualEditorEdit' ) ) {
 			$modules[] = 'ext.moderation.ve';

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -53,15 +53,7 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 		// (e.g. until SetupAfterCache hook, which is called after all configuration is read),
 		// and then redefine the prefix via LoadBalancerFactory.
 
-		if ( method_exists( 'WikiMap', 'getCurrentWikiDbDomain' ) ) {
-			// MediaWiki 1.33+
-			$oldDomain = WikiMap::getCurrentWikiDbDomain();
-		} else {
-			// MediaWiki 1.31-1.32
-			global $wgDBname, $wgDBmwschema, $wgDBprefix;
-			$oldDomain = new DatabaseDomain( $wgDBname, $wgDBmwschema, (string)$wgDBprefix );
-		}
-
+		$oldDomain = WikiMap::getCurrentWikiDbDomain();
 		$newDomain = new DatabaseDomain(
 			$oldDomain->getDatabase(),
 			$oldDomain->getSchema(),
@@ -74,12 +66,6 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 		global $wgHooks;
 		$wgHooks['SetupAfterCache'][] = function () use ( $newDomain ) {
 			$lbFactory = MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancerFactory();
-			if ( !method_exists( $lbFactory, 'redefineLocalDomain' ) ) {
-				// MediaWiki 1.31
-				throw new MWException(
-					"CliEngine requires MediaWiki 1.32+ when using PostgreSQL.\n" );
-			}
-
 			$lbFactory->redefineLocalDomain( $newDomain );
 		};
 
@@ -112,15 +98,6 @@ function efModerationTestsuiteMockedHeader( $string, $replace = true, $http_resp
  */
 function efModerationTestsuiteCliLogin() {
 	global $wgModerationTestsuiteCliDescriptor;
-
-	if ( defined( 'MW_ENTRY_POINT' ) ) {
-		// MediaWiki 1.34+
-		$entrypoint = MW_ENTRY_POINT;
-	} else {
-		// MediaWiki 1.31-1.33
-		$entrypoint = defined( 'MW_API' ) ? 'api' : 'index';
-	}
-
 	list( $expectedId, $expectedName ) = $wgModerationTestsuiteCliDescriptor['expectedUser'];
 
 	$user = RequestContext::getMain()->getUser();
@@ -128,13 +105,7 @@ function efModerationTestsuiteCliLogin() {
 		$user = User::newFromName( $expectedName, false );
 
 		// Login as $user. If this user doesn't exist, it will be created.
-		if ( method_exists( MediaWikiServices::class, 'getAuthManager' ) ) {
-			// MediaWiki 1.35+
-			$manager = MediaWikiServices::getInstance()->getAuthManager();
-		} else {
-			// MediaWiki 1.31-1.34
-			$manager = AuthManager::singleton();
-		}
+		$manager = MediaWikiServices::getInstance()->getAuthManager();
 		$status = $manager->autoCreateUser( $user, AuthManager::AUTOCREATE_SOURCE_SESSION, true );
 
 		if ( !$status->isOK() ) {
@@ -155,7 +126,7 @@ function efModerationTestsuiteCliLogin() {
 
 	$event = array_merge(
 		[
-			'_entrypoint' => $entrypoint,
+			'_entrypoint' => MW_ENTRY_POINT,
 			'_LoggedInAs' => $user->getName() . ' (#' . $user->getId() .
 				'), groups=[' . implode( ', ', $user->getGroups() ) . ']',
 		],
@@ -234,16 +205,6 @@ function efModerationTestsuiteSetup() {
 		$request = RequestContext::getMain()->getRequest();
 		$sessionId = $request->getCookie( '_session' );
 		if ( $sessionId ) {
-			if ( !method_exists( MediaWiki\MediaWikiServices::class, 'getContentLanguage' ) ) {
-				// For MediaWiki 1.31 only (not needed for MW 1.32+):
-				// creating a user (which happens when loading a session) needs $wgContLang,
-				// which is not yet defined in SetupAfterCache hook.
-				global $wgContLang, $wgLanguageCode;
-				$wgContLang = Language::factory( $wgLanguageCode );
-				// @phan-suppress-next-line PhanUndeclaredMethod
-				$wgContLang->initContLang();
-			}
-
 			$manager = MediaWiki\Session\SessionManager::singleton();
 			$session = $manager->getSessionById( $sessionId, true )
 				?: $manager->getEmptySession();

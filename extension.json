@@ -205,19 +205,6 @@
 				"mobile-frontend-editor-success"
 			]
 		},
-		"ext.moderation.mf.preload31": {
-			"scripts": [
-				"mobilefrontend/preload31.mf.js"
-			],
-			"targets": [
-				"mobile"
-			],
-			"dependencies": [
-				"mediawiki.api",
-				"mediawiki.util",
-				"mobile.editor.api"
-			]
-		},
 		"ext.moderation.mf.preload33": {
 			"scripts": [
 				"mobilefrontend/preload33.mf.js"
@@ -298,11 +285,13 @@
 		"BeforeInitialize": "ModerationPlugins::install",
 		"BeforePageDisplay": "ModerationEditHooks::onBeforePageDisplay",
 		"CheckUserInsertForRecentChange": "ModerationApproveHook::onCheckUserInsertForRecentChange",
+		"EchoCanAbortNewMessagesAlert": "ModerationNotifyModerator::onEchoCanAbortNewMessagesAlert",
 		"EditFilter": "MediaWiki\\Moderation\\EditFormOptions::onEditFilter",
 		"EditFormInitialText": "ModerationPreload::onEditFormInitialText",
 		"EditFormPreloadText": "ModerationPreload::onEditFormPreloadText",
 		"EditPage::showEditForm:fields": "ModerationEditHooks::prepareEditForm",
 		"FileUpload": "ModerationApproveHook::onFileUpload",
+		"GetNewMessagesAlert": "ModerationNotifyModerator::onGetNewMessagesAlert",
 		"getUserPermissionsErrors": "ModerationUploadHooks::ongetUserPermissionsErrors",
 		"LoadExtensionSchemaUpdates": "ModerationUpdater::onLoadExtensionSchemaUpdates",
 		"ListDefinedTags": "ModerationEditHooks::onListDefinedTags",
