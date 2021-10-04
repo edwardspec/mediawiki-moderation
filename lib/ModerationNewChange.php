@@ -26,8 +26,8 @@ use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 
 class ModerationNewChange {
-	const MOD_TYPE_EDIT = 'edit';
-	const MOD_TYPE_MOVE = 'move';
+	public const MOD_TYPE_EDIT = 'edit';
+	public const MOD_TYPE_MOVE = 'move';
 
 	/** @var Title Page to be edited */
 	protected $title;

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2020 Edward Chernenko.
+	Copyright (C) 2015-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ class ModerationTestHTML extends DOMDocument {
 	 * @const Libxml error code for "unknown tag"
 	 * @see http://www.xmlsoft.org/html/libxml-xmlerror.html
 	 */
-	const XML_HTML_UNKNOWN_TAG = 801;
+	private const XML_HTML_UNKNOWN_TAG = 801;
 
 	/**
 	 * Utility function to warn about Libxml errors.

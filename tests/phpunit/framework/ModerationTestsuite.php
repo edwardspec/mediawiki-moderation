@@ -23,8 +23,8 @@ require_once __DIR__ . '/autoload.php';
  */
 
 class ModerationTestsuite {
-	const TEST_PASSWORD = '123456';
-	const DEFAULT_USER_AGENT = 'MediaWiki Moderation Testsuite';
+	public const TEST_PASSWORD = '123456';
+	public const DEFAULT_USER_AGENT = 'MediaWiki Moderation Testsuite';
 
 	/** @var IModerationTestsuiteEngine */
 	protected $engine;

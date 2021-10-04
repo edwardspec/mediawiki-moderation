@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -153,13 +153,13 @@ class ModerationInterceptTest extends ModerationTestCase {
 	/**
 	 * @const Namespace which is used when not selected by the test.
 	 */
-	const DEFAULT_NS1 = NS_USER_TALK;
+	private const DEFAULT_NS1 = NS_USER_TALK;
 
 	/**
 	 * @const Second namespace which is used when not selected by the test.
 	 * Only needed for moves.
 	 */
-	const DEFAULT_NS2 = NS_HELP;
+	private const DEFAULT_NS2 = NS_HELP;
 
 	/** @var bool If true, this change is expected to be intercepted. */
 	protected $intercept = true;

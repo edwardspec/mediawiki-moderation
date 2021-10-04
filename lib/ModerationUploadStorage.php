@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2019-2020 Edward Chernenko.
+	Copyright (C) 2019-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
  */
 
 class ModerationUploadStorage {
-	const USERNAME = 'ModerationUploadStash';
+	public const USERNAME = 'ModerationUploadStash';
 
 	/**
 	 * Move all old uploads from UploadStash of their uploader into a centralized UploadStash.

@@ -9,11 +9,6 @@
 		<exclude name="MediaWiki.Commenting.FunctionComment.MissingDocumentationProtected" />
 		<exclude name="MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic" />
 
-		<!-- NOTE: can't fix this yet, because we still support MediaWiki 1.31 (LTS),
-			which supported PHP 7.0, while "visibility of constants" was only added in PHP 7.1.
-		-->
-		<exclude name="PSR12.Properties.ConstantVisibility.NotFound" />
-
 		<!-- Don't want to apply this -->
 		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment" />
 

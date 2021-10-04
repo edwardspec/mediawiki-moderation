@@ -435,7 +435,7 @@ class ModerationActionTest extends ModerationTestCase {
 		applyOptions as parentApplyOptions;
 	}
 
-	const READONLY_REASON = 'Simulated ReadOnly mode';
+	private const READONLY_REASON = 'Simulated ReadOnly mode';
 
 	/**
 	 * @var string Name of action, e.g. 'approve' or 'rejectall'.
