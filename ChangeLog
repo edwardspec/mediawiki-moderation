@@ -1,6 +1,10 @@
 List of changes between releases of Extension:Moderation.
 
-== master branch (1.5.x versions) ==
+== master branch (1.6.x versions) ==
+
+No changes since Moderation 1.5.36.
+
+== Moderation 1.5.36 ==
 
 Features:
 * Support MediaWiki 1.36.
