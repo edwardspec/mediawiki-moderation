@@ -56,12 +56,6 @@ class ModerationMoveHooks {
 			return true;
 		}
 
-		if ( !ModerationVersionCheck::hasModType() ) {
-			/* Database schema is outdated (intercepting moves is not supported),
-				administrator must run update.php */
-			return true;
-		}
-
 		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
 		$manager->add( new QueueMoveConsequence(
 			$oldTitle, $newTitle, $user, $reason

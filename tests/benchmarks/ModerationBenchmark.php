@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -222,7 +222,7 @@ abstract class ModerationBenchmark extends Maintenance {
 				'mod_preload_id' => $this->uniquePrefix . '-fake-' . $user->getName(), # Fake
 				'mod_text' => $newText, # No preSaveTransform or serialization
 				'mod_type' => ModerationNewChange::MOD_TYPE_EDIT,
-				'mod_preloadable' => ModerationVersionCheck::preloadableYes(),
+				'mod_preloadable' => 0,
 				'mod_ip' => '127.0.0.1'
 			],
 			__METHOD__

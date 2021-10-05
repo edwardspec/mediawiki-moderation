@@ -60,7 +60,7 @@ class ModerationNewChange {
 			'mod_user_text' => $user->getName(),
 			'mod_cur_id' => 0, # Unknown, set by edit()
 			'mod_namespace' => $title->getNamespace(),
-			'mod_title' => ModerationVersionCheck::getModTitleFor( $title ),
+			'mod_title' => $title->getDBKey(),
 			'mod_comment' => '', # Unknown, set by setSummary()
 			'mod_minor' => 0, # Unknown, set by setMinor()
 			'mod_bot' => 0, # Unknown, set by setBot()
@@ -79,20 +79,15 @@ class ModerationNewChange {
 				null,
 			'mod_rejected_batch' => 0,
 			'mod_rejected_auto' => $isBlocked ? 1 : 0,
-			'mod_preloadable' => ModerationVersionCheck::preloadableYes(),
+			'mod_preloadable' => 0,
 			'mod_conflict' => 0,
 			'mod_merged_revid' => 0,
 			'mod_text' => '', # Unknown, set by edit()
-			'mod_stash_key' => null
+			'mod_stash_key' => null,
+			'mod_type' => self::MOD_TYPE_EDIT, # Default, can be changed by move()
+			'mod_page2_namespace' => 0, # Unknown, set by move()
+			'mod_page2_title' => '' # Unknown, set by move()
 		];
-
-		/* If update.php hasn't been run for a while,
-			newly added fields might not be present */
-		if ( ModerationVersionCheck::hasModType() ) {
-			$this->fields['mod_type'] = self::MOD_TYPE_EDIT; # Default, can be changed by move()
-			$this->fields['mod_page2_namespace'] = 0; # Unknown, set by move()
-			$this->fields['mod_page2_title'] = ''; # Unknown, set by move()
-		}
 	}
 
 	/**
@@ -219,13 +214,11 @@ class ModerationNewChange {
 	 * @param string $action AbuseFilter action, e.g. 'edit' or 'delete'.
 	 */
 	protected function addChangeTags( $action ) {
-		if ( ModerationVersionCheck::areTagsSupported() ) {
-			$this->fields['mod_tags'] = self::findAbuseFilterTags(
-				$this->title,
-				$this->user,
-				$action
-			);
-		}
+		$this->fields['mod_tags'] = self::findAbuseFilterTags(
+			$this->title,
+			$this->user,
+			$action
+		);
 	}
 
 	/**
@@ -314,9 +307,7 @@ class ModerationNewChange {
 	 * @return int mod_id of affected row.
 	 */
 	public function queue() {
-		$modid = ModerationVersionCheck::hasUniqueIndex() ?
-			$this->insert() :
-			$this->insertOld();
+		$modid = $this->insert();
 
 		// Run hook to allow other extensions be notified about pending changes
 		Hooks::run( 'ModerationPending', [
@@ -356,37 +347,6 @@ class ModerationNewChange {
 		return $manager->add(
 			new InsertRowIntoModerationTableConsequence( $this->getFields() )
 		);
-	}
-
-	/**
-	 * Legacy version of insert() for old databases without UNIQUE INDEX.
-	 * @return int mod_id of affected row.
-	 * NOTE: this B/C code will eventually be removed, no need to move this into Consequence class.
-	 * @codeCoverageIgnore
-	 */
-	protected function insertOld() {
-		$pendingEdit = $this->getPendingEdit();
-		$id = $pendingEdit ? $pendingEdit->getId() : false;
-
-		$rrQuery = MediaWikiServices::getInstance()->getService( 'Moderation.RollbackResistantQuery' );
-
-		$dbw = wfGetDB( DB_MASTER );
-		if ( $id ) {
-			$rrQuery->perform( function () use ( $dbw, $id ) {
-				$dbw->update(
-					'moderation',
-					$this->getFields(),
-					[ 'mod_id' => $id ]
-				);
-			} );
-		} else {
-			$rrQuery->perform( function () use ( $dbw ) {
-				$dbw->insert( 'moderation', $this->getFields() );
-			} );
-			$id = $dbw->insertId();
-		}
-
-		return $id;
 	}
 
 	/**

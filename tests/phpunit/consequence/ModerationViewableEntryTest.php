@@ -38,7 +38,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	 * @covers ModerationViewableEntry
 	 */
 	public function testIsUpload() {
-		$entry = $this->makeViewableEntry( (object)[ 'stash_key' => 'not empty' ] );
+		$entry = $this->makeViewableEntry( [ 'stash_key' => 'not empty' ] );
 		$this->assertTrue( $entry->isUpload(), 'isUpload() returned false for upload.' );
 	}
 
@@ -47,7 +47,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	 * @covers ModerationViewableEntry
 	 */
 	public function testNotUpload() {
-		$entry = $this->makeViewableEntry( (object)[ 'stash_key' => null ] );
+		$entry = $this->makeViewableEntry( [ 'stash_key' => null ] );
 		$this->assertFalse( $entry->isUpload(), 'isUpload() returned true for non-upload.' );
 	}
 
@@ -60,7 +60,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	 */
 	public function testImageURL( $isThumb ) {
 		$modid = 12345;
-		$entry = $this->makeViewableEntry( (object)[ 'id' => $modid ] );
+		$entry = $this->makeViewableEntry( [ 'id' => $modid ] );
 
 		$expectedResult = 'Some link ' . rand( 0, 100000 );
 		$expectedQuery = [ 'modaction' => 'showimg', 'modid' => $modid ];
@@ -101,7 +101,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	 * @covers ModerationViewableEntry
 	 */
 	public function testThumbNotUpload() {
-		$entry = $this->makeViewableEntry( (object)[ 'stash_key' => null ] );
+		$entry = $this->makeViewableEntry( [ 'stash_key' => null ] );
 		$this->assertSame( '', $entry->getImageThumbHTML(),
 			"getImageThumbHTML() didn't return an empty string for non-upload." );
 	}
@@ -112,7 +112,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	 */
 	public function testThumbMissingStashFile() {
 		$title = Title::newFromText( 'File:UTUpload ' . rand( 0, 100000 ) . '.png' );
-		$entry = $this->makeViewableEntry( (object)[
+		$entry = $this->makeViewableEntry( [
 			'stash_key' => 'nosuchkey.jpg',
 			'namespace' => $title->getNamespace(),
 			'title' => $title->getDBKey(),
@@ -133,7 +133,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 		$stashKey = ModerationUploadStorage::getStash()->stashFile( $path )->getFileKey();
 
 		$title = Title::newFromText( 'File:UTUpload ' . rand( 0, 100000 ) . '.png' );
-		$entry = $this->makeViewableEntry( (object)[
+		$entry = $this->makeViewableEntry( [
 			'stash_key' => $stashKey,
 			'namespace' => $title->getNamespace(),
 			'title' => $title->getDBKey(),
@@ -150,7 +150,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 		$title = Title::newFromText( 'File:UTUpload ' . rand( 0, 100000 ) . '.png' );
 		$modid = 12345;
 
-		$entry = $this->makeViewableEntry( (object)[
+		$entry = $this->makeViewableEntry( [
 			'id' => $modid,
 			'stash_key' => $this->stashSampleImage(),
 			'namespace' => $title->getNamespace(),
@@ -211,7 +211,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	 */
 	public function testDiffReupload() {
 		$context = $this->createMock( IContextSource::class );
-		$entry = $this->makeViewableEntry( (object)[
+		$entry = $this->makeViewableEntry( [
 			'stash_key' => 'somekey.jpg',
 			'namespace' => 0,
 			'title' => 'Some_page'
@@ -255,11 +255,11 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 			}
 		) );
 
-		$entry = $this->makeViewableEntry( (object)[
+		$entry = $this->makeViewableEntry( [
 			'stash_key' => null,
 			'namespace' => $oldTitle->getNamespace(),
 			'title' => $oldTitle->getDBKey(),
-			'type' => 'move',
+			'type' => ModerationNewChange::MOD_TYPE_MOVE,
 			'page2_namespace' => $newTitle->getNamespace(),
 			'page2_title' => $newTitle->getDBKey()
 		] );
@@ -317,7 +317,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 			return false;
 		} );
 
-		$entry = $this->makeViewableEntry( (object)[
+		$entry = $this->makeViewableEntry( [
 			'id' => $modid,
 			'stash_key' => null,
 			'namespace' => $title->getNamespace(),
@@ -332,12 +332,16 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Make ModerationViewableEntry for $row with mocks that were created in setUp().
-	 * @param stdClass|null $row
+	 * Make ModerationViewableEntry for $fields with mocks that were created in setUp().
+	 * @param array $fields
 	 * @return ModerationViewableEntry
 	 */
-	private function makeViewableEntry( $row = null ) {
-		return new ModerationViewableEntry( $row ?? new stdClass, $this->linkRenderer );
+	private function makeViewableEntry( $fields ) {
+		$row = (object)$fields;
+		if ( !isset( $row->type ) ) {
+			$row->type = ModerationNewChange::MOD_TYPE_EDIT;
+		}
+		return new ModerationViewableEntry( $row, $this->linkRenderer );
 	}
 
 	/**

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@
  */
 
 namespace MediaWiki\Moderation;
-
-use ModerationVersionCheck;
 
 class MarkAsMergedConsequence implements IConsequence {
 	/** @var int */
@@ -49,7 +47,7 @@ class MarkAsMergedConsequence implements IConsequence {
 		$dbw->update( 'moderation',
 			[
 				'mod_merged_revid' => $this->revid,
-				ModerationVersionCheck::setPreloadableToNo()
+				'mod_preloadable=mod_id'
 			],
 			[
 				'mod_id' => $this->modid,

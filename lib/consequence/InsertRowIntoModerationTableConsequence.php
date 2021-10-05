@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@
 namespace MediaWiki\Moderation;
 
 use MediaWiki\MediaWikiServices;
-use ModerationVersionCheck;
 
 class InsertRowIntoModerationTableConsequence implements IConsequence {
 	/** @var array */
@@ -45,11 +44,9 @@ class InsertRowIntoModerationTableConsequence implements IConsequence {
 			'mod_preloadable',
 			'mod_namespace',
 			'mod_title',
-			'mod_preload_id'
+			'mod_preload_id',
+			'mod_type'
 		];
-		if ( ModerationVersionCheck::hasModType() ) {
-			$uniqueFields[] = 'mod_type';
-		}
 
 		$dbw = wfGetDB( DB_MASTER );
 

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -33,11 +33,11 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 			throw new ModerationError( 'moderation-unknown-modaction' );
 		}
 
-		$where = [ 'mod_id' => $this->id ];
-		if ( ModerationVersionCheck::hasModType() ) {
+		$where = [
+			'mod_id' => $this->id,
 			// Disallow modification of non-edits, e.g. pending page moves.
-			$where['mod_type'] = ModerationNewChange::MOD_TYPE_EDIT;
-		}
+			'mod_type' => ModerationNewChange::MOD_TYPE_EDIT
+		];
 
 		$row = $this->entryFactory->loadRowOrThrow( $where, [
 			'mod_namespace AS namespace',

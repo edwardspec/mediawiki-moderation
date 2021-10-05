@@ -34,23 +34,13 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 	 * @covers ModerationVersionCheck
 	 */
 	public function testModernSchema() {
+		$this->markTestSkipped( 'testModernSchema(): not needed: all feature check methods were removed ' .
+			'in Moderation 1.6.0, and there were no DB schema changes since then.' );
+
 		$loadBalancer = MediaWikiServices::getInstance()->getDBLoadBalancer();
 
 		$versionCheck = new ModerationVersionCheck( new HashBagOStuff(), $loadBalancer );
 		$this->setService( 'Moderation.VersionCheck', $versionCheck );
-
-		$this->assertTrue( ModerationVersionCheck::areTagsSupported(), 'areTagsSupported' );
-		$this->assertTrue( ModerationVersionCheck::usesDbKeyAsTitle(), 'usesDbKeyAsTitle' );
-		$this->assertTrue( ModerationVersionCheck::hasModType(), 'hasModType' );
-		$this->assertTrue( ModerationVersionCheck::hasUniqueIndex(), 'hasUniqueIndex' );
-
-		$title = Title::newFromText( 'Title with spaces' );
-		$this->assertSame( 'Title_with_spaces', ModerationVersionCheck::getModTitleFor( $title ),
-			"getModTitleFor" );
-
-		$this->assertSame( 0, ModerationVersionCheck::preloadableYes(), 'preloadableYes' );
-		$this->assertSame( 'mod_preloadable=mod_id', ModerationVersionCheck::setPreloadableToNo(),
-			'setPreloadableToNo' );
 	}
 
 	/**
@@ -62,6 +52,9 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 	 * @covers ModerationVersionCheck
 	 */
 	public function testFeatureChecks( $method, $version, $expectedResult ) {
+		$this->markTestSkipped( 'testModernSchema(): not needed: all feature check methods were removed ' .
+			'in Moderation 1.6.0, and there were no DB schema changes since then.' );
+
 		$this->mockDbUpdatedVersion( $version );
 		$this->assertSame( $expectedResult, ModerationVersionCheck::$method(),
 			"Result of $method() doesn't match expected when DbUpdatedVersion=$version" );
@@ -73,24 +66,6 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 	 */
 	public function dataProviderFeatureChecks() {
 		return [
-			[ 'areTagsSupported', '1.1.28', false ],
-			[ 'areTagsSupported', '1.1.29', true ],
-			[ 'areTagsSupported', '1.1.30', true ],
-			[ 'usesDbKeyAsTitle', '1.1.30', false ],
-			[ 'usesDbKeyAsTitle', '1.1.31', true ],
-			[ 'usesDbKeyAsTitle', '1.1.32', true ],
-			[ 'hasModType', '1.2.16', false ],
-			[ 'hasModType', '1.2.17', true ],
-			[ 'hasModType', '1.2.18', true ],
-			[ 'hasUniqueIndex', '1.2.8', false ],
-			[ 'hasUniqueIndex', '1.2.9', true ],
-			[ 'hasUniqueIndex', '1.2.10', true ],
-			[ 'preloadableYes', '1.2.8', 1 ],
-			[ 'preloadableYes', '1.2.9', 0 ],
-			[ 'preloadableYes', '1.2.10', 0 ],
-			[ 'setPreloadableToNo', '1.2.8', 'mod_preloadable=0' ],
-			[ 'setPreloadableToNo', '1.2.9', 'mod_preloadable=mod_id' ],
-			[ 'setPreloadableToNo', '1.2.10', 'mod_preloadable=mod_id' ]
 		];
 	}
 
@@ -193,13 +168,10 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 	 * @param string $expectedResult
 	 * @param string $dbType Mocked result of $db->getType()
 	 * @param array $fieldExists E.g. [ 'mod_type' => true ]
-	 * @param bool $isLoadIndexUnique Mocked result of $db->indexUnique(..., 'moderation_load')
 	 * @dataProvider dataProviderDbUpdatedVersionUncached
 	 * @covers ModerationVersionCheck
 	 */
-	public function testDbUpdatedVersionUncached( $expectedResult, $dbType, array $fieldExists,
-		$isLoadIndexUnique
-	) {
+	public function testDbUpdatedVersionUncached( $expectedResult, $dbType, array $fieldExists ) {
 		// Mock the database (which is a parameter of getDbUpdatedVersionUncached).
 		$db = $this->createMock( IMaintainableDatabase::class );
 		$db->expects( $this->any() )->method( 'getType' )->willReturn( $dbType );
@@ -209,15 +181,6 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 		)->will( $this->returnCallback( static function ( $_, $field ) use ( $fieldExists ) {
 			return $fieldExists[$field] ?? false;
 		} ) );
-
-		$db->expects( $this->any() )->method( 'indexUnique' )->with(
-			$this->identicalTo( 'moderation' ),
-			$this->identicalTo( 'moderation_load' )
-		)->willReturn( $isLoadIndexUnique );
-
-		// We are not testing the differences between 1.1.29/1.1.31 DB schema,
-		// as no wikis are using it.
-		$db->expects( $this->any() )->method( 'selectRowCount' )->willReturn( 0 );
 
 		$loadBalancer = $this->createMock( ILoadBalancer::class );
 		'@phan-var ILoadBalancer $loadBalancer';
@@ -237,11 +200,8 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 	 */
 	public function dataProviderDbUpdatedVersionUncached() {
 		return [
-			'1.4.12' => [ '1.4.12', 'postgres', [ 'mod_type' => true, 'mod_tags' => true ], true ],
-			'1.2.17' => [ '1.2.17', 'mysql', [ 'mod_type' => true, 'mod_tags' => true ], true ],
-			'1.2.9' => [ '1.2.9', 'mysql', [ 'mod_type' => false, 'mod_tags' => true ], true ],
-			'1.1.31' => [ '1.1.31', 'mysql', [ 'mod_type' => false, 'mod_tags' => true ], false ],
-			'1.0.0' => [ '1.0.0', 'mysql', [ 'mod_type' => false, 'mod_tags' => false ], false ]
+			'1.6.0' => [ '1.6.0', 'mysql', [] ],
+			'1.6.0' => [ '1.6.0', 'postgres', [] ]
 		];
 	}
 

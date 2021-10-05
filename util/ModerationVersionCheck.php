@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -38,82 +38,6 @@ class ModerationVersionCheck {
 	public function __construct( BagOStuff $cache, ILoadBalancer $loadBalancer ) {
 		$this->cache = $cache;
 		$this->loadBalancer = $loadBalancer;
-	}
-
-	/**
-	 * Returns true if the database has mod_tags field, false otherwise.
-	 * @return bool
-	 */
-	public static function areTagsSupported() {
-		return self::wasDbUpdatedAfter( '1.1.29' );
-	}
-
-	/**
-	 * True if mod_title contains underscores (correct behavior),
-	 * false if mod_title contains spaces (obsolete behavior).
-	 * @return bool
-	 */
-	public static function usesDbKeyAsTitle() {
-		return self::wasDbUpdatedAfter( '1.1.31' );
-	}
-
-	/**
-	 * Returns true if the database has mod_type field, false otherwise.
-	 * @return bool
-	 */
-	public static function hasModType() {
-		return self::wasDbUpdatedAfter( '1.2.17' );
-	}
-
-	/**
-	 * True if field mod_preloadable is unique for rejected edits (correct behavior),
-	 * false if field mod_preloadable is 0 or 1 (obsolete behavior).
-	 * @return bool
-	 */
-	public static function hasUniqueIndex() {
-		return self::wasDbUpdatedAfter( '1.2.9' );
-	}
-
-	/**
-	 * Calculate mod_title for $title.
-	 * Backward compatible with old Moderation databases that used spaces, not underscores.
-	 * @param Title $title
-	 * @return string
-	 */
-	public static function getModTitleFor( Title $title ) {
-		if ( self::usesDbKeyAsTitle() ) {
-			return $title->getDBKey();
-		}
-
-		return $title->getText(); /* Legacy approach */
-	}
-
-	/**
-	 * Returns value of mod_preloadable that means "YES, this change can be preloaded".
-	 * @return int
-	 */
-	public static function preloadableYes() {
-		if ( self::hasUniqueIndex() ) {
-			/* Current approach: 0 for YES, mod_id for NO */
-			return 0;
-		}
-
-		/* Legacy approach: 1 for YES, 0 for NO */
-		return 1;
-	}
-
-	/**
-	 * Determines how to mark edit as NOT preloadable in SQL UPDATE.
-	 * @return string One element of $fields parameter for $db->update().
-	 */
-	public static function setPreloadableToNo() {
-		if ( self::hasUniqueIndex() ) {
-			/* Current approach: 0 for YES, mod_id for NO */
-			return 'mod_preloadable=mod_id';
-		}
-
-		/* Legacy approach: 1 for YES, 0 for NO */
-		return 'mod_preloadable=0';
 	}
 
 	/*-------------------------------------------------------------------*/
@@ -156,36 +80,13 @@ class ModerationVersionCheck {
 	/**
 	 * Uncached version of getDbUpdatedVersion().
 	 * @note Shouldn't be used outside of getDbUpdatedVersion()
-	 * @param IMaintainableDatabase $db
+	 * @param IMaintainableDatabase $db @phan-unused-param
 	 * @return string Version number, e.g. "1.2.3".
 	 */
 	protected function getDbUpdatedVersionUncached( IMaintainableDatabase $db ) {
-		// These checks are sorted "most recent changes first",
-		// so that the wiki with the most recent schema would only need one check.
-
-		if ( $db->getType() == 'postgres' ) {
-			return '1.4.12';
-		}
-
-		if ( $db->fieldExists( 'moderation', 'mod_type', __METHOD__ ) ) {
-			return '1.2.17';
-		}
-
-		if ( $db->indexUnique( 'moderation', 'moderation_load' ) ) {
-			return '1.2.9';
-		}
-
-		if ( !$db->fieldExists( 'moderation', 'mod_tags', __METHOD__ ) ) {
-			return '1.0.0';
-		}
-
-		$titlesWithSpace = $db->selectRowCount(
-			'moderation',
-			'*',
-			[ 'mod_title LIKE "% %"' ],
-			__METHOD__
-		);
-		return $titlesWithSpace ? '1.1.29' : '1.1.31';
+		// Support for older database schema (for Moderation 1.2.17 and earlier) has been dropped
+		// in Moderation 1.6.0, and there were no DB schema changes since then.
+		return '1.6.0';
 	}
 
 	/**

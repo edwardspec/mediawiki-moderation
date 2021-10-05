@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -33,7 +33,6 @@ use ModerationEntryMove;
 use ModerationEntryUpload;
 use ModerationError;
 use ModerationNewChange;
-use ModerationVersionCheck;
 use ModerationViewableEntry;
 use Title;
 
@@ -160,12 +159,11 @@ class EntryFactory {
 		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
 
 		$orderBy = [];
-		if ( ModerationVersionCheck::hasModType() ) {
-			# Page moves are approved last, so that situation
-			# "user A (1) changed page B and (2) renamed B to C"
-			# wouldn't result in newly created redirect B being edited instead of the page.
-			$orderBy[] = 'mod_type=' . $dbw->addQuotes( ModerationNewChange::MOD_TYPE_MOVE );
-		}
+
+		# Page moves are approved last, so that situation
+		# "user A (1) changed page B and (2) renamed B to C"
+		# wouldn't result in newly created redirect B being edited instead of the page.
+		$orderBy[] = 'mod_type=' . $dbw->addQuotes( ModerationNewChange::MOD_TYPE_MOVE );
 
 		# Images are approved first. Otherwise the page can be rendered with the image redlink,
 		# because the image didn't exist when the edit to this page was approved.
@@ -213,15 +211,12 @@ class EntryFactory {
 	 */
 	public function findPendingEdit( $preloadId, Title $title ) {
 		$where = [
-			'mod_preloadable' => ModerationVersionCheck::preloadableYes(),
+			'mod_preloadable' => 0,
 			'mod_namespace' => $title->getNamespace(),
-			'mod_title' => ModerationVersionCheck::getModTitleFor( $title ),
-			'mod_preload_id' => $preloadId
+			'mod_title' => $title->getDBKey(),
+			'mod_preload_id' => $preloadId,
+			'mod_type' => ModerationNewChange::MOD_TYPE_EDIT
 		];
-
-		if ( ModerationVersionCheck::hasModType() ) {
-			$where['mod_type'] = ModerationNewChange::MOD_TYPE_EDIT;
-		}
 
 		$row = $this->loadRow( $where,
 			[

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,29 +25,6 @@ use Wikimedia\TestingAccessWrapper;
 require_once __DIR__ . "/autoload.php";
 
 class ModerationEntryTest extends ModerationUnitTestCase {
-	/**
-	 * Double-check that $row always has $row->type and $row->tags properties,
-	 * even if they weren't specified in the constructor.
-	 * This happens when DB schema is outdated (see ModerationVersionCheck class).
-	 * @covers ModerationEntry
-	 */
-	public function testLegacyDbEntry() {
-		$fields = [ 'field1' => 'value1', 'anotherfield' => 'anothervalue' ];
-		$expectedRow = (object)[
-			'field1' => 'value1',
-			'anotherfield' => 'anothervalue',
-			'type' => ModerationNewChange::MOD_TYPE_EDIT,
-			'tags' => null
-		];
-
-		$entry = $this->makeEntry( $fields );
-
-		$row = TestingAccessWrapper::newFromObject( $entry )->getRow();
-		$this->assertObjectHasAttribute( 'type', $row, 'no $row->type' );
-		$this->assertObjectHasAttribute( 'tags', $row, 'no $row->tags' );
-
-		$this->assertEquals( $expectedRow, $row );
-	}
 
 	/**
 	 * Check the return value of isMove().
