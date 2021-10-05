@@ -29,16 +29,7 @@
 	var $d = $.Deferred();
 
 	mw.loader.using( 'mobile.startup', function () {
-		var toast;
-		try {
-			// MediaWiki 1.33+
-			toast = M.require( 'mobile.startup' ).toast;
-		} catch ( e ) {
-			// MediaWiki 1.31-1.32
-			toast = M.require( 'mobile.startup/toast' );
-		}
-
-		$d.resolve( toast );
+		$d.resolve( M.require( 'mobile.startup' ).toast );
 	} );
 
 	$d.done( function ( toast ) {
