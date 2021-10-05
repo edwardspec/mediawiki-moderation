@@ -22,6 +22,8 @@
 
 require_once __DIR__ . "/autoload.php";
 
+use MediaWiki\Config\ServiceOptions;
+
 class ModerationCanSkipTest extends ModerationUnitTestCase {
 	/**
 	 * Check the return value of methods like canEditSkip().
@@ -43,7 +45,7 @@ class ModerationCanSkipTest extends ModerationUnitTestCase {
 
 		'@phan-var ModerationApproveHook $approveHook';
 
-		$config = new HashConfig( [
+		$config = new ServiceOptions( ModerationCanSkip::CONSTRUCTOR_OPTIONS, [
 			'ModerationEnable' => $configVars['ModerationEnable'] ?? true,
 			'ModerationIgnoredInNamespaces' =>
 				$configVars['ModerationIgnoredInNamespaces'] ?? [],

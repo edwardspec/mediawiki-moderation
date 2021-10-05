@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2020 Edward Chernenko.
+	Copyright (C) 2014-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,19 +20,27 @@
  * Checks if the user is allowed to skip moderation.
  */
 
+use MediaWiki\Config\ServiceOptions;
+
 class ModerationCanSkip {
-	/** @var Config */
-	protected $config;
+	/** @var ServiceOptions */
+	protected $options;
 
 	/** @var ModerationApproveHook */
 	protected $approveHook;
 
+	public const CONSTRUCTOR_OPTIONS = [
+		'ModerationEnable',
+		'ModerationIgnoredInNamespaces',
+		'ModerationOnlyInNamespaces'
+	];
+
 	/**
-	 * @param Config $config
+	 * @param ServiceOptions $options
 	 * @param ModerationApproveHook $approveHook
 	 */
-	public function __construct( Config $config, ModerationApproveHook $approveHook ) {
-		$this->config = $config;
+	public function __construct( ServiceOptions $options, ModerationApproveHook $approveHook ) {
+		$this->options = $options;
 		$this->approveHook = $approveHook;
 	}
 
@@ -79,7 +87,7 @@ class ModerationCanSkip {
 	 * @return bool
 	 */
 	protected function canSkip( User $user, $permission, array $affectedNamespaces ) {
-		if ( !$this->config->get( 'ModerationEnable' ) || $this->approveHook->isApprovingNow() ) {
+		if ( !$this->options->get( 'ModerationEnable' ) || $this->approveHook->isApprovingNow() ) {
 			return true; /* Moderation is disabled */
 		}
 
@@ -125,11 +133,11 @@ class ModerationCanSkip {
 	 * @return bool
 	 */
 	protected function canSkipInNamespace( $namespaceNumber ) {
-		if ( in_array( $namespaceNumber, $this->config->get( 'ModerationIgnoredInNamespaces' ) ) ) {
+		if ( in_array( $namespaceNumber, $this->options->get( 'ModerationIgnoredInNamespaces' ) ) ) {
 			return true; /* This namespace is NOT moderated, e.g. Sandbox:Something */
 		}
 
-		$onlyInNamespaces = $this->config->get( 'ModerationOnlyInNamespaces' );
+		$onlyInNamespaces = $this->options->get( 'ModerationOnlyInNamespaces' );
 		if ( $onlyInNamespaces && !in_array( $namespaceNumber, $onlyInNamespaces ) ) {
 			return true; /* This namespace is NOT moderated */
 		}

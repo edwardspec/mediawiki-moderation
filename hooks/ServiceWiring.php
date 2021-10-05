@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
  * Register services like ActionFactory in MediaWikiServices container.
  */
 
+use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionFactory;
@@ -55,8 +56,10 @@ return [
 	},
 	'Moderation.CanSkip' => static function ( MediaWikiServices $services ): ModerationCanSkip {
 		return new ModerationCanSkip(
-			// Will be eventually replaced by ServiceOptions (MW 1.34+).
-			$services->getMainConfig(),
+			new ServiceOptions(
+				ModerationCanSkip::CONSTRUCTOR_OPTIONS,
+				$services->getMainConfig()
+			),
 			$services->getService( 'Moderation.ApproveHook' )
 		);
 	},
