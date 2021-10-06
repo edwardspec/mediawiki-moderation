@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,7 +32,6 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 	public function testLogFormatter( array $options ) {
 		$this->setMwGlobals( 'wgLogRestrictions', [] );
 		$this->setContentLang( 'qqx' );
-		$this->setUserLang( 'qqx' ); // Only for MediaWiki 1.31, not needed in MW 1.32+
 
 		$performer = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
 		$target = Title::newFromText( $options['target'] );
@@ -93,7 +92,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 		}
 
 		// Check preload titles
-		$preloadTitles = array_map( function ( Title $title ) {
+		$preloadTitles = array_map( static function ( Title $title ) {
 			return $title->getFullText();
 		}, $formatter->getPreloadTitles() );
 		$this->assertEquals( $options['expectedPreloadTitles'] ?? [], $preloadTitles,

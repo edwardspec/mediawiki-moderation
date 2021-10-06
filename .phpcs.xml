@@ -9,11 +9,6 @@
 		<exclude name="MediaWiki.Commenting.FunctionComment.MissingDocumentationProtected" />
 		<exclude name="MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic" />
 
-		<!-- NOTE: can't fix this yet, because we still support MediaWiki 1.31 (LTS),
-			which supported PHP 7.0, while "visibility of constants" was only added in PHP 7.1.
-		-->
-		<exclude name="PSR12.Properties.ConstantVisibility.NotFound" />
-
 		<!-- Don't want to apply this -->
 		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment" />
 
@@ -22,14 +17,6 @@
 	<rule ref="MediaWiki.Commenting.FunctionComment.MissingParamTag">
 		<!-- TODO: missing documentation in blackbox tests: this can be fixed -->
 		<exclude-pattern>*/tests/phpunit/framework/*</exclude-pattern>
-	</rule>
-
-	<rule ref="MediaWiki.Usage.DeprecatedGlobalVariables.Deprecated$wgContLang">
-		<!-- $wgContLang was deprecated in MediaWiki 1.32,
-			but we still support MediaWiki 1.31 (which didn't have a method that replaced it).
-		-->
-		<exclude-pattern>*/util/ModerationCompatTools.php</exclude-pattern>
-		<exclude-pattern>*/tests/phpunit/framework/engine/cli/InvokedWikiSettings.php</exclude-pattern>
 	</rule>
 
 	<rule ref="MediaWiki.Files.ClassMatchesFilename.NotMatch">

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -80,7 +80,7 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 		$profilerWrapper = TestingAccessWrapper::newFromObject( $profiler );
 		$differentExpectations = array_unique( array_values( $profilerWrapper->expect ), SORT_REGULAR );
 
-		$unchanged = [ INF ]; // MediaWiki 1.31-1.35
+		$unchanged = [ INF ]; // MediaWiki 1.35
 		if ( is_array( $profilerWrapper->expect['writes'] ) ) {
 			// MediaWiki 1.36+
 			$unchanged = [ [ INF, null ] ];
@@ -102,7 +102,7 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 	private function getModerationActionMock() {
 		return $this->getMockBuilder( ModerationAction::class )
 			->disableOriginalConstructor()
-			->setMethods( [ 'requiresWrite', 'execute' ] )
+			->onlyMethods( [ 'requiresWrite', 'execute' ] )
 			->getMockForAbstractClass();
 	}
 

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\SlotRecord;
 
 class ModerationViewableEntry extends ModerationEntry {
 	/** @var LinkRenderer */
@@ -93,8 +94,7 @@ class ModerationViewableEntry extends ModerationEntry {
 
 			// Note: $rec may be null if page was deleted.
 			if ( $rec ) {
-				// B/C: SlotRecord::MAIN wasn't defined in MW 1.31.
-				$oldContent = $rec->getSlot( 'main', Revision::RAW )->getContent();
+				$oldContent = $rec->getSlot( SlotRecord::MAIN, Revision::RAW )->getContent();
 			}
 		}
 

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -140,7 +140,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test that the result of getHTML() contains all the necessary text, action links, etc.
-	 * @param $options
+	 * @param array $options
 	 * @dataProvider dataProviderGetHTML
 	 *
 	 * @covers ModerationEntryFormatter
@@ -190,7 +190,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 				return "{ActionLink:$action}";
 			} );
 		$this->linkRenderer->expects( $this->any() )
-			->method( 'makeLink' )->willReturnCallback( function ( Title $title ) {
+			->method( 'makeLink' )->willReturnCallback( static function ( Title $title ) {
 				return '{PageLink:' . $title->getNamespace() . '|' . $title->getDBKey() . '}';
 			} );
 		$this->linkRenderer->expects( $this->any() )
@@ -202,12 +202,12 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 				$this->identicalTo( [ 'title' => '(tooltip-moderation-merged-link)' ] ),
 				$this->logicalAnd( $this->arrayHasKey( 'diff' ), $this->countOf( 1 ) )
 			)->willReturnCallback(
-				function ( Title $title, $text, $classes, array $extraAttribs, array $query ) {
+				static function ( Title $title, $text, $classes, array $extraAttribs, array $query ) {
 					return '{MergedRevisionLink:' . $title->getNamespace() . '|' .
 						$title->getDBKey() . '|' . ( $query['diff'] ?? 'unknown' ) . '}';
 				} );
 		$this->context->expects( $this->any() )->method( 'msg' )
-			->willReturnCallback( function ( ...$args ) use ( $lang ) {
+			->willReturnCallback( static function ( ...$args ) use ( $lang ) {
 				return wfMessage( ...$args )->inLanguage( $lang );
 			} );
 		$this->timestampFormatter->expects( $this->once() )->method( 'format' )->with(
@@ -236,14 +236,14 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 			$options['expectedResult']
 		);
 		$expectedResult = preg_replace_callback(
-			'/\{Row:([^}]+)\}/', function ( $matches ) use ( $row ) {
+			'/\{Row:([^}]+)\}/', static function ( $matches ) use ( $row ) {
 				$field = $matches[1];
 				return $row->$field;
 			},
 			$expectedResult
 		);
 		$expectedResult = preg_replace_callback(
-			'/\{WhoisLink:([^}]+)\}/', function ( $matches ) {
+			'/\{WhoisLink:([^}]+)\}/', static function ( $matches ) {
 				$ip = $matches[1];
 				return '<sup class="whois plainlinks">[' . Linker::makeExternalLink(
 					'(moderation-whois-link-url: ' . $ip . ')',
@@ -253,7 +253,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 			$expectedResult
 		);
 		$expectedResult = preg_replace_callback(
-			'/\{UserLink:([^}]+)\}/', function ( $matches )  {
+			'/\{UserLink:([^}]+)\}/', static function ( $matches )  {
 				list( $userId, $username ) = explode( '|', $matches[1] );
 				return Linker::userLink( (int)$userId, $username );
 			},
@@ -393,7 +393,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 
 	/**
 	 * Make formatter for $row with mocks that were created in setUp().
-	 * @param object|null $row
+	 * @param stdClass|null $row
 	 * @return ModerationEntryFormatter
 	 */
 	private function makeTestFormatter( $row = null ) {
@@ -405,7 +405,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 	/**
 	 * Precreate new mocks for all dependencies before each test.
 	 */
-	public function setUp() : void {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->linkRenderer = $this->createMock( LinkRenderer::class );

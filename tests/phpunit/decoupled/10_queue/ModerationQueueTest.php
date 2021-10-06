@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
  */
 
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
+
+use MediaWiki\MediaWikiServices;
 
 /**
  * @covers ModerationNewChange
@@ -247,6 +249,7 @@ class ModerationQueueTest extends ModerationTestCase {
 
 	/**
 	 * Initialize this TestSet from the input of dataProvider.
+	 * @param array $options
 	 */
 	protected function applyOptions( array $options ) {
 		foreach ( $options as $key => $value ) {
@@ -593,7 +596,7 @@ class ModerationQueueTest extends ModerationTestCase {
 			/* Not done for all tests to make tests faster.
 				DataSet must explicitly indicate that its text needs PreSaveTransform.
 			*/
-			$lang = ModerationCompatTools::getContentLanguage();
+			$lang = MediaWikiServices::getInstance()->getContentLanguage();
 			$expectedContent = $expectedContent->preSaveTransform(
 				$this->title,
 				$this->user,
@@ -653,7 +656,7 @@ class ModerationQueueTest extends ModerationTestCase {
 
 	/**
 	 * Assert the state of UploadStash after the test.
-	 * @param $stashKey Value of mod_stash_key (as found in the database after the test).
+	 * @param string $stashKey Value of mod_stash_key (as found in the database after the test).
 	 */
 	protected function checkUpload( $stashKey ) {
 		if ( !$this->filename ) {
@@ -674,6 +677,7 @@ class ModerationQueueTest extends ModerationTestCase {
 
 	/**
 	 * Assert the state of Watchlist after the test.
+	 * @param bool|null $expected
 	 */
 	protected function checkWatchlist( $expected ) {
 		if ( $expected === null ) {
@@ -692,12 +696,13 @@ class ModerationQueueTest extends ModerationTestCase {
 
 	/**
 	 * Assert that $title is watched/unwatched.
-	 * @param $expectedState True if $title should be watched, false if not.
+	 * @param bool $expectedState True if $title should be watched, false if not.
+	 * @param Title $title
 	 */
 	protected function assertWatched( $expectedState, Title $title ) {
 		// Note: $user->isWatched() can't be used,
 		// because it would return cached results.
-		$watchedItemStore = MediaWiki\MediaWikiServices::getInstance()->getWatchedItemStore();
+		$watchedItemStore = MediaWikiServices::getInstance()->getWatchedItemStore();
 
 		$isWatched = (bool)$watchedItemStore->loadWatchedItem( $this->user, $title );
 		if ( $expectedState ) {

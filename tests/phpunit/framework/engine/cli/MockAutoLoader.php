@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 class ModerationTestsuiteMockAutoLoader {
 
-	const NOMOCK_CACHE_FILENAME = '.NOMOCK_CACHE.mocked.php';
+	protected const NOMOCK_CACHE_FILENAME = '.NOMOCK_CACHE.mocked.php';
 
 	/** @var ModerationTestsuiteMockAutoLoader Singleton instance */
 	protected static $instance = null;

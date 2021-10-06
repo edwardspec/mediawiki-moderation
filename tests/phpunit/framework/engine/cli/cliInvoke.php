@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -86,6 +86,7 @@ class CliInvoke {
 		foreach ( $this->getDescriptor( 'files' ) as $uploadKey => $tmpFilename ) {
 			$curlFile = new CURLFile( $tmpFilename );
 
+			// phpcs:ignore MediaWiki.Usage.SuperGlobalsUsage.SuperGlobals
 			$_FILES[$uploadKey] = [
 				'name' => 'whatever', # Not used anywhere
 				'type' => $curlFile->getMimeType(),
@@ -184,7 +185,7 @@ class CliInvoke {
 			'capturedHooks' => $this->getDescriptor( 'capturedHooks' )
 		];
 
-		// If an exception happened before efModerationTestsuiteSetup(),
+		// If an exception happened before wfModerationTestsuiteSetup(),
 		// then $request wouldn't be a FauxResponse yet (and is therefore useless for CliEngine).
 		$response = RequestContext::getMain()->getRequest()->response();
 		if ( $response instanceof FauxResponse ) {

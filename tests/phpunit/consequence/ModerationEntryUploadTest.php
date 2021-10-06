@@ -57,7 +57,7 @@ class ModerationEntryUploadTest extends ModerationUnitTestCase {
 
 		$entry = $this->getMockBuilder( ModerationEntryUpload::class )
 			->disableOriginalConstructor()
-			->setMethods( [ 'getRow', 'getTitle', 'getUser' ] )
+			->onlyMethods( [ 'getRow', 'getTitle', 'getUser' ] )
 			->getMock();
 
 		$entry->expects( $this->once() )->method( 'getRow' )->willReturn( $row );

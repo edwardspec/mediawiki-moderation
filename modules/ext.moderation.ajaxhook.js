@@ -103,9 +103,7 @@
 
 		/* Check whether we need to overwrite this AJAX response or not */
 		var errorCode;
-		if ( ret.error ) {
-			errorCode = ret.error.code; // MediaWiki 1.33 and older
-		} else if ( ret.errors ) {
+		if ( ret.errors ) {
 			errorCode = ret.errors[ 0 ].code; // MediaWiki 1.34+
 		} else {
 			return false; /* Nothing to overwrite */

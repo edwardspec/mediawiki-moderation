@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -84,26 +84,12 @@ class CreatingNewUserHasConsequencesTest extends ModerationUnitTestCase {
 	 */
 	private function createAccount( $username ) {
 		$user = User::newFromName( $username, false );
-		$status = $this->getAuthManager()->autoCreateUser(
+		$status = MediaWikiServices::getInstance()->getAuthManager()->autoCreateUser(
 			$user,
 			AuthManager::AUTOCREATE_SOURCE_SESSION,
 			false
 		);
 		$this->assertTrue( $status->isOK(),
 			"CreateAccount failed: " . $status->getMessage()->plain() );
-	}
-
-	/**
-	 * Returns AuthManager service (for B/C with MediaWiki 1.31-1.34).
-	 * @return AuthManager
-	 */
-	private function getAuthManager() {
-		if ( method_exists( MediaWikiServices::class, 'getAuthManager' ) ) {
-			// MediaWiki 1.35+
-			return MediaWikiServices::getInstance()->getAuthManager();
-		}
-
-		// MediaWiki 1.31-1.34
-		return AuthManager::singleton();
 	}
 }

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,37 +25,15 @@ use MediaWiki\Moderation\IsConsequenceEqual;
 use MediaWiki\Moderation\MockConsequenceManager;
 
 class ModerationUnitTestCase extends MediaWikiTestCase {
-	use CompatPHPUnit6Trait;
-
 	protected function addCoreDBData() {
 		// Do nothing. Normally this method creates test user, etc.,
 		// but our unit tests don't need this.
 	}
 
-	/**
-	 * Workaround for a bug in MediaWiki 1.31 where resetDB() isn't called for the first test
-	 * in the class. Therefore we have to clean DB tables manually to prevent leftover data
-	 * from being used in the following test.
-	 */
-	public function addDBDataOnce() {
-		global $wgVersion;
-		if ( version_compare( $wgVersion, '1.32.0', '<' ) ) {
-			foreach ( $this->tablesUsed as $table ) {
-				$this->db->delete( $table, '*', __METHOD__ );
-			}
-		}
-	}
-
-	public function setUp() : void {
+	public function setUp(): void {
 		parent::setUp();
 
 		ModerationTestUtil::ignoreKnownDeprecations( $this );
-
-		// Workaround for bug in MediaWiki 1.31: services are not always reset before the test.
-		global $wgVersion;
-		if ( version_compare( $wgVersion, '1.32.0', '<' ) ) {
-			$this->overrideMwServices();
-		}
 	}
 
 	/**
@@ -63,7 +41,7 @@ class ModerationUnitTestCase extends MediaWikiTestCase {
 	 * @param IConsequence $value
 	 * @return IsConsequenceEqual
 	 */
-	public static function consequenceEqualTo( IConsequence $value ) : IsConsequenceEqual {
+	public static function consequenceEqualTo( IConsequence $value ): IsConsequenceEqual {
 		return new IsConsequenceEqual( $value );
 	}
 
@@ -73,7 +51,7 @@ class ModerationUnitTestCase extends MediaWikiTestCase {
 	 * @param IConsequence $actual
 	 * @param string $message
 	 */
-	public static function assertConsequence( $expected, $actual, string $message = '' ) : void {
+	public static function assertConsequence( $expected, $actual, string $message = '' ): void {
 		static::assertThat(
 			$actual,
 			new IsConsequenceEqual( $expected ),

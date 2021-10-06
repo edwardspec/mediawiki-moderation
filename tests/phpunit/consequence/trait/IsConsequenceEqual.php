@@ -65,7 +65,7 @@ class IsConsequenceEqual extends Constraint {
 	 * @param IConsequence $other
 	 * @return bool
 	 */
-	protected function matches( $other ) : bool {
+	protected function matches( $other ): bool {
 		return self::toArray( $this->value ) === self::toArray( $other );
 	}
 
@@ -74,7 +74,7 @@ class IsConsequenceEqual extends Constraint {
 	 * @param mixed $other
 	 * @return string
 	 */
-	protected function failureDescription( $other ) : string {
+	protected function failureDescription( $other ): string {
 		return $this->stringify( $other ) . ' ' . $this->toString();
 	}
 

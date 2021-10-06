@@ -132,7 +132,7 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 
 		// Cast all numeric values to strings: select() returns everything as strings,
 		// so comparison between 123 and '123' shouldn't result in failure of the test.
-		$expectedValues = array_map( function ( $val ) {
+		$expectedValues = array_map( static function ( $val ) {
 			return (string)$val;
 		}, $expectedValues );
 
@@ -193,7 +193,7 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 		$rrQuery = $this->createMock( RollbackResistantQuery::class );
 		$rrQuery->expects( $this->exactly( $numberOfCalls ) )
 			->method( 'perform' )->will( $this->returnCallback(
-				function ( callable $cb ) {
+				static function ( callable $cb ) {
 					// Run it immediately, nothing else.
 					$cb();
 				}

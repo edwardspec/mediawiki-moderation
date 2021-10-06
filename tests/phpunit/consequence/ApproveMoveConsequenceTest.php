@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -33,12 +33,8 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'page', 'logging', 'log_search' ];
 
-	public function setUp() : void {
+	public function setUp(): void {
 		parent::setUp();
-
-		// TODO: replace this deprecated hook in tests,
-		// but only if practical/necessary before discarding support for MediaWiki 1.31.
-		$this->hideDeprecated( 'TitleMoveComplete hook' );
 	}
 
 	/**
@@ -55,9 +51,9 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 		// Precreate the page that will be renamed.
 		$this->makeEdit( $title, $moderator );
 
-		// Monitor TitleMoveComplete hook
+		// Monitor PageMoveComplete hook
 		$hookFired = false;
-		$this->setTemporaryHook( 'TitleMoveComplete',
+		$this->setTemporaryHook( 'PageMoveComplete',
 			function ( $hookTitle, $hookNewTitle, $hookUser, $pageid, $redirid, $hookReason )
 			use ( $user, $title, $reason, &$hookFired ) {
 				$hookFired = true;
@@ -69,6 +65,9 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 
 				return true;
 			} );
+
+		// Moves caused by approval shouldn't be intercepted.
+		$this->setMwGlobals( 'wgModerationEnable', false );
 
 		// Create and run the Consequence.
 		$consequence = new ApproveMoveConsequence( $moderator, $title, $newTitle, $user, $reason );
@@ -92,9 +91,9 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 		// Precreate the page that will be renamed.
 		$this->makeEdit( $title, $moderator );
 
-		// Monitor TitleMoveComplete hook
+		// Monitor PageMoveComplete hook
 		$hookFired = false;
-		$this->setTemporaryHook( 'TitleMoveComplete', function () use ( &$hookFired ) {
+		$this->setTemporaryHook( 'PageMoveComplete', static function () use ( &$hookFired ) {
 			$hookFired = true;
 		} );
 
@@ -109,7 +108,7 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 			"ApproveMoveConsequence succeeded for invalid move." );
 		$this->assertTrue( $status->hasMessage( 'selfmove' ),
 			"ApproveMoveConsequence didn't return expected 'selfmove' Status." );
-		$this->assertFalse( $hookFired, "TitleMoveComplete hook was fired for invalid move." );
+		$this->assertFalse( $hookFired, "PageMoveComplete hook was fired for invalid move." );
 	}
 
 	/**
@@ -124,26 +123,14 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 		$reason = 'Some reasons why the page was renamed';
 
 		// Simulate situation when the moderator is not allowed to rename pages.
-		global $wgVersion;
-		if ( version_compare( $wgVersion, '1.32.0', '>=' ) ) {
-			// MediaWiki 1.32+
-			$this->setMwGlobals( 'wgRevokePermissions', [ 'moderator' => [ 'move' => true ] ] );
-		} else {
-			// MediaWiki 1.31 doesn't have $wgRevokePermissions
-			$this->setTemporaryHook( 'UserGetRights', function ( $user, &$rights ) use ( $moderator ) {
-				if ( $user->equals( $moderator ) ) {
-					$rights = array_diff( $rights, [ 'move' ] );
-				}
-				return true;
-			} );
-		}
+		$this->setMwGlobals( 'wgRevokePermissions', [ 'moderator' => [ 'move' => true ] ] );
 
 		// Precreate the page that will be renamed.
 		$this->makeEdit( $title, $moderator );
 
-		// Monitor TitleMoveComplete hook
+		// Monitor PageMoveComplete hook
 		$hookFired = false;
-		$this->setTemporaryHook( 'TitleMoveComplete', function () use ( &$hookFired ) {
+		$this->setTemporaryHook( 'PageMoveComplete', static function () use ( &$hookFired ) {
 			$hookFired = true;
 		} );
 
@@ -155,6 +142,6 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 			"ApproveMoveConsequence succeeded for a moderator who is not allowed to move." );
 		$this->assertEquals( 'movenotallowed', $status->getMessage()->getKey(),
 			"ApproveMoveConsequence didn't return expected Status." );
-		$this->assertFalse( $hookFired, "TitleMoveComplete hook was fired for non-allowed move." );
+		$this->assertFalse( $hookFired, "PageMoveComplete hook was fired for non-allowed move." );
 	}
 }

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2020 Edward Chernenko.
+	Copyright (C) 2015-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -88,7 +88,7 @@ class ModerationUploadTest extends ModerationTestCase {
 	}
 
 	/**
-	 * @covers ModerationApproveHook::onNewRevisionFromEditComplete
+	 * @covers ModerationApproveHook::onRevisionFromEditComplete
 	 */
 	public function testReupload( ModerationTestsuite $t ) {
 		$title = "Test image " . $t->uniqueSuffix() . ".png";

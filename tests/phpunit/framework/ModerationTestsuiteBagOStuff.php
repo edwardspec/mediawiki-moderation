@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,12 +19,6 @@
  * @file
  * Selectively cleanable BagOStuff. Used for parallel PHPUnit testing.
  */
-
-if ( !class_exists( 'MediumSpecificBagOStuff' ) ) {
-	// For MediaWiki 1.31-1.33.
-	// @phan-suppress-next-line PhanRedefineClassAlias
-	class_alias( BagOStuff::class, 'MediumSpecificBagOStuff' );
-}
 
 class ModerationTestsuiteBagOStuff extends MediumSpecificBagOStuff {
 	/**
@@ -126,24 +120,6 @@ class ModerationTestsuiteBagOStuff extends MediumSpecificBagOStuff {
 	/** @inheritDoc */
 	public function decr( $key, $value = 1, $flags = 0 ) {
 		return self::$store->decr( $key, $value, $flags );
-	}
-
-	// Backward compatibility methods for MediaWiki 1.31-1.33: set(), add(), delete().
-	// Not needed in MediaWiki 1.34+ (MediumSpecificBagOStuff class implements them for us).
-
-	/** @inheritDoc */
-	public function set( $key, $value, $exptime = 0, $flags = 0 ) {
-		return $this->doSet( $key, $value, $exptime, $flags );
-	}
-
-	/** @inheritDoc */
-	public function add( $key, $value, $exptime = 0, $flags = 0 ) {
-		return $this->doAdd( $key, $value, $exptime, $flags );
-	}
-
-	/** @inheritDoc */
-	public function delete( $key, $flags = 0 ) {
-		return $this->doDelete( $key, $flags );
 	}
 
 	/** @inheritDoc */

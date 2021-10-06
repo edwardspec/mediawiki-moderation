@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -45,14 +45,6 @@ abstract class ModerationEntry {
 	 * @param stdClass $row
 	 */
 	public function __construct( $row ) {
-		if ( !isset( $row->type ) ) { // !ModerationVersionCheck::hasModType()
-			$row->type = ModerationNewChange::MOD_TYPE_EDIT;
-		}
-
-		if ( !isset( $row->tags ) ) { // !ModerationVersionCheck::areTagsSupported()
-			$row->tags = null;
-		}
-
 		$this->row = $row;
 	}
 
@@ -62,22 +54,15 @@ abstract class ModerationEntry {
 	 * @return array
 	 */
 	public static function getFields() {
-		$fields = [
+		return [
 			'mod_user AS user',
 			'mod_user_text AS user_text',
 			'mod_namespace AS namespace',
-			'mod_title AS title'
+			'mod_title AS title',
+			'mod_type AS type',
+			'mod_page2_namespace AS page2_namespace',
+			'mod_page2_title AS page2_title'
 		];
-
-		if ( ModerationVersionCheck::hasModType() ) {
-			$fields = array_merge( $fields, [
-				'mod_type AS type',
-				'mod_page2_namespace AS page2_namespace',
-				'mod_page2_title AS page2_title'
-			] );
-		}
-
-		return $fields;
 	}
 
 	/**

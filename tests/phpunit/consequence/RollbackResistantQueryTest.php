@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -134,17 +134,17 @@ class RollbackResistantQueryTest extends ModerationUnitTestCase {
 	 */
 	private function makeCallCounter( $numberOfCalls ) {
 		$callCounter = $this->getMockBuilder( stdClass::class )
-			->setMethods( [ 'doSomething' ] )
+			->addMethods( [ 'doSomething' ] )
 			->getMock();
 		$callCounter->expects( $this->exactly( $numberOfCalls ) )->method( 'doSomething' );
 
-		return function () use ( $callCounter ) {
+		return static function () use ( $callCounter ) {
 			// @phan-suppress-next-line PhanUndeclaredMethod
 			$callCounter->doSomething();
 		};
 	}
 
-	public function setUp() : void {
+	public function setUp(): void {
 		parent::setUp();
 		$this->listenerFunc = null;
 	}

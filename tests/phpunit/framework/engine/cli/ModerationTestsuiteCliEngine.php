@@ -217,7 +217,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 
 		/* Remember the newly set cookies */
 		$response = $result['FauxResponse'];
-		$this->cookies = array_map( function ( $info ) {
+		$this->cookies = array_map( static function ( $info ) {
 			return $info['value'];
 		}, $response->getCookies() ) + $this->cookies;
 

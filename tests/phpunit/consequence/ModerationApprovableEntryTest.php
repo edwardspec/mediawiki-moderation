@@ -216,7 +216,7 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 
 		return $this->getMockBuilder( ModerationApprovableEntry::class )
 			->setConstructorArgs( [ $row, $manager, $approveHook ] )
-			->setMethods( $methods )
+			->onlyMethods( $methods )
 			->getMockForAbstractClass();
 	}
 

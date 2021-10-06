@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ require_once __DIR__ . "/autoload.php";
 class EntryFactoryTest extends ModerationUnitTestCase {
 	use ModifyDbRowTestTrait;
 
+	/** @var string[] */
 	protected $tablesUsed = [ 'moderation' ];
 
 	/**
@@ -311,7 +312,7 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 		$this->assertCount( count( $idsToFind ), $entries );
 		$this->assertContainsOnlyInstancesOf( ModerationApprovableEntry::class, $entries );
 
-		$foundIds = array_map( function ( $entry ) {
+		$foundIds = array_map( static function ( $entry ) {
 			return $entry->getId();
 		}, $entries );
 		$this->assertArrayEquals( $idsToFind, $foundIds );

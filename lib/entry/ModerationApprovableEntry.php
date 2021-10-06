@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -64,12 +64,9 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 			'mod_text AS text',
 			'mod_merged_revid AS merged_revid',
 			'mod_rejected AS rejected',
-			'mod_stash_key AS stash_key'
+			'mod_stash_key AS stash_key',
+			'mod_tags AS tags'
 		] );
-
-		if ( ModerationVersionCheck::areTagsSupported() ) {
-			$fields[] = 'mod_tags AS tags';
-		}
 
 		return $fields;
 	}

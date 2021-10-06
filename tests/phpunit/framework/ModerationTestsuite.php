@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2020 Edward Chernenko.
+	Copyright (C) 2015-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@ require_once __DIR__ . '/autoload.php';
  */
 
 class ModerationTestsuite {
-	const TEST_PASSWORD = '123456';
-	const DEFAULT_USER_AGENT = 'MediaWiki Moderation Testsuite';
+	public const TEST_PASSWORD = '123456';
+	public const DEFAULT_USER_AGENT = 'MediaWiki Moderation Testsuite';
 
 	/** @var IModerationTestsuiteEngine */
 	protected $engine;
@@ -320,16 +320,7 @@ class ModerationTestsuite {
 			return;
 		}
 
-		if ( method_exists( $dbw, 'truncate' ) ) {
-			// MediaWiki 1.35+
-			$dbw->truncate( $table );
-		} else {
-			// MediaWiki 1.31-1.34
-			$dbw->delete( $table, '*', __METHOD__ );
-			if ( $dbw->getType() == 'postgres' ) {
-				$dbw->resetSequenceForTable( $table, __METHOD__ );
-			}
-		}
+		$dbw->truncate( $table );
 	}
 
 	/**
@@ -721,23 +712,12 @@ class ModerationTestsuite {
 	 */
 	public function getLastRevision( $title ) {
 		$page = WikiPage::factory( Title::newFromText( $title ) );
-
-		if ( $this->mwVersionCompare( '1.32.0', '<' ) ) {
-			// For MediaWiki 1.31 only: it doesn't have getRevisionRecord().
-			$rev = $page->getRevision();
-			if ( !$rev ) {
-				return false;
-			}
-			$username = $rev->getUserText();
-		} else {
-			// MediaWiki 1.32+
-			$rev = $page->getRevisionRecord();
-			if ( !$rev ) {
-				return false;
-			}
-			$username = $rev->getUser()->getName();
+		$rev = $page->getRevisionRecord();
+		if ( !$rev ) {
+			return false;
 		}
 
+		$username = $rev->getUser()->getName();
 		$comment = $rev->getComment() ?? '';
 		if ( $comment instanceof CommentStoreComment ) {
 			$comment = $comment->text;
@@ -791,7 +771,7 @@ class ModerationTestsuite {
 			[ 'ORDER BY' => 'rc_timestamp DESC' ]
 		);
 
-		return function ( $numberOfEdits ) use ( $dbw, $lastRcId ) {
+		return static function ( $numberOfEdits ) use ( $dbw, $lastRcId ) {
 			$pollTimeLimitSeconds = 5; /* Polling will fail after these many seconds */
 			$pollRetryPeriodSeconds = 0.2; /* How often to check recentchanges */
 

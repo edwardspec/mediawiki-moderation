@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2019-2020 Edward Chernenko.
+	Copyright (C) 2019-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -81,15 +81,7 @@ class ModerationUploadStorageTest extends ModerationTestCase {
 
 		$this->assertEquals( ModerationUploadStorage::USERNAME, $stashOwner->getName() );
 		$this->assertFalse( $stashOwner->isAnon() );
-
-		if ( method_exists( 'User', 'isSystemUser' ) ) {
-			// MediaWiki 1.35+
-			$this->assertTrue( $stashOwner->isSystemUser() );
-		} else {
-			// MediaWiki 1.31-1.34
-			$authManager = MediaWiki\Auth\AuthManager::singleton();
-			$this->assertFalse( $authManager->userCanAuthenticate( $stashOwner->getName() ) );
-		}
+		$this->assertTrue( $stashOwner->isSystemUser() );
 
 		$keys = $dbw->selectFieldValues( 'moderation', 'mod_stash_key', '', __METHOD__ );
 		$keys = array_filter( $keys );

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@
 global $wgAutoloadClasses;
 
 $wgAutoloadClasses += [
-	'CompatPHPUnit6Trait' => __DIR__ . '/../../common/CompatPHPUnit6Trait.php',
 	'ModerationTestHTML' => __DIR__ . '/../../common/ModerationTestHTML.php',
 	'ModerationTestUtil' => __DIR__ . '/../../common/ModerationTestUtil.php',
 	'ActionTestTrait' => __DIR__ . '/trait/ActionTestTrait.php',

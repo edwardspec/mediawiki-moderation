@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017-2020 Edward Chernenko.
+	Copyright (C) 2017-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,14 +25,6 @@ namespace MediaWiki\Moderation;
 use Wikimedia\Rdbms\IDatabase;
 use Wikimedia\Rdbms\ILoadBalancer;
 use Wikimedia\Services\DestructibleService;
-
-// @codeCoverageIgnoreStart
-if ( !interface_exists( DestructibleService::class ) ) {
-	// MediaWiki 1.31-1.33
-	// @phan-suppress-next-line PhanUndeclaredClassAliasOriginal
-	class_alias( 'MediaWiki\Services\DestructibleService', 'Wikimedia\Services\DestructibleService' );
-}
-// @codeCoverageIgnoreEnd
 
 class RollbackResistantQuery implements DestructibleService {
 	/** @var callable[] All callables that were passed to perform() */

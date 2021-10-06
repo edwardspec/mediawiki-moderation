@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -47,10 +47,6 @@ class ModerationAjaxHookTest extends ModerationUnitTestCase {
 			}
 		}
 
-		if ( isset( $opt['mwVersion'] ) ) {
-			$this->setMwGlobals( 'wgVersion', $opt['mwVersion'] );
-		}
-
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 		if ( $opt['pageExists'] ?? false ) {
 			$title->resetArticleId( 12345 );
@@ -79,7 +75,7 @@ class ModerationAjaxHookTest extends ModerationUnitTestCase {
 			MobileContext::singleton()->setContext( $context );
 
 			// @phan-suppress-next-line PhanUnusedVariable
-			$cleanupScope = new ScopedCallback( function () {
+			$cleanupScope = new ScopedCallback( static function () {
 				MobileContext::resetInstanceForTesting();
 			} );
 		}
@@ -119,43 +115,21 @@ class ModerationAjaxHookTest extends ModerationUnitTestCase {
 				'isMobileView' => false,
 				'expectedModules' => [ 'ext.moderation.ve', 'ext.moderation.ajaxhook' ]
 			] ],
-			'both VE and MF are installed, using Mobile view, MW 1.33+' => [ [
+			'both VE and MF are installed, using Mobile view' => [ [
 				'installedExtensions' => [ 'VisualEditor' => true, 'MobileFrontend' => true ],
 				'isMobileView' => true,
-				'mwVersion' => '1.33.0',
 				'expectedModules' => [
 					'ext.moderation.mf.notify',
 					'ext.moderation.mf.preload33',
 					'ext.moderation.ajaxhook'
 				]
 			] ],
-			'only MF is installed, using Mobile view, MW 1.33+' => [ [
+			'only MF is installed, using Mobile view' => [ [
 				'installedExtensions' => [ 'VisualEditor' => false, 'MobileFrontend' => true ],
 				'isMobileView' => true,
-				'mwVersion' => '1.33.0',
 				'expectedModules' => [
 					'ext.moderation.mf.notify',
 					'ext.moderation.mf.preload33',
-					'ext.moderation.ajaxhook'
-				]
-			] ],
-			'both VE and MF are installed, using Mobile view, MW 1.32' => [ [
-				'installedExtensions' => [ 'VisualEditor' => true, 'MobileFrontend' => true ],
-				'isMobileView' => true,
-				'mwVersion' => '1.32.0',
-				'expectedModules' => [
-					'ext.moderation.mf.notify',
-					'ext.moderation.mf.preload31',
-					'ext.moderation.ajaxhook'
-				]
-			] ],
-			'only MF is installed, using Mobile view, MW 1.32' => [ [
-				'installedExtensions' => [ 'VisualEditor' => false, 'MobileFrontend' => true ],
-				'isMobileView' => true,
-				'mwVersion' => '1.32.0',
-				'expectedModules' => [
-					'ext.moderation.mf.notify',
-					'ext.moderation.mf.preload31',
 					'ext.moderation.ajaxhook'
 				]
 			] ],
@@ -180,17 +154,8 @@ class ModerationAjaxHookTest extends ModerationUnitTestCase {
 				'hasPendingEdit' => true,
 				'expectFakeArticleId' => false
 			] ],
-			'MF is installed, page doesn\'t exist, have pending edit, MW 1.32' => [ [
+			'Need wgArticleId=-1: MF is installed, page doesn\'t exist, have pending edit' => [ [
 				'installedExtensions' => [ 'MobileFrontend' => true ],
-				'mwVersion' => '1.32.0',
-				'isMobileView' => true,
-				'pageExists' => true,
-				'hasPendingEdit' => true,
-				'expectFakeArticleId' => false
-			] ],
-			'Need wgArticleId=-1: MF is installed, page doesn\'t exist, have pending edit, MW 1.33+' => [ [
-				'installedExtensions' => [ 'MobileFrontend' => true ],
-				'mwVersion' => '1.33.0',
 				'isMobileView' => true,
 				'pageExists' => false,
 				'hasPendingEdit' => true,

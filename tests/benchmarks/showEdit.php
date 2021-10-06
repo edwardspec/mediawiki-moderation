@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,8 +32,8 @@ class BenchmarkShowEdit extends ModerationBenchmark {
 	 */
 	public $id;
 
-	const TEXT_BEFORE = 'Text before';
-	const TEXT_AFTER = 'Newtext after';
+	private const TEXT_BEFORE = 'Text before';
+	private const TEXT_AFTER = 'Newtext after';
 
 	/**
 	 * Default number of loops.

@@ -1,13 +1,13 @@
 {
 	"name": "Moderation",
-	"version": "1.5.36",
+	"version": "1.6.1",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
 	"license-name": "GPL-3.0+",
 	"type": "antispam",
 	"requires": {
-		"MediaWiki": ">= 1.31.0"
+		"MediaWiki": ">= 1.35.0"
 	},
 	"GroupPermissions": {
 		"automoderated": {
@@ -205,19 +205,6 @@
 				"mobile-frontend-editor-success"
 			]
 		},
-		"ext.moderation.mf.preload31": {
-			"scripts": [
-				"mobilefrontend/preload31.mf.js"
-			],
-			"targets": [
-				"mobile"
-			],
-			"dependencies": [
-				"mediawiki.api",
-				"mediawiki.util",
-				"mobile.editor.api"
-			]
-		},
 		"ext.moderation.mf.preload33": {
 			"scripts": [
 				"mobilefrontend/preload33.mf.js"
@@ -298,16 +285,17 @@
 		"BeforeInitialize": "ModerationPlugins::install",
 		"BeforePageDisplay": "ModerationEditHooks::onBeforePageDisplay",
 		"CheckUserInsertForRecentChange": "ModerationApproveHook::onCheckUserInsertForRecentChange",
+		"EchoCanAbortNewMessagesAlert": "ModerationNotifyModerator::onEchoCanAbortNewMessagesAlert",
 		"EditFilter": "MediaWiki\\Moderation\\EditFormOptions::onEditFilter",
 		"EditFormInitialText": "ModerationPreload::onEditFormInitialText",
 		"EditFormPreloadText": "ModerationPreload::onEditFormPreloadText",
 		"EditPage::showEditForm:fields": "ModerationEditHooks::prepareEditForm",
 		"FileUpload": "ModerationApproveHook::onFileUpload",
+		"GetNewMessagesAlert": "ModerationNotifyModerator::onGetNewMessagesAlert",
 		"getUserPermissionsErrors": "ModerationUploadHooks::ongetUserPermissionsErrors",
 		"LoadExtensionSchemaUpdates": "ModerationUpdater::onLoadExtensionSchemaUpdates",
 		"ListDefinedTags": "ModerationEditHooks::onListDefinedTags",
 		"LocalUserCreated": "ModerationPreload::onLocalUserCreated",
-		"MovePageCheckPermissions": "ModerationMoveHooks::onMovePageCheckPermissions",
 		"PageContentSave": "ModerationEditHooks::onPageContentSave",
 		"PageSaveComplete": [
 			"ModerationApproveHook::onPageSaveComplete",
@@ -319,12 +307,10 @@
 		"RecentChange_save": "ModerationApproveHook::onRecentChange_save",
 		"RevisionFromEditComplete": "ModerationApproveHook::onRevisionFromEditComplete",
 		"SpecialPageBeforeExecute": "MediaWiki\\Moderation\\EditFormOptions::onSpecialPageBeforeExecute",
+		"TitleMove": "ModerationMoveHooks::onTitleMove",
 		"UploadVerifyUpload": "ModerationUploadHooks::onUploadVerifyUpload",
 		"wgQueryPages": "ModerationApiHooks::onwgQueryPages"
 	},
-	"ExtensionFunctions": [
-		"ModerationCompatTools::installCompatHooks"
-	],
 	"config": {
 		"ModerationEnable": {
 			"value": true,

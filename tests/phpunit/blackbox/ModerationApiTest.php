@@ -65,6 +65,7 @@ class ModerationApiTest extends ModerationTestCase {
 
 	/**
 	 * Provide datasets for testModerationApi() runs.
+	 * @return array
 	 */
 	public function dataProviderModerationApi() {
 		return [

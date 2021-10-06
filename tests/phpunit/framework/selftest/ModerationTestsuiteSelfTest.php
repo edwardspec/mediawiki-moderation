@@ -136,8 +136,9 @@ class ModerationTestsuiteSelfTest extends ModerationTestCase {
 
 	/**
 	 * Provides dataset where some parameters are provided by $provider1, some by $provider2.
-	 * @param $provider1 Name of DataProvider method, e.g. 'engineDataProvider'.
-	 * @param $provider2 Name of DataProvider method, e.g. 'methodDataProvider'.
+	 * @param string $provider1 Name of DataProvider method, e.g. 'engineDataProvider'.
+	 * @param string $provider2 Name of DataProvider method, e.g. 'methodDataProvider'.
+	 * @return array
 	 */
 	public function multiplyProviders( $provider1, $provider2 ) {
 		$sets1 = call_user_func( [ $this, $provider1 ] );

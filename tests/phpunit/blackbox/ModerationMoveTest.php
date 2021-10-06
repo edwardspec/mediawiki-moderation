@@ -26,9 +26,16 @@ require_once __DIR__ . "/../framework/ModerationTestsuite.php";
  * @covers ModerationMoveHooks
  */
 class ModerationMoveTest extends ModerationTestCase {
+	/** @var string */
 	public $oldTitle = 'About dogs';
+
+	/** @var string */
 	public $newTitle = 'About herding dogs';
+
+	/** @var string */
 	public $text = 'Initial content of page "About dogs".';
+
+	/** @var string */
 	public $reasonForMoving = 'renamed for whatever reason';
 
 	public function testMove( ModerationTestsuite $t ) {

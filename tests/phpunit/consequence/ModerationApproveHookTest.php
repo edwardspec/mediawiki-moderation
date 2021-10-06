@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 	protected $tablesUsed = [ 'revision', 'page', 'user', 'recentchanges',
 		'change_tag', 'logging', 'log_search', 'image', 'oldimage' ];
 
-	public function setUp() : void {
+	public function setUp(): void {
 		parent::setUp();
 
 		if ( ExtensionRegistry::getInstance()->isLoaded( 'CheckUser' ) ) {
@@ -96,7 +96,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 	/**
 	 * Verify that getLastRevId() returns rev_id of the most recently created revision.
 	 * @covers ModerationApproveHook::getLastRevId
-	 * @covers ModerationApproveHook::onNewRevisionFromEditComplete
+	 * @covers ModerationApproveHook::onRevisionFromEditComplete
 	 */
 	public function testGetLastRevId() {
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
@@ -703,7 +703,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 			if ( $this->db->getType() == 'postgres' ) {
 				global $wgVersion;
 				if ( version_compare( $wgVersion, '1.36.0', '<' ) ) {
-					// MediaWiki 1.32-1.35 only.
+					// MediaWiki 1.35 only.
 					$expectedIP .= '/32';
 				}
 			}
@@ -723,12 +723,6 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 				$rcWhere['rc_log_action'] = [ 'move', 'move_redir' ];
 			} else {
 				$rcWhere['rc_log_action'] = '';
-			}
-
-			if ( $rcWhere['rc_actor'] == 0 ) {
-				// B/C: MediaWiki 1.31 doesn't use Actors by default.
-				unset( $rcWhere['rc_actor'] );
-				$rcWhere['rc_user_text'] = $user->getName();
 			}
 
 			// Verify that ApproveHook has modified recentchanges.rc_ip field.
@@ -819,11 +813,6 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 				'log_title' => $title->getDBKey(),
 				'log_actor' => $user->getActorId()
 			];
-			if ( $logWhere['log_actor'] == 0 ) {
-				// B/C: MediaWiki 1.31 doesn't use Actors by default.
-				unset( $logWhere['log_actor'] );
-				$logWhere['log_user_text'] = $user->getName();
-			}
 
 			$log_ids = $this->db->selectFieldValues( 'logging', 'log_id', $logWhere, __METHOD__ );
 			foreach ( $log_ids as $log_id ) {

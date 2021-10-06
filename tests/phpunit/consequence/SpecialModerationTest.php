@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ require_once __DIR__ . "/autoload.php";
 class SpecialModerationTest extends ModerationUnitTestCase {
 	use MockModerationActionTrait;
 
+	/** @var string[] */
 	protected $tablesUsed = [ 'moderation', 'moderation_block' ];
 
 	/**
@@ -110,7 +111,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 			$this->identicalTo( $mockedResult ),
 			$this->isInstanceOf( OutputPage::class )
 		)->will( $this->returnCallback(
-			function ( $result, OutputPage $out ) use ( $mockedHtml ) {
+			static function ( $result, OutputPage $out ) use ( $mockedHtml ) {
 				$out->addHTML( $mockedHtml );
 			}
 		) );
@@ -204,7 +205,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 
 		$allFolders = [ 'pending', 'rejected', 'merged', 'spam' ];
 		$expectedFolderLinks = array_filter( $allFolders,
-			function ( $folder ) use ( $expectedFolder ) {
+			static function ( $folder ) use ( $expectedFolder ) {
 				return $folder !== $expectedFolder;
 			}
 		);
@@ -287,22 +288,19 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 	/**
 	 * Test folder-independent behavior of SpecialModeration when showing the list of changes.
 	 * @param bool $useAjax
-	 * @param string $mwVersion
 	 * @dataProvider dataProviderShowChangesList
 	 *
 	 * @covers SpecialModeration::showChangesList()
 	 * @covers SpecialModeration::execute()
 	 */
-	public function testShowChangesList( $useAjax, $mwVersion ) {
+	public function testShowChangesList( $useAjax ) {
+		$expectedStyles = [
+			'ext.moderation.special.css',
+			'mediawiki.interface.helpers.styles'
+		];
+
 		$moderator = self::getTestUser( [ 'moderator' ] )->getUser();
 		$this->setMwGlobals( 'wgModerationUseAjax', $useAjax );
-
-		$expectedStyles = [ 'ext.moderation.special.css' ];
-		if ( version_compare( $mwVersion, '1.35.0', '>=' ) ) {
-			$expectedStyles[] = 'mediawiki.interface.helpers.styles';
-		}
-
-		$this->setMwGlobals( 'wgVersion', $mwVersion );
 
 		$context = null;
 		$html = ModerationTestUtil::runSpecialModeration( $moderator, [], false, $context );
@@ -320,10 +318,8 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 	 */
 	public function dataProviderShowChangesList() {
 		return [
-			'$wgModerationUseAjax=false (default)' => [ false, '1.34.0' ],
-			'$wgModerationUseAjax=true' => [ true, '1.34.0' ],
-			'$wgModerationUseAjax=false (default), MW 1.35+' => [ false, '1.35.0' ],
-			'$wgModerationUseAjax=true, MW 1.35+' => [ true, '1.35.0' ]
+			'$wgModerationUseAjax=false (default)' => [ false ],
+			'$wgModerationUseAjax=true' => [ true ]
 		];
 	}
 

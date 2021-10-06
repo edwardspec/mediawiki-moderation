@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences when a move is queued for moderation.
-	 * @covers ModerationMoveHooks::onMovePageCheckPermissions
+	 * @covers ModerationMoveHooks::onTitleMove
 	 */
 	public function testMove() {
 		$this->precreatePage();
@@ -60,11 +60,7 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 		$this->setService( 'Moderation.CanSkip', $canSkip );
 
 		$mp = new MovePage( $this->title, $newTitle );
-		$status = $mp->isValidMove();
-		$status->merge( $mp->checkPermissions( $user, $reason ) );
-		if ( $status->isOK() ) {
-			$status->merge( $mp->move( $user, $reason, true ) );
-		}
+		$status = $mp->move( $user, $reason, true );
 
 		$this->assertTrue( $status->hasMessage( 'moderation-move-queued' ),
 			"Status returned by MovePage doesn't include \"moderation-move-queued\" message." );
@@ -81,7 +77,7 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of move when User is automoderated (can bypass moderation of moves).
-	 * @covers ModerationMoveHooks::onMovePageCheckPermissions
+	 * @covers ModerationMoveHooks::onTitleMove
 	 */
 	public function testAutomoderatedMove() {
 		$this->precreatePage();
@@ -102,11 +98,7 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 		$this->setService( 'Moderation.CanSkip', $canSkip );
 
 		$mp = new MovePage( $this->title, $newTitle );
-		$status = $mp->isValidMove();
-		$status->merge( $mp->checkPermissions( $user, $reason ) );
-		if ( $status->isOK() ) {
-			$status->merge( $mp->move( $user, $reason, true ) );
-		}
+		$status = $mp->move( $user, $reason, true );
 
 		$this->assertTrue( $status->isGood(),
 			"User can bypass moderation, but move() still failed: " . $status->getMessage()->plain() );
@@ -116,45 +108,8 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Test situation when Move was disallowed by some other extension.
-	 * @covers ModerationMoveHooks::onMovePageCheckPermissions
-	 */
-	public function testThirdPartyDisallowedMove() {
-		$this->precreatePage();
-
-		// Simulate situation when Move is blocked by $wgSummarySpamRegex.
-		// In this case $status will be fatal, so Moderation won't queue this edit.
-		$this->setMwGlobals( 'wgSummarySpamRegex', '//' ); // Matches everything
-
-		$user = self::getTestUser()->getUser();
-		$newTitle = Title::newFromText( 'UTPage-new-' . rand( 0, 100000 ) );
-		$reason = 'Some reason for renaming the page';
-
-		$manager = $this->mockConsequenceManager();
-
-		// Moderation shouldn't even check "can this user skip moderation?" here,
-		// because Status is already an error, so the move should be forbidden.
-		$canSkip = $this->createMock( ModerationCanSkip::class );
-		$canSkip->expects( $this->never() )->method( 'canMoveSkip' );
-		$this->setService( 'Moderation.CanSkip', $canSkip );
-
-		$mp = new MovePage( $this->title, $newTitle );
-		$status = $mp->isValidMove();
-		$status->merge( $mp->checkPermissions( $user, $reason ) );
-		if ( $status->isOK() ) {
-			$status->merge( $mp->move( $user, $reason, true ) );
-		}
-
-		$this->assertTrue( $status->hasMessage( 'spamprotectiontext' ),
-			"Status returned by MovePage doesn't include \"spamprotectiontext\" message." );
-
-		// The moderation was skipped, so should be no consequences.
-		$this->assertNoConsequences( $manager );
-	}
-
-	/**
 	 * Verify that move will not be queued when simply viewing Special:Movepage (without submitting).
-	 * @covers ModerationMoveHooks::onMovePageCheckPermissions
+	 * @covers ModerationMoveHooks::onTitleMove
 	 */
 	public function testMovePageOnlyView() {
 		$oldTitle = Title::newFromText( 'Old title' );

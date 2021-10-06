@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 
 namespace MediaWiki\Moderation;
 
-use ModerationVersionCheck;
 use User;
 
 class RejectOneConsequence implements IConsequence {
@@ -52,7 +51,7 @@ class RejectOneConsequence implements IConsequence {
 				'mod_rejected' => 1,
 				'mod_rejected_by_user' => $this->moderator->getId(),
 				'mod_rejected_by_user_text' => $this->moderator->getName(),
-				ModerationVersionCheck::setPreloadableToNo()
+				'mod_preloadable=mod_id'
 			],
 			[
 				'mod_id' => $this->modid,

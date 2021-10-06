@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2020 Edward Chernenko.
+	Copyright (C) 2015-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -34,12 +34,21 @@ class ModerationMergeTest extends ModerationTestCase {
 		Both users edit the original revision of the page.
 	*/
 
+	/** @var string */
 	private $page = 'Test page 1';
+
+	/** @var string */
 	private $text0 = "Normal line 1\nNot very interesting line 2\n" .
 		"Not very interesting line 3\nNormal line 4\n";
+
+	/** @var string */
 	private $text1 = "Normal line 1\nJust made line 2 more interesting\n" .
 		"Not very interesting line 3\nNormal line 4\n";
+
+	/** @var string */
 	private $text2 = "Normal line 1\nNormal line 4\n";
+
+	/** @var string */
 	private $text3 = "Normal line 1\nJust made line 2 more interesting\nNormal line 4\n";
 
 	private function makeUnresolvableEditConflict( ModerationTestsuite $t ) {

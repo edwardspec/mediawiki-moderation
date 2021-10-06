@@ -108,7 +108,7 @@ class ModerationEntryMoveTest extends ModerationUnitTestCase {
 	private function makeEntry( array $methods = [], $manager = null ) {
 		$entry = $this->getMockBuilder( ModerationEntryMove::class )
 			->disableOriginalConstructor()
-			->setMethods( $methods )
+			->onlyMethods( $methods )
 			->getMock();
 
 		$wrapper = TestingAccessWrapper::newFromObject( $entry );

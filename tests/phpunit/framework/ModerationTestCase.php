@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@
  */
 
 class ModerationTestCase extends MediaWikiTestCase {
-	use CompatPHPUnit6Trait;
-
 	/** @var ModerationTestsuite|null */
 	private $testsuite = null;
 
@@ -77,23 +75,9 @@ class ModerationTestCase extends MediaWikiTestCase {
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	public function setGroupPermissions( $newPerms, $newKey = null, $newValue = null ) {
-		parent::setGroupPermissions( $newPerms, $newKey, $newValue );
-
-		// Backward compatibility workaround: only needed for MediaWiki 1.31,
-		// where setGroupPermissions() wasn't calling setMWGlobals().
-		if ( $this->getTestsuite()->mwVersionCompare( '1.32.0', '<' ) ) {
-			global $wgGroupPermissions;
-			$this->setMWGlobals( 'wgGroupPermissions', $wgGroupPermissions );
-		}
-	}
-
-	/**
 	 * Dump the logs related to the current test.
 	 */
-	protected function onNotSuccessfulTest( Throwable $e ) : void {
+	protected function onNotSuccessfulTest( Throwable $e ): void {
 		switch ( get_class( $e ) ) {
 			case 'PHPUnit\Framework\SkippedTestError':
 				break; // Don't need logs of skipped tests
@@ -108,7 +92,7 @@ class ModerationTestCase extends MediaWikiTestCase {
 	/**
 	 * Forget the logs related to previous tests.
 	 */
-	protected function setUp() : void {
+	protected function setUp(): void {
 		ModerationTestsuiteLogger::prepareCleanBuffer( $this->getName() );
 		parent::setUp();
 

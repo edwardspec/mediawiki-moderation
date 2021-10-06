@@ -59,6 +59,7 @@ trait UploadTestTrait {
 		copy( $srcPath, $tmpFilePath );
 
 		$curlFile = new CURLFile( $tmpFilePath );
+		// phpcs:ignore MediaWiki.Usage.SuperGlobalsUsage.SuperGlobals
 		$_FILES['wpUploadFile'] = [
 			'name' => 'whatever', # Not used anywhere
 			'type' => $curlFile->getMimeType(),
