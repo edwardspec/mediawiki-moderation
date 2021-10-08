@@ -20,17 +20,51 @@
  * Hooks related to normal edits.
  */
 
-use MediaWiki\MediaWikiServices;
+use MediaWiki\ChangeTags\Hook\ListDefinedTagsHook;
+use MediaWiki\Hook\BeforePageDisplayHook;
+use MediaWiki\Hook\EditPage__showEditForm_fieldsHook;
 use MediaWiki\Moderation\AddLogEntryConsequence;
+use MediaWiki\Moderation\EditFormOptions;
+use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\EditResult;
+use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\UserIdentity;
 
-class ModerationEditHooks {
+class ModerationEditHooks implements
+	BeforePageDisplayHook,
+	EditPage__showEditForm_fieldsHook,
+	ListDefinedTagsHook,
+	PageSaveCompleteHook
+{
+	/** @var IConsequenceManager */
+	protected $consequenceManager;
+
+	/** @var ModerationCanSkip */
+	protected $canSkip;
+
+	/** @var EditFormOptions */
+	protected $editFormOptions;
+
+	/**
+	 * @param IConsequenceManager $consequenceManager
+	 * @param ModerationCanSkip $canSkip
+	 * @param EditFormOptions $editFormOptions
+	 */
+	public function __construct(
+		IConsequenceManager $consequenceManager,
+		ModerationCanSkip $canSkip,
+		EditFormOptions $editFormOptions
+	) {
+		$this->consequenceManager = $consequenceManager;
+		$this->canSkip = $canSkip;
+		$this->editFormOptions = $editFormOptions;
+	}
+
 	/**
 	 * PageContentSave hook handler.
 	 * Intercept normal edits and queue them for moderation.
@@ -45,13 +79,12 @@ class ModerationEditHooks {
 	 * @param Status $status
 	 * @return bool
 	 */
-	public static function onPageContentSave(
+	public function onPageContentSave(
 		$page, $user, $content, $summary, $is_minor,
 		$is_watch, $section, $flags, $status
 	) {
 		$title = $page->getTitle();
-		$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
-		if ( $canSkip->canEditSkip( $user, $title->getNamespace() ) ) {
+		if ( $this->canSkip->canEditSkip( $user, $title->getNamespace() ) ) {
 			return true;
 		}
 
@@ -93,19 +126,17 @@ class ModerationEditHooks {
 			return true;
 		}
 
-		$editFormOptions = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
-
-		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
-		$manager->add( new QueueEditConsequence(
+		$this->consequenceManager->add( new QueueEditConsequence(
 			$page, $user, $content, $summary,
-			$editFormOptions->getSection(), $editFormOptions->getSectionText(),
+			$this->editFormOptions->getSection(),
+			$this->editFormOptions->getSectionText(),
 			(bool)( $flags & EDIT_FORCE_BOT ),
 			(bool)$is_minor
 		) );
 
 		/* Watch/Unwatch the page immediately:
 			watchlist is the user's own business, no reason to wait for approval of the edit */
-		$editFormOptions->watchIfNeeded( $user, [ $title ] );
+		$this->editFormOptions->watchIfNeeded( $user, [ $title ] );
 
 		/*
 			We have queued this edit for moderation.
@@ -118,7 +149,7 @@ class ModerationEditHooks {
 			will be shown by JavaScript.
 		*/
 		$out = RequestContext::getMain()->getOutput();
-		$out->redirect( self::getRedirectURL( $title, $out ) );
+		$out->redirect( $this->getRedirectURL( $title, $out ) );
 
 		$status->fatal( 'moderation-edit-queued' );
 		return false;
@@ -130,7 +161,7 @@ class ModerationEditHooks {
 	 * @param IContextSource $context Any object that contains current context.
 	 * @return string URL
 	 */
-	protected static function getRedirectURL( Title $title, IContextSource $context ) {
+	protected function getRedirectURL( Title $title, IContextSource $context ) {
 		$query = [ 'modqueued' => 1 ];
 
 		/* Are customized "continue editing" links needed?
@@ -153,13 +184,11 @@ class ModerationEditHooks {
 
 	/**
 	 * BeforePageDisplay hook handler.
-	 * @param OutputPage &$out
-	 * @param Skin &$skin
-	 * @return true
+	 * @param OutputPage $out
+	 * @param Skin $skin @phan-unused-param
 	 */
-	public static function onBeforePageDisplay( &$out, &$skin ) {
-		$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
-		$isAutomoderated = $canSkip->canEditSkip(
+	public function onBeforePageDisplay( $out, $skin ): void {
+		$isAutomoderated = $this->canSkip->canEditSkip(
 			$out->getUser(),
 			$out->getTitle()->getNamespace()
 		);
@@ -170,8 +199,6 @@ class ModerationEditHooks {
 			] );
 			ModerationAjaxHook::add( $out );
 		}
-
-		return true;
 	}
 
 	/**
@@ -187,7 +214,7 @@ class ModerationEditHooks {
 	 * @param EditResult $editResult @phan-unused-param
 	 * @return true
 	 */
-	public static function onPageSaveComplete(
+	public function onPageSaveComplete(
 		$wikiPage, $user, $summary, $flags, $revisionRecord, $editResult
 	) {
 		if ( !$revisionRecord ) {
@@ -195,7 +222,7 @@ class ModerationEditHooks {
 			return true;
 		}
 
-		self::markAsMergedIfNeeded(
+		$this->markAsMergedIfNeeded(
 			$wikiPage,
 			$revisionRecord->getId(),
 			User::newFromIdentity( $user )
@@ -209,7 +236,7 @@ class ModerationEditHooks {
 	 * @param int $revid
 	 * @param User $user
 	 */
-	protected static function markAsMergedIfNeeded( $wikiPage, $revid, $user ) {
+	protected function markAsMergedIfNeeded( $wikiPage, $revid, $user ) {
 		/* Only moderators can merge. If someone else adds wpMergeID to the edit form, ignore it */
 		if ( !$user->isAllowed( 'moderation' ) ) {
 			return;
@@ -220,7 +247,7 @@ class ModerationEditHooks {
 			return;
 		}
 
-		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
+		$manager = $this->consequenceManager;
 		$somethingChanged = $manager->add( new MarkAsMergedConsequence( $mergeID, $revid ) );
 
 		if ( $somethingChanged ) {
@@ -245,9 +272,9 @@ class ModerationEditHooks {
 	 * @param OutputPage $out
 	 * @return true
 	 */
-	public static function prepareEditForm( $editpage, $out ) {
-		$editFormOptions = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
-		$mergeID = $editFormOptions->getMergeID();
+	// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
+	public function onEditPage__showEditForm_fields( $editpage, $out ) {
+		$mergeID = $this->editFormOptions->getMergeID();
 		if ( $mergeID ) {
 			$out->addHTML( Html::hidden( 'wpMergeID', (string)$mergeID ) );
 			$out->addHTML( Html::hidden( 'wpIgnoreBlankSummary', '1' ) );
@@ -262,7 +289,7 @@ class ModerationEditHooks {
 	 * @param string[] &$tags
 	 * @return true
 	 */
-	public static function onListDefinedTags( &$tags ) {
+	public function onListDefinedTags( &$tags ) {
 		$tags[] = 'moderation-merged';
 		return true;
 	}

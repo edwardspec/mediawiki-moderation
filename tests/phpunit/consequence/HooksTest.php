@@ -156,7 +156,7 @@ class HooksTest extends ModerationUnitTestCase {
 	 * Ensure that EditPage::showEditForm:fields hook adds merge-related fields to the EditPage form.
 	 * @param int $mergeID
 	 * @dataProvider dataProviderMergeFieldsInEditForm
-	 * @covers ModerationEditHooks::prepareEditForm
+	 * @covers ModerationEditHooks::onEditPage__showEditForm_fields
 	 */
 	public function testMergeFieldsInEditForm( $mergeID ) {
 		// Mock the EditFormOptions service.

@@ -198,7 +198,7 @@ class ModerationMergeTest extends ModerationTestCase {
 	}
 
 	/**
-	 * @covers ModerationEditHooks::prepareEditForm
+	 * @covers ModerationEditHooks::onEditPage__showEditForm_fields
 	 * Ensure that wpMergeID is preserved when user clicks Preview.
 	 */
 	public function testPreserveMergeID( ModerationTestsuite $t ) {
