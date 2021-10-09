@@ -21,13 +21,25 @@
  * Corrects rev_timestamp, rc_ip and checkuser logs when edit is approved.
  */
 
+use MediaWiki\Hook\FileUploadHook;
+use MediaWiki\Hook\PageMoveCompleteHook;
+use MediaWiki\Hook\RecentChange_saveHook;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Page\Hook\RevisionFromEditCompleteHook;
 use MediaWiki\Revision\RevisionRecord;
+use MediaWiki\Storage\EditResult;
+use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\UserIdentity;
 use Psr\Log\LoggerInterface;
 
-class ModerationApproveHook {
+class ModerationApproveHook implements
+	FileUploadHook,
+	PageMoveCompleteHook,
+	PageSaveCompleteHook,
+	RecentChange_saveHook,
+	RevisionFromEditCompleteHook
+{
 	/** @var LoggerInterface */
 	private $logger;
 
@@ -71,13 +83,27 @@ class ModerationApproveHook {
 	}
 
 	/**
+	 * Used in extension.json to obtain this service as HookHandler.
+	 * @return ModerationApproveHook
+	 */
+	public static function hookHandlerFactory() {
+		return MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
+	}
+
+	/**
 	 * PageSaveComplete hook.
+	 * @param WikiPage $wikiPage @phan-unused-param
+	 * @param UserIdentity $user @phan-unused-param
+	 * @param string $summary @phan-unused-param
+	 * @param int $flags @phan-unused-param
+	 * @param RevisionRecord $revisionRecord @phan-unused-param
+	 * @param EditResult $editResult @phan-unused-param
 	 * @return true
 	 */
-	public static function onPageSaveComplete() {
-		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
-		$approveHook->scheduleDoUpdate();
-
+	public function onPageSaveComplete(
+		$wikiPage, $user, $summary, $flags, $revisionRecord, $editResult
+	) {
+		$this->scheduleDoUpdate();
 		return true;
 	}
 
@@ -87,27 +113,19 @@ class ModerationApproveHook {
 	 * @param LinkTarget $oldTitle
 	 * @param LinkTarget $newTitle @phan-unused-param
 	 * @param UserIdentity $user
+	 * @param int $pageid @phan-unused-param
+	 * @param int $redirid @phan-unused-param
+	 * @param string $reason @phan-unused-param
+	 * @param RevisionRecord $revision @phan-unused-param
 	 * @return true
 	 */
-	public static function onPageMoveComplete( $oldTitle, $newTitle, $user ) {
-		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
-		$approveHook->modifyRedirectAfterMove( Title::newFromLinkTarget( $oldTitle ), $user );
-
-		return true;
-	}
-
-	/**
-	 * Main logic of PageMoveComplete hook.
-	 * @param Title $title
-	 * @param UserIdentity $user
-	 */
-	protected function modifyRedirectAfterMove( Title $title, UserIdentity $user ) {
-		$task = $this->getTask( $title, $user->getName(), ModerationNewChange::MOD_TYPE_MOVE );
+	public function onPageMoveComplete( $oldTitle, $newTitle, $user, $pageid, $redirid, $reason, $revision ) {
+		$task = $this->getTask( $oldTitle, $user->getName(), ModerationNewChange::MOD_TYPE_MOVE );
 		if ( !$task ) {
-			return;
+			return true;
 		}
 
-		$revid = $title->getLatestRevID();
+		$revid = Title::newFromLinkTarget( $oldTitle )->getLatestRevID();
 		if ( $revid ) {
 			// Redirect was created. Its timestamp should also be modified.
 			$dbr = wfGetDB( DB_REPLICA );
@@ -117,6 +135,7 @@ class ModerationApproveHook {
 		}
 
 		$this->scheduleDoUpdate();
+		return true;
 	}
 
 	/**
@@ -124,23 +143,22 @@ class ModerationApproveHook {
 	 */
 	public function scheduleDoUpdate() {
 		$this->useCount ++;
-		DeferredUpdates::addCallableUpdate( __CLASS__ . '::doUpdate' );
+		DeferredUpdates::addCallableUpdate( [ $this, 'doUpdate' ] );
 	}
 
 	/**
 	 * Run reallyDoUpdate() if this is the last DeferredUpdate of this kind.
 	 */
-	public static function doUpdate() {
+	public function doUpdate() {
 		/* This DeferredUpdate is installed after every edit.
 			Only the last of these updates should run, because
 			all RecentChange_save hooks must be completed before it.
 		*/
-		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
-		if ( --$approveHook->useCount > 0 ) {
+		if ( --$this->useCount > 0 ) {
 			return;
 		}
 
-		$approveHook->reallyDoUpdate();
+		$this->reallyDoUpdate();
 	}
 
 	/**
@@ -355,28 +373,28 @@ class ModerationApproveHook {
 	/**
 	 * RevisionFromEditComplete hook.
 	 * Here we determine $lastRevId.
-	 * @param Article $article @phan-unused-param
+	 * @param WikiPage $wikiPage @phan-unused-param
 	 * @param RevisionRecord $rev
 	 * @param int|bool $originalRevId @phan-unused-param
 	 * @param UserIdentity $user @phan-unused-param
+	 * @param string[] &$tags
 	 * @return true
 	 */
-	public static function onRevisionFromEditComplete( $article, $rev, $originalRevId, $user ) {
+	public function onRevisionFromEditComplete( $wikiPage, $rev, $originalRevId, $user, &$tags ) {
 		/* Remember ID of this revision for getLastRevId() */
-		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
-		$approveHook->lastRevId = $rev->getId();
+		$this->lastRevId = $rev->getId();
 
 		return true;
 	}
 
 	/**
 	 * Calculate key in $tasks array for $title/$username/$type triplet.
-	 * @param Title $title
+	 * @param LinkTarget $title
 	 * @param string $username
 	 * @param string $type mod_type of this change.
 	 * @return string
 	 */
-	protected function getTaskKey( Title $title, $username, $type ) {
+	protected function getTaskKey( LinkTarget $title, $username, $type ) {
 		return implode( '[', /* Symbol "[" is not allowed in both titles and usernames */
 			[
 				$username,
@@ -389,26 +407,26 @@ class ModerationApproveHook {
 
 	/**
 	 * Find the task regarding edit by $username on $title.
-	 * @param Title $title
+	 * @param LinkTarget $title
 	 * @param string $username
 	 * @param string $type One of ModerationNewChange::MOD_TYPE_* values.
 	 * @return array|false [ 'ip' => ..., 'xff' => ..., 'ua' => ..., ... ]
 	 */
-	protected function getTask( Title $title, $username, $type ) {
+	protected function getTask( LinkTarget $title, $username, $type ) {
 		$key = $this->getTaskKey( $title, $username, $type );
 		return $this->tasks[$key] ?? false;
 	}
 
 	/**
 	 * Add a new task. Called before doEditContent().
-	 * @param Title $title
+	 * @param LinkTarget $title
 	 * @param User $user
 	 * @param string $type
 	 * @param array $task
 	 *
 	 * @phan-param array{ip:?string,xff:?string,ua:?string,tags:?string,timestamp:?string} $task
 	 */
-	public function addTask( Title $title, User $user, $type, array $task ) {
+	public function addTask( LinkTarget $title, User $user, $type, array $task ) {
 		$key = $this->getTaskKey( $title, $user->getName(), $type );
 		$this->tasks[$key] = $task;
 	}
@@ -454,22 +472,10 @@ class ModerationApproveHook {
 	 *
 	 * @phan-param array<string,string|int|null> &$fields
 	 */
-	public static function onCheckUserInsertForRecentChange( RecentChange $rc, array &$fields ) {
-		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
-		$approveHook->modifyCheckUserFields( $rc, $fields );
-
-		return true;
-	}
-
-	/**
-	 * Main logic of CheckUserInsertForRecentChange hook.
-	 * @param RecentChange $rc
-	 * @param array &$fields
-	 */
-	protected function modifyCheckUserFields( RecentChange $rc, array &$fields ) {
+	public function onCheckUserInsertForRecentChange( RecentChange $rc, array &$fields ) {
 		$task = $this->getTaskByRC( $rc );
 		if ( !$task ) {
-			return;
+			return true;
 		}
 
 		$fields['cuc_ip'] = IP::sanitizeIP( $task['ip'] );
@@ -485,6 +491,8 @@ class ModerationApproveHook {
 			$fields['cuc_xff'] = '';
 			$fields['cuc_xff_hex'] = null;
 		}
+
+		return true;
 	}
 
 	/**
@@ -495,12 +503,12 @@ class ModerationApproveHook {
 	 *
 	 * This is called from FileUpload hook (temporarily installed when approving the edit).
 	 *
-	 * @param LocalFile $file
+	 * @param File $file
 	 * @param bool $reupload
 	 * @param bool $hasDescription @phan-unused-param
 	 * @return true
 	 */
-	public static function onFileUpload( LocalFile $file, $reupload, $hasDescription ) {
+	public function onFileUpload( $file, $reupload, $hasDescription ) {
 		if ( $reupload ) {
 			return true; // rev_id is not missing for reuploads
 		}
@@ -572,26 +580,15 @@ class ModerationApproveHook {
 	 * It modifies the IP in the recentchanges table,
 	 * so that it matches the user who made the edit, not the moderator.
 	 *
-	 * @param RecentChange &$rc
+	 * @param RecentChange $rc
 	 * @return true
 	 */
-	public static function onRecentChange_save( RecentChange &$rc ) {
-		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
-		$approveHook->modifyRecentChange( $rc );
-
-		return true;
-	}
-
-	/**
-	 * Main logic of RecentChange_save hook.
-	 * @param RecentChange &$rc
-	 */
-	protected function modifyRecentChange( RecentChange &$rc ) {
+	public function onRecentChange_save( $rc ) {
 		global $wgPutIPinRC;
 
 		$task = $this->getTaskByRC( $rc );
 		if ( !$task ) {
-			return;
+			return true;
 		}
 
 		if ( $wgPutIPinRC ) {
@@ -623,5 +620,7 @@ class ModerationApproveHook {
 				$rc
 			);
 		}
+
+		return true;
 	}
 }

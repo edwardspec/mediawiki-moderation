@@ -286,6 +286,9 @@
 				"Moderation.Preload"
 			]
 		},
+		"approveHook": {
+			"factory": "ModerationApproveHook::hookHandlerFactory"
+		},
 		"edit": {
 			"class": "ModerationEditHooks",
 			"services": [
@@ -326,13 +329,13 @@
 		"ApiCheckCanExecute": "api",
 		"BeforeInitialize": "ModerationPlugins::install",
 		"BeforePageDisplay": "edit",
-		"CheckUserInsertForRecentChange": "ModerationApproveHook::onCheckUserInsertForRecentChange",
+		"CheckUserInsertForRecentChange": "approveHook",
 		"EchoCanAbortNewMessagesAlert": "notifyModerator",
 		"EditFilter": "editFormOptions",
 		"EditFormInitialText": "preload",
 		"EditFormPreloadText": "preload",
 		"EditPage::showEditForm:fields": "edit",
-		"FileUpload": "ModerationApproveHook::onFileUpload",
+		"FileUpload": "approveHook",
 		"GetNewMessagesAlert": "notifyModerator",
 		"getUserPermissionsErrors": "upload",
 		"LoadExtensionSchemaUpdates": "ModerationUpdater::onLoadExtensionSchemaUpdates",
@@ -340,14 +343,14 @@
 		"LocalUserCreated": "preload",
 		"PageContentSave": "edit",
 		"PageSaveComplete": [
-			"ModerationApproveHook::onPageSaveComplete",
+			"approveHook",
 			"edit"
 		],
 		"PageForms::EditFormInitialText": "ModerationPageForms::preloadText",
 		"PageForms::EditFormPreloadText": "ModerationPageForms::preloadText",
-		"PageMoveComplete": "ModerationApproveHook::onPageMoveComplete",
-		"RecentChange_save": "ModerationApproveHook::onRecentChange_save",
-		"RevisionFromEditComplete": "ModerationApproveHook::onRevisionFromEditComplete",
+		"PageMoveComplete": "approveHook",
+		"RecentChange_save": "approveHook",
+		"RevisionFromEditComplete": "approveHook",
 		"SpecialPageBeforeExecute": "editFormOptions",
 		"TitleMove": "move",
 		"UploadVerifyUpload": "upload",
