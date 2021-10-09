@@ -287,6 +287,14 @@
 				"Moderation.EditFormOptions"
 			]
 		},
+		"move": {
+			"class": "ModerationMoveHooks",
+			"services": [
+				"Moderation.ConsequenceManager",
+				"Moderation.CanSkip",
+				"Moderation.EditFormOptions"
+			]
+		},
 		"upload": {
 			"class": "ModerationUploadHooks",
 			"services": [
@@ -325,7 +333,7 @@
 		"RecentChange_save": "ModerationApproveHook::onRecentChange_save",
 		"RevisionFromEditComplete": "ModerationApproveHook::onRevisionFromEditComplete",
 		"SpecialPageBeforeExecute": "MediaWiki\\Moderation\\EditFormOptions::onSpecialPageBeforeExecute",
-		"TitleMove": "ModerationMoveHooks::onTitleMove",
+		"TitleMove": "move",
 		"UploadVerifyUpload": "upload",
 		"wgQueryPages": "ModerationApiHooks::onwgQueryPages"
 	},
