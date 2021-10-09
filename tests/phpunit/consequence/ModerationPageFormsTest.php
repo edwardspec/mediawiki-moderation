@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@
  * @file
  * Unit test of ModerationPageForms
  */
-
-use MediaWiki\Moderation\PendingEdit;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -135,22 +133,17 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 	 */
 	public function testPreload() {
 		$targetTitle = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
-		$expectedText = 'This text should be preloaded';
+		$text = 'Unmodified text';
 
-		// Mock ModerationPreload service to find a pending edit.
-		$pendingEdit = $this->createMock( PendingEdit::class );
-		$pendingEdit->expects( $this->once() )->method( 'getSectionText' )->willReturn( $expectedText );
-
+		// Mock ModerationPreload service to ensure that its preload hook is called.
 		$preload = $this->createMock( ModerationPreload::class );
-		$preload->expects( $this->any() )->method( 'findPendingEdit' )->with(
+		$preload->expects( $this->once() )->method( 'onEditFormPreloadText' )->with(
+			$this->identicalTo( $text ),
 			$this->identicalTo( $targetTitle )
-		)->willReturn( $pendingEdit );
+		);
 		$this->setService( 'Moderation.Preload', $preload );
 
-		$text = '';
 		ModerationPageForms::preloadText( $text, $targetTitle, Title::newFromText( "Doesn't matter" ) );
-
-		$this->assertSame( $expectedText, $text, "Expected text wasn't preloaded." );
 	}
 
 	/**

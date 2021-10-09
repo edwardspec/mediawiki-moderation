@@ -305,6 +305,9 @@
 		"notifyModerator": {
 			"factory": "ModerationNotifyModerator::hookHandlerFactory"
 		},
+		"preload": {
+			"factory": "ModerationPreload::hookHandlerFactory"
+		},
 		"upload": {
 			"class": "ModerationUploadHooks",
 			"services": [
@@ -315,7 +318,7 @@
 		}
 	},
 	"Hooks": {
-		"AlternateEdit": "ModerationPreload::onAlternateEdit",
+		"AlternateEdit": "preload",
 		"ApiBeforeMain": "api",
 		"ApiCheckCanExecute": "api",
 		"BeforeInitialize": "ModerationPlugins::install",
@@ -323,15 +326,15 @@
 		"CheckUserInsertForRecentChange": "ModerationApproveHook::onCheckUserInsertForRecentChange",
 		"EchoCanAbortNewMessagesAlert": "notifyModerator",
 		"EditFilter": "MediaWiki\\Moderation\\EditFormOptions::onEditFilter",
-		"EditFormInitialText": "ModerationPreload::onEditFormInitialText",
-		"EditFormPreloadText": "ModerationPreload::onEditFormPreloadText",
+		"EditFormInitialText": "preload",
+		"EditFormPreloadText": "preload",
 		"EditPage::showEditForm:fields": "edit",
 		"FileUpload": "ModerationApproveHook::onFileUpload",
 		"GetNewMessagesAlert": "notifyModerator",
 		"getUserPermissionsErrors": "upload",
 		"LoadExtensionSchemaUpdates": "ModerationUpdater::onLoadExtensionSchemaUpdates",
 		"ListDefinedTags": "edit",
-		"LocalUserCreated": "ModerationPreload::onLocalUserCreated",
+		"LocalUserCreated": "preload",
 		"PageContentSave": "edit",
 		"PageSaveComplete": [
 			"ModerationApproveHook::onPageSaveComplete",

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
  * @file
  * Plugin for using Moderation with Extension:PageForms.
  */
+
+use MediaWiki\MediaWikiServices;
 
 class ModerationPageForms {
 
@@ -49,7 +51,9 @@ class ModerationPageForms {
 			return true;
 		}
 
-		ModerationPreload::onEditFormPreloadText( $preloadContent, $targetTitle );
+		$preload = MediaWikiServices::getInstance()->getService( 'Moderation.Preload' );
+		$preload->onEditFormPreloadText( $preloadContent, $targetTitle );
+
 		return true;
 	}
 
