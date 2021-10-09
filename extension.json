@@ -294,6 +294,9 @@
 				"Moderation.EditFormOptions"
 			]
 		},
+		"editFormOptions": {
+			"factory": "MediaWiki\\Moderation\\EditFormOptions::hookHandlerFactory"
+		},
 		"move": {
 			"class": "ModerationMoveHooks",
 			"services": [
@@ -325,7 +328,7 @@
 		"BeforePageDisplay": "edit",
 		"CheckUserInsertForRecentChange": "ModerationApproveHook::onCheckUserInsertForRecentChange",
 		"EchoCanAbortNewMessagesAlert": "notifyModerator",
-		"EditFilter": "MediaWiki\\Moderation\\EditFormOptions::onEditFilter",
+		"EditFilter": "editFormOptions",
 		"EditFormInitialText": "preload",
 		"EditFormPreloadText": "preload",
 		"EditPage::showEditForm:fields": "edit",
@@ -345,7 +348,7 @@
 		"PageMoveComplete": "ModerationApproveHook::onPageMoveComplete",
 		"RecentChange_save": "ModerationApproveHook::onRecentChange_save",
 		"RevisionFromEditComplete": "ModerationApproveHook::onRevisionFromEditComplete",
-		"SpecialPageBeforeExecute": "MediaWiki\\Moderation\\EditFormOptions::onSpecialPageBeforeExecute",
+		"SpecialPageBeforeExecute": "editFormOptions",
 		"TitleMove": "move",
 		"UploadVerifyUpload": "upload",
 		"wgQueryPages": "api"
