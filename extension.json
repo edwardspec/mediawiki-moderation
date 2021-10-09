@@ -279,6 +279,13 @@
 		"remoteExtPath": "Moderation/modules"
 	},
 	"HookHandlers": {
+		"api": {
+			"class": "ModerationApiHooks",
+			"services": [
+				"Moderation.CanSkip",
+				"Moderation.Preload"
+			]
+		},
 		"edit": {
 			"class": "ModerationEditHooks",
 			"services": [
@@ -306,8 +313,8 @@
 	},
 	"Hooks": {
 		"AlternateEdit": "ModerationPreload::onAlternateEdit",
-		"ApiBeforeMain": "ModerationApiHooks::onApiBeforeMain",
-		"ApiCheckCanExecute": "ModerationApiHooks::onApiCheckCanExecute",
+		"ApiBeforeMain": "api",
+		"ApiCheckCanExecute": "api",
 		"BeforeInitialize": "ModerationPlugins::install",
 		"BeforePageDisplay": "edit",
 		"CheckUserInsertForRecentChange": "ModerationApproveHook::onCheckUserInsertForRecentChange",
@@ -335,7 +342,7 @@
 		"SpecialPageBeforeExecute": "MediaWiki\\Moderation\\EditFormOptions::onSpecialPageBeforeExecute",
 		"TitleMove": "move",
 		"UploadVerifyUpload": "upload",
-		"wgQueryPages": "ModerationApiHooks::onwgQueryPages"
+		"wgQueryPages": "api"
 	},
 	"config": {
 		"ModerationEnable": {
