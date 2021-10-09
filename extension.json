@@ -286,6 +286,14 @@
 				"Moderation.CanSkip",
 				"Moderation.EditFormOptions"
 			]
+		},
+		"upload": {
+			"class": "ModerationUploadHooks",
+			"services": [
+				"Moderation.ConsequenceManager",
+				"Moderation.CanSkip",
+				"Moderation.EditFormOptions"
+			]
 		}
 	},
 	"Hooks": {
@@ -302,7 +310,7 @@
 		"EditPage::showEditForm:fields": "edit",
 		"FileUpload": "ModerationApproveHook::onFileUpload",
 		"GetNewMessagesAlert": "ModerationNotifyModerator::onGetNewMessagesAlert",
-		"getUserPermissionsErrors": "ModerationUploadHooks::ongetUserPermissionsErrors",
+		"getUserPermissionsErrors": "upload",
 		"LoadExtensionSchemaUpdates": "ModerationUpdater::onLoadExtensionSchemaUpdates",
 		"ListDefinedTags": "edit",
 		"LocalUserCreated": "ModerationPreload::onLocalUserCreated",
@@ -318,7 +326,7 @@
 		"RevisionFromEditComplete": "ModerationApproveHook::onRevisionFromEditComplete",
 		"SpecialPageBeforeExecute": "MediaWiki\\Moderation\\EditFormOptions::onSpecialPageBeforeExecute",
 		"TitleMove": "ModerationMoveHooks::onTitleMove",
-		"UploadVerifyUpload": "ModerationUploadHooks::onUploadVerifyUpload",
+		"UploadVerifyUpload": "upload",
 		"wgQueryPages": "ModerationApiHooks::onwgQueryPages"
 	},
 	"config": {

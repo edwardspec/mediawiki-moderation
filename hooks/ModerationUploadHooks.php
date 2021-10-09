@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2020 Edward Chernenko.
+	Copyright (C) 2014-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,10 +20,36 @@
  * Hooks related to file uploads.
  */
 
-use MediaWiki\MediaWikiServices;
+use MediaWiki\Hook\UploadVerifyUploadHook;
+use MediaWiki\Moderation\EditFormOptions;
+use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\QueueUploadConsequence;
+use MediaWiki\Permissions\Hook\GetUserPermissionsErrorsHook;
 
-class ModerationUploadHooks {
+class ModerationUploadHooks implements GetUserPermissionsErrorsHook, UploadVerifyUploadHook {
+	/** @var IConsequenceManager */
+	protected $consequenceManager;
+
+	/** @var ModerationCanSkip */
+	protected $canSkip;
+
+	/** @var EditFormOptions */
+	protected $editFormOptions;
+
+	/**
+	 * @param IConsequenceManager $consequenceManager
+	 * @param ModerationCanSkip $canSkip
+	 * @param EditFormOptions $editFormOptions
+	 */
+	public function __construct(
+		IConsequenceManager $consequenceManager,
+		ModerationCanSkip $canSkip,
+		EditFormOptions $editFormOptions
+	) {
+		$this->consequenceManager = $consequenceManager;
+		$this->canSkip = $canSkip;
+		$this->editFormOptions = $editFormOptions;
+	}
 
 	/**
 	 * Intercept image uploads and queue them for moderation.
@@ -35,11 +61,10 @@ class ModerationUploadHooks {
 	 * @param array &$error
 	 * @return bool
 	 */
-	public static function onUploadVerifyUpload( $upload, $user, $props,
+	public function onUploadVerifyUpload( $upload, $user, $props,
 		$comment, $pageText, &$error
 	) {
-		$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
-		if ( $canSkip->canUploadSkip( $user ) ) {
+		if ( $this->canSkip->canUploadSkip( $user ) ) {
 			return true;
 		}
 
@@ -50,8 +75,7 @@ class ModerationUploadHooks {
 		// Note: skipping moderation for uploads via ModerationIntercept hook didn't work even
 		// before its invocation here was removed. It only worked for normal edits (non-uploads).
 
-		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
-		$error = $manager->add( new QueueUploadConsequence(
+		$error = $this->consequenceManager->add( new QueueUploadConsequence(
 			$upload, $user, $comment, $pageText
 		) );
 		if ( $error ) {
@@ -61,8 +85,7 @@ class ModerationUploadHooks {
 
 		/* Watch/Unwatch this file immediately:
 			watchlist is the user's own business, no reason to wait for approval of the upload */
-		$editFormOptions = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
-		$editFormOptions->watchIfNeeded( $user, [ $upload->getTitle() ] );
+		$this->editFormOptions->watchIfNeeded( $user, [ $upload->getTitle() ] );
 
 		/* Display user-friendly results page if the upload was caused
 			by Special:Upload (not API, other extension, etc.) */
@@ -82,7 +105,7 @@ class ModerationUploadHooks {
 	 * @param string &$result
 	 * @return bool
 	 */
-	public static function ongetUserPermissionsErrors( $title, $user, $action, &$result ) {
+	public function onGetUserPermissionsErrors( $title, $user, $action, &$result ) {
 		/*
 			action=revert bypasses doUpload(), so it is not intercepted
 			and is applied without moderation.
@@ -91,8 +114,7 @@ class ModerationUploadHooks {
 		$context = RequestContext::getMain();
 		$exactAction = Action::getActionName( $context );
 		if ( $exactAction == 'revert' ) {
-			$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
-			if ( !$canSkip->canUploadSkip( $user ) ) {
+			if ( !$this->canSkip->canUploadSkip( $user ) ) {
 				$result = 'moderation-revert-not-allowed';
 				return false;
 			}
