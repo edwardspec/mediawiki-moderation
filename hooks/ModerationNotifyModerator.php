@@ -20,11 +20,12 @@
  * Hooks that notify the moderators that new pending edit has appeared in the moderation queue.
  */
 
+use MediaWiki\Hook\GetNewMessagesAlertHook;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\EntryFactory;
 
-class ModerationNotifyModerator {
+class ModerationNotifyModerator implements GetNewMessagesAlertHook {
 	/** @var LinkRenderer */
 	protected $linkRenderer;
 
@@ -48,11 +49,19 @@ class ModerationNotifyModerator {
 	}
 
 	/**
+	 * Used in extension.json to obtain this service as HookHandler.
+	 * @return ModerationNotifyModerator
+	 */
+	public static function hookHandlerFactory() {
+		return MediaWikiServices::getInstance()->getService( 'Moderation.NotifyModerator' );
+	}
+
+	/**
 	 * EchoCanAbortNewMessagesAlert hook.
 	 * Here we prevent Extension:Echo from suppressing our notification.
 	 * @return bool
 	 */
-	public static function onEchoCanAbortNewMessagesAlert() {
+	public function onEchoCanAbortNewMessagesAlert() {
 		return false;
 	}
 
@@ -65,23 +74,13 @@ class ModerationNotifyModerator {
 	 * @param OutputPage $out
 	 * @return true
 	 */
-	public static function onGetNewMessagesAlert( &$newMessagesAlert, $newtalks, $user, $out ) {
-		$notifyModerator = MediaWikiServices::getInstance()->getService( 'Moderation.NotifyModerator' );
-		$notifyModerator->runHookInternal( $newMessagesAlert, $out );
-
-		return true;
-	}
-
-	/**
-	 * Main logic of GetNewMessagesAlert hook.
-	 * @param string &$newMessagesAlert
-	 * @param OutputPage $out
-	 */
-	protected function runHookInternal( &$newMessagesAlert, $out ) {
+	public function onGetNewMessagesAlert( &$newMessagesAlert, $newtalks, $user, $out ) {
 		$notificationHtml = $this->getNotificationHTML( $out );
 		if ( $notificationHtml ) {
 			$newMessagesAlert .= "\n" . $notificationHtml;
 		}
+
+		return true;
 	}
 
 	/**

@@ -302,6 +302,9 @@
 				"Moderation.EditFormOptions"
 			]
 		},
+		"notifyModerator": {
+			"factory": "ModerationNotifyModerator::hookHandlerFactory"
+		},
 		"upload": {
 			"class": "ModerationUploadHooks",
 			"services": [
@@ -318,13 +321,13 @@
 		"BeforeInitialize": "ModerationPlugins::install",
 		"BeforePageDisplay": "edit",
 		"CheckUserInsertForRecentChange": "ModerationApproveHook::onCheckUserInsertForRecentChange",
-		"EchoCanAbortNewMessagesAlert": "ModerationNotifyModerator::onEchoCanAbortNewMessagesAlert",
+		"EchoCanAbortNewMessagesAlert": "notifyModerator",
 		"EditFilter": "MediaWiki\\Moderation\\EditFormOptions::onEditFilter",
 		"EditFormInitialText": "ModerationPreload::onEditFormInitialText",
 		"EditFormPreloadText": "ModerationPreload::onEditFormPreloadText",
 		"EditPage::showEditForm:fields": "edit",
 		"FileUpload": "ModerationApproveHook::onFileUpload",
-		"GetNewMessagesAlert": "ModerationNotifyModerator::onGetNewMessagesAlert",
+		"GetNewMessagesAlert": "notifyModerator",
 		"getUserPermissionsErrors": "upload",
 		"LoadExtensionSchemaUpdates": "ModerationUpdater::onLoadExtensionSchemaUpdates",
 		"ListDefinedTags": "edit",
