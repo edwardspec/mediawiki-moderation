@@ -314,6 +314,9 @@
 		"preload": {
 			"factory": "ModerationPreload::hookHandlerFactory"
 		},
+		"updater": {
+			"class": "ModerationUpdater"
+		},
 		"upload": {
 			"class": "ModerationUploadHooks",
 			"services": [
@@ -338,7 +341,7 @@
 		"FileUpload": "approveHook",
 		"GetNewMessagesAlert": "notifyModerator",
 		"getUserPermissionsErrors": "upload",
-		"LoadExtensionSchemaUpdates": "ModerationUpdater::onLoadExtensionSchemaUpdates",
+		"LoadExtensionSchemaUpdates": "updater",
 		"ListDefinedTags": "edit",
 		"LocalUserCreated": "preload",
 		"PageContentSave": "edit",

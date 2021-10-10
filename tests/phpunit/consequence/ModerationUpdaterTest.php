@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -50,22 +50,8 @@ class ModerationUpdaterTest extends ModerationUnitTestCase {
 
 		'@phan-var DatabaseUpdater $updater';
 
-		$hookResult = ModerationUpdater::onLoadExtensionSchemaUpdates( $updater );
-		$this->assertTrue( $hookResult,
+		$hookHandler = new ModerationUpdater;
+		$this->assertTrue( $hookHandler->onLoadExtensionSchemaUpdates( $updater ),
 			'Handler of LoadExtensionSchemaUpdates hook should return true.' );
-	}
-
-	/**
-	 * Ensure that the Updater hook is installed.
-	 * We make this into a separate test, so that testHook() can just check our own handler
-	 * without invoking LoadExtensionSchemaUpdates handlers of all other extensions.
-	 * @coversNothing
-	 */
-	public function testHookInstalled() {
-		$this->assertContains(
-			'ModerationUpdater::onLoadExtensionSchemaUpdates',
-			Hooks::getHandlers( 'LoadExtensionSchemaUpdates' ),
-			"Hook handler is not installed."
-		);
 	}
 }
