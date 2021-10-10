@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.6.2",
+	"version": "1.6.3",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -116,6 +116,7 @@
 		"MediaWiki\\Moderation\\Hook\\HookRunner": "lib/Hook/HookRunner.php",
 		"MediaWiki\\Moderation\\Hook\\ModerationContinueEditingLinkHook": "lib/Hook/ModerationContinueEditingLinkHook.php",
 		"MediaWiki\\Moderation\\Hook\\ModerationInterceptHook": "lib/Hook/ModerationInterceptHook.php",
+		"MediaWiki\\Moderation\\Hook\\ModerationPendingHook": "lib/Hook/ModerationPendingHook.php",
 		"MediaWiki\\Moderation\\IConsequence": "lib/consequence/IConsequence.php",
 		"MediaWiki\\Moderation\\IConsequenceManager": "lib/consequence/manager/IConsequenceManager.php",
 		"MediaWiki\\Moderation\\InsertRowIntoModerationTableConsequence": "lib/consequence/InsertRowIntoModerationTableConsequence.php",

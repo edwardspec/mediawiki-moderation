@@ -32,7 +32,8 @@ use WikiPage;
 
 class HookRunner implements
 	ModerationContinueEditingLinkHook,
-	ModerationInterceptHook
+	ModerationInterceptHook,
+	ModerationPendingHook
 {
 	/** @var HookContainer */
 	protected $container;
@@ -76,6 +77,16 @@ class HookRunner implements
 		return $this->container->run(
 			'ModerationIntercept',
 			[ $page, $user, $content, $summary, $is_minor, $is_watch, $section, $flags, $status ]
+		);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function onModerationPending( array $fields, $modid ) {
+		return $this->container->run(
+			'ModerationPending',
+			[ $fields, $modid ]
 		);
 	}
 }
