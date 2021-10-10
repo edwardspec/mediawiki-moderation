@@ -22,11 +22,18 @@
 
 namespace MediaWiki\Moderation\Hook;
 
+use Content;
 use IContextSource;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\Linker\LinkTarget;
+use Status;
+use User;
+use WikiPage;
 
-class HookRunner implements ModerationContinueEditingLinkHook {
+class HookRunner implements
+	ModerationContinueEditingLinkHook,
+	ModerationInterceptHook
+{
 	/** @var HookContainer */
 	protected $container;
 
@@ -49,6 +56,26 @@ class HookRunner implements ModerationContinueEditingLinkHook {
 		$this->container->run(
 			'ModerationContinueEditingLink',
 			[ &$returnto, &$returntoquery, $title, $context ]
+		);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function onModerationIntercept(
+		WikiPage $page,
+		User $user,
+		Content $content,
+		string $summary,
+		$is_minor,
+		$is_watch,
+		$section,
+		$flags,
+		Status $status
+	) {
+		return $this->container->run(
+			'ModerationIntercept',
+			[ $page, $user, $content, $summary, $is_minor, $is_watch, $section, $flags, $status ]
 		);
 	}
 }

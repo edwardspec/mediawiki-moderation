@@ -115,6 +115,7 @@
 		"MediaWiki\\Moderation\\GiveAnonChangesToNewUserConsequence": "lib/consequence/GiveAnonChangesToNewUserConsequence.php",
 		"MediaWiki\\Moderation\\Hook\\HookRunner": "lib/Hook/HookRunner.php",
 		"MediaWiki\\Moderation\\Hook\\ModerationContinueEditingLinkHook": "lib/Hook/ModerationContinueEditingLinkHook.php",
+		"MediaWiki\\Moderation\\Hook\\ModerationInterceptHook": "lib/Hook/ModerationInterceptHook.php",
 		"MediaWiki\\Moderation\\IConsequence": "lib/consequence/IConsequence.php",
 		"MediaWiki\\Moderation\\IConsequenceManager": "lib/consequence/manager/IConsequenceManager.php",
 		"MediaWiki\\Moderation\\InsertRowIntoModerationTableConsequence": "lib/consequence/InsertRowIntoModerationTableConsequence.php",

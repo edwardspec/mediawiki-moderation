@@ -100,11 +100,12 @@ class ModerationEditHooks implements
 		}
 
 		/*
-		 * Allow to intercept moderation process
+		 * Allow third-party extension to monitor edits that are about to be intercepted by Moderation.
+		 * If this hook returns false, then Moderation won't intercept this edit.
 		 */
-		if ( !Hooks::run( 'ModerationIntercept', [
+		if ( !$this->hookRunner->onModerationIntercept(
 			$page, $user, $content, $summary, $is_minor, $is_watch, $section, $flags, $status
-		] ) ) {
+		) ) {
 			return true;
 		}
 
