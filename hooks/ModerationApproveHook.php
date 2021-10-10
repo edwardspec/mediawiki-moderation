@@ -513,17 +513,8 @@ class ModerationApproveHook implements
 			return true; // rev_id is not missing for reuploads
 		}
 
-		$approveHook = MediaWikiServices::getInstance()->getService( 'Moderation.ApproveHook' );
-		$approveHook->fixLogEntry( $file->getTitle() );
+		$title = $file->getTitle();
 
-		return true;
-	}
-
-	/**
-	 * Main logic of FileUpload hook.
-	 * @param Title $title
-	 */
-	protected function fixLogEntry( Title $title ) {
 		$dbw = wfGetDB( DB_MASTER );
 		foreach ( $this->logEntriesToFix as $logid => $logEntry ) {
 			if ( $logEntry->getTarget()->equals( $title ) ) {
@@ -537,6 +528,8 @@ class ModerationApproveHook implements
 				);
 			}
 		}
+
+		return true;
 	}
 
 	/**
