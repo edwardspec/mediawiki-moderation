@@ -3,35 +3,24 @@
 // This file helps Phan to avoid false positives in "detect unused code" mode.
 // For example, MediaWiki hook handlers (listed in extension.json) shouldn't be considered unused.
 
-/** @phan-file-suppress PhanParamTooFew */
+use MediaWiki\Moderation\EditFormOptions;
 
-MediaWiki\Moderation\EditFormOptions::onEditFilter();
-MediaWiki\Moderation\EditFormOptions::onSpecialPageBeforeExecute();
-ModerationApiHooks::onApiBeforeMain();
-ModerationApiHooks::onApiCheckCanExecute();
-ModerationApiHooks::onwgQueryPages();
+/** @phan-file-suppress PhanParamTooFew, PhanStaticCallToNonStatic, PhanAccessMethodProtected */
+
+ModerationApproveHook::hookHandlerFactory();
 ModerationApproveHook::onCheckUserInsertForRecentChange();
-ModerationApproveHook::onFileUpload();
-ModerationApproveHook::onPageMoveComplete();
-ModerationApproveHook::onPageSaveComplete();
-ModerationApproveHook::onRecentChange_save();
-ModerationApproveHook::onRevisionFromEditComplete();
-ModerationEditHooks::onBeforePageDisplay();
-ModerationEditHooks::onListDefinedTags();
 ModerationEditHooks::onPageContentSave();
-ModerationEditHooks::onPageSaveComplete();
-ModerationEditHooks::prepareEditForm();
-ModerationMoveHooks::onTitleMove();
+ModerationNotifyModerator::hookHandlerFactory();
 ModerationNotifyModerator::onEchoCanAbortNewMessagesAlert();
-ModerationNotifyModerator::onGetNewMessagesAlert();
+ModerationPageForms::onPageForms__EditFormPreloadText();
+ModerationPageForms::onPageForms__EditFormInitialText();
 ModerationPageForms::onModerationContinueEditingLink();
-ModerationPageForms::preloadText();
-ModerationPlugins::install();
-ModerationPreload::onAlternateEdit();
-ModerationPreload::onEditFormInitialText();
-ModerationPreload::onEditFormPreloadText();
-ModerationPreload::onLocalUserCreated();
-ModerationUpdater::onLoadExtensionSchemaUpdates();
-ModerationUploadHooks::ongetUserPermissionsErrors();
-ModerationUploadHooks::onUploadVerifyUpload();
+ModerationPreload::hookHandlerFactory();
+EditFormOptions::hookHandlerFactory();
+EditFormOptions::onEditFilter();
+EditFormOptions::onSpecialPageBeforeExecute();
 ModerationVersionCheck::invalidateCache();
+
+// wasDbUpdatedAfter() is expected to be unused.
+// We are not removing it, as it may be useful if/when there will be some changes to DB schema.
+ModerationVersionCheck::wasDbUpdatedAfter();
