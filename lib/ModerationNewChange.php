@@ -310,10 +310,11 @@ class ModerationNewChange {
 		$modid = $this->insert();
 
 		// Run hook to allow other extensions be notified about pending changes
-		Hooks::run( 'ModerationPending', [
+		$hookRunner = MediaWikiServices::getInstance()->getService( 'Moderation.HookRunner' );
+		$hookRunner->onModerationPending(
 			$this->getFields(),
 			$modid
-		] );
+		);
 
 		$this->notify( $modid );
 

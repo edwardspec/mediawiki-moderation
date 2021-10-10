@@ -97,6 +97,8 @@ class QueueUploadConsequenceTest extends ModerationUnitTestCase {
 		$anonId = 67890;
 		$manager->mockResult( RememberAnonIdConsequence::class, $anonId );
 
+		// TODO: verify that ModerationPending hook will be called.
+
 		// Create and run the Consequence.
 		$consequence = new QueueUploadConsequence(
 			$this->prepareTestUpload( $title ), $user, $summary, $text );

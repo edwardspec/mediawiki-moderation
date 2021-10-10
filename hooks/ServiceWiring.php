@@ -28,6 +28,7 @@ use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\ConsequenceManager;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
+use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Moderation\RollbackResistantQuery;
 use MediaWiki\Moderation\TimestampFormatter;
 
@@ -80,6 +81,9 @@ return [
 			$services->getService( 'Moderation.CanSkip' ),
 			$services->getService( 'Moderation.ApproveHook' )
 		);
+	},
+	'Moderation.HookRunner' => static function ( MediaWikiServices $services ): HookRunner {
+		return new HookRunner( $services->getHookContainer() );
 	},
 	'Moderation.NotifyModerator' =>
 	static function ( MediaWikiServices $services ): ModerationNotifyModerator {

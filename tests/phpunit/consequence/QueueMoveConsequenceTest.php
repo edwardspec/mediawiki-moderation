@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\Moderation\BlockUserConsequence;
+use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\QueueMoveConsequence;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
@@ -94,10 +95,6 @@ class QueueMoveConsequenceTest extends ModerationUnitTestCase {
 		$anonId = 67890;
 		$manager->mockResult( RememberAnonIdConsequence::class, $anonId );
 
-		// Create and run the Consequence.
-		$consequence = new QueueMoveConsequence( $title, $newTitle, $user, $summary );
-		$consequence->run();
-
 		// This is very similar to ModerationQueueTest::getExpectedRow().
 		$expectedFields = [
 			'mod_timestamp' => 'ignored by assertConsequencesEqual()',
@@ -133,6 +130,24 @@ class QueueMoveConsequenceTest extends ModerationUnitTestCase {
 			'mod_page2_namespace' => $newTitle->getNamespace(),
 			'mod_page2_title' => $newTitle->getDBKey()
 		];
+
+		// Mock HookRunner service to ensure that ModerationPending hook will be called.
+		$hookRunner = $this->createMock( HookRunner::class );
+		$hookRunner->expects( $this->once() )->method( 'onModerationPending' )->will(
+			$this->returnCallback( function ( $hookFields, $hookModid ) use ( $expectedFields, $modid ) {
+				$this->assertEquals( $modid, $hookModid );
+
+				// With the exception of timestamp, all fields must match.
+				unset( $expectedFields['mod_timestamp'] );
+				unset( $hookFields['mod_timestamp'] );
+				$this->assertArrayEquals( $expectedFields, $hookFields, false, true );
+			} )
+		);
+		$this->setService( 'Moderation.HookRunner', $hookRunner );
+
+		// Create and run the Consequence.
+		$consequence = new QueueMoveConsequence( $title, $newTitle, $user, $summary );
+		$consequence->run();
 
 		// Check secondary consequences.
 		$expectedConsequences = [];

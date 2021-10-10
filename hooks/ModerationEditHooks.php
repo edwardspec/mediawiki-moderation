@@ -25,6 +25,7 @@ use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Hook\EditPage__showEditForm_fieldsHook;
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\EditFormOptions;
+use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
@@ -50,19 +51,25 @@ class ModerationEditHooks implements
 	/** @var EditFormOptions */
 	protected $editFormOptions;
 
+	/** @var HookRunner */
+	protected $hookRunner;
+
 	/**
 	 * @param IConsequenceManager $consequenceManager
 	 * @param ModerationCanSkip $canSkip
 	 * @param EditFormOptions $editFormOptions
+	 * @param HookRunner $hookRunner
 	 */
 	public function __construct(
 		IConsequenceManager $consequenceManager,
 		ModerationCanSkip $canSkip,
-		EditFormOptions $editFormOptions
+		EditFormOptions $editFormOptions,
+		HookRunner $hookRunner
 	) {
 		$this->consequenceManager = $consequenceManager;
 		$this->canSkip = $canSkip;
 		$this->editFormOptions = $editFormOptions;
+		$this->hookRunner = $hookRunner;
 	}
 
 	/**
@@ -93,11 +100,12 @@ class ModerationEditHooks implements
 		}
 
 		/*
-		 * Allow to intercept moderation process
+		 * Allow third-party extension to monitor edits that are about to be intercepted by Moderation.
+		 * If this hook returns false, then Moderation won't intercept this edit.
 		 */
-		if ( !Hooks::run( 'ModerationIntercept', [
+		if ( !$this->hookRunner->onModerationIntercept(
 			$page, $user, $content, $summary, $is_minor, $is_watch, $section, $flags, $status
-		] ) ) {
+		) ) {
 			return true;
 		}
 
@@ -166,11 +174,10 @@ class ModerationEditHooks implements
 
 		/* Are customized "continue editing" links needed?
 			E.g. Special:FormEdit or ?action=formedit from Extension:PageForms. */
-		$returnto = null;
+		$returnto = '';
 		$returntoquery = [];
-		Hooks::run( 'ModerationContinueEditingLink', [ &$returnto, &$returntoquery, $title, $context ] );
+		$this->hookRunner->onModerationContinueEditingLink( $returnto, $returntoquery, $title, $context );
 
-		// @phan-suppress-next-line PhanImpossibleCondition
 		if ( $returnto || $returntoquery ) {
 			/* Pack into one parameter to simplify the JavaScript part. */
 			$query['returnto'] = FormatJson::encode( [
