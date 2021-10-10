@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.6.1",
+	"version": "1.6.2",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -163,7 +163,6 @@
 		"ModerationNewChange": "lib/ModerationNewChange.php",
 		"ModerationNotifyModerator": "hooks/ModerationNotifyModerator.php",
 		"ModerationPageForms": "plugins/ModerationPageForms.php",
-		"ModerationPlugins": "plugins/ModerationPlugins.php",
 		"ModerationPreload": "hooks/ModerationPreload.php",
 		"ModerationQueuedSuccessException": "lib/exception/ModerationQueuedSuccessException.php",
 		"ModerationUpdater": "hooks/ModerationUpdater.php",
@@ -311,6 +310,12 @@
 		"notifyModerator": {
 			"factory": "ModerationNotifyModerator::hookHandlerFactory"
 		},
+		"pageForms": {
+			"class": "ModerationPageForms",
+			"services": [
+				"Moderation.Preload"
+			]
+		},
 		"preload": {
 			"factory": "ModerationPreload::hookHandlerFactory"
 		},
@@ -330,7 +335,6 @@
 		"AlternateEdit": "preload",
 		"ApiBeforeMain": "api",
 		"ApiCheckCanExecute": "api",
-		"BeforeInitialize": "ModerationPlugins::install",
 		"BeforePageDisplay": "edit",
 		"CheckUserInsertForRecentChange": "approveHook",
 		"EchoCanAbortNewMessagesAlert": "notifyModerator",
@@ -344,13 +348,14 @@
 		"LoadExtensionSchemaUpdates": "updater",
 		"ListDefinedTags": "edit",
 		"LocalUserCreated": "preload",
+		"ModerationContinueEditingLink": "pageForms",
 		"PageContentSave": "edit",
 		"PageSaveComplete": [
 			"approveHook",
 			"edit"
 		],
-		"PageForms::EditFormInitialText": "ModerationPageForms::preloadText",
-		"PageForms::EditFormPreloadText": "ModerationPageForms::preloadText",
+		"PageForms::EditFormInitialText": "pageForms",
+		"PageForms::EditFormPreloadText": "pageForms",
 		"PageMoveComplete": "approveHook",
 		"RecentChange_save": "approveHook",
 		"RevisionFromEditComplete": "approveHook",

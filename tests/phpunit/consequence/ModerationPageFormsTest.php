@@ -23,35 +23,6 @@
 require_once __DIR__ . "/autoload.php";
 
 class ModerationPageFormsTest extends ModerationUnitTestCase {
-	/**
-	 * Ensure that PageForms-specific hooks are installed by ModerationPlugins::install().
-	 * @param string $hookName
-	 * @param callable $expectedHandler
-	 * @dataProvider dataProviderHookInstalled
-	 * @covers ModerationPageForms
-	 * @covers ModerationPlugins
-	 * @requires function PFHooks::initialize
-	 */
-	public function testHookInstalled( $hookName, $expectedHandler ) {
-		ModerationPlugins::install();
-
-		$this->assertContains( $expectedHandler, Hooks::getHandlers( $hookName ),
-			"Handler of $hookName hook is not installed." );
-		$this->assertTrue( is_callable( $expectedHandler ),
-			"Handler of $hookName hook is not callable." );
-	}
-
-	/**
-	 * Provide datasets for testHookInstalled() runs.
-	 * @return array
-	 */
-	public function dataProviderHookInstalled() {
-		return [
-			[ 'ModerationContinueEditingLink', 'ModerationPageForms::onModerationContinueEditingLink' ],
-			[ 'PageForms::EditFormPreloadText', 'ModerationPageForms::preloadText' ],
-			[ 'PageForms::EditFormInitialText', 'ModerationPageForms::preloadText' ]
-		];
-	}
 
 	/**
 	 * Ensure that returnto= link after the edit points back to Special:FormEdit or action=formedit.
@@ -65,8 +36,6 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 	public function testContinueEditingLinkHook( array $requestParams,
 		$expectedReturnTo, array $expectedReturnToQuery
 	) {
-		ModerationPageForms::install();
-
 		$context = new RequestContext;
 		$context->setRequest( new FauxRequest( $requestParams, true ) );
 
@@ -76,8 +45,12 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 		$returnto = null;
 		$returntoquery = [];
 
-		$hookResult = Hooks::run( 'ModerationContinueEditingLink',
-			[ &$returnto, &$returntoquery, $title, $context ] );
+		$preload = $this->createMock( ModerationPreload::class );
+		$plugin = new ModerationPageForms( $preload );
+
+		$hookResult = $plugin->onModerationContinueEditingLink(
+			$returnto, $returntoquery, $title, $context
+		);
 		$this->assertTrue( $hookResult,
 			'Handler of ModerationContinueEditingLink hook should return true.' );
 
@@ -121,7 +94,13 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 	 */
 	public function testPreloadNoTargetTitle() {
 		$text = $oldText = 'Unmodified text';
-		ModerationPageForms::preloadText( $text, null, Title::newFromText( "Doesn't matter" ) );
+
+		// Mock ModerationPreload service to ensure that its preload hook is NOT called.
+		$preload = $this->createMock( ModerationPreload::class );
+		$preload->expects( $this->never() )->method( 'onEditFormPreloadText' );
+
+		$plugin = new ModerationPageForms( $preload );
+		$plugin->preloadText( $text, null, Title::newFromText( "Doesn't matter" ) );
 
 		$this->assertSame( $oldText, $text, "Text shouldn't be modified when targetTitle is null." );
 	}
@@ -133,7 +112,7 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 	 */
 	public function testPreload() {
 		$targetTitle = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
-		$text = 'Unmodified text';
+		$text = 'Old text';
 
 		// Mock ModerationPreload service to ensure that its preload hook is called.
 		$preload = $this->createMock( ModerationPreload::class );
@@ -141,16 +120,8 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 			$this->identicalTo( $text ),
 			$this->identicalTo( $targetTitle )
 		);
-		$this->setService( 'Moderation.Preload', $preload );
 
-		ModerationPageForms::preloadText( $text, $targetTitle, Title::newFromText( "Doesn't matter" ) );
-	}
-
-	/**
-	 * Cleanup after the tests that call ModerationPlugins::install().
-	 */
-	protected function tearDown(): void {
-		Hooks::clear( 'ModerationContinueEditingLink' );
-		parent::tearDown();
+		$plugin = new ModerationPageForms( $preload );
+		$plugin->preloadText( $text, $targetTitle, Title::newFromText( "Doesn't matter" ) );
 	}
 }
