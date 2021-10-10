@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,12 +21,42 @@
  */
 
 class ModerationPageForms {
+	/** @var ModerationPreload */
+	protected $preload;
 
-	public static function install() {
-		Hooks::register(
-			'ModerationContinueEditingLink',
-			'ModerationPageForms::onModerationContinueEditingLink'
-		);
+	/**
+	 * @param ModerationPreload $preload
+	 */
+	public function __construct( ModerationPreload $preload ) {
+		$this->preload = $preload;
+	}
+
+	/**
+	 * Provide Extension:PageForms with text of pending revision when user is creating a new page.
+	 *
+	 * @param string &$preloadContent
+	 * @param Title|null $targetTitle
+	 * @param Title $formTitle @phan-unused-param
+	 * @return bool
+	 */
+	// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
+	public function onPageForms__EditFormPreloadText( &$preloadContent, $targetTitle, $formTitle ) {
+		$this->preloadText( $preloadContent, $targetTitle );
+		return true;
+	}
+
+	/**
+	 * Provide Extension:PageForms with text of pending revision when user is editing an existing page.
+	 *
+	 * @param string &$preloadContent
+	 * @param Title|null $targetTitle
+	 * @param Title $formTitle @phan-unused-param
+	 * @return bool
+	 */
+	// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
+	public function onPageForms__EditFormInitialText( &$preloadContent, $targetTitle, $formTitle ) {
+		$this->preloadText( $preloadContent, $targetTitle );
+		return true;
 	}
 
 	/**
@@ -38,19 +68,16 @@ class ModerationPageForms {
 	 *
 	 * @param string &$preloadContent
 	 * @param Title|null $targetTitle
-	 * @param Title $formTitle @phan-unused-param
-	 * @return bool
 	 */
-	public static function preloadText( &$preloadContent, $targetTitle, $formTitle ) {
+	public function preloadText( &$preloadContent, $targetTitle ) {
 		if ( !$targetTitle ) {
 			// We are on [[Special:FormEdit/A]], where A is the name of form.
 			// Unlike [[Special:FormEdit/A/B]], user is currently not editing
 			// a particular page "B", so there is nothing to preload.
-			return true;
+			return;
 		}
 
-		ModerationPreload::onEditFormPreloadText( $preloadContent, $targetTitle );
-		return true;
+		$this->preload->onEditFormPreloadText( $preloadContent, $targetTitle );
 	}
 
 	/**
@@ -62,12 +89,17 @@ class ModerationPageForms {
 	 * @param IContextSource $context
 	 * @return bool
 	 */
-	public static function onModerationContinueEditingLink(
+	public function onModerationContinueEditingLink(
 		&$returnto,
 		array &$returntoquery,
 		Title $title,
 		IContextSource $context
 	) {
+		if ( !class_exists( 'PFForms' ) ) {
+			// Extension:PageForms is not installed.
+			return true;
+		}
+
 		// Are we editing via ?action=formedit?
 		$action = Action::getActionName( $context );
 		if ( $action == 'formedit' ) {

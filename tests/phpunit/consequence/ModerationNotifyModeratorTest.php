@@ -284,12 +284,9 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 		'@phan-var OutputPage $out';
 		'@phan-var User $user';
 
-		// Install the newly constructed ModerationNotifyModerator object as a service,
-		// then call the tested hook handler directly.
-		$this->setService( 'Moderation.NotifyModerator', $notify );
-
+		// Call the tested hook handler directly.
 		$newMessagesAlert = '{ThirdPartyNotification}';
-		ModerationNotifyModerator::onGetNewMessagesAlert( $newMessagesAlert, [], $user, $out );
+		$notify->onGetNewMessagesAlert( $newMessagesAlert, [], $user, $out );
 
 		$this->assertSame(
 			$mustNotify ? "{ThirdPartyNotification}\n{MockedResult}" : '{ThirdPartyNotification}',
@@ -314,7 +311,8 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 	 * @covers ModerationNotifyModerator
 	 */
 	public function testEchoHook() {
-		$this->assertFalse( ModerationNotifyModerator::onEchoCanAbortNewMessagesAlert(),
+		$notify = $this->makePartialNotifyMock( [] );
+		$this->assertFalse( $notify->onEchoCanAbortNewMessagesAlert(),
 			'EchoCanAbortNewMessagesAlert hook must return false.' );
 	}
 }

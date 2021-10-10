@@ -20,10 +20,35 @@
  * Hooks related to moving (renaming) pages.
  */
 
-use MediaWiki\MediaWikiServices;
+use MediaWiki\Hook\TitleMoveHook;
+use MediaWiki\Moderation\EditFormOptions;
+use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\QueueMoveConsequence;
 
-class ModerationMoveHooks {
+class ModerationMoveHooks implements TitleMoveHook {
+	/** @var IConsequenceManager */
+	protected $consequenceManager;
+
+	/** @var ModerationCanSkip */
+	protected $canSkip;
+
+	/** @var EditFormOptions */
+	protected $editFormOptions;
+
+	/**
+	 * @param IConsequenceManager $consequenceManager
+	 * @param ModerationCanSkip $canSkip
+	 * @param EditFormOptions $editFormOptions
+	 */
+	public function __construct(
+		IConsequenceManager $consequenceManager,
+		ModerationCanSkip $canSkip,
+		EditFormOptions $editFormOptions
+	) {
+		$this->consequenceManager = $consequenceManager;
+		$this->canSkip = $canSkip;
+		$this->editFormOptions = $editFormOptions;
+	}
 
 	/**
 	 * Intercept attempts to rename pages and queue them for moderation.
@@ -31,23 +56,22 @@ class ModerationMoveHooks {
 	 * @param Title $newTitle
 	 * @param User $user
 	 * @param string $reason
-	 * @param Status $status
+	 * @param Status &$status
 	 * @return bool
 	 */
-	public static function onTitleMove(
-		Title $oldTitle,
-		Title $newTitle,
-		User $user,
+	public function onTitleMove(
+		$oldTitle,
+		$newTitle,
+		$user,
 		$reason,
-		Status $status
+		&$status
 	) {
 		if ( !$status->isOK() ) {
 			// $user is not allowed to move ($status is already fatal)
 			return true;
 		}
 
-		$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
-		if ( $canSkip->canMoveSkip(
+		if ( $this->canSkip->canMoveSkip(
 			$user,
 			$oldTitle->getNamespace(),
 			$newTitle->getNamespace()
@@ -56,15 +80,13 @@ class ModerationMoveHooks {
 			return true;
 		}
 
-		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
-		$manager->add( new QueueMoveConsequence(
+		$this->consequenceManager->add( new QueueMoveConsequence(
 			$oldTitle, $newTitle, $user, $reason
 		) );
 
 		/* Watch/Unwatch $oldTitle/$newTitle immediately:
 			watchlist is the user's own business, no reason to wait for approval of the move */
-		$editFormOptions = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
-		$editFormOptions->watchIfNeeded( $user, [ $oldTitle, $newTitle ] );
+		$this->editFormOptions->watchIfNeeded( $user, [ $oldTitle, $newTitle ] );
 
 		$errorMsg = 'moderation-move-queued';
 		ModerationQueuedSuccessException::throwIfNeeded( $errorMsg );

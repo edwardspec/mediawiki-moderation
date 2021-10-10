@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -62,6 +62,14 @@ class EditFormOptions {
 	}
 
 	/**
+	 * Used in extension.json to obtain this service as HookHandler.
+	 * @return EditFormOptions
+	 */
+	public static function hookHandlerFactory() {
+		return MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
+	}
+
+	/**
 	 * EditFilter hook handler.
 	 * Save sections-related information, which will then be used in onPageContentSave.
 	 * @param EditPage $editor
@@ -71,11 +79,10 @@ class EditFormOptions {
 	 * @param string $summary @phan-unused-param
 	 * @return true
 	 */
-	public static function onEditFilter( EditPage $editor, $text, $section, &$error, $summary ) {
-		$opt = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
+	public function onEditFilter( EditPage $editor, $text, $section, &$error, $summary ) {
 		if ( $section !== '' ) {
-			$opt->section = $section;
-			$opt->sectionText = $text;
+			$this->section = $section;
+			$this->sectionText = $text;
 		}
 
 		// HACK: as much as I dislike using Reflection in production code,
@@ -86,7 +93,7 @@ class EditFormOptions {
 		$reflection->setAccessible( true );
 		$watchthis = $reflection->getValue( $editor );
 
-		$opt->watchthis = (bool)$watchthis;
+		$this->watchthis = (bool)$watchthis;
 		return true;
 	}
 
@@ -95,15 +102,14 @@ class EditFormOptions {
 	 * @param SpecialPage $special
 	 * @param string $subPage @phan-unused-param
 	 */
-	public static function onSpecialPageBeforeExecute( SpecialPage $special, $subPage ) {
-		$opt = MediaWikiServices::getInstance()->getService( 'Moderation.EditFormOptions' );
+	public function onSpecialPageBeforeExecute( SpecialPage $special, $subPage ) {
 		$title = $special->getPageTitle();
 		$request = $special->getRequest();
 
 		if ( $title->isSpecial( 'Movepage' ) ) {
-			$opt->watchthis = $request->getCheck( 'wpWatch' );
+			$this->watchthis = $request->getCheck( 'wpWatch' );
 		} elseif ( $title->isSpecial( 'Upload' ) ) {
-			$opt->watchthis = $request->getBool( 'wpWatchthis' );
+			$this->watchthis = $request->getBool( 'wpWatchthis' );
 		}
 	}
 

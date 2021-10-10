@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2020 Edward Chernenko.
+	Copyright (C) 2014-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,14 +20,15 @@
  * Creates/updates the SQL tables when 'update.php' is invoked.
  */
 
+use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
 use MediaWiki\MediaWikiServices;
 
-class ModerationUpdater {
+class ModerationUpdater implements LoadExtensionSchemaUpdatesHook {
 	/**
 	 * @param DatabaseUpdater $updater
 	 * @return bool
 	 */
-	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
+	public function onLoadExtensionSchemaUpdates( $updater ) {
 		$db = $updater->getDB();
 		$dbType = $db->getType();
 

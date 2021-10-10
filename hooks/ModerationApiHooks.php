@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017-2020 Edward Chernenko.
+	Copyright (C) 2017-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,9 +20,32 @@
  * Hooks related to edits/uploads via API.
  */
 
-use MediaWiki\MediaWikiServices;
+use MediaWiki\Api\Hook\ApiCheckCanExecuteHook;
+use MediaWiki\Hook\ApiBeforeMainHook;
+use MediaWiki\SpecialPage\Hook\WgQueryPagesHook;
 
-class ModerationApiHooks {
+class ModerationApiHooks implements
+	ApiBeforeMainHook,
+	ApiCheckCanExecuteHook,
+	WgQueryPagesHook
+{
+	/** @var ModerationCanSkip */
+	protected $canSkip;
+
+	/** @var ModerationPreload */
+	protected $preload;
+
+	/**
+	 * @param ModerationCanSkip $canSkip
+	 * @param ModerationPreload $preload
+	 */
+	public function __construct(
+		ModerationCanSkip $canSkip,
+		ModerationPreload $preload
+	) {
+		$this->canSkip = $canSkip;
+		$this->preload = $preload;
+	}
 
 	/**
 	 * ApiCheckCanExecute hook handler.
@@ -34,9 +57,8 @@ class ModerationApiHooks {
 	 * @param string &$message
 	 * @return bool
 	 */
-	public static function onApiCheckCanExecute( $module, $user, &$message ) {
-		$canSkip = MediaWikiServices::getInstance()->getService( 'Moderation.CanSkip' );
-		if ( $canSkip->canUploadSkip( $user ) ) {
+	public function onApiCheckCanExecute( $module, $user, &$message ) {
+		if ( $this->canSkip->canUploadSkip( $user ) ) {
 			return true; /* No need to limit automoderated users */
 		}
 
@@ -59,7 +81,7 @@ class ModerationApiHooks {
 	 * @param ApiMain &$main
 	 * @return true
 	 */
-	public static function onApiBeforeMain( &$main ) {
+	public function onApiBeforeMain( &$main ) {
 		$request = $main->getRequest();
 		if ( $request->getVal( 'action' ) != 'edit' ) {
 			return true; /* Nothing to do */
@@ -76,8 +98,7 @@ class ModerationApiHooks {
 		$pageObj = $main->getTitleOrPageId( $request->getValues( 'title', 'pageid' ) );
 		$title = $pageObj->getTitle();
 
-		$preload = MediaWikiServices::getInstance()->getService( 'Moderation.Preload' );
-		$pendingEdit = $preload->findPendingEdit( $title );
+		$pendingEdit = $this->preload->findPendingEdit( $title );
 		if ( !$pendingEdit ) {
 			return true; /* No pending version - ApiEdit will handle this correctly */
 		}
@@ -144,7 +165,7 @@ class ModerationApiHooks {
 	 * @param array &$pages
 	 * @return bool
 	 */
-	public static function onwgQueryPages( &$pages ) {
+	public function onWgQueryPages( &$pages ) {
 		$pages[] = [ SpecialModeration::class, 'Moderation' ];
 		return true;
 	}
