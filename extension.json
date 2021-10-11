@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.6.4",
+	"version": "1.6.5",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -89,7 +89,12 @@
 		}
 	},
 	"APIPropModules": {
-		"moderationpreload": "ApiQueryModerationPreload"
+		"moderationpreload": {
+			"class": "ApiQueryModerationPreload",
+			"services": [
+				"Moderation.Preload"
+			]
+		}
 	},
 	"LogTypes": [
 		"moderation"

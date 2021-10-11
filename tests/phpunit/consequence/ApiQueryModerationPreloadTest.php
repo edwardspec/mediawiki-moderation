@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -119,7 +119,8 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 	 * @covers ApiQueryModerationPreload
 	 */
 	public function testApiBaseSubclass() {
-		$api = new ApiQueryModerationPreload( new ApiQuery( new ApiMain(), 'query' ), 'query' );
+		$preload = $this->createMock( ModerationPreload::class );
+		$api = new ApiQueryModerationPreload( new ApiQuery( new ApiMain(), 'query' ), 'query', $preload );
 
 		$this->assertInstanceof( ApiQueryBase::class, $api );
 		$this->assertSame( 'mp', $api->getModulePrefix(), 'getModulePrefix' );
