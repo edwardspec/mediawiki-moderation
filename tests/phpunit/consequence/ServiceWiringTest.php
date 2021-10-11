@@ -26,6 +26,8 @@ use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\ConsequenceManager;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
+use MediaWiki\Moderation\Hook\HookRunner;
+use MediaWiki\Moderation\NewChangeFactory;
 use MediaWiki\Moderation\RollbackResistantQuery;
 use MediaWiki\Moderation\TimestampFormatter;
 
@@ -58,6 +60,8 @@ class ServiceWiringTest extends ModerationUnitTestCase {
 			[ 'Moderation.ConsequenceManager', ConsequenceManager::class ],
 			[ 'Moderation.EditFormOptions', EditFormOptions::class ],
 			[ 'Moderation.EntryFactory', EntryFactory::class ],
+			[ 'Moderation.HookRunner', HookRunner::class ],
+			[ 'Moderation.NewChangeFactory', NewChangeFactory::class ],
 			[ 'Moderation.NotifyModerator', ModerationNotifyModerator::class ],
 			[ 'Moderation.Preload', ModerationPreload::class ],
 			[ 'Moderation.RollbackResistantQuery', RollbackResistantQuery::class ],

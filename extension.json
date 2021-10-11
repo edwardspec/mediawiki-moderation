@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.6.5",
+	"version": "1.6.6",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -141,6 +141,7 @@
 		"MediaWiki\\Moderation\\MarkAsConflictConsequence": "lib/consequence/MarkAsConflictConsequence.php",
 		"MediaWiki\\Moderation\\MarkAsMergedConsequence": "lib/consequence/MarkAsMergedConsequence.php",
 		"MediaWiki\\Moderation\\ModifyPendingChangeConsequence": "lib/consequence/ModifyPendingChangeConsequence.php",
+		"MediaWiki\\Moderation\\NewChangeFactory": "lib/NewChangeFactory.php",
 		"MediaWiki\\Moderation\\PendingEdit": "lib/entry/PendingEdit.php",
 		"MediaWiki\\Moderation\\QueueEditConsequence": "lib/consequence/QueueEditConsequence.php",
 		"MediaWiki\\Moderation\\QueueMoveConsequence": "lib/consequence/QueueMoveConsequence.php",

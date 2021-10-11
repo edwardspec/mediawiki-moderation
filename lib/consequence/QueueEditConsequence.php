@@ -23,7 +23,7 @@
 namespace MediaWiki\Moderation;
 
 use Content;
-use ModerationNewChange;
+use MediaWiki\MediaWikiServices;
 use User;
 use WikiPage;
 
@@ -80,7 +80,8 @@ class QueueEditConsequence implements IConsequence {
 	 * @return int mod_id of affected row.
 	 */
 	public function run() {
-		$change = new ModerationNewChange( $this->page->getTitle(), $this->user );
+		$factory = MediaWikiServices::getInstance()->getService( 'Moderation.NewChangeFactory' );
+		$change = $factory->makeNewChange( $this->page->getTitle(), $this->user );
 		return $change->edit( $this->page, $this->content, $this->section, $this->sectionText )
 			->setBot( $this->isBot )
 			->setMinor( $this->isMinor )

@@ -22,7 +22,7 @@
 
 namespace MediaWiki\Moderation;
 
-use ModerationNewChange;
+use MediaWiki\MediaWikiServices;
 use Title;
 use User;
 
@@ -57,7 +57,8 @@ class QueueMoveConsequence implements IConsequence {
 	 * @return int mod_id of affected row.
 	 */
 	public function run() {
-		$change = new ModerationNewChange( $this->oldTitle, $this->user );
+		$factory = MediaWikiServices::getInstance()->getService( 'Moderation.NewChangeFactory' );
+		$change = $factory->makeNewChange( $this->oldTitle, $this->user );
 		return $change->move( $this->newTitle )
 			->setSummary( $this->reason )
 			->queue();

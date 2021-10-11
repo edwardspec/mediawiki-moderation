@@ -29,6 +29,7 @@ use MediaWiki\Moderation\ConsequenceManager;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\Hook\HookRunner;
+use MediaWiki\Moderation\NewChangeFactory;
 use MediaWiki\Moderation\RollbackResistantQuery;
 use MediaWiki\Moderation\TimestampFormatter;
 
@@ -84,6 +85,15 @@ return [
 	},
 	'Moderation.HookRunner' => static function ( MediaWikiServices $services ): HookRunner {
 		return new HookRunner( $services->getHookContainer() );
+	},
+	'Moderation.NewChangeFactory' => static function ( MediaWikiServices $services ): NewChangeFactory {
+		return new NewChangeFactory(
+			$services->getService( 'Moderation.ConsequenceManager' ),
+			$services->getService( 'Moderation.Preload' ),
+			$services->getService( 'Moderation.HookRunner' ),
+			$services->getService( 'Moderation.NotifyModerator' ),
+			$services->getContentLanguage()
+		);
 	},
 	'Moderation.NotifyModerator' =>
 	static function ( MediaWikiServices $services ): ModerationNotifyModerator {
