@@ -597,7 +597,8 @@ class ModerationQueueTest extends ModerationTestCase {
 				DataSet must explicitly indicate that its text needs PreSaveTransform.
 			*/
 			$lang = MediaWikiServices::getInstance()->getContentLanguage();
-			$expectedContent = $expectedContent->preSaveTransform(
+			$expectedContent = ModerationCompatTools::preSaveTransform(
+				$expectedContent,
 				$this->title,
 				$this->user,
 				ParserOptions::newFromUserAndLang( $this->user, $lang )

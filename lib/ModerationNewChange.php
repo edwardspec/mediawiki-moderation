@@ -233,7 +233,8 @@ class ModerationNewChange {
 			$this->contentLanguage
 		);
 
-		return $content->preSaveTransform(
+		return ModerationCompatTools::preSaveTransform(
+			$content,
 			$this->title,
 			$this->user,
 			$popts
