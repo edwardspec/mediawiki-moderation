@@ -22,6 +22,7 @@
 
 use MediaWiki\MediaWikiServices;
 use Psr\Log\NullLogger;
+use Wikimedia\IPUtils;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -604,7 +605,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 				$pageCreatedByThisTest[$pageName] = true;
 			}
 
-			$user = User::isIP( $username ) ?
+			$user = IPUtils::isIPAddress( $username ) ?
 				User::newFromName( $username, false ) :
 				( new TestUser( $username ) )->getUser();
 
