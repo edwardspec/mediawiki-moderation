@@ -25,6 +25,7 @@ use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
+use MediaWiki\Revision\RevisionRecord;
 
 class ModerationNewChange {
 	public const MOD_TYPE_EDIT = 'edit';
@@ -132,7 +133,7 @@ class ModerationNewChange {
 		$this->fields['mod_new'] = $wikiPage->exists() ? 0 : 1;
 		$this->fields['mod_last_oldid'] = $wikiPage->getLatest();
 
-		$oldContent = $wikiPage->getContent( Revision::RAW ); // current revision's content
+		$oldContent = $wikiPage->getContent( RevisionRecord::RAW ); // current revision's content
 		if ( $oldContent ) {
 			$this->fields['mod_old_len'] = $oldContent->getSize();
 		}

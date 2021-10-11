@@ -20,6 +20,8 @@
  * Basic TestSet for tests which precreate a change that awaits moderation.
  */
 
+use MediaWiki\Revision\RevisionRecord;
+
 trait ModerationTestsuitePendingChangeTestSet {
 	use ModerationTestsuiteTestSet;
 
@@ -137,7 +139,7 @@ trait ModerationTestsuitePendingChangeTestSet {
 			// Either simulated "null edit" or a reupload
 			// (reuploads don't modify the text of the page).
 			$page = WikiPage::factory( $this->getExpectedTitleObj() );
-			$oldContent = $page->getContent( Revision::RAW );
+			$oldContent = $page->getContent( RevisionRecord::RAW );
 
 			$this->fields['mod_text'] = $oldContent ? $oldContent->getNativeData() : "";
 			$this->fields['mod_new_len'] = $oldContent ? $oldContent->getSize() : 0;

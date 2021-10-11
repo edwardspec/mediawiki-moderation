@@ -24,8 +24,8 @@ namespace MediaWiki\Moderation;
 
 use ContentHandler;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
-use Revision;
 use Status;
 use Title;
 use User;
@@ -128,11 +128,11 @@ class ApproveEditConsequence implements IConsequence {
 
 			// Note: $rec may be null if page was deleted.
 			if ( $rec ) {
-				$baseContent = $rec->getSlot( SlotRecord::MAIN, Revision::RAW )->getContent();
+				$baseContent = $rec->getSlot( SlotRecord::MAIN, RevisionRecord::RAW )->getContent();
 			}
 		}
 
-		$latestContent = $page->getContent( Revision::RAW );
+		$latestContent = $page->getContent( RevisionRecord::RAW );
 		$mergedContent = $handler->merge3( $baseContent, $newContent, $latestContent );
 
 		if ( $mergedContent ) {
