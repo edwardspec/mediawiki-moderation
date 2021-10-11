@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
  * Unit test of ApiModeration.
  */
 
+use MediaWiki\Moderation\ActionFactory;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -135,7 +136,8 @@ class ApiModerationTest extends ApiTestCase {
 	 * @covers ApiModeration
 	 */
 	public function testApiBaseSubclass() {
-		$api = new ApiModeration( new ApiMain(), 'moderation' );
+		$actionFactory = $this->createMock( ActionFactory::class );
+		$api = new ApiModeration( new ApiMain(), 'moderation', $actionFactory );
 
 		$this->assertTrue( $api->isWriteMode(), 'isWriteMode' );
 		$this->assertTrue( $api->mustBePosted(), 'mustBePosted' );

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017-2020 Edward Chernenko.
+	Copyright (C) 2017-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,15 +20,27 @@
  * API to invoke moderation actions like Approve, Reject, etc.
  */
 
-use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\ActionFactory;
 
 class ApiModeration extends ApiBase {
+	/** @var ActionFactory */
+	protected $actionFactory;
+
+	/**
+	 * @param ApiMain $main
+	 * @param string $action
+	 * @param ActionFactory $actionFactory
+	 */
+	public function __construct( ApiMain $main, $action, ActionFactory $actionFactory ) {
+		parent::__construct( $main, $action );
+
+		$this->actionFactory = $actionFactory;
+	}
 
 	public function execute() {
 		$this->checkUserRightsAny( [ 'moderation' ] );
 
-		$actionFactory = MediaWikiServices::getInstance()->getService( 'Moderation.ActionFactory' );
-		$A = $actionFactory->makeAction( $this->getContext() );
+		$A = $this->actionFactory->makeAction( $this->getContext() );
 
 		try {
 			$result = $A->run();
@@ -36,7 +48,6 @@ class ApiModeration extends ApiBase {
 			$this->dieStatus( $e->status );
 		}
 
-		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable - Phan doesn't understand dieStatus()
 		$this->getResult()->addValue( null, $this->getModuleName(), $result );
 	}
 

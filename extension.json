@@ -81,7 +81,12 @@
 		}
 	},
 	"APIModules": {
-		"moderation": "ApiModeration"
+		"moderation": {
+			"class": "ApiModeration",
+			"services": [
+				"Moderation.ActionFactory"
+			]
+		}
 	},
 	"APIPropModules": {
 		"moderationpreload": "ApiQueryModerationPreload"
