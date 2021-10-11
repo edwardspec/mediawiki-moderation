@@ -633,7 +633,7 @@ class ModerationQueueTest extends ModerationTestCase {
 			'mod_header_xff' => $this->xff ?: null,
 			'mod_header_ua' => $this->userAgent,
 			'mod_preload_id' => (
-				$this->user->isLoggedIn() ?
+				$this->user->isRegistered() ?
 					'[' . $this->user->getName() :
 					new ModerationTestSetRegex( '/^\][0-9a-f]+$/' )
 			),
