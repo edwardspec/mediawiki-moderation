@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2016-2020 Edward Chernenko.
+	Copyright (C) 2016-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,12 +23,19 @@
  * for example Extension:VisualEditor or Extension:MobileFrontend.
  */
 
-use MediaWiki\MediaWikiServices;
-
 class ApiQueryModerationPreload extends ApiQueryBase {
+	/** @var ModerationPreload */
+	protected $preload;
 
-	public function __construct( $query, $moduleName ) {
+	/**
+	 * @param ApiQuery $query
+	 * @param string $moduleName
+	 * @param ModerationPreload $preload
+	 */
+	public function __construct( ApiQuery $query, $moduleName, ModerationPreload $preload ) {
 		parent::__construct( $query, $moduleName, 'mp' );
+
+		$this->preload = $preload;
 	}
 
 	public function execute() {
@@ -45,8 +52,7 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 		];
 
 		/* Load text which is currently awaiting moderation */
-		$preload = MediaWikiServices::getInstance()->getService( 'Moderation.Preload' );
-		$pendingEdit = $preload->findPendingEdit( $title );
+		$pendingEdit = $this->preload->findPendingEdit( $title );
 		if ( !$pendingEdit ) {
 			$r['missing'] = ''; /* There is no pending edit */
 		} else {

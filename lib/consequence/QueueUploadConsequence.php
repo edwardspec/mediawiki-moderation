@@ -23,7 +23,7 @@
 namespace MediaWiki\Moderation;
 
 use ContentHandler;
-use ModerationNewChange;
+use MediaWiki\MediaWikiServices;
 use ModerationUploadStorage;
 use UploadBase;
 use User;
@@ -79,7 +79,8 @@ class QueueUploadConsequence implements IConsequence {
 		$page = new WikiPage( $title );
 		$content = ContentHandler::makeContent( $this->pageText, $title );
 
-		$change = new ModerationNewChange( $title, $this->user );
+		$factory = MediaWikiServices::getInstance()->getService( 'Moderation.NewChangeFactory' );
+		$change = $factory->makeNewChange( $title, $this->user );
 		$change->edit( $page, $content, '', '' )
 			->upload( $file->getFileKey() )
 			->setSummary( $this->comment )

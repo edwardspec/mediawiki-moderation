@@ -138,7 +138,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 	 * @covers SpecialModeration
 	 */
 	public function testSpecialPageSubclass() {
-		$special = new SpecialModeration;
+		$special = MediaWikiServices::getInstance()->getSpecialPageFactory()->getPage( 'Moderation' );
 
 		$this->assertEquals( 'spam', $special->getGroupName(), 'getGroupName' );
 		$this->assertFalse( $special->isSyndicated(), 'isSyndicated' );
@@ -163,7 +163,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		$context->setRequest( new FauxRequest( $folder ? [ 'folder' => $folder ] : [] ) );
 		$context->setLanguage( 'qqx' );
 
-		$special = new SpecialModeration;
+		$special = MediaWikiServices::getInstance()->getSpecialPageFactory()->getPage( 'Moderation' );
 		$special->setContext( $context );
 
 		// Check getQueryInfo()
@@ -335,9 +335,6 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		$context = $this->createMock( IContextSource::class );
 		'@phan-var IContextSource $context';
 
-		$special = new SpecialModeration;
-		$special->setContext( $context );
-
 		// Mock the EntryFactory service before trying formatResult().
 		$factory = $this->createMock( EntryFactory::class );
 		$factory->expects( $this->once() )->method( 'makeFormatter' )
@@ -353,6 +350,9 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		$this->setService( 'Moderation.EntryFactory', $factory );
 
 		'@phan-var Skin $skin';
+
+		$special = MediaWikiServices::getInstance()->getSpecialPageFactory()->getPage( 'Moderation' );
+		$special->setContext( $context );
 
 		// Run formatResult()
 		$result = $special->formatResult( $skin, $sampleRow );
@@ -412,7 +412,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		$linkCache = MediaWikiServices::getInstance()->getLinkCache();
 		$linkCache->clear();
 
-		$special = new SpecialModeration;
+		$special = MediaWikiServices::getInstance()->getSpecialPageFactory()->getPage( 'Moderation' );
 		$special->preprocessResults( $this->db, $res );
 
 		// Verify that pages were added into the LinkCache.

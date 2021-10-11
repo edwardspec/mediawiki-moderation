@@ -20,7 +20,8 @@
  * Methods to manage "moderation" SQL table.
  */
 
-use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\Hook\HookRunner;
+use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
@@ -44,9 +45,38 @@ class ModerationNewChange {
 	 */
 	private $pendingEdit = null;
 
-	public function __construct( Title $title, User $user ) {
+	/** @var IConsequenceManager */
+	protected $consequenceManager;
+
+	/** @var ModerationPreload */
+	protected $preload;
+
+	/** @var HookRunner */
+	protected $hookRunner;
+
+	/** @var ModerationNotifyModerator */
+	protected $notifyModerator;
+
+	/** @var Language */
+	protected $contentLanguage;
+
+	public function __construct(
+		Title $title,
+		User $user,
+		IConsequenceManager $consequenceManager,
+		ModerationPreload $preload,
+		HookRunner $hookRunner,
+		ModerationNotifyModerator $notifyModerator,
+		Language $contentLanguage
+	) {
 		$this->title = $title;
 		$this->user = $user;
+
+		$this->consequenceManager = $consequenceManager;
+		$this->preload = $preload;
+		$this->hookRunner = $hookRunner;
+		$this->notifyModerator = $notifyModerator;
+		$this->contentLanguage = $contentLanguage;
 
 		$isBlocked = ModerationBlockCheck::isModerationBlocked( $user );
 
@@ -199,7 +229,7 @@ class ModerationNewChange {
 	protected function preSaveTransform( Content $content ) {
 		$popts = ParserOptions::newFromUserAndLang(
 			$this->user,
-			MediaWikiServices::getInstance()->getContentLanguage()
+			$this->contentLanguage
 		);
 
 		return $content->preSaveTransform(
@@ -253,10 +283,8 @@ class ModerationNewChange {
 	 * @return ModerationPreload
 	 */
 	protected function getPreload() {
-		$preload = MediaWikiServices::getInstance()->getService( 'Moderation.Preload' );
-		$preload->setUser( $this->user );
-
-		return $preload;
+		$this->preload->setUser( $this->user );
+		return $this->preload;
 	}
 
 	/**
@@ -310,8 +338,7 @@ class ModerationNewChange {
 		$modid = $this->insert();
 
 		// Run hook to allow other extensions be notified about pending changes
-		$hookRunner = MediaWikiServices::getInstance()->getService( 'Moderation.HookRunner' );
-		$hookRunner->onModerationPending(
+		$this->hookRunner->onModerationPending(
 			$this->getFields(),
 			$modid
 		);
@@ -335,8 +362,7 @@ class ModerationNewChange {
 		$this->sendNotificationEmail( $modid );
 
 		// Enable in-wiki notification "New changes await moderation" for moderators
-		$notifyModerator = MediaWikiServices::getInstance()->getService( 'Moderation.NotifyModerator' );
-		$notifyModerator->setPendingTime( $this->getField( 'mod_timestamp' ) );
+		$this->notifyModerator->setPendingTime( $this->getField( 'mod_timestamp' ) );
 	}
 
 	/**
@@ -344,8 +370,7 @@ class ModerationNewChange {
 	 * @return int mod_id of affected row.
 	 */
 	protected function insert() {
-		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
-		return $manager->add(
+		return $this->consequenceManager->add(
 			new InsertRowIntoModerationTableConsequence( $this->getFields() )
 		);
 	}
@@ -369,8 +394,7 @@ class ModerationNewChange {
 			return;
 		}
 
-		$manager = MediaWikiServices::getInstance()->getService( 'Moderation.ConsequenceManager' );
-		$manager->add( new SendNotificationEmailConsequence(
+		$this->consequenceManager->add( new SendNotificationEmailConsequence(
 			$this->title,
 			$this->user,
 			$modid
