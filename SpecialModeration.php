@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2020 Edward Chernenko.
+	Copyright (C) 2014-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,7 +20,8 @@
  * Implements [[Special:Moderation]].
  */
 
-use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\ActionFactory;
+use MediaWiki\Moderation\EntryFactory;
 
 class SpecialModeration extends QueryPage {
 
@@ -60,8 +61,30 @@ class SpecialModeration extends QueryPage {
 	 */
 	public $default_folder = 'pending';
 
-	public function __construct() {
+	/** @var ActionFactory */
+	protected $actionFactory;
+
+	/** @var EntryFactory */
+	protected $entryFactory;
+
+	/** @var ModerationNotifyModerator */
+	protected $notifyModerator;
+
+	/**
+	 * @param ActionFactory $actionFactory
+	 * @param EntryFactory $entryFactory
+	 * @param ModerationNotifyModerator $notifyModerator
+	 */
+	public function __construct(
+		ActionFactory $actionFactory,
+		EntryFactory $entryFactory,
+		ModerationNotifyModerator $notifyModerator
+	) {
 		parent::__construct( 'Moderation', 'moderation' );
+
+		$this->actionFactory = $actionFactory;
+		$this->entryFactory = $entryFactory;
+		$this->notifyModerator = $notifyModerator;
 	}
 
 	public function getGroupName() {
@@ -159,8 +182,7 @@ class SpecialModeration extends QueryPage {
 		}
 
 		/* Close "New changes await moderation" notification until new changes appear */
-		$notifyModerator = MediaWikiServices::getInstance()->getService( 'Moderation.NotifyModerator' );
-		$notifyModerator->setSeen( $this->getUser(), wfTimestampNow() );
+		$this->notifyModerator->setSeen( $this->getUser(), wfTimestampNow() );
 
 		// The rest will be handled by QueryPage::execute()
 		parent::execute( null );
@@ -170,8 +192,7 @@ class SpecialModeration extends QueryPage {
 	 * Run ModerationAction.
 	 */
 	public function runModerationAction() {
-		$actionFactory = MediaWikiServices::getInstance()->getService( 'Moderation.ActionFactory' );
-		$A = $actionFactory->makeAction( $this->getContext() );
+		$A = $this->actionFactory->makeAction( $this->getContext() );
 		if ( $A->requiresEditToken() ) {
 			$token = $this->getRequest()->getVal( 'token' );
 			if ( !$this->getUser()->matchEditToken( $token ) ) {
@@ -217,9 +238,6 @@ class SpecialModeration extends QueryPage {
 	 * @return string
 	 */
 	public function formatResult( $skin, $row ) {
-		return MediaWikiServices::getInstance()
-			->getService( 'Moderation.EntryFactory' )
-			->makeFormatter( $row, $this->getContext() )
-			->getHTML();
+		return $this->entryFactory->makeFormatter( $row, $this->getContext() )->getHTML();
 	}
 }

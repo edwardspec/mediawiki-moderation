@@ -51,7 +51,14 @@
 		"skip-move-moderation"
 	],
 	"SpecialPages": {
-		"Moderation": "SpecialModeration"
+		"Moderation": {
+			"class": "SpecialModeration",
+			"services": [
+				"Moderation.ActionFactory",
+				"Moderation.EntryFactory",
+				"Moderation.NotifyModerator"
+			]
+		}
 	},
 	"ActionFilteredLogs": {
 		"moderation": {

@@ -96,7 +96,7 @@ class ModerationTestUtil {
 	public static function runSpecialModeration( User $user, array $params, $wasPosted = false,
 		IContextSource &$context = null
 	) {
-		$page = new SpecialModeration;
+		$page = MediaWikiServices::getInstance()->getSpecialPageFactory()->getPage( 'Moderation' );
 
 		$context = new RequestContext;
 		$context->setRequest( new FauxRequest( $params, $wasPosted ) );
