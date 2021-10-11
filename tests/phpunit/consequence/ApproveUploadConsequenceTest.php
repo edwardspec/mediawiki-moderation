@@ -76,8 +76,13 @@ class ApproveUploadConsequenceTest extends ModerationUnitTestCase {
 		// Check whether the newly approved file has been uploaded.
 		$file = MediaWikiServices::getInstance()->getRepoGroup()->findFile( $title->getText(), [ 'latest' => true ] );
 		$this->assertEquals( $comment, $file->getDescription() );
-		$this->assertEquals( $user->getName(), $file->getUser( 'text' ) );
-		$this->assertEquals( $user->getId(), $file->getUser( 'id' ) );
+
+		$uploader = method_exists( $file, 'getUploader' ) ?
+			$file->getUploader( File::RAW ) : // MediaWiki 1.36+
+			$file->getUser( 'object' ); // MediaWiki 1.35 only
+
+		$this->assertEquals( $user->getName(), $uploader->getName() );
+		$this->assertEquals( $user->getId(), $uploader->getId() );
 
 		$page = WikiPage::factory( $title );
 		$this->assertEquals( $expectedText, $page->getContent()->getNativeData() );
