@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 namespace MediaWiki\Moderation;
 
-use MovePage;
+use MediaWiki\MediaWikiServices;
 use Status;
 use Title;
 use User;
@@ -65,7 +65,8 @@ class ApproveMoveConsequence implements IConsequence {
 	 * @return Status
 	 */
 	public function run() {
-		$mp = new MovePage( $this->oldTitle, $this->newTitle );
+		$factory = MediaWikiServices::getInstance()->getMovePageFactory();
+		$mp = $factory->newMovePage( $this->oldTitle, $this->newTitle );
 
 		/* Sanity checks like "page with the new name should not exist" */
 		$status = $mp->isValidMove();

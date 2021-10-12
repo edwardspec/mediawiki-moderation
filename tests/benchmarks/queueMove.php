@@ -25,7 +25,13 @@
 
 require_once __DIR__ . '/ModerationBenchmark.php';
 
+use MediaWiki\MediaWikiServices;
+use MediaWiki\Page\MovePageFactory;
+
 class BenchmarkQueueMove extends ModerationBenchmark {
+	/** @var MovePageFactory */
+	private $movePageFactory;
+
 	public function getOldTitle( $i ) {
 		return $this->getTestTitle( 'Old title ' . $i );
 	}
@@ -35,6 +41,8 @@ class BenchmarkQueueMove extends ModerationBenchmark {
 	}
 
 	public function beforeBenchmark( $numberOfLoops ) {
+		$this->movePageFactory = MediaWikiServices::getInstance()->getMovePageFactory();
+
 		/* Create $numberOfLoops pages to be moved */
 		for ( $i = 0; $i <= $numberOfLoops; $i++ ) {
 			$this->fastEdit( $this->getOldTitle( $i ) );
@@ -42,7 +50,7 @@ class BenchmarkQueueMove extends ModerationBenchmark {
 	}
 
 	public function doActualWork( $i ) {
-		$mp = new MovePage(
+		$mp = $this->movePageFactory->newMovePage(
 			$this->getOldTitle( $i ),
 			$this->getNewTitle( $i )
 		);

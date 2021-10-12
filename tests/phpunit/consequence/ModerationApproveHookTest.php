@@ -840,7 +840,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 			"makeMove(): page doesn't exist: " . $title->getFullText() );
 
 		$reason = 'Some reason to rename the page';
-		$mp = new MovePage( $title, $newTitle );
+		$mp = MediaWikiServices::getInstance()->getMovePageFactory()->newMovePage( $title, $newTitle );
 
 		/* Sanity checks like "page with the new name should not exist" */
 		$status = $mp->isValidMove();

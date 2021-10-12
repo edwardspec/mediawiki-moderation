@@ -20,6 +20,7 @@
  * Verifies that renaming a page has consequences.
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\QueueMoveConsequence;
 
 require_once __DIR__ . "/autoload.php";
@@ -61,7 +62,7 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 		)->willReturn( false ); // Can't bypass moderation
 		$this->setService( 'Moderation.CanSkip', $canSkip );
 
-		$mp = new MovePage( $this->title, $newTitle );
+		$mp = MediaWikiServices::getInstance()->getMovePageFactory()->newMovePage( $this->title, $newTitle );
 		$status = $mp->move( $user, $reason, true );
 
 		$this->assertTrue( $status->hasMessage( 'moderation-move-queued' ),
@@ -99,7 +100,7 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 		)->willReturn( true ); // Can bypass moderation
 		$this->setService( 'Moderation.CanSkip', $canSkip );
 
-		$mp = new MovePage( $this->title, $newTitle );
+		$mp = MediaWikiServices::getInstance()->getMovePageFactory()->newMovePage( $this->title, $newTitle );
 		$status = $mp->move( $user, $reason, true );
 
 		$this->assertTrue( $status->isGood(),
