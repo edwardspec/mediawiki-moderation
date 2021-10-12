@@ -60,14 +60,7 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 
 		if ( $opt->existing ) {
 			// Precreate the page.
-			$page = WikiPage::factory( $title );
-			$page->doEditContent(
-				ContentHandler::makeContent( "Before $newText", null, CONTENT_MODEL_WIKITEXT ),
-				'',
-				EDIT_INTERNAL,
-				false,
-				User::newFromName( '127.0.0.2', false )
-			);
+			$this->makeEdit( $title, User::newFromName( '127.0.0.2', false ), "Before $newText" );
 		}
 
 		$baseRevId = $opt->existing ?

@@ -20,6 +20,8 @@
  * Trait that provides makeEdit() for quickly precreating pages.
  */
 
+use MediaWiki\Revision\SlotRecord;
+
 /**
  * @method static assertTrue($a, string $message='')
  */
@@ -38,17 +40,16 @@ trait MakeEditTestTrait {
 		}
 
 		$page = WikiPage::factory( $title );
-		$status = $page->doEditContent(
-			ContentHandler::makeContent( $text, null, CONTENT_MODEL_WIKITEXT ),
-			'Some edit summary',
-			EDIT_INTERNAL,
-			false,
-			$user
-		);
+		$content = ContentHandler::makeContent( $text, null, CONTENT_MODEL_WIKITEXT );
+		$summary = CommentStoreComment::newUnsavedComment( 'Some edit summary' );
+
+		$updater = $page->newPageUpdater( $user );
+		$updater->setContent( SlotRecord::MAIN, $content );
+		$rev = $updater->saveRevision( $summary, EDIT_INTERNAL );
+
+		$status = $updater->getStatus();
 		$this->assertTrue( $status->isGood(), "Edit failed: " . $status->getMessage()->plain() );
 
-		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
-		$rev = $status->value['revision-record'] ?? $status->value['revision'];
-		return $rev->getId();
+		return $rev ? $rev->getId() : 0;
 	}
 }

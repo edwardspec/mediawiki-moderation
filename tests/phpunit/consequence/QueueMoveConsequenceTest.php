@@ -33,6 +33,8 @@ require_once __DIR__ . "/autoload.php";
  * @group Database
  */
 class QueueMoveConsequenceTest extends ModerationUnitTestCase {
+	use MakeEditTestTrait;
+
 	/** @var string[] */
 	protected $tablesUsed = [ 'moderation', 'user' ];
 
@@ -62,13 +64,7 @@ class QueueMoveConsequenceTest extends ModerationUnitTestCase {
 
 		// Precreate the page.
 		$moderator = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
-		$status = $page->doEditContent(
-			ContentHandler::makeContent( 'Original text' . rand( 0, 100000 ),
-				null, CONTENT_MODEL_WIKITEXT
-			), '', 0, false, $moderator
-
-		);
-		$this->assertTrue( $status->isOK() ); // Not intercepted and no other errors.
+		$this->makeEdit( $title, $moderator, 'Original text' . rand( 0, 100000 ) );
 
 		if ( $opt->modblocked ) {
 			$consequence = new BlockUserConsequence(

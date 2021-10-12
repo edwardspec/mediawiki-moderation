@@ -28,6 +28,8 @@ require_once __DIR__ . "/autoload.php";
  * @group Database
  */
 class MovesHaveConsequencesTest extends ModerationUnitTestCase {
+	use MakeEditTestTrait;
+
 	/** @var Title */
 	protected $title;
 
@@ -139,13 +141,10 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 	private function precreatePage() {
 		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 
-		$page = WikiPage::factory( $this->title );
-		return $page->doEditContent(
-			ContentHandler::makeContent( 'Some text', null, CONTENT_MODEL_WIKITEXT ),
-			'',
-			EDIT_INTERNAL,
-			false,
-			self::getTestUser( [ 'automoderated' ] )->getUser()
+		return $this->makeEdit(
+			$this->title,
+			self::getTestUser( [ 'automoderated' ] )->getUser(),
+			'Some text'
 		);
 	}
 }

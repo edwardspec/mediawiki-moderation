@@ -20,6 +20,8 @@
  * Verifies that editing a page has consequences.
  */
 
+require_once __DIR__ . "/autoload.php";
+
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
@@ -27,8 +29,7 @@ use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
-
-require_once __DIR__ . "/autoload.php";
+use MediaWiki\Revision\SlotRecord;
 
 /**
  * @group Database
@@ -60,8 +61,6 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	public function testEdit() {
 		// Replace real ConsequenceManager with a mock.
 		$manager = $this->mockConsequenceManager();
-		$this->user = self::getTestUser()->getUser();
-		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 
 		// Mock the result of canEditSkip()
 		$canSkip = $this->createMock( ModerationCanSkip::class );
@@ -99,8 +98,6 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	public function testAutomoderatedEdit() {
 		// Replace real ConsequenceManager with a mock.
 		$manager = $this->mockConsequenceManager();
-		$this->user = self::getTestUser()->getUser();
-		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 
 		// Mock the result of canEditSkip()
 		$canSkip = $this->createMock( ModerationCanSkip::class );
@@ -127,8 +124,6 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	public function testModerationInterceptHook() {
 		// Replace real ConsequenceManager with a mock.
 		$manager = $this->mockConsequenceManager();
-		$this->user = self::getTestUser()->getUser();
-		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 
 		$this->setTemporaryHook( 'ModerationIntercept',
 			function ( WikiPage $page, User $user, Content $content,
@@ -158,9 +153,6 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	 * @covers ModerationEditHooks::getRedirectURL
 	 */
 	public function testModerationContinueEditingLinkHook() {
-		$this->user = User::newFromName( '127.0.0.1', false );
-		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
-
 		$expectedReturnTo = FormatJson::encode( [ 'Another page',
 			[ 'param1' => 'val1', 'anotherparam' => 'anotherval' ] ] );
 
@@ -210,16 +202,9 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		$this->mergeMwGlobalArrayValue( 'wgContentHandlers', [
 			'testing-nontext' => DummyNonTextContentHandler::class,
 		] );
-		$title = Title::makeTitle( 12314, 'UTPage-' . rand( 0, 100000 ) );
+		$this->title = Title::makeTitle( 12314, 'UTPage-' . rand( 0, 100000 ) );
 
-		$page = WikiPage::factory( $title );
-		$status = $page->doEditContent(
-			$content,
-			'Some summary',
-			EDIT_INTERNAL,
-			false,
-			self::getTestUser()->getUser()
-		);
+		$status = $this->makeEdit( $content );
 		$this->assertTrue( $status->isGood(), "Moderation shouldn't have intercepted non-text Content, " .
 			"but doEditContent() didn't return successful Status." );
 
@@ -258,7 +243,6 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		RequestContext::getMain()->getRequest()->setVal( 'wpMergeID', $modid );
 
 		$this->user = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
-		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 		$manager->mockResult( MarkAsMergedConsequence::class, true );
 
 		$status = $this->makeEdit();
@@ -294,15 +278,12 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		$fullText = "Text #0\n== Section 1 ==\nText #1\n\n " .
 			"== Section 2 ==\nText #2\n\n== Section 3 ==\nText #3";
 
-		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
-		$summary = 'Some edit summary';
-		$user = self::getTestUser()->getUser();
 		$content = ContentHandler::makeContent( $fullText, null, CONTENT_MODEL_WIKITEXT );
 
 		$editFormOptions = $this->createMock( EditFormOptions::class );
 		$editFormOptions->expects( $this->once() )->method( 'watchIfNeeded' )->with(
-			$this->identicalTo( $user ),
-			$this->identicalTo( [ $title ] )
+			$this->identicalTo( $this->user ),
+			$this->identicalTo( [ $this->title ] )
 		);
 		$editFormOptions->expects( $this->once() )->method( 'getSection' )->willReturn( $section );
 		$editFormOptions->expects( $this->once() )->method( 'getSectionText' )
@@ -312,18 +293,12 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		// Replace real ConsequenceManager with a mock.
 		$manager = $this->mockConsequenceManager();
 
-		$page = WikiPage::factory( $title );
-		$page->doEditContent(
-			$content,
-			$summary,
-			EDIT_INTERNAL,
-			false,
-			$user
-		);
+		$page = WikiPage::factory( $this->title );
+		$this->makeEdit( $content );
 
 		$this->assertConsequencesEqual( [
 			new QueueEditConsequence(
-				$page, $user, $content, $summary,
+				$page, $this->user, $content, $this->summary,
 				$section,
 				$sectionText,
 				false, // isBot
@@ -334,20 +309,25 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Perform one edit that will be queued for moderation. (for use in different tests)
+	 * Unlike MakeEditTestTrait::makeEdit(), this doesn't throw exception if Status is unsuccessful,
+	 * because "moderation-edit-queued" is a perfectly acceptable non-success status in this test.
+	 * @param Content|null $newContent Optional, as most tests don't depend on what text is added.
 	 * @return Status
 	 */
-	private function makeEdit() {
-		$this->content = ContentHandler::makeContent( 'Some text', null, CONTENT_MODEL_WIKITEXT );
-		$this->summary = 'Some edit summary';
+	private function makeEdit( Content $newContent = null ) {
+		$this->content = $newContent ?? ContentHandler::makeContent( 'Some text', null, CONTENT_MODEL_WIKITEXT );
+		$this->summary = 'Default edit summary for this test';
 
 		$page = WikiPage::factory( $this->title );
-		return $page->doEditContent(
-			$this->content,
-			$this->summary,
-			EDIT_INTERNAL,
-			false,
-			$this->user
+
+		$updater = $page->newPageUpdater( $this->user );
+		$updater->setContent( SlotRecord::MAIN, $this->content );
+		$updater->saveRevision(
+			CommentStoreComment::newUnsavedComment( $this->summary ),
+			EDIT_INTERNAL
 		);
+
+		return $updater->getStatus();
 	}
 
 	/**
@@ -358,5 +338,12 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		$this->assertNoConsequences( $manager );
 		$this->assertStringNotContainsString( 'modqueued', RequestContext::getMain()->getOutput()->getRedirect(),
 			"Redirect URL shouldn't contain modqueued= when the moderation was skipped." );
+	}
+
+	public function setUp(): void {
+		parent::setUp();
+
+		$this->user = self::getTestUser()->getUser();
+		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 	}
 }
