@@ -189,7 +189,7 @@ function wfModerationTestsuiteSetup() {
 	$wgHooks['BeforeInitialize'] = static function ( &$unused1, &$unused2, &$unused3, &$user ) {
 		wfModerationTestsuiteCliLogin();
 
-		// Make sure that ModerationNotifyModerator::onBeforeInitialize() runs as this new user.
+		// Make sure that handlers of BeforeInitialize hook (if any) will run as this new user.
 		$user = RequestContext::getMain()->getUser();
 
 		return true;
