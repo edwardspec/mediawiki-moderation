@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@
 require_once __DIR__ . '/ModerationBenchmark.php';
 
 class BenchmarkQueueMove extends ModerationBenchmark {
-
 	public function getOldTitle( $i ) {
 		return $this->getTestTitle( 'Old title ' . $i );
 	}
@@ -47,7 +46,7 @@ class BenchmarkQueueMove extends ModerationBenchmark {
 			$this->getOldTitle( $i ),
 			$this->getNewTitle( $i )
 		);
-		$status = $mp->checkPermissions( $this->getUser(), 'Reason for moving #' . $i );
+		$status = $mp->move( $this->getUser(), 'Reason for moving #' . $i );
 
 		Wikimedia\Assert\Assert::postcondition(
 			( $status->getMessage()->getKey() == 'moderation-move-queued' ),
