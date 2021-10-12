@@ -22,6 +22,7 @@
 
 use MediaWiki\MediaWikiServices;
 use Wikimedia\Rdbms\ILoadBalancer;
+use Wikimedia\Rdbms\MaintainableDBConnRef;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -115,7 +116,7 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 			$this->identicalTo( 86400 )
 		);
 
-		$mockedConnRef = $this->createMock( IMaintainableDatabase::class );
+		$mockedConnRef = $this->createMock( MaintainableDBConnRef::class );
 
 		$loadBalancer = $this->createMock( ILoadBalancer::class );
 		$loadBalancer->expects( $this->once() )->method( 'getMaintenanceConnectionRef' )->with(
