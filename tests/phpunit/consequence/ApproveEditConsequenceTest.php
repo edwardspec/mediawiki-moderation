@@ -79,9 +79,11 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 		{
 			$hookFired = true;
 
+			$performer = ModerationTestUtil::getRecentChangePerformer( $rc );
+
 			$this->assertEquals( $title->getFullText(), $rc->getTitle()->getFullText() );
-			$this->assertEquals( $user->getName(), $rc->getPerformer()->getName() );
-			$this->assertEquals( $user->getId(), $rc->getPerformer()->getId() );
+			$this->assertEquals( $user->getName(), $performer->getName() );
+			$this->assertEquals( $user->getId(), $performer->getId() );
 			$this->assertEquals( $opt->minor ? 1 : 0, $rc->getAttribute( 'rc_minor' ) );
 			$this->assertEquals( $opt->bot ? 1 : 0, $rc->getAttribute( 'rc_bot' ) );
 			$this->assertEquals( $opt->summary, $rc->getAttribute( 'rc_comment' ) );
