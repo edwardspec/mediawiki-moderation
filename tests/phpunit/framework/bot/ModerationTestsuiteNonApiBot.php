@@ -151,7 +151,10 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 		}
 
 		$html = new ModerationTestsuiteHTML;
-		$div = $html->loadReq( $req )->getElementByXPath( '//div[@class="error"]' );
+		$html->loadReq( $req );
+
+		$div = $html->getElementByXPath( '//div[@class="error"]' ) ?? // MediaWiki 1.35-1.36
+			$html->getElementByXPath( '//div[@class="errorbox"]' ); // MediaWiki 1.37+
 
 		if ( $div ) {
 			// Error found

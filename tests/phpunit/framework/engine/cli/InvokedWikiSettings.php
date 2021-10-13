@@ -113,7 +113,10 @@ function wfModerationTestsuiteCliLogin() {
 		}
 
 		global $wgUser;
-		$wgUser = $user;
+		if ( !( $wgUser instanceof StubGlobalUser ) ) {
+			// MediaWiki 1.35-1.36. Not needed in MediaWiki 1.37+.
+			$wgUser = $user;
+		}
 		RequestContext::getMain()->setUser( $user );
 	}
 
