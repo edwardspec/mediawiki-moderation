@@ -83,11 +83,12 @@ class CliInvoke {
 
 	/** Unpack $_FILES */
 	protected function unpackFiles() {
+		global $wgModerationTestsuiteCliUploadData; // To be used in [InvokedWikiSettings.php]
+		$wgModerationTestsuiteCliUploadData = [];
+
 		foreach ( $this->getDescriptor( 'files' ) as $uploadKey => $tmpFilename ) {
 			$curlFile = new CURLFile( $tmpFilename );
-
-			// phpcs:ignore MediaWiki.Usage.SuperGlobalsUsage.SuperGlobals
-			$_FILES[$uploadKey] = [
+			$wgModerationTestsuiteCliUploadData[$uploadKey] = [
 				'name' => 'whatever', # Not used anywhere
 				'type' => $curlFile->getMimeType(),
 				'tmp_name' => $curlFile->getFilename(),

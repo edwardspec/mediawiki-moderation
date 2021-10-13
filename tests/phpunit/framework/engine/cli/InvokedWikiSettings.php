@@ -136,7 +136,8 @@ function wfModerationTestsuiteCliLogin() {
 }
 
 function wfModerationTestsuiteSetup() {
-	global $wgModerationTestsuiteCliDescriptor, $wgRequest, $wgHooks, $wgAutoloadClasses;
+	global $wgModerationTestsuiteCliDescriptor, $wgModerationTestsuiteCliUploadData,
+		$wgRequest, $wgHooks, $wgAutoloadClasses;
 
 	$wgAutoloadClasses['ModerationTestsuiteCliApiMain'] =
 		__DIR__ . '/ModerationTestsuiteCliApiMain.php';
@@ -159,6 +160,17 @@ function wfModerationTestsuiteSetup() {
 	/* Use $request as the global WebRequest object */
 	RequestContext::getMain()->setRequest( $request );
 	$wgRequest = $request;
+
+	if ( method_exists( $request, 'setUpload' ) ) {
+		// MediaWiki 1.37+
+		$request->setUploadData( $wgModerationTestsuiteCliUploadData );
+	} else {
+		// MediaWiki 1.35-1.36
+		foreach ( $wgModerationTestsuiteCliUploadData as $uploadKey => $uploadData ) {
+			// phpcs:ignore MediaWiki.Usage.SuperGlobalsUsage.SuperGlobals
+			$_FILES[$uploadKey] = $uploadData;
+		}
+	}
 
 	/* Some code in MediaWiki core, e.g. HTTPFileStreamer, calls header()
 		directly (not via $wgRequest->response), but this function

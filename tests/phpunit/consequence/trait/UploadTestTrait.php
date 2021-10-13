@@ -59,8 +59,7 @@ trait UploadTestTrait {
 		copy( $srcPath, $tmpFilePath );
 
 		$curlFile = new CURLFile( $tmpFilePath );
-		// phpcs:ignore MediaWiki.Usage.SuperGlobalsUsage.SuperGlobals
-		$_FILES['wpUploadFile'] = [
+		$uploadData = [
 			'name' => 'whatever', # Not used anywhere
 			'type' => $curlFile->getMimeType(),
 			'tmp_name' => $curlFile->getFilename(),
@@ -68,11 +67,22 @@ trait UploadTestTrait {
 			'error' => 0
 		];
 
+		$fauxRequest = RequestContext::getMain()->getRequest();
+		if ( method_exists( $fauxRequest, 'setUpload' ) ) {
+			// MediaWiki 1.37+
+			$fauxRequest->setUpload( 'wpUploadFile', $uploadData );
+		} else {
+			// MediaWiki 1.35-1.36
+			// phpcs:ignore MediaWiki.Usage.SuperGlobalsUsage.SuperGlobals
+			$_FILES['wpUploadFile'] = $uploadData;
+		}
+
 		$upload = new UploadFromFile();
 		$upload->initialize(
 			$title->getText(),
-			RequestContext::getMain()->getRequest()->getUpload( 'wpUploadFile' )
+			$fauxRequest->getUpload( 'wpUploadFile' )
 		);
+
 		$this->assertEquals( [ 'status' => UploadBase::OK ], $upload->verifyUpload() );
 
 		return $upload;
