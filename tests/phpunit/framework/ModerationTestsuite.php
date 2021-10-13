@@ -270,6 +270,7 @@ class ModerationTestsuite {
 			'page',
 			'revision',
 			'revision_comment_temp',
+			'revision_actor_temp',
 			'logging',
 			'log_search',
 			'text',
