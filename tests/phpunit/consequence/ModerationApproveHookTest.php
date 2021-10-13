@@ -23,6 +23,8 @@
 use MediaWiki\MediaWikiServices;
 use Psr\Log\NullLogger;
 use Wikimedia\IPUtils;
+use Wikimedia\ScopedCallback;
+use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -663,6 +665,35 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 			// Prevent getRequest() from making WebRequest due to $wgCommandLineMode=false.
 			// Tests must always use FauxRequest.
 			RequestContext::getMain()->setRequest( new FauxRequest() );
+
+			/*
+				MediaWiki 1.37+ has a transaction listener (see LoadBalancer::setTransactionListener())
+				that causes all tests to run DeferredUpdates::tryOpportunisticExecute() on every commit,
+				thus causing all deferred updates to be executed immediately.
+
+				This is unacceptable,
+				because this test (ApproveHookTest) requires that DeferredUpdates are NOT immediate, but delayed,
+				since we are testing how ApproveHook would behave in production (where this is the case),
+				and there is a significant difference between these two modes (immediate/not immediate).
+
+				Immediate mode is also tested (separately) in testOneEditImmediateDeferredUpdates().
+			*/
+			$trxListenerName = 'MWLBFactory::applyGlobalState';
+			$loadBalancer = MediaWikiServices::getInstance()->getDBLoadBalancer();
+
+			// Remember the original listener.
+			$wrapper = TestingAccessWrapper::newFromObject( $loadBalancer );
+			$originalTrxCallback = $wrapper->trxRecurringCallbacks[$trxListenerName] ?? null;
+
+			// Delete the original listener.
+			$loadBalancer->setTransactionListener( $trxListenerName );
+
+			$scope = new ScopedCallback( static function ()
+				use ( $trxListenerName, $loadBalancer, $originalTrxCallback )
+			{
+				// Restore the original listener after the test.
+				$loadBalancer->setTransactionListener( $trxListenerName, $originalTrxCallback );
+			} );
 		}
 
 		// Step 1: install ApproveHook for edits that will happen later.
