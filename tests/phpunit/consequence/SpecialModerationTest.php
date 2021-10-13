@@ -425,7 +425,11 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		}
 
 		// Verify that preprocessResults() has rewinded $res (which is an iterator).
-		$seekPosition = TestingAccessWrapper::newFromObject( $res )->pos;
+		$resWrapper = TestingAccessWrapper::newFromObject( $res );
+		$seekPosition = property_exists( $res, 'currentPos' ) ?
+			$resWrapper->currentPos : // MediaWiki 1.37+
+			$resWrapper->pos; // MediaWiki 1.35-1.36
+
 		$this->assertSame( 0, $seekPosition );
 	}
 
