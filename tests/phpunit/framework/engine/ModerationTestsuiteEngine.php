@@ -364,7 +364,10 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 */
 	public function escapeDbSandbox() {
 		global $argv;
-		if ( array_search( '--use-normal-tables', $argv ) === false ) {
+		if (
+			( array_search( '--use-normal-tables', $argv ) === false ) && // MediaWiki 1.35-1.36
+			!(bool)getenv( 'PHPUNIT_USE_NORMAL_TABLES' ) // MediaWiki 1.37+
+		) {
 			throw new MWException(
 				"To run Moderation testsuite, PHPUnit should be called with --use-normal-tables flag." );
 		}
