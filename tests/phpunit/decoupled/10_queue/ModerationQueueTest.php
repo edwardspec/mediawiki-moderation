@@ -370,7 +370,17 @@ class ModerationQueueTest extends ModerationTestCase {
 
 		if ( $this->watch === false ) {
 			/* Unwatch test requested, add $this->title into the Watchlist */
-			WatchAction::doWatch( $this->title, $this->user );
+
+			// @phan-suppress-next-line PhanUndeclaredClassReference
+			if ( method_exists( '\MediaWiki\Watchlist\WatchlistManager', 'setWatch' ) ) {
+				// MediaWiki 1.37+
+				// @phan-suppress-next-line PhanUndeclaredMethod
+				$watchlistManager = MediaWikiServices::getInstance()->getWatchlistManager();
+				$watchlistManager->addWatchIgnoringRights( $this->user, $this->title );
+			} else {
+				// MediaWiki 1.35-1.36
+				WatchAction::doWatch( $this->title, $this->user );
+			}
 		}
 
 		$extraParams = [];
