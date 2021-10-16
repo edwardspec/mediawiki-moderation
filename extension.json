@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.6.13",
+	"version": "1.6.14",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -374,7 +374,7 @@
 		"ListDefinedTags": "edit",
 		"LocalUserCreated": "preload",
 		"ModerationContinueEditingLink": "pageForms",
-		"PageContentSave": "edit",
+		"MultiContentSave": "edit",
 		"PageSaveComplete": [
 			"approveHook",
 			"edit"

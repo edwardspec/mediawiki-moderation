@@ -71,7 +71,7 @@ class EditFormOptions {
 
 	/**
 	 * EditFilter hook handler.
-	 * Save sections-related information, which will then be used in onPageContentSave.
+	 * Save sections-related information, which will then be used in onMultiContentSave.
 	 * @param EditPage $editor
 	 * @param string $text
 	 * @param string $section

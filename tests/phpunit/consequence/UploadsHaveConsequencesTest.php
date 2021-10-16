@@ -91,7 +91,7 @@ class UploadsHaveConsequencesTest extends ModerationUnitTestCase {
 		// 1) Mock the result of canUploadSkip(), which is called from UploadVerifyUpload hook.
 		// 2) Mock the result of canEditSkip(), which is called due to the fact the performUpload()
 		// (even when not intercepted by Moderation) creates an image description page,
-		// which triggers PageContentSave hook, and Moderation checks canEditSkip() in that hook.
+		// which triggers MultiContentSave hook, and Moderation checks canEditSkip() in that hook.
 		$canSkip = $this->createMock( ModerationCanSkip::class );
 
 		$canSkip->expects( $this->once() )->method( 'canUploadSkip' )->with(

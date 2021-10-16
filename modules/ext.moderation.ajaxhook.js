@@ -3,7 +3,7 @@
 
 	A. Why is this needed?
 
-	When Moderation aborts PageContentSave hook, api.php?action=edit returns error,
+	When Moderation aborts MultiContentSave hook, api.php?action=edit returns error,
 	so VisualEditor panics "The edit wasn't saved! Unknown error!".
 
 	B. Why such an unusual implementation?

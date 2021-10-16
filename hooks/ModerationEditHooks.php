@@ -31,8 +31,11 @@ use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
+use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Revision\RevisionRecord;
+use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Storage\EditResult;
+use MediaWiki\Storage\Hook\MultiContentSaveHook;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\UserIdentity;
 
@@ -40,6 +43,7 @@ class ModerationEditHooks implements
 	BeforePageDisplayHook,
 	EditPage__showEditForm_fieldsHook,
 	ListDefinedTagsHook,
+	MultiContentSaveHook,
 	PageSaveCompleteHook
 {
 	/** @var IConsequenceManager */
@@ -73,38 +77,35 @@ class ModerationEditHooks implements
 	}
 
 	/**
-	 * PageContentSave hook handler.
+	 * MultiContentSave hook handler.
 	 * Intercept normal edits and queue them for moderation.
-	 * @param WikiPage $page
-	 * @param User $user
-	 * @param Content $content
-	 * @param string|CommentStoreComment $summary
-	 * @param int $is_minor
-	 * @param mixed $is_watch Unused.
-	 * @param mixed $section Unused.
+	 * @param RenderedRevision $renderedRevision
+	 * @param UserIdentity $user
+	 * @param CommentStoreComment $summary
 	 * @param int $flags
 	 * @param Status $status
 	 * @return bool
 	 */
-	public function onPageContentSave(
-		$page, $user, $content, $summary, $is_minor,
-		$is_watch, $section, $flags, $status
-	) {
+	public function onMultiContentSave( $renderedRevision, $user, $summary, $flags, $status ) {
+		$rev = $renderedRevision->getRevision();
+		$page = ModerationCompatTools::makeWikiPage( $rev->getPageAsLinkTarget() );
+		$user = User::newFromIdentity( $user );
+
 		$title = $page->getTitle();
 		if ( $this->canSkip->canEditSkip( $user, $title->getNamespace() ) ) {
 			return true;
 		}
 
-		if ( $summary instanceof CommentStoreComment ) {
-			$summary = $summary->text;
-		}
+		$summary = $summary->text;
+		$content = $rev->getSlot( SlotRecord::MAIN )->getContent(); // TODO: support non-main slot edits
+		$is_minor = $flags & EDIT_MINOR;
 
 		/*
 		 * Allow third-party extension to monitor edits that are about to be intercepted by Moderation.
 		 * If this hook returns false, then Moderation won't intercept this edit.
 		 */
 		if ( !$this->hookRunner->onModerationIntercept(
-			$page, $user, $content, $summary, $is_minor, $is_watch, $section, $flags, $status
+			$page, $user, $content, $summary, $is_minor, null, null, $flags, $status
 		) ) {
 			return true;
 		}

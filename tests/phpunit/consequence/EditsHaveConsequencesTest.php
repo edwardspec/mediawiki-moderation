@@ -55,7 +55,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences when normal edit is queued for moderation.
-	 * @covers ModerationEditHooks::onPageContentSave
+	 * @covers ModerationEditHooks::onMultiContentSave
 	 * @covers ModerationEditHooks::getRedirectURL
 	 */
 	public function testEdit() {
@@ -96,7 +96,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of normal edit when User is automoderated (can bypass moderation of edits).
-	 * @covers ModerationEditHooks::onPageContentSave
+	 * @covers ModerationEditHooks::onMultiContentSave
 	 */
 	public function testAutomoderatedEdit() {
 		// Replace real ConsequenceManager with a mock.
@@ -122,7 +122,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	/**
 	 * Verify that ModerationIntercept hook is called when edit is about to be queued for moderation.
 	 * Also verify that returning false from this hook will allow this edit to bypass moderation.
-	 * @covers ModerationEditHooks::onPageContentSave
+	 * @covers ModerationEditHooks::onMultiContentSave
 	 */
 	public function testModerationInterceptHook() {
 		// Replace real ConsequenceManager with a mock.
@@ -186,7 +186,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that editing non-text content (such as Flow forums) will bypass moderation.
-	 * @covers ModerationEditHooks::onPageContentSave
+	 * @covers ModerationEditHooks::onMultiContentSave
 	 */
 	public function testEditNonTextContent() {
 		// Replace real ConsequenceManager with a mock.
@@ -217,7 +217,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that edits in namespace of Extension:CommentStreams will bypass moderation.
-	 * @covers ModerationEditHooks::onPageContentSave
+	 * @covers ModerationEditHooks::onMultiContentSave
 	 */
 	public function testEditCommentStreams() {
 		$excludedNamespace = 4; // Arbitrary namespace number
@@ -273,7 +273,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of 1) editing a section, 2) "Watch this page" checkbox being (un)checked.
-	 * @covers ModerationEditHooks::onPageContentSave
+	 * @covers ModerationEditHooks::onMultiContentSave
 	 */
 	public function testSectionEditAndWatchthis() {
 		$section = "2"; // Section is a string (not integer), because it can be "new", etc.

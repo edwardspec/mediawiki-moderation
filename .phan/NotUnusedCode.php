@@ -9,7 +9,7 @@ use MediaWiki\Moderation\EditFormOptions;
 
 ModerationApproveHook::hookHandlerFactory();
 ModerationApproveHook::onCheckUserInsertForRecentChange();
-ModerationEditHooks::onPageContentSave();
+ModerationEditHooks::onMultiContentSave();
 ModerationNotifyModerator::hookHandlerFactory();
 ModerationNotifyModerator::onEchoCanAbortNewMessagesAlert();
 ModerationPageForms::onPageForms__EditFormPreloadText();
