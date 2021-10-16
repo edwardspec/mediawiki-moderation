@@ -75,6 +75,17 @@ class ModerationTestCase extends MediaWikiTestCase {
 	}
 
 	/**
+	 * Skip the test if MediaWiki extension is not installed.
+	 * @param string $extensionName E.g. "CheckUser".
+	 * @throws \PHPUnit\Framework\SkippedTestError
+	 */
+	public function requireExtension( $extensionName ) {
+		if ( !ExtensionRegistry::getInstance()->isLoaded( $extensionName ) ) {
+			$this->markTestSkipped( 'Test skipped: ' . $extensionName . ' extension must be installed to run it.' );
+		}
+	}
+
+	/**
 	 * Dump the logs related to the current test.
 	 */
 	protected function onNotSuccessfulTest( Throwable $e ): void {

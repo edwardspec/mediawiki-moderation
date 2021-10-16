@@ -105,19 +105,20 @@ jobs:
         with:
           path: ~/.composer/cache
           key: composer-cache
-      - run: sudo apt-get install -y composer && composer install
+      - run: composer install
       - run: composer test
 
   # Job #3: Phan (PHP static analyzer)
   phan:
     runs-on: ubuntu-20.04
     env:
-      branch: REL1_35
+      branch: REL1_37
     steps:
       - uses: actions/checkout@v2
       - uses: shivammathur/setup-php@v2
         with:
             php-version: '7.4'
+            extensions: ast
             tools: composer:v1
       - uses: actions/cache@v2
         with:
@@ -125,7 +126,6 @@ jobs:
             ~/.composer/cache
             buildcache
           key: buildcache-${{ env.branch }}
-      - run: sudo apt-get install -y composer php-ast
       - uses: edwardspec/github-action-build-mediawiki@v1
         with:
           branch: ${{ env.branch }}

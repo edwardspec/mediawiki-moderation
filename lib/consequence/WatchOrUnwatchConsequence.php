@@ -52,10 +52,8 @@ class WatchOrUnwatchConsequence implements IConsequence {
 	 * Execute the consequence.
 	 */
 	public function run() {
-		// @phan-suppress-next-line PhanUndeclaredClassReference
 		if ( method_exists( '\MediaWiki\Watchlist\WatchlistManager', 'setWatch' ) ) {
 			// MediaWiki 1.37+
-			// @phan-suppress-next-line PhanUndeclaredMethod
 			$watchlistManager = MediaWikiServices::getInstance()->getWatchlistManager();
 			$watchlistManager->setWatch( $this->watch, $this->user, $this->title, null );
 			return;

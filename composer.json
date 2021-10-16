@@ -6,7 +6,7 @@
 		"mediawiki/mediawiki-codesniffer": "37.0.0",
 		"liuggio/fastest": "1.7.1",
 		"symfony/process": "<5",
-		"mediawiki/mediawiki-phan-config": "0.10.4"
+		"mediawiki/mediawiki-phan-config": "0.11.0"
 	},
 	"scripts": {
 		"test": [

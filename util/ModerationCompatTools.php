@@ -36,7 +36,6 @@ class ModerationCompatTools {
 	) {
 		if ( method_exists( MediaWikiServices::class, 'getContentTransformer' ) ) {
 			// MediaWiki 1.37+
-			// @phan-suppress-next-line PhanUndeclaredMethod
 			$contentTransformer = MediaWikiServices::getInstance()->getContentTransformer();
 			return $contentTransformer->preSaveTransform( $content, $title, $user, $popts );
 		}
