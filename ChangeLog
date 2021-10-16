@@ -6,7 +6,8 @@ Note: this version requires MediaWiki 1.35+. MediaWiki 1.31 is no longer support
 
 Features:
 * Support MediaWiki 1.37.
-* Better support of CheckUser in MediaWiki 1.36-1.37 (XFF of approved edit is preserved).
+* Better support of AbuseFilter and CheckUser in MediaWiki 1.36-1.37
+(tags and XFF of approved edit are preserved).
 
 Refactoring, performance optimizations:
 * Removed legacy code for MediaWiki 1.31-1.34.

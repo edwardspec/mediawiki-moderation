@@ -20,6 +20,7 @@
  * Methods to manage "moderation" SQL table.
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
@@ -246,11 +247,12 @@ class ModerationNewChange {
 	 * @param string $action AbuseFilter action, e.g. 'edit' or 'delete'.
 	 */
 	protected function addChangeTags( $action ) {
-		$this->fields['mod_tags'] = self::findAbuseFilterTags(
+		$tagsArray = self::findAbuseFilterTags(
 			$this->title,
 			$this->user,
 			$action
 		);
+		$this->fields['mod_tags'] = $tagsArray ? implode( "\n", $tagsArray ) : null;
 	}
 
 	/**
@@ -258,12 +260,40 @@ class ModerationNewChange {
 	 * @param Title $title
 	 * @param User $user
 	 * @param string $action AbuseFilter action, e.g. 'edit' or 'delete'.
-	 * @return string|null
+	 * @return string[]
 	 */
 	protected static function findAbuseFilterTags( Title $title, User $user, $action ) {
-		if ( !class_exists( 'AbuseFilter' ) || empty( AbuseFilter::$tagsToSet ) ) {
-			return null; /* No tags */
+		$services = MediaWikiServices::getInstance();
+		$serviceName = 'AbuseFilterChangeTagger';
+
+		if ( !$services->hasService( $serviceName ) ) {
+			// MediaWiki 1.35
+			return self::findAbuseFilterTags35( $title, $user, $action );
 		}
+
+		$changeTagger = $services->getService( $serviceName );
+
+		// Construct a synthetic RecentChange object for AbuseFilter to determine the "action ID".
+		$recentChange = RecentChange::newLogEntry(
+			wfTimestampNow(), $title, $user, '', '', $action, $action, $title, '', '' );
+		return $changeTagger->getTagsForRecentChange( $recentChange, false );
+	}
+
+	/**
+	 * Calculate the value of mod_tags in AbuseFilter for MediaWiki 1.35 only (NOT in 1.36+).
+	 * @param Title $title
+	 * @param User $user
+	 * @param string $action AbuseFilter action, e.g. 'edit' or 'delete'.
+	 * @return string[]
+	 */
+	protected static function findAbuseFilterTags35( Title $title, User $user, $action ) {
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty AbuseFilter::$tagsToSet
+		if ( !class_exists( 'AbuseFilter' ) || empty( AbuseFilter::$tagsToSet ) ) {
+			return []; /* No tags */
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty AbuseFilter::$tagsToSet
+		$tagsToSet = AbuseFilter::$tagsToSet;
 
 		/* AbuseFilter wants to assign some tags to this edit.
 			Let's store them (they will be used in modaction=approve).
@@ -274,11 +304,7 @@ class ModerationNewChange {
 			$action
 		] );
 
-		if ( !isset( AbuseFilter::$tagsToSet[$afActionID] ) ) {
-			return null;
-		}
-
-		return implode( "\n", AbuseFilter::$tagsToSet[$afActionID] );
+		return $tagsToSet[$afActionID] ?? [];
 	}
 
 	/**
