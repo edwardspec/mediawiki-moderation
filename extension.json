@@ -379,7 +379,7 @@
 		],
 		"PageForms::EditFormInitialText": "pageForms",
 		"PageForms::EditFormPreloadText": "pageForms",
-		"PageMoveComplete": "approveHook",
+		"PageMoveCompleting": "approveHook",
 		"RecentChange_save": "approveHook",
 		"RevisionFromEditComplete": "approveHook",
 		"SpecialPageBeforeExecute": "editFormOptions",
