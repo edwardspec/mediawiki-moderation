@@ -31,11 +31,12 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 	 * @param array $expectedReturnToQuery
 	 * @dataProvider dataProviderContinueEditingLinkHook
 	 * @covers ModerationPageForms
-	 * @requires function PFHooks::initialize
 	 */
 	public function testContinueEditingLinkHook( array $requestParams,
 		$expectedReturnTo, array $expectedReturnToQuery
 	) {
+		$this->skipIfNoPageForms();
+
 		$context = new RequestContext;
 		$context->setRequest( new FauxRequest( $requestParams, true ) );
 
@@ -90,9 +91,10 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 	/**
 	 * Ensure that preloadText() does nothing when visiting Special:FormEdit without target page.
 	 * @covers ModerationPageForms
-	 * @requires function PFHooks::initialize
 	 */
 	public function testPreloadNoTargetTitle() {
+		$this->skipIfNoPageForms();
+
 		$text = $oldText = 'Unmodified text';
 
 		// Mock ModerationPreload service to ensure that its preload hook is NOT called.
@@ -108,9 +110,10 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 	/**
 	 * Ensure that preloadText() provides preloaded text.
 	 * @covers ModerationPageForms
-	 * @requires function PFHooks::initialize
 	 */
 	public function testPreload() {
+		$this->skipIfNoPageForms();
+
 		$targetTitle = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 		$text = 'Old text';
 
@@ -123,5 +126,11 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 
 		$plugin = new ModerationPageForms( $preload );
 		$plugin->preloadText( $text, $targetTitle, Title::newFromText( "Doesn't matter" ) );
+	}
+
+	protected function skipIfNoPageForms() {
+		if ( !ExtensionRegistry::getInstance()->isLoaded( 'PageForms' ) ) {
+			$this->markTestSkipped( 'Test skipped: PageForms extension must be installed to run it.' );
+		}
 	}
 }

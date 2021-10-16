@@ -70,9 +70,10 @@ class ModerationCheckuserTest extends ModerationTestCase {
 
 	/**
 	 * Ensure that modaction=approve preserves user-agent of edits.
-	 * @requires function CheckUserHooks::updateCheckUserData
 	 */
 	public function testApproveEditPrevervesUA( ModerationTestsuite $t ) {
+		$this->requireExtension( 'CheckUser' );
+
 		# When the edit is approved, cu_changes.cuc_agent field should
 		# contain UserAgent of user who made the edit,
 		# not UserAgent or the moderator who approved it.
@@ -97,9 +98,10 @@ class ModerationCheckuserTest extends ModerationTestCase {
 	/**
 	 * Ensure that modaction=approveall preserves user-agent of uploads.
 	 * @covers ModerationApproveHook::getTask()
-	 * @requires function CheckUserHooks::updateCheckUserData
 	 */
 	public function testApproveAllUploadPrevervesUA( ModerationTestsuite $t ) {
+		$this->requireExtension( 'CheckUser' );
+
 		# Perform several uploads.
 		$NUMBER_OF_UPLOADS = 2;
 

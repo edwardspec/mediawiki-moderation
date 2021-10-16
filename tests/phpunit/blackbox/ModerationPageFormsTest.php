@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -27,9 +27,10 @@ class ModerationPageFormsIntegrationTest extends ModerationTestCase {
 	 * Is pending edit preloaded into the edit form of Special:FormEdit?
 	 * @covers ModerationPageForms
 	 * @dataProvider dataProviderPageFormsPreload
-	 * @requires function PFHooks::initialize
 	 */
 	public function testPageFormsPreload( $isExistingPage, ModerationTestsuite $t ) {
+		$this->requireExtension( 'PageForms' );
+
 		if ( $t->mwVersionCompare( '1.36.0', '>=' ) ) {
 			$this->markTestSkipped( "Test skipped: Extension:PageForms is broken in 1.36 (see T283977)" );
 		}
