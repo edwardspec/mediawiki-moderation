@@ -482,9 +482,23 @@ class ModerationApproveHook implements
 		$fields['cuc_ip_hex'] = $task['ip'] ? IP::toHex( $task['ip'] ) : null;
 		$fields['cuc_agent'] = $task['ua'];
 
-		if ( method_exists( 'CheckUserHooks', 'getClientIPfromXFF' ) ) {
-			list( $xff_ip, $isSquidOnly ) = CheckUserHooks::getClientIPfromXFF( $task['xff'] );
+		$cuHooksClassNames = [
+			'\CheckUserHooks', // MediaWiki 1.35
+			'\MediaWiki\CheckUser\Hooks' // MediaWiki 1.36+
+		];
 
+		$xff_ip = null;
+		$isSquidOnly = false;
+
+		foreach ( $cuHooksClassNames as $className ) {
+			// @phan-suppress-next-line PhanUndeclaredClassReference
+			if ( method_exists( $className, 'getClientIPfromXFF' ) ) {
+				list( $xff_ip, $isSquidOnly ) = $className::getClientIPfromXFF( $task['xff'] );
+				break;
+			}
+		}
+
+		if ( $xff_ip !== null ) {
 			$fields['cuc_xff'] = !$isSquidOnly ? $task['xff'] : '';
 			$fields['cuc_xff_hex'] = ( $xff_ip && !$isSquidOnly ) ? IP::toHex( $xff_ip ) : null;
 		} else {
