@@ -22,10 +22,11 @@
 
 namespace MediaWiki\Moderation;
 
+use CommentStoreComment;
 use ContentHandler;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
-use Revision;
 use Status;
 use Title;
 use User;
@@ -79,40 +80,28 @@ class ApproveEditConsequence implements IConsequence {
 	 * @return Status
 	 */
 	public function run() {
-		$flags = EDIT_AUTOSUMMARY;
+		$flags = EDIT_INTERNAL | EDIT_AUTOSUMMARY;
 		if ( $this->isBot && $this->user->isAllowed( 'bot' ) ) {
 			$flags |= EDIT_FORCE_BOT;
 		}
-		if ( $this->isMinor ) { # doEditContent() checks the right
+		if ( $this->isMinor && $this->user->isAllowed( 'minoredit' ) ) {
 			$flags |= EDIT_MINOR;
 		}
 
 		$model = $this->title->getContentModel();
 		$newContent = ContentHandler::makeContent( $this->newText, null, $model );
+		$summary = CommentStoreComment::newUnsavedComment( $this->comment );
 
 		$page = new WikiPage( $this->title );
-		if ( !$page->exists() ) {
-			# New page. No need to check for edit conflicts.
-			return $page->doEditContent(
-				$newContent,
-				$this->comment,
-				$flags,
-				false,
-				$this->user
-			);
-		}
+		$updater = $page->newPageUpdater( $this->user );
 
-		# Existing page
-		$latest = $page->getLatest();
-		if ( $latest == $this->baseRevId ) {
-			# Page hasn't changed since this edit was queued for moderation.
-			return $page->doEditContent(
-				$newContent,
-				$this->comment,
-				$flags,
-				$latest,
-				$this->user
-			);
+		if ( !$page->exists() || $page->getLatest() == $this->baseRevId ) {
+			// This page is either new or hasn't changed since this edit was queued for moderation.
+			// No need to check for edit conflicts.
+			$updater->setContent( SlotRecord::MAIN, $newContent );
+			$updater->saveRevision( $summary, $flags );
+
+			return $updater->getStatus();
 		}
 
 		# Page has changed! (edit conflict)
@@ -128,21 +117,18 @@ class ApproveEditConsequence implements IConsequence {
 
 			// Note: $rec may be null if page was deleted.
 			if ( $rec ) {
-				$baseContent = $rec->getSlot( SlotRecord::MAIN, Revision::RAW )->getContent();
+				$baseContent = $rec->getSlot( SlotRecord::MAIN, RevisionRecord::RAW )->getContent();
 			}
 		}
 
-		$latestContent = $page->getContent( Revision::RAW );
+		$latestContent = $page->getContent( RevisionRecord::RAW );
 		$mergedContent = $handler->merge3( $baseContent, $newContent, $latestContent );
 
 		if ( $mergedContent ) {
-			return $page->doEditContent(
-				$mergedContent,
-				$this->comment,
-				$flags,
-				$latest, # Because $mergedContent goes after $latest
-				$this->user
-			);
+			$updater->setContent( SlotRecord::MAIN, $mergedContent );
+			$updater->saveRevision( $summary, $flags );
+
+			return $updater->getStatus();
 		}
 
 		return Status::newFatal( 'moderation-edit-conflict' );

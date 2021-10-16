@@ -20,6 +20,28 @@
  * Backward compatibility functions to support older versions of MediaWiki.
  */
 
+use MediaWiki\MediaWikiServices;
+
 class ModerationCompatTools {
-	// Nothing needed at the moment.
+	/**
+	 * Replace things like "~~~~" in $content.
+	 * @param Content $content
+	 * @param Title $title
+	 * @param User $user
+	 * @param ParserOptions $popts
+	 * @return Content
+	 */
+	public static function preSaveTransform(
+		Content $content, Title $title, User $user, ParserOptions $popts
+	) {
+		if ( method_exists( MediaWikiServices::class, 'getContentTransformer' ) ) {
+			// MediaWiki 1.37+
+			// @phan-suppress-next-line PhanUndeclaredMethod
+			$contentTransformer = MediaWikiServices::getInstance()->getContentTransformer();
+			return $contentTransformer->preSaveTransform( $content, $title, $user, $popts );
+		}
+
+		// MediaWiki 1.35-1.36
+		return $content->preSaveTransform( $title, $user, $popts );
+	}
 }

@@ -22,6 +22,8 @@
 
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * @group Database
  */
@@ -54,7 +56,13 @@ class ModerationUploadStorageTest extends ModerationTestCase {
 		$dbw->delete( 'user', [ 'user_name' => ModerationUploadStorage::USERNAME ], __METHOD__ );
 		$dbw->delete( 'actor', [ 'actor_name' => ModerationUploadStorage::USERNAME ], __METHOD__ );
 
-		User::resetIdByNameCache();
+		if ( method_exists( '\MediaWiki\User\ActorStore', 'clearCaches' ) ) {
+			// MediaWiki 1.37+
+			MediaWikiServices::getInstance()->getActorStore()->clearCaches();
+		} else {
+			// MediaWiki 1.35-1.36
+			User::resetIdByNameCache();
+		}
 
 		foreach ( $dbw->select( 'moderation', '*', '', __METHOD__ ) as $row ) {
 			$dbw->update( 'uploadstash',

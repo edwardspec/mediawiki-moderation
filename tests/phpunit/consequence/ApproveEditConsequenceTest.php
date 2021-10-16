@@ -60,14 +60,7 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 
 		if ( $opt->existing ) {
 			// Precreate the page.
-			$page = WikiPage::factory( $title );
-			$page->doEditContent(
-				ContentHandler::makeContent( "Before $newText", null, CONTENT_MODEL_WIKITEXT ),
-				'',
-				EDIT_INTERNAL,
-				false,
-				User::newFromName( '127.0.0.2', false )
-			);
+			$this->makeEdit( $title, User::newFromName( '127.0.0.2', false ), "Before $newText" );
 		}
 
 		$baseRevId = $opt->existing ?
@@ -86,9 +79,11 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 		{
 			$hookFired = true;
 
+			$performer = ModerationTestUtil::getRecentChangePerformer( $rc );
+
 			$this->assertEquals( $title->getFullText(), $rc->getTitle()->getFullText() );
-			$this->assertEquals( $user->getName(), $rc->getPerformer()->getName() );
-			$this->assertEquals( $user->getId(), $rc->getPerformer()->getId() );
+			$this->assertEquals( $user->getName(), $performer->getName() );
+			$this->assertEquals( $user->getId(), $performer->getId() );
 			$this->assertEquals( $opt->minor ? 1 : 0, $rc->getAttribute( 'rc_minor' ) );
 			$this->assertEquals( $opt->bot ? 1 : 0, $rc->getAttribute( 'rc_bot' ) );
 			$this->assertEquals( $opt->summary, $rc->getAttribute( 'rc_comment' ) );

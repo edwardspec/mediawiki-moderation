@@ -15,12 +15,14 @@
 	GNU General Public License for more details.
 */
 
-require_once __DIR__ . '/../common/ModerationTestUtil.php';
-
 /**
  * @file
  * Parent class for benchmark scripts.
  */
+
+require_once __DIR__ . '/../common/ModerationTestUtil.php';
+
+use MediaWiki\Revision\SlotRecord;
 
 abstract class ModerationBenchmark extends Maintenance {
 	/**
@@ -149,19 +151,17 @@ abstract class ModerationBenchmark extends Maintenance {
 	public function edit( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
 		$page = WikiPage::factory( $title );
 		$content = ContentHandler::makeContent( $newText, null, CONTENT_MODEL_WIKITEXT );
+		$summary = CommentStoreComment::newUnsavedComment( $summary );
 
-		$flags = 0;
-		if ( defined( 'EDIT_INTERNAL' ) ) {
-			$flags |= EDIT_INTERNAL; /* No need to check EditStash */
+		if ( !$user ) {
+			$user = User::newFromName( '127.0.0.1', false );
 		}
 
-		return $page->doEditContent(
-			$content,
-			$summary,
-			$flags,
-			false,
-			$user
-		);
+		$updater = $page->newPageUpdater( $user );
+		$updater->setContent( SlotRecord::MAIN, $content );
+		$updater->saveRevision( $summary, EDIT_INTERNAL );
+
+		return $updater->getStatus();
 	}
 
 	/**

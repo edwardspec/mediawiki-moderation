@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -46,12 +46,9 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 			'wpSave' => 'Save',
 			'wpIgnoreBlankSummary' => '',
 			'wpRecreate' => '',
+			'wpUnicodeCheck' => EditPage::UNICODE_CHECK,
 			'wpUltimateParam' => 1
 		];
-
-		if ( defined( 'EditPage::UNICODE_CHECK' ) ) { // MW 1.30+
-			$params['wpUnicodeCheck'] = EditPage::UNICODE_CHECK;
-		}
 
 		/* Determine wpEdittime (timestamp of the current revision of $title),
 			otherwise edit conflict will occur. */
@@ -154,7 +151,10 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 		}
 
 		$html = new ModerationTestsuiteHTML;
-		$div = $html->loadReq( $req )->getElementByXPath( '//div[@class="error"]' );
+		$html->loadReq( $req );
+
+		$div = $html->getElementByXPath( '//div[@class="error"]' ) ?? // MediaWiki 1.35-1.36
+			$html->getElementByXPath( '//div[@class="errorbox"]' ); // MediaWiki 1.37+
 
 		if ( $div ) {
 			// Error found

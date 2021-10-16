@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.6.6",
+	"version": "1.6.7",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -379,7 +379,7 @@
 		],
 		"PageForms::EditFormInitialText": "pageForms",
 		"PageForms::EditFormPreloadText": "pageForms",
-		"PageMoveComplete": "approveHook",
+		"PageMoveCompleting": "approveHook",
 		"RecentChange_save": "approveHook",
 		"RevisionFromEditComplete": "approveHook",
 		"SpecialPageBeforeExecute": "editFormOptions",

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
  * Unit test of ApproveUploadConsequence.
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ApproveUploadConsequence;
 
 require_once __DIR__ . "/autoload.php";
@@ -73,10 +74,15 @@ class ApproveUploadConsequenceTest extends ModerationUnitTestCase {
 			"ApproveUploadConsequence failed: " . $status->getMessage()->plain() );
 
 		// Check whether the newly approved file has been uploaded.
-		$file = RepoGroup::singleton()->findFile( $title->getText(), [ 'latest' => true ] );
+		$file = MediaWikiServices::getInstance()->getRepoGroup()->findFile( $title->getText(), [ 'latest' => true ] );
 		$this->assertEquals( $comment, $file->getDescription() );
-		$this->assertEquals( $user->getName(), $file->getUser( 'text' ) );
-		$this->assertEquals( $user->getId(), $file->getUser( 'id' ) );
+
+		$uploader = method_exists( $file, 'getUploader' ) ?
+			$file->getUploader( File::RAW ) : // MediaWiki 1.36+
+			$file->getUser( 'object' ); // MediaWiki 1.35 only
+
+		$this->assertEquals( $user->getName(), $uploader->getName() );
+		$this->assertEquals( $user->getId(), $uploader->getId() );
 
 		$page = WikiPage::factory( $title );
 		$this->assertEquals( $expectedText, $page->getContent()->getNativeData() );
@@ -112,7 +118,7 @@ class ApproveUploadConsequenceTest extends ModerationUnitTestCase {
 		$this->assertTrue( $status->hasMessage( 'moderation-missing-stashed-image' ),
 			"ApproveUploadConsequence didn't return 'moderation-missing-stashed-image' Status." );
 
-		$file = RepoGroup::singleton()->findFile( $title->getText(), [ 'latest' => true ] );
+		$file = MediaWikiServices::getInstance()->getRepoGroup()->findFile( $title->getText(), [ 'latest' => true ] );
 		$this->assertFalse( $file,
 			"Target file exists after ApproveUploadConsequence has failed." );
 	}

@@ -40,10 +40,21 @@ class WatchOrUnwatchConsequenceTest extends ModerationUnitTestCase {
 		$watchedItemStore = $this->createMock( WatchedItemStore::class );
 		$isWatched = ( $watch && $noop ) || ( !$watch && !$noop );
 
-		$watchedItemStore->expects( $this->once() )->method( 'getWatchedItem' )->with(
-			$this->identicalTo( $user ),
-			$this->identicalTo( $title )
-		)->willReturn( $isWatched ? new WatchedItem( $user, $title, null ) : false );
+		$watchedItemStore->expects( $this->once() )->method( 'getWatchedItem' )->will(
+			$this->returnCallback( function ( $hookUser, $hookTitle ) use ( $isWatched, $user, $title ) {
+				$this->assertSame( $user, $hookUser );
+
+				if ( method_exists( $hookTitle, 'isSameLinkAs' ) ) {
+					// MediaWiki 1.36+
+					$this->assertTrue( $hookTitle->isSameLinkAs( $title ) );
+				} else {
+					// MediaWiki 1.35
+					$this->assertSame( $title, $hookTitle );
+				}
+
+				return $isWatched ? new WatchedItem( $user, $title, null ) : false;
+			} )
+		);
 
 		$watchHookFired = false;
 		$this->setTemporaryHook( 'WatchArticle',

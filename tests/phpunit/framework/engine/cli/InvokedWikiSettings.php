@@ -113,7 +113,10 @@ function wfModerationTestsuiteCliLogin() {
 		}
 
 		global $wgUser;
-		$wgUser = $user;
+		if ( !( $wgUser instanceof StubGlobalUser ) ) {
+			// MediaWiki 1.35-1.36. Not needed in MediaWiki 1.37+.
+			$wgUser = $user;
+		}
 		RequestContext::getMain()->setUser( $user );
 	}
 
@@ -136,7 +139,8 @@ function wfModerationTestsuiteCliLogin() {
 }
 
 function wfModerationTestsuiteSetup() {
-	global $wgModerationTestsuiteCliDescriptor, $wgRequest, $wgHooks, $wgAutoloadClasses;
+	global $wgModerationTestsuiteCliDescriptor, $wgModerationTestsuiteCliUploadData,
+		$wgRequest, $wgHooks, $wgAutoloadClasses;
 
 	$wgAutoloadClasses['ModerationTestsuiteCliApiMain'] =
 		__DIR__ . '/ModerationTestsuiteCliApiMain.php';
@@ -159,6 +163,17 @@ function wfModerationTestsuiteSetup() {
 	/* Use $request as the global WebRequest object */
 	RequestContext::getMain()->setRequest( $request );
 	$wgRequest = $request;
+
+	if ( method_exists( $request, 'setUpload' ) ) {
+		// MediaWiki 1.37+
+		$request->setUploadData( $wgModerationTestsuiteCliUploadData );
+	} else {
+		// MediaWiki 1.35-1.36
+		foreach ( $wgModerationTestsuiteCliUploadData as $uploadKey => $uploadData ) {
+			// phpcs:ignore MediaWiki.Usage.SuperGlobalsUsage.SuperGlobals
+			$_FILES[$uploadKey] = $uploadData;
+		}
+	}
 
 	/* Some code in MediaWiki core, e.g. HTTPFileStreamer, calls header()
 		directly (not via $wgRequest->response), but this function
@@ -189,7 +204,7 @@ function wfModerationTestsuiteSetup() {
 	$wgHooks['BeforeInitialize'] = static function ( &$unused1, &$unused2, &$unused3, &$user ) {
 		wfModerationTestsuiteCliLogin();
 
-		// Make sure that ModerationNotifyModerator::onBeforeInitialize() runs as this new user.
+		// Make sure that handlers of BeforeInitialize hook (if any) will run as this new user.
 		$user = RequestContext::getMain()->getUser();
 
 		return true;

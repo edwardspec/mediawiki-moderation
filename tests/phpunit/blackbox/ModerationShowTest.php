@@ -56,15 +56,17 @@ class ModerationShowTest extends ModerationTestCase {
 
 		$table_cells = $t->html->getElementsByTagName( 'td' );
 		foreach ( $table_cells as $td ) {
-			$class = $td->getAttribute( 'class' );
+			$classes = preg_split( '/\s+/', $td->getAttribute( 'class' ) );
 			$text = $td->textContent;
 
-			if ( $class == 'diff-addedline' ) {
-				$added_lines[] = $text;
-			} elseif ( $class == 'diff-deletedline' ) {
-				$deleted_lines[] = $text;
-			} elseif ( $class == 'diff-context' ) {
-				$context_lines[] = $text;
+			foreach ( $classes as $class ) {
+				if ( $class == 'diff-addedline' ) {
+					$added_lines[] = $text;
+				} elseif ( $class == 'diff-deletedline' ) {
+					$deleted_lines[] = $text;
+				} elseif ( $class == 'diff-context' ) {
+					$context_lines[] = $text;
+				}
 			}
 		}
 

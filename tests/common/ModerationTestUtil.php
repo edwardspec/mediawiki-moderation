@@ -124,4 +124,19 @@ class ModerationTestUtil {
 		// MediaWiki 1.35
 		return $logEntry->getPerformer();
 	}
+
+	/**
+	 * Get performer of LogEntry (for B/C with MediaWiki 1.35).
+	 * @param RecentChange $rc
+	 * @return UserIdentity
+	 */
+	public static function getRecentChangePerformer( RecentChange $rc ) {
+		if ( method_exists( $rc, 'getPerformerIdentity' ) ) {
+			// MediaWiki 1.36+
+			return $rc->getPerformerIdentity();
+		}
+
+		// MediaWiki 1.35
+		return $rc->getPerformer();
+	}
 }

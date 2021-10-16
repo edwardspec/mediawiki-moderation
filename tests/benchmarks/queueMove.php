@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,7 +25,12 @@
 
 require_once __DIR__ . '/ModerationBenchmark.php';
 
+use MediaWiki\MediaWikiServices;
+use MediaWiki\Page\MovePageFactory;
+
 class BenchmarkQueueMove extends ModerationBenchmark {
+	/** @var MovePageFactory */
+	private $movePageFactory;
 
 	public function getOldTitle( $i ) {
 		return $this->getTestTitle( 'Old title ' . $i );
@@ -36,6 +41,8 @@ class BenchmarkQueueMove extends ModerationBenchmark {
 	}
 
 	public function beforeBenchmark( $numberOfLoops ) {
+		$this->movePageFactory = MediaWikiServices::getInstance()->getMovePageFactory();
+
 		/* Create $numberOfLoops pages to be moved */
 		for ( $i = 0; $i <= $numberOfLoops; $i++ ) {
 			$this->fastEdit( $this->getOldTitle( $i ) );
@@ -43,11 +50,11 @@ class BenchmarkQueueMove extends ModerationBenchmark {
 	}
 
 	public function doActualWork( $i ) {
-		$mp = new MovePage(
+		$mp = $this->movePageFactory->newMovePage(
 			$this->getOldTitle( $i ),
 			$this->getNewTitle( $i )
 		);
-		$status = $mp->checkPermissions( $this->getUser(), 'Reason for moving #' . $i );
+		$status = $mp->move( $this->getUser(), 'Reason for moving #' . $i );
 
 		Wikimedia\Assert\Assert::postcondition(
 			( $status->getMessage()->getKey() == 'moderation-move-queued' ),

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
+use Wikimedia\IPUtils;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -47,8 +48,8 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		$manager = new MockConsequenceManager();
 		$expectedConsequences = [];
 
-		if ( User::isIP( $username ) ) {
-			$user->expects( $this->once() )->method( 'isLoggedIn' )->willReturn( false );
+		if ( IPUtils::isIPAddress( $username ) ) {
+			$user->expects( $this->once() )->method( 'isRegistered' )->willReturn( false );
 			$user->expects( $this->never() )->method( 'getName' );
 
 			if ( !$existingAnonId && $create ) {
@@ -58,7 +59,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 				];
 			}
 		} else {
-			$user->expects( $this->once() )->method( 'isLoggedIn' )->willReturn( true );
+			$user->expects( $this->once() )->method( 'isRegistered' )->willReturn( true );
 			$user->expects( $this->once() )->method( 'getName' )->willReturn( $username );
 		}
 
@@ -102,7 +103,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		$manager = new MockConsequenceManager();
 
 		$user = $this->createMock( User::class );
-		$user->expects( $this->once() )->method( 'isLoggedIn' )->willReturn( true );
+		$user->expects( $this->once() )->method( 'isRegistered' )->willReturn( true );
 		$user->expects( $this->once() )->method( 'getName' )->willReturn( 'Global User' );
 
 		'@phan-var EntryFactory $entryFactory';

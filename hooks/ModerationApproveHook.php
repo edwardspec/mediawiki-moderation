@@ -22,7 +22,7 @@
  */
 
 use MediaWiki\Hook\FileUploadHook;
-use MediaWiki\Hook\PageMoveCompleteHook;
+use MediaWiki\Hook\PageMoveCompletingHook;
 use MediaWiki\Hook\RecentChange_saveHook;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
@@ -35,7 +35,7 @@ use Psr\Log\LoggerInterface;
 
 class ModerationApproveHook implements
 	FileUploadHook,
-	PageMoveCompleteHook,
+	PageMoveCompletingHook,
 	PageSaveCompleteHook,
 	RecentChange_saveHook,
 	RevisionFromEditCompleteHook
@@ -108,7 +108,7 @@ class ModerationApproveHook implements
 	}
 
 	/**
-	 * PageMoveComplete hook.
+	 * PageMoveCompleting hook.
 	 * Here we modify rev_timestamp of a newly created redirect after the page move.
 	 * @param LinkTarget $oldTitle
 	 * @param LinkTarget $newTitle @phan-unused-param
@@ -119,7 +119,7 @@ class ModerationApproveHook implements
 	 * @param RevisionRecord $revision @phan-unused-param
 	 * @return true
 	 */
-	public function onPageMoveComplete( $oldTitle, $newTitle, $user, $pageid, $redirid, $reason, $revision ) {
+	public function onPageMoveCompleting( $oldTitle, $newTitle, $user, $pageid, $redirid, $reason, $revision ) {
 		$task = $this->getTask( $oldTitle, $user->getName(), ModerationNewChange::MOD_TYPE_MOVE );
 		if ( !$task ) {
 			return true;

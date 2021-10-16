@@ -60,7 +60,8 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 
 		/* Apply preSaveTransform to the submitted text */
 		$newContent = ContentHandler::makeContent( $newText, $title );
-		$pstContent = $newContent->preSaveTransform(
+		$pstContent = ModerationCompatTools::preSaveTransform(
+			$newContent,
 			$title,
 			$originalAuthor,
 			ParserOptions::newFromUserAndLang(

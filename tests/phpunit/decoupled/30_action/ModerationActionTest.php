@@ -22,6 +22,8 @@
 
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * @covers ModerationAction
  */
@@ -909,7 +911,9 @@ class ModerationActionTest extends ModerationTestCase {
 		}
 
 		if ( $this->filename ) {
-			$file = wfFindFile( $this->getExpectedTitleObj() );
+			$repoGroup = MediaWikiServices::getInstance()->getRepoGroup();
+			$file = $repoGroup->findFile( $this->getExpectedTitleObj() );
+
 			$this->assertTrue( $file->exists(), "Approved file doesn't exist in FileRepo" );
 
 			$srcPath = ModerationTestsuite::findSourceFilename( $this->filename );

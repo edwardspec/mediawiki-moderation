@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
  */
 
 require_once __DIR__ . "/autoload.php";
+
+use MediaWiki\MediaWikiServices;
 
 class ModerationActionShowImageTest extends ModerationUnitTestCase {
 	use ActionTestTrait;
@@ -90,7 +92,7 @@ class ModerationActionShowImageTest extends ModerationUnitTestCase {
 			// Analyze the file returned in "thumb-path".
 			$file = new UnregisteredLocalFile(
 				false,
-				RepoGroup::singleton()->getLocalRepo(),
+				MediaWikiServices::getInstance()->getRepoGroup()->getLocalRepo(),
 				$thumbPath,
 				false
 			);

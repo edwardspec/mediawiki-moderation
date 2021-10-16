@@ -370,7 +370,17 @@ class ModerationQueueTest extends ModerationTestCase {
 
 		if ( $this->watch === false ) {
 			/* Unwatch test requested, add $this->title into the Watchlist */
-			WatchAction::doWatch( $this->title, $this->user );
+
+			// @phan-suppress-next-line PhanUndeclaredClassReference
+			if ( method_exists( '\MediaWiki\Watchlist\WatchlistManager', 'setWatch' ) ) {
+				// MediaWiki 1.37+
+				// @phan-suppress-next-line PhanUndeclaredMethod
+				$watchlistManager = MediaWikiServices::getInstance()->getWatchlistManager();
+				$watchlistManager->addWatchIgnoringRights( $this->user, $this->title );
+			} else {
+				// MediaWiki 1.35-1.36
+				WatchAction::doWatch( $this->title, $this->user );
+			}
 		}
 
 		$extraParams = [];
@@ -597,7 +607,8 @@ class ModerationQueueTest extends ModerationTestCase {
 				DataSet must explicitly indicate that its text needs PreSaveTransform.
 			*/
 			$lang = MediaWikiServices::getInstance()->getContentLanguage();
-			$expectedContent = $expectedContent->preSaveTransform(
+			$expectedContent = ModerationCompatTools::preSaveTransform(
+				$expectedContent,
 				$this->title,
 				$this->user,
 				ParserOptions::newFromUserAndLang( $this->user, $lang )
@@ -632,7 +643,7 @@ class ModerationQueueTest extends ModerationTestCase {
 			'mod_header_xff' => $this->xff ?: null,
 			'mod_header_ua' => $this->userAgent,
 			'mod_preload_id' => (
-				$this->user->isLoggedIn() ?
+				$this->user->isRegistered() ?
 					'[' . $this->user->getName() :
 					new ModerationTestSetRegex( '/^\][0-9a-f]+$/' )
 			),

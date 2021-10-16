@@ -22,6 +22,7 @@
 
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
 
 class ModerationViewableEntry extends ModerationEntry {
@@ -94,7 +95,7 @@ class ModerationViewableEntry extends ModerationEntry {
 
 			// Note: $rec may be null if page was deleted.
 			if ( $rec ) {
-				$oldContent = $rec->getSlot( SlotRecord::MAIN, Revision::RAW )->getContent();
+				$oldContent = $rec->getSlot( SlotRecord::MAIN, RevisionRecord::RAW )->getContent();
 			}
 		}
 

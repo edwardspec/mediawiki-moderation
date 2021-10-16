@@ -17,6 +17,8 @@
 
 require_once __DIR__ . '/autoload.php';
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * @file
  * Automated testsuite of Extension:Moderation.
@@ -268,6 +270,7 @@ class ModerationTestsuite {
 			'page',
 			'revision',
 			'revision_comment_temp',
+			'revision_actor_temp',
 			'logging',
 			'log_search',
 			'text',
@@ -315,7 +318,7 @@ class ModerationTestsuite {
 	 * @param string $table
 	 */
 	protected function truncateDbTable( $table ) {
-		$dbw = wfGetLB()->getMaintenanceConnectionRef( DB_MASTER );
+		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getMaintenanceConnectionRef( DB_MASTER );
 		if ( !$dbw->tableExists( $table ) ) {
 			return;
 		}

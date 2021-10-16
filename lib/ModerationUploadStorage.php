@@ -20,6 +20,8 @@
  * Methods to place intercepted uploaded files into UploadStash and retrieve them back.
  */
 
+use MediaWiki\MediaWikiServices;
+
 class ModerationUploadStorage {
 	public const USERNAME = 'ModerationUploadStash';
 
@@ -73,6 +75,7 @@ class ModerationUploadStorage {
 	 * @return UploadStash
 	 */
 	public static function getStash() {
-		return RepoGroup::singleton()->getLocalRepo()->getUploadStash( self::getOwner() );
+		$repo = MediaWikiServices::getInstance()->getRepoGroup()->getLocalRepo();
+		return $repo->getUploadStash( self::getOwner() );
 	}
 }

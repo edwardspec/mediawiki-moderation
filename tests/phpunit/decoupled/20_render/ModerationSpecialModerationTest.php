@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
  */
 
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
+
+use MediaWiki\MediaWikiServices;
 
 /**
  * @covers ModerationEntryFormatter
@@ -228,7 +230,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 		$this->assertEquals( $this->fields['mod_user_text'], $entry->user,
 			"Special:Moderation: Username of the author doesn't match expected" );
 
-		LinkCache::singleton()->clear();
+		MediaWikiServices::getInstance()->getLinkCache()->clear();
 
 		$expectedComment = Linker::formatComment(
 			$this->fields['mod_comment'],
