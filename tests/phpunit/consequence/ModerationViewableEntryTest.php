@@ -200,7 +200,6 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 			'mod_page2_namespace AS page2_namespace',
 			'mod_page2_title AS page2_title',
 			'mod_last_oldid AS last_oldid',
-			'mod_new AS new',
 			'mod_text AS text',
 			'mod_stash_key AS stash_key'
 		];

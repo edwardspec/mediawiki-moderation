@@ -63,7 +63,6 @@ class ModerationViewableEntry extends ModerationEntry {
 	public static function getFields() {
 		return array_merge( parent::getFields(), [
 			'mod_last_oldid AS last_oldid',
-			'mod_new AS new',
 			'mod_text AS text',
 			'mod_stash_key AS stash_key'
 		] );
@@ -128,7 +127,7 @@ class ModerationViewableEntry extends ModerationEntry {
 		$row = $this->getRow();
 
 		$rev = null;
-		if ( !$row->new ) {
+		if ( $row->last_oldid ) {
 			// Page existed at the moment when this edit was queued
 			$rev = $this->revisionLookup->getRevisionById( $row->last_oldid );
 		}
