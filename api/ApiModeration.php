@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\Moderation\ActionFactory;
+use Wikimedia\ParamValidator\ParamValidator;
 
 class ApiModeration extends ApiBase {
 	/** @var ActionFactory */
@@ -66,7 +67,7 @@ class ApiModeration extends ApiBase {
 	public function getAllowedParams() {
 		return [
 			'modaction' => [
-				ApiBase::PARAM_TYPE => [
+				ParamValidator::PARAM_TYPE => [
 					'approve',
 					'approveall',
 					'reject',
@@ -77,11 +78,11 @@ class ApiModeration extends ApiBase {
 					// 'showimg',
 					// 'merge'
 				],
-				ApiBase::PARAM_REQUIRED => true
+				ParamValidator::PARAM_REQUIRED => true
 			],
 			'modid' => [
-				ApiBase::PARAM_TYPE => 'integer',
-				ApiBase::PARAM_REQUIRED => true
+				ParamValidator::PARAM_TYPE => 'integer',
+				ParamValidator::PARAM_REQUIRED => true
 			]
 		];
 	}
