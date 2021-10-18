@@ -100,7 +100,7 @@ return [
 		return new ModerationNotifyModerator(
 			$services->getLinkRenderer(),
 			$services->getService( 'Moderation.EntryFactory' ),
-			wfGetMainCache()
+			ObjectCache::getLocalClusterInstance()
 		);
 	},
 	'Moderation.Preload' => static function ( MediaWikiServices $services ): ModerationPreload {
@@ -120,7 +120,7 @@ return [
 	},
 	'Moderation.VersionCheck' => static function ( MediaWikiServices $services ): ModerationVersionCheck {
 		return new ModerationVersionCheck(
-			new CachedBagOStuff( wfGetMainCache() ),
+			new CachedBagOStuff( ObjectCache::getLocalClusterInstance() ),
 			$services->getDBLoadBalancer()
 		);
 	},
