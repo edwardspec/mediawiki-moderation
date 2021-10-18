@@ -140,7 +140,7 @@ class QueueUploadConsequenceTest extends ModerationUnitTestCase {
 			'mod_preloadable' => 0,
 			'mod_conflict' => 0,
 			'mod_merged_revid' => 0,
-			'mod_text' => $content->getNativeData(), // Won't work if $content needs PST
+			'mod_text' => $content->serialize(), // Won't work if $content needs PST
 			'mod_stash_key' => $expectedStashKey,
 			'mod_tags' => null,
 			'mod_type' => 'edit',

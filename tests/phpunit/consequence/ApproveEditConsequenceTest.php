@@ -93,7 +93,7 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 
 			$rec = MediaWikiServices::getInstance()->getRevisionLookup()->getRevisionById( $revid );
 			$this->assertEquals( $baseRevId, $rec->getParentId() );
-			$this->assertEquals( $newText, $rec->getSlot( SlotRecord::MAIN )->getContent()->getNativeData() );
+			$this->assertEquals( $newText, $rec->getSlot( SlotRecord::MAIN )->getContent()->serialize() );
 
 			return true;
 		};
@@ -159,7 +159,7 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 		$rec = MediaWikiServices::getInstance()->getRevisionLookup()->getRevisionById( $revid );
 
 		$this->assertEquals( $revid2, $rec->getParentId() );
-		$this->assertEquals( $expectedText, $rec->getSlot( SlotRecord::MAIN )->getContent()->getNativeData() );
+		$this->assertEquals( $expectedText, $rec->getSlot( SlotRecord::MAIN )->getContent()->serialize() );
 	}
 
 	/**

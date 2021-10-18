@@ -295,8 +295,8 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 		$differenceEngine->expects( $this->once() )->method( 'generateContentDiffBody' )->will(
 			$this->returnCallback(
 				function ( $oldContent, $newContent ) use ( $oldText, $newText ) {
-					$this->assertEquals( $oldText, $oldContent->getNativeData() );
-					$this->assertEquals( $newText, $newContent->getNativeData() );
+					$this->assertEquals( $oldText, $oldContent->serialize() );
+					$this->assertEquals( $newText, $newContent->serialize() );
 					return '{GeneratedDiff}';
 				}
 			)
