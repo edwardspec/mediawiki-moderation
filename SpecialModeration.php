@@ -20,6 +20,7 @@
  * Implements [[Special:Moderation]].
  */
 
+use MediaWiki\Cache\LinkBatchFactory;
 use MediaWiki\Moderation\ActionFactory;
 use MediaWiki\Moderation\EntryFactory;
 
@@ -70,21 +71,27 @@ class SpecialModeration extends QueryPage {
 	/** @var ModerationNotifyModerator */
 	protected $notifyModerator;
 
+	/** @var LinkBatchFactory */
+	protected $linkBatchFactory;
+
 	/**
 	 * @param ActionFactory $actionFactory
 	 * @param EntryFactory $entryFactory
 	 * @param ModerationNotifyModerator $notifyModerator
+	 * @param LinkBatchFactory $linkBatchFactory
 	 */
 	public function __construct(
 		ActionFactory $actionFactory,
 		EntryFactory $entryFactory,
-		ModerationNotifyModerator $notifyModerator
+		ModerationNotifyModerator $notifyModerator,
+		LinkBatchFactory $linkBatchFactory
 	) {
 		parent::__construct( 'Moderation', 'moderation' );
 
 		$this->actionFactory = $actionFactory;
 		$this->entryFactory = $entryFactory;
 		$this->notifyModerator = $notifyModerator;
+		$this->linkBatchFactory = $linkBatchFactory;
 	}
 
 	public function getGroupName() {
@@ -106,7 +113,7 @@ class SpecialModeration extends QueryPage {
 	public function preprocessResults( $db, $res ) {
 		/* Check all pages for whether they exist or not -
 			improves performance of makeLink() in ModerationEntryFormatter */
-		$batch = new LinkBatch();
+		$batch = $this->linkBatchFactory->newLinkBatch();
 		foreach ( $res as $row ) {
 			ModerationEntryFormatter::addToLinkBatch( $row, $batch );
 		}

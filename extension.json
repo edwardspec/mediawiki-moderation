@@ -56,7 +56,8 @@
 			"services": [
 				"Moderation.ActionFactory",
 				"Moderation.EntryFactory",
-				"Moderation.NotifyModerator"
+				"Moderation.NotifyModerator",
+				"LinkBatchFactory"
 			]
 		}
 	},
