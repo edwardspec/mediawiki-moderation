@@ -56,6 +56,73 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	}
 
 	/**
+	 * Test that getPendingRevision() returns RevisionRecord with expected content.
+	 * @covers ModerationViewableEntry
+	 */
+	public function testPendingRevision() {
+		$title = Title::newFromText( 'Project:UTPage ' . rand( 0, 100000 ) );
+		$newText = 'New content of the article';
+
+		$entry = $this->makeViewableEntry( [
+			'text' => $newText,
+			'namespace' => $title->getNamespace(),
+			'title' => $title->getDBKey()
+		] );
+
+		$rev = $entry->getPendingRevision();
+		$this->assertRevisionTitleAndText( $title, $newText, $rev );
+	}
+
+	/**
+	 * Throw an exception if RevisionRecord doesn't have expected $title and $text.
+	 * @param Title $title
+	 * @param string $text
+	 * @param RevisionRecord $rev
+	 */
+	private function assertRevisionTitleAndText( Title $title, $text, RevisionRecord $rev ) {
+		$this->assertEquals( $text, $rev->getContent( SlotRecord::MAIN )->serialize() );
+
+		// MediaWiki 1.35 doesn't have LinkTarget::isSameLinkAs().
+		$this->assertEquals( $title->getFullText(),
+			Title::newFromLinkTarget( $rev->getPageAsLinkTarget() )->getFullText() );
+	}
+
+	/**
+	 * Test that getPreviousRevision() returns old RevisionRecord on which this pending change is based.
+	 * @param int $oldid
+	 * @param string|null $oldText If null, RevisionRecord won't be found.
+	 * @dataProvider dataProviderPreviousRevision
+	 * @covers ModerationViewableEntry
+	 */
+	public function testPreviousRevision( $oldid, $oldText ) {
+		$title = Title::newFromText( 'Project:UTPage ' . rand( 0, 100000 ) );
+
+		// Mock RevisionLookup service to provide $oldText as current text of revision $revid.
+		$revisionLookup = $this->mockRevisionLookup( $oldid, $oldText, $title );
+
+		$entry = $this->makeViewableEntry( [
+			'last_oldid' => $oldid,
+			'namespace' => $title->getNamespace(),
+			'title' => $title->getDBKey()
+		], $revisionLookup );
+
+		$rev = $entry->getPreviousRevision();
+		$this->assertRevisionTitleAndText( $title, $oldText ? $oldText : '', $rev );
+	}
+
+	/**
+	 * Provide datasets for testPreviousRevision() runs.
+	 * @return array
+	 */
+	public function dataProviderPreviousRevision() {
+		return [
+			'new page' => [ 0, null ],
+			'edit based on deleted revision' => [ 123, null ],
+			'edit in existing page' => [ 456, 'Text of previous revision' ]
+		];
+	}
+
+	/**
 	 * Verify that getImageURL() returns correct URL for modaction=showimg link.
 	 * @param bool $isThumb True to test thumbnail URL, false otherwise.
 	 * @dataProvider dataProviderImageURL
