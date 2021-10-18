@@ -21,7 +21,6 @@
  */
 
 use MediaWiki\Moderation\PendingEdit;
-use Wikimedia\ScopedCallback;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -52,52 +51,39 @@ class ModerationAjaxHookTest extends ModerationUnitTestCase {
 			$title->resetArticleId( 12345 );
 		}
 
-		if ( isset( $opt['hasPendingEdit'] ) ) {
-			// Mock findPendingEdit() in the Moderation.Preload service.
-			$preload = $this->createMock( ModerationPreload::class );
-			$preload->expects( $this->any() )->method( 'findPendingEdit' )->with(
+		// Mock findPendingEdit() in the Moderation.Preload service.
+		$preload = $this->createMock( ModerationPreload::class );
+		$preload->expects( $this->any() )->method( 'findPendingEdit' )->with(
 				 $this->identicalTo( $title )
-			)->willReturn( $opt['hasPendingEdit'] ? $this->createMock( PendingEdit::class ) : false );
-			$this->setService( 'Moderation.Preload', $preload );
+		)->willReturn( empty( $opt['hasPendingEdit'] ) ? false : $this->createMock( PendingEdit::class ) );
+		$this->setService( 'Moderation.Preload', $preload );
+
+		// Mock shouldDisplayMobileView() in the MobileContext (from Extension:MobileFrontend).
+		$preload = $this->createMock( MobileContext::class );
+		$preload->expects( $this->any() )->method( 'shouldDisplayMobileView' )
+			->willReturn( !empty( $opt['isMobileView'] ) );
+		$this->setService( 'MobileFrontend.Context', $preload );
+
+		// Mock OutputPage to expect correct modules to be added.
+		$out = $this->createMock( OutputPage::class );
+		$out->expects( $this->any() )->method( 'getTitle' )->willReturn( $title );
+
+		if ( isset( $opt['expectedModules'] ) ) {
+			$out->expects( $this->once() )->method( 'addModules' )->with(
+				$this->identicalTo( $opt['expectedModules'] )
+			);
 		}
 
-		$context = new RequestContext();
-		$context->setTitle( $title );
-		$out = $context->getOutput();
-
-		if ( isset( $opt['isMobileView'] ) ) {
-			// This setMwGlobals() is to restore the original value of this variable after the test,
-			// because MobileFrontend sets it to true in mobile mode, and it's otherwise not reset.
-			$this->setMwGlobals( 'wgUseMediaWikiUIEverywhere', false );
-
-			// Override "should display mobile view?" logic
-			$context->getRequest()->setVal( 'useformat', $opt['isMobileView'] ? 'mobile' : 'desktop' );
-			MobileContext::singleton()->setContext( $context );
-
-			// @phan-suppress-next-line PhanUnusedVariable
-			$cleanupScope = new ScopedCallback( static function () {
-				MobileContext::resetInstanceForTesting();
-			} );
+		if ( $opt['expectFakeArticleId'] ?? false ) {
+			$out->expects( $this->once() )->method( 'addJsConfigVars' )->with(
+				$this->identicalTo( 'wgArticleId' ),
+				$this->identicalTo( -1 )
+			);
+		} else {
+			$out->expects( $this->never() )->method( 'addJsConfigVars' );
 		}
 
 		ModerationAjaxHook::add( $out );
-
-		if ( isset( $opt['expectedModules'] ) ) {
-			$this->assertSame( $expectedModules, $out->getModules(),
-				"List of added modules doesn't match expected." );
-		} elseif ( isset( $opt['expectFakeArticleId'] ) ) {
-			$jsVars = $out->getJSVars();
-			$this->assertArrayHasKey( 'wgArticleId', $jsVars );
-
-			if ( $opt['expectFakeArticleId'] ) {
-				$this->assertSame( -1, $jsVars['wgArticleId'],
-					'PendingEdit exists, so wgArticleId should be set to -1 (to pretend that page exists).' );
-			} else {
-				$this->assertSame( $title->getArticleID(), $jsVars['wgArticleId'], 'wgArticleId' );
-			}
-		} else {
-			throw new MWException( 'No-op test: has neither expectedModules nor expectFakeArticleId' );
-		}
 	}
 
 	/**

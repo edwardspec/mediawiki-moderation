@@ -30,12 +30,16 @@ class ModerationAjaxHook {
 	 */
 	public static function add( OutputPage &$out ) {
 		$modules = [];
-		if ( class_exists( 'MobileContext' ) && MobileContext::singleton()->shouldDisplayMobileView() ) {
+		$services = MediaWikiServices::getInstance();
+
+		if ( $services->hasService( 'MobileFrontend.Context' ) &&
+			$services->getService( 'MobileFrontend.Context' )->shouldDisplayMobileView()
+		) {
 			$modules[] = 'ext.moderation.mf.notify';
 			$modules[] = 'ext.moderation.mf.preload33';
 
 			$title = $out->getTitle();
-			$preload = MediaWikiServices::getInstance()->getService( 'Moderation.Preload' );
+			$preload = $services->getService( 'Moderation.Preload' );
 
 			if ( !$title->exists() && $preload->findPendingEdit( $title ) ) {
 				// This user has a pending revision in $title, but $title doesn't exist.
