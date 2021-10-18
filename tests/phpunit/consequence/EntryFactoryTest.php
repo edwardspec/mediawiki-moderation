@@ -20,6 +20,7 @@
  * Unit test of EntryFactory.
  */
 
+use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\EntryFactory;
@@ -346,6 +347,7 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 		$consequenceManager = $this->createMock( IConsequenceManager::class );
 		$canSkip = $this->createMock( ModerationCanSkip::class );
 		$approveHook = $this->createMock( ModerationApproveHook::class );
+		$contentHandlerFactory = $this->createMock( IContentHandlerFactory::class );
 
 		'@phan-var LinkRenderer $linkRenderer';
 		'@phan-var ActionLinkRenderer $actionLinkRenderer';
@@ -355,6 +357,6 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 		'@phan-var ModerationApproveHook $approveHook';
 
 		return new EntryFactory( $linkRenderer, $actionLinkRenderer, $timestampFormatter,
-			$consequenceManager, $canSkip, $approveHook );
+			$consequenceManager, $canSkip, $approveHook, $contentHandlerFactory );
 	}
 }

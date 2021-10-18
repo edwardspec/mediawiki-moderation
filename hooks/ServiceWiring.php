@@ -80,7 +80,8 @@ return [
 			$services->getService( 'Moderation.TimestampFormatter' ),
 			$services->getService( 'Moderation.ConsequenceManager' ),
 			$services->getService( 'Moderation.CanSkip' ),
-			$services->getService( 'Moderation.ApproveHook' )
+			$services->getService( 'Moderation.ApproveHook' ),
+			$services->getContentHandlerFactory()
 		);
 	},
 	'Moderation.HookRunner' => static function ( MediaWikiServices $services ): HookRunner {

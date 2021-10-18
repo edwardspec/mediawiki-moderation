@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\Linker\LinkRenderer;
+use MediaWiki\MediaWikiServices;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -341,7 +342,9 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 		if ( !isset( $row->type ) ) {
 			$row->type = ModerationNewChange::MOD_TYPE_EDIT;
 		}
-		return new ModerationViewableEntry( $row, $this->linkRenderer );
+		return new ModerationViewableEntry( $row, $this->linkRenderer,
+			MediaWikiServices::getInstance()->getContentHandlerFactory()
+		);
 	}
 
 	/**

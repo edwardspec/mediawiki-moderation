@@ -20,6 +20,7 @@
  * Formatter for displaying entry in modaction=show.
  */
 
+use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
@@ -29,14 +30,23 @@ class ModerationViewableEntry extends ModerationEntry {
 	/** @var LinkRenderer */
 	protected $linkRenderer;
 
+	/** @var IContentHandlerFactory */
+	protected $contentHandlerFactory;
+
 	/**
 	 * @param stdClass $row
 	 * @param LinkRenderer $linkRenderer
+	 * @param IContentHandlerFactory $contentHandlerFactory
 	 */
-	public function __construct( $row, LinkRenderer $linkRenderer ) {
+	public function __construct(
+		$row,
+		LinkRenderer $linkRenderer,
+		IContentHandlerFactory $contentHandlerFactory
+	) {
 		parent::__construct( $row );
 
 		$this->linkRenderer = $linkRenderer;
+		$this->contentHandlerFactory = $contentHandlerFactory;
 	}
 
 	/**
@@ -85,7 +95,7 @@ class ModerationViewableEntry extends ModerationEntry {
 		}
 
 		$model = $title->getContentModel();
-		$handler = ContentHandler::getForModelID( $model );
+		$handler = $this->contentHandlerFactory->getContentHandler( $model );
 
 		$oldContent = $handler->makeEmptyContent();
 		if ( !$row->new ) {
