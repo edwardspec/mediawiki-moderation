@@ -43,7 +43,7 @@ trait MockRevisionLookupTestTrait {
 			->with( $this->identicalTo( $revid ) )
 			->will( $this->returnCallback( static function ( $id, $flags ) use ( $text, $title ) {
 				$rec = new MutableRevisionRecord( $title );
-				$rec->setSlot( SlotRecord::newUnsaved( 'main', new TextContent( $text ) ) );
+				$rec->setContent( SlotRecord::MAIN, new TextContent( $text ) );
 				return $rec;
 			} ) );
 		$this->setService( 'RevisionLookup', $revisionLookup );
