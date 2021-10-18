@@ -22,6 +22,8 @@
 
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\RevisionRecord;
+use MediaWiki\Revision\SlotRecord;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -275,6 +277,8 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	/**
 	 * Check the return value of ModerationViewableEntry::getDiffHTML().
 	 * @covers ModerationViewableEntry
+	 *
+	 * TODO: also check the return value of getDiffHTML() when creating a new article.
 	 */
 	public function testDiff() {
 		$title = Title::newFromText( 'File:UTUpload ' . rand( 0, 100000 ) . '.png' );
@@ -292,15 +296,17 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 
 		// Mock DifferenceEngine (which is used by ViewableEntry to generate the diff)
 		$differenceEngine = $this->createMock( DifferenceEngine::class );
-		$differenceEngine->expects( $this->once() )->method( 'generateContentDiffBody' )->will(
+		$differenceEngine->expects( $this->once() )->method( 'setRevisions' )->will(
 			$this->returnCallback(
-				function ( $oldContent, $newContent ) use ( $oldText, $newText ) {
-					$this->assertEquals( $oldText, $oldContent->serialize() );
-					$this->assertEquals( $newText, $newContent->serialize() );
+				function ( RevisionRecord $oldRevision, RevisionRecord $newRevision ) use ( $oldText, $newText ) {
+					$this->assertEquals( $oldText, $oldRevision->getContent( SlotRecord::MAIN )->serialize() );
+					$this->assertEquals( $newText, $newRevision->getContent( SlotRecord::MAIN )->serialize() );
 					return '{GeneratedDiff}';
 				}
 			)
 		);
+
+		$differenceEngine->expects( $this->once() )->method( 'getDiffBody' )->willReturn( '{GeneratedDiff}' );
 		$differenceEngine->expects( $this->once() )->method( 'addHeader' )->with(
 			$this->identicalTo( '{GeneratedDiff}' ),
 			$this->identicalTo( '(moderation-diff-header-before)' ),
@@ -308,12 +314,9 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 		)->willReturn( '{GeneratedDiff+Header}' );
 
 		// This makes ContentHandler::createDifferenceEngine() return our mocked $differenceEngine.
-		$this->setTemporaryHook( 'GetDifferenceEngine', function ( $context, $old, $new,
+		$this->setTemporaryHook( 'GetDifferenceEngine', static function ( $context, $old, $new,
 			$refreshCache, $unhide, &$engineToUse
 		) use ( $oldid, $differenceEngine ) {
-			$this->assertSame( $oldid, $old, 'DifferenceEngine: Incorrect parameter of $old' );
-			$this->assertSame( 0, $new, 'DifferenceEngine: Incorrect parameter of $new' );
-
 			$engineToUse = $differenceEngine;
 			return false;
 		} );
