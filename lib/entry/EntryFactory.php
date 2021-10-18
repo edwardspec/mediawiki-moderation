@@ -25,6 +25,7 @@ namespace MediaWiki\Moderation;
 use IContextSource;
 use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Linker\LinkRenderer;
+use MediaWiki\Revision\RevisionLookup;
 use ModerationApprovableEntry;
 use ModerationApproveHook;
 use ModerationCanSkip;
@@ -59,6 +60,9 @@ class EntryFactory {
 	/** @var IContentHandlerFactory */
 	protected $contentHandlerFactory;
 
+	/** @var RevisionLookup */
+	protected $revisionLookup;
+
 	/**
 	 * @param LinkRenderer $linkRenderer
 	 * @param ActionLinkRenderer $actionLinkRenderer
@@ -67,6 +71,7 @@ class EntryFactory {
 	 * @param ModerationCanSkip $canSkip
 	 * @param ModerationApproveHook $approveHook
 	 * @param IContentHandlerFactory $contentHandlerFactory
+	 * @param RevisionLookup $revisionLookup
 	 */
 	public function __construct( LinkRenderer $linkRenderer,
 		ActionLinkRenderer $actionLinkRenderer,
@@ -74,7 +79,8 @@ class EntryFactory {
 		IConsequenceManager $consequenceManager,
 		ModerationCanSkip $canSkip,
 		ModerationApproveHook $approveHook,
-		IContentHandlerFactory $contentHandlerFactory
+		IContentHandlerFactory $contentHandlerFactory,
+		RevisionLookup $revisionLookup
 	) {
 		$this->linkRenderer = $linkRenderer;
 		$this->actionLinkRenderer = $actionLinkRenderer;
@@ -83,6 +89,7 @@ class EntryFactory {
 		$this->canSkip = $canSkip;
 		$this->approveHook = $approveHook;
 		$this->contentHandlerFactory = $contentHandlerFactory;
+		$this->revisionLookup = $revisionLookup;
 	}
 
 	/**
@@ -111,7 +118,8 @@ class EntryFactory {
 		return new ModerationViewableEntry(
 			$row,
 			$this->linkRenderer,
-			$this->contentHandlerFactory
+			$this->contentHandlerFactory,
+			$this->revisionLookup
 		);
 	}
 

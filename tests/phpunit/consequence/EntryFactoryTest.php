@@ -27,6 +27,7 @@ use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\TimestampFormatter;
+use MediaWiki\Revision\RevisionLookup;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -348,6 +349,7 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 		$canSkip = $this->createMock( ModerationCanSkip::class );
 		$approveHook = $this->createMock( ModerationApproveHook::class );
 		$contentHandlerFactory = $this->createMock( IContentHandlerFactory::class );
+		$revisionLookup = $this->createMock( RevisionLookup::class );
 
 		'@phan-var LinkRenderer $linkRenderer';
 		'@phan-var ActionLinkRenderer $actionLinkRenderer';
@@ -357,6 +359,6 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 		'@phan-var ModerationApproveHook $approveHook';
 
 		return new EntryFactory( $linkRenderer, $actionLinkRenderer, $timestampFormatter,
-			$consequenceManager, $canSkip, $approveHook, $contentHandlerFactory );
+			$consequenceManager, $canSkip, $approveHook, $contentHandlerFactory, $revisionLookup );
 	}
 }

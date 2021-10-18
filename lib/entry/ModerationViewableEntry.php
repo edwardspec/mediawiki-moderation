@@ -22,8 +22,8 @@
 
 use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Linker\LinkRenderer;
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\MutableRevisionRecord;
+use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
 
@@ -34,20 +34,26 @@ class ModerationViewableEntry extends ModerationEntry {
 	/** @var IContentHandlerFactory */
 	protected $contentHandlerFactory;
 
+	/** @var RevisionLookup */
+	protected $revisionLookup;
+
 	/**
 	 * @param stdClass $row
 	 * @param LinkRenderer $linkRenderer
 	 * @param IContentHandlerFactory $contentHandlerFactory
+	 * @param RevisionLookup $revisionLookup
 	 */
 	public function __construct(
 		$row,
 		LinkRenderer $linkRenderer,
-		IContentHandlerFactory $contentHandlerFactory
+		IContentHandlerFactory $contentHandlerFactory,
+		RevisionLookup $revisionLookup
 	) {
 		parent::__construct( $row );
 
 		$this->linkRenderer = $linkRenderer;
 		$this->contentHandlerFactory = $contentHandlerFactory;
+		$this->revisionLookup = $revisionLookup;
 	}
 
 	/**
@@ -124,8 +130,7 @@ class ModerationViewableEntry extends ModerationEntry {
 		$rev = null;
 		if ( !$row->new ) {
 			// Page existed at the moment when this edit was queued
-			$revisionLookup = MediaWikiServices::getInstance()->getRevisionLookup();
-			$rev = $revisionLookup->getRevisionById( $row->last_oldid );
+			$rev = $this->revisionLookup->getRevisionById( $row->last_oldid );
 		}
 
 		if ( !$rev ) {

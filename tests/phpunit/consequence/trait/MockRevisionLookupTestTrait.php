@@ -31,14 +31,14 @@ use MediaWiki\Revision\SlotRecord;
  */
 trait MockRevisionLookupTestTrait {
 	/**
-	 * Mock RevisionLookup service to provide $text as current text of revision $revid.
+	 * Return mock of RevisionLookup that will return $text as current text of revision $revid.
 	 * @param int $revid
 	 * @param string $text
 	 * @param Title $title
+	 * @return RevisionLookup
 	 */
 	public function mockRevisionLookup( $revid, $text, Title $title ) {
 		$revisionLookup = $this->createMock( RevisionLookup::class );
-
 		$revisionLookup->expects( $this->any() )->method( 'getRevisionById' )
 			->with( $this->identicalTo( $revid ) )
 			->will( $this->returnCallback( static function ( $id, $flags ) use ( $text, $title ) {
@@ -46,13 +46,11 @@ trait MockRevisionLookupTestTrait {
 				$rec->setContent( SlotRecord::MAIN, new TextContent( $text ) );
 				return $rec;
 			} ) );
-		$this->setService( 'RevisionLookup', $revisionLookup );
+
+		return $revisionLookup;
 	}
 
 	// These methods are in MediaWikiTestCase (this trait is used by its subclasses).
-
-	/** @inheritDoc */
-	abstract protected function setService( $name, $service );
 
 	/** @inheritDoc */
 	abstract protected function createMock( $originalClassName );

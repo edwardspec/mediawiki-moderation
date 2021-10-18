@@ -22,6 +22,7 @@
 
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
 
@@ -292,7 +293,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 		$context->setTitle( SpecialPage::getTitleFor( 'Moderation' ) );
 
 		// Mock RevisionLookup service to provide $oldText as current text of revision $revid.
-		$this->mockRevisionLookup( $oldid, $oldText, $title );
+		$revisionLookup = $this->mockRevisionLookup( $oldid, $oldText, $title );
 
 		// Mock DifferenceEngine (which is used by ViewableEntry to generate the diff)
 		$differenceEngine = $this->createMock( DifferenceEngine::class );
@@ -329,7 +330,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 			'new' => 0,
 			'last_oldid' => $oldid,
 			'text' => $newText
-		] );
+		], $revisionLookup );
 
 		$result = $entry->getDiffHTML( $context );
 		$this->assertEquals( '{GeneratedDiff+Header}', $result );
@@ -338,15 +339,17 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	/**
 	 * Make ModerationViewableEntry for $fields with mocks that were created in setUp().
 	 * @param array $fields
+	 * @param RevisionLookup|null $revisionLookup Optional, used to override result of getRevisionById().
 	 * @return ModerationViewableEntry
 	 */
-	private function makeViewableEntry( $fields ) {
+	private function makeViewableEntry( $fields, RevisionLookup $revisionLookup = null ) {
 		$row = (object)$fields;
 		if ( !isset( $row->type ) ) {
 			$row->type = ModerationNewChange::MOD_TYPE_EDIT;
 		}
 		return new ModerationViewableEntry( $row, $this->linkRenderer,
-			MediaWikiServices::getInstance()->getContentHandlerFactory()
+			MediaWikiServices::getInstance()->getContentHandlerFactory(),
+			$revisionLookup ?? $this->createMock( RevisionLookup::class )
 		);
 	}
 

@@ -81,7 +81,8 @@ return [
 			$services->getService( 'Moderation.ConsequenceManager' ),
 			$services->getService( 'Moderation.CanSkip' ),
 			$services->getService( 'Moderation.ApproveHook' ),
-			$services->getContentHandlerFactory()
+			$services->getContentHandlerFactory(),
+			$services->getRevisionLookup()
 		);
 	},
 	'Moderation.HookRunner' => static function ( MediaWikiServices $services ): HookRunner {
