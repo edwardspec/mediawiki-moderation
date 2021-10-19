@@ -20,6 +20,7 @@
  * Unit test of ModerationViewableEntry.
  */
 
+use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionLookup;
@@ -344,34 +345,30 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	/**
 	 * Check the return value of ModerationViewableEntry::getDiffHTML().
 	 * @covers ModerationViewableEntry
-	 *
-	 * TODO: also check the return value of getDiffHTML() when creating a new article.
 	 */
 	public function testDiff() {
 		$title = Title::newFromText( 'File:UTUpload ' . rand( 0, 100000 ) . '.png' );
-		$oldText = 'Original text of the article';
-		$newText = 'New content of the article';
-		$oldid = 56789;
-		$modid = 12345;
+
+		$previousRevision = $this->createMock( RevisionRecord::class );
+		$pendingRevision = $this->createMock( RevisionRecord::class );
+
+		$row = (object)[
+			'type' => ModerationNewChange::MOD_TYPE_EDIT,
+			'stash_key' => null,
+			'namespace' => $title->getNamespace(),
+			'title' => $title->getDBKey()
+		];
 
 		$context = new DerivativeContext( RequestContext::getMain() );
 		$context->setLanguage( 'qqx' );
 		$context->setTitle( SpecialPage::getTitleFor( 'Moderation' ) );
 
-		// Mock RevisionLookup service to provide $oldText as current text of revision $revid.
-		$revisionLookup = $this->mockRevisionLookup( $oldid, $oldText, $title );
-
 		// Mock DifferenceEngine (which is used by ViewableEntry to generate the diff)
 		$differenceEngine = $this->createMock( DifferenceEngine::class );
-		$differenceEngine->expects( $this->once() )->method( 'setRevisions' )->will(
-			$this->returnCallback(
-				function ( RevisionRecord $oldRevision, RevisionRecord $newRevision ) use ( $oldText, $newText ) {
-					$this->assertEquals( $oldText, $oldRevision->getContent( SlotRecord::MAIN )->serialize() );
-					$this->assertEquals( $newText, $newRevision->getContent( SlotRecord::MAIN )->serialize() );
-					return '{GeneratedDiff}';
-				}
-			)
-		);
+		$differenceEngine->expects( $this->once() )->method( 'setRevisions' )->with(
+			$this->identicalTo( $previousRevision ),
+			$this->identicalTo( $pendingRevision )
+		)->willReturn( '{GeneratedDiff}' );
 
 		$differenceEngine->expects( $this->once() )->method( 'getDiffBody' )->willReturn( '{GeneratedDiff}' );
 		$differenceEngine->expects( $this->once() )->method( 'addHeader' )->with(
@@ -380,24 +377,34 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 			$this->identicalTo( '(moderation-diff-header-after)' )
 		)->willReturn( '{GeneratedDiff+Header}' );
 
-		// This makes ContentHandler::createDifferenceEngine() return our mocked $differenceEngine.
-		$this->setTemporaryHook( 'GetDifferenceEngine', static function ( $context, $old, $new,
-			$refreshCache, $unhide, &$engineToUse
-		) use ( $oldid, $differenceEngine ) {
-			$engineToUse = $differenceEngine;
-			return false;
-		} );
+		$contentHandler = $this->createMock( ContentHandler::class );
+		$contentHandler->expects( $this->once() )->method( 'createDifferenceEngine' )->with(
+			$this->identicalTo( $context )
+		)->willReturn( $differenceEngine );
 
-		$entry = $this->makeViewableEntry( [
-			'id' => $modid,
-			'stash_key' => null,
-			'namespace' => $title->getNamespace(),
-			'title' => $title->getDBKey(),
-			'new' => 0,
-			'last_oldid' => $oldid,
-			'text' => $newText
-		], $revisionLookup );
+		$contentHandlerFactory = $this->createMock( IContentHandlerFactory::class );
+		$contentHandlerFactory->expects( $this->once() )->method( 'getContentHandler' )->with(
+			$this->identicalTo( $title->getContentModel() )
+		)->willReturn( $contentHandler );
 
+		// Method that we are testing here (getDiffHTML) is calling two other methods of the same class
+		// (getPendingRevision and getPreviousRevision), and they are already covered by their own tests.
+		// Therefore we can make a "partial mock" where getPendingRevision() and getPreviousRevision() are mocked,
+		// but call to getDiffHTML() hits real implementation.
+		$entry = $this->getMockBuilder( ModerationViewableEntry::class )
+			->setConstructorArgs( [
+				$row,
+				$this->createNoOpMock( LinkRenderer::class ),
+				$contentHandlerFactory,
+				$this->createNoOpMock( RevisionLookup::class )
+			] )
+			->onlyMethods( [ 'getPendingRevision', 'getPreviousRevision' ] )
+			->getMockForAbstractClass();
+
+		$entry->expects( $this->any() )->method( 'getPreviousRevision' )->willReturn( $previousRevision );
+		$entry->expects( $this->any() )->method( 'getPendingRevision' )->willReturn( $pendingRevision );
+
+		// Run the method we are testing.
 		$result = $entry->getDiffHTML( $context );
 		$this->assertEquals( '{GeneratedDiff+Header}', $result );
 	}
