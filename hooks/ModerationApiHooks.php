@@ -116,7 +116,7 @@ class ModerationApiHooks implements
 			}
 		}
 
-		$text = $content->getNativeData();
+		$text = $content->serialize();
 
 		/* Now we remove appendtext/prependtext from WebRequest object
 			and make ApiEdit think that this is a usual action=edit&text=... call.
@@ -144,7 +144,7 @@ class ModerationApiHooks implements
 			$newSectionContent = ContentHandler::makeContent( $query['text'], $title );
 			$newContent = $oldContent->replaceSection( $section, $newSectionContent, $sectionTitle );
 
-			$query['text'] = $newContent->getNativeData();
+			$query['text'] = $newContent->serialize();
 			unset( $query['section'] );
 			unset( $query['sectiontitle'] );
 		}

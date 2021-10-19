@@ -20,7 +20,12 @@
  * Unit test of ModerationViewableEntry.
  */
 
+use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Linker\LinkRenderer;
+use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\RevisionLookup;
+use MediaWiki\Revision\RevisionRecord;
+use MediaWiki\Revision\SlotRecord;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -49,6 +54,73 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	public function testNotUpload() {
 		$entry = $this->makeViewableEntry( [ 'stash_key' => null ] );
 		$this->assertFalse( $entry->isUpload(), 'isUpload() returned true for non-upload.' );
+	}
+
+	/**
+	 * Test that getPendingRevision() returns RevisionRecord with expected content.
+	 * @covers ModerationViewableEntry
+	 */
+	public function testPendingRevision() {
+		$title = Title::newFromText( 'Project:UTPage ' . rand( 0, 100000 ) );
+		$newText = 'New content of the article';
+
+		$entry = $this->makeViewableEntry( [
+			'text' => $newText,
+			'namespace' => $title->getNamespace(),
+			'title' => $title->getDBKey()
+		] );
+
+		$rev = $entry->getPendingRevision();
+		$this->assertRevisionTitleAndText( $title, $newText, $rev );
+	}
+
+	/**
+	 * Throw an exception if RevisionRecord doesn't have expected $title and $text.
+	 * @param Title $title
+	 * @param string $text
+	 * @param RevisionRecord $rev
+	 */
+	private function assertRevisionTitleAndText( Title $title, $text, RevisionRecord $rev ) {
+		$this->assertEquals( $text, $rev->getContent( SlotRecord::MAIN )->serialize() );
+
+		// MediaWiki 1.35 doesn't have LinkTarget::isSameLinkAs().
+		$this->assertEquals( $title->getFullText(),
+			Title::newFromLinkTarget( $rev->getPageAsLinkTarget() )->getFullText() );
+	}
+
+	/**
+	 * Test that getPreviousRevision() returns old RevisionRecord on which this pending change is based.
+	 * @param int $oldid
+	 * @param string|null $oldText If null, RevisionRecord won't be found.
+	 * @dataProvider dataProviderPreviousRevision
+	 * @covers ModerationViewableEntry
+	 */
+	public function testPreviousRevision( $oldid, $oldText ) {
+		$title = Title::newFromText( 'Project:UTPage ' . rand( 0, 100000 ) );
+
+		// Mock RevisionLookup service to provide $oldText as current text of revision $revid.
+		$revisionLookup = $this->mockRevisionLookup( $oldid, $oldText, $title );
+
+		$entry = $this->makeViewableEntry( [
+			'last_oldid' => $oldid,
+			'namespace' => $title->getNamespace(),
+			'title' => $title->getDBKey()
+		], $revisionLookup );
+
+		$rev = $entry->getPreviousRevision();
+		$this->assertRevisionTitleAndText( $title, $oldText ? $oldText : '', $rev );
+	}
+
+	/**
+	 * Provide datasets for testPreviousRevision() runs.
+	 * @return array
+	 */
+	public function dataProviderPreviousRevision() {
+		return [
+			'new page' => [ 0, null ],
+			'edit based on deleted revision' => [ 123, null ],
+			'edit in existing page' => [ 456, 'Text of previous revision' ]
+		];
 	}
 
 	/**
@@ -196,7 +268,6 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 			'mod_page2_namespace AS page2_namespace',
 			'mod_page2_title AS page2_title',
 			'mod_last_oldid AS last_oldid',
-			'mod_new AS new',
 			'mod_text AS text',
 			'mod_stash_key AS stash_key'
 		];
@@ -277,56 +348,63 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	 */
 	public function testDiff() {
 		$title = Title::newFromText( 'File:UTUpload ' . rand( 0, 100000 ) . '.png' );
-		$oldText = 'Original text of the article';
-		$newText = 'New content of the article';
-		$oldid = 56789;
-		$modid = 12345;
+
+		$previousRevision = $this->createMock( RevisionRecord::class );
+		$pendingRevision = $this->createMock( RevisionRecord::class );
+
+		$row = (object)[
+			'type' => ModerationNewChange::MOD_TYPE_EDIT,
+			'stash_key' => null,
+			'namespace' => $title->getNamespace(),
+			'title' => $title->getDBKey()
+		];
 
 		$context = new DerivativeContext( RequestContext::getMain() );
 		$context->setLanguage( 'qqx' );
 		$context->setTitle( SpecialPage::getTitleFor( 'Moderation' ) );
 
-		// Mock RevisionLookup service to provide $oldText as current text of revision $revid.
-		$this->mockRevisionLookup( $oldid, $oldText, $title );
-
 		// Mock DifferenceEngine (which is used by ViewableEntry to generate the diff)
 		$differenceEngine = $this->createMock( DifferenceEngine::class );
-		$differenceEngine->expects( $this->once() )->method( 'generateContentDiffBody' )->will(
-			$this->returnCallback(
-				function ( $oldContent, $newContent ) use ( $oldText, $newText ) {
-					$this->assertEquals( $oldText, $oldContent->getNativeData() );
-					$this->assertEquals( $newText, $newContent->getNativeData() );
-					return '{GeneratedDiff}';
-				}
-			)
-		);
+		$differenceEngine->expects( $this->once() )->method( 'setRevisions' )->with(
+			$this->identicalTo( $previousRevision ),
+			$this->identicalTo( $pendingRevision )
+		)->willReturn( '{GeneratedDiff}' );
+
+		$differenceEngine->expects( $this->once() )->method( 'getDiffBody' )->willReturn( '{GeneratedDiff}' );
 		$differenceEngine->expects( $this->once() )->method( 'addHeader' )->with(
 			$this->identicalTo( '{GeneratedDiff}' ),
 			$this->identicalTo( '(moderation-diff-header-before)' ),
 			$this->identicalTo( '(moderation-diff-header-after)' )
 		)->willReturn( '{GeneratedDiff+Header}' );
 
-		// This makes ContentHandler::createDifferenceEngine() return our mocked $differenceEngine.
-		$this->setTemporaryHook( 'GetDifferenceEngine', function ( $context, $old, $new,
-			$refreshCache, $unhide, &$engineToUse
-		) use ( $oldid, $differenceEngine ) {
-			$this->assertSame( $oldid, $old, 'DifferenceEngine: Incorrect parameter of $old' );
-			$this->assertSame( 0, $new, 'DifferenceEngine: Incorrect parameter of $new' );
+		$contentHandler = $this->createMock( ContentHandler::class );
+		$contentHandler->expects( $this->once() )->method( 'createDifferenceEngine' )->with(
+			$this->identicalTo( $context )
+		)->willReturn( $differenceEngine );
 
-			$engineToUse = $differenceEngine;
-			return false;
-		} );
+		$contentHandlerFactory = $this->createMock( IContentHandlerFactory::class );
+		$contentHandlerFactory->expects( $this->once() )->method( 'getContentHandler' )->with(
+			$this->identicalTo( $title->getContentModel() )
+		)->willReturn( $contentHandler );
 
-		$entry = $this->makeViewableEntry( [
-			'id' => $modid,
-			'stash_key' => null,
-			'namespace' => $title->getNamespace(),
-			'title' => $title->getDBKey(),
-			'new' => 0,
-			'last_oldid' => $oldid,
-			'text' => $newText
-		] );
+		// Method that we are testing here (getDiffHTML) is calling two other methods of the same class
+		// (getPendingRevision and getPreviousRevision), and they are already covered by their own tests.
+		// Therefore we can make a "partial mock" where getPendingRevision() and getPreviousRevision() are mocked,
+		// but call to getDiffHTML() hits real implementation.
+		$entry = $this->getMockBuilder( ModerationViewableEntry::class )
+			->setConstructorArgs( [
+				$row,
+				$this->createNoOpMock( LinkRenderer::class ),
+				$contentHandlerFactory,
+				$this->createNoOpMock( RevisionLookup::class )
+			] )
+			->onlyMethods( [ 'getPendingRevision', 'getPreviousRevision' ] )
+			->getMockForAbstractClass();
 
+		$entry->expects( $this->any() )->method( 'getPreviousRevision' )->willReturn( $previousRevision );
+		$entry->expects( $this->any() )->method( 'getPendingRevision' )->willReturn( $pendingRevision );
+
+		// Run the method we are testing.
 		$result = $entry->getDiffHTML( $context );
 		$this->assertEquals( '{GeneratedDiff+Header}', $result );
 	}
@@ -334,14 +412,18 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	/**
 	 * Make ModerationViewableEntry for $fields with mocks that were created in setUp().
 	 * @param array $fields
+	 * @param RevisionLookup|null $revisionLookup Optional, used to override result of getRevisionById().
 	 * @return ModerationViewableEntry
 	 */
-	private function makeViewableEntry( $fields ) {
+	private function makeViewableEntry( $fields, RevisionLookup $revisionLookup = null ) {
 		$row = (object)$fields;
 		if ( !isset( $row->type ) ) {
 			$row->type = ModerationNewChange::MOD_TYPE_EDIT;
 		}
-		return new ModerationViewableEntry( $row, $this->linkRenderer );
+		return new ModerationViewableEntry( $row, $this->linkRenderer,
+			MediaWikiServices::getInstance()->getContentHandlerFactory(),
+			$revisionLookup ?? $this->createMock( RevisionLookup::class )
+		);
 	}
 
 	/**

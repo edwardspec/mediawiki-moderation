@@ -20,8 +20,10 @@
  * Formatter for displaying entry in modaction=show.
  */
 
+use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Linker\LinkRenderer;
-use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\MutableRevisionRecord;
+use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
 
@@ -29,14 +31,29 @@ class ModerationViewableEntry extends ModerationEntry {
 	/** @var LinkRenderer */
 	protected $linkRenderer;
 
+	/** @var IContentHandlerFactory */
+	protected $contentHandlerFactory;
+
+	/** @var RevisionLookup */
+	protected $revisionLookup;
+
 	/**
 	 * @param stdClass $row
 	 * @param LinkRenderer $linkRenderer
+	 * @param IContentHandlerFactory $contentHandlerFactory
+	 * @param RevisionLookup $revisionLookup
 	 */
-	public function __construct( $row, LinkRenderer $linkRenderer ) {
+	public function __construct(
+		$row,
+		LinkRenderer $linkRenderer,
+		IContentHandlerFactory $contentHandlerFactory,
+		RevisionLookup $revisionLookup
+	) {
 		parent::__construct( $row );
 
 		$this->linkRenderer = $linkRenderer;
+		$this->contentHandlerFactory = $contentHandlerFactory;
+		$this->revisionLookup = $revisionLookup;
 	}
 
 	/**
@@ -46,7 +63,6 @@ class ModerationViewableEntry extends ModerationEntry {
 	public static function getFields() {
 		return array_merge( parent::getFields(), [
 			'mod_last_oldid AS last_oldid',
-			'mod_new AS new',
 			'mod_text AS text',
 			'mod_stash_key AS stash_key'
 		] );
@@ -84,25 +100,12 @@ class ModerationViewableEntry extends ModerationEntry {
 			)->parseAsBlock();
 		}
 
-		$model = $title->getContentModel();
-		$handler = ContentHandler::getForModelID( $model );
+		$handler = $this->contentHandlerFactory->getContentHandler( $title->getContentModel() );
 
-		$oldContent = $handler->makeEmptyContent();
-		if ( !$row->new ) {
-			// Page existed at the moment when this edit was queued
-			$revisionLookup = MediaWikiServices::getInstance()->getRevisionLookup();
-			$rec = $revisionLookup->getRevisionById( $row->last_oldid );
+		$de = $handler->createDifferenceEngine( $context );
+		$de->setRevisions( $this->getPreviousRevision(), $this->getPendingRevision() );
 
-			// Note: $rec may be null if page was deleted.
-			if ( $rec ) {
-				$oldContent = $rec->getSlot( SlotRecord::MAIN, RevisionRecord::RAW )->getContent();
-			}
-		}
-
-		$de = $handler->createDifferenceEngine( $context, $row->last_oldid, 0, 0, false, false );
-		$newContent = ContentHandler::makeContent( $row->text, null, $model );
-
-		$diff = $de->generateContentDiffBody( $oldContent, $newContent );
+		$diff = $de->getDiffBody();
 		if ( !$diff ) {
 			return '';
 		}
@@ -113,6 +116,42 @@ class ModerationViewableEntry extends ModerationEntry {
 			$context->msg( 'moderation-diff-header-before' )->text(),
 			$context->msg( 'moderation-diff-header-after' )->text()
 		);
+	}
+
+	/**
+	 * Get an already existing (not pending) revision that is "previous" for this pending change.
+	 * @return RevisionRecord
+	 */
+	public function getPreviousRevision() {
+		$title = $this->getTitle();
+		$row = $this->getRow();
+
+		$rev = null;
+		if ( $row->last_oldid ) {
+			// Page existed at the moment when this edit was queued
+			$rev = $this->revisionLookup->getRevisionById( $row->last_oldid );
+		}
+
+		if ( !$rev ) {
+			$rev = new MutableRevisionRecord( $title );
+			$rev->setContent( SlotRecord::MAIN, ContentHandler::makeContent( '', $title ) );
+		}
+
+		return $rev;
+	}
+
+	/**
+	 * Get a not-yet-saved revision with the same content as this pending change.
+	 * @return RevisionRecord
+	 */
+	public function getPendingRevision() {
+		$title = $this->getTitle();
+		$row = $this->getRow();
+
+		$rev = new MutableRevisionRecord( $title );
+		$rev->setContent( SlotRecord::MAIN, ContentHandler::makeContent( $row->text, $title ) );
+
+		return $rev;
 	}
 
 	/**

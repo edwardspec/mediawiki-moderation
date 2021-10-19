@@ -108,12 +108,13 @@ class ApproveEditConsequence implements IConsequence {
 		# Let's try to merge this automatically (resolve the conflict),
 		# as MediaWiki does in private EditPage::mergeChangesIntoContent().
 
-		$handler = ContentHandler::getForModelID( $model );
+		$services = MediaWikiServices::getInstance();
+
+		$handler = $services->getContentHandlerFactory()->getContentHandler( $model );
 		$baseContent = $handler->makeEmptyContent();
 
 		if ( $this->baseRevId ) {
-			$revisionLookup = MediaWikiServices::getInstance()->getRevisionLookup();
-			$rec = $revisionLookup->getRevisionById( $this->baseRevId );
+			$rec = $services->getRevisionLookup()->getRevisionById( $this->baseRevId );
 
 			// Note: $rec may be null if page was deleted.
 			if ( $rec ) {

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2019 Edward Chernenko.
+	Copyright (C) 2014-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
  * @file
  * Implements modaction=preview on [[Special:Moderation]].
  */
+
+use MediaWiki\MediaWikiServices;
 
 class ModerationActionPreview extends ModerationAction {
 
@@ -40,18 +42,12 @@ class ModerationActionPreview extends ModerationAction {
 	}
 
 	public function execute() {
-		$row = $this->entryFactory->loadRowOrThrow( $this->id, [
-			'mod_namespace AS namespace',
-			'mod_title AS title',
-			'mod_text AS text'
-		], DB_REPLICA );
+		$entry = $this->entryFactory->findViewableEntry( $this->id );
+		$title = $entry->getTitle();
 
-		$title = Title::makeTitle( $row->namespace, $row->title );
-
-		$content = ContentHandler::makeContent( $row->text, null, $title->getContentModel() );
-		$popts = $this->getOutput()->parserOptions();
-
-		$pout = $content->getParserOutput( $title, 0, $popts, true );
+		$renderer = MediaWikiServices::getInstance()->getRevisionRenderer();
+		$renderedRevision = $renderer->getRenderedRevision( $entry->getPendingRevision() );
+		$pout = $renderedRevision->getRevisionParserOutput();
 
 		return [
 			'title' => $title->getPrefixedText(),

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,6 +22,10 @@
 
 require_once __DIR__ . "/autoload.php";
 
+use MediaWiki\Revision\RenderedRevision;
+use MediaWiki\Revision\RevisionRecord;
+use MediaWiki\Revision\RevisionRenderer;
+
 class ModerationActionPreviewTest extends ModerationUnitTestCase {
 	use ActionTestTrait;
 
@@ -37,43 +41,38 @@ class ModerationActionPreviewTest extends ModerationUnitTestCase {
 			'categories' => [ 'Birds' => '', 'Cats' => '' ]
 		];
 
-		// Hook into Content::getParserOutput() to replace resulting ParserOutput with a mock
-		$this->setTemporaryHook( 'ContentGetParserOutput',
-			function ( $content, $hookTitle, $revId, $options, $generateHtml, &$parserOutput )
-			use ( $title, $expectedResult ) {
-				$this->assertSame( $title->getFullText(), $hookTitle->getFullText() );
-				$this->assertSame( '{MockedText}', $content->getNativeData() );
-				$this->assertTrue( $generateHtml, 'generateHtml' );
+		$revision = $this->createMock( RevisionRecord::class );
 
-				$parserOutput = $this->createMock( ParserOutput::class );
-				$parserOutput->expects( $this->once() )->method( 'getText' )->with(
-					$this->identicalTo( [ 'enableSectionEditLinks' => false ] )
-				)->willReturn( $expectedResult['html'] );
-				$parserOutput->expects( $this->once() )->method( 'getCategories' )
-					->willReturn( $expectedResult['categories'] );
+		$entry = $this->createMock( ModerationViewableEntry::class );
+		$entry->expects( $this->once() )->method( 'getTitle' )->willReturn( $title );
+		$entry->expects( $this->once() )->method( 'getPendingRevision' )->willReturn( $revision );
 
-				// Don't actually run the parser, use $parserOutput above
-				return false;
-			}
-		);
+		$parserOutput = $this->createMock( ParserOutput::class );
+		$parserOutput->expects( $this->once() )->method( 'getText' )->with(
+			$this->identicalTo( [ 'enableSectionEditLinks' => false ] )
+		)->willReturn( $expectedResult['html'] );
+		$parserOutput->expects( $this->once() )->method( 'getCategories' )
+			->willReturn( $expectedResult['categories'] );
+
+		$renderedRevision = $this->createMock( RenderedRevision::class );
+		$renderedRevision->expects( $this->once() )->method( 'getRevisionParserOutput' )
+			->willReturn( $parserOutput );
+
+		$renderer = $this->createMock( RevisionRenderer::class );
+		$renderer->expects( $this->once() )->method( 'getRenderedRevision' )->with(
+			$this->identicalTo( $revision )
+		)->willReturn( $renderedRevision );
+
+		$this->setService( 'RevisionRenderer', $renderer );
 
 		$action = $this->makeActionForTesting( ModerationActionPreview::class,
-			function ( $context, $entryFactory, $manager ) use ( $title ) {
-				$context->setRequest( new FauxRequest( [ 'modid' => 12345 ] ) );
+			function ( $context, $entryFactory, $manager ) use ( $entry ) {
+				$modid = 12345;
+				$context->setRequest( new FauxRequest( [ 'modid' => $modid ] ) );
 
-				$entryFactory->expects( $this->once() )->method( 'loadRowOrThrow' )->with(
-					$this->identicalTo( 12345 ),
-					$this->identicalTo( [
-						'mod_namespace AS namespace',
-						'mod_title AS title',
-						'mod_text AS text'
-					] ),
-					DB_REPLICA
-				)->willReturn( (object)[
-					'namespace' => $title->getNamespace(),
-					'title' => $title->getDBKey(),
-					'text' => '{MockedText}'
-				] );
+				$entryFactory->expects( $this->once() )->method( 'findViewableEntry' )->with(
+					$this->identicalTo( $modid )
+				)->willReturn( $entry );
 
 				// This is a readonly action. Ensure that it has no consequences.
 				$manager->expects( $this->never() )->method( 'add' );

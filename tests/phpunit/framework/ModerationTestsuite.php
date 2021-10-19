@@ -728,7 +728,7 @@ class ModerationTestsuite {
 
 		// Response in the same format as returned by api.php?action=query&prop=revisions.
 		$result = [
-			'*' => strval( $page->getContent()->getNativeData() ),
+			'*' => strval( $page->getContent()->serialize() ),
 			'user' => $username,
 			'revid' => $rev->getId(),
 			'comment' => $comment,

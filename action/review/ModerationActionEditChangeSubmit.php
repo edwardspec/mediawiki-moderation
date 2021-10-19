@@ -70,7 +70,7 @@ class ModerationActionEditChangeSubmit extends ModerationAction {
 			)
 		);
 
-		$newText = $pstContent->getNativeData();
+		$newText = $pstContent->serialize();
 		$newLen = $pstContent->getSize();
 
 		$somethingChanged = ( $newText != $row->text || $newComment != $row->comment );

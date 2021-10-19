@@ -615,7 +615,7 @@ class ModerationQueueTest extends ModerationTestCase {
 			);
 		}
 
-		$expectedText = $expectedContent->getNativeData();
+		$expectedText = $expectedContent->serialize();
 
 		if ( $this->filename && !$this->viaApi ) {
 			/* Special:Upload prepends InitialText with "== Summary ==" header */

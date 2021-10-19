@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -100,7 +100,7 @@ class PendingEdit {
 		$fullContent = ContentHandler::makeContent( $this->text, $this->title );
 		$sectionContent = $fullContent->getSection( $sectionId );
 		if ( $sectionContent ) {
-			return $sectionContent->getNativeData();
+			return $sectionContent->serialize();
 		}
 
 		// Return full text (requested section wasn't found).

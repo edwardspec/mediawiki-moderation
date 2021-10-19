@@ -23,6 +23,8 @@
  * for example Extension:VisualEditor or Extension:MobileFrontend.
  */
 
+use Wikimedia\ParamValidator\ParamValidator;
+
 class ApiQueryModerationPreload extends ApiQueryBase {
 	/** @var ModerationPreload */
 	protected $preload;
@@ -111,12 +113,12 @@ class ApiQueryModerationPreload extends ApiQueryBase {
 	public function getAllowedParams() {
 		return [
 			'mode' => [
-				ApiBase::PARAM_DFLT => 'wikitext',
-				ApiBase::PARAM_TYPE => [ 'wikitext', 'parsed' ]
+				ParamValidator::PARAM_DEFAULT => 'wikitext',
+				ParamValidator::PARAM_TYPE => [ 'wikitext', 'parsed' ]
 			],
 			'title' => null,
 			'pageid' => [
-				ApiBase::PARAM_TYPE => 'integer'
+				ParamValidator::PARAM_TYPE => 'integer'
 			],
 			'section' => null
 		];

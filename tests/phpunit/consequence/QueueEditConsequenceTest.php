@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 		$content = ContentHandler::makeContent( $opt->text ?? ( 'Some text' . rand( 0, 100000 ) ),
 			null, CONTENT_MODEL_WIKITEXT );
 		$summary = $opt->summary ?? 'Some summary ' . rand( 0, 100000 );
-		$opt->expectedText = $opt->expectedText ?? $content->getNativeData();
+		$opt->expectedText = $opt->expectedText ?? $content->serialize();
 
 		if ( $opt->existing ) {
 			// Precreate the page.

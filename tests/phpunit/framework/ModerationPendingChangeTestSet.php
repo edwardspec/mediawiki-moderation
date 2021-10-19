@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -141,7 +141,7 @@ trait ModerationTestsuitePendingChangeTestSet {
 			$page = WikiPage::factory( $this->getExpectedTitleObj() );
 			$oldContent = $page->getContent( RevisionRecord::RAW );
 
-			$this->fields['mod_text'] = $oldContent ? $oldContent->getNativeData() : "";
+			$this->fields['mod_text'] = $oldContent ? $oldContent->serialize() : "";
 			$this->fields['mod_new_len'] = $oldContent ? $oldContent->getSize() : 0;
 		}
 

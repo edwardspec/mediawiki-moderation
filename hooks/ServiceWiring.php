@@ -80,7 +80,9 @@ return [
 			$services->getService( 'Moderation.TimestampFormatter' ),
 			$services->getService( 'Moderation.ConsequenceManager' ),
 			$services->getService( 'Moderation.CanSkip' ),
-			$services->getService( 'Moderation.ApproveHook' )
+			$services->getService( 'Moderation.ApproveHook' ),
+			$services->getContentHandlerFactory(),
+			$services->getRevisionLookup()
 		);
 	},
 	'Moderation.HookRunner' => static function ( MediaWikiServices $services ): HookRunner {
@@ -100,7 +102,7 @@ return [
 		return new ModerationNotifyModerator(
 			$services->getLinkRenderer(),
 			$services->getService( 'Moderation.EntryFactory' ),
-			wfGetMainCache()
+			ObjectCache::getLocalClusterInstance()
 		);
 	},
 	'Moderation.Preload' => static function ( MediaWikiServices $services ): ModerationPreload {
@@ -120,7 +122,7 @@ return [
 	},
 	'Moderation.VersionCheck' => static function ( MediaWikiServices $services ): ModerationVersionCheck {
 		return new ModerationVersionCheck(
-			new CachedBagOStuff( wfGetMainCache() ),
+			new CachedBagOStuff( ObjectCache::getLocalClusterInstance() ),
 			$services->getDBLoadBalancer()
 		);
 	},

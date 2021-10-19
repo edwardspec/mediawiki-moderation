@@ -22,6 +22,7 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\MutableRevisionRecord;
+use MediaWiki\Revision\SlotRecord;
 
 class ModerationTestUtil {
 	/**
@@ -77,7 +78,7 @@ class ModerationTestUtil {
 		$rev->setTimestamp( $dbw->timestamp() );
 
 		$content = ContentHandler::makeContent( $newText, null, CONTENT_MODEL_WIKITEXT );
-		$rev->setContent( 'main', $content );
+		$rev->setContent( SlotRecord::MAIN, $content );
 
 		$store = MediaWikiServices::getInstance()->getRevisionStore();
 		$storedRecord = $store->insertRevisionOn( $rev, $dbw );
