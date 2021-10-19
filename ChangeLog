@@ -6,6 +6,7 @@ Note: this version requires MediaWiki 1.35+. MediaWiki 1.31 is no longer support
 
 Features:
 * Support MediaWiki 1.37.
+* Better support of VisualEditor in MediaWiki 1.36-1.37.
 * Better support of AbuseFilter and CheckUser in MediaWiki 1.36-1.37
 (tags and XFF of approved edit are preserved).
 

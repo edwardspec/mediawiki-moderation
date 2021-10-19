@@ -108,8 +108,10 @@
 						var ret2 = parsefragment[ 0 ];
 
 						if ( ret.visualeditor && ret2.visualeditor ) {
-							ret.visualeditor.content = '<body>' +
-								ret2.visualeditor.content + '</body>';
+							var content = ret2.visualeditor.content;
+							var about = new mw.Title( 'Special:Redirect/revision/' + mw.config.get( 'wgCurRevisionId' ) ).getUrl();
+
+							ret.visualeditor.content = '<html about="' + about + '"><body>' + content + '</body></html>';
 						}
 
 						ret.visualeditor.canEdit = true;

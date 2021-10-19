@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.6.9",
+	"version": "1.6.10",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -291,6 +291,7 @@
 			],
 			"dependencies": [
 				"mediawiki.api",
+				"mediawiki.Title",
 				"ext.visualEditor.targetLoader",
 				"ext.moderation.ajaxhook"
 			]

@@ -1,10 +1,5 @@
 TODO:
 
-High-prio:
-* Support preloading of pending edits in VisualEditor in MW 1.36.
-	Currently it shows "Revision IDs returned by the server do not match"
-	and (correctly) falls back to wikitext editor.
-
 Medium-prio:
 * (testsuite) Provide ~100% automated test coverage of all functionality.
 * (feature) Show "you have N pending edits" link to non-automoderated users
