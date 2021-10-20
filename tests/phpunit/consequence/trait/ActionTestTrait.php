@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,8 +20,11 @@
  * Trait that helps to create ModerationAction object with all mocked dependencies.
  */
 
+use MediaWiki\Moderation\ActionLinkRenderer;
+use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\IConsequenceManager;
+use MediaWiki\Revision\RevisionRenderer;
 
 /**
  * @method static \PHPUnit\Framework\MockObject\Rule\InvokedCount never()
@@ -34,29 +37,32 @@ trait ActionTestTrait {
 	 * @return ModerationAction
 	 *
 	 * @phan-param class-string $class
-	 * @codingStandardsIgnoreStart
-	 * @phan-param ?callable(RequestContext,PHPUnit\Framework\MockObject\MockObject,PHPUnit\Framework\MockObject\MockObject):void $setupMocks
-	 * @codingStandardsIgnoreEnd
 	 */
 	private function makeActionForTesting( $class, callable $setupMocks = null ) {
 		$context = new RequestContext();
 		$entryFactory = $this->createMock( EntryFactory::class );
 		$manager = $this->createMock( IConsequenceManager::class );
+		$canSkip = $this->createMock( ModerationCanSkip::class );
+		$editFormOptions = $this->createMock( EditFormOptions::class );
+		$actionLinkRenderer = $this->createMock( ActionLinkRenderer::class );
+		$repoGroup = $this->createMock( RepoGroup::class );
+		$contentLanguage = $this->createMock( Language::class );
+		$revisionRenderer = $this->createMock( RevisionRenderer::class );
+
+		$arguments = [ $context, $entryFactory, $manager, $canSkip, $editFormOptions, $actionLinkRenderer,
+				$repoGroup, $contentLanguage, $revisionRenderer ];
 
 		$context->setLanguage( 'qqx' );
 
 		if ( $setupMocks ) {
-			$setupMocks( $context, $entryFactory, $manager );
+			$setupMocks( ...$arguments );
 		} else {
 			// Since we are not configuring a mock of ConsequenceManager,
 			// it means that we expect no consequences to be added.
 			$manager->expects( $this->never() )->method( 'add' );
 		}
 
-		'@phan-var EntryFactory $entryFactory';
-		'@phan-var IConsequenceManager $manager';
-
-		return new $class( $context, $entryFactory, $manager );
+		return new $class( ...$arguments );
 	}
 
 	// These methods are in MediaWikiTestCase (this trait is used by its subclasses).

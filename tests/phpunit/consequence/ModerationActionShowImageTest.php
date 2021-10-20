@@ -154,28 +154,34 @@ class ModerationActionShowImageTest extends ModerationUnitTestCase {
 	 * @covers ModerationActionShowImage
 	 */
 	public function testOutputResult( $expectFound, array $executeResult ) {
-		$srcPath = $this->sampleImageFile;
-
-		if ( ( $executeResult['thumb-path'] ?? '' ) === '{VALID_VIRTUAL_URL}' ) {
-			// Replace with valid mwstore:// pseudo-URL
-			// (which is what "thumb-path" is supposed to contain).
-			$stashFile = ModerationUploadStorage::getStash()->getFile( $this->stashSampleImage( $srcPath ) );
-			$executeResult['thumb-path'] = $stashFile->getPath();
-		}
-
-		// This is a readonly action. Ensure that it has no consequences.
 		$action = $this->makeActionForTesting( ModerationActionShowImage::class,
-			function ( $context, $entryFactory, $manager ) {
+			function (
+				$context, $entryFactory, $manager, $canSkip, $editFormOptions, $actionLinkRenderer,
+				$repoGroup, $contentLanguage, $revisionRenderer
+			) use ( $expectFound, $executeResult ) {
 				$context->setRequest( new FauxRequest( [ 'modid' => 12345 ] ) );
+
+				if ( $expectFound ) {
+					$repo = $this->createMock( LocalRepo::class );
+					$repo->expects( $this->once() )->method( 'streamFileWithStatus' )->with(
+						$this->identicalTo( $executeResult['thumb-path'] ),
+						$this->identicalTo( [ 'Content-Disposition: ' . FileBackend::makeContentDisposition(
+							'inline',
+							$executeResult['thumb-filename']
+						) ] )
+					);
+
+					$repoGroup->expects( $this->once() )->method( 'getLocalRepo' )->willReturn( $repo );
+				} else {
+					$repoGroup->expects( $this->never() )->method( 'getLocalRepo' );
+				}
+
+				// This is a readonly action. Ensure that it has no consequences.
 				$manager->expects( $this->never() )->method( 'add' );
 			}
 		);
 
-		if ( $expectFound ) {
-			// NOTE: Unfortunately there is no way to test Content-Disposition header in PHP CLI.
-			// It can only be tested by an integration test of ShowImage (CliEngine+MockAutoLoader).
-			$this->expectOutputString( file_get_contents( $srcPath ) );
-		} else {
+		if ( !$expectFound ) {
 			// Expect 404 message
 			$this->expectOutputRegex( '@Although this PHP script (.*) exists@' );
 		}
@@ -194,13 +200,9 @@ class ModerationActionShowImageTest extends ModerationUnitTestCase {
 	public function dataProviderOutputResult() {
 		return [
 			'missing file' => [ false, [ 'missing' => '' ] ],
-			'file with invalid thumb-path' => [ false, [
-				'thumb-filename' => 'Sample_filename.png',
-				'thumb-path' => 'mwstore://there/is/no/such/file.png'
-			] ],
 			'successfully streamed file' => [ true, [
 				'thumb-filename' => 'Sample_filename.png',
-				'thumb-path' => '{VALID_VIRTUAL_URL}' // Will be replaced in testOutputResult()
+				'thumb-path' => 'mwstore://path/to/file.png'
 			] ]
 		];
 	}

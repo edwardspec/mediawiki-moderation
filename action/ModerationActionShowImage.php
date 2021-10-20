@@ -20,8 +20,6 @@
  * Implements modaction=showimg on [[Special:Moderation]].
  */
 
-use MediaWiki\MediaWikiServices;
-
 class ModerationActionShowImage extends ModerationAction {
 
 	public const THUMB_WIDTH = 320;
@@ -46,7 +44,7 @@ class ModerationActionShowImage extends ModerationAction {
 		$headers[] = 'Content-Disposition: ' .
 			FileBackend::makeContentDisposition( 'inline', $result['thumb-filename'] );
 
-		$repo = MediaWikiServices::getInstance()->getRepoGroup()->getLocalRepo();
+		$repo = $this->repoGroup->getLocalRepo();
 		$repo->streamFileWithStatus( $result['thumb-path'], $headers );
 	}
 

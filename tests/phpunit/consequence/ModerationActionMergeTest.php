@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@
  * @file
  * Unit test of ModerationActionMerge.
  */
-
-use MediaWiki\Moderation\EditFormOptions;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -54,16 +52,11 @@ class ModerationActionMergeTest extends ModerationUnitTestCase {
 		// $result['summary'] should have a message in ContentLanguage
 		$this->setContentLang( 'qqx' );
 
-		// Mock the result of canEditSkip()
-		$canSkip = $this->createMock( ModerationCanSkip::class );
-		$canSkip->expects( $this->any() )->method( 'canEditSkip' )->with(
-			$this->identicalTo( $moderator ),
-			$this->identicalTo( $row->namespace )
-		)->willReturn( $isModeratorAutomoderated );
-		$this->setService( 'Moderation.CanSkip', $canSkip );
-
 		$action = $this->makeActionForTesting( ModerationActionMerge::class,
-			function ( $context, $entryFactory, $manager ) use ( $row, $moderator ) {
+			function (
+				$context, $entryFactory, $manager, $canSkip, $editFormOptions, $actionLinkRenderer,
+				$repoGroup, $contentLanguage, $revisionRenderer
+			) use ( $row, $moderator, $isModeratorAutomoderated ) {
 				$context->setRequest( new FauxRequest( [ 'modid' => 12345 ] ) );
 				$context->setUser( $moderator );
 
@@ -78,6 +71,11 @@ class ModerationActionMergeTest extends ModerationUnitTestCase {
 						'mod_merged_revid AS merged_revid'
 					] )
 				)->willReturn( $row );
+
+				$canSkip->expects( $this->any() )->method( 'canEditSkip' )->with(
+					$this->identicalTo( $moderator ),
+					$this->identicalTo( $row->namespace )
+				)->willReturn( $isModeratorAutomoderated );
 
 				// This is a readonly action. Ensure that it has no consequences.
 				$manager->expects( $this->never() )->method( 'add' );
@@ -152,17 +150,17 @@ class ModerationActionMergeTest extends ModerationUnitTestCase {
 			}
 		);
 
-		// Mock EditFormOptions service to ensure that setMergeID() will be called.
-		$editFormOptions = $this->createMock( EditFormOptions::class );
-		$editFormOptions->expects( $this->once() )->method( 'setMergeID' )->with(
-			$this->identicalTo( $modid )
-		);
-		$this->setService( 'Moderation.EditFormOptions', $editFormOptions );
-
 		$action = $this->makeActionForTesting( ModerationActionMerge::class,
-			function ( $context, $entryFactory, $manager ) use ( $title, $modid ) {
+			function (
+				$context, $entryFactory, $manager, $canSkip, $editFormOptions, $actionLinkRenderer,
+				$repoGroup, $contentLanguage, $revisionRenderer
+			) use ( $title, $modid ) {
 				$context->setRequest( new FauxRequest( [ 'modid' => $modid ] ) );
 				$context->setTitle( $title );
+
+				$editFormOptions->expects( $this->once() )->method( 'setMergeID' )->with(
+					$this->identicalTo( $modid )
+				);
 
 				// This is a readonly action. Ensure that it has no consequences.
 				$manager->expects( $this->never() )->method( 'add' );

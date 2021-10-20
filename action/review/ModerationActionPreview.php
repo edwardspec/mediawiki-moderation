@@ -20,8 +20,6 @@
  * Implements modaction=preview on [[Special:Moderation]].
  */
 
-use MediaWiki\MediaWikiServices;
-
 class ModerationActionPreview extends ModerationAction {
 
 	public function requiresEditToken() {
@@ -45,8 +43,7 @@ class ModerationActionPreview extends ModerationAction {
 		$entry = $this->entryFactory->findViewableEntry( $this->id );
 		$title = $entry->getTitle();
 
-		$renderer = MediaWikiServices::getInstance()->getRevisionRenderer();
-		$renderedRevision = $renderer->getRenderedRevision( $entry->getPendingRevision() );
+		$renderedRevision = $this->revisionRenderer->getRenderedRevision( $entry->getPendingRevision() );
 		$pout = $renderedRevision->getRevisionParserOutput();
 
 		return [

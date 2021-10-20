@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2020 Edward Chernenko.
+	Copyright (C) 2014-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,8 +20,11 @@
  * Parent class for all moderation actions.
  */
 
+use MediaWiki\Moderation\ActionLinkRenderer;
+use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\IConsequenceManager;
+use MediaWiki\Revision\RevisionRenderer;
 
 abstract class ModerationAction extends ContextSource {
 	/**
@@ -46,18 +49,57 @@ abstract class ModerationAction extends ContextSource {
 	/** @var IConsequenceManager */
 	protected $consequenceManager;
 
+	/** @var ModerationCanSkip */
+	protected $canSkip;
+
+	/** @var EditFormOptions */
+	protected $editFormOptions;
+
+	/** @var ActionLinkRenderer */
+	protected $actionLinkRenderer;
+
+	/** @var RepoGroup */
+	protected $repoGroup;
+
+	/** @var Language */
+	protected $contentLanguage;
+
+	/** @var RevisionRenderer */
+	protected $revisionRenderer;
+
 	/**
 	 * Regular constructor with no "detect class from modaction=" logic. Use factory() instead.
 	 * @param IContextSource $context
 	 * @param EntryFactory $entryFactory
 	 * @param IConsequenceManager $consequenceManager
+	 * @param ModerationCanSkip $canSkip
+	 * @param EditFormOptions $editFormOptions
+	 * @param ActionLinkRenderer $actionLinkRenderer
+	 * @param RepoGroup $repoGroup
+	 * @param Language $contentLanguage
+	 * @param RevisionRenderer $revisionRenderer
 	 */
-	public function __construct( IContextSource $context, EntryFactory $entryFactory,
-		IConsequenceManager $consequenceManager
+	public function __construct(
+		IContextSource $context,
+		EntryFactory $entryFactory,
+		IConsequenceManager $consequenceManager,
+		ModerationCanSkip $canSkip,
+		EditFormOptions $editFormOptions,
+		ActionLinkRenderer $actionLinkRenderer,
+		RepoGroup $repoGroup,
+		Language $contentLanguage,
+		RevisionRenderer $revisionRenderer
 	) {
 		$this->setContext( $context );
+
 		$this->entryFactory = $entryFactory;
 		$this->consequenceManager = $consequenceManager;
+		$this->canSkip = $canSkip;
+		$this->editFormOptions = $editFormOptions;
+		$this->actionLinkRenderer = $actionLinkRenderer;
+		$this->repoGroup = $repoGroup;
+		$this->contentLanguage = $contentLanguage;
+		$this->revisionRenderer = $revisionRenderer;
 
 		$this->moderator = $this->getUser();
 

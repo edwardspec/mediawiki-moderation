@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,8 +21,11 @@
  */
 
 use MediaWiki\Moderation\ActionFactory;
+use MediaWiki\Moderation\ActionLinkRenderer;
+use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\MockConsequenceManager;
+use MediaWiki\Revision\RevisionRenderer;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -124,6 +127,15 @@ class ActionFactoryTest extends ModerationUnitTestCase {
 		$entryFactory = $this->createMock( EntryFactory::class );
 		'@phan-var EntryFactory $entryFactory';
 
-		return new ActionFactory( $entryFactory, new MockConsequenceManager() );
+		return new ActionFactory(
+			$entryFactory,
+			new MockConsequenceManager(),
+			$this->createMock( ModerationCanSkip::class ),
+			$this->createMock( EditFormOptions::class ),
+			$this->createMock( ActionLinkRenderer::class ),
+			$this->createMock( RepoGroup::class ),
+			$this->createMock( Language::class ),
+			$this->createMock( RevisionRenderer::class )
+		);
 	}
 }
