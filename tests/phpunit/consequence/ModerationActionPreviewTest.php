@@ -24,7 +24,6 @@ require_once __DIR__ . "/autoload.php";
 
 use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Revision\RevisionRecord;
-use MediaWiki\Revision\RevisionRenderer;
 
 class ModerationActionPreviewTest extends ModerationUnitTestCase {
 	use ActionTestTrait;
@@ -58,21 +57,21 @@ class ModerationActionPreviewTest extends ModerationUnitTestCase {
 		$renderedRevision->expects( $this->once() )->method( 'getRevisionParserOutput' )
 			->willReturn( $parserOutput );
 
-		$renderer = $this->createMock( RevisionRenderer::class );
-		$renderer->expects( $this->once() )->method( 'getRenderedRevision' )->with(
-			$this->identicalTo( $revision )
-		)->willReturn( $renderedRevision );
-
-		$this->setService( 'RevisionRenderer', $renderer );
-
 		$action = $this->makeActionForTesting( ModerationActionPreview::class,
-			function ( $context, $entryFactory, $manager ) use ( $entry ) {
+			function (
+				$context, $entryFactory, $manager, $canSkip, $editFormOptions, $actionLinkRenderer,
+				$repoGroup, $contentLanguage, $revisionRenderer
+			) use ( $entry, $renderedRevision, $revision ) {
 				$modid = 12345;
 				$context->setRequest( new FauxRequest( [ 'modid' => $modid ] ) );
 
 				$entryFactory->expects( $this->once() )->method( 'findViewableEntry' )->with(
 					$this->identicalTo( $modid )
 				)->willReturn( $entry );
+
+				$revisionRenderer->expects( $this->once() )->method( 'getRenderedRevision' )->with(
+					$this->identicalTo( $revision )
+				)->willReturn( $renderedRevision );
 
 				// This is a readonly action. Ensure that it has no consequences.
 				$manager->expects( $this->never() )->method( 'add' );

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@
  * @file
  * Unit test of ModerationActionShow.
  */
-
-use MediaWiki\Moderation\ActionLinkRenderer;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -147,18 +145,18 @@ class ModerationActionShowTest extends ModerationUnitTestCase {
 	public function testOutputResult( $expectedHtml, array $executeResult ) {
 		$modid = 12345;
 
-		// Mock ActionLinkRenderer::makeLink()
-		$actionLinkRenderer = $this->createMock( ActionLinkRenderer::class );
-		$actionLinkRenderer->expects( $this->any() )->method( 'makeLink' )
-			->willReturnCallback( function ( $action, $id ) use ( $modid ) {
-				$this->assertEquals( $modid, $id );
-				return "{ActionLink:$action}";
-			} );
-		$this->setService( 'Moderation.ActionLinkRenderer', $actionLinkRenderer );
-
 		$action = $this->makeActionForTesting( ModerationActionShow::class,
-			function ( $context, $entryFactory, $manager ) use ( $modid ) {
+			function (
+				$context, $entryFactory, $manager, $canSkip, $editFormOptions, $actionLinkRenderer,
+				$repoGroup, $contentLanguage, $revisionRenderer
+			) use ( $modid ) {
 				$context->setRequest( new FauxRequest( [ 'modid' => $modid ] ) );
+
+				$actionLinkRenderer->expects( $this->any() )->method( 'makeLink' )
+					->willReturnCallback( function ( $actionName, $id ) use ( $modid ) {
+						$this->assertEquals( $modid, $id );
+						return "{ActionLink:$actionName}";
+					} );
 				$manager->expects( $this->never() )->method( 'add' );
 			}
 		);

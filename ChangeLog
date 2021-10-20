@@ -16,6 +16,7 @@ Refactoring, performance optimizations:
 * Provide type-checking interfaces for hooks that are called by Moderation itself.
 * Refactoring of hook classes (strict type checks, dependency injection).
 * Refactoring of API and special page classes (dependency injection).
+* Refactoring of action classes (dependency injection).
 
 == Moderation 1.5.36 ==
 

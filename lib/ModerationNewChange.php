@@ -247,7 +247,7 @@ class ModerationNewChange {
 	 * @param string $action AbuseFilter action, e.g. 'edit' or 'delete'.
 	 */
 	protected function addChangeTags( $action ) {
-		$tagsArray = self::findAbuseFilterTags(
+		$tagsArray = $this->findAbuseFilterTags(
 			$this->title,
 			$this->user,
 			$action
@@ -262,13 +262,13 @@ class ModerationNewChange {
 	 * @param string $action AbuseFilter action, e.g. 'edit' or 'delete'.
 	 * @return string[]
 	 */
-	protected static function findAbuseFilterTags( Title $title, User $user, $action ) {
+	protected function findAbuseFilterTags( Title $title, User $user, $action ) {
 		$services = MediaWikiServices::getInstance();
 		$serviceName = 'AbuseFilterChangeTagger';
 
 		if ( !$services->hasService( $serviceName ) ) {
 			// MediaWiki 1.35
-			return self::findAbuseFilterTags35( $title, $user, $action );
+			return $this->findAbuseFilterTags35( $title, $user, $action );
 		}
 
 		$changeTagger = $services->getService( $serviceName );
@@ -286,7 +286,7 @@ class ModerationNewChange {
 	 * @param string $action AbuseFilter action, e.g. 'edit' or 'delete'.
 	 * @return string[]
 	 */
-	protected static function findAbuseFilterTags35( Title $title, User $user, $action ) {
+	protected function findAbuseFilterTags35( Title $title, User $user, $action ) {
 		// @phan-suppress-next-line PhanUndeclaredStaticProperty AbuseFilter::$tagsToSet
 		if ( !class_exists( 'AbuseFilter' ) || empty( AbuseFilter::$tagsToSet ) ) {
 			return []; /* No tags */

@@ -41,7 +41,13 @@ return [
 	'Moderation.ActionFactory' => static function ( MediaWikiServices $services ): ActionFactory {
 		return new ActionFactory(
 			$services->getService( 'Moderation.EntryFactory' ),
-			$services->getService( 'Moderation.ConsequenceManager' )
+			$services->getService( 'Moderation.ConsequenceManager' ),
+			$services->getService( 'Moderation.CanSkip' ),
+			$services->getService( 'Moderation.EditFormOptions' ),
+			$services->getService( 'Moderation.ActionLinkRenderer' ),
+			$services->getRepoGroup(),
+			$services->getContentLanguage(),
+			$services->getRevisionRenderer()
 		);
 	},
 	'Moderation.ActionLinkRenderer' => static function ( MediaWikiServices $services ): ActionLinkRenderer {
