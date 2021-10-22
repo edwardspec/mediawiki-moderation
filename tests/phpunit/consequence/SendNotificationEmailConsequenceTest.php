@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
  * Unit test of SendNotificationEmailConsequence.
  */
 
+use MediaWiki\Mail\IEmailer;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 
 require_once __DIR__ . "/autoload.php";
@@ -38,51 +39,31 @@ class SendNotificationEmailConsequenceTest extends ModerationUnitTestCase {
 		$user = User::newFromName( '10.11.12.13', false );
 		$modid = 12345;
 		$expectedRecipient = 'some.recipient@localhost';
+		$expectedSender = 'some.sender@localhost';
+
+		$expectedContent = '(moderation-notification-content: ' .
+				$title->getFullText() . ', ' .
+				$user->getName() . ', ' .
+				SpecialPage::getTitleFor( 'Moderation' )->getCanonicalURL( [
+					'modaction' => 'show',
+					'modid' => $modid
+				] ) . ')';
 
 		$this->setMwGlobals( 'wgModerationEmail', $expectedRecipient );
+		$this->setMwGlobals( 'wgPasswordSender', $expectedSender );
 		$this->setContentLang( 'qqx' );
 
-		$hookFired = false;
-
-		\Hooks::clear( 'AlternateUserMailer' );
-		\Hooks::register( 'AlternateUserMailer',
-			function ( $headers, array $to, $from, $subject, $body )
-				use ( &$hookFired, $expectedRecipient, $title, $user, $modid )
-			{
-					$hookFired = true;
-
-					$this->assertCount( 1, $to );
-					$this->assertEquals( $expectedRecipient, $to[0] );
-
-					$this->assertEquals( '(moderation-notification-subject)', $subject );
-					$this->assertEquals( '(moderation-notification-content: ' .
-						$title->getFullText() . ', ' .
-						$user->getName() . ', ' .
-						SpecialPage::getTitleFor( 'Moderation' )->getCanonicalURL( [
-							'modaction' => 'show',
-							'modid' => $modid
-						] ) . ')', $body );
-
-					return false; // Don't actually send it.
-			}
+		$emailer = $this->createMock( IEmailer::class );
+		$emailer->expects( $this->once() )->method( 'send' )->with(
+			$this->equalTo( [ $expectedRecipient ] ),
+			$this->equalTo( $expectedSender ),
+			$this->identicalTo( '(moderation-notification-subject)' ),
+			$this->identicalTo( $expectedContent )
 		);
+		$this->setService( 'Emailer', $emailer );
 
 		// Create and run the Consequence.
 		$consequence = new SendNotificationEmailConsequence( $title, $user, $modid );
 		$consequence->run();
-
-		$this->assertTrue( $hookFired, "SendNotificationEmailConsequence didn't send anything." );
-	}
-
-	/**
-	 * Restore original AlternateUserMailer hook that suppresses all emails during PHPUnit tests.
-	 */
-	public function tearDown(): void {
-		\Hooks::clear( 'AlternateUserMailer' );
-		\Hooks::register( 'AlternateUserMailer', static function () {
-			return false;
-		} );
-
-		parent::tearDown();
 	}
 }

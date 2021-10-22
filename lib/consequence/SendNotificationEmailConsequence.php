@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,10 +24,10 @@ namespace MediaWiki\Moderation;
 
 use DeferredUpdates;
 use MailAddress;
+use MediaWiki\MediaWikiServices;
 use SpecialPage;
 use Title;
 use User;
-use UserMailer;
 
 class SendNotificationEmailConsequence implements IConsequence {
 	/** @var Title */
@@ -68,7 +68,7 @@ class SendNotificationEmailConsequence implements IConsequence {
 	public function sendNotificationEmailNow() {
 		global $wgModerationEmail, $wgPasswordSender;
 
-		$mailer = new UserMailer();
+		$emailer = MediaWikiServices::getInstance()->getEmailer();
 		$to = new MailAddress( $wgModerationEmail );
 		$from = new MailAddress( $wgPasswordSender );
 		$subject = wfMessage( 'moderation-notification-subject' )->inContentLanguage()->text();
@@ -81,6 +81,6 @@ class SendNotificationEmailConsequence implements IConsequence {
 			] )
 		)->inContentLanguage()->text();
 
-		$mailer->send( $to, $from, $subject, $content );
+		$emailer->send( [ $to ], $from, $subject, $content );
 	}
 }
