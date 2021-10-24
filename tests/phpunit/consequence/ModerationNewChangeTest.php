@@ -36,13 +36,32 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 	 * @covers ModerationNewChange
 	 */
 	public function testConstructor( $isBlocked ) {
-		$title = Title::makeTitle( NS_HELP_TALK, 'UTPage-' . rand( 0, 100000 ) );
-		$user = self::getTestUser()->getUser();
 		$preloadId = '{MockedPreloadId}';
+		$ip = '10.11.12.13';
+		$xff = '10.12.14.16';
+		$agent = 'Some-User-Agent/1.0';
+		$userId = 567;
+		$username = 'Test user';
+
+		$this->setContentLang( 'qqx' );
+
+		$request = new FauxRequest();
+		$request->setHeaders( [
+			'User-Agent' => $agent,
+			'X-Forwarded-For' => $xff
+		] );
+		$request->setIP( $ip );
+
+		$title = Title::makeTitle( NS_HELP_TALK, 'UTPage-' . rand( 0, 100000 ) );
+		$user = $this->createMock( User::class );
+
+		$user->expects( $this->any() )->method( 'getRequest' )->willReturn( $request );
+		$user->expects( $this->any() )->method( 'getId' )->willReturn( $userId );
+		$user->expects( $this->any() )->method( 'getName' )->willReturn( $username );
 
 		$change = $this->makeNewChange( $title, $user,
 			function ( $consequenceManager, $preload, $hookRunner, $notifyModerator, $blockCheck )
-			use ( $isBlocked, $preloadId, $user ) {
+			use ( $isBlocked, $preloadId, $user, $request ) {
 				$blockCheck->expects( $this->any() )->method( 'isModerationBlocked' )->willReturn( $isBlocked );
 				$preload->expects( $this->once() )->method( 'setUser' )->with(
 					$this->identicalTo( $user )
@@ -53,12 +72,16 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 			}
 		);
 
-		$this->assertSame( $user->getId(), $change->getField( 'mod_user' ) );
-		$this->assertSame( $user->getName(), $change->getField( 'mod_user_text' ) );
+		$this->assertSame( $userId, $change->getField( 'mod_user' ) );
+		$this->assertSame( $username, $change->getField( 'mod_user_text' ) );
 		$this->assertSame( $title->getNamespace(), $change->getField( 'mod_namespace' ) );
 		$this->assertSame( $title->getDBKey(), $change->getField( 'mod_title' ) );
-		$this->assertSame( $preloadId, $change->getField( 'mod_preload_id' ) );
 		$this->assertSame( 'edit', $change->getField( 'mod_type' ) );
+
+		$this->assertSame( $preloadId, $change->getField( 'mod_preload_id' ) );
+		$this->assertSame( $ip, $change->getField( 'mod_ip' ) );
+		$this->assertSame( $agent, $change->getField( 'mod_header_ua' ) );
+		$this->assertSame( $xff, $change->getField( 'mod_header_xff' ) );
 
 		$this->assertSame( '', $change->getField( 'mod_comment' ) );
 		$this->assertSame( '', $change->getField( 'mod_text' ) );
@@ -84,12 +107,15 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 		$this->assertNull( $change->getField( 'mod_stash_key' ) );
 
 		if ( $isBlocked ) {
-			// TODO: mod_rejected_by_user_text
+			$this->assertSame( '(moderation-blocker)', $change->getField( 'mod_rejected_by_user_text' ) );
 		} else {
 			$this->assertNull( $change->getField( 'mod_rejected_by_user_text' ) );
 		}
 
-		// TODO: mod_timestamp, mod_ip, mod_header_xff, mod_header_ua
+		$maxTimePassed = 2;
+		$timePassed = wfTimestamp( TS_UNIX ) - wfTimestamp( TS_UNIX, $change->getField( 'mod_timestamp' ) );
+		$this->assertLessThan( $maxTimePassed, $timePassed,
+			"mod_timestamp of NewChange that was just created is more than $maxTimePassed seconds in the past." );
 	}
 
 	/**
