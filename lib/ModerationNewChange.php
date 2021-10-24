@@ -69,6 +69,7 @@ class ModerationNewChange {
 		ModerationPreload $preload,
 		HookRunner $hookRunner,
 		ModerationNotifyModerator $notifyModerator,
+		ModerationBlockCheck $blockCheck,
 		Language $contentLanguage
 	) {
 		$this->title = $title;
@@ -80,7 +81,7 @@ class ModerationNewChange {
 		$this->notifyModerator = $notifyModerator;
 		$this->contentLanguage = $contentLanguage;
 
-		$isBlocked = ModerationBlockCheck::isModerationBlocked( $user );
+		$isBlocked = $blockCheck->isModerationBlocked( $user );
 
 		$request = $user->getRequest();
 		$dbr = wfGetDB( DB_REPLICA ); /* Only for $dbr->timestamp(), won't do any SQL queries */

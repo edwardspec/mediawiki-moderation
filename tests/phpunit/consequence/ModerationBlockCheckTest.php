@@ -45,14 +45,16 @@ class ModerationBlockCheckTest extends ModerationUnitTestCase {
 			'mb_timestamp' => $this->db->timestamp()
 		], __METHOD__ );
 
-		$this->assertTrue( ModerationBlockCheck::isModerationBlocked( $blockedUser ) );
-		$this->assertFalse( ModerationBlockCheck::isModerationBlocked( $notBlockedUser ) );
+		$blockCheck = new ModerationBlockCheck;
+
+		$this->assertTrue( $blockCheck->isModerationBlocked( $blockedUser ) );
+		$this->assertFalse( $blockCheck->isModerationBlocked( $notBlockedUser ) );
 
 		// isModerationBlocked() should return false if the user has been unblocked.
 		$this->db->delete( 'moderation_block',
 			[ 'mb_address' => $blockedUser->getName() ],
 			__METHOD__
 		);
-		$this->assertFalse( ModerationBlockCheck::isModerationBlocked( $blockedUser ) );
+		$this->assertFalse( $blockCheck->isModerationBlocked( $blockedUser ) );
 	}
 }

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2020 Edward Chernenko.
+	Copyright (C) 2014-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ class ModerationBlockCheck {
 	 * @param User $user
 	 * @return bool
 	 */
-	public static function isModerationBlocked( User $user ) {
+	public function isModerationBlocked( User $user ) {
 		$dbw = wfGetDB( DB_MASTER ); # Need actual data
 		$blocked = $dbw->selectField( 'moderation_block',
 			'mb_id',

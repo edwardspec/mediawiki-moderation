@@ -28,6 +28,81 @@ use Wikimedia\TestingAccessWrapper;
 require_once __DIR__ . "/autoload.php";
 
 class ModerationNewChangeTest extends ModerationUnitTestCase {
+
+	/**
+	 * Check values of all fields after ModerationNewChange object has just been constructed.
+	 * @param bool $isBlocked True if the user is marked as spammer, false otherwise.
+	 * @dataProvider dataProviderConstructor
+	 * @covers ModerationNewChange
+	 */
+	public function testConstructor( $isBlocked ) {
+		$title = Title::makeTitle( NS_HELP_TALK, 'UTPage-' . rand( 0, 100000 ) );
+		$user = self::getTestUser()->getUser();
+		$preloadId = '{MockedPreloadId}';
+
+		$change = $this->makeNewChange( $title, $user,
+			function ( $consequenceManager, $preload, $hookRunner, $notifyModerator, $blockCheck )
+			use ( $isBlocked, $preloadId, $user ) {
+				$blockCheck->expects( $this->any() )->method( 'isModerationBlocked' )->willReturn( $isBlocked );
+				$preload->expects( $this->once() )->method( 'setUser' )->with(
+					$this->identicalTo( $user )
+				);
+				$preload->expects( $this->once() )->method( 'getId' )->with(
+					$this->identicalTo( true )
+				)->willReturn( $preloadId );
+			}
+		);
+
+		$this->assertSame( $user->getId(), $change->getField( 'mod_user' ) );
+		$this->assertSame( $user->getName(), $change->getField( 'mod_user_text' ) );
+		$this->assertSame( $title->getNamespace(), $change->getField( 'mod_namespace' ) );
+		$this->assertSame( $title->getDBKey(), $change->getField( 'mod_title' ) );
+		$this->assertSame( $preloadId, $change->getField( 'mod_preload_id' ) );
+		$this->assertSame( 'edit', $change->getField( 'mod_type' ) );
+
+		$this->assertSame( '', $change->getField( 'mod_comment' ) );
+		$this->assertSame( '', $change->getField( 'mod_text' ) );
+		$this->assertSame( '', $change->getField( 'mod_page2_title' ) );
+
+		$this->assertSame( 0, $change->getField( 'mod_cur_id' ) );
+		$this->assertSame( 0, $change->getField( 'mod_minor' ) );
+		$this->assertSame( 0, $change->getField( 'mod_bot' ) );
+		$this->assertSame( 0, $change->getField( 'mod_new' ) );
+		$this->assertSame( 0, $change->getField( 'mod_last_oldid' ) );
+		$this->assertSame( 0, $change->getField( 'mod_old_len' ) );
+		$this->assertSame( 0, $change->getField( 'mod_new_len' ) );
+		$this->assertSame( 0, $change->getField( 'mod_rejected_by_user' ) );
+		$this->assertSame( 0, $change->getField( 'mod_rejected_batch' ) );
+		$this->assertSame( 0, $change->getField( 'mod_preloadable' ) );
+		$this->assertSame( 0, $change->getField( 'mod_conflict' ) );
+		$this->assertSame( 0, $change->getField( 'mod_merged_revid' ) );
+		$this->assertSame( 0, $change->getField( 'mod_page2_namespace' ) );
+
+		$this->assertSame( $isBlocked ? 1 : 0, $change->getField( 'mod_rejected' ) );
+		$this->assertSame( $isBlocked ? 1 : 0, $change->getField( 'mod_rejected_auto' ) );
+
+		$this->assertNull( $change->getField( 'mod_stash_key' ) );
+
+		if ( $isBlocked ) {
+			// TODO: mod_rejected_by_user_text
+		} else {
+			$this->assertNull( $change->getField( 'mod_rejected_by_user_text' ) );
+		}
+
+		// TODO: mod_timestamp, mod_ip, mod_header_xff, mod_header_ua
+	}
+
+	/**
+	 * Provide datasets for testConstructor() runs.
+	 * @return array
+	 */
+	public function dataProviderConstructor() {
+		return [
+			'not a spammer' => [ false ],
+			'marked as spammer' => [ true ]
+		];
+	}
+
 	/**
 	 * Check that setters like setBot() modify the necessary database fields.
 	 * @param string $method One of "setMinor", "setBot" or "setSummary".
@@ -262,11 +337,13 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 		callable $setupMocks = null, array $methods = []
 	) {
 		$manager = $this->createMock( IConsequenceManager::class );
+		$blockCheck = $this->createMock( ModerationBlockCheck::class );
 		$mocks = [
 			$manager,
 			$this->createMock( ModerationPreload::class ),
 			$this->createMock( HookRunner::class ),
 			$this->createMock( ModerationNotifyModerator::class ),
+			$this->createMock( ModerationBlockCheck::class ),
 			$this->createMock( Language::class )
 		];
 
@@ -282,6 +359,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 			// Since we are not configuring a mock of ConsequenceManager,
 			// it means that we expect no consequences to be added.
 			$manager->expects( $this->never() )->method( 'add' );
+			$blockCheck->expects( $this->any() )->method( 'isModerationBlocked' )->willReturn( false );
 		}
 
 		return $this->getMockBuilder( ModerationNewChange::class )
