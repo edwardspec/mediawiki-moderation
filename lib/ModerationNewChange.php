@@ -352,10 +352,10 @@ class ModerationNewChange {
 	/**
 	 * Returns one of the fields for database INSERT.
 	 * @param string $fieldName Field, e.g. "mod_timestamp".
-	 * @return string|false
+	 * @return string|null
 	 */
 	public function getField( $fieldName ) {
-		return $this->fields[$fieldName] ?? false;
+		return $this->fields[$fieldName] ?? null;
 	}
 
 	/**
