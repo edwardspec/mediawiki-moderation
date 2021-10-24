@@ -72,45 +72,50 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 			}
 		);
 
-		$this->assertSame( $userId, $change->getField( 'mod_user' ) );
-		$this->assertSame( $username, $change->getField( 'mod_user_text' ) );
-		$this->assertSame( $title->getNamespace(), $change->getField( 'mod_namespace' ) );
-		$this->assertSame( $title->getDBKey(), $change->getField( 'mod_title' ) );
-		$this->assertSame( 'edit', $change->getField( 'mod_type' ) );
+		$expectedFields = [
+			'mod_user' => $userId,
+			'mod_user_text' => $username,
+			'mod_namespace' => $title->getNamespace(),
+			'mod_title' => $title->getDBKey(),
+			'mod_type' => 'edit',
 
-		$this->assertSame( $preloadId, $change->getField( 'mod_preload_id' ) );
-		$this->assertSame( $ip, $change->getField( 'mod_ip' ) );
-		$this->assertSame( $agent, $change->getField( 'mod_header_ua' ) );
-		$this->assertSame( $xff, $change->getField( 'mod_header_xff' ) );
+			'mod_preload_id' => $preloadId,
+			'mod_ip' => $ip,
+			'mod_header_ua' => $agent,
+			'mod_header_xff' => $xff,
 
-		$this->assertSame( '', $change->getField( 'mod_comment' ) );
-		$this->assertSame( '', $change->getField( 'mod_text' ) );
-		$this->assertSame( '', $change->getField( 'mod_page2_title' ) );
+			'mod_comment' => '',
+			'mod_text' => '',
+			'mod_page2_title' => '',
 
-		$this->assertSame( 0, $change->getField( 'mod_cur_id' ) );
-		$this->assertSame( 0, $change->getField( 'mod_minor' ) );
-		$this->assertSame( 0, $change->getField( 'mod_bot' ) );
-		$this->assertSame( 0, $change->getField( 'mod_new' ) );
-		$this->assertSame( 0, $change->getField( 'mod_last_oldid' ) );
-		$this->assertSame( 0, $change->getField( 'mod_old_len' ) );
-		$this->assertSame( 0, $change->getField( 'mod_new_len' ) );
-		$this->assertSame( 0, $change->getField( 'mod_rejected_by_user' ) );
-		$this->assertSame( 0, $change->getField( 'mod_rejected_batch' ) );
-		$this->assertSame( 0, $change->getField( 'mod_preloadable' ) );
-		$this->assertSame( 0, $change->getField( 'mod_conflict' ) );
-		$this->assertSame( 0, $change->getField( 'mod_merged_revid' ) );
-		$this->assertSame( 0, $change->getField( 'mod_page2_namespace' ) );
+			'mod_cur_id' => 0,
+			'mod_minor' => 0,
+			'mod_bot' => 0,
+			'mod_new' => 0,
+			'mod_last_oldid' => 0,
+			'mod_old_len' => 0,
+			'mod_new_len' => 0,
+			'mod_rejected_by_user' => 0,
+			'mod_rejected_batch' => 0,
+			'mod_preloadable' => 0,
+			'mod_conflict' => 0,
+			'mod_merged_revid' => 0,
+			'mod_page2_namespace' => 0,
+			'mod_stash_key' => null,
 
-		$this->assertSame( $isBlocked ? 1 : 0, $change->getField( 'mod_rejected' ) );
-		$this->assertSame( $isBlocked ? 1 : 0, $change->getField( 'mod_rejected_auto' ) );
+			'mod_rejected' => $isBlocked ? 1 : 0,
+			'mod_rejected_auto' => $isBlocked ? 1 : 0,
+			'mod_rejected_by_user_text' => $isBlocked ? '(moderation-blocker)' : null
+		];
 
-		$this->assertNull( $change->getField( 'mod_stash_key' ) );
-
-		if ( $isBlocked ) {
-			$this->assertSame( '(moderation-blocker)', $change->getField( 'mod_rejected_by_user_text' ) );
-		} else {
-			$this->assertNull( $change->getField( 'mod_rejected_by_user_text' ) );
+		$fields = $change->getFields();
+		foreach ( $expectedFields as $expectedField => $expectedValue ) {
+			$this->assertSame( $expectedValue, $change->getField( $expectedField ) );
+			$this->assertSame( $expectedValue, $fields[$expectedField] );
 		}
+
+		$this->assertNull( $change->getField( 'no_such_field' ) );
+		$this->assertArrayNotHasKey( 'no_such_field', $fields );
 
 		$maxTimePassed = 2;
 		$timePassed = wfTimestamp( TS_UNIX ) - wfTimestamp( TS_UNIX, $change->getField( 'mod_timestamp' ) );
