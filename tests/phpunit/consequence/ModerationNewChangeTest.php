@@ -23,6 +23,7 @@
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
+use MediaWiki\Moderation\SendNotificationEmailConsequence;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -354,6 +355,96 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 		// Run the tested method.
 		$wrapper = TestingAccessWrapper::newFromObject( $change );
 		$wrapper->notify( $modid );
+	}
+
+	/**
+	 * Check that sendNotificationEmail() performs expected actions.
+	 * @param bool $isSendingExpected True if email must be sent, false otherwise.
+	 * @param array $configVars Configuration settings (if any), e.g. [ 'wgModerationEnable' => false ].
+	 * @param array $fieldValues Database fields of this NewChange, e.g. [ 'mod_new' => 1 ].
+	 * @dataProvider dataProviderSendNotificationEmail
+	 * @covers ModerationNewChange
+	 */
+	public function testSendNotificationEmail(
+		$isSendingExpected,
+		array $configVars,
+		array $fieldValues = []
+	) {
+		$modid = 12345;
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$user = self::getTestUser()->getUser();
+
+		$this->setMwGlobals( $configVars );
+
+		$change = $this->makeNewChange( $title, $user,
+			function ( $consequenceManager ) use ( $title, $user, $modid, $isSendingExpected ) {
+				if ( $isSendingExpected ) {
+					$consequenceManager->expects( $this->once() )->method( 'add' )->with(
+						$this->consequenceEqualTo( new SendNotificationEmailConsequence(
+							$title,
+							$user,
+							$modid
+						) )
+					);
+				} else {
+					// Nothing should be sent.
+					$consequenceManager->expects( $this->never() )->method( 'add' );
+				}
+			},
+			[ 'getField' ]
+		);
+		$change->expects( $this->any() )->method( 'getField' )->will(
+			$this->returnCallback( static function ( $fieldName ) use ( $fieldValues ) {
+				return $fieldValues[$fieldName];
+			} )
+		);
+
+		// Run the tested method.
+		$change->sendNotificationEmail( $modid );
+	}
+
+	/**
+	 * Provide datasets for testSendNotificationEmail() runs.
+	 * @return array
+	 */
+	public function dataProviderSendNotificationEmail() {
+		return [
+			'No notification: notifications disabled' => [
+				false, [
+					'wgModerationNotificationEnable' => false
+				]
+			],
+			'No notification: recipient email not configured' => [
+				false, [
+					'wgModerationNotificationEnable' => true,
+					'wgModerationEmail' => ''
+				]
+			],
+			'No notification: NewOnly mode + edit in existing page' => [
+				false, [
+					'wgModerationNotificationEnable' => true,
+					'wgModerationEmail' => 'some.recipient@localhost',
+					'wgModerationNotificationNewOnly' => true
+				],
+				[ 'mod_new' => 0 ]
+			],
+			'Must notify: NewOnly mode + new page' => [
+				true, [
+					'wgModerationNotificationEnable' => true,
+					'wgModerationEmail' => 'some.recipient@localhost',
+					'wgModerationNotificationNewOnly' => true
+				],
+				[ 'mod_new' => 1 ]
+			],
+			'Must notify: no NewOnly mode + edit in existing page' => [
+				true, [
+					'wgModerationNotificationEnable' => true,
+					'wgModerationEmail' => 'some.recipient@localhost',
+					'wgModerationNotificationNewOnly' => false
+				],
+				[ 'mod_new' => 0 ]
+			]
+		];
 	}
 
 	/**
