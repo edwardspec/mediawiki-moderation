@@ -63,7 +63,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 		$change = $this->makeNewChange( $title, $user,
 			function ( $consequenceManager, $preload, $hookRunner, $notifyModerator, $blockCheck )
 			use ( $isBlocked, $preloadId, $user, $request ) {
-				$blockCheck->expects( $this->any() )->method( 'isModerationBlocked' )->willReturn( $isBlocked );
+				$blockCheck->expects( $this->once() )->method( 'isModerationBlocked' )->willReturn( $isBlocked );
 				$preload->expects( $this->once() )->method( 'setUser' )->with(
 					$this->identicalTo( $user )
 				);

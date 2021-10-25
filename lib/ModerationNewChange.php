@@ -75,6 +75,8 @@ class ModerationNewChange {
 		$this->title = $title;
 		$this->user = $user;
 
+		$preload->setUser( $user );
+
 		$this->consequenceManager = $consequenceManager;
 		$this->preload = $preload;
 		$this->hookRunner = $hookRunner;
@@ -104,7 +106,7 @@ class ModerationNewChange {
 			'mod_new_len' => 0, # Unknown, set by edit()
 			'mod_header_xff' => ( $request->getHeader( 'X-Forwarded-For' ) ?: null ),
 			'mod_header_ua' => ( $request->getHeader( 'User-Agent' ) ?: null ),
-			'mod_preload_id' => $this->getPreload()->getId( true ),
+			'mod_preload_id' => $this->preload->getId( true ),
 			'mod_rejected' => $isBlocked ? 1 : 0,
 			'mod_rejected_by_user' => 0,
 			'mod_rejected_by_user_text' => $isBlocked ?
@@ -309,20 +311,12 @@ class ModerationNewChange {
 	}
 
 	/**
-	 * @return ModerationPreload
-	 */
-	protected function getPreload() {
-		$this->preload->setUser( $this->user );
-		return $this->preload;
-	}
-
-	/**
 	 * Get edit of $user in $title that is currently awaiting moderation (if any).
 	 * @return PendingEdit|false
 	 */
 	protected function getPendingEdit() {
 		if ( $this->pendingEdit === null ) {
-			$this->pendingEdit = $this->getPreload()->findPendingEdit( $this->title );
+			$this->pendingEdit = $this->preload->findPendingEdit( $this->title );
 		}
 
 		return $this->pendingEdit;
