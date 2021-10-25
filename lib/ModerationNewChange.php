@@ -135,36 +135,52 @@ class ModerationNewChange {
 			$this->fields['mod_old_len'] = $oldContent->getSize();
 		}
 
-		// Check if we need to update existing row (if this edit is by the same user to the same page)
-		if ( $section !== '' ) {
-			$pendingEdit = $this->preload->findPendingEdit( $this->title );
-			if ( $pendingEdit ) {
-				#
-				# We must recalculate $this->fields['mod_text'] here.
-				# Otherwise if the user adds or modifies two (or more) different sections (in consequent edits),
-				# then only modification to the last one will be saved,
-				# because $this->newContent is [old content] PLUS [modified section from the edit].
-				#
-				$model = $newContent->getModel();
-				$newContent = ContentHandler::makeContent(
-					$pendingEdit->getText(),
-					null,
-					$model
-				)->replaceSection(
-					$section,
-					ContentHandler::makeContent( $sectionText, null, $model ),
-					''
-				);
-			}
-		}
+		// Apply any section-related adjustments (if necessary).
+		$newContent = $this->applySectionToNewContent( $newContent, $section, $sectionText );
 
-		// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
 		$pstContent = $this->preSaveTransform( $newContent );
 		$this->fields['mod_text'] = $pstContent->serialize();
 		$this->fields['mod_new_len'] = $pstContent->getSize();
 		$this->addChangeTags( 'edit' );
 
 		return $this;
+	}
+
+	/**
+	 * Apply any section-editing logic to $newContent.
+	 * Returns Content object that can be used to correctly overwrite the entire page ("mod_text" field).
+	 *
+	 * @param Content $newContent New content that is only usable when you know which section was edited.
+	 * @param string $section
+	 * @param string $sectionText
+	 * @return Content
+	 */
+	protected function applySectionToNewContent( Content $newContent, $section, $sectionText ) {
+		if ( $section === '' ) {
+			// Editing the entire page (not one section), no adjustments needed.
+			return $newContent;
+		}
+
+		$pendingEdit = $this->preload->findPendingEdit( $this->title );
+		if ( !$pendingEdit ) {
+			// No pending edit, no adjustments needed.
+			return $newContent;
+		}
+
+		// We must recalculate $newContent here.
+		// Otherwise if the user adds or modifies two (or more) different sections (in consequent edits),
+		// then only modification to the last one will be saved,
+		// because $newContent is [old content] PLUS [modified section from the edit].
+		$model = $newContent->getModel();
+		return ContentHandler::makeContent(
+			$pendingEdit->getText(),
+			null,
+			$model
+		)->replaceSection(
+			$section,
+			ContentHandler::makeContent( $sectionText, null, $model ),
+			''
+		);
 	}
 
 	/**

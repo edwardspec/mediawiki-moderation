@@ -20,10 +20,13 @@
  * Unit test of ModerationNewChange.
  */
 
+ use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
+use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
+use MediaWiki\Revision\RevisionRecord;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -204,7 +207,185 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 		// Run the tested method.
 		$change->upload( $stashKey );
 
+		// Uploads have mod_type=edit (they modify the page that contains file description).
+		$this->assertSame( 'edit', $change->getField( 'mod_type' ) );
 		$this->assertSame( $stashKey, $change->getField( 'mod_stash_key' ) );
+	}
+
+	/**
+	 * Check that edit() sets the necessary database fields.
+	 * @param int|null $oldSize Length of existing page (in bytes) or null (if page doesn't exist).
+	 * @dataProvider dataProviderEdit
+	 * @covers ModerationNewChange
+	 */
+	public function testEdit( $oldSize ) {
+		$newContent = $this->createMock( Content::class );
+		$newContentAdjusted = $this->createMock( Content::class );
+		$newContentAfterPst = $this->createMock( Content::class );
+
+		$section = '{MockedSection}';
+		$sectionText = '{MockedSectionText}';
+		$pageId = 12345;
+		$pageLatest = 6789;
+		$newSize = 1200;
+		$newText = '{MockedNewText}';
+
+		if ( $oldSize !== null ) {
+			$pageExists = true;
+
+			$oldContent = $this->createMock( Content::class );
+			$oldContent->expects( $this->once() )->method( 'getSize' )->willReturn( $oldSize );
+		} else {
+			$pageExists = false;
+			$oldContent = null;
+		}
+
+		$newContentAfterPst->expects( $this->once() )->method( 'serialize' )->willReturn( $newText );
+		$newContentAfterPst->expects( $this->once() )->method( 'getSize' )->willReturn( $newSize );
+
+		$wikiPage = $this->createMock( WikiPage::class );
+		$wikiPage->expects( $this->once() )->method( 'exists' )->willReturn( $pageExists );
+		$wikiPage->expects( $this->once() )->method( 'getId' )->willReturn( $pageId );
+		$wikiPage->expects( $this->once() )->method( 'getLatest' )->willReturn( $pageLatest );
+
+		$wikiPage->expects( $this->once() )->method( 'getContent' )->with(
+			$this->identicalTo( RevisionRecord::RAW )
+		)->willReturn( $oldContent );
+
+		$title = Title::newFromText( NS_PROJECT_TALK, 'UTPage-' . rand( 0, 100000 ) );
+
+		$change = $this->makeNewChange( null, null, null, [
+			'addChangeTags',
+			'applySectionToNewContent',
+			'preSaveTransform'
+		] );
+		$change->expects( $this->once() )->method( 'addChangeTags' )->with(
+			$this->identicalTo( 'edit' )
+		);
+		$change->expects( $this->once() )->method( 'applySectionToNewContent' )->with(
+			$this->identicalTo( $newContent ),
+			$this->identicalTo( $section ),
+			$this->identicalTo( $sectionText ),
+		)->willReturn( $newContentAdjusted );
+		$change->expects( $this->once() )->method( 'preSaveTransform' )->with(
+			$this->identicalTo( $newContentAdjusted )
+		)->willReturn( $newContentAfterPst );
+
+		// Run the tested method.
+		$change->edit( $wikiPage, $newContent, $section, $sectionText );
+
+		$this->assertSame( 'edit', $change->getField( 'mod_type' ) );
+		$this->assertSame( $pageId, $change->getField( 'mod_cur_id' ) );
+		$this->assertSame( $pageExists ? 0 : 1, $change->getField( 'mod_new' ) );
+		$this->assertSame( $pageLatest, $change->getField( 'mod_last_oldid' ) );
+
+		$this->assertSame( $oldSize ?? 0, $change->getField( 'mod_old_len' ) );
+		$this->assertSame( $newSize, $change->getField( 'mod_new_len' ) );
+		$this->assertSame( $newText, $change->getField( 'mod_text' ) );
+	}
+
+	/**
+	 * Provide datasets for testEdit() runs.
+	 * @return array
+	 */
+	public function dataProviderEdit() {
+		return [
+			'page doesn\'t exist' => [ null ],
+			'page exists' => [ 450 ],
+			'page exists and is empty' => [ 0 ]
+		];
+	}
+
+	/**
+	 * Check that applySectionToNewContent() doesn't change $newContent if $section is empty string.
+	 * @covers ModerationNewChange
+	 */
+	public function testApplySectionNoSection() {
+		$newContent = $this->createMock( Content::class );
+		$change = $this->makeNewChange();
+
+		// Run the tested method.
+		$wrapper = TestingAccessWrapper::newFromObject( $change );
+		$adjustedContent = $wrapper->applySectionToNewContent( $newContent, '', 'Unused parameter' );
+
+		$this->assertSame( $newContent, $adjustedContent );
+	}
+
+	/**
+	 * Check that applySectionToNewContent() doesn't change $newContent if there is no pending edit.
+	 * @covers ModerationNewChange
+	 */
+	public function testApplySectionNoPendingEdit() {
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+		$newContent = $this->createMock( Content::class );
+
+		$change = $this->makeNewChange( $title, null, function ( $consequenceManager, $preload ) use ( $title ) {
+			$preload->expects( $this->once() )->method( 'findPendingEdit' )->with(
+				$this->identicalTo( $title )
+			)->willReturn( false );
+		} );
+
+		// Run the tested method.
+		$wrapper = TestingAccessWrapper::newFromObject( $change );
+		$adjustedContent = $wrapper->applySectionToNewContent( $newContent, '2', 'Text of section 2' );
+
+		$this->assertSame( $newContent, $adjustedContent );
+	}
+
+	/**
+	 * Check that applySectionToNewContent() adjusts $newContent when this is needed.
+	 * @covers ModerationNewChange
+	 */
+	public function testApplySectionAdjusted() {
+		$section = 3;
+		$sectionText = 'Text of some section';
+		$pendingText = '{MockedPendingText}';
+		$model = CONTENT_MODEL_WIKITEXT;
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+
+		$newContent = $this->createMock( Content::class );
+		$newContent->expects( $this->once() )->method( 'getModel' )->willReturn( $model );
+
+		$expectedResult = $this->createMock( Content::class );
+		$sectionContent = $this->createMock( Content::class );
+
+		$pendingContent = $this->createMock( Content::class );
+		$pendingContent->expects( $this->once() )->method( 'replaceSection' )->with(
+			$this->identicalTo( $section ),
+			$this->identicalTo( $sectionContent ),
+			$this->identicalTo( '' )
+		)->willReturn( $expectedResult );
+
+		// Mock ContentHandlerFactory service to keep track of makeContent() calls.
+		$contentHandler = $this->createMock( ContentHandler::class );
+		$contentHandler->expects( $this->exactly( 2 ) )->method( 'unserializeContent' )->will( $this->returnValueMap( [
+			[ $pendingText, null, $pendingContent ],
+			[ $sectionText, null, $sectionContent ],
+		] ) );
+
+		$contentHandlerFactory = $this->createMock( IContentHandlerFactory::class );
+		$contentHandlerFactory->expects( $this->any() )->method( 'getContentHandler' )->with(
+			$this->identicalTo( $model )
+		)->willReturn( $contentHandler );
+
+		$this->setService( 'ContentHandlerFactory', $contentHandlerFactory );
+
+		$change = $this->makeNewChange( $title, null,
+			function ( $consequenceManager, $preload ) use ( $title, $pendingText ) {
+				$pendingEdit = $this->createMock( PendingEdit::class );
+				$pendingEdit->expects( $this->once() )->method( 'getText' )->willReturn( $pendingText );
+
+				$preload->expects( $this->once() )->method( 'findPendingEdit' )->with(
+					$this->identicalTo( $title )
+				)->willReturn( $pendingEdit );
+			}
+		);
+
+		// Run the tested method.
+		$wrapper = TestingAccessWrapper::newFromObject( $change );
+		$adjustedContent = $wrapper->applySectionToNewContent( $newContent, $section, $sectionText );
+
+		$this->assertSame( $expectedResult, $adjustedContent );
 	}
 
 	/**
