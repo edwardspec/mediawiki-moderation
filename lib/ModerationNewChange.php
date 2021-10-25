@@ -146,12 +146,13 @@ class ModerationNewChange {
 				# because $this->newContent is [old content] PLUS [modified section from the edit].
 				#
 				$model = $newContent->getModel();
-				$newContent = $this->makeContent(
+				$newContent = ContentHandler::makeContent(
 					$pendingEdit->getText(),
+					null,
 					$model
 				)->replaceSection(
 					$section,
-					$this->makeContent( $sectionText, $model ),
+					ContentHandler::makeContent( $sectionText, null, $model ),
 					''
 				);
 			}
@@ -301,20 +302,6 @@ class ModerationNewChange {
 		] );
 
 		return $tagsToSet[$afActionID] ?? [];
-	}
-
-	/**
-	 * Utility function: construct Content object from $text.
-	 * @param string $text
-	 * @param string|null $model Content model (e.g. CONTENT_MODEL_WIKITEXT).
-	 * @return Content object.
-	 */
-	protected function makeContent( $text, $model = null ) {
-		return ContentHandler::makeContent(
-			$text,
-			$this->title,
-			$model
-		);
 	}
 
 	/**
