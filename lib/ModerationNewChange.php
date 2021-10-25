@@ -24,7 +24,6 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
-use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 use MediaWiki\Revision\RevisionRecord;
 
@@ -40,12 +39,6 @@ class ModerationNewChange {
 
 	/** @var array All mod_* database fields */
 	protected $fields = [];
-
-	/**
-	 * @var PendingEdit|false|null
-	 * Edit of $user in $title that is currently awaiting moderation (false if there isn't one).
-	 */
-	private $pendingEdit = null;
 
 	/** @var IConsequenceManager */
 	protected $consequenceManager;
@@ -144,7 +137,7 @@ class ModerationNewChange {
 
 		// Check if we need to update existing row (if this edit is by the same user to the same page)
 		if ( $section !== '' ) {
-			$pendingEdit = $this->getPendingEdit();
+			$pendingEdit = $this->preload->findPendingEdit( $this->title );
 			if ( $pendingEdit ) {
 				#
 				# We must recalculate $this->fields['mod_text'] here.
@@ -308,18 +301,6 @@ class ModerationNewChange {
 		] );
 
 		return $tagsToSet[$afActionID] ?? [];
-	}
-
-	/**
-	 * Get edit of $user in $title that is currently awaiting moderation (if any).
-	 * @return PendingEdit|false
-	 */
-	protected function getPendingEdit() {
-		if ( $this->pendingEdit === null ) {
-			$this->pendingEdit = $this->preload->findPendingEdit( $this->title );
-		}
-
-		return $this->pendingEdit;
 	}
 
 	/**
