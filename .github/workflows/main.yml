@@ -81,6 +81,7 @@ jobs:
           php maintenance/createAndPromote.php "$MEDIAWIKI_USER" "$MEDIAWIKI_PASSWORD" --custom-groups moderator,automoderated
           ( cd extensions/Moderation && composer install )
           echo '{{CURRENTVERSION}}' | php maintenance/parse.php
+          ( cd extensions/Moderation/tests/phpunit/consequence && ln -sv ../unit/*Test.php . )
 
         # Start by running non-blackbox unit tests that can use temporary DB tables.
         # These tests are much faster than the integration testsuite.
