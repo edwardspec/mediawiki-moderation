@@ -150,7 +150,9 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 		$change = $this->makeNewChange();
 
 		foreach ( $testValues as $argument => $expectedFieldValue ) {
-			$change->$method( $argument );
+			$result = $change->$method( $argument );
+			$this->assertSame( $change, $result );
+
 			$this->assertSame( $expectedFieldValue, $change->getField( $dbKeyField ),
 				"Field $dbKeyField is not $expectedFieldValue after $method($argument)." );
 		}
@@ -185,7 +187,8 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 		);
 
 		// Run the tested method.
-		$change->move( $newTitle );
+		$result = $change->move( $newTitle );
+		$this->assertSame( $change, $result );
 
 		$this->assertSame( 'move', $change->getField( 'mod_type' ) );
 		$this->assertSame( $newTitle->getNamespace(), $change->getField( 'mod_page2_namespace' ) );
@@ -205,7 +208,8 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 		$stashKey = 12345;
 
 		// Run the tested method.
-		$change->upload( $stashKey );
+		$result = $change->upload( $stashKey );
+		$this->assertSame( $change, $result );
 
 		// Uploads have mod_type=edit (they modify the page that contains file description).
 		$this->assertSame( 'edit', $change->getField( 'mod_type' ) );
@@ -272,7 +276,8 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 		)->willReturn( $newContentAfterPst );
 
 		// Run the tested method.
-		$change->edit( $wikiPage, $newContent, $section, $sectionText );
+		$result = $change->edit( $wikiPage, $newContent, $section, $sectionText );
+		$this->assertSame( $change, $result );
 
 		$this->assertSame( 'edit', $change->getField( 'mod_type' ) );
 		$this->assertSame( $pageId, $change->getField( 'mod_cur_id' ) );
