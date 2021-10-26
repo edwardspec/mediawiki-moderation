@@ -20,13 +20,15 @@
  * Unit test of ModerationNewChange.
  */
 
- use MediaWiki\Content\IContentHandlerFactory;
+use MediaWiki\Content\IContentHandlerFactory;
+use MediaWiki\Extension\AbuseFilter\ChangeTags\ChangeTagger;
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 use MediaWiki\Revision\RevisionRecord;
+use Wikimedia\ScopedCallback;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -432,6 +434,110 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 	}
 
 	/**
+	 * Check that findAbuseFilterTags() can find AbuseFilter tags in MediaWiki 1.36+.
+	 * @covers ModerationNewChange
+	 */
+	public function testFindAbuseFilterTags() {
+		$this->skipIfNoAbuseFilter();
+		if ( property_exists( 'AbuseFilter', 'tagsToSet' ) ) {
+			$this->markTestSkipped( 'Test skipped: requires AbuseFilter for MediaWiki 1.36+.' );
+		}
+
+		$title = Title::newFromText( 'User talk:UTPage-' . rand( 0, 100000 ) );
+		$user = self::getTestUser()->getUser();
+		$action = 'makesandwich';
+		$expectedTags = [ 'edit-about-cats', 'edit-about-dogs' ];
+
+		$changeTagger = $this->createMock( ChangeTagger::class );
+		$changeTagger->expects( $this->once() )->method( 'getTagsForRecentChange' )->will( $this->returnCallback(
+			function ( RecentChange $rc, bool $clear )
+			use ( $title, $user, $action, $expectedTags ) {
+				$this->assertFalse( $clear );
+
+				$this->assertSame( $title, $rc->getTitle() );
+				$this->assertSame( $user, ModerationTestUtil::getRecentChangePerformer( $rc ) );
+				$this->assertSame( $action, $rc->getAttribute( 'rc_log_type' ) );
+				$this->assertSame( $action, $rc->getAttribute( 'rc_log_action' ) );
+
+				return $expectedTags;
+			}
+		) );
+		$this->setService( 'AbuseFilterChangeTagger', $changeTagger );
+
+		$change = $this->makeNewChange( $title, $user );
+
+		// Run the tested method.
+		$wrapper = TestingAccessWrapper::newFromObject( $change );
+		$this->assertSame( $expectedTags, $wrapper->findAbuseFilterTags( $title, $user, $action ) );
+	}
+
+	/**
+	 * Check that findAbuseFilterTags35() can find AbuseFilter tags in MediaWiki 1.35.
+	 * @covers ModerationNewChange
+	 */
+	public function testFindAbuseFilterTags35() {
+		$this->skipIfNoAbuseFilter();
+		if ( !property_exists( 'AbuseFilter', 'tagsToSet' ) ) {
+			$this->markTestSkipped( 'Test skipped: requires AbuseFilter for MediaWiki 1.35 (not 1.36+).' );
+		}
+
+		$title = Title::newFromText( 'User talk:UTPage-' . rand( 0, 100000 ) );
+		$user = self::getTestUser()->getUser();
+		$action = 'makesandwich';
+		$expectedTags = [ 'edit-about-cats', 'edit-about-dogs' ];
+
+		$key = $title->getPrefixedText() . '-' . $user->getName() . '-' . $action;
+		AbuseFilter::$tagsToSet = [ $key => $expectedTags ];
+
+		$scope = new ScopedCallback( static function () {
+			// Clean $tagsToSet after the test.
+			AbuseFilter::$tagsToSet = [];
+		} );
+
+		$change = $this->makeNewChange( $title, $user );
+
+		// Run the tested method.
+		$wrapper = TestingAccessWrapper::newFromObject( $change );
+		$this->assertSame( $expectedTags, $wrapper->findAbuseFilterTags35( $title, $user, $action ) );
+
+		// Verify that tags are NOT found if $title, $user or $action are different.
+		$this->assertSame( [], $wrapper->findAbuseFilterTags35(
+			Title::newFromText( $title->getFullText() . '-AnotherName' ), $user, $action
+		) );
+		$this->assertSame( [], $wrapper->findAbuseFilterTags35(
+			$title, User::newFromName( $user->getName() . '-AnotherName', false ), $action
+		) );
+		$this->assertSame( [], $wrapper->findAbuseFilterTags35( $title, $user, $action . '-AnotherName' ) );
+	}
+
+	/**
+	 * Check that findAbuseFilterTags() calls findAbuseFilterTags35() in MediaWiki 1.35.
+	 * @covers ModerationNewChange
+	 */
+	public function testFindAbuseFilterTagsCalls35() {
+		$this->skipIfNoAbuseFilter();
+		if ( !property_exists( 'AbuseFilter', 'tagsToSet' ) ) {
+			$this->markTestSkipped( 'Test skipped: requires AbuseFilter for MediaWiki 1.35 (not 1.36+).' );
+		}
+
+		$title = Title::newFromText( 'User talk:UTPage-' . rand( 0, 100000 ) );
+		$user = self::getTestUser()->getUser();
+		$action = 'makesandwich';
+		$expectedTags = [ 'edit-about-cats', 'edit-about-dogs' ];
+
+		$change = $this->makeNewChange( $title, $user, null, [ 'findAbuseFilterTags35' ] );
+		$change->expects( $this->once() )->method( 'findAbuseFilterTags35' )->with(
+			$this->identicalTo( $title ),
+			$this->identicalTo( $user ),
+			$this->identicalTo( $action )
+		)->willReturn( $expectedTags );
+
+		// Run the tested method.
+		$wrapper = TestingAccessWrapper::newFromObject( $change );
+		$this->assertSame( $expectedTags, $wrapper->findAbuseFilterTags( $title, $user, $action ) );
+	}
+
+	/**
 	 * Check that preSaveTransform() correctly transforms Content object.
 	 * @covers ModerationNewChange
 	 */
@@ -650,6 +756,15 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 				[ 'mod_new' => 0 ]
 			]
 		];
+	}
+
+	/**
+	 * Skip current test if Extension:AbuseFilter is not installed.
+	 */
+	private function skipIfNoAbuseFilter() {
+		if ( !ExtensionRegistry::getInstance()->isLoaded( 'Abuse Filter' ) ) {
+			$this->markTestSkipped( 'Test skipped: AbuseFilter extension must be installed to run it.' );
+		}
 	}
 
 	/**
