@@ -427,6 +427,25 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 	}
 
 	/**
+	 * Check that preSaveTransform() correctly transforms Content object.
+	 * @covers ModerationNewChange
+	 */
+	public function testPreSaveTransform() {
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
+
+		$content = new WikitextContent( '{{subst:FULLPAGENAME}}, [[Talk:Pipe trick|]]' );
+		$expectedText = $title->getFullText() . ', [[Talk:Pipe trick|Pipe trick]]';
+
+		$change = $this->makeNewChange( $title );
+
+		// Run the tested method.
+		$wrapper = TestingAccessWrapper::newFromObject( $change );
+		$newContent = $wrapper->preSaveTransform( $content );
+
+		$this->assertSame( $expectedText, $newContent->getText() );
+	}
+
+	/**
 	 * Check that queue() performs expected actions.
 	 * @covers ModerationNewChange
 	 */
