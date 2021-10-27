@@ -590,6 +590,7 @@ class ModerationApproveHook implements
 	 * @param RecentChange $rc
 	 * @return true
 	 */
+	// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 	public function onRecentChange_save( $rc ) {
 		global $wgPutIPinRC;
 
