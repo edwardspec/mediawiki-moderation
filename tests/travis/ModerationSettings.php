@@ -72,13 +72,10 @@ if ( $wgDBtype != 'postgres' ) {
 	wfLoadExtension( 'CheckUser' ); # For PHPUnit testsuite
 }
 
-if ( version_compare( $wgVersion, '1.36.0', '<' ) ) {
+wfLoadExtensions( [
 	# For PHPUnit testsuite.
-	# Note: PageForms itself currently doesn't work in 1.36 (see T283977), so we skip it.
-	wfLoadExtensions( [
-		'PageForms'
-	] );
-}
+	'PageForms'
+] );
 
 wfLoadExtensions( [
 	# For Selenium testsuite
