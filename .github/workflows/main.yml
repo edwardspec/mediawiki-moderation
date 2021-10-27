@@ -140,3 +140,37 @@ jobs:
           composer install
       - name: RUN -- phan
         run: cd mediawiki/extensions/Moderation && ./vendor/bin/phan --analyze-twice
+
+  # Job #4: Phan (PHP static analyzer) with PHAN_CHECK_TESTSUITE=1
+  phan-testsuite:
+    if: ${{ github.ref == 'refs/heads/phpunit' }}
+    runs-on: ubuntu-20.04
+    env:
+      branch: REL1_37
+      PHAN_CHECK_TESTSUITE: 1
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+            php-version: '7.4'
+            extensions: ast
+            tools: composer:v1
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.composer/cache
+            buildcache
+          key: buildcache-${{ env.branch }}
+      - uses: edwardspec/github-action-build-mediawiki@v1
+        with:
+          branch: ${{ env.branch }}
+          noinstall: 1
+          extensions: "AbuseFilter CheckUser Echo MobileFrontend PageForms VisualEditor"
+          skins: "MinervaNeue"
+      - name: Install dependencies
+        run: |
+          rsync -a --exclude buildcache --exclude mediawiki --exclude .git . mediawiki/extensions/Moderation/
+          cd mediawiki/extensions/Moderation
+          composer install
+      - name: RUN -- phan
+        run: cd mediawiki/extensions/Moderation && ./vendor/bin/phan --analyze-twice

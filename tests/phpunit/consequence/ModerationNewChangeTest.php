@@ -65,9 +65,11 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 		$user->expects( $this->any() )->method( 'getId' )->willReturn( $userId );
 		$user->expects( $this->any() )->method( 'getName' )->willReturn( $username );
 
+		'@phan-var User $user';
+
 		$change = $this->makeNewChange( $title, $user,
 			function ( $consequenceManager, $preload, $hookRunner, $notifyModerator, $blockCheck )
-			use ( $isBlocked, $preloadId, $user, $request ) {
+			use ( $isBlocked, $preloadId, $user ) {
 				$blockCheck->expects( $this->once() )->method( 'isModerationBlocked' )->willReturn( $isBlocked );
 				$preload->expects( $this->once() )->method( 'setUser' )->with(
 					$this->identicalTo( $user )
@@ -77,6 +79,8 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 				)->willReturn( $preloadId );
 			}
 		);
+
+		'@phan-var ModerationNewChange $change';
 
 		$expectedFields = [
 			'mod_user' => $userId,
@@ -124,7 +128,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 		$this->assertArrayNotHasKey( 'no_such_field', $fields );
 
 		$maxTimePassed = 2;
-		$timePassed = wfTimestamp( TS_UNIX ) - wfTimestamp( TS_UNIX, $change->getField( 'mod_timestamp' ) );
+		$timePassed = (int)wfTimestamp( TS_UNIX ) - (int)wfTimestamp( TS_UNIX, $change->getField( 'mod_timestamp' ) );
 		$this->assertLessThan( $maxTimePassed, $timePassed,
 			"mod_timestamp of NewChange that was just created is more than $maxTimePassed seconds in the past." );
 	}
@@ -151,7 +155,11 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 	public function testSetters( $method, $dbKeyField, $testValues ) {
 		$change = $this->makeNewChange();
 
-		foreach ( $testValues as $argument => $expectedFieldValue ) {
+		'@phan-var ModerationNewChange $change';
+
+		foreach ( $testValues as $keyValuePair ) {
+			[ $argument, $expectedFieldValue ] = $keyValuePair;
+
 			$result = $change->$method( $argument );
 			$this->assertSame( $change, $result );
 
@@ -166,8 +174,8 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 	 */
 	public function dataProviderSetters() {
 		return [
-			'setMinor()' => [ 'setMinor', 'mod_minor', [ true => 1, false => 0, true => 1 ] ],
-			'setBot()' => [ 'setBot', 'mod_bot', [ true => 1, false => 0, true => 1 ] ],
+			'setMinor()' => [ 'setMinor', 'mod_minor', [ [ true, 1 ], [ false, 0 ], [ true, 1 ] ] ],
+			'setBot()' => [ 'setBot', 'mod_bot', [ [ true, 1 ], [ false, 0 ], [ true, 1 ] ] ],
 			'setSummary()' => [ 'setSummary', 'mod_comment', [
 				'Some comment' => 'Some comment',
 				'Another comment' => 'Another comment',
@@ -188,6 +196,8 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 			$this->identicalTo( 'move' )
 		);
 
+		'@phan-var ModerationNewChange $change';
+
 		// Run the tested method.
 		$result = $change->move( $newTitle );
 		$this->assertSame( $change, $result );
@@ -202,12 +212,14 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 	 * @covers ModerationNewChange
 	 */
 	public function testUpload() {
+		$stashKey = 'someStashKey123';
+
 		$change = $this->makeNewChange( null, null, null, [ 'addChangeTags' ] );
 		$change->expects( $this->once() )->method( 'addChangeTags' )->with(
 			$this->identicalTo( 'upload' )
 		);
 
-		$stashKey = 12345;
+		'@phan-var ModerationNewChange $change';
 
 		// Run the tested method.
 		$result = $change->upload( $stashKey );
@@ -228,6 +240,8 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 		$newContent = $this->createMock( Content::class );
 		$newContentAdjusted = $this->createMock( Content::class );
 		$newContentAfterPst = $this->createMock( Content::class );
+
+		'@phan-var Content $newContent';
 
 		$section = '{MockedSection}';
 		$sectionText = '{MockedSectionText}';
@@ -258,7 +272,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 			$this->identicalTo( RevisionRecord::RAW )
 		)->willReturn( $oldContent );
 
-		$title = Title::newFromText( NS_PROJECT_TALK, 'UTPage-' . rand( 0, 100000 ) );
+		'@phan-var WikiPage $wikiPage';
 
 		$change = $this->makeNewChange( null, null, null, [
 			'addChangeTags',
@@ -276,6 +290,8 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 		$change->expects( $this->once() )->method( 'preSaveTransform' )->with(
 			$this->identicalTo( $newContentAdjusted )
 		)->willReturn( $newContentAfterPst );
+
+		'@phan-var ModerationNewChange $change';
 
 		// Run the tested method.
 		$result = $change->edit( $wikiPage, $newContent, $section, $sectionText );
@@ -414,6 +430,8 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 			$this->identicalTo( $action )
 		)->willReturn( $foundTags );
 
+		'@phan-var ModerationNewChange $change';
+
 		// Run the tested method.
 		$wrapper = TestingAccessWrapper::newFromObject( $change );
 		$wrapper->addChangeTags( $action );
@@ -487,10 +505,14 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 		$expectedTags = [ 'edit-about-cats', 'edit-about-dogs' ];
 
 		$key = $title->getPrefixedText() . '-' . $user->getName() . '-' . $action;
+
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty
 		AbuseFilter::$tagsToSet = [ $key => $expectedTags ];
 
+		// @phan-suppress-next-line PhanUnusedVariable
 		$scope = new ScopedCallback( static function () {
 			// Clean $tagsToSet after the test.
+			// @phan-suppress-next-line PhanUndeclaredStaticProperty
 			AbuseFilter::$tagsToSet = [];
 		} );
 
@@ -579,6 +601,8 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 			$this->identicalTo( $modid )
 		);
 
+		'@phan-var ModerationNewChange $change';
+
 		// Run the tested method.
 		$result = $change->queue();
 
@@ -617,7 +641,6 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 	public function testNotify() {
 		$modid = 12345;
 		$timestamp = '20100101001600';
-		$mockedFields = [ 'mod_field' => 'some value', 'mod_another_field' => 'another value' ];
 
 		$change = $this->makeNewChange( null, null,
 			function ( $consequenceManager, $preload, $hookRunner, $notifyModerator ) use ( $timestamp ) {
@@ -648,8 +671,6 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 	 */
 	public function testNotifySkippedRejectedAuto() {
 		$modid = 12345;
-		$timestamp = '20100101001600';
-		$mockedFields = [ 'mod_field' => 'some value', 'mod_another_field' => 'another value' ];
 
 		$change = $this->makeNewChange( null, null,
 			function ( $consequenceManager, $preload, $hookRunner, &$notifyModerator ) {
@@ -709,6 +730,8 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 				return $fieldValues[$fieldName];
 			} )
 		);
+
+		'@phan-var ModerationNewChange $change';
 
 		// Run the tested method.
 		$change->sendNotificationEmail( $modid );

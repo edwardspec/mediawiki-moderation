@@ -42,6 +42,7 @@ class NewChangeFactoryTest extends ModerationUnitTestCase {
 		$contentLanguage = $this->createMock( Language::class );
 
 		$factory = new NewChangeFactory(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
 			$consequenceManager, $preload, $hookRunner, $notifyModerator, $contentLanguage );
 
 		$title = Title::newFromText( 'Category:UTPage-' . rand( 0, 100000 ) );

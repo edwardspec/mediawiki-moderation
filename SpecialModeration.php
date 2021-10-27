@@ -94,7 +94,7 @@ class SpecialModeration extends QueryPage {
 		$this->linkBatchFactory = $linkBatchFactory;
 	}
 
-	public function getGroupName() {
+	protected function getGroupName() {
 		return 'spam';
 	}
 
@@ -110,7 +110,7 @@ class SpecialModeration extends QueryPage {
 	 * @param Wikimedia\Rdbms\IDatabase $db @phan-unused-param
 	 * @param Wikimedia\Rdbms\IResultWrapper $res
 	 */
-	public function preprocessResults( $db, $res ) {
+	protected function preprocessResults( $db, $res ) {
 		/* Check all pages for whether they exist or not -
 			improves performance of makeLink() in ModerationEntryFormatter */
 		$batch = $this->linkBatchFactory->newLinkBatch();
@@ -122,11 +122,11 @@ class SpecialModeration extends QueryPage {
 		$res->seek( 0 );
 	}
 
-	public function linkParameters() {
+	protected function linkParameters() {
 		return [ 'folder' => $this->folder ];
 	}
 
-	public function getPageHeader() {
+	protected function getPageHeader() {
 		$linkRenderer = $this->getLinkRenderer();
 
 		$folderLinks = [];
@@ -214,7 +214,7 @@ class SpecialModeration extends QueryPage {
 		$out->addReturnTo( SpecialPage::getTitleFor( 'Moderation' ) );
 	}
 
-	public function getOrderFields() {
+	protected function getOrderFields() {
 		return [ 'mod_timestamp' ];
 	}
 
@@ -244,7 +244,7 @@ class SpecialModeration extends QueryPage {
 	 * @param stdClass $row Result row
 	 * @return string
 	 */
-	public function formatResult( $skin, $row ) {
+	protected function formatResult( $skin, $row ) {
 		return $this->entryFactory->makeFormatter( $row, $this->getContext() )->getHTML();
 	}
 }

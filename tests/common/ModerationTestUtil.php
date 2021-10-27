@@ -23,6 +23,7 @@
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\MutableRevisionRecord;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\User\UserIdentity;
 
 class ModerationTestUtil {
 	/**
@@ -123,6 +124,7 @@ class ModerationTestUtil {
 		}
 
 		// MediaWiki 1.35
+		// @phan-suppress-next-line PhanUndeclaredMethod
 		return $logEntry->getPerformer();
 	}
 

@@ -120,6 +120,8 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 	 */
 	public function testApiBaseSubclass() {
 		$preload = $this->createMock( ModerationPreload::class );
+		'@phan-var ModerationPreload $preload';
+
 		$api = new ApiQueryModerationPreload( new ApiQuery( new ApiMain(), 'query' ), 'query', $preload );
 
 		$this->assertInstanceof( ApiQueryBase::class, $api );

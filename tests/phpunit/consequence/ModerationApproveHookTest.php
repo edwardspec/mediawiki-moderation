@@ -688,6 +688,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 			// Delete the original listener.
 			$loadBalancer->setTransactionListener( $trxListenerName );
 
+			// @phan-suppress-next-line PhanUnusedVariable
 			$scope = new ScopedCallback( static function ()
 				use ( $trxListenerName, $loadBalancer, $originalTrxCallback )
 			{
@@ -733,8 +734,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 			$expectedIP = $task ? $task['ip'] : '127.0.0.1';
 			if ( $this->db->getType() == 'postgres' ) {
-				global $wgVersion;
-				if ( version_compare( $wgVersion, '1.36.0', '<' ) ) {
+				if ( version_compare( MW_VERSION, '1.36.0', '<' ) ) {
 					// MediaWiki 1.35 only.
 					$expectedIP .= '/32';
 				}

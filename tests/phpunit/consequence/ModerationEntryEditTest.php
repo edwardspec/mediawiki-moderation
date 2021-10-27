@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -44,7 +44,6 @@ class ModerationEntryEditTest extends ModerationUnitTestCase {
 			'id' => 12345,
 			'comment' => 'Edit comment',
 			'text' => 'New text',
-			'comment' => 'Edit comment',
 			'minor' => $isMinor ? 1 : 0,
 			'bot' => $isBot ? 1 : 0,
 			'last_oldid' => $opt['last_oldid'] ?? 0

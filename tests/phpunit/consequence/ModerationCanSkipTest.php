@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -136,7 +136,7 @@ class ModerationCanSkipTest extends ModerationUnitTestCase {
 				[ false, 'canEditSkip', [ NS_MAIN ], [], [
 					'ModerationOnlyInNamespaces' => [ NS_MAIN, NS_PROJECT ]
 				] ],
-			'canEditSkip()=false, namespace NS_MAIN is not excluded ' .
+			'canEditSkip()=false, namespace NS_PROJECT is not excluded ' .
 			'when $wgModerationOnlyInNamespaces=[NS_MAIN, NS_PROJECT]' =>
 				[ false, 'canEditSkip', [ NS_PROJECT ], [], [
 					'ModerationOnlyInNamespaces' => [ NS_MAIN, NS_PROJECT ]

@@ -357,6 +357,8 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 		'@phan-var IConsequenceManager $consequenceManager';
 		'@phan-var ModerationCanSkip $canSkip';
 		'@phan-var ModerationApproveHook $approveHook';
+		'@phan-var IContentHandlerFactory $contentHandlerFactory';
+		'@phan-var RevisionLookup $revisionLookup';
 
 		return new EntryFactory( $linkRenderer, $actionLinkRenderer, $timestampFormatter,
 			$consequenceManager, $canSkip, $approveHook, $contentHandlerFactory, $revisionLookup );

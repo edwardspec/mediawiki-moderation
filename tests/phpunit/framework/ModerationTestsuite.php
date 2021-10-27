@@ -396,7 +396,6 @@ class ModerationTestsuite {
 					unset( $row[$keyField] );
 				}
 
-				// @phan-suppress-next-line SecurityCheck-SQLInjection - false positive
 				$dbw->insert( $table, $row, __METHOD__ );
 				if ( $dbw->affectedRows() != 1 ) {
 					throw new MWException( 'createTestUsers: loading from cache failed.' );
@@ -902,12 +901,11 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * Call version_compare on $wgVersion.
+	 * Call version_compare on MW_VERSION.
 	 * @return bool
 	 */
 	public static function mwVersionCompare( $compareWith, $operator ) {
-		global $wgVersion;
-		return version_compare( $wgVersion, $compareWith, $operator );
+		return version_compare( MW_VERSION, $compareWith, $operator );
 	}
 
 	/**

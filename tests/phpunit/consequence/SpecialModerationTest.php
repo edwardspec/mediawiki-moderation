@@ -138,9 +138,9 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 	 * @covers SpecialModeration
 	 */
 	public function testSpecialPageSubclass() {
-		$special = MediaWikiServices::getInstance()->getSpecialPageFactory()->getPage( 'Moderation' );
+		$special = $this->getSpecial();
 
-		$this->assertEquals( 'spam', $special->getGroupName(), 'getGroupName' );
+		$this->assertEquals( 'spam', $special->getFinalGroupName(), 'getGroupName' );
 		$this->assertFalse( $special->isSyndicated(), 'isSyndicated' );
 		$this->assertFalse( $special->isCacheable(), 'isCacheable' );
 	}
@@ -163,8 +163,10 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		$context->setRequest( new FauxRequest( $folder ? [ 'folder' => $folder ] : [] ) );
 		$context->setLanguage( 'qqx' );
 
-		$special = MediaWikiServices::getInstance()->getSpecialPageFactory()->getPage( 'Moderation' );
+		$special = $this->getSpecial();
 		$special->setContext( $context );
+
+		$wrapper = TestingAccessWrapper::newFromObject( $special );
 
 		// Check getQueryInfo()
 		$queryInfo = $special->getQueryInfo();
@@ -188,16 +190,16 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		$this->assertEquals( $expectedOptions, $queryInfo['options'] );
 
 		// Check getOrderFields()
-		$this->assertEquals( [ 'mod_timestamp' ], $special->getOrderFields() );
+		$this->assertEquals( [ 'mod_timestamp' ], $wrapper->getOrderFields() );
 
 		// Check linkParameters()
 		$expectedFolder = ( $folder == 'nosuchfolder' ) ? 'pending' : ( $folder ?? 'pending' );
-		$this->assertEquals( [ 'folder' => $expectedFolder ], $special->linkParameters() );
+		$this->assertEquals( [ 'folder' => $expectedFolder ], $wrapper->linkParameters() );
 
 		// Check getPageHeader(): it should contain (1) HTML links to other folders,
 		// (2) <strong> tag with the name of current folder.
 		$html = new ModerationTestHTML;
-		$html->loadString( $special->getPageHeader() );
+		$html->loadString( $wrapper->getPageHeader() );
 
 		$links = $html->getElementsByXPath( '//*[@class="mw-moderation-folders"]//a' );
 		$this->assertCount( 3, $links, "There are 4 folders on Special:Moderation, " .
@@ -351,11 +353,12 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 
 		'@phan-var Skin $skin';
 
-		$special = MediaWikiServices::getInstance()->getSpecialPageFactory()->getPage( 'Moderation' );
+		$special = $this->getSpecial();
 		$special->setContext( $context );
 
 		// Run formatResult()
-		$result = $special->formatResult( $skin, $sampleRow );
+		$wrapper = TestingAccessWrapper::newFromObject( $special );
+		$result = $wrapper->formatResult( $skin, $sampleRow );
 		$this->assertEquals( $expectedResult, $result );
 	}
 
@@ -412,8 +415,8 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		$linkCache = MediaWikiServices::getInstance()->getLinkCache();
 		$linkCache->clear();
 
-		$special = MediaWikiServices::getInstance()->getSpecialPageFactory()->getPage( 'Moderation' );
-		$special->preprocessResults( $this->db, $res );
+		$wrapper = TestingAccessWrapper::newFromObject( $this->getSpecial() );
+		$wrapper->preprocessResults( $this->db, $res );
 
 		// Verify that pages were added into the LinkCache.
 		foreach ( $expectedPageNamesInCache as $expectedBadLink ) {
@@ -433,4 +436,13 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		$this->assertSame( 0, $seekPosition );
 	}
 
+	/**
+	 * Returns SpecialModeration object.
+	 * @return QueryPage
+	 */
+	private function getSpecial(): QueryPage {
+		$special = MediaWikiServices::getInstance()->getSpecialPageFactory()->getPage( 'Moderation' );
+		'@phan-var QueryPage $special';
+		return $special;
+	}
 }

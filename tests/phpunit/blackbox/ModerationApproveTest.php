@@ -74,6 +74,10 @@ class ModerationApproveTest extends ModerationTestCase {
 
 		# Per design, 'approveall' entry MUST be the most recent.
 		$le = array_shift( $events );
+
+		$this->assertNotNull( $le );
+		'@phan-var array $le';
+
 		$this->assertEquals( 'approveall', $le['action'],
 			"testApproveAll(): Most recent log entry is not 'approveall'" );
 		$this->assertEquals( $t->moderator->getName(), $le['user'] );

@@ -31,8 +31,9 @@ if ( class_exists( HookRunnerTestBase::class ) ) {
 	 * @covers MediaWiki\Moderation\Hook\HookRunner
 	 */
 	class HookRunnerTest extends HookRunnerTestBase {
+		/** @return array */
 		public function provideHookRunners() {
-			yield HookRunner::class => [ HookRunner::class ];
+			return [ HookRunner::class => [ HookRunner::class ] ];
 		}
 	}
 } else {

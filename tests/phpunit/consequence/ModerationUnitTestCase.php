@@ -74,10 +74,11 @@ class ModerationUnitTestCase extends MediaWikiTestCase {
 			"List of consequences doesn't match expected."
 		);
 
-		array_map( function ( $expected, $actual ) {
-			self::assertConsequence( $expected, $actual,
+		for ( $i = 0; $i < count( $expectedConsequences ); $i++ ) {
+			$expected = $expectedConsequences[$i];
+			self::assertConsequence( $expected, $actualConsequences[$i],
 				"Parameters of consequence " . get_class( $expected ) . " don't match expected." );
-		}, $expectedConsequences, $actualConsequences );
+		}
 	}
 
 	/**

@@ -90,6 +90,7 @@ class ApiModerationTest extends ApiTestCase {
 	public function testThrownModerationError() {
 		$mock = $this->addMockedAction( 'reject' );
 		$mock->expects( $this->once() )->method( 'execute' )->will( $this->returnCallback(
+			/** @return never */
 			static function () {
 				throw new ModerationError( 'error-thrown-by-tested-action' );
 			}
@@ -137,6 +138,8 @@ class ApiModerationTest extends ApiTestCase {
 	 */
 	public function testApiBaseSubclass() {
 		$actionFactory = $this->createMock( ActionFactory::class );
+		'@phan-var ActionFactory $actionFactory';
+
 		$api = new ApiModeration( new ApiMain(), 'moderation', $actionFactory );
 
 		$this->assertTrue( $api->isWriteMode(), 'isWriteMode' );

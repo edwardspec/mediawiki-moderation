@@ -281,6 +281,7 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 			$this->identicalTo( $out )
 		)->willReturn( $mustNotify ? '{MockedResult}' : '' );
 
+		'@phan-var ModerationNotifyModerator $notify';
 		'@phan-var OutputPage $out';
 		'@phan-var User $user';
 
@@ -312,6 +313,8 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 	 */
 	public function testEchoHook() {
 		$notify = $this->makePartialNotifyMock( [] );
+		'@phan-var ModerationNotifyModerator $notify';
+
 		$this->assertFalse( $notify->onEchoCanAbortNewMessagesAlert(),
 			'EchoCanAbortNewMessagesAlert hook must return false.' );
 	}
