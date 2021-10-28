@@ -27,7 +27,7 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 	/**
 	 * Ensure that returnto= link after the edit points back to Special:FormEdit or action=formedit.
 	 * @param array $requestParams
-	 * @param string|null $expectedReturnTo
+	 * @param string $expectedReturnTo
 	 * @param array $expectedReturnToQuery
 	 * @dataProvider dataProviderContinueEditingLinkHook
 	 * @covers ModerationPageForms
@@ -43,10 +43,12 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 		$title = Title::newFromText( "Doesn't matter" );
 		$context->setTitle( $title );
 
-		$returnto = null;
+		$returnto = '';
 		$returntoquery = [];
 
 		$preload = $this->createMock( ModerationPreload::class );
+		'@phan-var ModerationPreload $preload';
+
 		$plugin = new ModerationPageForms( $preload );
 
 		$hookResult = $plugin->onModerationContinueEditingLink(
@@ -67,7 +69,7 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 		return [
 			'editing URL had action=formedit, so returntoquery should have it too' => [
 				[ 'action' => 'formedit' ],
-				null,
+				'',
 				[ 'action' => 'formedit' ]
 			],
 			'editing URL pointed to Special:FormEdit, so returnto should point to it too' => [
@@ -77,12 +79,12 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 			],
 			'editing URL points to neither action=formedit nor Special:FormEdit' => [
 				[ 'title' => 'Some article', 'action' => 'edit' ],
-				null,
+				'',
 				[]
 			],
 			'some editing URL without even the title= parameter' => [
 				[ 'unusual' => 'parameters' ],
-				null,
+				'',
 				[]
 			]
 		];
@@ -101,8 +103,10 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 		$preload = $this->createMock( ModerationPreload::class );
 		$preload->expects( $this->never() )->method( 'onEditFormPreloadText' );
 
+		'@phan-var ModerationPreload $preload';
+
 		$plugin = new ModerationPageForms( $preload );
-		$plugin->preloadText( $text, null, Title::newFromText( "Doesn't matter" ) );
+		$plugin->preloadText( $text, null );
 
 		$this->assertSame( $oldText, $text, "Text shouldn't be modified when targetTitle is null." );
 	}
@@ -124,8 +128,10 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 			$this->identicalTo( $targetTitle )
 		);
 
+		'@phan-var ModerationPreload $preload';
+
 		$plugin = new ModerationPageForms( $preload );
-		$plugin->preloadText( $text, $targetTitle, Title::newFromText( "Doesn't matter" ) );
+		$plugin->preloadText( $text, $targetTitle );
 	}
 
 	protected function skipIfNoPageForms() {

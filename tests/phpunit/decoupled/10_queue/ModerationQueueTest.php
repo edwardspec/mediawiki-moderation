@@ -371,10 +371,8 @@ class ModerationQueueTest extends ModerationTestCase {
 		if ( $this->watch === false ) {
 			/* Unwatch test requested, add $this->title into the Watchlist */
 
-			// @phan-suppress-next-line PhanUndeclaredClassReference
 			if ( method_exists( '\MediaWiki\Watchlist\WatchlistManager', 'setWatch' ) ) {
 				// MediaWiki 1.37+
-				// @phan-suppress-next-line PhanUndeclaredMethod
 				$watchlistManager = MediaWikiServices::getInstance()->getWatchlistManager();
 				$watchlistManager->addWatchIgnoringRights( $this->user, $this->title );
 			} else {

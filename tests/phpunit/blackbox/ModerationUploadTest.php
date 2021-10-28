@@ -64,8 +64,12 @@ class ModerationUploadTest extends ModerationTestCase {
 			'iiprop' => 'user|timestamp|comment|size|url|sha1',
 			'titles' => $entry->title
 		] );
-		$ret_page = array_shift( $ret['query']['pages'] );
-		$ii = $ret_page['imageinfo'][0];
+		$retPage = array_shift( $ret['query']['pages'] );
+
+		$this->assertNotNull( $retPage );
+		'@phan-var array $retPage';
+
+		$ii = $retPage['imageinfo'][0];
 
 		$this->assertEquals( $t->lastEdit['User'], $ii['user'] );
 		$this->assertEquals( $t->lastEdit['Text'], $ii['comment'] );
@@ -141,8 +145,12 @@ class ModerationUploadTest extends ModerationTestCase {
 			'iiprop' => 'user|timestamp|comment|size|url|sha1',
 			'titles' => $entry->title
 		] );
-		$ret_page = array_shift( $ret['query']['pages'] );
-		$ii = $ret_page['imageinfo'][0];
+		$retPage = array_shift( $ret['query']['pages'] );
+
+		$this->assertNotNull( $retPage );
+		'@phan-var array $retPage';
+
+		$ii = $retPage['imageinfo'][0];
 
 		$this->assertEquals( $t->lastEdit['User'], $ii['user'] );
 		$this->assertEquals( $t->lastEdit['Text'], $ii['comment'] );

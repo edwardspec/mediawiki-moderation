@@ -178,8 +178,7 @@ class ModerationApproveHook implements
 
 		// In MediaWiki 1.35, PostgreSQL used CIDR field for rc_ip (we can't insert strings into it).
 		// In MediaWiki 1.36+, rc_ip is TEXT field and requires no special handling.
-		global $wgVersion;
-		$isIpFieldCIDR = ( $dbw->getType() == 'postgres' && version_compare( $wgVersion, '1.36.0', '<' ) );
+		$isIpFieldCIDR = ( $dbw->getType() == 'postgres' && version_compare( MW_VERSION, '1.36.0', '<' ) );
 
 		$dbw->startAtomic( __METHOD__ );
 
@@ -590,6 +589,7 @@ class ModerationApproveHook implements
 	 * @param RecentChange $rc
 	 * @return true
 	 */
+	// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 	public function onRecentChange_save( $rc ) {
 		global $wgPutIPinRC;
 

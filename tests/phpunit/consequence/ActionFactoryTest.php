@@ -122,13 +122,11 @@ class ActionFactoryTest extends ModerationUnitTestCase {
 	/**
 	 * Make a clean ActionFactory object with mocked parameters.
 	 * @return ActionFactory
+	 * @suppress PhanTypeMismatchArgument
 	 */
 	private function makeFactory() {
-		$entryFactory = $this->createMock( EntryFactory::class );
-		'@phan-var EntryFactory $entryFactory';
-
 		return new ActionFactory(
-			$entryFactory,
+			$this->createMock( EntryFactory::class ),
 			new MockConsequenceManager(),
 			$this->createMock( ModerationCanSkip::class ),
 			$this->createMock( EditFormOptions::class ),

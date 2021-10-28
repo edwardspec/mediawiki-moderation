@@ -52,10 +52,4 @@
 			<property name="ignoreList" type="array" value="$IP" />
 		</properties>
 	</rule>
-
-	<rule ref="MediaWiki.NamingConventions.LowerCamelFunctionsName">
-		<!-- Function onRecentChange_save() shouldn't have "_" replaced with CamelCase,
-			because "RecentChange_save" is a name of MediaWiki hook handler. -->
-		<exclude-pattern>*/hooks/ModerationApproveHook.php</exclude-pattern>
-	</rule>
 </ruleset>

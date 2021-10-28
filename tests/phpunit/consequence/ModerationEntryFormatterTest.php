@@ -272,12 +272,15 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 		// and this should be tested elsewhere.
 		global $wgModerationTimeToOverrideRejection;
 
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable
+		$timeToOverride = $wgModerationTimeToOverrideRejection;
+
 		$ts = new MWTimestamp();
-		$ts->timestamp->modify( '-' . ( $wgModerationTimeToOverrideRejection + 1 ) . ' seconds' );
+		$ts->timestamp->modify( '-' . ( $timeToOverride + 1 ) . ' seconds' );
 		$longAgo = $ts->getTimestamp( TS_MW ); // Can't reapprove rejected edit with this timestamp
 
 		$ts = new MWTimestamp();
-		$ts->timestamp->modify( '-' . ( $wgModerationTimeToOverrideRejection - 600 ) . ' seconds' );
+		$ts->timestamp->modify( '-' . ( $timeToOverride - 600 ) . ' seconds' );
 		$notLongAgoEnough = $ts->getTimestamp( TS_MW );
 
 		// phpcs:disable Generic.Files.LineLength.TooLong

@@ -137,12 +137,10 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Create a page as automoderated user. (this edit will bypass moderation)
-	 * @return Status
 	 */
 	private function precreatePage() {
 		$this->title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
-
-		return $this->makeEdit(
+		$this->makeEdit(
 			$this->title,
 			self::getTestUser( [ 'automoderated' ] )->getUser(),
 			'Some text'

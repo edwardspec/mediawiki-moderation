@@ -35,7 +35,6 @@ class ModerationAjaxHookTest extends ModerationUnitTestCase {
 	 * @covers ModerationAjaxHook
 	 */
 	public function testAjaxHook( array $opt ) {
-		$expectedModules = $opt['expectedModules'] ?? [];
 		$installedExtensions = $opt['installedExtensions'] ?? [];
 
 		$extensionRegistry = ExtensionRegistry::getInstance();
@@ -82,6 +81,8 @@ class ModerationAjaxHookTest extends ModerationUnitTestCase {
 		} else {
 			$out->expects( $this->never() )->method( 'addJsConfigVars' );
 		}
+
+		'@phan-var OutputPage $out';
 
 		ModerationAjaxHook::add( $out );
 	}

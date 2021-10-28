@@ -201,8 +201,8 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 	 */
 	public function dataProviderDbUpdatedVersionUncached() {
 		return [
-			'1.6.0' => [ '1.6.0', 'mysql', [] ],
-			'1.6.0' => [ '1.6.0', 'postgres', [] ]
+			'1.6.0 with MySQL' => [ '1.6.0', 'mysql', [] ],
+			'1.6.0 with PosgtreSQLl' => [ '1.6.0', 'postgres', [] ]
 		];
 	}
 

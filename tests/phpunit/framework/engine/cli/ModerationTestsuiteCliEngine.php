@@ -223,7 +223,6 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 
 		/* Call any postfactum callbacks that were requested by trackHook() */
 		foreach ( $this->trackedHooks as $hook => $callback ) {
-			// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
 			foreach ( $result['capturedHooks'][$hook] as $invocation ) {
 				list( $paramTypes, $paramsJson ) = $invocation;
 				$params = FormatJson::decode( $paramsJson, true );

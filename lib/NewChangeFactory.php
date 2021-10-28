@@ -24,6 +24,7 @@ namespace MediaWiki\Moderation;
 
 use Language;
 use MediaWiki\Moderation\Hook\HookRunner;
+use ModerationBlockCheck;
 use ModerationNewChange;
 use ModerationNotifyModerator;
 use ModerationPreload;
@@ -81,6 +82,7 @@ class NewChangeFactory {
 			$this->preload,
 			$this->hookRunner,
 			$this->notifyModerator,
+			new ModerationBlockCheck(),
 			$this->contentLanguage
 		);
 	}

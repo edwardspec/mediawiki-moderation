@@ -49,7 +49,7 @@ class ModerationTestHTML extends DOMDocument {
 	/**
 	 * Load the HTML document from string that contains the HTML.
 	 * @param string $string
-	 * @return self
+	 * @return static
 	 */
 	public function loadString( $string ) {
 		// Forget any unhandled errors from previous LibXML parse attempts.
@@ -123,8 +123,10 @@ class ModerationTestHTML extends DOMDocument {
 	 * @return DOMElement|null
 	 */
 	public function getElementByXPath( $selector ) {
-		$result = $this->getElementsByXPath( $selector );
-		return $result->item( 0 );
+		$elem = $this->getElementsByXPath( $selector )->item( 0 );
+
+		'@phan-var DOMElement|null $elem';
+		return $elem;
 	}
 
 	/**

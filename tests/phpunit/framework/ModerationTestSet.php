@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,11 +24,11 @@
 
 /**
  * @codingStandardsIgnoreStart
- * @method static assertEquals($a, $b, string $message='', float $d=0.0, int $e=10, bool $f=false, bool $g=false)
+ * @method static void assertEquals($a, $b, string $message='', float $d=0.0, int $e=10, bool $f=false, bool $g=false)
  * @codingStandardsIgnoreEnd
- * @method static assertSame($a, $b, string $message='')
- * @method static assertLessThanOrEqual($a, $b, string $message='')
- * @method static assertGreaterThan($a, $b, string $message='')
+ * @method static void assertSame($a, $b, string $message='')
+ * @method static void assertLessThanOrEqual($a, $b, string $message='')
+ * @method static void assertGreaterThan($a, $b, string $message='')
  */
 trait ModerationTestsuiteTestSet {
 	/**

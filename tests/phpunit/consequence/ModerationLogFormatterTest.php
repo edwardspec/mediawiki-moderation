@@ -20,6 +20,7 @@
  * Unit test of ModerationLogFormatter.
  */
 
+use MediaWiki\Linker\LinkTarget;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -92,8 +93,8 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 		}
 
 		// Check preload titles
-		$preloadTitles = array_map( static function ( Title $title ) {
-			return $title->getFullText();
+		$preloadTitles = array_map( static function ( LinkTarget $linkTarget ) {
+			return Title::newFromLinkTarget( $linkTarget )->getFullText();
 		}, $formatter->getPreloadTitles() );
 		$this->assertEquals( $options['expectedPreloadTitles'] ?? [], $preloadTitles,
 			'Incorrect values returned by getPreloadTitles().' );

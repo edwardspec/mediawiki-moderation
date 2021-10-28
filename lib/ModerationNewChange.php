@@ -24,7 +24,6 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
-use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 use MediaWiki\Revision\RevisionRecord;
 
@@ -40,12 +39,6 @@ class ModerationNewChange {
 
 	/** @var array All mod_* database fields */
 	protected $fields = [];
-
-	/**
-	 * @var PendingEdit|false|null
-	 * Edit of $user in $title that is currently awaiting moderation (false if there isn't one).
-	 */
-	private $pendingEdit = null;
 
 	/** @var IConsequenceManager */
 	protected $consequenceManager;
@@ -69,10 +62,13 @@ class ModerationNewChange {
 		ModerationPreload $preload,
 		HookRunner $hookRunner,
 		ModerationNotifyModerator $notifyModerator,
+		ModerationBlockCheck $blockCheck,
 		Language $contentLanguage
 	) {
 		$this->title = $title;
 		$this->user = $user;
+
+		$preload->setUser( $user );
 
 		$this->consequenceManager = $consequenceManager;
 		$this->preload = $preload;
@@ -80,7 +76,7 @@ class ModerationNewChange {
 		$this->notifyModerator = $notifyModerator;
 		$this->contentLanguage = $contentLanguage;
 
-		$isBlocked = ModerationBlockCheck::isModerationBlocked( $user );
+		$isBlocked = $blockCheck->isModerationBlocked( $user );
 
 		$request = $user->getRequest();
 		$dbr = wfGetDB( DB_REPLICA ); /* Only for $dbr->timestamp(), won't do any SQL queries */
@@ -103,7 +99,7 @@ class ModerationNewChange {
 			'mod_new_len' => 0, # Unknown, set by edit()
 			'mod_header_xff' => ( $request->getHeader( 'X-Forwarded-For' ) ?: null ),
 			'mod_header_ua' => ( $request->getHeader( 'User-Agent' ) ?: null ),
-			'mod_preload_id' => $this->getPreload()->getId( true ),
+			'mod_preload_id' => $this->preload->getId( true ),
 			'mod_rejected' => $isBlocked ? 1 : 0,
 			'mod_rejected_by_user' => 0,
 			'mod_rejected_by_user_text' => $isBlocked ?
@@ -139,35 +135,52 @@ class ModerationNewChange {
 			$this->fields['mod_old_len'] = $oldContent->getSize();
 		}
 
-		// Check if we need to update existing row (if this edit is by the same user to the same page)
-		if ( $section !== '' ) {
-			$pendingEdit = $this->getPendingEdit();
-			if ( $pendingEdit ) {
-				#
-				# We must recalculate $this->fields['mod_text'] here.
-				# Otherwise if the user adds or modifies two (or more) different sections (in consequent edits),
-				# then only modification to the last one will be saved,
-				# because $this->newContent is [old content] PLUS [modified section from the edit].
-				#
-				$model = $newContent->getModel();
-				$newContent = $this->makeContent(
-					$pendingEdit->getText(),
-					$model
-				)->replaceSection(
-					$section,
-					$this->makeContent( $sectionText, $model ),
-					''
-				);
-			}
-		}
+		// Apply any section-related adjustments (if necessary).
+		$newContent = $this->applySectionToNewContent( $newContent, $section, $sectionText );
 
-		// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
 		$pstContent = $this->preSaveTransform( $newContent );
 		$this->fields['mod_text'] = $pstContent->serialize();
 		$this->fields['mod_new_len'] = $pstContent->getSize();
 		$this->addChangeTags( 'edit' );
 
 		return $this;
+	}
+
+	/**
+	 * Apply any section-editing logic to $newContent.
+	 * Returns Content object that can be used to correctly overwrite the entire page ("mod_text" field).
+	 *
+	 * @param Content $newContent New content that is only usable when you know which section was edited.
+	 * @param string $section
+	 * @param string $sectionText
+	 * @return Content
+	 */
+	protected function applySectionToNewContent( Content $newContent, $section, $sectionText ) {
+		if ( $section === '' ) {
+			// Editing the entire page (not one section), no adjustments needed.
+			return $newContent;
+		}
+
+		$pendingEdit = $this->preload->findPendingEdit( $this->title );
+		if ( !$pendingEdit ) {
+			// No pending edit, no adjustments needed.
+			return $newContent;
+		}
+
+		// We must recalculate $newContent here.
+		// Otherwise if the user adds or modifies two (or more) different sections (in consequent edits),
+		// then only modification to the last one will be saved,
+		// because $newContent is [old content] PLUS [modified section from the edit].
+		$model = $newContent->getModel();
+		return ContentHandler::makeContent(
+			$pendingEdit->getText(),
+			null,
+			$model
+		)->replaceSection(
+			$section,
+			ContentHandler::makeContent( $sectionText, null, $model ),
+			''
+		);
 	}
 
 	/**
@@ -308,40 +321,6 @@ class ModerationNewChange {
 	}
 
 	/**
-	 * @return ModerationPreload
-	 */
-	protected function getPreload() {
-		$this->preload->setUser( $this->user );
-		return $this->preload;
-	}
-
-	/**
-	 * Get edit of $user in $title that is currently awaiting moderation (if any).
-	 * @return PendingEdit|false
-	 */
-	protected function getPendingEdit() {
-		if ( $this->pendingEdit === null ) {
-			$this->pendingEdit = $this->getPreload()->findPendingEdit( $this->title );
-		}
-
-		return $this->pendingEdit;
-	}
-
-	/**
-	 * Utility function: construct Content object from $text.
-	 * @param string $text
-	 * @param string|null $model Content model (e.g. CONTENT_MODEL_WIKITEXT).
-	 * @return Content object.
-	 */
-	protected function makeContent( $text, $model = null ) {
-		return ContentHandler::makeContent(
-			$text,
-			$this->title,
-			$model
-		);
-	}
-
-	/**
 	 * Returns all mod_* fields for database INSERT.
 	 * @return array (as expected by $dbw->insert())
 	 */
@@ -352,10 +331,10 @@ class ModerationNewChange {
 	/**
 	 * Returns one of the fields for database INSERT.
 	 * @param string $fieldName Field, e.g. "mod_timestamp".
-	 * @return string|false
+	 * @return string|null
 	 */
 	public function getField( $fieldName ) {
-		return $this->fields[$fieldName] ?? false;
+		return $this->fields[$fieldName] ?? null;
 	}
 
 	/**

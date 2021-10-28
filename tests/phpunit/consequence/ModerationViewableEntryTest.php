@@ -108,7 +108,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 		], $revisionLookup );
 
 		$rev = $entry->getPreviousRevision();
-		$this->assertRevisionTitleAndText( $title, $oldText ? $oldText : '', $rev );
+		$this->assertRevisionTitleAndText( $title, $oldText ?: '', $rev );
 	}
 
 	/**
@@ -403,6 +403,8 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 
 		$entry->expects( $this->any() )->method( 'getPreviousRevision' )->willReturn( $previousRevision );
 		$entry->expects( $this->any() )->method( 'getPendingRevision' )->willReturn( $pendingRevision );
+
+		'@phan-var ModerationViewableEntry $entry';
 
 		// Run the method we are testing.
 		$result = $entry->getDiffHTML( $context );
