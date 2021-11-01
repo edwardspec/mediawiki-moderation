@@ -713,7 +713,7 @@ class ModerationTestsuite {
 	 * @phan-return array{revid:int,*:string,user:string,comment:string,timestamp:string}|false
 	 */
 	public function getLastRevision( $title ) {
-		$page = WikiPage::factory( Title::newFromText( $title ) );
+		$page = ModerationCompatTools::makeWikiPage( Title::newFromText( $title ) );
 		$rev = $page->getRevisionRecord();
 		if ( !$rev ) {
 			return false;

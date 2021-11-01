@@ -20,6 +20,7 @@
  * Backward compatibility functions to support older versions of MediaWiki.
  */
 
+use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
 
 class ModerationCompatTools {
@@ -42,5 +43,21 @@ class ModerationCompatTools {
 
 		// MediaWiki 1.35-1.36
 		return $content->preSaveTransform( $title, $user, $popts );
+	}
+
+	/**
+	 * Create a WikiPage object from LinkTarget.
+	 * @param LinkTarget $title
+	 * @return WikiPage
+	 */
+	public static function makeWikiPage( LinkTarget $title ) {
+		if ( method_exists( MediaWikiServices::class, 'getWikiPageFactory' ) ) {
+			// MediaWiki 1.36+
+			$factory = MediaWikiServices::getInstance()->getWikiPageFactory();
+			return $factory->newFromLinkTarget( $title );
+		}
+
+		// MediaWiki 1.35
+		return WikiPage::factory( Title::newFromLinkTarget( $title ) );
 	}
 }

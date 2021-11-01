@@ -76,7 +76,10 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 		$this->assertConsequencesEqual( [
 			new QueueEditConsequence(
-				WikiPage::factory( $this->title ), $this->user, $this->content, $this->summary,
+				ModerationCompatTools::makeWikiPage( $this->title ),
+				$this->user,
+				$this->content,
+				$this->summary,
 				'', // section
 				'', // sectionText
 				false, // isBot
@@ -293,7 +296,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		// Replace real ConsequenceManager with a mock.
 		$manager = $this->mockConsequenceManager();
 
-		$page = WikiPage::factory( $this->title );
+		$page = ModerationCompatTools::makeWikiPage( $this->title );
 		$this->makeEdit( $content );
 
 		$this->assertConsequencesEqual( [
@@ -318,7 +321,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		$this->content = $newContent ?? ContentHandler::makeContent( 'Some text', null, CONTENT_MODEL_WIKITEXT );
 		$this->summary = 'Default edit summary for this test';
 
-		$page = WikiPage::factory( $this->title );
+		$page = ModerationCompatTools::makeWikiPage( $this->title );
 
 		$updater = $page->newPageUpdater( $this->user );
 		$updater->setContent( SlotRecord::MAIN, $this->content );

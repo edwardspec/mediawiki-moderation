@@ -65,7 +65,7 @@ class ModerationTestUtil {
 	) {
 		$dbw = wfGetDB( DB_MASTER );
 
-		$page = WikiPage::factory( $title );
+		$page = ModerationCompatTools::makeWikiPage( $title );
 		$page->insertOn( $dbw );
 
 		if ( !$user ) {

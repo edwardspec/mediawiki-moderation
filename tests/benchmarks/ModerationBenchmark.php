@@ -149,7 +149,7 @@ abstract class ModerationBenchmark extends Maintenance {
 	 * @return Status object.
 	 */
 	public function edit( Title $title, $newText = 'Whatever', $summary = '', User $user = null ) {
-		$page = WikiPage::factory( $title );
+		$page = ModerationCompatTools::makeWikiPage( $title );
 		$content = ContentHandler::makeContent( $newText, null, CONTENT_MODEL_WIKITEXT );
 		$summary = CommentStoreComment::newUnsavedComment( $summary );
 
@@ -196,7 +196,7 @@ abstract class ModerationBenchmark extends Maintenance {
 		$summary = '',
 		User $user = null
 	) {
-		$page = WikiPage::factory( $title );
+		$page = ModerationCompatTools::makeWikiPage( $title );
 		if ( !$user ) {
 			$user = User::newFromName( '127.0.0.1', false );
 		}

@@ -138,7 +138,7 @@ trait ModerationTestsuitePendingChangeTestSet {
 		if ( $this->nullEdit || ( $this->existing && $this->filename ) ) {
 			// Either simulated "null edit" or a reupload
 			// (reuploads don't modify the text of the page).
-			$page = WikiPage::factory( $this->getExpectedTitleObj() );
+			$page = ModerationCompatTools::makeWikiPage( $this->getExpectedTitleObj() );
 			$oldContent = $page->getContent( RevisionRecord::RAW );
 
 			$this->fields['mod_text'] = $oldContent ? $oldContent->serialize() : "";

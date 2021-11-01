@@ -39,7 +39,7 @@ trait MakeEditTestTrait {
 				$title->getFullText() . ' by ' . $user->getName();
 		}
 
-		$page = WikiPage::factory( $title );
+		$page = ModerationCompatTools::makeWikiPage( $title );
 		$content = ContentHandler::makeContent( $text, null, CONTENT_MODEL_WIKITEXT );
 		$summary = CommentStoreComment::newUnsavedComment( 'Some edit summary' );
 

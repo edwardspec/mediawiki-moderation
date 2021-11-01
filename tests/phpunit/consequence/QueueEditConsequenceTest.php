@@ -64,7 +64,7 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 		$user = $opt->anonymously ? User::newFromName( '127.0.0.1', false ) :
 			self::getTestUser()->getUser();
 		$title = Title::newFromText( $opt->title ?? 'UTPage-' . rand( 0, 100000 ) );
-		$page = WikiPage::factory( $title );
+		$page = ModerationCompatTools::makeWikiPage( $title );
 		$content = ContentHandler::makeContent( $opt->text ?? ( 'Some text' . rand( 0, 100000 ) ),
 			null, CONTENT_MODEL_WIKITEXT );
 		$summary = $opt->summary ?? 'Some summary ' . rand( 0, 100000 );

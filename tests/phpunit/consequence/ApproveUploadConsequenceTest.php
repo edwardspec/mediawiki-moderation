@@ -84,7 +84,7 @@ class ApproveUploadConsequenceTest extends ModerationUnitTestCase {
 		$this->assertEquals( $user->getName(), $uploader->getName() );
 		$this->assertEquals( $user->getId(), $uploader->getId() );
 
-		$page = WikiPage::factory( $title );
+		$page = ModerationCompatTools::makeWikiPage( $title );
 		$this->assertEquals( $expectedText, $page->getContent()->serialize() );
 	}
 
