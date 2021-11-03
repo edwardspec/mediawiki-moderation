@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,9 +21,11 @@
  */
 
 use MediaWiki\Moderation\ApproveEditConsequence;
+use MediaWiki\Moderation\IRevertableEntry;
 use MediaWiki\Moderation\MarkAsConflictConsequence;
+use MediaWiki\Moderation\RevertLastEditConsequence;
 
-class ModerationEntryEdit extends ModerationApprovableEntry {
+class ModerationEntryEdit extends ModerationApprovableEntry implements IRevertableEntry {
 	/**
 	 * Approve this edit.
 	 * @param User $moderator @phan-unused-param
@@ -50,5 +52,17 @@ class ModerationEntryEdit extends ModerationApprovableEntry {
 		}
 
 		return $status;
+	}
+
+	/**
+	 * Revert this edit after approval.
+	 * @param User $moderator
+	 * @return Status
+	 */
+	public function revert( User $moderator ) {
+		return $this->consequenceManager->add( new RevertLastEditConsequence(
+			$moderator,
+			$this->getTitle()
+		) );
 	}
 }
