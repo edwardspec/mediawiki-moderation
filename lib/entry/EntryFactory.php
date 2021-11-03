@@ -135,22 +135,32 @@ class EntryFactory {
 	}
 
 	/**
+	 * Get class name of ApprovableEntry for $row.
+	 * @param \stdClass $row
+	 * @return string
+	 *
+	 * @phan-return class-string
+	 */
+	public function getApprovableEntryClass( $row ) {
+		if ( $row->type == ModerationNewChange::MOD_TYPE_MOVE ) {
+			return ModerationEntryMove::class;
+		}
+
+		if ( $row->stash_key ) {
+			return ModerationEntryUpload::class;
+		}
+
+		return ModerationEntryEdit::class;
+	}
+
+	/**
 	 * Construct new ModerationApprovableEntry from $row.
 	 * @param \stdClass $row
 	 * @return ModerationApprovableEntry
 	 */
 	public function makeApprovableEntry( $row ) {
-		$args = [ $row, $this->consequenceManager, $this->approveHook ];
-
-		if ( isset( $row->type ) && $row->type == ModerationNewChange::MOD_TYPE_MOVE ) {
-			return new ModerationEntryMove( ...$args );
-		}
-
-		if ( $row->stash_key ) {
-			return new ModerationEntryUpload( ...$args );
-		}
-
-		return new ModerationEntryEdit( ...$args );
+		$class = $this->getApprovableEntryClass( $row );
+		return new $class( $row, $this->consequenceManager, $this->approveHook );
 	}
 
 	/**
