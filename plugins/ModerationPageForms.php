@@ -37,12 +37,11 @@ class ModerationPageForms {
 	 * @param string &$preloadContent
 	 * @param Title|null $targetTitle
 	 * @param Title $formTitle @phan-unused-param
-	 * @return bool
+	 * @return bool|void
 	 */
 	// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 	public function onPageForms__EditFormPreloadText( &$preloadContent, $targetTitle, $formTitle ) {
 		$this->preloadText( $preloadContent, $targetTitle );
-		return true;
 	}
 
 	/**
@@ -51,12 +50,11 @@ class ModerationPageForms {
 	 * @param string &$preloadContent
 	 * @param Title|null $targetTitle
 	 * @param Title $formTitle @phan-unused-param
-	 * @return bool
+	 * @return bool|void
 	 */
 	// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 	public function onPageForms__EditFormInitialText( &$preloadContent, $targetTitle, $formTitle ) {
 		$this->preloadText( $preloadContent, $targetTitle );
-		return true;
 	}
 
 	/**
@@ -87,7 +85,7 @@ class ModerationPageForms {
 	 * @param array &$returntoquery
 	 * @param Title $title @phan-unused-param
 	 * @param IContextSource $context
-	 * @return bool
+	 * @return bool|void
 	 */
 	public function onModerationContinueEditingLink(
 		&$returnto,
@@ -111,7 +109,5 @@ class ModerationPageForms {
 				$returnto = $specialTitle->getFullText();
 			}
 		}
-
-		return true;
 	}
 }

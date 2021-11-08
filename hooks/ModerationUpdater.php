@@ -26,7 +26,7 @@ use MediaWiki\MediaWikiServices;
 class ModerationUpdater implements LoadExtensionSchemaUpdatesHook {
 	/**
 	 * @param DatabaseUpdater $updater
-	 * @return bool
+	 * @return bool|void
 	 */
 	public function onLoadExtensionSchemaUpdates( $updater ) {
 		$db = $updater->getDB();
@@ -75,6 +75,5 @@ class ModerationUpdater implements LoadExtensionSchemaUpdatesHook {
 		}
 
 		$updater->addExtensionUpdate( [ 'ModerationVersionCheck::invalidateCache' ] );
-		return true;
 	}
 }

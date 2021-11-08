@@ -55,7 +55,7 @@ class ModerationApiHooks implements
 	 * @param ApiBase $module
 	 * @param User $user
 	 * @param string &$message
-	 * @return bool
+	 * @return bool|void
 	 */
 	public function onApiCheckCanExecute( $module, $user, &$message ) {
 		if ( $this->canSkip->canUploadSkip( $user ) ) {
@@ -68,8 +68,6 @@ class ModerationApiHooks implements
 			$message = 'moderation-revert-not-allowed';
 			return false;
 		}
-
-		return true;
 	}
 
 	/**
@@ -79,7 +77,7 @@ class ModerationApiHooks implements
 	 * 2) api.php?action=edit&section=N won't complain 'nosuchsection' if
 	 * section N exists in the pending version.
 	 * @param ApiMain &$main
-	 * @return true
+	 * @return bool|void
 	 */
 	public function onApiBeforeMain( &$main ) {
 		$request = $main->getRequest();
@@ -157,16 +155,14 @@ class ModerationApiHooks implements
 		$main->getContext()->setRequest( $req );
 
 		/* Let ApiEdit handle the rest */
-		return true;
 	}
 
 	/**
 	 * Adds qppage=Moderation to api.php?action=query&list=querypage.
 	 * @param array &$pages
-	 * @return bool
+	 * @return bool|void
 	 */
 	public function onWgQueryPages( &$pages ) {
 		$pages[] = [ SpecialModeration::class, 'Moderation' ];
-		return true;
 	}
 }

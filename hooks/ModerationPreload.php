@@ -144,7 +144,7 @@ class ModerationPreload implements
 	 * this hook makes them non-anonymous, so that they could be preloaded.
 	 * @param User $user
 	 * @param bool $autocreated @phan-unused-param
-	 * @return true
+	 * @return bool|void
 	 */
 	public function onLocalUserCreated( $user, $autocreated ) {
 		$this->setUser( $user );
@@ -161,7 +161,6 @@ class ModerationPreload implements
 		// Forget the fact that this user edited anonymously:
 		// this user is now registered and no longer needs anonymous preload.
 		$this->consequenceManager->add( new ForgetAnonIdConsequence() );
-		return true;
 	}
 
 	/**
@@ -186,6 +185,7 @@ class ModerationPreload implements
 	 * @param string &$text @phan-output-reference
 	 * @param Title $title
 	 * @param EditPage|null $editPage
+	 * @return bool|void
 	 */
 	protected function showPendingEdit( &$text, $title, $editPage ) {
 		$section = $this->getRequest()->getVal( 'section', '' );
@@ -215,12 +215,10 @@ class ModerationPreload implements
 	 * AlternateEdit hook handler.
 	 * Remember EditPage object, which will then be used in onEditFormPreloadText.
 	 * @param EditPage $editPage
-	 * @return true
+	 * @return bool|void
 	 */
 	public function onAlternateEdit( $editPage ) {
 		$this->editPage = $editPage;
-
-		return true;
 	}
 
 	/**
@@ -228,23 +226,19 @@ class ModerationPreload implements
 	 * Preloads text/summary when the article doesn't exist yet.
 	 * @param string &$text
 	 * @param Title $title
-	 * @return true
+	 * @return bool|void
 	 */
 	public function onEditFormPreloadText( &$text, $title ) {
 		$this->showPendingEdit( $text, $title, $this->editPage );
-
-		return true;
 	}
 
 	/**
 	 * EditFormInitialText hook handler.
 	 * Preloads text/summary when the article already exists.
 	 * @param EditPage $editPage
-	 * @return true
+	 * @return bool|void
 	 */
 	public function onEditFormInitialText( $editPage ) {
 		$this->showPendingEdit( $editPage->textbox1, $editPage->getTitle(), $editPage );
-
-		return true;
 	}
 }

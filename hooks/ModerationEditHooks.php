@@ -84,7 +84,7 @@ class ModerationEditHooks implements
 	 * @param CommentStoreComment $summary
 	 * @param int $flags
 	 * @param Status $status
-	 * @return bool
+	 * @return bool|void
 	 */
 	public function onMultiContentSave( $renderedRevision, $user, $summary, $flags, $status ) {
 		$rev = $renderedRevision->getRevision();
@@ -220,7 +220,7 @@ class ModerationEditHooks implements
 	 * @param int $flags @phan-unused-param
 	 * @param RevisionRecord $revisionRecord
 	 * @param EditResult $editResult @phan-unused-param
-	 * @return true
+	 * @return bool|void
 	 */
 	public function onPageSaveComplete(
 		$wikiPage, $user, $summary, $flags, $revisionRecord, $editResult
@@ -235,7 +235,6 @@ class ModerationEditHooks implements
 			$revisionRecord->getId(),
 			User::newFromIdentity( $user )
 		);
-		return true;
 	}
 
 	/**
@@ -243,6 +242,7 @@ class ModerationEditHooks implements
 	 * @param WikiPage $wikiPage
 	 * @param int $revid
 	 * @param User $user
+	 * @return bool|void
 	 */
 	protected function markAsMergedIfNeeded( $wikiPage, $revid, $user ) {
 		/* Only moderators can merge. If someone else adds wpMergeID to the edit form, ignore it */
@@ -278,7 +278,7 @@ class ModerationEditHooks implements
 	 * Add wpMergeID field to edit form when moderator is doing a manual merge.
 	 * @param EditPage $editpage @phan-unused-param
 	 * @param OutputPage $out
-	 * @return true
+	 * @return bool|void
 	 */
 	// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 	public function onEditPage__showEditForm_fields( $editpage, $out ) {
@@ -287,18 +287,15 @@ class ModerationEditHooks implements
 			$out->addHTML( Html::hidden( 'wpMergeID', (string)$mergeID ) );
 			$out->addHTML( Html::hidden( 'wpIgnoreBlankSummary', '1' ) );
 		}
-
-		return true;
 	}
 
 	/**
 	 * ListDefinedTags hook handler.
 	 * Registers 'moderation-merged' ChangeTag.
 	 * @param string[] &$tags
-	 * @return true
+	 * @return bool|void
 	 */
 	public function onListDefinedTags( &$tags ) {
 		$tags[] = 'moderation-merged';
-		return true;
 	}
 }

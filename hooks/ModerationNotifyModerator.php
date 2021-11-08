@@ -72,15 +72,13 @@ class ModerationNotifyModerator implements GetNewMessagesAlertHook {
 	 * @param array $newtalks @phan-unused-param
 	 * @param User $user @phan-unused-param
 	 * @param OutputPage $out
-	 * @return true
+	 * @return bool|void
 	 */
 	public function onGetNewMessagesAlert( &$newMessagesAlert, $newtalks, $user, $out ) {
 		$notificationHtml = $this->getNotificationHTML( $out );
 		if ( $notificationHtml ) {
 			$newMessagesAlert .= "\n" . $notificationHtml;
 		}
-
-		return true;
 	}
 
 	/**

@@ -51,7 +51,7 @@ class ModerationUpdaterTest extends ModerationUnitTestCase {
 		'@phan-var DatabaseUpdater $updater';
 
 		$hookHandler = new ModerationUpdater;
-		$this->assertTrue( $hookHandler->onLoadExtensionSchemaUpdates( $updater ),
-			'Handler of LoadExtensionSchemaUpdates hook should return true.' );
+		$this->assertNotFalse( $hookHandler->onLoadExtensionSchemaUpdates( $updater ),
+			'Handler of LoadExtensionSchemaUpdates hook shouldn\'t return false.' );
 	}
 }

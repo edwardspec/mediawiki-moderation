@@ -57,7 +57,7 @@ class ModerationMoveHooks implements TitleMoveHook {
 	 * @param User $user
 	 * @param string $reason
 	 * @param Status &$status
-	 * @return bool
+	 * @return bool|void
 	 */
 	public function onTitleMove(
 		$oldTitle,

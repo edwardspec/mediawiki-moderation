@@ -59,7 +59,7 @@ class ModerationUploadHooks implements GetUserPermissionsErrorsHook, UploadVerif
 	 * @param string $comment
 	 * @param string $pageText
 	 * @param array &$error
-	 * @return bool
+	 * @return bool|void
 	 */
 	public function onUploadVerifyUpload( $upload, $user, $props,
 		$comment, $pageText, &$error
@@ -94,7 +94,6 @@ class ModerationUploadHooks implements GetUserPermissionsErrorsHook, UploadVerif
 
 		// Return machine-readable error if this is NOT Special:Upload.
 		$error = [ $errorMsg ];
-		return true;
 	}
 
 	/**
@@ -103,7 +102,7 @@ class ModerationUploadHooks implements GetUserPermissionsErrorsHook, UploadVerif
 	 * @param User $user
 	 * @param string $action @phan-unused-param
 	 * @param string &$result
-	 * @return bool
+	 * @return bool|void
 	 */
 	public function onGetUserPermissionsErrors( $title, $user, $action, &$result ) {
 		/*
@@ -119,7 +118,5 @@ class ModerationUploadHooks implements GetUserPermissionsErrorsHook, UploadVerif
 				return false;
 			}
 		}
-
-		return true;
 	}
 }

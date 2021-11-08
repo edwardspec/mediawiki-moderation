@@ -77,7 +77,7 @@ class EditFormOptions {
 	 * @param string $section
 	 * @param string &$error @phan-unused-param
 	 * @param string $summary @phan-unused-param
-	 * @return true
+	 * @return bool|void
 	 */
 	public function onEditFilter( EditPage $editor, $text, $section, &$error, $summary ) {
 		if ( $section !== '' ) {
@@ -94,13 +94,13 @@ class EditFormOptions {
 		$watchthis = $reflection->getValue( $editor );
 
 		$this->watchthis = (bool)$watchthis;
-		return true;
 	}
 
 	/**
 	 * Detect "watch this" checkboxes on Special:Movepage and Special:Upload.
 	 * @param SpecialPage $special
 	 * @param string $subPage @phan-unused-param
+	 * @return bool|void
 	 */
 	public function onSpecialPageBeforeExecute( SpecialPage $special, $subPage ) {
 		$title = $special->getPageTitle();

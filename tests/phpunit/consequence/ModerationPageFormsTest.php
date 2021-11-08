@@ -54,8 +54,8 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 		$hookResult = $plugin->onModerationContinueEditingLink(
 			$returnto, $returntoquery, $title, $context
 		);
-		$this->assertTrue( $hookResult,
-			'Handler of ModerationContinueEditingLink hook should return true.' );
+		$this->assertNotFalse( $hookResult,
+			'Handler of ModerationContinueEditingLink hook shouldn\'t return false.' );
 
 		$this->assertSame( $expectedReturnTo, $returnto, 'returnto' );
 		$this->assertSame( $expectedReturnToQuery, $returntoquery, 'returntoquery' );

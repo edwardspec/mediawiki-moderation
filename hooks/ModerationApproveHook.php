@@ -98,13 +98,12 @@ class ModerationApproveHook implements
 	 * @param int $flags @phan-unused-param
 	 * @param RevisionRecord $revisionRecord @phan-unused-param
 	 * @param EditResult $editResult @phan-unused-param
-	 * @return true
+	 * @return bool|void
 	 */
 	public function onPageSaveComplete(
 		$wikiPage, $user, $summary, $flags, $revisionRecord, $editResult
 	) {
 		$this->scheduleDoUpdate();
-		return true;
 	}
 
 	/**
@@ -117,7 +116,7 @@ class ModerationApproveHook implements
 	 * @param int $redirid @phan-unused-param
 	 * @param string $reason @phan-unused-param
 	 * @param RevisionRecord $revision @phan-unused-param
-	 * @return true
+	 * @return bool|void
 	 */
 	public function onPageMoveCompleting( $oldTitle, $newTitle, $user, $pageid, $redirid, $reason, $revision ) {
 		$task = $this->getTask( $oldTitle, $user->getName(), ModerationNewChange::MOD_TYPE_MOVE );
@@ -135,7 +134,6 @@ class ModerationApproveHook implements
 		}
 
 		$this->scheduleDoUpdate();
-		return true;
 	}
 
 	/**
@@ -377,13 +375,11 @@ class ModerationApproveHook implements
 	 * @param int|bool $originalRevId @phan-unused-param
 	 * @param UserIdentity $user @phan-unused-param
 	 * @param string[] &$tags
-	 * @return true
+	 * @return bool|void
 	 */
 	public function onRevisionFromEditComplete( $wikiPage, $rev, $originalRevId, $user, &$tags ) {
 		/* Remember ID of this revision for getLastRevId() */
 		$this->lastRevId = $rev->getId();
-
-		return true;
 	}
 
 	/**
@@ -467,7 +463,7 @@ class ModerationApproveHook implements
 	 *
 	 * @param RecentChange $rc
 	 * @param array &$fields
-	 * @return true
+	 * @return bool|void
 	 *
 	 * @phan-param array<string,string|int|null> &$fields
 	 */
@@ -504,8 +500,6 @@ class ModerationApproveHook implements
 			$fields['cuc_xff'] = '';
 			$fields['cuc_xff_hex'] = null;
 		}
-
-		return true;
 	}
 
 	/**
@@ -519,7 +513,7 @@ class ModerationApproveHook implements
 	 * @param File $file
 	 * @param bool $reupload
 	 * @param bool $hasDescription @phan-unused-param
-	 * @return true
+	 * @return bool|void
 	 */
 	public function onFileUpload( $file, $reupload, $hasDescription ) {
 		if ( $reupload ) {
@@ -541,8 +535,6 @@ class ModerationApproveHook implements
 				);
 			}
 		}
-
-		return true;
 	}
 
 	/**
@@ -587,7 +579,7 @@ class ModerationApproveHook implements
 	 * so that it matches the user who made the edit, not the moderator.
 	 *
 	 * @param RecentChange $rc
-	 * @return true
+	 * @return bool|void
 	 */
 	// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 	public function onRecentChange_save( $rc ) {
@@ -627,7 +619,5 @@ class ModerationApproveHook implements
 				$rc
 			);
 		}
-
-		return true;
 	}
 }
