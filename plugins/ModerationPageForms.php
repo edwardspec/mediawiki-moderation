@@ -95,7 +95,7 @@ class ModerationPageForms {
 	) {
 		if ( !class_exists( 'PFForms' ) ) {
 			// Extension:PageForms is not installed.
-			return true;
+			return;
 		}
 
 		// Are we editing via ?action=formedit?

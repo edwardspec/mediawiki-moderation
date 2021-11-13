@@ -65,7 +65,7 @@ class ModerationUploadHooks implements GetUserPermissionsErrorsHook, UploadVerif
 		$comment, $pageText, &$error
 	) {
 		if ( $this->canSkip->canUploadSkip( $user ) ) {
-			return true;
+			return;
 		}
 
 		// FIXME: ModerationIntercept hook was previously called here (via doEditContent).
@@ -80,7 +80,7 @@ class ModerationUploadHooks implements GetUserPermissionsErrorsHook, UploadVerif
 		) );
 		if ( $error ) {
 			// Failed. Reason has been placed into &$error.
-			return true;
+			return;
 		}
 
 		/* Watch/Unwatch this file immediately:

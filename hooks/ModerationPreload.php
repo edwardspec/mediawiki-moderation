@@ -151,7 +151,7 @@ class ModerationPreload implements
 
 		$anonId = $this->getAnonId( false );
 		if ( !$anonId ) { # This visitor never saved any edits
-			return true;
+			return;
 		}
 
 		$this->consequenceManager->add( new GiveAnonChangesToNewUserConsequence(

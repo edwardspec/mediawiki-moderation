@@ -121,7 +121,7 @@ class ModerationApproveHook implements
 	public function onPageMoveCompleting( $oldTitle, $newTitle, $user, $pageid, $redirid, $reason, $revision ) {
 		$task = $this->getTask( $oldTitle, $user->getName(), ModerationNewChange::MOD_TYPE_MOVE );
 		if ( !$task ) {
-			return true;
+			return;
 		}
 
 		$revid = Title::newFromLinkTarget( $oldTitle )->getLatestRevID();
@@ -470,7 +470,7 @@ class ModerationApproveHook implements
 	public function onCheckUserInsertForRecentChange( RecentChange $rc, array &$fields ) {
 		$task = $this->getTaskByRC( $rc );
 		if ( !$task ) {
-			return true;
+			return;
 		}
 
 		$fields['cuc_ip'] = IP::sanitizeIP( $task['ip'] );
@@ -517,7 +517,7 @@ class ModerationApproveHook implements
 	 */
 	public function onFileUpload( $file, $reupload, $hasDescription ) {
 		if ( $reupload ) {
-			return true; // rev_id is not missing for reuploads
+			return; // rev_id is not missing for reuploads
 		}
 
 		$title = $file->getTitle();
@@ -587,7 +587,7 @@ class ModerationApproveHook implements
 
 		$task = $this->getTaskByRC( $rc );
 		if ( !$task ) {
-			return true;
+			return;
 		}
 
 		if ( $wgPutIPinRC ) {

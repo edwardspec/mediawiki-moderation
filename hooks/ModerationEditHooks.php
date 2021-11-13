@@ -93,7 +93,7 @@ class ModerationEditHooks implements
 
 		$title = $page->getTitle();
 		if ( $this->canSkip->canEditSkip( $user, $title->getNamespace() ) ) {
-			return true;
+			return;
 		}
 
 		$summary = $summary->text;
@@ -107,7 +107,7 @@ class ModerationEditHooks implements
 		if ( !$this->hookRunner->onModerationIntercept(
 			$page, $user, $content, $summary, $is_minor, null, null, $flags, $status
 		) ) {
-			return true;
+			return;
 		}
 
 		/* Some extensions (e.g. Extension:Flow) use customized ContentHandlers.
@@ -124,7 +124,7 @@ class ModerationEditHooks implements
 		*/
 		$handler = $page->getContentHandler();
 		if ( !( $handler instanceof TextContentHandler ) ) {
-			return true;
+			return;
 		}
 
 		global $wgCommentStreamsNamespaceIndex;
@@ -132,7 +132,7 @@ class ModerationEditHooks implements
 			// Edits in discussions of Extension:CommentStreams will bypass moderation,
 			// because CommentStreams treats "edit queued for moderation" as an error.
 			// This can only be fixed in Extension:CommentStreams itself.
-			return true;
+			return;
 		}
 
 		$this->consequenceManager->add( new QueueEditConsequence(
@@ -227,7 +227,7 @@ class ModerationEditHooks implements
 	) {
 		if ( !$revisionRecord ) {
 			// Double edit - nothing to do on the second time
-			return true;
+			return;
 		}
 
 		$this->markAsMergedIfNeeded(

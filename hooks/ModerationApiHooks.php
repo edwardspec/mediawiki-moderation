@@ -59,7 +59,7 @@ class ModerationApiHooks implements
 	 */
 	public function onApiCheckCanExecute( $module, $user, &$message ) {
 		if ( $this->canSkip->canUploadSkip( $user ) ) {
-			return true; /* No need to limit automoderated users */
+			return; /* No need to limit automoderated users */
 		}
 
 		$moduleName = $module->getModuleName();
@@ -82,7 +82,7 @@ class ModerationApiHooks implements
 	public function onApiBeforeMain( &$main ) {
 		$request = $main->getRequest();
 		if ( $request->getVal( 'action' ) != 'edit' ) {
-			return true; /* Nothing to do */
+			return; /* Nothing to do */
 		}
 
 		$section = $request->getVal( 'section', '' );
@@ -90,7 +90,7 @@ class ModerationApiHooks implements
 		$append = $request->getVal( 'appendtext', '' );
 
 		if ( !$prepend && !$append && !$section ) {
-			return true; /* Usual api.php?action=edit&text= works correctly with Moderation */
+			return; /* Usual api.php?action=edit&text= works correctly with Moderation */
 		}
 
 		$pageObj = $main->getTitleOrPageId( $request->getValues( 'title', 'pageid' ) );
@@ -98,7 +98,7 @@ class ModerationApiHooks implements
 
 		$pendingEdit = $this->preload->findPendingEdit( $title );
 		if ( !$pendingEdit ) {
-			return true; /* No pending version - ApiEdit will handle this correctly */
+			return; /* No pending version - ApiEdit will handle this correctly */
 		}
 
 		$oldContent = ContentHandler::makeContent( $pendingEdit->getText(), $title );

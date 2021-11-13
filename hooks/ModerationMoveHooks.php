@@ -68,7 +68,7 @@ class ModerationMoveHooks implements TitleMoveHook {
 	) {
 		if ( !$status->isOK() ) {
 			// $user is not allowed to move ($status is already fatal)
-			return true;
+			return;
 		}
 
 		if ( $this->canSkip->canMoveSkip(
@@ -77,7 +77,7 @@ class ModerationMoveHooks implements TitleMoveHook {
 			$newTitle->getNamespace()
 		) ) {
 			// This user is allowed to bypass moderation
-			return true;
+			return;
 		}
 
 		$this->consequenceManager->add( new QueueMoveConsequence(
