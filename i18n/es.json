@@ -4,6 +4,7 @@
 			"Astroemi",
 			"Cashews",
 			"Ciencia Al Poder",
+			"Danniel07",
 			"Fitoschido",
 			"Jelou",
 			"MarcoAurelio"
@@ -25,7 +26,7 @@
 	"logentry-moderation-approve": "$1 tiene {{GÉNERO:$2|aprobado}} $4 a la página $3",
 	"logentry-moderation-approveall": "$1 tiene {{GÉNERO:$2|aprobado}} $4 ediciones por $3",
 	"logentry-moderation-approve-move": "$1 tiene {{GÉNERO:$2|aprobado}} moviéndose de $3 a $4 por $5",
-	"logentry-moderation-block": "$1 {{GENDER:$2|marcó}} a $3 como spammer",
+	"logentry-moderation-block": "$1 marcó a $3 como spammer",
 	"log-name-moderation": "Registro de moderación",
 	"moderation-already-merged": "Esta edición ya ha sido fusionada manualmente. No tiene sentido que se apruebe o rechace.",
 	"moderation-approveall": "Aprobar todo",
