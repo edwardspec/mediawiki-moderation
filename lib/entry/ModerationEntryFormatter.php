@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\TimestampFormatter;
+use Wikimedia\IPUtils;
 
 class ModerationEntryFormatter extends ModerationEntry {
 	/** @var IContextSource */
@@ -231,7 +232,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 		$ip = null;
 		if ( isset( $row->ip ) ) {
 			$ip = $row->ip;
-		} elseif ( $row->user == 0 && IP::isValid( $row->user_text ) ) {
+		} elseif ( $row->user == 0 && IPUtils::isValid( $row->user_text ) ) {
 			$ip = $row->user_text;
 		}
 

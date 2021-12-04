@@ -796,12 +796,12 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 			if ( ExtensionRegistry::getInstance()->isLoaded( 'CheckUser' ) ) {
 				// Verify that ApproveHook has modified fields in cuc_changes table.
-				$expectedRow = [ '127.0.0.1', IP::toHex( '127.0.0.1' ), '0', '0' ];
+				$expectedRow = [ '127.0.0.1', IPUtils::toHex( '127.0.0.1' ), '0', '0' ];
 				if ( $task ) {
 					$expectedRow = [
 						$task['ip'],
 						// @phan-suppress-next-line PhanTypeMismatchArgumentNullable - false positive
-						$task['ip'] ? IP::toHex( $task['ip'] ) : null,
+						$task['ip'] ? IPUtils::toHex( $task['ip'] ) : null,
 						$task['ua'],
 						$task['xff']
 					];

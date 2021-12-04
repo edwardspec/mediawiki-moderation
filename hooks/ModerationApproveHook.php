@@ -32,6 +32,7 @@ use MediaWiki\Storage\EditResult;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\UserIdentity;
 use Psr\Log\LoggerInterface;
+use Wikimedia\IPUtils;
 
 class ModerationApproveHook implements
 	FileUploadHook,
@@ -473,8 +474,8 @@ class ModerationApproveHook implements
 			return;
 		}
 
-		$fields['cuc_ip'] = IP::sanitizeIP( $task['ip'] );
-		$fields['cuc_ip_hex'] = $task['ip'] ? IP::toHex( $task['ip'] ) : null;
+		$fields['cuc_ip'] = IPUtils::sanitizeIP( $task['ip'] );
+		$fields['cuc_ip_hex'] = $task['ip'] ? IPUtils::toHex( $task['ip'] ) : null;
 		$fields['cuc_agent'] = $task['ua'];
 
 		$cuHooksClassNames = [
@@ -495,7 +496,7 @@ class ModerationApproveHook implements
 
 		if ( $xff_ip !== null ) {
 			$fields['cuc_xff'] = !$isSquidOnly ? $task['xff'] : '';
-			$fields['cuc_xff_hex'] = ( $xff_ip && !$isSquidOnly ) ? IP::toHex( $xff_ip ) : null;
+			$fields['cuc_xff_hex'] = ( $xff_ip && !$isSquidOnly ) ? IPUtils::toHex( $xff_ip ) : null;
 		} else {
 			$fields['cuc_xff'] = '';
 			$fields['cuc_xff_hex'] = null;
@@ -593,7 +594,7 @@ class ModerationApproveHook implements
 		if ( $wgPutIPinRC ) {
 			$this->queueUpdate( 'recentchanges',
 				$rc->mAttribs['rc_id'],
-				[ 'rc_ip' => IP::sanitizeIP( $task['ip'] ) ]
+				[ 'rc_ip' => IPUtils::sanitizeIP( $task['ip'] ) ]
 			);
 		}
 

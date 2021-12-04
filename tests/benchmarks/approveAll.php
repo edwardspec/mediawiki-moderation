@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2021 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@
  * Usage:
  *	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/approveAll.php
  */
+
+use Wikimedia\IPUtils;
 
 require_once __DIR__ . '/ModerationBenchmark.php';
 
@@ -55,7 +57,7 @@ class BenchmarkApproveAll extends ModerationBenchmark {
 		$editsPerUser = $this->getEditsPerUser();
 
 		for ( $i = 0; $i < $numberOfUsers; $i++ ) {
-			$fakeIP = IP::formatHex( base_convert( $i, 10, 16 ) );
+			$fakeIP = IPUtils::formatHex( base_convert( $i, 10, 16 ) );
 			$user = User::newFromName( $fakeIP, false );
 
 			$dbw->delete( 'moderation', [ 'mod_user_text' => $fakeIP ], __METHOD__ );
