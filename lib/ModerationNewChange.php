@@ -76,8 +76,6 @@ class ModerationNewChange {
 		$this->notifyModerator = $notifyModerator;
 		$this->contentLanguage = $contentLanguage;
 
-		$isBlocked = $blockCheck->isModerationBlocked( $user );
-
 		$request = $user->getRequest();
 		$dbr = wfGetDB( DB_REPLICA ); /* Only for $dbr->timestamp(), won't do any SQL queries */
 
@@ -100,13 +98,11 @@ class ModerationNewChange {
 			'mod_header_xff' => ( $request->getHeader( 'X-Forwarded-For' ) ?: null ),
 			'mod_header_ua' => ( $request->getHeader( 'User-Agent' ) ?: null ),
 			'mod_preload_id' => $this->preload->getId( true ),
-			'mod_rejected' => $isBlocked ? 1 : 0,
+			'mod_rejected' => 0,
 			'mod_rejected_by_user' => 0,
-			'mod_rejected_by_user_text' => $isBlocked ?
-				wfMessage( 'moderation-blocker' )->inContentLanguage()->text() :
-				null,
+			'mod_rejected_by_user_text' => null,
 			'mod_rejected_batch' => 0,
-			'mod_rejected_auto' => $isBlocked ? 1 : 0,
+			'mod_rejected_auto' => 0,
 			'mod_preloadable' => 0,
 			'mod_conflict' => 0,
 			'mod_merged_revid' => 0,
@@ -116,6 +112,10 @@ class ModerationNewChange {
 			'mod_page2_namespace' => 0, # Unknown, set by move()
 			'mod_page2_title' => '' # Unknown, set by move()
 		];
+
+		if ( $blockCheck->isModerationBlocked( $user ) ) {
+			$this->markAsSpam();
+		}
 	}
 
 	/**
@@ -203,6 +203,19 @@ class ModerationNewChange {
 	public function upload( $stashKey ) {
 		$this->fields['mod_stash_key'] = $stashKey;
 		$this->addChangeTags( 'upload' );
+
+		return $this;
+	}
+
+	/**
+	 * Place this change into the Spam folder.
+	 * @return self
+	 */
+	public function markAsSpam() {
+		$this->fields['mod_rejected'] = 1;
+		$this->fields['mod_rejected_by_user_text'] =
+			wfMessage( 'moderation-blocker' )->inContentLanguage()->text();
+		$this->fields['mod_rejected_auto'] = 1;
 
 		return $this;
 	}
