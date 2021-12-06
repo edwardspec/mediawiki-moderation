@@ -278,6 +278,19 @@ class ModerationNewChange {
 			$this->user,
 			$action
 		);
+		$tagsArray = array_filter( $tagsArray, function ( $tag ) {
+			if ( $tag === 'moderation-spam' ) {
+				// Moderation allows AbuseFilter to instruct "this edit should be sent to Spam folder"
+				// by adding "moderation-spam" tag to this edit.
+				$this->markAsSpam();
+
+				// Remove this internal tag, it shouldn't be restored on Approve.
+				return false;
+			}
+
+			// Remember this tag.
+			return true;
+		} );
 		$this->fields['mod_tags'] = $tagsArray ? implode( "\n", $tagsArray ) : null;
 	}
 

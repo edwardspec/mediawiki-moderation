@@ -106,6 +106,34 @@ class ModerationAbuseFilterTest extends ModerationTestCase {
 		$this->assertTagsAfterApproval( $t, $t->new_entries[0], __FUNCTION__ );
 	}
 
+	/**
+	 * If AbuseFilter added "moderation-spam" tag, was the queued edit placed into the Spam folder?
+	 * @covers ModerationNewChange::addChangeTags
+	 */
+	public function testAbuseFilterMarkAsSpam( ModerationTestsuite $t ) {
+		$this->requireExtension( 'Abuse Filter' );
+
+		$tagsToAdd = array_merge( $this->expectedTags, [ 'moderation-spam' ] );
+		$filterId = $t->addTagAllAbuseFilter( $tagsToAdd );
+
+		$t->loginAs( $t->unprivilegedUser );
+		$t->doTestEdit();
+
+		$t->fetchSpecial();
+		$this->assertCount( 0, $t->new_entries,
+			'New edit appeared in Pending folder (expected: Spam folder).' );
+
+		$t->fetchSpecial( 'spam' );
+		$this->assertCount( 1, $t->new_entries, "New edit didn't appear in Spam folder." );
+
+		/* Disable the filter (so that it would no longer add tags to newly made edits). */
+		$t->disableAbuseFilter( $filterId );
+
+		/* Double-check that approved edit doesn't include "moderation-spam" tag,
+			but still includes other tags. */
+		$this->assertTagsAfterApproval( $t, $t->new_entries[0], __FUNCTION__ );
+	}
+
 	private function assertTagsAfterApproval(
 		ModerationTestsuite $t,
 		ModerationTestsuiteEntry $entry,

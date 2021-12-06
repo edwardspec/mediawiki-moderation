@@ -98,6 +98,8 @@
 	"right-skip-move-moderation": "Move pages without moderation",
 	"tag-moderation-merged": "merged edit of another user",
 	"tag-moderation-merged-description": "Another user's edit (moderator just resolved an edit conflict in it).",
+	"tag-moderation-spam": "-",
+	"tag-moderation-spam-description": "If AbuseFilter adds this tag to an edit, and Moderation intercepts that edit, then Moderation will place it into the Spam folder.",
 	"tooltip-moderation-approveall": "Approve all edits from this user/IP",
 	"tooltip-moderation-approve": "Approve this single edit",
 	"tooltip-moderation-approved-diff": "View the approved edit",

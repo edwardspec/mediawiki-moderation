@@ -9,6 +9,8 @@ Features:
 * Better support of VisualEditor in MediaWiki 1.36-1.37.
 * Better support of AbuseFilter and CheckUser in MediaWiki 1.36-1.37
 (tags and XFF of approved edit are preserved).
+* Allow AbuseFilter to tag intercepted edits as "place this to Spam folder"
+by adding "moderation-spam" tag to them.
 
 Refactoring, performance optimizations:
 * Removed legacy code for MediaWiki 1.31-1.34.

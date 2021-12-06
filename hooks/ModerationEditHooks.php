@@ -20,6 +20,7 @@
  * Hooks related to normal edits.
  */
 
+use MediaWiki\ChangeTags\Hook\ChangeTagsAllowedAddHook;
 use MediaWiki\ChangeTags\Hook\ListDefinedTagsHook;
 use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Hook\EditPage__showEditForm_fieldsHook;
@@ -41,6 +42,7 @@ use MediaWiki\User\UserIdentity;
 
 class ModerationEditHooks implements
 	BeforePageDisplayHook,
+	ChangeTagsAllowedAddHook,
 	EditPage__showEditForm_fieldsHook,
 	ListDefinedTagsHook,
 	MultiContentSaveHook,
@@ -291,11 +293,24 @@ class ModerationEditHooks implements
 
 	/**
 	 * ListDefinedTags hook handler.
-	 * Registers 'moderation-merged' ChangeTag.
+	 * Registers 'moderation-merged' and 'moderation-spam' ChangeTag.
 	 * @param string[] &$tags
 	 * @return bool|void
 	 */
 	public function onListDefinedTags( &$tags ) {
 		$tags[] = 'moderation-merged';
+		$tags[] = 'moderation-spam';
+	}
+
+	/**
+	 * ChangeTagsAllowedAdd hook handler.
+	 * Allows third-party code (such as AbuseFilter) to assign 'moderation-spam' ChangeTag to edits.
+	 * @param string[] &$allowedTags
+	 * @param string[] $addTags @phan-unused-param
+	 * @param User $user @phan-unused-param
+	 * @return bool|void
+	 */
+	public function onChangeTagsAllowedAdd( &$allowedTags, $addTags, $user ) {
+		$allowedTags[] = 'moderation-spam';
 	}
 }

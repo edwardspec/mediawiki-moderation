@@ -98,6 +98,8 @@
 	"right-skip-move-moderation": "{{doc-right|skip-move-moderation}}\nAllows to bypass moderation when renaming a page.",
 	"tag-moderation-merged": "Change tag for non-moderator's edit made from moderator's account (because moderator had to resolve an edit conflict).\n{{Related|tag-moderation-merged-description}}",
 	"tag-moderation-merged-description": "Description for \"moderation-merged\" change tag.\n\n'''Note''': \"just\" means \"only\", not \"recently\".",
+	"tag-moderation-spam": "{{notranslate}}",
+	"tag-moderation-spam-description": "Description for \"moderation-spam\" change tag.",
 	"tooltip-moderation-approveall": "Tooltip for ApproveAll link on Special:Moderation.",
 	"tooltip-moderation-approve": "Tooltip for Approve link on Special:Moderation.",
 	"tooltip-moderation-approved-diff": "Tooltip for diff link in \"edit was approved\" log entries on Special:Log/moderation.",

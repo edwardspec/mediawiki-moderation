@@ -42,8 +42,19 @@ class HooksTest extends ModerationUnitTestCase {
 	 * @covers ModerationEditHooks::onListDefinedTags
 	 */
 	public function testDefinedTagListed() {
-		$this->assertContains( 'moderation-merged', ChangeTags::listDefinedTags(),
+		$definedTags = ChangeTags::listDefinedTags();
+		$this->assertContains( 'moderation-merged', $definedTags,
 			"Tag 'moderation-merged' isn't listed in the list of defined change tags." );
+		$this->assertContains( 'moderation-spam', $definedTags,
+			"Tag 'moderation-spam' isn't listed in the list of defined change tags." );
+	}
+
+	/**
+	 * @covers ModerationEditHooks::onChangeTagsAllowedAdd
+	 */
+	public function testCanAddSpamTag() {
+		$this->assertTrue( ChangeTags::canAddTagsAccompanyingChange( [ 'moderation-spam' ] )->isOK(),
+			"Tag 'moderation-spam' wasn't allowed by canAddTagsAccompanyingChange()." );
 	}
 
 	/**

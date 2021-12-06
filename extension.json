@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.6.16",
+	"version": "1.6.17",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -361,6 +361,7 @@
 		"ApiBeforeMain": "api",
 		"ApiCheckCanExecute": "api",
 		"BeforePageDisplay": "edit",
+		"ChangeTagsAllowedAdd": "edit",
 		"CheckUserInsertForRecentChange": "approveHook",
 		"EchoCanAbortNewMessagesAlert": "notifyModerator",
 		"EditFilter": "editFormOptions",
