@@ -68,6 +68,7 @@
 	"right-moderation-checkuser": "조정 인터페이스에서 편집자의 IP를 볼 수 있음",
 	"right-moderation": "편집 조정",
 	"right-skip-move-moderation": "조정 없이 문서 이동",
+	"tag-moderation-spam": "-",
 	"tooltip-moderation-approveall": "이 사용자/IP의 모든 편집 승인하기",
 	"tooltip-moderation-approve": "이 편집 승인",
 	"tooltip-moderation-approved-diff": "승인된 편집을 보기",
