@@ -15,8 +15,7 @@ module.exports = function ( grunt ) {
 			all: [
 				'**/*.{js,json}',
 				'!{vendor,node_modules}/**',
-				'!**/wdio.conf*.js',
-				'!modules/ext.moderation.special.ajax.js'
+				'!**/wdio.conf*.js'
 			]
 		},
 		banana: conf.MessagesDirs

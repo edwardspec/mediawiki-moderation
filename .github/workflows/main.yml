@@ -106,8 +106,10 @@ jobs:
         with:
           path: ~/.composer/cache
           key: composer-cache
-      - run: composer install
+      - name: Install dependencies
+        run: composer install && npm install
       - run: composer test
+      - run: npm test
 
   # Job #3: Phan (PHP static analyzer)
   phan:
