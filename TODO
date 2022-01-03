@@ -30,6 +30,7 @@ Low-prio:
 * (feature) Support MCR (multi-content revisions) - editing of non-main slots.
 	Note: this is easier to implement after MW 1.31 becomes deprecated,
 	because 1.31 didn't support MCR.
+* (feature) Make it possible to Approve edits caused by Special:ChangeContentModel.
 
 Background-prio (may not be needed):
 * (meta) Display notification "Please run update.php" on Special:Moderation if

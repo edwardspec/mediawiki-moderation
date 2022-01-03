@@ -56,6 +56,7 @@
 	"moderation-folder-rejected": "Rejected",
 	"moderation-folder-spam": "Spam",
 	"moderation-image-queued": "Success: your image has been sent to moderation.<br>Once approved, it will be visible to other users.",
+	"moderation-imagerotate-not-allowed": "Only automoderated users can rotate images.",
 	"moderation-log-change": "change $1",
 	"moderation-log-diff": "edit $1",
 	"moderation-merge": "Approve (Fix edit conflict)",

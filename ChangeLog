@@ -12,6 +12,10 @@ Features:
 * Allow AbuseFilter to tag intercepted edits as "place this to Spam folder"
 by adding "moderation-spam" tag to them.
 
+Security updates:
+* Restricted imagerotate API (rotate/reupload existing image) to automoderated
+users, because this action can't be intercepted by Moderation.
+
 Refactoring, performance optimizations:
 * Removed legacy code for MediaWiki 1.31-1.34.
 * Removed legacy code for supporting obsolete (pre-1.35) DB schema.

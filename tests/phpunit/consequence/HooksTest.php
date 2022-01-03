@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -109,23 +109,25 @@ class HooksTest extends ModerationUnitTestCase {
 	/**
 	 * Ensure that api.php?action=filerevert is not allowed to non-automoderated users.
 	 * @see testRevertImageRestrictedViaUI - same, but via UI
+	 * @see testRotateImageRestricted
 	 * @param bool $isAutomoderated
-	 * @param string $apiActionName Name of API action (NOT modaction!), e.g. "filerevert".
-	 * @dataProvider dataProviderRevertImageRestrictedViaApi
+	 * @dataProvider dataProviderIsAutomoderated
 	 * @covers ModerationApiHooks::onApiCheckCanExecute
 	 */
-	public function testRevertImageRestrictedViaApi( $isAutomoderated, $apiActionName ) {
+	public function testRevertImageRestrictedViaApi( $isAutomoderated ) {
 		$context = new RequestContext();
-		$context->getRequest()->setVal( 'action', $apiActionName );
-		$context->getRequest()->setVal( 'filename', 'irrelevant' );
-		$context->getRequest()->setVal( 'archivename', 'irrelevant' );
-		$context->getRequest()->setVal( 'token', $context->getUser()->getEditToken() );
+		$context->setRequest( new FauxRequest( [
+			'action' => 'filerevert',
+			'filename' => 'irrelevant',
+			'archivename' => 'irrelevant',
+			'token' => $context->getUser()->getEditToken()
+		] ) );
 
 		// Mock the result of canUploadSkip()
 		$canSkip = $this->createMock( ModerationCanSkip::class );
 		$canSkip->expects( $this->once() )->method( 'canUploadSkip' )->with(
-				$this->identicalTo( $context->getUser() )
-			)->willReturn( $isAutomoderated );
+			$this->identicalTo( $context->getUser() )
+		)->willReturn( $isAutomoderated );
 		$this->setService( 'Moderation.CanSkip', $canSkip );
 
 		$apiMain = new ApiMain( $context, true );
@@ -133,34 +135,106 @@ class HooksTest extends ModerationUnitTestCase {
 		$wrapper = TestingAccessWrapper::newFromObject( $apiMain );
 		$wrapper->setupExecuteAction();
 
-		$thrownStatus = Status::newGood();
+		$status = Status::newGood();
 		try {
 			$wrapper->checkExecutePermissions( $wrapper->setupModule() );
 		} catch ( ApiUsageException $e ) {
-			$thrownStatus = Status::wrap( $e->getStatusValue() );
+			$status = Status::wrap( $e->getStatusValue() );
 		}
 
-		if ( !$isAutomoderated && $apiActionName == 'filerevert' ) {
-			$this->assertFalse( $thrownStatus->isOK(),
-				"Non-automoderated user wasn't disallowed to revert image to previous revision." );
-			$this->assertEquals( 'moderation-revert-not-allowed', $thrownStatus->getMessage()->getKey() );
+		if ( $isAutomoderated ) {
+			$this->assertTrue( $status->isOK(),
+				"Using action=filerevert wasn't allowed when it shouldn't have been restricted." );
 		} else {
-			$this->assertTrue( $thrownStatus->isOK(),
-				"Using action=$apiActionName wasn't allowed when it shouldn't have been restricted." );
+			$this->assertFalse( $status->isOK(),
+				"Non-automoderated user wasn't disallowed to revert image to previous revision." );
+			$this->assertEquals( 'moderation-revert-not-allowed', $status->getMessage()->getKey() );
 		}
 	}
 
 	/**
-	 * Provide datasets for testRevertImageRestrictedViaApi() runs.
+	 * Ensure that api.php?action=imagerotate is not allowed to non-automoderated users.
+	 * @see testRevertImageRestrictedViaApi
+	 * @param bool $isAutomoderated
+	 * @dataProvider dataProviderIsAutomoderated
+	 * @covers ModerationApiHooks::onApiCheckCanExecute
+	 */
+	public function testRotateImageRestricted( $isAutomoderated ) {
+		$context = new RequestContext();
+		$context->setRequest( new FauxRequest( [
+			'action' => 'imagerotate',
+			'rotation' => '90',
+			'token' => $context->getUser()->getEditToken()
+		] ) );
+
+		// Mock the result of canUploadSkip()
+		$canSkip = $this->createMock( ModerationCanSkip::class );
+		$canSkip->expects( $this->once() )->method( 'canUploadSkip' )->with(
+			$this->identicalTo( $context->getUser() )
+		)->willReturn( $isAutomoderated );
+		$this->setService( 'Moderation.CanSkip', $canSkip );
+
+		$apiMain = new ApiMain( $context, true );
+
+		$wrapper = TestingAccessWrapper::newFromObject( $apiMain );
+		$wrapper->setupExecuteAction();
+
+		$status = Status::newGood();
+		try {
+			$wrapper->checkExecutePermissions( $wrapper->setupModule() );
+		} catch ( ApiUsageException $e ) {
+			$status = Status::wrap( $e->getStatusValue() );
+		}
+
+		if ( $isAutomoderated ) {
+			$this->assertTrue( $status->isOK(),
+				"Using action=imagerotate wasn't allowed when it shouldn't have been restricted." );
+		} else {
+			$this->assertFalse( $status->isOK(),
+				"Non-automoderated user wasn't disallowed to rotate image." );
+			$this->assertEquals( 'moderation-imagerotate-not-allowed', $status->getMessage()->getKey() );
+		}
+	}
+
+	/**
+	 * Provide datasets for testRevertImageRestrictedViaApi() and testRotateImageRestricted() runs.
 	 * @return array
 	 */
-	public function dataProviderRevertImageRestrictedViaApi() {
+	public function dataProviderIsAutomoderated() {
 		return [
-			'action=filerevert, automoderated (should be allowed)' => [ true, 'filerevert' ],
-			'action=filerevert, NOT automoderated (should be disallowed)' => [ false, 'filerevert' ],
-			'action=query, automoderated (should be allowed)' => [ true, 'query' ],
-			'action=query, NOT automoderated (should be allowed)' => [ false, 'query' ],
+			'automoderated (should be allowed)' => [ true ],
+			'NOT automoderated (should be disallowed)' => [ false ]
 		];
+	}
+
+	/**
+	 * Ensure that API actions other than filerevert/imagerotate are not restricted to automoderated users.
+	 * @see testRevertImageRestrictedViaApi
+	 * @see testRotateImageRestricted
+	 * @covers ModerationApiHooks::onApiCheckCanExecute
+	 */
+	public function testActionsOtherThanRevertOrRotateAreNotRestrictedViaApi() {
+		$context = new RequestContext();
+		$context->setRequest( new FauxRequest( [ 'action' => 'query' ] ) );
+
+		// Make request on behalf of non-automoderated user.
+		$canSkip = $this->createMock( ModerationCanSkip::class );
+		$canSkip->expects( $this->once() )->method( 'canUploadSkip' )->willReturn( false );
+		$this->setService( 'Moderation.CanSkip', $canSkip );
+
+		$apiMain = new ApiMain( $context, true );
+
+		$status = Status::newGood();
+		try {
+			$apiMain->execute();
+		} catch ( ApiUsageException $e ) {
+			$status = Status::wrap( $e->getStatusValue() );
+		}
+
+		$this->assertTrue( $status->isOK(),
+			"Using action=query wasn't allowed when it shouldn't have been restricted: " .
+			$status->getMessage()->getKey()
+		);
 	}
 
 	/**

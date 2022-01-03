@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017-2021 Edward Chernenko.
+	Copyright (C) 2017-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -63,10 +63,14 @@ class ModerationApiHooks implements
 		}
 
 		$moduleName = $module->getModuleName();
+		switch ( $moduleName ) {
+			case 'filerevert':
+				$message = 'moderation-revert-not-allowed';
+				return false;
 
-		if ( $moduleName == 'filerevert' ) {
-			$message = 'moderation-revert-not-allowed';
-			return false;
+			case 'imagerotate':
+				$message = 'moderation-imagerotate-not-allowed';
+				return false;
 		}
 	}
 
