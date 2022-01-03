@@ -56,6 +56,7 @@
 	"moderation-folder-rejected": "Folder on Special:Moderation for rejected changes (except rejected automatically).",
 	"moderation-folder-spam": "Folder on Special:Moderation for spam edits (rejected automatically, because their author was marked previously as spammer).",
 	"moderation-image-queued": "Success message shown to non-automoderated user after the upload. Informs the user about moderation.",
+	"moderation-imagerotate-not-allowed": "Permissions error when non-automoderated user tries to use \"rotate image\" API.",
 	"moderation-log-change": "\"change $1\", where $1 is the link to not-yet-approved change.",
 	"moderation-log-diff": "\"edit $1\", where $1 is the link to the diff (already approved change).",
 	"moderation-merge": "Text of button to manually Approve the change with edit conflict. (on Special:Moderation)",

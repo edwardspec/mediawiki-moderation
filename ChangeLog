@@ -1,8 +1,10 @@
 List of changes between releases of Extension:Moderation.
 
-== master branch (1.6.x versions) ==
+== REL1_31 branch (1.5.x versions) ==
 
-No changes since Moderation 1.5.36.
+Security updates:
+* Restricted imagerotate API (rotate/reupload existing image) to automoderated
+users, because this action can't be intercepted by Moderation.
 
 == Moderation 1.5.36 ==
 
