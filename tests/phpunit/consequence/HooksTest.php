@@ -102,7 +102,7 @@ class HooksTest extends ModerationUnitTestCase {
 			'action=revert, automoderated (should be allowed)' => [ true, 'revert' ],
 			'action=revert, NOT automoderated (should be disallowed)' => [ false, 'revert' ],
 			'action=view, automoderated (should be allowed)' => [ true, 'view' ],
-			'action=view, NOT automoderated (should be disallowed)' => [ false, 'view' ],
+			'action=view, NOT automoderated (should be allowed)' => [ false, 'view' ],
 		];
 	}
 
@@ -159,7 +159,7 @@ class HooksTest extends ModerationUnitTestCase {
 			'action=filerevert, automoderated (should be allowed)' => [ true, 'filerevert' ],
 			'action=filerevert, NOT automoderated (should be disallowed)' => [ false, 'filerevert' ],
 			'action=query, automoderated (should be allowed)' => [ true, 'query' ],
-			'action=query, NOT automoderated (should be disallowed)' => [ false, 'query' ],
+			'action=query, NOT automoderated (should be allowed)' => [ false, 'query' ],
 		];
 	}
 
