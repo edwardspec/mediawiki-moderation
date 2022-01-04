@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -27,22 +27,11 @@ use MediaWiki\User\UserIdentity;
 
 class ModerationTestUtil {
 	/**
-	 * Suppress unneeded/temporary deprecation messages caused by keeping compatibility with MW 1.31.
-	 * @param MediaWikiTestCase $tc
+	 * Suppress unneeded/temporary deprecation messages caused by compatibility with older MediaWiki.
+	 * @param MediaWikiTestCase $tc @phan-unused-param
 	 */
 	public static function ignoreKnownDeprecations( MediaWikiTestCase $tc ) {
-		// Temporary: MediaWiki core itself calls this in PageUpdater.php.
-		$tc->hideDeprecated( 'Revision::__construct' );
-		$tc->hideDeprecated( 'Revision::getId' );
-
-		// TODO: replace this in MW 1.35+ (only used in testsuite, not in production code)
-		$tc->hideDeprecated( 'Hooks::clear' );
-
-		// Warning from Extension:Echo (which we need in Echo-related tests), unrelated to Moderation.
-		$tc->hideDeprecated( 'Revision::getRevisionRecord' );
-
-		// Warning from Extension:Cite, unrelated to Moderation.
-		$tc->hideDeprecated( 'ResourceLoaderTestModules hook' );
+		// Nothing to ignore.
 	}
 
 	/**
