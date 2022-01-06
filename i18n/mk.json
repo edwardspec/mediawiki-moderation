@@ -56,6 +56,7 @@
 	"moderation-folder-rejected": "Одбиени",
 	"moderation-folder-spam": "Спам",
 	"moderation-image-queued": "Успех: вашата слика е испратен ана модерација. <br>Штом ќе се одобри, истата ќе биде видлива за другите корисници.",
+	"moderation-imagerotate-not-allowed": "Само автомодерирани корисници можат да вртат слики.",
 	"moderation-log-change": "промена $1",
 	"moderation-log-diff": "уредувањето $1",
 	"moderation-merge": "Одобри (исправи спротист.)",
