@@ -57,6 +57,7 @@
 	"moderation-folder-rejected": "Rejeté",
 	"moderation-folder-spam": "Pourriel",
 	"moderation-image-queued": "Réussi : votre image a été envoyée en modération.<br>Une fois approuvée, elle sera visible des autres utilisateurs.",
+	"moderation-imagerotate-not-allowed": "Seuls les utilisateurs modérés automatiquement peuvent faire pivoter les images.",
 	"moderation-log-change": "modifier $1",
 	"moderation-log-diff": "modifier $1",
 	"moderation-merge": "Approuver (corriger un conflit de modification)",

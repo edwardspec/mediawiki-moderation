@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"Ericliu1912",
 			"Kly"
 		]
 	},
@@ -64,7 +65,7 @@
 	"moderation-merge-not-needed": "請先嘗試核准此編輯：這可能不需手動合併。",
 	"moderation-missing-stashed-image": "此上傳無法被核准：儲存裡找不到圖片（可能是被使用者透過 [[Special:UploadStash]] 給刪除）。",
 	"moderation": "協調",
-	"moderation-move": "$1 已移動至 $2",
+	"moderation-move": "$1已移動至$2",
 	"moderation-move-queued": "成功：您對於重新命名頁面的提議已發送給協調者。",
 	"moderation-new-changes-appeared": "等待協調的新更改。",
 	"moderation-no-merge-link-not-automoderated": "無法合併（非自動協調身份）",
