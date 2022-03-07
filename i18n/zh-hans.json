@@ -6,6 +6,7 @@
 			"Hanyanbo98",
 			"Liuxinyu970226",
 			"VulpesVulpes825",
+			"Winston Sung",
 			"Wxyveronica"
 		]
 	},
@@ -88,7 +89,7 @@
 	"moderation-rejected-ok": "已拒绝 $1 {{plural:$1|次编辑}}。",
 	"moderation-reject": "拒绝",
 	"moderation-revert-not-allowed": "只有自动批准用户可以将图像还原至早先的版本。",
-	"moderation-show": "差别",
+	"moderation-show": "差异",
 	"moderation-suggest-signup": "若想以后跳过审核步骤，请 [[Special:CreateAccount|注册]].",
 	"moderation-text": "此特殊页面列举所有等待版主操作（批准或拒绝）的编辑。<br>另请参见：[[Special:Log/moderation|版主操作日志]]。",
 	"moderation-unblock": "不再是垃圾内容发送者",
