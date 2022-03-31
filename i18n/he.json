@@ -81,7 +81,7 @@
 	"moderation-revert-not-allowed": "רק משתמשים מנוהלים אוטומטית יכולים לשחזר תמונות לגרסאות קודמות.",
 	"moderation-show": "הבדל",
 	"moderation-suggest-signup": "כדי שלא יהיה צורך לאשר את העריכות שלך בעתיד, באפשרותך [[Special:CreateAccount|להירשם לאתר]].",
-	"moderation-text": "בדף זה מוצגות כל העריכות הממתינות לניהול (כלומר, לאישור או לדחייה).<br>ניתן לעיין גם ב[[Special:Log/moderation|יומן הניהול]].",
+	"moderation-text": "הדף המיוחד הזה מציג רשימה של כל העריכות הממתינות לניהול (כלומר, לאישור או לדחייה).<br>ניתן לעיין גם ב[[Special:Log/moderation|יומן הניהול]].",
 	"moderation-unblock": "כבר לא ברשימת הספאם",
 	"moderation-unblock-ok": "[[Special:Contributions/$1|$1]] כבר לא {{GENDER:$1|נמצא|נמצאת}} ברשימת הספאם.",
 	"moderation-unknown-modaction": "פעולת ניהול בלתי־ידועה.",
