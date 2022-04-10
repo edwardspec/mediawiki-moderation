@@ -90,9 +90,9 @@ jobs:
 
         # Run all tests.
       - name: Run integration tests (blackbox)
-        run: cd mediawiki && PHPUNIT_USE_NORMAL_TABLES=1 php tests/phpunit/phpunit.php ${{ env.branch != 'REL1_37' && '--use-normal-tables' || '' }} extensions/Moderation/tests/phpunit/blackbox
+        run: cd mediawiki && PHPUNIT_USE_NORMAL_TABLES=1 php tests/phpunit/phpunit.php ${{ env.branch != 'REL1_37' && env.branch != 'REL1_38' && '--use-normal-tables' || '' }} extensions/Moderation/tests/phpunit/blackbox
       - name: Run integration tests (decoupled)
-        run: cd mediawiki && PHPUNIT_USE_NORMAL_TABLES=1 php tests/phpunit/phpunit.php ${{ env.branch != 'REL1_37' && '--use-normal-tables' || '' }} extensions/Moderation/tests/phpunit/decoupled
+        run: cd mediawiki && PHPUNIT_USE_NORMAL_TABLES=1 php tests/phpunit/phpunit.php ${{ env.branch != 'REL1_37' && env.branch != 'REL1_38' && '--use-normal-tables' || '' }} extensions/Moderation/tests/phpunit/decoupled
 
   # Job #2: phpcs, parallel-lint, etc.
   linter:
