@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 # Allow parallel runs via Fastest: each thread uses its own database.
 if ( getenv( 'ENV_TEST_CHANNEL' ) ) {
 	$wgDBname .= "_thread" . getenv( 'ENV_TEST_CHANNEL' );
-} elseif ( getenv( 'PARALLEL_PHPUNIT_TESTS' ) && class_exists( 'MediaWikiTestCase' ) ) {
+} elseif ( getenv( 'PARALLEL_PHPUNIT_TESTS' ) && class_exists( 'MediaWikiIntegrationTestCase' ) ) {
 	throw new MWException( "ENV_TEST_CHANNEL not defined! Parallel testing is not possible." );
 }
 

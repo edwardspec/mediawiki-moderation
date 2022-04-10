@@ -28,9 +28,9 @@ use MediaWiki\User\UserIdentity;
 class ModerationTestUtil {
 	/**
 	 * Suppress unneeded/temporary deprecation messages caused by compatibility with older MediaWiki.
-	 * @param MediaWikiTestCase $tc @phan-unused-param
+	 * @param MediaWikiIntegrationTestCase $tc @phan-unused-param
 	 */
-	public static function ignoreKnownDeprecations( MediaWikiTestCase $tc ) {
+	public static function ignoreKnownDeprecations( MediaWikiIntegrationTestCase $tc ) {
 		// Nothing to ignore.
 	}
 

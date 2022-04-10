@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -17,14 +17,14 @@
 
 /**
  * @file
- * Subclass of MediaWikiTestCase that is used for Consequence tests. (NOT for blackbox tests)
+ * Subclass of MediaWikiIntegrationTestCase that is used for Consequence tests. (NOT for blackbox tests)
  */
 
 use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\IsConsequenceEqual;
 use MediaWiki\Moderation\MockConsequenceManager;
 
-class ModerationUnitTestCase extends MediaWikiTestCase {
+class ModerationUnitTestCase extends MediaWikiIntegrationTestCase {
 	protected function addCoreDBData() {
 		// Do nothing. Normally this method creates test user, etc.,
 		// but our unit tests don't need this.

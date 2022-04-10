@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ trait MockModerationActionTrait {
 		return $actionMock;
 	}
 
-	// These methods are in MediaWikiTestCase (this trait is used by its subclasses).
+	// These methods are in MediaWikiIntegrationTestCase (this trait is used by its subclasses).
 
 	/** @inheritDoc */
 	abstract protected function setService( $name, $service );

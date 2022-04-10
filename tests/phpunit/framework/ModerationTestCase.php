@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -17,10 +17,10 @@
 
 /**
  * @file
- * Subclass of MediaWikiTestCase that prints TestsuiteLogger debug messages for failed tests.
+ * Subclass of MediaWikiIntegrationTestCase that prints TestsuiteLogger debug messages for failed tests.
  */
 
-class ModerationTestCase extends MediaWikiTestCase {
+class ModerationTestCase extends MediaWikiIntegrationTestCase {
 	/** @var ModerationTestsuite|null */
 	private $testsuite = null;
 
@@ -47,7 +47,7 @@ class ModerationTestCase extends MediaWikiTestCase {
 
 	/**
 	 * Reimplementation of setMwGlobals() via ModerationTestsuite::setMwConfig().
-	 * This is indirectly used by QueueTest (via MediaWikiTestCase::setGroupPermissions())
+	 * This is indirectly used by QueueTest (via MediaWikiIntegrationTestCase::setGroupPermissions())
 	 * to temporarily allow anonymous uploads.
 	 *
 	 * @inheritDoc
@@ -110,7 +110,7 @@ class ModerationTestCase extends MediaWikiTestCase {
 		ModerationTestUtil::ignoreKnownDeprecations( $this );
 
 		$name = $this->getName();
-		if ( $name == 'testValidCovers' || $name == 'testMediaWikiTestCaseParentSetupCalled' ) {
+		if ( $name == 'testValidCovers' || $name == 'testMediaWikiIntegrationTestCaseParentSetupCalled' ) {
 			// These meta-tests are basically linters,
 			// they don't need ModerationTestsuite object or clean database.
 			return;

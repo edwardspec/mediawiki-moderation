@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ trait ModerationTestsuiteTestSet {
 	}
 
 	public function __destruct() {
-		// Destructor should be suppressed for cloned MediaWikiTestCase objects.
+		// Destructor should be suppressed for cloned MediaWikiIntegrationTestCase objects.
 		if ( !$this->cloned ) {
 			$rc = new ReflectionObject( $this );
 			if ( $rc->getParentClass()->hasMethod( '__destruct' ) ) { // False for MW 1.35+

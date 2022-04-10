@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2021 Edward Chernenko.
+	Copyright (C) 2015-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -245,8 +245,8 @@ class ModerationTestsuite {
 	 * (as in "Destroy everything on testsuite's path")
 	 */
 	private function prepareDbForTests() {
-		if ( class_exists( 'MediaWikiTestCase' ) ) { // Not in benchmark scripts
-			// Handle the fact that MediaWikiTestCase tries to isolate us from the real database,
+		if ( class_exists( 'MediaWikiIntegrationTestCase' ) ) { // Not in benchmark scripts
+			// Handle the fact that MediaWikiIntegrationTestCase tries to isolate us from the real database,
 			// which we must examine, because this entire testsuite does the blackbox testing,
 			// making HTTP queries as the users would do.
 			$this->engine->escapeDbSandbox();
@@ -895,7 +895,7 @@ class ModerationTestsuite {
 	/**
 	 * Assert that API response $ret contains error $expectedErrorCode.
 	 */
-	public function assertApiError( $expectedErrorCode, array $ret, MediaWikiTestCase $tcase ) {
+	public function assertApiError( $expectedErrorCode, array $ret, MediaWikiIntegrationTestCase $tcase ) {
 		$tcase->assertArrayHasKey( 'error', $ret );
 		$tcase->assertEquals( $expectedErrorCode, $ret['error']['code'] );
 	}

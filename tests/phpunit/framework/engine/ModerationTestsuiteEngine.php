@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017-2020 Edward Chernenko.
+	Copyright (C) 2017-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -352,7 +352,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	}
 
 	/**
-	 * Handle the fact that MediaWikiTestCase tries to isolate us from the real database.
+	 * Handle the fact that MediaWikiIntegrationTestCase tries to isolate us from the real database.
 	 *
 	 * MediaWiki 1.28+ started to agressively isolate tests from the real database,
 	 * which means that executed HTTP requests must also be in the sandbox.

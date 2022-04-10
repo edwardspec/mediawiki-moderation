@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017-2020 Edward Chernenko.
+	Copyright (C) 2017-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -97,7 +97,7 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 	}
 
 	/**
-	 * Run subrequests in the DB sandbox imposed by MediaWikiTestCase.
+	 * Run subrequests in the DB sandbox imposed by MediaWikiIntegrationTestCase.
 	 */
 	public function escapeDbSandbox() {
 		if ( !defined( 'MODERATION_TESTSUITE_REALHTTP_CONFIGURED' ) ) {
