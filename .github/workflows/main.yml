@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         php: [7.4]
-        branch: [REL1_35, REL1_36, REL1_37]
+        branch: [REL1_35, REL1_36, REL1_37, REL1_38]
         dbtype: [mysql, postgres]
     env:
       branch: ${{ matrix.branch }}
@@ -77,6 +77,7 @@ jobs:
           chmod 0600 ~/.my.cnf ~/.pgpass
           rsync -a --exclude buildcache --exclude mediawiki --exclude .git . mediawiki/extensions/Moderation/
           cd mediawiki && echo 'DELETE FROM recentchanges;' | php maintenance/sql.php
+          ( cd extensions/AbuseFilter && composer update --no-dev )
           WITH_ECHO=1 php maintenance/update.php --quick
           php maintenance/createAndPromote.php "$MEDIAWIKI_USER" "$MEDIAWIKI_PASSWORD" --custom-groups moderator,automoderated
           ( cd extensions/Moderation && composer install )
