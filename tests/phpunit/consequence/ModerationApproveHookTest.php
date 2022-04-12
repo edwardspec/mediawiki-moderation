@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -796,7 +796,12 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 			if ( ExtensionRegistry::getInstance()->isLoaded( 'CheckUser' ) ) {
 				// Verify that ApproveHook has modified fields in cuc_changes table.
-				$expectedRow = [ '127.0.0.1', IPUtils::toHex( '127.0.0.1' ), '0', '0' ];
+				$emptyUserAgent = ''; // MediaWiki 1.38+
+				if ( version_compare( MW_VERSION, '1.38.0-alpha', '<' ) ) {
+					$emptyUserAgent = '0'; // MediaWiki 1.35-1.37
+				}
+
+				$expectedRow = [ '127.0.0.1', IPUtils::toHex( '127.0.0.1' ), $emptyUserAgent, '0' ];
 				if ( $task ) {
 					$expectedRow = [
 						$task['ip'],
