@@ -1,9 +1,13 @@
 {
 	"@metadata": {
 		"authors": [
+			"Bluehill",
 			"Ykhwong"
 		]
 	},
+	"group-automoderated-member": "{{GENDER:$1|자동 조정된 사용자}}",
+	"group-moderator-member": "{{GENDER:$1|조정자}}",
+	"group-moderator": "조정자",
 	"grouppage-automoderated": "{{ns:project}}:조정",
 	"grouppage-moderator": "{{ns:project}}:조정",
 	"log-action-filter-moderation-approve": "변경을 승인함",
