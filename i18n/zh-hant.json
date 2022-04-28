@@ -2,7 +2,8 @@
 	"@metadata": {
 		"authors": [
 			"Ericliu1912",
-			"Kly"
+			"Kly",
+			"Winston Sung"
 		]
 	},
 	"action-moderation": "協調編輯",
@@ -73,7 +74,7 @@
 	"moderation-nothing-to-rejectall": "沒有待辦協調的編輯：無需回退。",
 	"moderation-notification-content": "由使用者「$2」對於頁面「$1」所做出的新編輯正等待協調，請查看：$3",
 	"moderation-notification-subject": "[Moderation] 等待協調的新更改",
-	"moderation-pending-review": "待審查",
+	"moderation-pending-review": "待審核",
 	"moderation-preview": "預覽",
 	"moderation-preview-title": "修訂「$1」正在等待協調",
 	"moderation-rejectall": "回退全部",
