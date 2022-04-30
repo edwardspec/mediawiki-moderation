@@ -136,7 +136,12 @@ class ModerationTestHTML extends DOMDocument {
 	 * @return DOMElement|null
 	 */
 	public function getElementByXPath( $selector ) {
-		$elem = $this->getElementsByXPath( $selector )->item( 0 );
+		$elements = $this->getElementsByXPath( $selector );
+		if ( !$elements ) {
+			return null;
+		}
+
+		$elem = $elements->item( 0 );
 
 		'@phan-var DOMElement|null $elem';
 		return $elem;
