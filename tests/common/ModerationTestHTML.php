@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2021 Edward Chernenko.
+	Copyright (C) 2015-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -31,8 +31,11 @@ class ModerationTestHTML extends DOMDocument {
 	/**
 	 * Utility function to warn about Libxml errors.
 	 * Ignores the fact that some HTML5 tags are unknown to libxml2.
+	 *
+	 * @return bool True if there were errors, false otherwise.
 	 */
 	public static function checkLibxmlErrors() {
+		$errorCount = 0;
 		$errors = libxml_get_errors();
 		foreach ( $errors as $error ) {
 			if ( $error->code == self::XML_HTML_UNKNOWN_TAG ) {
@@ -41,9 +44,11 @@ class ModerationTestHTML extends DOMDocument {
 			}
 
 			print "LibXML error: " . trim( $error->message ) . "\n";
+			$errorCount++;
 		}
 
 		libxml_clear_errors();
+		return $errorCount > 0;
 	}
 
 	/**
@@ -59,7 +64,9 @@ class ModerationTestHTML extends DOMDocument {
 		libxml_use_internal_errors( true );
 
 		$this->loadHTML( $string );
-		self::checkLibxmlErrors();
+		if ( self::checkLibxmlErrors() ) {
+			print "LibXML failed to parse the following document: <<<\n" . trim( $string ) . "\n>>>\n";
+		}
 
 		return $this;
 	}
