@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -120,6 +120,11 @@ class ModerationTestsuiteBagOStuff extends MediumSpecificBagOStuff {
 	/** @inheritDoc */
 	public function decr( $key, $value = 1, $flags = 0 ) {
 		return self::$store->decr( $key, $value, $flags );
+	}
+
+	/** @inheritDoc */
+	protected function doIncrWithInit( $key, $exptime, $step, $init, $flags ) {
+		return self::$store->incrWithInit( $key, $exptime, $step, $init, $flags );
 	}
 
 	/** @inheritDoc */
