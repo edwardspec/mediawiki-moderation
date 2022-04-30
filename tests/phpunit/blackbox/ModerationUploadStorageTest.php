@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2019-2021 Edward Chernenko.
+	Copyright (C) 2019-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -57,9 +57,9 @@ class ModerationUploadStorageTest extends ModerationTestCase {
 		$dbw->delete( 'actor', [ 'actor_name' => ModerationUploadStorage::USERNAME ], __METHOD__ );
 
 		if ( method_exists( '\MediaWiki\User\ActorStore', 'clearCaches' ) ) {
-			// MediaWiki 1.37+
+			// MediaWiki 1.37 only (not needed in MediaWiki 1.38+)
 			MediaWikiServices::getInstance()->getActorStore()->clearCaches();
-		} else {
+		} elseif ( method_exists( 'User', 'resetIdByNameCache' ) ) {
 			// MediaWiki 1.35-1.36
 			User::resetIdByNameCache();
 		}
