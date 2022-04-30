@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -154,7 +154,7 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 		$html->loadReq( $req );
 
 		$div = $html->getElementByXPath( '//div[@class="error"]' ) ?? // MediaWiki 1.35-1.36
-			$html->getElementByXPath( '//div[@class="errorbox"]' ); // MediaWiki 1.37+
+			$html->getElementByXPath( '//div[contains(@class, "errorbox")]' ); // MediaWiki 1.37+
 
 		if ( $div ) {
 			// Error found
