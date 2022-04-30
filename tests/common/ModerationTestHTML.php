@@ -43,7 +43,13 @@ class ModerationTestHTML extends DOMDocument {
 				continue;
 			}
 
-			print "LibXML error: " . trim( $error->message ) . "\n";
+			$message = trim( $error->message );
+			if ( $message == 'Unexpected end tag : ul' ) {
+				// Workaround for MW 1.38 issue (unrelated to Moderation): unneeded "</ul>" tag on Special:Log.
+				continue;
+			}
+
+			print "LibXML error: $message\n";
 			$errorCount++;
 		}
 
