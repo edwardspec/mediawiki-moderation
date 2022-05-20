@@ -46,6 +46,8 @@
 	"moderation-editing-your-version": "זוהי הגרסה שלך בערך הזה. כרגע היא ממתינה לאישור.<br>לאחר שהגרסה תאושר, היא תוצג למשתמשים אחרים.",
 	"moderation-edit-not-found": "העריכה לא נמצאה. כנראה שהיא כבר אושרה.",
 	"moderation-edit-queued": "הפעולה בוצעה: העריכה שלך נשלחה למערכת הניהול.<br>באפשרותך להמשיך לערוך את <a href='$1'>הגרסה שלך בדף הזה</a>.",
+	"moderation-editchange": "עריכה",
+	"moderation-editchange-not-edit": "זאת לא עריכה. אפשר לשנו רק עריכות.",
 	"moderation-folder-merged": "מוזגו",
 	"moderation-folder-pending": "ממתינים לאישור",
 	"moderation-folder-rejected": "נדחו",
