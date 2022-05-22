@@ -93,7 +93,7 @@
 	"moderation-unknown-modaction": "Unknown moderation action.",
 	"moderation-whois-link-text": "?",
 	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
-	"right-moderation-checkuser": "Can see IPs of editors in the moderation interface",
+	"right-moderation-checkuser": "See IPs of editors in the moderation interface",
 	"right-moderation": "Moderate edits",
 	"right-skip-moderation": "Have their edits bypass moderation",
 	"right-skip-move-moderation": "Move pages without moderation",
