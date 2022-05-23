@@ -2,7 +2,8 @@
 	"@metadata": {
 		"authors": [
 			"Edward Chernenko",
-			"Robby"
+			"Robby",
+			"Shirayuki"
 		]
 	},
 	"action-moderation": "{{doc-action|moderation}}",
@@ -94,7 +95,7 @@
 	"moderation-whois-link-text": "{{notranslate}}",
 	"moderation-whois-link-url": "{{notranslate}}",
 	"right-moderation-checkuser": "{{doc-right|moderation-checkuser}}\nAllows to see IPs of registered users on Special:Moderation.",
-	"right-moderation": "{{doc-right|moderation-moderation}}\nAllows to use Special:Moderation.",
+	"right-moderation": "{{doc-right|moderation}}\nAllows to use Special:Moderation.",
 	"right-skip-moderation": "{{doc-right|skip-moderation}}\nAllows to bypass moderation when saving an edit.",
 	"right-skip-move-moderation": "{{doc-right|skip-move-moderation}}\nAllows to bypass moderation when renaming a page.",
 	"tag-moderation-merged": "Change tag for non-moderator's edit made from moderator's account (because moderator had to resolve an edit conflict).\n{{Related|tag-moderation-merged-description}}",
