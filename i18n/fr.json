@@ -3,6 +3,7 @@
 		"authors": [
 			"Gomoko",
 			"Thibaut120094",
+			"Verdy p",
 			"Wladek92"
 		]
 	},
@@ -106,7 +107,7 @@
 	"tooltip-moderation-approve": "Approuver cette modification seule",
 	"tooltip-moderation-approved-diff": "Afficher la modification approuvée",
 	"tooltip-moderation-block": "Envoyer les modifications suivantes de cet utilisateur dans le dossier Pourriel",
-	"tooltip-moderation-editchange": "Modifier le texte (ou le résumé) de cette modification non terminée",
+	"tooltip-moderation-editchange": "Modifier le texte (ou le résumé des modifications) de ce changement en attente",
 	"tooltip-moderation-folder-merged": "Modifications fusionnées manuellement par un modérateur",
 	"tooltip-moderation-folder-pending": "Modifications qui ne sont pas encore approuvées ou rejetées",
 	"tooltip-moderation-folder-rejected": "Modifications rejetées par un modérateur",
