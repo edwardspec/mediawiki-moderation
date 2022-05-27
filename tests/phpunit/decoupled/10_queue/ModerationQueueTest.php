@@ -525,9 +525,8 @@ class ModerationQueueTest extends ModerationTestCase {
 		// serialize() is not currently used, because some classes have callbacks, etc.,
 		// and where json_encode would provide an empty value, serialize() would fail completely.
 
-		$this->assertTrue( $this->title->equals( Title::makeTitle(
-			$params[0]['mTitle']['mNamespace'],
-			$params[0]['mTitle']['mTextform']
+		$this->assertTrue( $this->title->equals( Title::newFromText(
+			$params[0]['mTitle']['prefixedText']
 		) ) );
 
 		$this->assertEquals( $this->user->getName(), $params[1]['mName'] );
