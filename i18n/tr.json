@@ -5,7 +5,8 @@
 			"Hedda",
 			"MuratTheTurkish",
 			"Rapsar",
-			"SaldırganSincap"
+			"SaldırganSincap",
+			"ToprakM"
 		]
 	},
 	"action-moderation": "moderasyon düzenlemeleri",
@@ -25,7 +26,7 @@
 	"logentry-moderation-approveall": "$1, $3 tarafından yapılan $4 düzenlemeyi {{GENDER:$2|onayladı}}",
 	"logentry-moderation-approve-move": "$1, $5 tarafından yapılan $3 sayfasının $4 sayfasına taşıma işlemini {{GENDER:$2|onayladı}}",
 	"logentry-moderation-block": "$1, $3 kullanıcıya spam yapan olarak {{GENDER:$2|işaretledi}}",
-	"logentry-moderation-editchange": "$1, $3 sayfasına $4 {{GENDER:$2|elle değiştirdi}}",
+	"logentry-moderation-editchange": "$1, $4 elle $3 {{GENDER:$2|olarak değiştirdi}}",
 	"logentry-moderation-merge": "$1, $3 sayfasında $4 ile $5 {{GENDER:$2|birleştirildi}}",
 	"logentry-moderation-reject": "$1, $5 tarafından yapılan $3 sayfasına $4 {{GENDER:$2|reddetti}}",
 	"logentry-moderation-rejectall": "$1, $3 tarafından yapılan $4 düzenlemeyi {{GENDER:$2|reddetti}}",

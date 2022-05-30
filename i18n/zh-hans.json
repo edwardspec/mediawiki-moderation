@@ -3,6 +3,7 @@
 		"authors": [
 			"Chixvv",
 			"Deathkon",
+			"GuoPC",
 			"Hanyanbo98",
 			"Liuxinyu970226",
 			"VulpesVulpes825",
@@ -97,7 +98,7 @@
 	"moderation-unknown-modaction": "未知的版主操作行为。",
 	"moderation-whois-link-text": "?",
 	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
-	"right-moderation-checkuser": "可以在批准界面上看到编辑者的IP地址",
+	"right-moderation-checkuser": "在批准界面上看到编辑者的IP地址",
 	"right-moderation": "审核编辑结果",
 	"right-skip-moderation": "让他们的编辑绕过审核",
 	"right-skip-move-moderation": "重命名页面时无需审核",
