@@ -3,6 +3,7 @@
 		"authors": [
 			"Elroy",
 			"Mainframe98",
+			"McDutchie",
 			"SPQRobin"
 		]
 	},
@@ -86,7 +87,7 @@
 	"moderation-unknown-modaction": "Onbekende bewerkingscontrole handeling.",
 	"moderation-whois-link-text": "?",
 	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
-	"right-moderation-checkuser": "Kan de IP-adressen van bewerkers in de bewerkingscontrole-interface bekijken",
+	"right-moderation-checkuser": "De IP-adressen van bewerkers in de bewerkingscontrole-interface bekijken",
 	"right-moderation": "Bewerkingen controleren",
 	"right-skip-moderation": "Mag de bewerkingscontrole overslaan",
 	"right-skip-move-moderation": "Mag pagina's hernoemen zonder bewerkingscontrole",
