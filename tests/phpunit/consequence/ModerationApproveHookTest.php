@@ -20,6 +20,7 @@
  * Unit test of ModerationApproveHook.
  */
 
+use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 use Psr\Log\NullLogger;
 use Wikimedia\IPUtils;
@@ -698,7 +699,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 		}
 
 		// Step 1: install ApproveHook for edits that will happen later.
-		$approveHook = new ModerationApproveHook( new NullLogger() );
+		$approveHook = new ModerationApproveHook( LoggerFactory::getInstance( 'ModerationApproveHook' ) );
 		foreach ( $todo as $testParameters ) {
 			list( $title, $user, $type, $task ) = $testParameters;
 			if ( $task ) {
