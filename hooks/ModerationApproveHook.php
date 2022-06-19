@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2021 Edward Chernenko.
+	Copyright (C) 2014-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -49,6 +49,13 @@ class ModerationApproveHook implements
 	 * Counter used in onPageSaveComplete() to ensure that doUpdate() is called only once.
 	 */
 	protected $useCount = 0;
+
+	/**
+	 * @var bool
+	 * Set to true in doUpdate().
+	 * Used to detect situation where queueUpdate() is being called too late (after doUpdate).
+	 */
+	protected $alreadyBatchUpdated = false;
 
 	/**
 	 * @var array Database updates that will be applied in doUpdate().
@@ -158,6 +165,7 @@ class ModerationApproveHook implements
 		}
 
 		$this->reallyDoUpdate();
+		$this->alreadyBatchUpdated = true;
 	}
 
 	/**
@@ -338,11 +346,6 @@ class ModerationApproveHook implements
 		}
 
 		$dbw->endAtomic( __METHOD__ );
-
-		// Clean both $dbUpdates and $tasks (everything is done).
-		// Further calls to isApprovingNow() will return false.
-		$this->dbUpdates = [];
-		$this->tasks = [];
 	}
 
 	/**
@@ -529,7 +532,6 @@ class ModerationApproveHook implements
 				$params = $logEntry->getParameters();
 				$params['revid'] = $title->getLatestRevID();
 
-				// TODO: should we use queueUpdate() here?
 				$dbw->update( 'logging',
 					[ 'log_params' => $logEntry->makeParamBlob( $params ) ],
 					[ 'log_id' => $logid ]
@@ -558,6 +560,15 @@ class ModerationApproveHook implements
 			'values' => FormatJson::encode( $values )
 		] );
 
+		if ( $this->alreadyBatchUpdated || version_compare( MW_VERSION, '1.38.0', '>=' ) ) {
+			// MediaWiki 1.38+ only: unfortunately RecentChange_save hook is deferred in a manner
+			// that doesn't allow us to know for sure if all RecentChanges
+			// were already created BEFORE doUpdate().
+			// In this situation we must apply the necessary change immediately, not queue it.
+			$this->updateWithoutQueue( $table, $ids, $values );
+			return;
+		}
+
 		if ( !isset( $this->dbUpdates[$table] ) ) {
 			$this->dbUpdates[$table] = [];
 		}
@@ -571,6 +582,70 @@ class ModerationApproveHook implements
 				$this->dbUpdates[$table][$field][$id] = $value;
 			}
 		}
+	}
+
+	/**
+	 * Perform post-approval UPDATE SQL query immediately. Not used in MediaWiki 1.35-1.37.
+	 * @param string $table Name of table, e.g. 'revision'.
+	 * @param array $ids One or several IDs (e.g. rev_id or rc_id).
+	 * @param array $values New values, as expected by $db->update,
+	 * e.g. [ 'rc_ip' => '1.2.3.4', 'rc_something' => '...' ].
+	 *
+	 * @phan-param array<string,string> $values
+	 */
+	protected function updateWithoutQueue( $table, array $ids, array $values ) {
+		$idFieldName = $this->idFieldNames[$table]; /* e.g. "rev_id" */
+		$newTimestamp = $values['rev_timestamp'] ?? null;
+
+		$dbw = wfGetDB( DB_MASTER );
+
+		if ( $table === 'revision' && $newTimestamp ) {
+			// Double-check that $newTimestamp is not more ancient
+			// than the rev_timestamp of the previous revision.
+			$ids = array_filter( $ids, function ( $revisionId ) use ( $dbw, $newTimestamp ) {
+				$prevTimestamp = $dbw->selectField(
+					[
+						'a' => 'revision', /* This revision, one of $ids */
+						'b' => 'revision' /* Previous revision */
+					],
+					'b.rev_timestamp',
+					[ 'a.rev_id' => $revisionId ],
+					'ModerationApproveHook::updateWithoutQueue',
+					[],
+					[
+						'b' => [ 'INNER JOIN', [
+							'b.rev_id=a.rev_parent_id'
+						] ]
+					]
+				);
+				if ( $prevTimestamp > $newTimestamp ) {
+					// Using $newTimestamp would result in incorrect order of history,
+					// so we are ignoring this update.
+					$this->logger->info(
+						"[ApproveHook] Decided not to set rev_timestamp={timestamp} for revision #{revid}, " .
+						"because previous revision has {prev_timestamp} (which is newer).",
+						[
+							'revid' => $revisionId,
+							'timestamp' => $newTimestamp,
+							'prev_timestamp' => $prevTimestamp
+						]
+					);
+					return false;
+				}
+
+				return true;
+			} );
+			if ( !$ids ) {
+				// Nothing to do: we decided to skip rev_timestamp update for all rows.
+				return;
+			}
+		}
+
+		$dbw->update( $table,
+			$values,
+			[ $idFieldName => $ids ],
+			__METHOD__
+		);
 	}
 
 	/**
