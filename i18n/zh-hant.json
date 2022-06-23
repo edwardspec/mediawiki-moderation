@@ -93,7 +93,7 @@
 	"moderation-unknown-modaction": "未知的協調操作。",
 	"moderation-whois-link-text": "?",
 	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
-	"right-moderation-checkuser": "在協調介面上可查看編輯者的 IP 位址",
+	"right-moderation-checkuser": "在協調介面上查看編輯者的 IP 位址",
 	"right-moderation": "協調編輯",
 	"right-skip-moderation": "可讓他們的編輯跳過協調步驟",
 	"right-skip-move-moderation": "不經協調來移動頁面",
