@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"Cigaryno",
 			"Gomoko",
 			"Thibaut120094",
 			"Verdy p",
@@ -19,7 +20,7 @@
 	"log-action-filter-moderation-merge": "Fusionné manuellement",
 	"log-action-filter-moderation-reject": "Modification rejetée",
 	"log-action-filter-moderation": "Type d’événement de modération :",
-	"log-description-moderation": "Ci-dessous se trouve la liste de toutes les actions de modération.",
+	"log-description-moderation": "Vous trouverez ci-dessous la liste de toutes les actions de modération.",
 	"logentry-moderation-approve": "$1 a {{GENDER:$2|approuvé}} $4 pour la page $3",
 	"logentry-moderation-approveall": "$1 a {{GENDER:$2|approuvé}} $4 modifications par $3",
 	"logentry-moderation-approve-move": "$1 a {{GENDER:$2|approuvé}} le déplacement de $3 en $4 par $5",
