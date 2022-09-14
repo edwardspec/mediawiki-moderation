@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2021 Edward Chernenko.
+	Copyright (C) 2014-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
  * Parent class for all moderation actions.
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
@@ -115,7 +116,8 @@ abstract class ModerationAction extends ContextSource {
 	 */
 	final public function run() {
 		if ( $this->requiresWrite() ) {
-			if ( wfReadOnly() ) {
+			// TODO: use dependency injection
+			if ( MediaWikiServices::getInstance()->getReadOnlyMode()->isReadOnly() ) {
 				throw new ReadOnlyError;
 			}
 
