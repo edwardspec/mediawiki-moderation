@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -326,12 +326,12 @@ class ModerationNewChange {
 	 * @return string[]
 	 */
 	protected function findAbuseFilterTags35( Title $title, User $user, $action ) {
-		// @phan-suppress-next-line PhanUndeclaredStaticProperty AbuseFilter::$tagsToSet
+		// @phan-suppress-next-line PhanUndeclaredClassStaticProperty AbuseFilter::$tagsToSet
 		if ( !class_exists( 'AbuseFilter' ) || empty( AbuseFilter::$tagsToSet ) ) {
 			return []; /* No tags */
 		}
 
-		// @phan-suppress-next-line PhanUndeclaredStaticProperty AbuseFilter::$tagsToSet
+		// @phan-suppress-next-line PhanUndeclaredClassStaticProperty AbuseFilter::$tagsToSet
 		$tagsToSet = AbuseFilter::$tagsToSet;
 
 		/* AbuseFilter wants to assign some tags to this edit.

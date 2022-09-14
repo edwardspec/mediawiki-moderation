@@ -58,9 +58,11 @@ class ModerationUploadStorageTest extends ModerationTestCase {
 
 		if ( method_exists( '\MediaWiki\User\ActorStore', 'clearCaches' ) ) {
 			// MediaWiki 1.37 only (not needed in MediaWiki 1.38+)
+			// @phan-suppress-next-line PhanUndeclaredMethod ActorStore::clearCaches
 			MediaWikiServices::getInstance()->getActorStore()->clearCaches();
 		} elseif ( method_exists( 'User', 'resetIdByNameCache' ) ) {
 			// MediaWiki 1.35-1.36
+			// @phan-suppress-next-line PhanUndeclaredStaticMethod User::resetIdByNameCache
 			User::resetIdByNameCache();
 		}
 

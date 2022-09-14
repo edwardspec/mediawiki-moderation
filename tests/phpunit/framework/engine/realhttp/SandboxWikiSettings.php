@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -28,6 +28,3 @@ if ( PHP_SAPI !== 'cli' ) {
 
 	putenv( 'ENV_TEST_CHANNEL=' . intval( $_SERVER['HTTP_X_ENV_TEST_CHANNEL'] ) );
 }
-
-// Until https://gerrit.wikimedia.org/r/#/c/mediawiki/core/+/567389/ gets merged
-Http::$httpEngine = 'curl';

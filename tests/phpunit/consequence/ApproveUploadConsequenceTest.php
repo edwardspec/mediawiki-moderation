@@ -79,6 +79,7 @@ class ApproveUploadConsequenceTest extends ModerationUnitTestCase {
 
 		$uploader = method_exists( $file, 'getUploader' ) ?
 			$file->getUploader( File::RAW ) : // MediaWiki 1.36+
+			// @phan-suppress-next-line PhanUndeclaredMethod File::getUser
 			$file->getUser( 'object' ); // MediaWiki 1.35 only
 
 		$this->assertEquals( $user->getName(), $uploader->getName() );

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -377,6 +377,7 @@ class ModerationQueueTest extends ModerationTestCase {
 				$watchlistManager->addWatchIgnoringRights( $this->user, $this->title );
 			} else {
 				// MediaWiki 1.35-1.36
+				// @phan-suppress-next-line PhanUndeclaredStaticMethod WatchAction::doWatch
 				WatchAction::doWatch( $this->title, $this->user );
 			}
 		}

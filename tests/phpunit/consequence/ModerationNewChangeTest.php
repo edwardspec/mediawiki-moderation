@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2021 Edward Chernenko.
+	Copyright (C) 2021-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -506,13 +506,13 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 
 		$key = $title->getPrefixedText() . '-' . $user->getName() . '-' . $action;
 
-		// @phan-suppress-next-line PhanUndeclaredStaticProperty
+		// @phan-suppress-next-line PhanUndeclaredClassStaticProperty
 		AbuseFilter::$tagsToSet = [ $key => $expectedTags ];
 
 		// @phan-suppress-next-line PhanUnusedVariable
 		$scope = new ScopedCallback( static function () {
 			// Clean $tagsToSet after the test.
-			// @phan-suppress-next-line PhanUndeclaredStaticProperty
+			// @phan-suppress-next-line PhanUndeclaredClassStaticProperty
 			AbuseFilter::$tagsToSet = [];
 		} );
 
