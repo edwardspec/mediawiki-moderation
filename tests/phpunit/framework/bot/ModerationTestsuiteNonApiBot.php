@@ -154,7 +154,8 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 		$html->loadReq( $req );
 
 		$div = $html->getElementByXPath( '//div[@class="error"]' ) ?? // MediaWiki 1.35-1.36
-			$html->getElementByXPath( '//div[contains(@class, "errorbox")]' ); // MediaWiki 1.37+
+			$html->getElementByXPath( '//div[contains(@class, "errorbox")]' ) ?? // MediaWiki 1.37-1.38
+			$html->getElementByXPath( '//div[contains(@class, "mw-message-box-error")]' ); // MediaWiki 1.39+
 
 		if ( $div ) {
 			// Error found
