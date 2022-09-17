@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         php: [7.4]
-        branch: [REL1_35, REL1_36, REL1_37, REL1_38]
+        branch: [REL1_35, REL1_36, REL1_37, REL1_38, REL1_39]
         dbtype: [mysql, postgres]
     env:
       branch: ${{ matrix.branch }}
@@ -55,7 +55,7 @@ jobs:
         with:
             php-version: ${{ matrix.php }}
             extensions: mbstring, intl, opcache, mysqli
-            tools: composer:v1
+            tools: composer${{ env.branch != 'REL1_39' && ':v1' || '' }}
             ini-values: zend.enable_gc=Off, opcache.enable_cli=1, opcache.file_cache="/dev/shm", opcache.file_cache_only=1, opcache.file_cache_consistency_checks=0, opcache.validate_timestamps=0
       - name: (debug) Print "php -i"
         run: php -i
@@ -91,9 +91,9 @@ jobs:
 
         # Run all tests.
       - name: Run integration tests (blackbox)
-        run: cd mediawiki && PHPUNIT_USE_NORMAL_TABLES=1 php tests/phpunit/phpunit.php ${{ env.branch != 'REL1_37' && env.branch != 'REL1_38' && '--use-normal-tables' || '' }} extensions/Moderation/tests/phpunit/blackbox
+        run: cd mediawiki && PHPUNIT_USE_NORMAL_TABLES=1 php tests/phpunit/phpunit.php ${{ env.branch != 'REL1_37' && env.branch != 'REL1_38' && env.branch != 'REL1_39' && '--use-normal-tables' || '' }} extensions/Moderation/tests/phpunit/blackbox
       - name: Run integration tests (decoupled)
-        run: cd mediawiki && PHPUNIT_USE_NORMAL_TABLES=1 php tests/phpunit/phpunit.php ${{ env.branch != 'REL1_37' && env.branch != 'REL1_38' && '--use-normal-tables' || '' }} extensions/Moderation/tests/phpunit/decoupled
+        run: cd mediawiki && PHPUNIT_USE_NORMAL_TABLES=1 php tests/phpunit/phpunit.php ${{ env.branch != 'REL1_37' && env.branch != 'REL1_38' && env.branch != 'REL1_39' && '--use-normal-tables' || '' }} extensions/Moderation/tests/phpunit/decoupled
 
   # Job #2: phpcs, parallel-lint, etc.
   linter:
@@ -117,14 +117,14 @@ jobs:
   phan:
     runs-on: ubuntu-20.04
     env:
-      branch: REL1_37
+      branch: REL1_39
     steps:
       - uses: actions/checkout@v2
       - uses: shivammathur/setup-php@v2
         with:
             php-version: '7.4'
             extensions: ast
-            tools: composer:v1
+            tools: composer
       - uses: actions/cache@v2
         with:
           path: |
@@ -150,7 +150,7 @@ jobs:
     if: ${{ github.ref == 'refs/heads/phpunit' }}
     runs-on: ubuntu-20.04
     env:
-      branch: REL1_37
+      branch: REL1_39
       PHAN_CHECK_TESTSUITE: 1
     steps:
       - uses: actions/checkout@v2

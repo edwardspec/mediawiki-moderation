@@ -244,7 +244,16 @@ function wfModerationTestsuiteSetup() {
 				$type = gettype( $param );
 				return $type == 'object' ? get_class( $param ) : $type;
 			}, $params );
-			$paramsJson = FormatJson::encode( $params );
+
+			$paramsJson = FormatJson::encode( array_map( static function ( $param ) {
+				if ( $param instanceof WikiPage ) {
+					// WikiPage can't be directly serialized in MediaWiki 1.39+,
+					// so we replace it with Title object.
+					return $param->getTitle();
+				}
+
+				return $param;
+			}, $params ) );
 
 			$wgModerationTestsuiteCliDescriptor['capturedHooks'][$hook][] = [
 				$paramTypes,

@@ -49,6 +49,11 @@ class ModerationTestHTML extends DOMDocument {
 				continue;
 			}
 
+			if ( $message == 'Unexpected end tag : p' ) {
+				// Workaround for MW 1.39 issue (unrelated to Moderation): unneeded "</p>" tag on some pages.
+				continue;
+			}
+
 			print "LibXML error: $message\n";
 			$errorCount++;
 		}

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -60,6 +60,7 @@ class WatchOrUnwatchConsequence implements IConsequence {
 		}
 
 		// MediaWiki 1.35-1.36
+		// @phan-suppress-next-line PhanUndeclaredStaticMethod WatchAction::doWatchOrUnwatch
 		WatchAction::doWatchOrUnwatch( $this->watch, $this->title, $this->user );
 	}
 }

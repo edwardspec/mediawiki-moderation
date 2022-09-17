@@ -76,6 +76,13 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 		$this->assertArrayHasKey( 'moderationpreload', $result['query'] );
 
 		$actualResult = $result['query']['moderationpreload'];
+		$actualDisplayTitle = $actualResult['parsed']['displaytitle'] ?? null;
+		if ( $actualDisplayTitle ) {
+			// MediaWiki 1.39+ adds tags like <span class="mw-page-title-namespace">,
+			// we don't need to check these tags here.
+			$actualResult['parsed']['displaytitle'] = strip_tags( $actualDisplayTitle );
+		}
+
 		$expectedResult = [
 			'user' => $user->getName(),
 			'title' => $title->getFullText(),

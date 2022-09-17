@@ -802,7 +802,12 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 					$emptyUserAgent = '0'; // MediaWiki 1.35-1.37
 				}
 
-				$expectedRow = [ '127.0.0.1', IPUtils::toHex( '127.0.0.1' ), $emptyUserAgent, '0' ];
+				$emptyXff = ''; // MediaWiki 1.39+
+				if ( version_compare( MW_VERSION, '1.39.0-alpha', '<' ) ) {
+					$emptyXff = '0'; // MediaWiki 1.35-1.38
+				}
+
+				$expectedRow = [ '127.0.0.1', IPUtils::toHex( '127.0.0.1' ), $emptyUserAgent, $emptyXff ];
 				if ( $task ) {
 					$expectedRow = [
 						$task['ip'],

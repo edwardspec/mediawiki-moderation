@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -58,10 +58,12 @@ class ModerationAjaxHookTest extends ModerationUnitTestCase {
 		$this->setService( 'Moderation.Preload', $preload );
 
 		// Mock shouldDisplayMobileView() in the MobileContext (from Extension:MobileFrontend).
-		$preload = $this->createMock( MobileContext::class );
-		$preload->expects( $this->any() )->method( 'shouldDisplayMobileView' )
-			->willReturn( !empty( $opt['isMobileView'] ) );
-		$this->setService( 'MobileFrontend.Context', $preload );
+		if ( $installedExtensions['MobileFrontend'] ?? false ) {
+			$mobileContext = $this->createMock( MobileContext::class );
+			$mobileContext->expects( $this->any() )->method( 'shouldDisplayMobileView' )
+				->willReturn( !empty( $opt['isMobileView'] ) );
+			$this->setService( 'MobileFrontend.Context', $mobileContext );
+		}
 
 		// Mock OutputPage to expect correct modules to be added.
 		$out = $this->createMock( OutputPage::class );
