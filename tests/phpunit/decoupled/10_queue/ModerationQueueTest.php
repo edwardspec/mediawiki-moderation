@@ -527,7 +527,7 @@ class ModerationQueueTest extends ModerationTestCase {
 		// and where json_encode would provide an empty value, serialize() would fail completely.
 
 		$this->assertTrue( $this->title->equals( Title::newFromText(
-			$params[0]['mTitle']['prefixedText']
+			$params[0]['prefixedText']
 		) ) );
 
 		$this->assertEquals( $this->user->getName(), $params[1]['mName'] );
