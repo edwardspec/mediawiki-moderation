@@ -3,7 +3,8 @@
 		"authors": [
 			"Edward Chernenko",
 			"Gulka.nik",
-			"Movses"
+			"Movses",
+			"Vlad5250"
 		]
 	},
 	"action-moderation": "модерирование правок",
@@ -94,9 +95,9 @@
 	"moderation-whois-link-text": "?",
 	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
 	"right-moderation-checkuser": "Видит IP-адреса редакторов в интерфейсе модерации",
-	"right-moderation": "модерация правок",
-	"right-skip-moderation": "редактирование в обход модерации",
-	"right-skip-move-moderation": "переименование страниц в обход модерации",
+	"right-moderation": "Модерация правок",
+	"right-skip-moderation": "Редактирование в обход модерации",
+	"right-skip-move-moderation": "Переименование страниц в обход модерации",
 	"tag-moderation-merged": "внесена правка другого участника",
 	"tag-moderation-merged-description": "Правка другого участника (модератор лишь разрешил конфликт редактирования).",
 	"tooltip-moderation-approveall": "Допустить все правки данного участника",
