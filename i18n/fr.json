@@ -53,7 +53,7 @@
 	"moderation-editchange": "modifier",
 	"moderation-editchange-not-edit": "Ceci n'est pas une modification. Seules les modifications peuvent être changées.",
 	"moderation-editchange-ok": "Révision non terminée modifiée.",
-	"moderation-editchange-title": "Révision non terminée de « $1 »",
+	"moderation-editchange-title": "Révision non terminée de « $1 »",
 	"moderation-folder-merged": "Fusionné",
 	"moderation-folder-pending": "Modération en attente",
 	"moderation-folder-rejected": "Rejeté",
