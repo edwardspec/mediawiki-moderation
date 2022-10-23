@@ -18,6 +18,10 @@ jobs:
         php: [7.4]
         branch: [REL1_35, REL1_36, REL1_37, REL1_38, REL1_39]
         dbtype: [mysql, postgres]
+        include:
+          - php: 8.0
+            branch: REL1_39
+            dbtype: mysql
     env:
       branch: ${{ matrix.branch }}
       DBTYPE: ${{ matrix.dbtype }}
@@ -80,7 +84,7 @@ jobs:
           ( cd extensions/AbuseFilter && composer update --no-dev )
           WITH_ECHO=1 php maintenance/update.php --quick
           php maintenance/createAndPromote.php "$MEDIAWIKI_USER" "$MEDIAWIKI_PASSWORD" --custom-groups moderator,automoderated
-          ( cd extensions/Moderation && composer install )
+          ( cd extensions/Moderation && composer install ${{ matrix.php == '8.0' && '--ignore-platform-reqs' || '' }} )
           echo '{{CURRENTVERSION}}' | php maintenance/parse.php
           ( cd extensions/Moderation/tests/phpunit/consequence && ln -sv ../unit/*Test.php . )
 
@@ -158,7 +162,7 @@ jobs:
         with:
             php-version: '7.4'
             extensions: ast
-            tools: composer:v1
+            tools: composer
       - uses: actions/cache@v2
         with:
           path: |
