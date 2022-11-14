@@ -27,12 +27,17 @@
 	"moderation-editchange-not-edit": "Ovo nije izmjena. Samo izmjene mogu se mijenjati.",
 	"moderation-folder-rejected": "Odbijeno",
 	"moderation-folder-spam": "Neodgovarajući sadržaj",
+	"moderation-image-queued": "Uspjeh: vaša je slika poslan ana moderaciju.<br>Kada bude odobrena, bit će vidljiva drugim korisnicima.",
 	"moderation-imagerotate-not-allowed": "Samo automatski moderirani korisnici mogu rotirati slike.",
+	"moderation-merge-comment": "Spoji izmjenu korisnika [[Special:Contributions/$1|$1]]",
+	"moderation-merge-not-automoderated": "Kako bi se spojili, moderator također mora biti automatski moderiran.",
+	"moderation-merge-not-needed": "Prvo pokušajte odobriti ovu izmjenu: možda neće biti potrebno ručno spajanje.",
 	"moderation-missing-stashed-image": "Ovo otpremanje nije moguće odobriti: slika nedostaje u spremištu (vjerojatno ju je izbrisao korisnik putem [[Special:UploadStash]]).",
 	"moderation": "Moderacija",
 	"moderation-move": "$1 premještena na $2",
 	"moderation-move-queued": "Uspjeh: vaš prijedlog za preimenovanje stranice poslan je moderatorima.",
 	"moderation-preview": "pregled",
+	"moderation-preview-title": "Izmjena \"$1\" čeka moderaciju",
 	"moderation-rejectall": "Odbij sve",
 	"moderation-reject": "Odbij",
 	"moderation-show": "razl",
@@ -40,5 +45,8 @@
 	"right-moderation-checkuser": "Pregled IP adresa urednika u moderacijskom sučelju.",
 	"right-moderation": "Moderacija izmjena",
 	"right-skip-moderation": "Uređivanje sa zaobilaženjem moderacije",
-	"right-skip-move-moderation": "Premještanje stranica bez moderacije"
+	"right-skip-move-moderation": "Premještanje stranica bez moderacije",
+	"tag-moderation-merged": "spojena izmjena drugog korisnika",
+	"tag-moderation-merged-description": "Izmjena drugog korisnika (moderator je upravo riješio sukob uređivanja u njoj).",
+	"tag-moderation-spam": "-"
 }
