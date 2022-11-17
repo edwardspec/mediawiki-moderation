@@ -54,7 +54,7 @@ jobs:
           path: |
             ~/.composer/cache
             buildcache
-          key: buildcache-${{ env.branch }}-${{ hashFiles('**/no/files/need/to/invalidate/cache/for/now') }}
+          key: buildcache2-${{ env.branch }}-${{ hashFiles('**/no/files/need/to/invalidate/cache/for/now') }}
       - uses: shivammathur/setup-php@v2
         with:
             php-version: ${{ matrix.php }}
