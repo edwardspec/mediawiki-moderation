@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
  * Unit test of ModerationAction.
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\EntryFactory;
 use Wikimedia\TestingAccessWrapper;
 
@@ -29,7 +30,7 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 	use MockLoadRowTestTrait;
 
 	/**
-	 * Test ModerationAction::run() does all the necessary preparations and then calls execute().
+	 * Test that ModerationAction::run() does all the necessary preparations and then calls execute().
 	 * @param bool $requiresWrite True to test non-readonly action, false to test readonly action.
 	 * @param bool $simulateReadOnlyMode If true, the wiki will be ReadOnly during this test.
 	 * @dataProvider dataProviderActionRun
@@ -100,10 +101,17 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 	 * @return \PHPUnit\Framework\MockObject\MockObject
 	 */
 	private function getModerationActionMock() {
-		return $this->getMockBuilder( ModerationAction::class )
+		$mock = $this->getMockBuilder( ModerationAction::class )
 			->disableOriginalConstructor()
 			->onlyMethods( [ 'requiresWrite', 'execute' ] )
 			->getMockForAbstractClass();
+
+		// Since we are not calling the constructor (which sets ReadOnlyMode via dependency injection),
+		// we must provide ReadOnlyMode object here.
+		$wrapper = TestingAccessWrapper::newFromObject( $mock );
+		$wrapper->readOnlyMode = MediaWikiServices::getInstance()->getReadOnlyMode();
+
+		return $mock;
 	}
 
 	/**

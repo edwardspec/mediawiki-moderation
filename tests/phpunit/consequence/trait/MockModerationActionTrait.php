@@ -20,7 +20,9 @@
  * Trait that allows to mock ModerationAction object that will be returned by ActionFactory.
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionFactory;
+use Wikimedia\TestingAccessWrapper;
 
 /**
  * @method static \PHPUnit\Framework\MockObject\Stub\ReturnCallback returnCallback($a)
@@ -37,6 +39,11 @@ trait MockModerationActionTrait {
 			->disableProxyingToOriginalMethods()
 			->setMethods( [ 'requiresEditToken', 'execute' ] )
 			->getMockForAbstractClass();
+
+		// Since we are not calling the constructor (which sets ReadOnlyMode via dependency injection),
+		// we must provide ReadOnlyMode object here.
+		$wrapper = TestingAccessWrapper::newFromObject( $actionMock );
+		$wrapper->readOnlyMode = MediaWikiServices::getInstance()->getReadOnlyMode();
 
 		$factoryMock = $this->createMock( ActionFactory::class );
 		$factoryMock->method( 'makeAction' )->will( $this->returnCallback(

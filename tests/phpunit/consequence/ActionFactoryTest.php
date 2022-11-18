@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -133,7 +133,8 @@ class ActionFactoryTest extends ModerationUnitTestCase {
 			$this->createMock( ActionLinkRenderer::class ),
 			$this->createMock( RepoGroup::class ),
 			$this->createMock( Language::class ),
-			$this->createMock( RevisionRenderer::class )
+			$this->createMock( RevisionRenderer::class ),
+			$this->createMock( ReadOnlyMode::class )
 		);
 	}
 }

@@ -20,7 +20,6 @@
  * Parent class for all moderation actions.
  */
 
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
@@ -68,6 +67,9 @@ abstract class ModerationAction extends ContextSource {
 	/** @var RevisionRenderer */
 	protected $revisionRenderer;
 
+	/** @var ReadOnlyMode */
+	protected $readOnlyMode;
+
 	/**
 	 * Regular constructor with no "detect class from modaction=" logic. Use factory() instead.
 	 * @param IContextSource $context
@@ -79,6 +81,7 @@ abstract class ModerationAction extends ContextSource {
 	 * @param RepoGroup $repoGroup
 	 * @param Language $contentLanguage
 	 * @param RevisionRenderer $revisionRenderer
+	 * @param ReadOnlyMode $readOnlyMode
 	 */
 	public function __construct(
 		IContextSource $context,
@@ -89,7 +92,8 @@ abstract class ModerationAction extends ContextSource {
 		ActionLinkRenderer $actionLinkRenderer,
 		RepoGroup $repoGroup,
 		Language $contentLanguage,
-		RevisionRenderer $revisionRenderer
+		RevisionRenderer $revisionRenderer,
+		ReadOnlyMode $readOnlyMode
 	) {
 		$this->setContext( $context );
 
@@ -101,6 +105,7 @@ abstract class ModerationAction extends ContextSource {
 		$this->repoGroup = $repoGroup;
 		$this->contentLanguage = $contentLanguage;
 		$this->revisionRenderer = $revisionRenderer;
+		$this->readOnlyMode = $readOnlyMode;
 
 		$this->moderator = $this->getUser();
 
@@ -116,8 +121,7 @@ abstract class ModerationAction extends ContextSource {
 	 */
 	final public function run() {
 		if ( $this->requiresWrite() ) {
-			// TODO: use dependency injection
-			if ( MediaWikiServices::getInstance()->getReadOnlyMode()->isReadOnly() ) {
+			if ( $this->readOnlyMode->isReadOnly() ) {
 				throw new ReadOnlyError;
 			}
 

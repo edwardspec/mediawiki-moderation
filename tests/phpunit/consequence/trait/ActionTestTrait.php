@@ -48,9 +48,10 @@ trait ActionTestTrait {
 		$repoGroup = $this->createMock( RepoGroup::class );
 		$contentLanguage = $this->createMock( Language::class );
 		$revisionRenderer = $this->createMock( RevisionRenderer::class );
+		$readOnlyMode = $this->createMock( ReadOnlyMode::class );
 
 		$arguments = [ $context, $entryFactory, $manager, $canSkip, $editFormOptions, $actionLinkRenderer,
-				$repoGroup, $contentLanguage, $revisionRenderer ];
+				$repoGroup, $contentLanguage, $revisionRenderer, $readOnlyMode ];
 
 		$context->setLanguage( 'qqx' );
 

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ use ModerationActionShow;
 use ModerationActionShowImage;
 use ModerationCanSkip;
 use ModerationError;
+use ReadOnlyMode;
 use RepoGroup;
 
 class ActionFactory {
@@ -64,6 +65,9 @@ class ActionFactory {
 	/** @var RevisionRenderer */
 	protected $revisionRenderer;
 
+	/** @var ReadOnlyMode */
+	protected $readOnlyMode;
+
 	/**
 	 * @param EntryFactory $entryFactory
 	 * @param IConsequenceManager $consequenceManager
@@ -73,6 +77,7 @@ class ActionFactory {
 	 * @param RepoGroup $repoGroup
 	 * @param Language $contentLanguage
 	 * @param RevisionRenderer $revisionRenderer
+	 * @param ReadOnlyMode $readOnlyMode
 	 */
 	public function __construct(
 		EntryFactory $entryFactory,
@@ -82,7 +87,8 @@ class ActionFactory {
 		ActionLinkRenderer $actionLinkRenderer,
 		RepoGroup $repoGroup,
 		Language $contentLanguage,
-		RevisionRenderer $revisionRenderer
+		RevisionRenderer $revisionRenderer,
+		ReadOnlyMode $readOnlyMode
 	) {
 		$this->entryFactory = $entryFactory;
 		$this->consequenceManager = $consequenceManager;
@@ -92,6 +98,7 @@ class ActionFactory {
 		$this->repoGroup = $repoGroup;
 		$this->contentLanguage = $contentLanguage;
 		$this->revisionRenderer = $revisionRenderer;
+		$this->readOnlyMode = $readOnlyMode;
 	}
 
 	/**
@@ -138,7 +145,8 @@ class ActionFactory {
 			$this->actionLinkRenderer,
 			$this->repoGroup,
 			$this->contentLanguage,
-			$this->revisionRenderer
+			$this->revisionRenderer,
+			$this->readOnlyMode
 		);
 	}
 }
