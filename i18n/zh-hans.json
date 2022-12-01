@@ -8,7 +8,8 @@
 			"Liuxinyu970226",
 			"VulpesVulpes825",
 			"Winston Sung",
-			"Wxyveronica"
+			"Wxyveronica",
+			"飞小RAN"
 		]
 	},
 	"action-moderation": "版主编辑",
@@ -32,7 +33,7 @@
 	"logentry-moderation-merge": "$1已在页面$3上，将$4{{GENDER:$2|合并}}至$5",
 	"logentry-moderation-reject": "$1已{{GENDER:$2|拒绝}}由$5做出的对页面$3的$4",
 	"logentry-moderation-rejectall": "$1已{{GENDER:$2|拒绝}}由$3做出的$4次编辑",
-	"logentry-moderation-unblock": "$1已将$3从垃破坏者列表中{{GENDER:$2|移除}}",
+	"logentry-moderation-unblock": "$1已将$3从破坏者列表中{{GENDER:$2|移除}}",
 	"log-name-moderation": "版主日志",
 	"moderation-already-merged": "此条编辑已通过手动合并。无法批准或拒绝。",
 	"moderation-already-rejected": "此编辑已被拒绝。",
@@ -41,7 +42,7 @@
 	"moderation-approved-errors": "无法批准$1次{{plural:$1|编辑}}：编辑冲突等。",
 	"moderation-approved-ok": "已批准$1次{{plural:$1|编辑}}。",
 	"moderation-blocker": "版主封禁",
-	"moderation-block": "被标记为破坏者",
+	"moderation-block": "标记为破坏者",
 	"moderation-block-ok": "已成功将[[Special:Contributions/$1|$1]]标记为破坏者。",
 	"moderation-desc": "将所有来自新用户的编辑和上传都送交版主操作",
 	"moderation-diff-header-after": "之后",
@@ -94,7 +95,7 @@
 	"moderation-suggest-signup": "若想以后跳过审核步骤，请 [[Special:CreateAccount|注册]].",
 	"moderation-text": "此特殊页面列举所有等待版主操作（批准或拒绝）的编辑。<br>另请参见：[[Special:Log/moderation|版主操作日志]]。",
 	"moderation-unblock": "不再是垃圾内容发送者",
-	"moderation-unblock-ok": "用户 [[Special:Contributions/$1|$1]] 已不再被视为垃圾内容发送者。",
+	"moderation-unblock-ok": "用户 [[Special:Contributions/$1|$1]] 已不再被标记为破坏者。",
 	"moderation-unknown-modaction": "未知的版主操作行为。",
 	"moderation-whois-link-text": "?",
 	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
