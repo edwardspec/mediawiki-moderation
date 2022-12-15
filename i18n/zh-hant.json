@@ -3,7 +3,8 @@
 		"authors": [
 			"Ericliu1912",
 			"Kly",
-			"Winston Sung"
+			"Winston Sung",
+			"捍粵者"
 		]
 	},
 	"action-moderation": "協調編輯",
@@ -30,7 +31,7 @@
 	"logentry-moderation-unblock": "$1 已將 $3 從垃圾內容發送者清單裡{{GENDER:$2|移除}}",
 	"log-name-moderation": "協調日誌",
 	"moderation-already-merged": "此編輯已被手動合併。這不再需要被核准或回退。",
-	"moderation-already-rejected": "此編輯已被回退。",
+	"moderation-already-rejected": "此編輯已回退。",
 	"moderation-approveall": "核准全部",
 	"moderation-approve": "核准",
 	"moderation-approved-errors": "核准 $1 個{{plural:$1|編輯|編輯}}時失敗：可能有編輯衝突或其它原因。",
@@ -38,7 +39,7 @@
 	"moderation-blocker": "協調封鎖",
 	"moderation-block": "標註為垃圾內容發送者",
 	"moderation-block-ok": "已成功標記 [[Special:Contributions/$1|$1]] 為垃圾內容發送者。",
-	"moderation-desc": "發送來自新使用者的所有編輯以及更新來進行協調",
+	"moderation-desc": "發送新使用者所有的編輯及上傳予版主",
 	"moderation-diff-header-after": "之後",
 	"moderation-diff-header-before": "之前",
 	"moderation-diff-no-changes": "頁面文字未有更改（空編輯）。",
@@ -62,7 +63,7 @@
 	"moderation-merge": "核准（修正編輯衝突）",
 	"moderation-merge-comment": "把由 [[Special:Contributions/$1|$1]] 所作的編輯內容合併",
 	"moderation-merged-link": "合併差異",
-	"moderation-merge-not-automoderated": "協調者要進行合併必須是自動協調的身份。",
+	"moderation-merge-not-automoderated": "協調者必須是自動協調才可合併。",
 	"moderation-merge-not-needed": "請先嘗試核准此編輯：這可能不需手動合併。",
 	"moderation-missing-stashed-image": "此上傳無法被核准：儲存裡找不到圖片（可能是被使用者透過 [[Special:UploadStash]] 給刪除）。",
 	"moderation": "協調",
@@ -81,7 +82,7 @@
 	"moderation-rejected-auto": "自動回退",
 	"moderation-rejected-batch": "已透過「回退全部」按鈕來回退",
 	"moderation-rejected-by": "由 $1 {{GENDER:$2|所回退}}",
-	"moderation-rejected-long-ago": "此編輯在先前已被回退，已無法被核准。",
+	"moderation-rejected-long-ago": "此編輯以前已回退，無法再核准。",
 	"moderation-rejected-ok": "已回退 $1 個{{plural:$1|編輯|編輯}}。",
 	"moderation-reject": "回退",
 	"moderation-revert-not-allowed": "僅自動協調使用者可以將圖片恢復至先前修訂內容。",
