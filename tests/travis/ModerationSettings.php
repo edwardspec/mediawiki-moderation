@@ -66,9 +66,10 @@ if ( $wgDBtype != 'postgres' ) {
 	wfLoadExtension( 'AbuseFilter' ); # For PHPUnit testsuite
 }
 
-if ( $wgDBtype != 'postgres' ) {
+if ( $wgDBtype != 'postgres' && ( PHP_MAJOR_VERSION !== 8 || PHP_MINOR_VERSION !== 1 ) ) {
 	// Extension:CheckUser itself doesn't support PostgreSQL, so we can't test with it.
 	// (see T241827)
+	// Extension:CheckUser doesn't support PHP 8.1 yet.
 	wfLoadExtension( 'CheckUser' ); # For PHPUnit testsuite
 }
 

@@ -121,7 +121,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 		// Log results of the requests.
 		$content = $req->getContent();
-		$contentType = $req->getResponseHeader( 'Content-Type' );
+		$contentType = $req->getResponseHeader( 'Content-Type' ) ?? '';
 
 		$loggedContent = [];
 
