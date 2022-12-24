@@ -826,7 +826,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 				if ( $type == ModerationNewChange::MOD_TYPE_EDIT ) {
 					$cuWhere['cuc_actiontext'] = '';
 				} else {
-					$cuWhere[] = 'cuc_actiontext <> ""';
+					$cuWhere[] = 'cuc_actiontext <> \'\'';
 				}
 
 				$this->assertSelect( 'cu_changes',
