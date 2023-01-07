@@ -724,10 +724,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 		if ( $deferUpdates ) {
 			// Run any DeferredUpdates that may have been queued when making edits.
-			// Note: PRESEND must be first, as this is where RecentChanges_save hooks are called,
-			// and results of these hooks are used by ApproveHook, which is in POSTSEND.
-			DeferredUpdates::doUpdates( 'run', DeferredUpdates::PRESEND );
-			DeferredUpdates::doUpdates( 'run', DeferredUpdates::POSTSEND );
+			DeferredUpdates::doUpdates();
 		}
 
 		foreach ( $todo as $testParameters ) {

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2022 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -91,7 +91,7 @@ class BenchmarkApproveAll extends ModerationBenchmark {
 
 		// Run the DeferredUpdates
 		$wgCommandLineMode = true;
-		DeferredUpdates::doUpdates( 'run' );
+		DeferredUpdates::doUpdates();
 
 		Wikimedia\Assert\Assert::postcondition(
 			( strpos( $html, '(moderation-approved-ok: ' . $this->getEditsPerUser() . ')' ) !== false ),
