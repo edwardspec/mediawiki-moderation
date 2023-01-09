@@ -101,7 +101,7 @@
 	"right-skip-moderation": "Avoir ses modifications en évitant la modération",
 	"right-skip-move-moderation": "Renommer les pages sans modération",
 	"tag-moderation-merged": "fusion avec les modifications d'un autre utilisateur",
-	"tag-moderation-merged-description": "Une autre correction d'utilisateur (le modérateur vient d'y résoudre un conflit d'édition).",
+	"tag-moderation-merged-description": "Modification par un autre utilisateur (le modérateur y a seulement résolu un conflit de modification).",
 	"tag-moderation-spam": "-",
 	"tag-moderation-spam-description": "Si AbuseFilter ajoute cette balise à une modification, et que Moderation intercepte cette modification, alors Moderation le placera dans le dossier Pourriel.",
 	"tooltip-moderation-approveall": "Approuver toutes les modifications de cet utilisateur/adresse IP",

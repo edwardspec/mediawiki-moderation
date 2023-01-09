@@ -3,7 +3,8 @@
 		"authors": [
 			"Edward Chernenko",
 			"Robby",
-			"Shirayuki"
+			"Shirayuki",
+			"Verdy p"
 		]
 	},
 	"action-moderation": "{{doc-action|moderation}}",
@@ -99,7 +100,7 @@
 	"right-skip-moderation": "{{doc-right|skip-moderation}}\nAllows to bypass moderation when saving an edit.",
 	"right-skip-move-moderation": "{{doc-right|skip-move-moderation}}\nAllows to bypass moderation when renaming a page.",
 	"tag-moderation-merged": "Change tag for non-moderator's edit made from moderator's account (because moderator had to resolve an edit conflict).\n{{Related|tag-moderation-merged-description}}",
-	"tag-moderation-merged-description": "Description for \"moderation-merged\" change tag.\n\n'''Note''': \"just\" means \"only\", not \"recently\".",
+	"tag-moderation-merged-description": "Description for \"moderation-merged\" change tag.\n\n'''Notes:''' \"just\" means \"only\", not \"recently\"; this is also about a (conflicting) edit made by \"another user\", not \"another edit\" made by some user.",
 	"tag-moderation-spam": "{{notranslate}}",
 	"tag-moderation-spam-description": "Description for \"moderation-spam\" change tag.",
 	"tooltip-moderation-approveall": "Tooltip for ApproveAll link on Special:Moderation.",
