@@ -16,7 +16,7 @@
 	},
 	"action-moderation": "审核编辑",
 	"group-automoderated": "审核豁免用户",
-	"group-automoderated-member": "{{GENDER:$1|审查豁免用户}}",
+	"group-automoderated-member": "{{GENDER:$1|审核豁免用户}}",
 	"group-moderator-member": "{{GENDER:$1|版主}}",
 	"group-moderator": "版主",
 	"grouppage-automoderated": "{{ns:project}}:版主",
