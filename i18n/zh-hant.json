@@ -85,7 +85,7 @@
 	"moderation-rejected-batch": "已透過「拒絕全部」按鈕來拒絕",
 	"moderation-rejected-by": "由$1{{GENDER:$2|所拒絕}}",
 	"moderation-rejected-long-ago": "此編輯以前已拒絕，無法再核准。",
-	"moderation-rejected-ok": "已拒絕 $1 個{{plural:$1|編輯|編輯}}。",
+	"moderation-rejected-ok": "已拒絕 $1 個{{plural:$1|編輯}}。",
 	"moderation-reject": "拒絕",
 	"moderation-revert-not-allowed": "僅自動協管操作使用者可以將圖片恢復至先前修訂內容。",
 	"moderation-show": "差異",
