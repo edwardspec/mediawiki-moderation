@@ -11,6 +11,7 @@
 	"group-moderator": "Moderatori",
 	"grouppage-automoderated": "{{ns:project}}:Moderacija",
 	"grouppage-moderator": "{{ns:project}}:Moderacija",
+	"log-action-filter-moderation-approve": "Promjena je odobrena",
 	"log-name-moderation": "Evidencija moderacije",
 	"moderation-approveall": "Odobri sve",
 	"moderation-approve": "Odobri",
