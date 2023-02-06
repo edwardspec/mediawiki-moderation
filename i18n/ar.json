@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"Amire80",
 			"Meno25",
 			"Sonic N800",
 			"ديفيد"
@@ -92,7 +93,7 @@
 	"moderation-unblock": "لم يعد مرسل بريد مزعج",
 	"moderation-unblock-ok": "المستخدم [[Special:Contributions/$1|$1]] لم يعد يُعتبَر مرسل بريد مزعج.",
 	"moderation-unknown-modaction": "إجراء إشراف غير معروف.",
-	"moderation-whois-link-text": "?",
+	"moderation-whois-link-text": "؟",
 	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
 	"right-moderation-checkuser": "شاهد عناوين IP للمحررين في واجهة التعديل",
 	"right-moderation": "الإشراف على التعديلات",
