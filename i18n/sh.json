@@ -48,6 +48,5 @@
 	"right-skip-moderation": "Uređivanje sa zaobilaženjem moderacije",
 	"right-skip-move-moderation": "Premještanje stranica bez moderacije",
 	"tag-moderation-merged": "spojena izmjena drugog korisnika",
-	"tag-moderation-merged-description": "Izmjena drugog korisnika (moderator je upravo riješio sukob uređivanja u njoj).",
-	"tag-moderation-spam": "-"
+	"tag-moderation-merged-description": "Izmjena drugog korisnika (moderator je upravo riješio sukob uređivanja u njoj)."
 }

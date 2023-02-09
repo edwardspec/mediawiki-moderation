@@ -31,8 +31,6 @@
 	"moderation-rejectall": "Απόρριψη όλων",
 	"moderation-reject": "Απόρριψη",
 	"moderation-show": "διαφορά",
-	"moderation-whois-link-text": "?",
-	"moderation-whois-link-url": "https://whois.domaintools.com/$1",
 	"right-moderation": "Συντονισμός επεξεργασιών",
 	"tag-moderation-merged": "συγχωνευμένη επεξεργασία άλλου χρήστη",
 	"tooltip-moderation-approve": "Έγκριησ της απλής επεξεργασίας",
