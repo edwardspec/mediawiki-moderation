@@ -62,7 +62,7 @@
 	"moderation-merge-comment": "Združi urejanje uporabnika [[Special:Contributions/$1|$1]]",
 	"moderation-merged-link": "združena razl",
 	"moderation-merge-not-automoderated": "Za združitev mora biti samodejno moderiran tudi moderator.",
-	"moderation-merge-not-needed": "Najprej poskusite to urejanje odobriti: Ročno združevanje morda ne bo potrebno.",
+	"moderation-merge-not-needed": "Najprej poskusite to urejanje odobriti: Ročno združevanje mogoče ne bo potrebno.",
 	"moderation-missing-stashed-image": "Tega nalaganja ni mogoče odobriti: Slika v shrambi manjka (verjetno jo je izbrisal uporabnik na [[Special:UploadStash]]).",
 	"moderation": "Moderiranje",
 	"moderation-move": "Stran $1 prestavljena na $2",
