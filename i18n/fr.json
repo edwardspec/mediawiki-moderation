@@ -94,6 +94,7 @@
 	"moderation-unblock": "N'est plus un spammeur",
 	"moderation-unblock-ok": "L’utilisateur [[Special:Contributions/$1|$1]] n’est plus considéré comme un spammeur.",
 	"moderation-unknown-modaction": "Action de modération inconnue.",
+	"moderation-whois-link-text": "?",
 	"right-moderation-checkuser": "Voir les adresses IP des modificateurs dans l’interface de modération",
 	"right-moderation": "Modérer les modifications",
 	"right-skip-moderation": "Avoir ses modifications en évitant la modération",
