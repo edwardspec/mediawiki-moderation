@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2022 Edward Chernenko.
+	Copyright (C) 2020-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -68,8 +68,8 @@ trait MockModerationActionTrait {
 	abstract protected function setService( $name, $service );
 
 	/** @inheritDoc */
-	abstract protected function createMock( $originalClassName );
+	abstract protected function createMock( string $originalClassName );
 
 	/** @inheritDoc */
-	abstract protected function getMockBuilder( $originalClassName );
+	abstract protected function getMockBuilder( string $originalClassName );
 }
