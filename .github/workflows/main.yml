@@ -55,7 +55,6 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: |
-            ~/.composer/cache
             buildcache
           key: buildcache-${{ env.branch }}-${{ hashFiles('**/no/files/need/to/invalidate/cache/for/now') }}
       - uses: shivammathur/setup-php@v2
@@ -114,7 +113,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ~/.composer/cache
-          key: composer-cache
+          key: buildcache-linter
       - name: Install dependencies
         run: composer install && npm install
       - run: composer test
@@ -137,7 +136,7 @@ jobs:
           path: |
             ~/.composer/cache
             buildcache
-          key: buildcache-${{ env.branch }}
+          key: buildcache-phan
       - uses: edwardspec/github-action-build-mediawiki@v1
         with:
           branch: ${{ env.branch }}
