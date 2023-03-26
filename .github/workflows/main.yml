@@ -51,8 +51,8 @@ jobs:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
         with:
           path: |
             buildcache
@@ -105,12 +105,12 @@ jobs:
   linter:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: shivammathur/setup-php@v2
         with:
             php-version: '7.4'
             tools: composer:v1
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: ~/.composer/cache
           key: buildcache-linter
@@ -125,13 +125,13 @@ jobs:
     env:
       branch: REL1_39
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: shivammathur/setup-php@v2
         with:
             php-version: '7.4'
             extensions: ast
             tools: composer
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: |
             ~/.composer/cache
@@ -159,13 +159,13 @@ jobs:
       branch: REL1_39
       PHAN_CHECK_TESTSUITE: 1
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: shivammathur/setup-php@v2
         with:
             php-version: '7.4'
             extensions: ast
             tools: composer
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: |
             ~/.composer/cache
