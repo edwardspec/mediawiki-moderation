@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2020 Edward Chernenko.
+	Copyright (C) 2014-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -92,10 +92,9 @@ class ModerationLogFormatter extends LogFormatter {
 			$type === 'unblock'
 		) {
 			$title = $this->entry->getTarget();
+			$user = User::newFromName( $title->getText(), false );
 
-			$userId = User::idFromName( $title->getText() );
-			$link = Linker::userLink( $userId, $title->getText() );
-
+			$link = Linker::userLink( $user->getId(), $user->getName() );
 			$params[2] = Message::rawParam( $link );
 		}
 
