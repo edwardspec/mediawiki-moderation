@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2022 Edward Chernenko.
+	Copyright (C) 2018-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -131,7 +131,7 @@ class ModerationTestCase extends MediaWikiIntegrationTestCase {
 		// ModerationTestsuite already sets language to "qqx" when running tests "server-side"
 		// (via CliEngine). However, to double-check results of PreSaveTransform, etc.,
 		// it's necessary to lso set Content Language to 'qqx' on the PHPUnit side too.
-		$this->setContentLang( Language::factory( 'qqx' ) );
+		$this->setContentLang( ModerationTestUtil::getLanguageQqx() );
 	}
 
 	protected function addCoreDBData() {

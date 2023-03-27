@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2022 Edward Chernenko.
+	Copyright (C) 2018-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -93,12 +93,20 @@ class ModerationTestUtil {
 		$context->setRequest( new FauxRequest( $params, $wasPosted ) );
 		$context->setTitle( $page->getPageTitle() );
 		$context->setUser( $user );
-		$context->setLanguage( Language::factory( 'qqx' ) );
+		$context->setLanguage( self::getLanguageQqx() );
 
 		$page->setContext( $context );
 		$page->execute( '' );
 
 		return $context->getOutput()->getHTML();
+	}
+
+	/**
+	 * Returns Language object for "qqx" pseudo-language (convenient for tests).
+	 * @return Language
+	 */
+	public static function getLanguageQqx() {
+		return MediaWikiServices::getInstance()->getLanguageFactory()->getLanguage( 'qqx' );
 	}
 
 	/**

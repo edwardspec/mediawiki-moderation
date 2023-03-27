@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -176,7 +176,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 		$this->setMwGlobals( $options['globals'] ?? [] );
 
 		$moderator = self::getTestUser( [ 'moderator' ] )->getUser();
-		$lang = Language::factory( 'qqx' );
+		$lang = ModerationTestUtil::getLanguageQqx();
 
 		$this->context->expects( $this->any() )->method( 'getUser' )->willReturn( $moderator );
 		$this->context->expects( $this->any() )->method( 'getLanguage' )->willReturn( $lang );
