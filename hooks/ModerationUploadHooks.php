@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2021 Edward Chernenko.
+	Copyright (C) 2014-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -111,7 +111,8 @@ class ModerationUploadHooks implements GetUserPermissionsErrorsHook, UploadVerif
 			Therefore we don't allow it.
 		*/
 		$context = RequestContext::getMain();
-		$exactAction = Action::getActionName( $context );
+		$exactAction = ModerationCompatTools::getActionName( $context );
+
 		if ( $exactAction == 'revert' ) {
 			if ( !$this->canSkip->canUploadSkip( $user ) ) {
 				$result = 'moderation-revert-not-allowed';

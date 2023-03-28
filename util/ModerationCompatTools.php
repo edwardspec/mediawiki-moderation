@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -59,5 +59,21 @@ class ModerationCompatTools {
 
 		// MediaWiki 1.35
 		return WikiPage::factory( Title::newFromLinkTarget( $title ) );
+	}
+
+	/**
+	 * Get current action name (e.g. "edit" or "upload") from Context.
+	 * @param IContextSource $context
+	 * @return string
+	 */
+	public static function getActionName( IContextSource $context ) {
+		if ( method_exists( MediaWikiServices::class, 'getActionFactory' ) ) {
+			// MediaWiki 1.37+
+			return MediaWikiServices::getInstance()->getActionFactory()->getActionName( $context );
+		}
+
+		// MediaWiki 1.35-1.36.
+		// This approach can't be used with MediaWiki 1.40 due to T323254.
+		return Action::getActionName( $context );
 	}
 }

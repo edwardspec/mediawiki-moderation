@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -99,7 +99,7 @@ class ModerationPageForms {
 		}
 
 		// Are we editing via ?action=formedit?
-		$action = Action::getActionName( $context );
+		$action = ModerationCompatTools::getActionName( $context );
 		if ( $action == 'formedit' ) {
 			$returntoquery = [ 'action' => 'formedit' ];
 		} else {
