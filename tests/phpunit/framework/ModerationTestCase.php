@@ -147,4 +147,36 @@ class ModerationTestCase extends MediaWikiIntegrationTestCase {
 		// Do nothing. Normally this method creates test user, etc.,
 		// but we already do this in ModerationTestsuite::prepareDbForTests().
 	}
+
+	/**
+	 * B/C: assertRegExp() is deprecated in MediaWiki 1.40, but 1.35-1.39 don't have a replacement.
+	 * @param string $pattern
+	 * @param string $string
+	 * @param string $message
+	 */
+	public static function assertRegExp( string $pattern, string $string, string $message = '' ): void {
+		$args = [ $pattern, $string, $message ];
+		if ( method_exists( __CLASS__, 'assertMatchesRegularExpression' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredStaticMethod
+			self::assertMatchesRegularExpression( ...$args );
+		} else {
+			parent::assertRegExp( ...$args );
+		}
+	}
+
+	/**
+	 * B/C: assertNotRegExp() is deprecated in MediaWiki 1.40, but 1.35-1.39 don't have a replacement.
+	 * @param string $pattern
+	 * @param string $string
+	 * @param string $message
+	 */
+	public static function assertNotRegExp( string $pattern, string $string, string $message = '' ): void {
+		$args = [ $pattern, $string, $message ];
+		if ( method_exists( __CLASS__, 'assertMatchesRegularExpression' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredStaticMethod
+			self::assertDoesNotMatchRegularExpression( ...$args );
+		} else {
+			parent::assertNotRegExp( ...$args );
+		}
+	}
 }
