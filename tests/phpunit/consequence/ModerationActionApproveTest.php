@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -137,18 +137,23 @@ class ModerationActionApproveTest extends ModerationUnitTestCase {
 					return;
 				}
 
-				$manager->expects( $this->at( 0 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-					new AddLogEntryConsequence(
-						'approveall',
-						$moderator,
-						Title::makeTitle( NS_USER, $username ),
-						[ '4::count' => $approvedCount ]
-					)
-				) );
-				$manager->expects( $this->at( 1 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-					new InvalidatePendingTimeCacheConsequence()
-				) );
-				$manager->expects( $this->exactly( 2 ) )->method( 'add' );
+				$manager->expects( $this->exactly( 2 ) )->method( 'add' )->withConsecutive(
+					[
+						$this->consequenceEqualTo(
+							new AddLogEntryConsequence(
+								'approveall',
+								$moderator,
+								Title::makeTitle( NS_USER, $username ),
+								[ '4::count' => $approvedCount ]
+							)
+						),
+					],
+					[
+						$this->consequenceEqualTo(
+							new InvalidatePendingTimeCacheConsequence()
+						)
+					]
+				);
 			}
 		);
 

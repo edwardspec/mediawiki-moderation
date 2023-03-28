@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -89,19 +89,24 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 					}
 				) );
 
-				$manager->expects( $this->at( 0 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-					new AddLogEntryConsequence(
-						'mocked-approve-subtype',
-						$moderatorUser,
-						$title,
-						[ 'mocked-log-param' => 'mocked-param-value' ],
-						true // Run ApproveHook on newly created log entry
-					)
-				) );
-				$manager->expects( $this->at( 1 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-					new DeleteRowFromModerationTableConsequence( $row->id )
-				) );
-				$manager->expects( $this->exactly( 2 ) )->method( 'add' );
+				$manager->expects( $this->exactly( 2 ) )->method( 'add' )->withConsecutive(
+					[
+						$this->consequenceEqualTo(
+							new AddLogEntryConsequence(
+								'mocked-approve-subtype',
+								$moderatorUser,
+								$title,
+								[ 'mocked-log-param' => 'mocked-param-value' ],
+								true // Run ApproveHook on newly created log entry
+							)
+						)
+					],
+					[
+						$this->consequenceEqualTo(
+							new DeleteRowFromModerationTableConsequence( $row->id )
+						)
+					]
+				);
 			}
 		}, [ 'doApprove', 'getApproveLogSubtype', 'getApproveLogParameters', 'canReapproveRejected' ] );
 

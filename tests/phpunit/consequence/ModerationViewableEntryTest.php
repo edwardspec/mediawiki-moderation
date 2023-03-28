@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -313,18 +313,16 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 		$newTitle = Title::newFromText( 'Project:UTPage ' . rand( 0, 100000 ) );
 
 		// Mock LinkRenderer::makeLink() to check that they point to the necessary pages.
-		$this->linkRenderer->expects( $this->at( 0 ) )->method( 'makeLink' )->will(
-			$this->returnCallback( function ( $linkTarget ) use ( $oldTitle ) {
-				$this->assertEquals( $oldTitle->getFullText(), $linkTarget->getFullText() );
-				return '{OldTitleLink}';
-			}
-		) );
-		$this->linkRenderer->expects( $this->at( 1 ) )->method( 'makeLink' )->will(
-			$this->returnCallback( function ( $linkTarget ) use ( $newTitle ) {
-				$this->assertEquals( $newTitle->getFullText(), $linkTarget->getFullText() );
-				return '{NewTitleLink}';
-			}
-		) );
+		$this->linkRenderer->expects( $this->exactly( 2 ) )->method( 'makeLink' )->will(
+			$this->returnCallback( static function ( $linkTarget ) use ( $oldTitle, $newTitle ) {
+				switch ( $linkTarget->getFullText() ) {
+					case $oldTitle->getFullText():
+						return '{OldTitleLink}';
+					case $newTitle->getFullText():
+						return '{NewTitleLink}';
+				}
+			} )
+		);
 
 		$entry = $this->makeViewableEntry( [
 			'stash_key' => null,

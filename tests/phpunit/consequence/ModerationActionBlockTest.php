@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -46,17 +46,22 @@ class ModerationActionBlockTest extends ModerationUnitTestCase {
 			'username' => 'Some user',
 			'noop' => false
 		], function ( MockObject $manager ) {
-			$manager->expects( $this->at( 0 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-				new BlockUserConsequence( 456, 'Some user', $this->moderatorUser )
-			) )->willReturn( true ); // Something changed
-			$manager->expects( $this->at( 1 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-				new AddLogEntryConsequence(
-					'block',
-					$this->moderatorUser,
-					Title::makeTitle( NS_USER, 'Some user' )
-				)
-			) );
-			$manager->expects( $this->exactly( 2 ) )->method( 'add' );
+			$manager->expects( $this->exactly( 2 ) )->method( 'add' )->withConsecutive(
+				[
+					$this->consequenceEqualTo(
+						new BlockUserConsequence( 456, 'Some user', $this->moderatorUser )
+					)
+				],
+				[
+					$this->consequenceEqualTo(
+						new AddLogEntryConsequence(
+							'block',
+							$this->moderatorUser,
+							Title::makeTitle( NS_USER, 'Some user' )
+						)
+					)
+				]
+			)->willReturnOnConsecutiveCalls( true ); // Something changed
 		} );
 	}
 
@@ -86,17 +91,22 @@ class ModerationActionBlockTest extends ModerationUnitTestCase {
 			'username' => 'Some user',
 			'noop' => false
 		], function ( MockObject $manager ) {
-			$manager->expects( $this->at( 0 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-				new UnblockUserConsequence( 'Some user' )
-			) )->willReturn( true ); // Something changed
-			$manager->expects( $this->at( 1 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-				new AddLogEntryConsequence(
-					'unblock',
-					$this->moderatorUser,
-					Title::makeTitle( NS_USER, 'Some user' )
-				)
-			) );
-			$manager->expects( $this->exactly( 2 ) )->method( 'add' );
+			$manager->expects( $this->exactly( 2 ) )->method( 'add' )->withConsecutive(
+				[
+					$this->consequenceEqualTo(
+						new UnblockUserConsequence( 'Some user' )
+					)
+				],
+				[
+					$this->consequenceEqualTo(
+						new AddLogEntryConsequence(
+							'unblock',
+							$this->moderatorUser,
+							Title::makeTitle( NS_USER, 'Some user' )
+						)
+					)
+				]
+			)->willReturnOnConsecutiveCalls( true ); // Something changed
 		} );
 	}
 

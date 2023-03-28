@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -84,28 +84,33 @@ class ModerationActionRejectTest extends ModerationUnitTestCase {
 					// which becomes known from the return value of RejectOneConsequence.
 					$manager->expects( $this->never() )->method( 'add' );
 				} else {
-					$manager->expects( $affectedRows ? $this->at( 0 ) : $this->once() )->method( 'add' )->with(
+					$expectedCalls = [ [
 						$this->consequenceEqualTo( new RejectOneConsequence( $modid, $moderator ) )
-					)->willReturn( $affectedRows );
-
+					] ];
 					if ( $affectedRows ) {
-						// Something changed.
-						$manager->expects( $this->at( 1 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-							new AddLogEntryConsequence(
-								'reject', $moderator,
-								Title::makeTitle( $row->namespace, $row->title ),
-								[
-									'modid' => $modid,
-									'user' => (int)$row->user,
-									'user_text' => $row->user_text
-								]
+						$expectedCalls[] = [
+							$this->consequenceEqualTo(
+								new AddLogEntryConsequence(
+									'reject', $moderator,
+									Title::makeTitle( $row->namespace, $row->title ),
+									[
+										'modid' => $modid,
+										'user' => (int)$row->user,
+										'user_text' => $row->user_text
+									]
+								)
 							)
-						) );
-						$manager->expects( $this->at( 2 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-							new InvalidatePendingTimeCacheConsequence()
-						) );
-						$manager->expects( $this->exactly( 3 ) )->method( 'add' );
+						];
+						$expectedCalls[] = [
+							$this->consequenceEqualTo(
+								new InvalidatePendingTimeCacheConsequence()
+							)
+						];
 					}
+
+					$manager->expects( $this->exactly( count( $expectedCalls ) ) )->method( 'add' )
+						->withConsecutive( ...$expectedCalls )
+						->willReturnOnConsecutiveCalls( $affectedRows );
 				}
 			}
 		);
@@ -172,28 +177,32 @@ class ModerationActionRejectTest extends ModerationUnitTestCase {
 					return;
 				}
 
-				$manager->expects( $this->at( 0 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-					new RejectAllConsequence( $username, $moderator )
-				) )->willReturn( $affectedRows );
-
-				if ( !$affectedRows ) {
-					// Exception will be thrown, so no further consequences are expected.
-					$manager->expects( $this->once() )->method( 'add' );
-					return;
+				$expectedCalls = [ [
+					$this->consequenceEqualTo(
+						new RejectAllConsequence( $username, $moderator )
+					)
+				] ];
+				if ( $affectedRows ) {
+					$expectedCalls[] = [
+						$this->consequenceEqualTo(
+							new AddLogEntryConsequence(
+								'rejectall',
+								$moderator,
+								Title::makeTitle( NS_USER, $username ),
+								[ '4::count' => $affectedRows ]
+							)
+						)
+					];
+					$expectedCalls[] = [
+						$this->consequenceEqualTo(
+							new InvalidatePendingTimeCacheConsequence()
+						)
+					];
 				}
 
-				$manager->expects( $this->at( 1 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-					new AddLogEntryConsequence(
-						'rejectall',
-						$moderator,
-						Title::makeTitle( NS_USER, $username ),
-						[ '4::count' => $affectedRows ]
-					)
-				) );
-				$manager->expects( $this->at( 2 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-					new InvalidatePendingTimeCacheConsequence()
-				) );
-				$manager->expects( $this->exactly( 3 ) )->method( 'add' );
+				$manager->expects( $this->exactly( count( $expectedCalls ) ) )->method( 'add' )
+						->withConsecutive( ...$expectedCalls )
+						->willReturnOnConsecutiveCalls( $affectedRows );
 			}
 		);
 

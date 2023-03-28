@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -63,27 +63,31 @@ class ModerationEntryEditTest extends ModerationUnitTestCase {
 		'@phan-var Title $title';
 		'@phan-var User $authorUser';
 
-		$manager = $this->createMock( IConsequenceManager::class );
-		$manager->expects( $this->at( 0 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-			new ApproveEditConsequence(
-				$authorUser,
-				$title,
-				$row->text,
-				$row->comment,
-				$isBot && $isAllowedBot,
-				$isMinor,
-				$row->last_oldid
+		$expectedCalls = [ [
+			$this->consequenceEqualTo(
+				new ApproveEditConsequence(
+					$authorUser,
+					$title,
+					$row->text,
+					$row->comment,
+					$isBot && $isAllowedBot,
+					$isMinor,
+					$row->last_oldid
+				)
 			)
-		) )->willReturn( $status );
-
+		] ];
 		if ( $errorFromConsequence === 'moderation-edit-conflict' ) {
-			$manager->expects( $this->at( 1 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-				new MarkAsConflictConsequence( $row->id )
-			) );
-			$manager->expects( $this->exactly( 2 ) )->method( 'add' );
-		} else {
-			$manager->expects( $this->once() )->method( 'add' );
+			$expectedCalls[] = [
+				$this->consequenceEqualTo(
+					new MarkAsConflictConsequence( $row->id )
+				)
+			];
 		}
+
+		$manager = $this->createMock( IConsequenceManager::class );
+		$manager->expects( $this->exactly( count( $expectedCalls ) ) )->method( 'add' )
+			->withConsecutive( ...$expectedCalls )
+			->willReturnOnConsecutiveCalls( $status );
 
 		$entry = $this->getMockBuilder( ModerationEntryEdit::class )
 			->disableOriginalConstructor()

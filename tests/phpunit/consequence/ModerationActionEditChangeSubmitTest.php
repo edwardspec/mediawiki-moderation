@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -90,22 +90,27 @@ class ModerationActionEditChangeSubmitTest extends ModerationUnitTestCase {
 					return;
 				}
 
-				$manager->expects( $this->at( 0 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-					new ModifyPendingChangeConsequence(
-						$modid,
-						$expectedText,
-						$newComment,
-						strlen( $expectedText )
-					)
-				) );
-				$manager->expects( $this->at( 1 ) )->method( 'add' )->with( $this->consequenceEqualTo(
-					new AddLogEntryConsequence( 'editchange',
-						$moderatorUser,
-						Title::makeTitle( $row->namespace, $row->title ),
-						[ 'modid' => $modid ]
-					)
-				) );
-				$manager->expects( $this->exactly( 2 ) )->method( 'add' );
+				$manager->expects( $this->exactly( 2 ) )->method( 'add' )->withConsecutive(
+					[
+						$this->consequenceEqualTo(
+							new ModifyPendingChangeConsequence(
+								$modid,
+								$expectedText,
+								$newComment,
+								strlen( $expectedText )
+							)
+						)
+					],
+					[
+						$this->consequenceEqualTo(
+							new AddLogEntryConsequence( 'editchange',
+								$moderatorUser,
+								Title::makeTitle( $row->namespace, $row->title ),
+								[ 'modid' => $modid ]
+							)
+						)
+					]
+				);
 			}
 		);
 
