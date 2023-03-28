@@ -124,7 +124,16 @@ class ModerationTestCase extends MediaWikiIntegrationTestCase {
 			environment after the previous test, and creating new ModerationTestsuite object
 			would clean the database.
 		*/
-		if ( !$this->hasDependencies() ) {
+		if ( method_exists( $this, 'hasDependencies' ) ) {
+			// MediaWiki 1.35-1.39
+			$hasDependencies = $this->hasDependencies();
+		} else {
+			// MediaWiki 1.40
+			// @phan-suppress-next-line PhanUndeclaredMethod
+			$hasDependencies = count( $this->requires() ) > 0;
+		}
+
+		if ( !$hasDependencies ) {
 			$this->setDependencyInput( [ $this->makeNewTestsuite() ] );
 		}
 
