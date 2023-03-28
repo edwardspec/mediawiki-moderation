@@ -67,13 +67,8 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 			$title->getLatestRevID( IDBAccessObject::READ_LATEST ) : 0;
 
 		// Monitor RecentChange_save hook.
-		// Note: we can't use $this->setTemporaryHook(), because it removes existing hook (if any),
-		// and Moderation itself uses this hook (so it can't be removed during tests).
-		global $wgHooks;
-		$hooks = $wgHooks; // For setMwGlobals() below
-
 		$hookFired = false;
-		$hooks['RecentChange_save'][] = function ( RecentChange $rc )
+		$this->setTemporaryHook( 'RecentChange_save', function ( RecentChange $rc )
 			use ( &$hookFired, $user, $title, $newText, $baseRevId, $opt )
 		{
 			$hookFired = true;
@@ -95,8 +90,7 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 			$this->assertEquals( $newText, $rec->getSlot( SlotRecord::MAIN )->getContent()->serialize() );
 
 			return true;
-		};
-		$this->setMwGlobals( 'wgHooks', $hooks );
+		}, false );
 
 		// Create and run the Consequence.
 		$consequence = new ApproveEditConsequence(
