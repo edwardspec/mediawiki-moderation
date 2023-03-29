@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2022 Edward Chernenko.
+	Copyright (C) 2018-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -520,7 +520,13 @@ class ModerationQueueTest extends ModerationTestCase {
 		$this->assertEquals( 'NULL', $paramTypes[5] ); // Unused
 		$this->assertEquals( 'NULL', $paramTypes[6] ); // Unused
 		$this->assertEquals( 'integer', $paramTypes[7] ); // $flags
-		$this->assertEquals( 'Status', $paramTypes[8] );
+
+		$expectedStatusClass = 'MediaWiki\Storage\PageUpdateStatus'; // MediaWiki 1.40+
+		if ( !class_exists( $expectedStatusClass ) ) {
+			// MediaWiki 1.35-1.39
+			$expectedStatusClass = 'Status';
+		}
+		$this->assertEquals( $expectedStatusClass, $paramTypes[8] );
 
 		// FIXME: loss of types during JSON serialization is very inconvenient.
 		// serialize() is not currently used, because some classes have callbacks, etc.,
