@@ -90,7 +90,7 @@
 	"moderation-unblock": "Nič več pošiljatelj neželene pošte",
 	"moderation-unblock-ok": "Uporabnik [[Special:Contributions/$1|$1]] ne velja več za pošiljatelja neželene pošte.",
 	"moderation-unknown-modaction": "Neznano dejanje moderiranja.",
-	"right-moderation-checkuser": "Ogled IP-jev urejavalcev v vmesniku za moderiranje",
+	"right-moderation-checkuser": "Ogled IP-jev urejevalcev v vmesniku za moderiranje",
 	"right-moderation": "Moderiranje urejanj",
 	"right-skip-moderation": "Izognitev moderiranju urejanj",
 	"right-skip-move-moderation": "Prestavljanje strani brez moderiranja",
