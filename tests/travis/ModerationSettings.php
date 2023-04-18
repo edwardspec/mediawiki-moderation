@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2022 Edward Chernenko.
+	Copyright (C) 2018-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -76,10 +76,13 @@ if (
 	wfLoadExtension( 'CheckUser' ); # For PHPUnit testsuite
 }
 
-wfLoadExtensions( [
-	# For PHPUnit testsuite.
-	'PageForms'
-] );
+if ( version_compare( MW_VERSION, '1.40.0-alpha', '<' ) ) {
+	// Extension:PageForms has deprecation warnings in 1.40 (which interferes with tests).
+	wfLoadExtensions( [
+		# For PHPUnit testsuite.
+		'PageForms'
+	] );
+}
 
 wfLoadExtensions( [
 	# For Selenium testsuite
