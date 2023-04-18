@@ -67,10 +67,8 @@ if ( $wgDBtype != 'postgres' ) {
 }
 
 if (
-	( $wgDBtype !== 'postgres' || version_compare( $wgVersion, '1.39.0', '>=' ) ) &&
-	( PHP_MAJOR_VERSION !== 8 || PHP_MINOR_VERSION !== 1 )
+	( $wgDBtype !== 'postgres' || version_compare( $wgVersion, '1.39.0', '>=' ) )
 ) {
-	// Extension:CheckUser doesn't support PHP 8.1 yet.
 	// Extension:CheckUser supports PostgreSQL only in MediaWiki 1.39+,
 	// so we don't run its tests with MediaWiki 1.35-1.38.
 	wfLoadExtension( 'CheckUser' ); # For PHPUnit testsuite

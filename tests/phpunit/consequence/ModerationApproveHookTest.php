@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2022 Edward Chernenko.
+	Copyright (C) 2020-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -817,9 +817,14 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 				$cuWhere = [
 					'cuc_namespace' => $title->getNamespace(),
-					'cuc_title' => $title->getDBKey(),
-					'cuc_user_text' => $user->getName()
+					'cuc_title' => $title->getDBKey()
 				];
+				if ( version_compare( MW_VERSION, '1.40.0-alpha', '<' ) ) {
+					$cuWhere['cuc_user_text'] = $user->getName();
+				} else {
+					$cuWhere['cuc_actor'] = $user->getActorId();
+				}
+
 				if ( $type == ModerationNewChange::MOD_TYPE_EDIT ) {
 					$cuWhere['cuc_actiontext'] = '';
 				} else {
