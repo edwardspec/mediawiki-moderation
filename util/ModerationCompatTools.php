@@ -76,4 +76,32 @@ class ModerationCompatTools {
 		// This approach can't be used with MediaWiki 1.40 due to T323254.
 		return Action::getActionName( $context );
 	}
+
+	/**
+	 * Use methods of Extension:CheckUser to locate the client IP within the XFF string.
+	 * @param string|bool $xff
+	 * @return array
+	 */
+	public static function getClientIPfromXFF( $xff ) {
+		$services = MediaWikiServices::getInstance();
+		if ( $services->has( 'CheckUserUtilityService' ) ) {
+			// MediaWiki 1.40+
+			return $services->get( 'CheckUserUtilityService' )->getClientIPfromXFF( $xff );
+		}
+
+		if ( method_exists( '\MediaWiki\CheckUser\Hooks', 'getClientIPfromXFF' ) ) {
+			// MediaWiki 1.36-1.39
+			return \MediaWiki\CheckUser\Hooks::getClientIPfromXFF( $xff );
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredClassReference
+		if ( method_exists( '\CheckUserHooks', 'getClientIPfromXFF' ) ) {
+			// MediaWiki 1.35
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			return \CheckUserHooks::getClientIPfromXFF( $xff );
+		}
+
+		// Extension:CheckUser is not installed.
+		return [ null, false, '' ];
+	}
 }
