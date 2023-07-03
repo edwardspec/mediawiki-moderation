@@ -37,6 +37,12 @@
 				return oldFunc.apply( self, params );
 			}
 
+			if ( options.oldId !== undefined && isNaN( options.oldId ) ) {
+				// Imperfect workaround for MediaWiki 1.40+
+				options.oldId = 0;
+				return useDefault( 'can\'t preload creation of new pages in VE for MW 1.40+, but local storage of VE should handle this' );
+			}
+
 			/* If user is editing some older revision,
 				then preloading is not needed here */
 			if ( options.oldId !== undefined &&
