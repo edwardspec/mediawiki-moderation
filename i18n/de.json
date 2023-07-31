@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"Justman10000",
 			"McDutchie",
 			"Metalhead64",
 			"Umlaut"
@@ -57,6 +58,7 @@
 	"moderation-folder-rejected": "Abgelehnt",
 	"moderation-folder-spam": "Spam",
 	"moderation-image-queued": "Erfolgreich: Dein Bild wurde an die Moderation gesandt.<br>Sobald es bestätigt wurde, wird es für andere Benutzer sichtbar sein.",
+	"moderation-imagerotate-not-allowed": "Nur automatisierte Benutzer können Bilder drehen.",
 	"moderation-log-change": "Änderung $1",
 	"moderation-log-diff": "Bearbeitung $1",
 	"moderation-merge": "Bestätigen (Bearbeitungskonflikt beheben)",
@@ -97,6 +99,7 @@
 	"right-skip-move-moderation": "Seiten ohne Moderation verschieben",
 	"tag-moderation-merged": "Bearbeitung eines anderen Benutzers zusammengeführt",
 	"tag-moderation-merged-description": "Bearbeitung eines anderen Benutzers (der Moderator hat nur einen Bearbeitungskonflikt darin gelöst).",
+	"tag-moderation-spam-description": "Wenn AbuseFilter dieses Tag zu einer Bearbeitung hinzufügt und die Moderation diese Bearbeitung abfängt, wird sie in den Spam-Ordner verschoben.",
 	"tooltip-moderation-approveall": "Alle Bearbeitungen von diesem Benutzer/dieser IP-Adresse bestätigen",
 	"tooltip-moderation-approve": "Diese einzelne Bearbeitung bestätigen",
 	"tooltip-moderation-approved-diff": "Die bestätigte Bearbeitung ansehen",

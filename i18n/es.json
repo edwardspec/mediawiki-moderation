@@ -9,7 +9,8 @@
 			"Fitoschido",
 			"Ice bulldog",
 			"Jelou",
-			"MarcoAurelio"
+			"MarcoAurelio",
+			"No se"
 		]
 	},
 	"action-moderation": "moderar ediciones",
@@ -53,6 +54,7 @@
 	"moderation-edit-conflict": "Editar conflicto (requiere fusión manual).",
 	"moderation-editing-your-version": "Estás editando tu versión de este artículo. Actualmente está esperando moderación.<br>Una vez aprobado, será visible para otros usuarios.",
 	"moderation-edit-not-found": "No se encontró la edición. Probablemente ya se ha aprobado.",
+	"moderation-edit-queued": "Éxito: su edición se envió a moderación.<br>Puedes continuar editando <a href='$1'>su versión de esta página</a>.",
 	"moderation-editchange": "editar",
 	"moderation-editchange-ok": "Pendiente de revisión cambiada.",
 	"moderation-editchange-title": "Pendiente revisión de $1",
