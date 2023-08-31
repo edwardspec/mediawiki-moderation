@@ -2,9 +2,11 @@
 	"@metadata": {
 		"authors": [
 			"Edward Chernenko",
+			"Gamliel Fishkin",
 			"Gulka.nik",
 			"Movses",
-			"Vlad5250"
+			"Vlad5250",
+			"Света Поторочина"
 		]
 	},
 	"action-moderation": "модерирование правок",
