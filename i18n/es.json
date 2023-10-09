@@ -14,8 +14,8 @@
 		]
 	},
 	"action-moderation": "moderar ediciones",
-	"group-automoderated": "Usarios moderados automáticamente",
-	"group-automoderated-member": "{{GENDER:$1|usuario automoderado|usuaria automoderada}}",
+	"group-automoderated": "Usuarios automoderados",
+	"group-automoderated-member": "usuari{{GENDER:$1|o automoderado|a automoderada}}",
 	"group-moderator-member": "{{GENDER:$1|moderador|moderadora}}",
 	"group-moderator": "Moderadores",
 	"grouppage-automoderated": "{{ns:project}}:Moderación",
