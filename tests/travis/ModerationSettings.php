@@ -74,7 +74,7 @@ if (
 	wfLoadExtension( 'CheckUser' ); # For PHPUnit testsuite
 }
 
-if ( version_compare( MW_VERSION, '1.40.0-alpha', '<' ) ) {
+if ( !preg_match( '/^1\.40\./', MW_VERSION ) ) {
 	// Extension:PageForms has deprecation warnings in 1.40 (which interferes with tests).
 	wfLoadExtensions( [
 		# For PHPUnit testsuite.
