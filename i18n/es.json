@@ -76,6 +76,7 @@
 	"moderation-rejectall": "Rechazar todos",
 	"moderation-rejected-auto": "Rechazar automáticamente",
 	"moderation-rejected-by": "{{GENDER:$2|Rechazado|Rechazada}} por $1",
+	"moderation-rejected-ok": "Rechazada{{plural:$1||s}} $1 edici{{plural:$1|ón|ones}}.",
 	"moderation-reject": "Rechazar",
 	"moderation-show": "diferencias",
 	"moderation-text": "Esta página especial enumera todas las ediciones que necesitan moderarse (para ser aprobadas o rechazadas).<br>Véase también: [[Special:Log/moderation|registro de moderación]].",
