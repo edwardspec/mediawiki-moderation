@@ -29,6 +29,9 @@ use MediaWiki\Revision\SlotRecord;
 
 require_once __DIR__ . "/autoload.php";
 
+/**
+ * @group Database
+ */
 class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	use MockRevisionLookupTestTrait;
 	use UploadTestTrait;

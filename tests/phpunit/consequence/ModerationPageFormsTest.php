@@ -22,6 +22,9 @@
 
 require_once __DIR__ . "/autoload.php";
 
+/**
+ * @group Database
+ */
 class ModerationPageFormsTest extends ModerationUnitTestCase {
 
 	/**

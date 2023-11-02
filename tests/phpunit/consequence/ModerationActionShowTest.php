@@ -22,6 +22,9 @@
 
 require_once __DIR__ . "/autoload.php";
 
+/**
+ * @group Database
+ */
 class ModerationActionShowTest extends ModerationUnitTestCase {
 	use ActionTestTrait;
 

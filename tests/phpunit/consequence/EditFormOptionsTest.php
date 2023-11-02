@@ -27,6 +27,9 @@ use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
+/**
+ * @group Database
+ */
 class EditFormOptionsTest extends ModerationUnitTestCase {
 	/**
 	 * Test setMergeID() and getMergeID().

@@ -24,6 +24,9 @@ use MediaWiki\Moderation\PendingEdit;
 
 require_once __DIR__ . "/autoload.php";
 
+/**
+ * @group Database
+ */
 class PendingEditTest extends ModerationUnitTestCase {
 	/**
 	 * Check all methods of PendingEdit except getSectionText(). These are simple getters.

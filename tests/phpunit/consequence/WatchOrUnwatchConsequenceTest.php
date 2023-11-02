@@ -24,6 +24,9 @@ use MediaWiki\Moderation\WatchOrUnwatchConsequence;
 
 require_once __DIR__ . "/autoload.php";
 
+/**
+ * @group Database
+ */
 class WatchOrUnwatchConsequenceTest extends ModerationUnitTestCase {
 	/**
 	 * Verify that WatchOrUnwatchConsequence watches/unwatches a page.

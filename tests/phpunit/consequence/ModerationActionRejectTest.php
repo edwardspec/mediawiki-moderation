@@ -27,6 +27,9 @@ use MediaWiki\Moderation\RejectOneConsequence;
 
 require_once __DIR__ . "/autoload.php";
 
+/**
+ * @group Database
+ */
 class ModerationActionRejectTest extends ModerationUnitTestCase {
 	use ActionTestTrait;
 

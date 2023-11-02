@@ -33,6 +33,9 @@ use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
+/**
+ * @group Database
+ */
 class ModerationNewChangeTest extends ModerationUnitTestCase {
 
 	/**

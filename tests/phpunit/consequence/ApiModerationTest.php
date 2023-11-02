@@ -26,6 +26,7 @@ use Wikimedia\TestingAccessWrapper;
 require_once __DIR__ . "/autoload.php";
 
 /**
+ * @group Database
  * @group medium
  */
 class ApiModerationTest extends ApiTestCase {

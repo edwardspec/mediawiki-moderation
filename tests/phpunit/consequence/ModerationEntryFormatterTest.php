@@ -26,6 +26,9 @@ use MediaWiki\Moderation\TimestampFormatter;
 
 require_once __DIR__ . "/autoload.php";
 
+/**
+ * @group Database
+ */
 class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 	/**
 	 * @var mixed

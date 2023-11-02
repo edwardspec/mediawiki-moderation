@@ -24,6 +24,9 @@ use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
+/**
+ * @group Database
+ */
 class ModerationEditChangePageTest extends ModerationUnitTestCase {
 	/**
 	 * Ensure that showFormAfterText() adds HTML field 'token' (for modaction=editchangesubmit).

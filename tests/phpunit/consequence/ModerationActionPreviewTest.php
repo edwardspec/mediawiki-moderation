@@ -25,6 +25,9 @@ require_once __DIR__ . "/autoload.php";
 use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Revision\RevisionRecord;
 
+/**
+ * @group Database
+ */
 class ModerationActionPreviewTest extends ModerationUnitTestCase {
 	use ActionTestTrait;
 

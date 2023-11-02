@@ -24,6 +24,9 @@ use MediaWiki\Moderation\PendingEdit;
 
 require_once __DIR__ . "/autoload.php";
 
+/**
+ * @group Database
+ */
 class ModerationAjaxHookTest extends ModerationUnitTestCase {
 	/**
 	 * Verify that ModerationAjaxHook::add() adds the necessary modules to OutputPage.

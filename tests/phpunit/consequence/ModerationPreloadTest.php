@@ -28,6 +28,9 @@ use Wikimedia\IPUtils;
 
 require_once __DIR__ . "/autoload.php";
 
+/**
+ * @group Database
+ */
 class ModerationPreloadTest extends ModerationUnitTestCase {
 	/**
 	 * Verify that getId() returns correct values for both logged-in and anonymous users.

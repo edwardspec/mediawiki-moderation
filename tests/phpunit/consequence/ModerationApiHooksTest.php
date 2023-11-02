@@ -24,6 +24,9 @@ use MediaWiki\Moderation\PendingEdit;
 
 require_once __DIR__ . "/autoload.php";
 
+/**
+ * @group Database
+ */
 class ModerationApiHooksTest extends ModerationUnitTestCase {
 	/**
 	 * Ensure that ApiEdit parameters appendtext, prependtext and section work for intercepted edits.

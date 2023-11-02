@@ -25,6 +25,9 @@ use MediaWiki\Moderation\ModifyPendingChangeConsequence;
 
 require_once __DIR__ . "/autoload.php";
 
+/**
+ * @group Database
+ */
 class ModerationActionEditChangeSubmitTest extends ModerationUnitTestCase {
 	use ActionTestTrait;
 

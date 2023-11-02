@@ -24,6 +24,9 @@ require_once __DIR__ . "/autoload.php";
 
 use MediaWiki\MediaWikiServices;
 
+/**
+ * @group Database
+ */
 class ModerationActionShowImageTest extends ModerationUnitTestCase {
 	use ActionTestTrait;
 	use UploadTestTrait;
