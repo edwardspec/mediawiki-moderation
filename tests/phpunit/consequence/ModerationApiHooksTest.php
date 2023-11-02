@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
  * Unit test of ModerationApiHooks.
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\PendingEdit;
 
 require_once __DIR__ . "/autoload.php";
@@ -70,7 +71,7 @@ class ModerationApiHooksTest extends ModerationUnitTestCase {
 		}
 
 		// Invoke the tested hook handler.
-		$hookResult = Hooks::run( 'ApiBeforeMain', [ &$processor ] );
+		$hookResult = MediaWikiServices::getInstance()->getHookContainer()->run( 'ApiBeforeMain', [ &$processor ] );
 
 		$this->assertTrue( $hookResult, 'Handler of ApiBeforeMain hook should return true.' );
 		$this->assertArrayEquals( $expectedParams, $processor->getRequest()->getValues(), false, true );

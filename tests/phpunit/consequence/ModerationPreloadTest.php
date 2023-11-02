@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
  * Unit test of ModerationPreload.
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\PendingEdit;
@@ -182,12 +183,13 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		// is instead remembered in AlternateEdit hook, which is called before EditFormPreloadText.
 		// See testNewArticlePreloadHookNoEditPage() below for situation when this doesn't happen.
 		$editPage = new EditPage( new Article( $title ) );
-		$hookResult = Hooks::run( 'AlternateEdit', [ &$editPage ] );
+		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
+		$hookResult = $hookContainer->run( 'AlternateEdit', [ &$editPage ] );
 		$this->assertTrue( $hookResult, 'Handler of AlternateEdit hook should return true.' );
 
 		// Call the tested hook.
 		$text = 'Unmodified text';
-		$hookResult = Hooks::run( 'EditFormPreloadText', [ &$text, &$title ] );
+		$hookResult = $hookContainer->run( 'EditFormPreloadText', [ &$text, &$title ] );
 		$this->assertTrue( $hookResult, 'Handler of EditFormPreloadText hook should return true.' );
 		$this->assertSame( $preloadedText, $text,
 			"Text wasn't modified by EditFormPreloadText hook." );
@@ -211,7 +213,8 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 
 		// Call the tested hook.
 		$text = 'Unmodified text';
-		$hookResult = Hooks::run( 'EditFormPreloadText', [ &$text, &$title ] );
+		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
+		$hookResult = $hookContainer->run( 'EditFormPreloadText', [ &$text, &$title ] );
 		$this->assertTrue( $hookResult, 'Handler of EditFormPreloadText hook should return true.' );
 		$this->assertSame( $preloadedText, $text,
 			"Text wasn't modified by EditFormPreloadText hook." );
@@ -231,7 +234,8 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		$editPage = new EditPage( new Article( $title ) );
 
 		// Call the tested hook.
-		$hookResult = Hooks::run( 'EditFormInitialText', [ $editPage ] );
+		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
+		$hookResult = $hookContainer->run( 'EditFormInitialText', [ $editPage ] );
 		$this->assertTrue( $hookResult, 'Handler of EditFormInitialText hook should return true.' );
 		$this->assertSame( $preloadedText, $editPage->textbox1,
 			"Text wasn't modified by EditFormInitialText hook." );
@@ -254,7 +258,8 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		$editPage = new EditPage( new Article( $title ) );
 
 		// Call the tested hook.
-		$hookResult = Hooks::run( 'EditFormInitialText', [ $editPage ] );
+		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
+		$hookResult = $hookContainer->run( 'EditFormInitialText', [ $editPage ] );
 		$this->assertTrue( $hookResult, 'Handler of EditFormInitialText hook should return true.' );
 		$this->assertSame( $preloadedText, $editPage->textbox1,
 			"Text in section=$sectionId doesn't match the text that should have been preloaded." );
@@ -272,7 +277,8 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		$origText = $text = 'Original text ' . rand( 0, 100000 );
 
 		// Call the tested hook.
-		$hookResult = Hooks::run( 'EditFormPreloadText', [ &$text, &$title ] );
+		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
+		$hookResult = $hookContainer->run( 'EditFormPreloadText', [ &$text, &$title ] );
 		$this->assertTrue( $hookResult, 'Handler of EditFormPreloadText hook should return true.' );
 		$this->assertSame( $origText, $text,
 			"Text shouldn't have be modified when PendingEdit doesn't exist." );
@@ -294,7 +300,8 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		$origSummary = $editPage->summary = 'Original summary ' . rand( 0, 100000 );
 
 		// Call the tested hook.
-		$hookResult = Hooks::run( 'EditFormInitialText', [ $editPage ] );
+		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
+		$hookResult = $hookContainer->run( 'EditFormInitialText', [ $editPage ] );
 		$this->assertTrue( $hookResult, 'Handler of EditFormInitialText hook should return true.' );
 		$this->assertSame( $origText, $editPage->textbox1,
 			"Text shouldn't have be modified when PendingEdit doesn't exist." );
@@ -396,10 +403,11 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		$editPage = new EditPage( new Article( $title ) );
 
 		// Call the tested hooks.
-		$hookResult = Hooks::run( 'EditFormPreloadText', [ &$text, &$title ] );
+		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
+		$hookResult = $hookContainer->run( 'EditFormPreloadText', [ &$text, &$title ] );
 		$this->assertTrue( $hookResult, 'Handler of EditFormPreloadText hook should return true.' );
 
-		$hookResult = Hooks::run( 'EditFormInitialText', [ $editPage ] );
+		$hookResult = $hookContainer->run( 'EditFormInitialText', [ $editPage ] );
 		$this->assertTrue( $hookResult, 'Handler of EditFormInitialText hook should return true.' );
 	}
 }
