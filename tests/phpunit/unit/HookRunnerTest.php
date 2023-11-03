@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2021 Edward Chernenko.
+	Copyright (C) 2021-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,19 +21,39 @@
  */
 
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+// @phan-file-suppress PhanRedefineClass
 
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Tests\HookContainer\HookRunnerTestBase;
 
 if ( class_exists( HookRunnerTestBase::class ) ) {
-	/**
-	 * phpcs:ignore MediaWiki.Commenting.PhpunitAnnotations.NotInClassTrait
-	 * @covers MediaWiki\Moderation\Hook\HookRunner
-	 */
-	class HookRunnerTest extends HookRunnerTestBase {
-		/** @return array */
-		public function provideHookRunners() {
-			return [ HookRunner::class => [ HookRunner::class ] ];
+	if ( method_exists( HookRunnerTestBase::class, 'provideHookRunnersStatically' ) ) {
+		// MediaWiki 1.41+
+		/**
+		 * phpcs:ignore MediaWiki.Commenting.PhpunitAnnotations.NotInClassTrait
+		 * @covers MediaWiki\Moderation\Hook\HookRunner
+		 */
+		class HookRunnerTest extends HookRunnerTestBase {
+			/**
+			 * @return array
+			 * @suppress PhanAccessNonStaticToStatic
+			 */
+			public static function provideHookRunners() {
+				return [ HookRunner::class => [ HookRunner::class ] ];
+			}
+		}
+	} else {
+		// MediaWiki 1.35-1.40.
+		/**
+		 * phpcs:ignore MediaWiki.Commenting.PhpunitAnnotations.NotInClassTrait
+		 * @covers MediaWiki\Moderation\Hook\HookRunner
+		 */
+		// phpcs:ignore Generic.Classes.DuplicateClassName.Found
+		class HookRunnerTest extends HookRunnerTestBase {
+			/** @return array */
+			public function provideHookRunners() {
+				return [ HookRunner::class => [ HookRunner::class ] ];
+			}
 		}
 	}
 } else {
