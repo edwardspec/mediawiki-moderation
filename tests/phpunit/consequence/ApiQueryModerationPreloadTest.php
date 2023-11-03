@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2022 Edward Chernenko.
+	Copyright (C) 2020-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -43,9 +43,7 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 		$title = Title::newFromText( 'Talk:UTPage ' . rand( 0, 100000 ) );
 		$text = 'Preloaded text ' . rand( 0, 100000 );
 		$comment = 'Preloaded comment' . rand( 0, 100000 );
-
-		$mockedArticleId = 12345;
-		$title->resetArticleId( $mockedArticleId );
+		$articleId = $this->getExistingTestPage( $title )->getId();
 
 		$pendingEdit = false;
 		if ( !$notFound ) {
@@ -60,9 +58,12 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 
 		// Mock ModerationPreload service.
 		$preload = $this->createMock( ModerationPreload::class );
-		$preload->expects( $this->any() )->method( 'findPendingEdit' )->with(
-			$this->identicalTo( $title )
-		)->willReturn( $pendingEdit );
+		$preload->expects( $this->any() )->method( 'findPendingEdit' )->will(
+			$this->returnCallback( function ( $target ) use ( $title, $pendingEdit ) {
+				$this->assertEquals( $title->getFullText(), $target->getFullText() );
+				return $pendingEdit;
+			} )
+		);
 		$this->setService( 'Moderation.Preload', $preload );
 
 		$query = $extraParams + [
@@ -86,7 +87,7 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 		$expectedResult = [
 			'user' => $user->getName(),
 			'title' => $title->getFullText(),
-			'pageid' => $mockedArticleId
+			'pageid' => $articleId
 		];
 		if ( $notFound ) {
 			$expectedResult['missing'] = '';
