@@ -22,6 +22,9 @@
 
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
+/**
+ * @group Database
+ */
 class ModerationAbuseFilterTest extends ModerationTestCase {
 	/** @var string[] */
 	private $expectedTags = [

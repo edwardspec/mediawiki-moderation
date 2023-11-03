@@ -24,6 +24,9 @@
 
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
+/**
+ * @group Database
+ */
 class ModerationEditConflictTest extends ModerationTestCase {
 	/**
 	 * Ensure that resolvable edit conflicts are automatically resolved during modaction=approve.

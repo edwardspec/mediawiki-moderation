@@ -22,6 +22,9 @@
 
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
+/**
+ * @group Database
+ */
 class ModerationEditTest extends ModerationTestCase {
 	/**
 	 * Ensure that some substitutions (e.g. ~~~~) are performed when and only when

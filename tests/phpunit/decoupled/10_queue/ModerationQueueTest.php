@@ -25,6 +25,7 @@ require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 use MediaWiki\MediaWikiServices;
 
 /**
+ * @group Database
  * @covers ModerationNewChange
  */
 class ModerationQueueTest extends ModerationTestCase {

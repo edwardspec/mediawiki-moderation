@@ -23,6 +23,7 @@
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
+ * @group Database
  * @covers ModerationUploadHooks
  * @requires extension curl
  * @note Only cURL version of MWHttpRequest supports uploads.

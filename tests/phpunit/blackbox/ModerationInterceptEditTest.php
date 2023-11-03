@@ -23,6 +23,7 @@
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
+ * @group Database
  * @covers ModerationEditHooks
  */
 class ModerationInterceptEditTest extends ModerationTestCase {

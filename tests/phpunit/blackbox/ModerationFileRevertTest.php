@@ -22,6 +22,9 @@
 
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
+/**
+ * @group Database
+ */
 class ModerationFileRevertTest extends ModerationTestCase {
 	/**
 	 * Check that index.php?action=revert can't be used to bypass Moderation.

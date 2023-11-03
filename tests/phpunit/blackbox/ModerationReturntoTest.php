@@ -20,8 +20,10 @@
 
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
+/**
+ * @group Database
+ */
 class ModerationReturntoTest extends ModerationTestCase {
-
 	/**
 	 * Verifies that after-action link "Return to Special:Moderation" is shown.
 	 * @coversNothing

@@ -22,6 +22,9 @@
 
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
+/**
+ * @group Database
+ */
 class ModerationPageFormsIntegrationTest extends ModerationTestCase {
 	/**
 	 * Is pending edit preloaded into the edit form of Special:FormEdit?

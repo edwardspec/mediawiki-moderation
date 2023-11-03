@@ -21,6 +21,9 @@
 
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
+/**
+ * @group Database
+ */
 class ModerationTokensTest extends ModerationTestCase {
 	/**
 	 * Verifies that moderation tokens are required.

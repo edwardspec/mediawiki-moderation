@@ -21,6 +21,9 @@
 
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
+/**
+ * @group Database
+ */
 class ModerationPermissionsTest extends ModerationTestCase {
 	/**
 	 * Ensures that only moderators can use Special:Moderation.
