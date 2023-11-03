@@ -104,4 +104,21 @@ class ModerationCompatTools {
 		// Extension:CheckUser is not installed.
 		return [ null, false, '' ];
 	}
+
+	/**
+	 * Wrap edit comment in the necessary punctuation.
+	 * @param string $comment
+	 * @param LinkTarget|null $selfLinkTarget
+	 * @return string
+	 */
+	public static function commentBlock( $comment, $selfLinkTarget ) {
+		if ( method_exists( MediaWikiServices::class, 'getCommentFormatter' ) ) {
+			// MediaWiki 1.38+
+			$commentFormatter = MediaWikiServices::getInstance()->getCommentFormatter();
+			return $commentFormatter->formatBlock( $comment, $selfLinkTarget );
+		}
+
+		// MediaWiki 1.35-1.37
+		return Linker::commentBlock( $comment, $selfLinkTarget );
+	}
 }

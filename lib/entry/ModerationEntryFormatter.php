@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -245,7 +245,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 			$line .= Xml::tags( 'sup', [ 'class' => 'whois plainlinks' ], "[$link]" );
 		}
 
-		$line .= ' ' . Linker::commentBlock( $row->comment, $title );
+		$line .= ' ' . ModerationCompatTools::commentBlock( $row->comment, $title );
 
 		if ( !$row->merged_revid ) {
 			$line .= ' [';
