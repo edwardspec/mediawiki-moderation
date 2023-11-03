@@ -25,6 +25,9 @@ use MediaWiki\Linker\LinkRendererFactory;
 
 require_once __DIR__ . "/autoload.php";
 
+/**
+ * @group Database
+ */
 class ModerationErrorTest extends ModerationUnitTestCase {
 	/**
 	 * Test that ModerationError exception can be constructed from string (name of i18n message).
