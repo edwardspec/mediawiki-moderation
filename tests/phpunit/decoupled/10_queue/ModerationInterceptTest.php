@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
  */
 
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
+
+use MediaWiki\MediaWikiServices;
 
 /**
  * @group Database
@@ -287,15 +289,16 @@ class ModerationInterceptTest extends ModerationTestCase {
 		$user = User::newFromName( '127.0.0.1', false );
 		if ( !$this->anonymously ) {
 			$user = $t->unprivilegedUser;
+			$userGroupManager = MediaWikiServices::getInstance()->getUserGroupManager();
 
 			// Make sure that the test user doesn't have any groups
-			foreach ( $user->getGroups() as $oldGroup ) {
-				$user->removeGroup( $oldGroup );
+			foreach ( $userGroupManager->getUserGroups( $user ) as $oldGroup ) {
+				$userGroupManager->removeUserFromGroup( $user, $oldGroup );
 			}
 
 			// Add the user to groups requested by this test (if any)
 			foreach ( $this->groups as $group ) {
-				$user->addGroup( $group );
+				$userGroupManager->addUserToGroup( $user, $group );
 
 				if ( $group == 'rollback' ) {
 					// Rollback group (users with 'rollback' right) is not defined

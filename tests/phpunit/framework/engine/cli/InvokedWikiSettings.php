@@ -131,7 +131,9 @@ function wfModerationTestsuiteCliLogin() {
 		[
 			'_entrypoint' => MW_ENTRY_POINT,
 			'_LoggedInAs' => $user->getName() . ' (#' . $user->getId() .
-				'), groups=[' . implode( ', ', $user->getGroups() ) . ']',
+				'), groups=[' .
+				implode( ', ', MediaWikiServices::getInstance()->getUserGroupManager()->getUserGroups( $user ) ) .
+				']',
 		],
 		$request->getValues()
 	);

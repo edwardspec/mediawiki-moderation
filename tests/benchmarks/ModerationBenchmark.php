@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 
 require_once __DIR__ . '/../common/ModerationTestUtil.php';
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 
 abstract class ModerationBenchmark extends Maintenance {
@@ -101,10 +102,11 @@ abstract class ModerationBenchmark extends Maintenance {
 	 */
 	public function execute() {
 		$user = User::newSystemUser( 'Benchmark User', [ 'steal' => true ] );
-		foreach ( $user->getGroups() as $existingGroup ) {
-			$user->removeGroup( $existingGroup );
+
+		$userGroupManager = MediaWikiServices::getInstance()->getUserGroupManager();
+		foreach ( $userGroupManager->getUserGroups( $user ) as $existingGroup ) {
+			$userGroupManager->removeUserFromGroup( $user, $existingGroup );
 		}
-		$user->saveSettings();
 
 		$this->uniquePrefix = wfTimestampNow() . '_' . rand() . '_';
 		$this->testUser = $user;
@@ -229,6 +231,14 @@ abstract class ModerationBenchmark extends Maintenance {
 		);
 
 		return $dbw->insertId();
+	}
+
+	/**
+	 * Add current test user to "moderator" group.
+	 */
+	public function becomeModerator() {
+		$userGroupManager = MediaWikiServices::getInstance()->getUserGroupManager();
+		$userGroupManager->addUserToGroup( $this->getUser(), 'moderator' );
 	}
 
 	/**

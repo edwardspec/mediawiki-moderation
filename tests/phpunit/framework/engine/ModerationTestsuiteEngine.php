@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017-2022 Edward Chernenko.
+	Copyright (C) 2017-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,6 +23,8 @@
  * 1) send real HTTP requests via network (RealHttpEngine),
  * 2) invoke MediaWiki as a command-line script (CliEngine).
  */
+
+use MediaWiki\MediaWikiServices;
 
 abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
@@ -113,7 +115,9 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 				'url' => $url,
 				'postData' => $postData,
 				'loggedInAs' => $user->getName() . ' (#' . $user->getId() .
-					'), groups=[' . implode( ', ', $user->getGroups() ) . ']'
+					'), groups=[' .
+					implode( ', ', MediaWikiServices::getInstance()->getUserGroupManager()->getUserGroups( $user ) ) .
+					']'
 			]
 		);
 

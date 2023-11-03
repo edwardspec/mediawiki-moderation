@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2022 Edward Chernenko.
+	Copyright (C) 2015-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -233,8 +233,9 @@ class ModerationTestsuite {
 
 		$user->saveSettings();
 
-		foreach ( $groups as $g ) {
-			$user->addGroup( $g );
+		$userGroupManager = MediaWikiServices::getInstance()->getUserGroupManager();
+		foreach ( $groups as $group ) {
+			$userGroupManager->addUserToGroup( $user, $group );
 		}
 
 		return $user;
@@ -338,7 +339,7 @@ class ModerationTestsuite {
 	 */
 	public static $prepopulateDbNeededTables = [
 		// Caching these tables ("before the test" state) allows us to avoid User::createNew()
-		// and addGroup() calls. These calls were doing exactly the same before every test.
+		// and addUserToGroup() calls. These calls were doing exactly the same before every test.
 		'actor',
 		'user',
 		'user_groups'
