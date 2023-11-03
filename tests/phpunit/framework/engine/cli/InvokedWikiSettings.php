@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,6 +22,11 @@
  * @phan-file-suppress PhanUndeclaredGlobalVariable
  * @phan-file-suppress PhanUndeclaredVariableDim
  */
+
+// 1.41+: unfortunately we have to inform MediaWiki that this is being called from unit test,
+// or else it won't allow us to use MediaWikiServices::allowGlobalInstanceAfterUnitTests(),
+// which is necessary to use Hooks::register() very early (for SetupAfterCache hook, etc.).
+define( 'MW_PHPUNIT_TEST', true );
 
 # Load the usual LocalSettings.php
 require_once "$IP/LocalSettings.php";
@@ -61,13 +66,10 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 		);
 		$GLOBALS['wgCachePrefix'] = $newDomain->getId();
 
-		// Can't use Hooks::register(): MediaWiki 1.35+ prints a warning when it's called before boostrap,
-		// but this must be called before boostrap.
-		global $wgHooks;
-		$wgHooks['SetupAfterCache'][] = static function () use ( $newDomain ) {
+		wfFakeHooksRegister( 'SetupAfterCache', static function () use ( $newDomain ) {
 			$lbFactory = MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancerFactory();
 			$lbFactory->redefineLocalDomain( $newDomain );
-		};
+		} );
 
 		// This approach causes a deprecation warning (which must be suppressed) in MediaWiki 1.36+.
 		$reflection = new ReflectionProperty( 'MWDebug', 'deprecationFilters' );
@@ -141,9 +143,29 @@ function wfModerationTestsuiteCliLogin() {
 	wfDebugLog( 'ModerationTestsuite', FormatJson::encode( $event, true, FormatJson::ALL_OK ) );
 }
 
+/**
+ * Register the hook handler very early (when HookContainer is not yet initialized).
+ * @param string $hookName
+ * @param callable $handler
+ */
+function wfFakeHooksRegister( $hookName, callable $handler ) {
+	if ( version_compare( MW_VERSION, '1.41.0-alpha', '>=' ) ) {
+		// MediaWiki 1.41+
+		// @phan-suppress-next-line PhanUndeclaredStaticMethod
+		MediaWikiServices::allowGlobalInstanceAfterUnitTests();
+		MediaWikiServices::getInstance()->getHookContainer()->register( $hookName, $handler );
+		return;
+	}
+
+	// Can't use Hooks::register(): MediaWiki 1.35+ prints a warning when it's called before boostrap,
+	// but this must be called before boostrap.
+	global $wgHooks;
+	$wgHooks[$hookName][] = $handler;
+}
+
 function wfModerationTestsuiteSetup() {
 	global $wgModerationTestsuiteCliDescriptor, $wgModerationTestsuiteCliUploadData,
-		$wgRequest, $wgHooks, $wgAutoloadClasses;
+		$wgRequest, $wgAutoloadClasses;
 
 	$wgAutoloadClasses['ModerationTestsuiteCliApiMain'] =
 		__DIR__ . '/ModerationTestsuiteCliApiMain.php';
@@ -194,7 +216,7 @@ function wfModerationTestsuiteSetup() {
 			with ModerationTestsuiteCliApiMain (subclass of ApiMain)
 			that always prints the result, even in "internal mode".
 	*/
-	$wgHooks['ApiBeforeMain'][] = static function ( ApiMain &$apiMain ) {
+	wfFakeHooksRegister( 'ApiBeforeMain', static function ( ApiMain &$apiMain ) {
 		$apiMain = new ModerationTestsuiteCliApiMain(
 			$apiMain->getContext(),
 			true
@@ -202,22 +224,22 @@ function wfModerationTestsuiteSetup() {
 
 		wfModerationTestsuiteCliLogin();
 		return true;
-	};
+	} );
 
-	$wgHooks['BeforeInitialize'] = static function ( &$unused1, &$unused2, &$unused3, &$user ) {
+	wfFakeHooksRegister( 'BeforeInitialize', static function ( &$unused1, &$unused2, &$unused3, &$user ) {
 		wfModerationTestsuiteCliLogin();
 
 		// Make sure that handlers of BeforeInitialize hook (if any) will run as this new user.
 		$user = RequestContext::getMain()->getUser();
 
 		return true;
-	};
+	} );
 
 	/*
 		Initialize the session from the session cookie (if such cookie exists).
 		FIXME: determine why exactly didn't SessionManager do this automatically.
 	*/
-	$wgHooks['SetupAfterCache'][] = static function () {
+	wfFakeHooksRegister( 'SetupAfterCache', static function () {
 		/* Earliest hook where $wgCookiePrefix (needed by getCookie())
 			is available (when not set in LocalSettings.php)  */
 		$request = RequestContext::getMain()->getRequest();
@@ -228,7 +250,7 @@ function wfModerationTestsuiteSetup() {
 				?: $manager->getEmptySession();
 			$request->setSessionId( $session->getSessionId() );
 		}
-	};
+	} );
 
 	/*
 		Track hooks, as requested by ModerationTestsuiteCliEngine::trackHook()
@@ -237,7 +259,7 @@ function wfModerationTestsuiteSetup() {
 	foreach ( $wgModerationTestsuiteCliDescriptor['trackedHooks'] as $hook ) {
 		$wgModerationTestsuiteCliDescriptor['capturedHooks'][$hook] = [];
 
-		$wgHooks[$hook][] = static function () use ( $hook ) {
+		wfFakeHooksRegister( $hook, static function () use ( $hook ) {
 			global $wgModerationTestsuiteCliDescriptor;
 
 			// The testsuite would want to analyze types of received parameters,
@@ -264,13 +286,13 @@ function wfModerationTestsuiteSetup() {
 			];
 
 			return true;
-		};
+		} );
 	}
 
-	$wgHooks['AlternateUserMailer'][] = static function () {
+	wfFakeHooksRegister( 'AlternateUserMailer', static function () {
 		// Prevent any emails from actually being sent during the testsuite runs.
 		return false;
-	};
+	} );
 }
 
 wfModerationTestsuiteSetup();
