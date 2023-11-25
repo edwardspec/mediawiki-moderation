@@ -133,7 +133,8 @@ function wfModerationTestsuiteCliLogin() {
 			'_LoggedInAs' => $user->getName() . ' (#' . $user->getId() .
 				'), groups=[' .
 				implode( ', ', MediaWikiServices::getInstance()->getUserGroupManager()->getUserGroups( $user ) ) .
-				']',
+				'], hasModeratorAccess=' . ( $user->isAllowed( 'moderation' ) ? 'yes' : 'no' ) .
+				', canSkipModeration=' . ( $user->isAllowed( 'skip-moderation' ) ? 'yes' : 'no' )
 		],
 		$request->getValues()
 	);
