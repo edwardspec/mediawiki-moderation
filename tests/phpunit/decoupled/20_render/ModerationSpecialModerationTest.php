@@ -233,10 +233,17 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 
 		MediaWikiServices::getInstance()->getLinkCache()->clear();
 
-		$expectedComment = Linker::formatComment(
-			$this->fields['mod_comment'],
-			$this->getExpectedTitleObj()
-		);
+		$comment = $this->fields['mod_comment'];
+		$title = $this->getExpectedTitleObj();
+
+		if ( method_exists( MediaWikiServices::class, 'getCommentFormatter' ) ) {
+			// MediaWiki 1.38+
+			$commentFormatter = MediaWikiServices::getInstance()->getCommentFormatter();
+			$expectedComment = $commentFormatter->format( $comment, $title );
+		} else {
+			// MediaWiki 1.35-1.37
+			$expectedComment = Linker::formatComment( $comment, $title );
+		}
 		$this->assertEquals( $expectedComment, $entry->commentHtml,
 			"Special:Moderation: Edit summary doesn't match expected" );
 	}
