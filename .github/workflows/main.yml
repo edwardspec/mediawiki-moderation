@@ -28,6 +28,9 @@ jobs:
           - php: 8.1
             branch: REL1_41
             dbtype: mysql
+          - php: 8.1
+            branch: REL1_41
+            dbtype: postgres
     env:
       branch: ${{ matrix.branch }}
       DBTYPE: ${{ matrix.dbtype }}

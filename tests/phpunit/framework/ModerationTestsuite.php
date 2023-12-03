@@ -298,6 +298,21 @@ class ModerationTestsuite {
 			$this->truncateDbTable( $table );
 		}
 
+		// HACK: in MediaWiki 1.41, these two tables can for some reason be empty (shouldn't be empty)
+		// at the beginning of the test. For now we just re-add missing rows. TODO: investigate the cause.
+		if ( $dbw->selectRowCount( 'slot_roles', '*', [], __METHOD__ ) === 0 ) {
+			$dbw->insert( 'slot_roles',
+				[ 'role_id' => 1, 'role_name' => 'main' ],
+				__METHOD__
+			);
+		}
+		if ( $dbw->selectRowCount( 'content_models', '*', [], __METHOD__ ) === 0 ) {
+			$dbw->insert( 'content_models',
+				[ 'model_id' => 1, 'model_name' => 'wikitext' ],
+				__METHOD__
+			);
+		}
+
 		// Create test users like $t->moderator.
 		$this->prepopulateDb();
 
@@ -324,7 +339,12 @@ class ModerationTestsuite {
 			return;
 		}
 
-		$dbw->truncate( $table );
+		if ( $dbw->getType() == 'postgres' ) {
+			$dbw->truncate( $table, __METHOD__ );
+		} else {
+			// Can't use $dbw->truncate(), in MediaWiki 1.41 it doesn't seem to empty test tables.
+			$dbw->delete( $table, '*', __METHOD__ );
+		}
 	}
 
 	/**
@@ -408,7 +428,7 @@ class ModerationTestsuite {
 					// What should makes them correct is how $prepopulateDbCache is sorted
 					// with "SELECT .. ORDER BY" in makePrepopulateDbCache()).
 					$insertId = $dbw->insertId();
-					if ( $dbw->insertId() != $valueSaved ) {
+					if ( $insertId != $valueSaved ) {
 						throw new MWException( "PostgreSQL: incorrect field ID: insertId=$insertId, " .
 							"expected $keyField=$valueSaved." );
 					}
