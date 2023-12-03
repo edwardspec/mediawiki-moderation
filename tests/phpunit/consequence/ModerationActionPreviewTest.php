@@ -53,8 +53,16 @@ class ModerationActionPreviewTest extends ModerationUnitTestCase {
 		$parserOutput->expects( $this->once() )->method( 'getText' )->with(
 			$this->identicalTo( [ 'enableSectionEditLinks' => false ] )
 		)->willReturn( $expectedResult['html'] );
-		$parserOutput->expects( $this->once() )->method( 'getCategories' )
-			->willReturn( $expectedResult['categories'] );
+
+		if ( method_exists( ParserOutput::class, 'getCategoryNames' ) ) {
+			// MediaWiki 1.38+
+			$parserOutput->expects( $this->once() )->method( 'getCategoryNames' )
+				->willReturn( array_keys( $expectedResult['categories'] ) );
+		} else {
+			// MediaWiki 1.35-1.37
+			$parserOutput->expects( $this->once() )->method( 'getCategories' )
+				->willReturn( $expectedResult['categories'] );
+		}
 
 		$renderedRevision = $this->createMock( RenderedRevision::class );
 		$renderedRevision->expects( $this->once() )->method( 'getRevisionParserOutput' )

@@ -121,4 +121,20 @@ class ModerationCompatTools {
 		// MediaWiki 1.35-1.37
 		return Linker::commentBlock( $comment, $selfLinkTarget );
 	}
+
+	/**
+	 * Get the list of categories in the ParserOutput object.
+	 * @param ParserOutput $pout
+	 * @return array<string,string>
+	 */
+	public static function getParserOutputCategories( ParserOutput $pout ) {
+		if ( method_exists( $pout, 'getCategoryNames' ) ) {
+			// MediaWiki 1.38+
+			// This is backward compatibility format, we don't really need to provide sortkeys here.
+			return array_fill_keys( $pout->getCategoryNames(), '' );
+		}
+
+		// MediaWiki 1.35-1.37
+		return $pout->getCategories();
+	}
 }

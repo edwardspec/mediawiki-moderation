@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2021 Edward Chernenko.
+	Copyright (C) 2014-2023 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ class ModerationActionPreview extends ModerationAction {
 		return [
 			'title' => $title->getPrefixedText(),
 			'html' => $pout->getText( [ 'enableSectionEditLinks' => false ] ),
-			'categories' => $pout->getCategories()
+			'categories' => ModerationCompatTools::getParserOutputCategories( $pout )
 		];
 	}
 }
