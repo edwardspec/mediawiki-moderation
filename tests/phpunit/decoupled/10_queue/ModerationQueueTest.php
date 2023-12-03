@@ -510,7 +510,14 @@ class ModerationQueueTest extends ModerationTestCase {
 
 		list( $paramTypes, $params ) = $hooks[0];
 		$this->assertEquals( 'WikiPage', $paramTypes[0] );
-		$this->assertEquals( 'User', $paramTypes[1] );
+
+		$expectedUserClass = 'MediaWiki\User\User'; // MediaWiki 1.41+
+		if ( !class_exists( $expectedUserClass, false ) ) {
+			// MediaWiki 1.35-1.40
+			$expectedUserClass = 'User';
+		}
+		$this->assertEquals( $expectedUserClass, $paramTypes[1] );
+
 		$this->assertTrue(
 			( new ReflectionClass( $paramTypes[2] ) )->implementsInterface( 'Content' ) );
 		$this->assertEquals( 'string', $paramTypes[3] ); // $summary
