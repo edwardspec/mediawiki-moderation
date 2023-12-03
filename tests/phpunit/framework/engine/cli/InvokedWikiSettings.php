@@ -223,6 +223,16 @@ function wfModerationTestsuiteSetup() {
 		);
 
 		wfModerationTestsuiteCliLogin();
+
+		// Because the hook ModerationApiHooks::onApiBeforeMain() creates a DerivativeRequest,
+		// and this DerivativeRequest hasn't been modified by wfModerationTestsuiteCliLogin(),
+		// we need to replace the CSRF token placeholder with a correct token.
+		$request = $apiMain->getContext()->getRequest();
+		if ( $request->getVal( 'token' ) === '{CliEngine:Token:CSRF}' ) {
+			$editToken = RequestContext::getMain()->getRequest()->getVal( 'token' );
+			$request->setVal( 'token', $editToken );
+		}
+
 		return true;
 	} );
 
