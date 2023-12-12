@@ -24,8 +24,6 @@ use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 use Psr\Log\NullLogger;
 use Wikimedia\IPUtils;
-use Wikimedia\ScopedCallback;
-use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -660,13 +658,6 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 		$this->setMwGlobals( 'wgModerationEnable', false ); // Edits shouldn't be intercepted
 
 		if ( $deferUpdates ) {
-			 // Delay any DeferredUpdates
-			$this->setMwGlobals( 'wgCommandLineMode', false );
-
-			// Prevent getRequest() from making WebRequest due to $wgCommandLineMode=false.
-			// Tests must always use FauxRequest.
-			RequestContext::getMain()->setRequest( new FauxRequest() );
-
 			/*
 				MediaWiki 1.37+ has a transaction listener (see LoadBalancer::setTransactionListener())
 				that causes all tests to run DeferredUpdates::tryOpportunisticExecute() on every commit,
@@ -679,23 +670,15 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 				Immediate mode is also tested (separately) in testOneEditImmediateDeferredUpdates().
 			*/
-			$trxListenerName = 'MWLBFactory::applyGlobalState';
-			$loadBalancer = MediaWikiServices::getInstance()->getDBLoadBalancer();
 
-			// Remember the original listener.
-			$wrapper = TestingAccessWrapper::newFromObject( $loadBalancer );
-			$originalTrxCallback = $wrapper->trxRecurringCallbacks[$trxListenerName] ?? null;
-
-			// Delete the original listener.
-			$loadBalancer->setTransactionListener( $trxListenerName );
+			// Prevent DeferredUpdates::tryOpportunisticExecute() from running updates immediately.
+			// This method is only available on MW 1.38+.
+			if ( !method_exists( DeferredUpdates::class, 'preventOpportunisticUpdates' ) ) {
+				$this->markTestSkipped( __METHOD__ . ' requires MediaWiki 1.38+' );
+			}
 
 			// @phan-suppress-next-line PhanUnusedVariable
-			$scope = new ScopedCallback( static function ()
-				use ( $trxListenerName, $loadBalancer, $originalTrxCallback )
-			{
-				// Restore the original listener after the test.
-				$loadBalancer->setTransactionListener( $trxListenerName, $originalTrxCallback );
-			} );
+			$cleanup = DeferredUpdates::preventOpportunisticUpdates();
 		}
 
 		// Step 1: install ApproveHook for edits that will happen later.
