@@ -80,8 +80,8 @@ class BenchmarkApproveAll extends ModerationBenchmark {
 
 	public function doActualWork( $i ) {
 		// Prevent DeferredUpdates::tryOpportunisticExecute() from running updates immediately
-		global $wgCommandLineMode;
-		$wgCommandLineMode = false;
+		// @phan-suppress-next-line PhanUnusedVariable
+		$cleanup = DeferredUpdates::preventOpportunisticUpdates();
 
 		$html = $this->runSpecialModeration( [
 			'modaction' => 'approveall',
@@ -90,7 +90,6 @@ class BenchmarkApproveAll extends ModerationBenchmark {
 		] );
 
 		// Run the DeferredUpdates
-		$wgCommandLineMode = true;
 		DeferredUpdates::doUpdates();
 
 		Wikimedia\Assert\Assert::postcondition(
