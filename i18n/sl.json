@@ -21,7 +21,7 @@
 	"logentry-moderation-approve": "$1 je {{GENDER:$2|odobril|odobrila|odobril/a}} $4 strani $3",
 	"logentry-moderation-approveall": "$1 je {{GENDER:$2|odobril|odobrila|odobril/a}} $4 urejanj osebe $3",
 	"logentry-moderation-approve-move": "$1 je osebi $5 {{GENDER:$2|odobril|odobrila|odobril/a}} prestavitev strani $3 na naslov $4",
-	"logentry-moderation-block": "$1 je {{GENDER:$2|označil|označila|označil/a}} $3 kot pošiljatelja neželene pošte",
+	"logentry-moderation-block": "$1 je {{GENDER:$2|označil|označila|označil_a}} $3 kot pošiljatelja neželene pošte",
 	"logentry-moderation-editchange": "$1 je {{GENDER:$2|ročno spremenil|ročno spremenila|ročno spremenil/a}} $4 strani $3",
 	"logentry-moderation-merge": "$1 je na strani $3 {{GENDER:$2|združil|združila|združil/a}} $4 v $5",
 	"logentry-moderation-reject": "$1 je {{GENDER:$2|zavrnil|zavrnila|zavrnil/a}} $4 strani $3 osebe $5",
