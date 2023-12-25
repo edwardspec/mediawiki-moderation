@@ -7,7 +7,7 @@
 	},
 	"action-moderation": "moderiranje urejanj",
 	"group-automoderated": "Samomoderirani uporabniki",
-	"group-automoderated-member": "{{GENDER:$1|samomoderirani uporabnik|samomoderirana uporabnica|samomoderirani/a uporabnik/ca}}",
+	"group-automoderated-member": "{{GENDER:$1|samomoderirani uporabnik|samomoderirana uporabnica|samomoderirani_a uporabnik_ca}}",
 	"group-moderator-member": "{{GENDER:$1|moderator|moderatorka|moderator_ka}}",
 	"group-moderator": "Moderatorji",
 	"grouppage-automoderated": "{{ns:project}}:Moderiranje",
