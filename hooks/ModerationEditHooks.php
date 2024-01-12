@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2021 Edward Chernenko.
+	Copyright (C) 2014-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ use MediaWiki\ChangeTags\Hook\ChangeTagsAllowedAddHook;
 use MediaWiki\ChangeTags\Hook\ListDefinedTagsHook;
 use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Hook\EditPage__showEditForm_fieldsHook;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\Hook\HookRunner;
@@ -204,10 +205,19 @@ class ModerationEditHooks implements
 		);
 		if ( !$isAutomoderated ) {
 			$out->addModules( [
-				'ext.moderation.notify',
-				'ext.moderation.notify.desktop'
+				'ext.moderation.notify'
 			] );
 			ModerationAjaxHook::add( $out );
+
+			// Add desktop-only notification script if needed (not used for MobileFrontend).
+			$services = MediaWikiServices::getInstance();
+			if ( !$services->hasService( 'MobileFrontend.Context' ) ||
+				!$services->getService( 'MobileFrontend.Context' )->shouldDisplayMobileView()
+			) {
+				$out->addModules( [
+					'ext.moderation.notify.desktop'
+				] );
+			}
 		}
 	}
 

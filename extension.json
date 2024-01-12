@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.7.7",
+	"version": "1.7.8",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -214,6 +214,7 @@
 				"mobilefrontend/notify.mf.css"
 			],
 			"targets": [
+				"desktop",
 				"mobile"
 			],
 			"dependencies": [
@@ -232,6 +233,7 @@
 				"mobilefrontend/preload33.mf.js"
 			],
 			"targets": [
+				"desktop",
 				"mobile"
 			],
 			"dependencies": [
@@ -263,7 +265,8 @@
 			"scripts": "ext.moderation.notify.desktop.js",
 			"styles": "ext.moderation.notify.desktop.css",
 			"targets": [
-				"desktop"
+				"desktop",
+				"mobile"
 			]
 		},
 		"ext.moderation.special.ajax": {
@@ -287,7 +290,8 @@
 				"visualeditor/preload.ve.js"
 			],
 			"targets": [
-				"desktop"
+				"desktop",
+				"mobile"
 			],
 			"dependencies": [
 				"mediawiki.api",
