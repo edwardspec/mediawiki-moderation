@@ -1,6 +1,10 @@
 List of changes between releases of Extension:Moderation.
 
-== master branch (1.7.x versions) ==
+== master branch (1.8.x versions) ==
+
+No changes since Moderation 1.7.9.
+
+== Moderation 1.7.9 ==
 
 Features:
 * Support MediaWiki 1.39-1.41.
