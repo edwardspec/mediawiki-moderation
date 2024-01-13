@@ -43,7 +43,7 @@ class MarkAsMergedConsequence implements IConsequence {
 	 * @return bool True if non-merged edit was marked as merged, false otherwise.
 	 */
 	public function run() {
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		$dbw->update( 'moderation',
 			[
 				'mod_merged_revid' => $this->revid,

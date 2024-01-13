@@ -376,7 +376,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 				"To run Moderation testsuite, PHPUnit should be called with --use-normal-tables flag." );
 		}
 
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		$this->setMwConfig( 'DBprefix', $dbw->tablePrefix() );
 
 		// Ensure that ModerationVersionCheck doesn't have an old version number in cache,

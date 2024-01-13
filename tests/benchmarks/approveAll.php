@@ -53,7 +53,7 @@ class BenchmarkApproveAll extends ModerationBenchmark {
 
 	public function beforeBenchmark( $numberOfUsers ) {
 		/* Prepopulate 'moderation' table */
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		$editsPerUser = $this->getEditsPerUser();
 
 		for ( $i = 0; $i < $numberOfUsers; $i++ ) {

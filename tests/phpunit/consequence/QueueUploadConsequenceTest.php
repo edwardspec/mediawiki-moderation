@@ -107,7 +107,7 @@ class QueueUploadConsequenceTest extends ModerationUnitTestCase {
 		$this->assertNull( $error, "QueueUploadConsequence returned an error" );
 
 		// This is very similar to ModerationQueueTest::getExpectedRow().
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		$expectedStashKey = $dbw->selectField( 'uploadstash', 'us_key', '', __METHOD__ );
 
 		$expectedFields = [

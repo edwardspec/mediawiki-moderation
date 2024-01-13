@@ -45,7 +45,7 @@ class GiveAnonChangesToNewUserConsequenceTest extends ModerationUnitTestCase {
 		$unrelatedPreloadId = 'preload ID in rows that shouldn\'t be modified';
 
 		// Make $idsToPreserve ineligible for modification due to having another mod_preload_id.
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		$dbw->update( 'moderation',
 			[ 'mod_preload_id' => $unrelatedPreloadId ],
 			[ 'mod_id' => $idsToPreserve ],
@@ -108,7 +108,7 @@ class GiveAnonChangesToNewUserConsequenceTest extends ModerationUnitTestCase {
 		$newPreloadId = 'new non-anonymous preload ID';
 
 		// Set mod_preload_id to a fixed known value (to check $idsToPreserve after the test)
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		$dbw->update( 'moderation', [ 'mod_preload_id' => $oldPreloadId ], '*', __METHOD__ );
 
 		// Make $idsToPreserve ineligible for modification due to having mod_preloadable=0.

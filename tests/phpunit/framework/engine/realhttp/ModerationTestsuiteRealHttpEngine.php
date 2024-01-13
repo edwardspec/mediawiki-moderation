@@ -105,7 +105,7 @@ class ModerationTestsuiteRealHttpEngine extends ModerationTestsuiteEngine {
 				'require_once("' . __DIR__ . '/SandboxWikiSettings.php");' );
 		}
 
-		if ( wfGetDB( DB_MASTER )->getType() == 'postgres' ) {
+		if ( wfGetDB( DB_PRIMARY )->getType() == 'postgres' ) {
 			throw new MWException( "RealHttpEngine doesn't support PostgreSQL yet.\n" );
 		}
 

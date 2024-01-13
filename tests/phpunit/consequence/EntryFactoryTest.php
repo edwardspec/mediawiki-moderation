@@ -80,7 +80,7 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 	 * @param string $testedMethod Either 'loadRow' or 'loadRowOrThrow'.
 	 * @param bool $isFound True to use correct mod_id of existing row. False to use incorrect id.
 	 * @param bool $useWhere If true, first parameter ($where) will be an array. If false, mod_id.
-	 * @param int $dbType Either DB_MASTER or DB_REPLICA.
+	 * @param int $dbType Either DB_PRIMARY or DB_REPLICA.
 	 * @dataProvider dataProviderLoadRow
 	 *
 	 * @covers MediaWiki\Moderation\EntryFactory
@@ -142,21 +142,21 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 	public function dataProviderLoadRow() {
 		return [
 			// Selecting by mod_id
-			'situation when loadRow($id) finds a row' => [ 'loadRow', true, false, DB_MASTER ],
+			'situation when loadRow($id) finds a row' => [ 'loadRow', true, false, DB_PRIMARY ],
 			'situation when loadRow($id) doesn\'t find a row' =>
-				[ 'loadRow', false, false, DB_MASTER ],
+				[ 'loadRow', false, false, DB_PRIMARY ],
 			'situation when loadRowOrThrow($id) finds a row' =>
-				[ 'loadRowOrThrow', true, false, DB_MASTER ],
+				[ 'loadRowOrThrow', true, false, DB_PRIMARY ],
 			'situation when loadRowOrThrow($id) doesn\'t find a row' =>
-				[ 'loadRowOrThrow', false, false, DB_MASTER ],
+				[ 'loadRowOrThrow', false, false, DB_PRIMARY ],
 			// Selecting by $where array
-			'situation when loadRow($where) finds a row' => [ 'loadRow', true, true, DB_MASTER ],
+			'situation when loadRow($where) finds a row' => [ 'loadRow', true, true, DB_PRIMARY ],
 			'situation when loadRow($where) doesn\'t find a row' =>
-				[ 'loadRow', false, true, DB_MASTER ],
+				[ 'loadRow', false, true, DB_PRIMARY ],
 			'situation when loadRowOrThrow($where) finds a row' =>
-				[ 'loadRowOrThrow', true, true, DB_MASTER ],
+				[ 'loadRowOrThrow', true, true, DB_PRIMARY ],
 			'situation when loadRowOrThrow($where) doesn\'t find a row' =>
-				[ 'loadRowOrThrow', false, true, DB_MASTER ]
+				[ 'loadRowOrThrow', false, true, DB_PRIMARY ]
 		];
 	}
 
@@ -176,11 +176,11 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 		$factory = $this->makeFactory();
 
 		$anyWhere = [ 'mod_namespace >= 0' ];
-		$row = $factory->$testedMethod( $anyWhere, [ 'mod_namespace AS value' ], DB_MASTER,
+		$row = $factory->$testedMethod( $anyWhere, [ 'mod_namespace AS value' ], DB_PRIMARY,
 			[ 'ORDER BY' => 'mod_namespace' ] );
 		$this->assertEquals( 4, $row->value );
 
-		$row = $factory->$testedMethod( $anyWhere, [ 'mod_namespace AS value' ], DB_MASTER,
+		$row = $factory->$testedMethod( $anyWhere, [ 'mod_namespace AS value' ], DB_PRIMARY,
 			[ 'ORDER BY' => 'mod_namespace DESC' ] );
 		$this->assertEquals( 10, $row->value );
 	}
@@ -301,7 +301,7 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 		list( $idsToFind, $idsToSkip ) = array_chunk( $this->makeSeveralDbRows( 7 ), 4 );
 
 		// Make $idsToSkip ineligible for selecting (e.g. due to having another mod_user_text).
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		$dbw->update( 'moderation',
 			$ineligibleFieldValues,
 			[ 'mod_id' => $idsToSkip ],

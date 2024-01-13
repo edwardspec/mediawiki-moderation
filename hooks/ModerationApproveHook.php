@@ -181,7 +181,7 @@ class ModerationApproveHook implements
 			'updates' => FormatJson::encode( $this->dbUpdates )
 		] );
 
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 
 		// In MediaWiki 1.35, PostgreSQL used CIDR field for rc_ip (we can't insert strings into it).
 		// In MediaWiki 1.36+, rc_ip is TEXT field and requires no special handling.
@@ -512,7 +512,7 @@ class ModerationApproveHook implements
 
 		$title = $file->getTitle();
 
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		foreach ( $this->logEntriesToFix as $logid => $logEntry ) {
 			if ( $logEntry->getTarget()->equals( $title ) ) {
 				$params = $logEntry->getParameters();
@@ -583,7 +583,7 @@ class ModerationApproveHook implements
 		$idFieldName = $this->idFieldNames[$table]; /* e.g. "rev_id" */
 		$newTimestamp = $values['rev_timestamp'] ?? null;
 
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 
 		if ( $table === 'revision' && $newTimestamp ) {
 			// Double-check that $newTimestamp is not more ancient

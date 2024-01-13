@@ -114,7 +114,7 @@ abstract class ModerationBenchmark extends Maintenance {
 		/* Prepare the initial conditions */
 		$loops = $this->getDefaultLoops();
 
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		$dbw->startAtomic( __METHOD__ );
 
 		$this->beforeBenchmark( $loops );
@@ -203,7 +203,7 @@ abstract class ModerationBenchmark extends Maintenance {
 			$user = User::newFromName( '127.0.0.1', false );
 		}
 
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		$dbw->replace( 'moderation',
 			[ [
 				'mod_preloadable',

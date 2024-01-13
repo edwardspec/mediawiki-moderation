@@ -157,7 +157,7 @@ class ModerationApproveTest extends ModerationTestCase {
 
 		# Check rev_timestamp/rc_ip.
 
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 
 		foreach ( $testPages as $title => $task ) {
 			$row = $dbw->selectRow(

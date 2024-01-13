@@ -388,7 +388,7 @@ class ModerationTestsuiteEntry {
 	 * @return string
 	 */
 	public function getDbField( $field ) {
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		return $dbw->selectField(
 			'moderation',
 			$field,
@@ -410,7 +410,7 @@ class ModerationTestsuiteEntry {
 	 * @param array $updates List of updates, as expected by Database::update
 	 */
 	public function updateDbRow( array $updates ) {
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		$dbw->update( 'moderation',
 			$updates,
 			[ 'mod_id' => $this->id ],

@@ -52,7 +52,7 @@ class ModerationUploadStorageTest extends ModerationTestCase {
 		// where "User:ModerationUploadStorage" didn't exist,
 		// and the owner of UploadStash was the uploader of that file.
 		// This is what triggers the migration.
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		$dbw->delete( 'user', [ 'user_name' => ModerationUploadStorage::USERNAME ], __METHOD__ );
 		$dbw->delete( 'actor', [ 'actor_name' => ModerationUploadStorage::USERNAME ], __METHOD__ );
 

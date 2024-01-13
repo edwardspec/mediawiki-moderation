@@ -45,7 +45,7 @@ class RejectOneConsequence implements IConsequence {
 	 * @return int Number of newly rejected edits (0 or 1).
 	 */
 	public function run() {
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		$dbw->update( 'moderation',
 			[
 				'mod_rejected' => 1,

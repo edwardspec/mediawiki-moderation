@@ -763,7 +763,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 				[ [ $expectedIP ] ]
 			);
 
-			$rc = RecentChange::newFromConds( $rcWhere, __METHOD__, DB_MASTER );
+			$rc = RecentChange::newFromConds( $rcWhere, __METHOD__, DB_PRIMARY );
 			$rc_id = $rc->mAttribs['rc_id'];
 
 			$revIds = [ $rc->mAttribs['rc_this_oldid'] ];

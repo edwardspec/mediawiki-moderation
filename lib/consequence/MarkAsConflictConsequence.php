@@ -37,7 +37,7 @@ class MarkAsConflictConsequence implements IConsequence {
 	 * Execute the consequence.
 	 */
 	public function run() {
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		$dbw->update( 'moderation',
 			[ 'mod_conflict' => 1 ],
 			[ 'mod_id' => $this->modid ],

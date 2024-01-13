@@ -81,7 +81,7 @@ class RejectOneConsequenceTest extends ModerationUnitTestCase {
 		$moderator = User::createNew( 'Some moderator' );
 		$modid = $this->makeDbRow();
 
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		$dbw->update( 'moderation', $fields, [ 'mod_id' => $modid ], __METHOD__ );
 
 		// Create and run the Consequence.

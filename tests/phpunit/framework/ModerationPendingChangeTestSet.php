@@ -247,7 +247,7 @@ trait ModerationTestsuitePendingChangeTestSet {
 	 * Execute the TestSet, making an edit/upload/move with requested parameters.
 	 */
 	protected function makeChanges() {
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		$dbw->insert( 'moderation', $this->fields, __METHOD__ );
 
 		$this->assertSame( 1, $dbw->affectedRows(),

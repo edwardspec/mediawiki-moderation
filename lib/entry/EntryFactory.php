@@ -172,7 +172,7 @@ class EntryFactory {
 	 * @return ModerationApprovableEntry[]
 	 */
 	public function findAllApprovableEntries( $username ) {
-		$dbw = wfGetDB( DB_MASTER ); # Need latest data without lag
+		$dbw = wfGetDB( DB_PRIMARY ); # Need latest data without lag
 
 		$orderBy = [];
 
@@ -241,8 +241,8 @@ class EntryFactory {
 				'mod_text AS text'
 			],
 			# Sequential edits are often done with small intervals of time between
-			# them, so we shouldn't wait for replication: DB_MASTER will be used.
-			DB_MASTER,
+			# them, so we shouldn't wait for replication: DB_PRIMARY will be used.
+			DB_PRIMARY,
 			[ 'USE INDEX' => 'moderation_load' ]
 		);
 		if ( !$row ) {
@@ -256,11 +256,11 @@ class EntryFactory {
 	 * Select $row from the "moderation" table by either its mod_id or $where array.
 	 * @param int|array $where
 	 * @param string[] $fields
-	 * @param int $dbType DB_MASTER or DB_REPLICA
+	 * @param int $dbType DB_PRIMARY or DB_REPLICA
 	 * @param array $options This parameter is passed to DB::select().
 	 * @return \stdClass|false
 	 */
-	public function loadRow( $where, array $fields, $dbType = DB_MASTER, array $options = [] ) {
+	public function loadRow( $where, array $fields, $dbType = DB_PRIMARY, array $options = [] ) {
 		if ( !is_array( $where ) ) {
 			$where = [ 'mod_id' => $where ];
 		}
@@ -279,12 +279,12 @@ class EntryFactory {
 	 * Same as loadRow(), but throws an exception if the row wasn't found.
 	 * @param int|array $where
 	 * @param string[] $fields
-	 * @param int $dbType DB_MASTER or DB_REPLICA
+	 * @param int $dbType DB_PRIMARY or DB_REPLICA
 	 * @param array $options
 	 * @return \stdClass
 	 * @throws ModerationError
 	 */
-	public function loadRowOrThrow( $where, array $fields, $dbType = DB_MASTER,
+	public function loadRowOrThrow( $where, array $fields, $dbType = DB_PRIMARY,
 		array $options = []
 	) {
 		$row = $this->loadRow( $where, $fields, $dbType, $options );

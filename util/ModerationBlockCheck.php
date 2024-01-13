@@ -27,7 +27,7 @@ class ModerationBlockCheck {
 	 * @return bool
 	 */
 	public function isModerationBlocked( User $user ) {
-		$dbw = wfGetDB( DB_MASTER ); # Need actual data
+		$dbw = wfGetDB( DB_PRIMARY ); # Need actual data
 		$blocked = $dbw->selectField( 'moderation_block',
 			'mb_id',
 			[ 'mb_address' => $user->getName() ],
