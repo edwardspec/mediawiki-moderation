@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2022 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -84,13 +84,6 @@ class ModerationErrorTest extends ModerationUnitTestCase {
 			->willReturn( $linkRenderer );
 		$lrFactory->expects( $this->any() )->method( 'createFromLegacyOptions' )
 			->willReturn( $linkRenderer );
-
-		if ( method_exists( LinkRendererFactory::class, 'createForUser' ) ) {
-			// MediaWiki 1.35-1.38, not needed in 1.39+
-			$lrFactory->expects( $this->any() )->method( 'createForUser' )
-				->willReturn( $linkRenderer );
-		}
-
 		$this->setService( 'LinkRendererFactory', $lrFactory );
 
 		// ErrorPageError class prints to $wgOut (global OutputPage), ModerationError does the same.

@@ -3,8 +3,7 @@
 }
 
 /*
-	Only needed for MW 1.38+ (where text shown by mw.notify() is hidden in the corner):
-	notification "your edit was queued" must be very noticeable,
+	Notification "your edit was queued" must be very noticeable,
 	so that new user wouldn't be confused if the edit was saved or not.
 */
 .mw-notification-area.mw-notification-area-modqueued {

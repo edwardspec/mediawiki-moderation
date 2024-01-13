@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2023 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -71,7 +71,7 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 			$lbFactory->redefineLocalDomain( $newDomain );
 		} );
 
-		// This approach causes a deprecation warning (which must be suppressed) in MediaWiki 1.36+.
+		// This approach causes a deprecation warning (which must be suppressed).
 		$reflection = new ReflectionProperty( 'MWDebug', 'deprecationFilters' );
 		$reflection->setAccessible( true );
 		$deprecationFilters = $reflection->getValue();
@@ -114,11 +114,6 @@ function wfModerationTestsuiteCliLogin() {
 			throw new MWException( "Failed to login as User:$expectedName (#$expectedId)." );
 		}
 
-		global $wgUser;
-		if ( !( $wgUser instanceof StubGlobalUser ) ) {
-			// MediaWiki 1.35-1.36. Not needed in MediaWiki 1.37+.
-			$wgUser = $user;
-		}
 		RequestContext::getMain()->setUser( $user );
 	}
 
@@ -157,7 +152,7 @@ function wfFakeHooksRegister( $hookName, callable $handler ) {
 		return;
 	}
 
-	// Can't use Hooks::register(): MediaWiki 1.35+ prints a warning when it's called before boostrap,
+	// Can't use Hooks::register(): MediaWiki prints a warning when it's called before boostrap,
 	// but this must be called before boostrap.
 	global $wgHooks;
 	$wgHooks[$hookName][] = $handler;
@@ -189,16 +184,7 @@ function wfModerationTestsuiteSetup() {
 	RequestContext::getMain()->setRequest( $request );
 	$wgRequest = $request;
 
-	if ( method_exists( $request, 'setUpload' ) ) {
-		// MediaWiki 1.37+
-		$request->setUploadData( $wgModerationTestsuiteCliUploadData );
-	} else {
-		// MediaWiki 1.35-1.36
-		foreach ( $wgModerationTestsuiteCliUploadData as $uploadKey => $uploadData ) {
-			// phpcs:ignore MediaWiki.Usage.SuperGlobalsUsage.SuperGlobals
-			$_FILES[$uploadKey] = $uploadData;
-		}
-	}
+	$request->setUploadData( $wgModerationTestsuiteCliUploadData );
 
 	/* Some code in MediaWiki core, e.g. HTTPFileStreamer, calls header()
 		directly (not via $wgRequest->response), but this function
@@ -282,8 +268,7 @@ function wfModerationTestsuiteSetup() {
 
 			$paramsJson = FormatJson::encode( array_map( static function ( $param ) {
 				if ( $param instanceof WikiPage ) {
-					// WikiPage can't be directly serialized in MediaWiki 1.39+,
-					// so we replace it with Title object.
+					// WikiPage can't be directly serialized, so we replace it with Title object.
 					return $param->getTitle();
 				}
 

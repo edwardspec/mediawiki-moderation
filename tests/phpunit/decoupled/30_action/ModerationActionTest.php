@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2022 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -241,9 +241,7 @@ class ModerationActionTest extends ModerationTestCase {
 				// approve: handing of situation when doEditContent() results in an error
 				'modaction' => 'approve',
 				'simulateInvalidJsonContent' => true,
-				'expectedOutput' => ( version_compare( MW_VERSION, '1.39.0-alpha', '<' ) ) ?
-					'(invalid-content-data)' : // MediaWiki 1.35-1.38
-					'(invalid-json-data: (json-error-syntax))' // MediaWiki 1.39+
+				'expectedOutput' => '(invalid-json-data: (json-error-syntax))'
 			] ],
 			'Error: attempt to ApproveAll when there is nothing to approve' => [ [
 				'modaction' => 'approveall',
@@ -1016,7 +1014,7 @@ class ModerationActionTest extends ModerationTestCase {
 				"modaction={$this->modaction}: incorrect LogEntry subtype" );
 			$this->assertEquals(
 				$this->getModerator()->getName(),
-				ModerationTestUtil::getLogEntryPerformer( $logEntry )->getName(),
+				$logEntry->getPerformerIdentity()->getName(),
 				"modaction={$this->modaction}: incorrect name of moderator in LogEntry" );
 			$this->assertEquals( $this->getExpectedLogTarget(), $logEntry->getTarget(),
 				"modaction={$this->modaction}: incorrect LogEntry target" );

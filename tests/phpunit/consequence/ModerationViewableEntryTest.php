@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2023 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -85,10 +85,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	 */
 	private function assertRevisionTitleAndText( Title $title, $text, RevisionRecord $rev ) {
 		$this->assertEquals( $text, $rev->getContent( SlotRecord::MAIN )->serialize() );
-
-		// MediaWiki 1.35 doesn't have LinkTarget::isSameLinkAs().
-		$this->assertEquals( $title->getFullText(),
-			Title::newFromLinkTarget( $rev->getPageAsLinkTarget() )->getFullText() );
+		$this->assertTrue( $title->isSameLinkAs( $rev->getPageAsLinkTarget() ) );
 	}
 
 	/**

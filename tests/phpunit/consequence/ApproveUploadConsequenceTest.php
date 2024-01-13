@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -77,11 +77,7 @@ class ApproveUploadConsequenceTest extends ModerationUnitTestCase {
 		$file = MediaWikiServices::getInstance()->getRepoGroup()->findFile( $title->getText(), [ 'latest' => true ] );
 		$this->assertEquals( $comment, $file->getDescription() );
 
-		$uploader = method_exists( $file, 'getUploader' ) ?
-			$file->getUploader( File::RAW ) : // MediaWiki 1.36+
-			// @phan-suppress-next-line PhanUndeclaredMethod File::getUser
-			$file->getUser( 'object' ); // MediaWiki 1.35 only
-
+		$uploader = $file->getUploader( File::RAW );
 		$this->assertEquals( $user->getName(), $uploader->getName() );
 		$this->assertEquals( $user->getId(), $uploader->getId() );
 

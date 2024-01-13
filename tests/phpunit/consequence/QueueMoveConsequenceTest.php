@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -49,10 +49,10 @@ class QueueMoveConsequenceTest extends ModerationUnitTestCase {
 	public function testQueueMove( array $params ) {
 		$opt = (object)$params;
 
-		$opt->modblocked = $opt->modblocked ?? false;
-		$opt->notifyEmail = $opt->notifyEmail ?? false;
-		$opt->notifyNewOnly = $opt->notifyNewOnly ?? false;
-		$opt->anonymously = $opt->anonymously ?? false;
+		$opt->modblocked ??= false;
+		$opt->notifyEmail ??= false;
+		$opt->notifyNewOnly ??= false;
+		$opt->anonymously ??= false;
 
 		$user = $opt->anonymously ? User::newFromName( '127.0.0.1', false ) :
 			self::getTestUser()->getUser();

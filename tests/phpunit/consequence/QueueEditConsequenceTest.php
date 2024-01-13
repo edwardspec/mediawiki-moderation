@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -49,17 +49,17 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 	public function testQueueEdit( array $params ) {
 		$opt = (object)$params;
 
-		$opt->bot = $opt->bot ?? false;
-		$opt->minor = $opt->minor ?? false;
-		$opt->existing = $opt->existing ?? false;
-		$opt->modblocked = $opt->modblocked ?? false;
-		$opt->notifyEmail = $opt->notifyEmail ?? false;
-		$opt->notifyNewOnly = $opt->notifyNewOnly ?? false;
-		$opt->anonymously = $opt->anonymously ?? false;
-		$opt->editedBefore = $opt->editedBefore ?? false;
-		$opt->section = $opt->section ?? '';
-		$opt->sectionText = $opt->sectionText ?? '';
-		$opt->preloadedText = $opt->preloadedText ?? '';
+		$opt->bot ??= false;
+		$opt->minor ??= false;
+		$opt->existing ??= false;
+		$opt->modblocked ??= false;
+		$opt->notifyEmail ??= false;
+		$opt->notifyNewOnly ??= false;
+		$opt->anonymously ??= false;
+		$opt->editedBefore ??= false;
+		$opt->section ??= '';
+		$opt->sectionText ??= '';
+		$opt->preloadedText ??= '';
 
 		$user = $opt->anonymously ? User::newFromName( '127.0.0.1', false ) :
 			self::getTestUser()->getUser();
@@ -67,8 +67,8 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 		$page = ModerationCompatTools::makeWikiPage( $title );
 		$content = ContentHandler::makeContent( $opt->text ?? ( 'Some text' . rand( 0, 100000 ) ),
 			null, CONTENT_MODEL_WIKITEXT );
-		$summary = $opt->summary ?? 'Some summary ' . rand( 0, 100000 );
-		$opt->expectedText = $opt->expectedText ?? $content->serialize();
+		$opt->summary ??= 'Some summary ' . rand( 0, 100000 );
+		$opt->expectedText ??= $content->serialize();
 
 		if ( $opt->existing ) {
 			// Precreate the page.
@@ -129,7 +129,7 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 				$title->getArticleId( IDBAccessObject::READ_LATEST ) : 0,
 			'mod_namespace' => $title->getNamespace(),
 			'mod_title' => $title->getDBKey(),
-			'mod_comment' => $summary,
+			'mod_comment' => $opt->summary,
 			'mod_minor' => $opt->minor ? 1 : 0,
 			'mod_bot' => $opt->bot ? 1 : 0,
 			'mod_new' => $opt->existing ? 0 : 1,
@@ -175,7 +175,7 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 
 		// Create and run the Consequence.
 		$consequence = new QueueEditConsequence(
-			$page, $user, $content, $summary, $opt->section, $opt->sectionText, $opt->bot, $opt->minor );
+			$page, $user, $content, $opt->summary, $opt->section, $opt->sectionText, $opt->bot, $opt->minor );
 		$consequence->run();
 
 		// Check secondary consequences.

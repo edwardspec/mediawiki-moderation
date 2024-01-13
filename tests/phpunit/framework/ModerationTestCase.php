@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2023 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -125,10 +125,10 @@ class ModerationTestCase extends MediaWikiIntegrationTestCase {
 			would clean the database.
 		*/
 		if ( method_exists( $this, 'hasDependencies' ) ) {
-			// MediaWiki 1.35-1.39
+			// MediaWiki 1.39 only
 			$hasDependencies = $this->hasDependencies();
 		} else {
-			// MediaWiki 1.40
+			// MediaWiki 1.40+
 			// @phan-suppress-next-line PhanUndeclaredMethod
 			$hasDependencies = count( $this->requires() ) > 0;
 		}
@@ -149,7 +149,7 @@ class ModerationTestCase extends MediaWikiIntegrationTestCase {
 	}
 
 	/**
-	 * B/C: assertRegExp() is deprecated in MediaWiki 1.40, but 1.35-1.39 don't have a replacement.
+	 * B/C: assertRegExp() is deprecated in MediaWiki 1.40, but 1.39 doesn't have a replacement.
 	 * @param string $pattern
 	 * @param string $string
 	 * @param string $message
@@ -165,7 +165,7 @@ class ModerationTestCase extends MediaWikiIntegrationTestCase {
 	}
 
 	/**
-	 * B/C: assertNotRegExp() is deprecated in MediaWiki 1.40, but 1.35-1.39 don't have a replacement.
+	 * B/C: assertNotRegExp() is deprecated in MediaWiki 1.40, but 1.39 doesn't have a replacement.
 	 * @param string $pattern
 	 * @param string $string
 	 * @param string $message

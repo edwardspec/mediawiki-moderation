@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -53,16 +53,8 @@ class ModerationActionPreviewTest extends ModerationUnitTestCase {
 		$parserOutput->expects( $this->once() )->method( 'getText' )->with(
 			$this->identicalTo( [ 'enableSectionEditLinks' => false ] )
 		)->willReturn( $expectedResult['html'] );
-
-		if ( method_exists( ParserOutput::class, 'getCategoryNames' ) ) {
-			// MediaWiki 1.38+
-			$parserOutput->expects( $this->once() )->method( 'getCategoryNames' )
-				->willReturn( array_keys( $expectedResult['categories'] ) );
-		} else {
-			// MediaWiki 1.35-1.37
-			$parserOutput->expects( $this->once() )->method( 'getCategories' )
-				->willReturn( $expectedResult['categories'] );
-		}
+		$parserOutput->expects( $this->once() )->method( 'getCategoryNames' )
+			->willReturn( array_keys( $expectedResult['categories'] ) );
 
 		$renderedRevision = $this->createMock( RenderedRevision::class );
 		$renderedRevision->expects( $this->once() )->method( 'getRevisionParserOutput' )

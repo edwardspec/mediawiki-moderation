@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017-2023 Edward Chernenko.
+	Copyright (C) 2017-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -367,13 +367,9 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 * Engine like CliEngine can handle this properly (by actually using the sandbox).
 	 */
 	public function escapeDbSandbox() {
-		global $argv;
-		if (
-			( array_search( '--use-normal-tables', $argv ) === false ) && // MediaWiki 1.35-1.36
-			!(bool)getenv( 'PHPUNIT_USE_NORMAL_TABLES' ) // MediaWiki 1.37+
-		) {
+		if ( !(bool)getenv( 'PHPUNIT_USE_NORMAL_TABLES' ) ) {
 			throw new MWException(
-				"To run Moderation testsuite, PHPUnit should be called with --use-normal-tables flag." );
+				'To run Moderation testsuite, PHPUnit needs PHPUNIT_USE_NORMAL_TABLES=1 in enviroment.' );
 		}
 
 		$dbw = wfGetDB( DB_PRIMARY );

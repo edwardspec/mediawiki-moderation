@@ -82,10 +82,6 @@ $cfg['exclude_analysis_directory_list'] = array_merge(
 
 # Temporarily suppressed warnings.
 
-# Can't use "$x ??= $value" syntax yet: it requires PHP 7.4+,
-# and we still support MediaWiki 1.35 (LTS), which supports PHP 7.3.19.
-$cfg['suppress_issue_types'][] = 'PhanPluginDuplicateExpressionAssignmentOperation';
-
 if ( getenv( 'PHAN_CHECK_DEPRECATED' ) ) {
 	# Warn about the use of @deprecated methods, etc.
 	# Not enabled by default (without PHAN_CHECK_DEPRECATED=1) for backward compatibility.

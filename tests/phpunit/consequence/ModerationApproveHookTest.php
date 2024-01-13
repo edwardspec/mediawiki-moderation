@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2023 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -617,7 +617,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 				$extraInfo['newTitle'] = Title::newFromText( $title->getPrefixedText() . '-newTitle' );
 			}
 
-			$extraInfo['createRedirect'] = $extraInfo['createRedirect'] ?? true;
+			$extraInfo['createRedirect'] ??= true;
 
 			return [ $title, $user, $type, $task, $extraInfo ];
 		}, $todo );
@@ -659,7 +659,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 		if ( $deferUpdates ) {
 			/*
-				MediaWiki 1.37+ has a transaction listener (see LoadBalancer::setTransactionListener())
+				MediaWiki has a transaction listener (see LoadBalancer::setTransactionListener())
 				that causes all tests to run DeferredUpdates::tryOpportunisticExecute() on every commit,
 				thus causing all deferred updates to be executed immediately.
 
@@ -672,11 +672,6 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 			*/
 
 			// Prevent DeferredUpdates::tryOpportunisticExecute() from running updates immediately.
-			// This method is only available on MW 1.38+.
-			if ( !method_exists( DeferredUpdates::class, 'preventOpportunisticUpdates' ) ) {
-				$this->markTestSkipped( __METHOD__ . ' requires MediaWiki 1.38+' );
-			}
-
 			// @phan-suppress-next-line PhanUnusedVariable
 			$cleanup = DeferredUpdates::preventOpportunisticUpdates();
 		}
@@ -714,12 +709,6 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 			list( $title, $user, $type, $task, $extraInfo ) = $testParameters;
 
 			$expectedIP = $task ? $task['ip'] : '127.0.0.1';
-			if ( $this->db->getType() == 'postgres' ) {
-				if ( version_compare( MW_VERSION, '1.36.0', '<' ) ) {
-					// MediaWiki 1.35 only.
-					$expectedIP .= '/32';
-				}
-			}
 
 			global $wgPutIPinRC;
 			if ( !$wgPutIPinRC ) {
@@ -777,17 +766,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 			if ( ExtensionRegistry::getInstance()->isLoaded( 'CheckUser' ) ) {
 				// Verify that ApproveHook has modified fields in cuc_changes table.
-				$emptyUserAgent = ''; // MediaWiki 1.38+
-				if ( version_compare( MW_VERSION, '1.38.0-alpha', '<' ) ) {
-					$emptyUserAgent = '0'; // MediaWiki 1.35-1.37
-				}
-
-				$emptyXff = ''; // MediaWiki 1.39+
-				if ( version_compare( MW_VERSION, '1.39.0-alpha', '<' ) ) {
-					$emptyXff = '0'; // MediaWiki 1.35-1.38
-				}
-
-				$expectedRow = [ '127.0.0.1', IPUtils::toHex( '127.0.0.1' ), $emptyUserAgent, $emptyXff ];
+				$expectedRow = [ '127.0.0.1', IPUtils::toHex( '127.0.0.1' ), '', '' ];
 				if ( $task ) {
 					$expectedRow = [
 						$task['ip'],

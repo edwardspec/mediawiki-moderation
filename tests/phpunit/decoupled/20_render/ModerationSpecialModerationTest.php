@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2023 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -236,14 +236,9 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 		$comment = $this->fields['mod_comment'];
 		$title = $this->getExpectedTitleObj();
 
-		if ( method_exists( MediaWikiServices::class, 'getCommentFormatter' ) ) {
-			// MediaWiki 1.38+
-			$commentFormatter = MediaWikiServices::getInstance()->getCommentFormatter();
-			$expectedComment = $commentFormatter->format( $comment, $title );
-		} else {
-			// MediaWiki 1.35-1.37
-			$expectedComment = Linker::formatComment( $comment, $title );
-		}
+		$commentFormatter = MediaWikiServices::getInstance()->getCommentFormatter();
+		$expectedComment = $commentFormatter->format( $comment, $title );
+
 		$this->assertEquals( $expectedComment, $entry->commentHtml,
 			"Special:Moderation: Edit summary doesn't match expected" );
 	}

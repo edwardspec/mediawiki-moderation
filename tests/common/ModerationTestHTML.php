@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2023 Edward Chernenko.
+	Copyright (C) 2015-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -44,18 +44,18 @@ class ModerationTestHTML extends DOMDocument {
 			}
 
 			$message = trim( $error->message );
+
+			// Workaround for MediaWiki sometimes producing incorrect HTML (unrelated to Moderation).
 			if ( $message == 'Unexpected end tag : ul' ) {
-				// Workaround for MW 1.38 issue (unrelated to Moderation): unneeded "</ul>" tag on Special:Log.
+				// Unneeded "</ul>" tag on Special:Log.
 				continue;
 			}
-
 			if ( $message == 'Unexpected end tag : p' ) {
-				// Workaround for MW 1.39 issue (unrelated to Moderation): unneeded "</p>" tag on some pages.
+				// Unneeded "</p>" tag on some pages.
 				continue;
 			}
-
 			if ( preg_match( '/^ID .* already defined$/', $message ) ) {
-				// Workaround for MW 1.41 Vector issue (unrelated to Moderation): two HTML elements with the same ID.
+				// MW 1.41 Vector issue: two HTML elements with the same ID.
 				continue;
 			}
 

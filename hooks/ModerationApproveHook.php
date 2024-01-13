@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2023 Edward Chernenko.
+	Copyright (C) 2014-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -28,8 +28,6 @@ use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\Hook\RevisionFromEditCompleteHook;
 use MediaWiki\Revision\RevisionRecord;
-use MediaWiki\Storage\EditResult;
-use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\UserIdentity;
 use Psr\Log\LoggerInterface;
 use Wikimedia\IPUtils;
@@ -37,33 +35,13 @@ use Wikimedia\IPUtils;
 class ModerationApproveHook implements
 	FileUploadHook,
 	PageMoveCompletingHook,
-	PageSaveCompleteHook,
 	RecentChange_saveHook,
 	RevisionFromEditCompleteHook
 {
 	/** @var LoggerInterface */
 	private $logger;
 
-	/**
-	 * @var int
-	 * Counter used in onPageSaveComplete() to ensure that doUpdate() is called only once.
-	 */
-	protected $useCount = 0;
-
-	/**
-	 * @var bool
-	 * Set to true in doUpdate().
-	 * Used to detect situation where queueUpdate() is being called too late (after doUpdate).
-	 */
-	protected $alreadyBatchUpdated = false;
-
-	/**
-	 * @var array Database updates that will be applied in doUpdate().
-	 * Format: [ 'recentchanges' => [ 'rc_ip' => [ rc_id1 => '127.0.0.1',  ... ], ... ], ... ]
-	 */
-	protected $dbUpdates = [];
-
-	/** @var array List of _id fields in tables mentioned in $dbUpdates. */
+	/** @var array List of _id fields in tables that are supported by updateWithoutQueue(). */
 	protected $idFieldNames = [
 		'recentchanges' => 'rc_id',
 		'revision' => 'rev_id'
@@ -99,22 +77,6 @@ class ModerationApproveHook implements
 	}
 
 	/**
-	 * PageSaveComplete hook.
-	 * @param WikiPage $wikiPage @phan-unused-param
-	 * @param UserIdentity $user @phan-unused-param
-	 * @param string $summary @phan-unused-param
-	 * @param int $flags @phan-unused-param
-	 * @param RevisionRecord $revisionRecord @phan-unused-param
-	 * @param EditResult $editResult @phan-unused-param
-	 * @return bool|void
-	 */
-	public function onPageSaveComplete(
-		$wikiPage, $user, $summary, $flags, $revisionRecord, $editResult
-	) {
-		$this->scheduleDoUpdate();
-	}
-
-	/**
 	 * PageMoveCompleting hook.
 	 * Here we modify rev_timestamp of a newly created redirect after the page move.
 	 * @param LinkTarget $oldTitle
@@ -140,211 +102,6 @@ class ModerationApproveHook implements
 
 			$this->queueUpdate( 'revision', [ $revid ], [ 'rev_timestamp' => $timestamp ] );
 		}
-
-		$this->scheduleDoUpdate();
-	}
-
-	/**
-	 * Schedule doUpdate() to run after all other DeferredUpdates that are caused by new edits.
-	 */
-	public function scheduleDoUpdate() {
-		$this->useCount ++;
-		DeferredUpdates::addCallableUpdate( [ $this, 'doUpdate' ] );
-	}
-
-	/**
-	 * Run reallyDoUpdate() if this is the last DeferredUpdate of this kind.
-	 */
-	public function doUpdate() {
-		/* This DeferredUpdate is installed after every edit.
-			Only the last of these updates should run, because
-			all RecentChange_save hooks must be completed before it.
-		*/
-		if ( --$this->useCount > 0 ) {
-			return;
-		}
-
-		$this->reallyDoUpdate();
-		$this->alreadyBatchUpdated = true;
-	}
-
-	/**
-	 * Correct rev_timestamp, rc_ip and other fields (as requested by queueUpdate()).
-	 */
-	protected function reallyDoUpdate() {
-		if ( !$this->dbUpdates ) {
-			// There are no updates.
-			return;
-		}
-
-		$this->logger->debug( "[ApproveHook] Running DB updates: {updates}", [
-			'updates' => FormatJson::encode( $this->dbUpdates )
-		] );
-
-		$dbw = wfGetDB( DB_PRIMARY );
-
-		// In MediaWiki 1.35, PostgreSQL used CIDR field for rc_ip (we can't insert strings into it).
-		// In MediaWiki 1.36+, rc_ip is TEXT field and requires no special handling.
-		$isIpFieldCIDR = ( $dbw->getType() == 'postgres' && version_compare( MW_VERSION, '1.36.0', '<' ) );
-
-		$dbw->startAtomic( __METHOD__ );
-
-		foreach ( $this->dbUpdates as $table => $updates ) {
-			$idFieldName = $this->idFieldNames[$table]; /* e.g. "rev_id" */
-			$ids = array_keys( array_values( $updates )[0] ); /* All rev_ids/rc_ids of affected rows */
-
-			/*
-				Calculate $set (SET values for UPDATE query):
-					[ 'rc_ip=(CASE rc_id WHEN 105 THEN 127.0.0.1 WHEN 106 THEN 127.0.0.5 END)' ]
-					or
-					[ 'rc_ip' => '127.0.0.8' ]
-			*/
-			$set = [];
-			foreach ( $updates as $field => $whenThen ) {
-				$skippedIds = 0;
-				if ( $table == 'revision' && $field == 'rev_timestamp' ) {
-					/*
-						IMPORTANT: sometimes we DON'T update rev_timestamp
-						to preserve the order of Page History.
-
-						The situation is:
-						we want to set rev_timestamp of revision A to T1,
-						and revision A happened after revision B,
-						and revision B has rev_timestamp=T2, with T2 > T1.
-
-						Then if we were to update rev_timestamp of A,
-						the history (which is sorted by rev_timestamp) would
-						incorrectly show that A precedes B.
-
-						What we do is:
-						for each revision A ($when) we determine rev_timestamp of revision B,
-						and if it's earlier than $then, then we don't update revision A.
-					*/
-					$res = $dbw->select(
-						[
-							'a' => 'revision', /* This revision, one of $ids */
-							'b' => 'revision' /* Previous revision */
-						],
-						[
-							'a.rev_id AS id',
-							'b.rev_id AS prev_id',
-							'b.rev_timestamp AS prev_timestamp'
-						],
-						[
-							'a.rev_id' => $ids
-						],
-						__METHOD__,
-						[],
-						[
-							'b' => [ 'INNER JOIN', [
-								'b.rev_id=a.rev_parent_id'
-							] ]
-						]
-					);
-
-					$prevTimestamps = [];
-					foreach ( $res as $row ) {
-						$prevTimestamps[$row->id] = [ $row->prev_id, $row->prev_timestamp ];
-					}
-
-					// Check earlier timestamps first (see below).
-					asort( $whenThen );
-					foreach ( $whenThen as $id => $newTimestamp ) {
-						if ( !isset( $prevTimestamps[$id] ) ) {
-							// Page doesn't exist yet, so $newTimestamp clearly doesn't need to be ignored.
-							continue;
-						}
-
-						list( $prevId, $prevTimestamp ) = $prevTimestamps[$id];
-
-						if ( isset( $whenThen[$prevId] ) && $whenThen[$prevId] != 'rev_timestamp' ) {
-							// If we are here, than means ApproveHook also wants to change rev_timestamp of
-							// the previous revision too.
-							// Because $whenThen is sorted by timestamp (from older to newer),
-							// we already checked this revision and decided not to ignore its timestamp.
-							$prevTimestamp = $whenThen[$prevId];
-						}
-
-						if ( $prevTimestamp > $newTimestamp ) {
-							$this->logger->info(
-								"[ApproveHook] Decided not to set rev_timestamp={timestamp} for revision #{revid}, " .
-								"because previous revision has {prev_timestamp} (which is newer).",
-								[
-									'revid' => $id,
-									'timestamp' => $newTimestamp,
-									'prev_timestamp' => $prevTimestamp
-								]
-							);
-
-							/* Don't modify timestamp of this revision,
-								because doing so would be resulting
-								in incorrect order of history. */
-							$whenThen[$id] = 'rev_timestamp';
-							$skippedIds++;
-						}
-					}
-				}
-
-				if ( count( $ids ) == $skippedIds ) {
-					/* Nothing to do:
-						we decided to skip rev_timestamp update for all rows. */
-					continue;
-				}
-
-				if ( count( array_count_values( $whenThen ) ) == 1 ) {
-					/* There is only one unique value after THEN,
-						therefore WHEN...THEN is unnecessary */
-					$val = array_pop( $whenThen );
-					$set[$field] = $val;
-				} else {
-					/* Need WHEN...THEN conditional */
-					$caseSql = '';
-					foreach ( $whenThen as $when => $then ) {
-						$whenQuoted = $dbw->addQuotes( $when );
-
-						if ( $then == 'rev_timestamp' ) {
-							// Default value for rev_timestamp=(CASE ... ) when certain rows were skipped:
-							// leave the previous value of rev_timestamp unchanged.
-							$thenQuoted = 'rev_timestamp';
-						} else {
-							$thenQuoted = $dbw->addQuotes( $then );
-
-							if ( $isIpFieldCIDR && $field == 'rc_ip' ) {
-								// PostgreSQL, MediaWiki 1.35 only.
-								$thenQuoted .= '::cidr';
-							} elseif ( $dbw->getType() == 'postgres' && $field == 'rev_timestamp' ) {
-								// In PostgreSQL, rc_timestamp is of type TIMESTAMPZ,
-								// and we can't insert strings into it.
-								$thenQuoted = 'to_timestamp(' . $thenQuoted .
-									', \'YYYY-MM-DD HH24:MI:SS\' )';
-							}
-						}
-
-						$caseSql .= 'WHEN ' . $whenQuoted . ' THEN ' . $thenQuoted . ' ';
-					}
-
-					$set[] = $field . '=(CASE ' . $idFieldName . ' ' . $caseSql . 'END)';
-				}
-			}
-
-			if ( empty( $set ) ) {
-				continue; /* Nothing to do */
-			}
-
-			$dbw->update( $table,
-				$set,
-				[ $idFieldName => $ids ],
-				__METHOD__
-			);
-
-			$this->logger->debug( '[ApproveHook] SQL query: {rows} rows affected',
-				[
-					'rows' => $dbw->affectedRows()
-				]
-			);
-		}
-
-		$dbw->endAtomic( __METHOD__ );
 	}
 
 	/**
@@ -546,32 +303,14 @@ class ModerationApproveHook implements
 			'values' => FormatJson::encode( $values )
 		] );
 
-		if ( $this->alreadyBatchUpdated || version_compare( MW_VERSION, '1.38.0', '>=' ) ) {
-			// MediaWiki 1.38+ only: unfortunately RecentChange_save hook is deferred in a manner
-			// that doesn't allow us to know for sure if all RecentChanges
-			// were already created BEFORE doUpdate().
-			// In this situation we must apply the necessary change immediately, not queue it.
-			$this->updateWithoutQueue( $table, $ids, $values );
-			return;
-		}
-
-		if ( !isset( $this->dbUpdates[$table] ) ) {
-			$this->dbUpdates[$table] = [];
-		}
-
-		foreach ( $values as $field => $value ) {
-			if ( !isset( $this->dbUpdates[$table][$field] ) ) {
-				$this->dbUpdates[$table][$field] = [];
-			}
-
-			foreach ( $ids as $id ) {
-				$this->dbUpdates[$table][$field][$id] = $value;
-			}
-		}
+		// RecentChange_save hook is deferred in a manner that doesn't allow us to know for sure
+		// if all RecentChanges were already created BEFORE doUpdate(),
+		// so we must apply the necessary change immediately, not queue it.
+		$this->updateWithoutQueue( $table, $ids, $values );
 	}
 
 	/**
-	 * Perform post-approval UPDATE SQL query immediately. Not used in MediaWiki 1.35-1.37.
+	 * Perform post-approval UPDATE SQL query immediately.
 	 * @param string $table Name of table, e.g. 'revision'.
 	 * @param array $ids One or several IDs (e.g. rev_id or rc_id).
 	 * @param array $values New values, as expected by $db->update,

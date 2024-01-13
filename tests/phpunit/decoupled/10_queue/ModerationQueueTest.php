@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2023 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -371,16 +371,8 @@ class ModerationQueueTest extends ModerationTestCase {
 
 		if ( $this->watch === false ) {
 			/* Unwatch test requested, add $this->title into the Watchlist */
-
-			if ( method_exists( '\MediaWiki\Watchlist\WatchlistManager', 'setWatch' ) ) {
-				// MediaWiki 1.37+
-				$watchlistManager = MediaWikiServices::getInstance()->getWatchlistManager();
-				$watchlistManager->addWatchIgnoringRights( $this->user, $this->title );
-			} else {
-				// MediaWiki 1.35-1.36
-				// @phan-suppress-next-line PhanUndeclaredStaticMethod WatchAction::doWatch
-				WatchAction::doWatch( $this->title, $this->user );
-			}
+			$watchlistManager = MediaWikiServices::getInstance()->getWatchlistManager();
+			$watchlistManager->addWatchIgnoringRights( $this->user, $this->title );
 		}
 
 		$extraParams = [];
@@ -513,7 +505,7 @@ class ModerationQueueTest extends ModerationTestCase {
 
 		$expectedUserClass = 'MediaWiki\User\User'; // MediaWiki 1.41+
 		if ( !class_exists( $expectedUserClass, false ) ) {
-			// MediaWiki 1.35-1.40
+			// MediaWiki 1.39-1.40
 			$expectedUserClass = 'User';
 		}
 		$this->assertEquals( $expectedUserClass, $paramTypes[1] );
@@ -531,7 +523,7 @@ class ModerationQueueTest extends ModerationTestCase {
 
 		$expectedStatusClass = 'MediaWiki\Storage\PageUpdateStatus'; // MediaWiki 1.40+
 		if ( !class_exists( $expectedStatusClass ) ) {
-			// MediaWiki 1.35-1.39
+			// MediaWiki 1.39 only
 			$expectedStatusClass = 'Status';
 		}
 		$this->assertEquals( $expectedStatusClass, $paramTypes[8] );

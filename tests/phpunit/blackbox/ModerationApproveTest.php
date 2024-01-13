@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2021 Edward Chernenko.
+	Copyright (C) 2015-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -184,14 +184,7 @@ class ModerationApproveTest extends ModerationTestCase {
 
 			$this->assertEquals( $task['timestamp'], $foundTimestamp,
 				"testApproveAllTimestamp(): approved edit has incorrect timestamp in the page history" );
-
-			$expectedIP = $task['ip'];
-			if ( $dbw->getType() == 'postgres' && $t->mwVersionCompare( '1.36.0', '<' ) ) {
-				// MediaWiki 1.35 only.
-				$expectedIP .= '/32';
-			}
-
-			$this->assertEquals( $expectedIP, $row->rc_ip,
+			$this->assertEquals( $task['ip'], $row->rc_ip,
 				"testApproveAllTimestamp(): approved edit has incorrect IP in recentchanges" );
 		}
 	}

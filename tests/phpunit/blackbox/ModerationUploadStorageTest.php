@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2019-2022 Edward Chernenko.
+	Copyright (C) 2019-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@
  */
 
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
-
-use MediaWiki\MediaWikiServices;
 
 /**
  * @group Database
@@ -55,16 +53,6 @@ class ModerationUploadStorageTest extends ModerationTestCase {
 		$dbw = wfGetDB( DB_PRIMARY );
 		$dbw->delete( 'user', [ 'user_name' => ModerationUploadStorage::USERNAME ], __METHOD__ );
 		$dbw->delete( 'actor', [ 'actor_name' => ModerationUploadStorage::USERNAME ], __METHOD__ );
-
-		if ( method_exists( '\MediaWiki\User\ActorStore', 'clearCaches' ) ) {
-			// MediaWiki 1.37 only (not needed in MediaWiki 1.38+)
-			// @phan-suppress-next-line PhanUndeclaredMethod ActorStore::clearCaches
-			MediaWikiServices::getInstance()->getActorStore()->clearCaches();
-		} elseif ( method_exists( 'User', 'resetIdByNameCache' ) ) {
-			// MediaWiki 1.35-1.36
-			// @phan-suppress-next-line PhanUndeclaredStaticMethod User::resetIdByNameCache
-			User::resetIdByNameCache();
-		}
 
 		foreach ( $dbw->select( 'moderation', '*', '', __METHOD__ ) as $row ) {
 			$dbw->update( 'uploadstash',

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2021-2023 Edward Chernenko.
+	Copyright (C) 2021-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -26,42 +26,32 @@
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Tests\HookContainer\HookRunnerTestBase;
 
-if ( class_exists( HookRunnerTestBase::class ) ) {
-	if ( method_exists( HookRunnerTestBase::class, 'provideHookRunnersStatically' ) ) {
-		// MediaWiki 1.41+
+if ( method_exists( HookRunnerTestBase::class, 'provideHookRunnersStatically' ) ) {
+	// MediaWiki 1.41+
+	/**
+	 * phpcs:ignore MediaWiki.Commenting.PhpunitAnnotations.NotInClassTrait
+	 * @covers MediaWiki\Moderation\Hook\HookRunner
+	 */
+	class HookRunnerTest extends HookRunnerTestBase {
 		/**
-		 * phpcs:ignore MediaWiki.Commenting.PhpunitAnnotations.NotInClassTrait
-		 * @covers MediaWiki\Moderation\Hook\HookRunner
+		 * @return array
+		 * @suppress PhanAccessNonStaticToStatic
 		 */
-		class HookRunnerTest extends HookRunnerTestBase {
-			/**
-			 * @return array
-			 * @suppress PhanAccessNonStaticToStatic
-			 */
-			public static function provideHookRunners() {
-				return [ HookRunner::class => [ HookRunner::class ] ];
-			}
-		}
-	} else {
-		// MediaWiki 1.35-1.40.
-		/**
-		 * phpcs:ignore MediaWiki.Commenting.PhpunitAnnotations.NotInClassTrait
-		 * @covers MediaWiki\Moderation\Hook\HookRunner
-		 */
-		// phpcs:ignore Generic.Classes.DuplicateClassName.Found
-		class HookRunnerTest extends HookRunnerTestBase {
-			/** @return array */
-			public function provideHookRunners() {
-				return [ HookRunner::class => [ HookRunner::class ] ];
-			}
+		public static function provideHookRunners() {
+			return [ HookRunner::class => [ HookRunner::class ] ];
 		}
 	}
 } else {
-	// MediaWiki 1.35 doesn't have HookRunnerTestBase, so this test is skipped.
-	class HookRunnerNoopTest extends MediaWikiUnitTestCase {
-		/** @coversNothing */
-		public function testNothing() {
-			$this->markTestSkipped( 'HookRunner test requires MediaWiki 1.36+' );
+	// MediaWiki 1.39-1.40.
+	/**
+	 * phpcs:ignore MediaWiki.Commenting.PhpunitAnnotations.NotInClassTrait
+	 * @covers MediaWiki\Moderation\Hook\HookRunner
+	 */
+	// phpcs:ignore Generic.Classes.DuplicateClassName.Found
+	class HookRunnerTest extends HookRunnerTestBase {
+		/** @return array */
+		public function provideHookRunners() {
+			return [ HookRunner::class => [ HookRunner::class ] ];
 		}
 	}
 }

@@ -15,22 +15,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [7.4]
-        branch: [REL1_35, REL1_36, REL1_38]
+        php: [8.1]
+        branch: [REL1_39, REL1_40, REL1_41]
         dbtype: [mysql, postgres]
-        include:
-          - php: 8.1
-            branch: REL1_39
-            dbtype: mysql
-          - php: 8.1
-            branch: REL1_40
-            dbtype: mysql
-          - php: 8.1
-            branch: REL1_41
-            dbtype: mysql
-          - php: 8.1
-            branch: REL1_41
-            dbtype: postgres
     env:
       branch: ${{ matrix.branch }}
       DBTYPE: ${{ matrix.dbtype }}
@@ -67,7 +54,7 @@ jobs:
         with:
             php-version: ${{ matrix.php }}
             extensions: mbstring, intl, opcache, mysqli
-            tools: composer${{ env.branch != 'REL1_39' && env.branch != 'REL1_40' && env.branch != 'REL1_41' && ':v1' || '' }}
+            tools: composer
             ini-values: zend.enable_gc=Off, opcache.enable_cli=1, opcache.file_cache="/dev/shm", opcache.file_cache_only=1, opcache.file_cache_consistency_checks=0, opcache.validate_timestamps=0
       - name: (debug) Print "php -i"
         run: php -i
@@ -103,9 +90,9 @@ jobs:
 
         # Run all tests.
       - name: Run integration tests (blackbox)
-        run: cd mediawiki && PHPUNIT_USE_NORMAL_TABLES=1 php tests/phpunit/phpunit.php ${{ env.branch != 'REL1_37' && env.branch != 'REL1_38' && env.branch != 'REL1_39' && env.branch != 'REL1_40' && env.branch != 'REL1_41' && '--use-normal-tables' || '' }} extensions/Moderation/tests/phpunit/blackbox
+        run: cd mediawiki && PHPUNIT_USE_NORMAL_TABLES=1 php tests/phpunit/phpunit.php extensions/Moderation/tests/phpunit/blackbox
       - name: Run integration tests (decoupled)
-        run: cd mediawiki && PHPUNIT_USE_NORMAL_TABLES=1 php tests/phpunit/phpunit.php ${{ env.branch != 'REL1_37' && env.branch != 'REL1_38' && env.branch != 'REL1_39' && env.branch != 'REL1_40' && env.branch != 'REL1_41' && '--use-normal-tables' || '' }} extensions/Moderation/tests/phpunit/decoupled
+        run: cd mediawiki && PHPUNIT_USE_NORMAL_TABLES=1 php tests/phpunit/phpunit.php extensions/Moderation/tests/phpunit/decoupled
 
   # Job #2: phpcs, parallel-lint, etc.
   linter:

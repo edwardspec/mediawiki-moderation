@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2016-2022 Edward Chernenko.
+	Copyright (C) 2016-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -48,11 +48,7 @@ class ModerationAjaxHook {
 				// HACK: fake wgArticleId makes MobileFrontend think that this page exists.
 				$out->addJsConfigVars( 'wgArticleId', -1 ); // Not 0 means "page exists"
 			}
-		} elseif ( class_exists( 'ApiVisualEditorEdit' ) ) {
-			// MediaWiki 1.35-1.38
-			$modules[] = 'ext.moderation.ve';
 		} elseif ( class_exists( 'MediaWiki\Extension\VisualEditor\ApiVisualEditorEdit' ) ) {
-			// MediaWiki 1.39+
 			$modules[] = 'ext.moderation.ve';
 		}
 

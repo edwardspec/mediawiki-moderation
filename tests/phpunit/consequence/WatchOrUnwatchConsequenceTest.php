@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -46,14 +46,7 @@ class WatchOrUnwatchConsequenceTest extends ModerationUnitTestCase {
 		$watchedItemStore->expects( $this->once() )->method( 'getWatchedItem' )->will(
 			$this->returnCallback( function ( $hookUser, $hookTitle ) use ( $isWatched, $user, $title ) {
 				$this->assertSame( $user, $hookUser );
-
-				if ( method_exists( $hookTitle, 'isSameLinkAs' ) ) {
-					// MediaWiki 1.36+
-					$this->assertTrue( $hookTitle->isSameLinkAs( $title ) );
-				} else {
-					// MediaWiki 1.35
-					$this->assertSame( $title, $hookTitle );
-				}
+				$this->assertTrue( $hookTitle->isSameLinkAs( $title ) );
 
 				return $isWatched ? new WatchedItem( $user, $title, null ) : false;
 			} )

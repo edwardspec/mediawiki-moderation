@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -70,14 +70,7 @@ trait UploadTestTrait {
 		$fauxRequest = RequestContext::getMain()->getRequest();
 		'@phan-var FauxRequest $fauxRequest';
 
-		if ( method_exists( $fauxRequest, 'setUpload' ) ) {
-			// MediaWiki 1.37+
-			$fauxRequest->setUpload( 'wpUploadFile', $uploadData );
-		} else {
-			// MediaWiki 1.35-1.36
-			// phpcs:ignore MediaWiki.Usage.SuperGlobalsUsage.SuperGlobals
-			$_FILES['wpUploadFile'] = $uploadData;
-		}
+		$fauxRequest->setUpload( 'wpUploadFile', $uploadData );
 
 		$upload = new UploadFromFile();
 		$upload->initialize(

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2022 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -306,8 +306,8 @@ class ModerationNewChange {
 		$serviceName = 'AbuseFilterChangeTagger';
 
 		if ( !$services->hasService( $serviceName ) ) {
-			// MediaWiki 1.35
-			return $this->findAbuseFilterTags35( $title, $user, $action );
+			// AbuseFilter not installed.
+			return [];
 		}
 
 		$changeTagger = $services->getService( $serviceName );
@@ -316,34 +316,6 @@ class ModerationNewChange {
 		$recentChange = RecentChange::newLogEntry(
 			wfTimestampNow(), $title, $user, '', '', $action, $action, $title, '', '' );
 		return $changeTagger->getTagsForRecentChange( $recentChange, false );
-	}
-
-	/**
-	 * Calculate the value of mod_tags in AbuseFilter for MediaWiki 1.35 only (NOT in 1.36+).
-	 * @param Title $title
-	 * @param User $user
-	 * @param string $action AbuseFilter action, e.g. 'edit' or 'delete'.
-	 * @return string[]
-	 */
-	protected function findAbuseFilterTags35( Title $title, User $user, $action ) {
-		// @phan-suppress-next-line PhanUndeclaredClassStaticProperty AbuseFilter::$tagsToSet
-		if ( !class_exists( 'AbuseFilter' ) || empty( AbuseFilter::$tagsToSet ) ) {
-			return []; /* No tags */
-		}
-
-		// @phan-suppress-next-line PhanUndeclaredClassStaticProperty AbuseFilter::$tagsToSet
-		$tagsToSet = AbuseFilter::$tagsToSet;
-
-		/* AbuseFilter wants to assign some tags to this edit.
-			Let's store them (they will be used in modaction=approve).
-		*/
-		$afActionID = implode( '-', [
-			$title->getPrefixedText(),
-			$user->getName(),
-			$action
-		] );
-
-		return $tagsToSet[$afActionID] ?? [];
 	}
 
 	/**

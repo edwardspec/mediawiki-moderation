@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -429,11 +429,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 
 		// Verify that preprocessResults() has rewinded $res (which is an iterator).
 		$resWrapper = TestingAccessWrapper::newFromObject( $res );
-		$seekPosition = property_exists( $res, 'currentPos' ) ?
-			$resWrapper->currentPos : // MediaWiki 1.37+
-			$resWrapper->pos; // MediaWiki 1.35-1.36
-
-		$this->assertSame( 0, $seekPosition );
+		$this->assertSame( 0, $resWrapper->currentPos );
 	}
 
 	/**

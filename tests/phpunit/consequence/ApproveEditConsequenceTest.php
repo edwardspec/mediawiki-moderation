@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -44,10 +44,10 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 	public function testApproveEdit( array $params ) {
 		$opt = (object)$params;
 
-		$opt->existing = $opt->existing ?? false;
-		$opt->bot = $opt->bot ?? false;
-		$opt->minor = $opt->minor ?? false;
-		$opt->summary = $opt->summary ?? 'Some summary ' . rand( 0, 100000 );
+		$opt->existing ??= false;
+		$opt->bot ??= false;
+		$opt->minor ??= false;
+		$opt->summary ??= 'Some summary ' . rand( 0, 100000 );
 
 		$user = empty( $opt->anonymously ) ?
 			self::getTestUser( $opt->bot ? [ 'bot' ] : [] )->getUser() :
@@ -73,7 +73,7 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 		{
 			$hookFired = true;
 
-			$performer = ModerationTestUtil::getRecentChangePerformer( $rc );
+			$performer = $rc->getPerformerIdentity();
 
 			$this->assertEquals( $title->getFullText(), $rc->getTitle()->getFullText() );
 			$this->assertEquals( $user->getName(), $performer->getName() );

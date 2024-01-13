@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2023 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 		$actualResult = $result['query']['moderationpreload'];
 		$actualDisplayTitle = $actualResult['parsed']['displaytitle'] ?? null;
 		if ( $actualDisplayTitle ) {
-			// MediaWiki 1.39+ adds tags like <span class="mw-page-title-namespace">,
+			// MediaWiki adds tags like <span class="mw-page-title-namespace">,
 			// we don't need to check these tags here.
 			$actualResult['parsed']['displaytitle'] = strip_tags( $actualDisplayTitle );
 		}

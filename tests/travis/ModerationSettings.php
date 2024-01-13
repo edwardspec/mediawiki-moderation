@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2023 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -66,13 +66,7 @@ if ( $wgDBtype != 'postgres' ) {
 	wfLoadExtension( 'AbuseFilter' ); # For PHPUnit testsuite
 }
 
-if (
-	( $wgDBtype !== 'postgres' || version_compare( $wgVersion, '1.39.0', '>=' ) )
-) {
-	// Extension:CheckUser supports PostgreSQL only in MediaWiki 1.39+,
-	// so we don't run its tests with MediaWiki 1.35-1.38.
-	wfLoadExtension( 'CheckUser' ); # For PHPUnit testsuite
-}
+wfLoadExtension( 'CheckUser' ); # For PHPUnit testsuite
 
 if ( !preg_match( '/^1\.40\./', MW_VERSION ) ) {
 	// Extension:PageForms has deprecation warnings in 1.40 (which interferes with tests).
@@ -89,9 +83,7 @@ wfLoadExtensions( [
 ] );
 
 # ModerationNotifyModeratorTest should be tested with and without Extension:Echo.
-# NOTE: Extension:Echo for MediaWiki 1.35 (LTS) doesn't support PostgreSQL.
-# gerrit:565045 adds such support, but it hasn't been merged/backported yet.
-if ( getenv( 'WITH_ECHO' ) && $wgDBtype != 'postgres' ) {
+if ( getenv( 'WITH_ECHO' ) ) {
 	wfLoadExtension( 'Echo' );
 }
 

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2022 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,12 +32,6 @@
  */
 trait ModerationTestsuiteTestSet {
 	/**
-	 * @var bool
-	 * True if this is a temporary set created in runSet(), false otherwise.
-	 */
-	protected $cloned = false;
-
-	/**
 	 * Run this TestSet from input of dataProvider.
 	 * @param array $options Parameters of test, e.g. [ 'user' => '...', 'title' => '...' ].
 	 */
@@ -45,22 +39,10 @@ trait ModerationTestsuiteTestSet {
 		// Clone the set before each test.
 		// This is needed to prevent properties from being preserved between runs.
 		$set = clone $this;
-		$set->cloned = true;
 
 		$set->applyOptions( $options );
 		$set->makeChanges();
 		$set->assertResults();
-	}
-
-	public function __destruct() {
-		// Destructor should be suppressed for cloned MediaWikiIntegrationTestCase objects.
-		if ( !$this->cloned ) {
-			$rc = new ReflectionObject( $this );
-			if ( $rc->getParentClass()->hasMethod( '__destruct' ) ) { // False for MW 1.35+
-				// @phan-suppress-next-line PhanTraitParentReference
-				parent::__destruct();
-			}
-		}
 	}
 
 	/*--------------------------------------------------------------------------------------*/

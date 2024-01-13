@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2023 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\MutableRevisionRecord;
 use MediaWiki\Revision\SlotRecord;
-use MediaWiki\User\UserIdentity;
 
 class ModerationTestUtil {
 	/**
@@ -107,36 +106,5 @@ class ModerationTestUtil {
 	 */
 	public static function getLanguageQqx() {
 		return MediaWikiServices::getInstance()->getLanguageFactory()->getLanguage( 'qqx' );
-	}
-
-	/**
-	 * Get performer of LogEntry (for B/C with MediaWiki 1.35).
-	 * @param LogEntry $logEntry
-	 * @return UserIdentity
-	 */
-	public static function getLogEntryPerformer( LogEntry $logEntry ) {
-		if ( method_exists( $logEntry, 'getPerformerIdentity' ) ) {
-			// MediaWiki 1.36+
-			return $logEntry->getPerformerIdentity();
-		}
-
-		// MediaWiki 1.35
-		// @phan-suppress-next-line PhanUndeclaredMethod
-		return $logEntry->getPerformer();
-	}
-
-	/**
-	 * Get performer of LogEntry (for B/C with MediaWiki 1.35).
-	 * @param RecentChange $rc
-	 * @return UserIdentity
-	 */
-	public static function getRecentChangePerformer( RecentChange $rc ) {
-		if ( method_exists( $rc, 'getPerformerIdentity' ) ) {
-			// MediaWiki 1.36+
-			return $rc->getPerformerIdentity();
-		}
-
-		// MediaWiki 1.35
-		return $rc->getPerformer();
 	}
 }

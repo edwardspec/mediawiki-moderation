@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2022 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ namespace MediaWiki\Moderation;
 use MediaWiki\MediaWikiServices;
 use Title;
 use User;
-use WatchAction;
 
 class WatchOrUnwatchConsequence implements IConsequence {
 	/** @var bool */
@@ -52,15 +51,7 @@ class WatchOrUnwatchConsequence implements IConsequence {
 	 * Execute the consequence.
 	 */
 	public function run() {
-		if ( method_exists( '\MediaWiki\Watchlist\WatchlistManager', 'setWatch' ) ) {
-			// MediaWiki 1.37+
-			$watchlistManager = MediaWikiServices::getInstance()->getWatchlistManager();
-			$watchlistManager->setWatch( $this->watch, $this->user, $this->title, null );
-			return;
-		}
-
-		// MediaWiki 1.35-1.36
-		// @phan-suppress-next-line PhanUndeclaredStaticMethod WatchAction::doWatchOrUnwatch
-		WatchAction::doWatchOrUnwatch( $this->watch, $this->title, $this->user );
+		$watchlistManager = MediaWikiServices::getInstance()->getWatchlistManager();
+		$watchlistManager->setWatch( $this->watch, $this->user, $this->title, null );
 	}
 }
