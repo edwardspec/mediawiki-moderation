@@ -39,7 +39,7 @@
 	"moderation-blocker": "Moderationssperre",
 	"moderation-block": "Als Spammer markieren",
 	"moderation-block-ok": "[[Special:Contributions/$1|$1]] erfolgreich als Spammer markiert.",
-	"moderation-desc": "Sendet alle Bearbeitungen und hochgeladenen Dateien von neuen Benutzern an die Moderation",
+	"moderation-desc": "Sendet alle Bearbeitungen und hochgeladenen Dateien von neuen Benutzern an die [[Special:Moderation|Moderation]]",
 	"moderation-diff-header-after": "Danach",
 	"moderation-diff-header-before": "Davor",
 	"moderation-diff-no-changes": "Keine Änderungen am Seitentext (Nulledit).",

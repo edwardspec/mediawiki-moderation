@@ -41,7 +41,7 @@
 	"moderation-blocker": "Moderasyon engeli",
 	"moderation-block": "Spam yapan kişi olarak işaretle",
 	"moderation-block-ok": "[[Special:Contributions/$1|$1]], başarılı bir şekilde spam yapan kişi olarak işaretlendi.",
-	"moderation-desc": "Yeni kullanıcıların tüm düzenlemeleriyle yüklemelerini moderasyona gönderir",
+	"moderation-desc": "Yeni kullanıcıların tüm düzenlemeleriyle yüklemelerini [[Special:Moderation|moderasyona]] gönderir",
 	"moderation-diff-header-after": "Sonra",
 	"moderation-diff-header-before": "Önce",
 	"moderation-diff-no-changes": "Sayfa metninde değişiklik yok (boş düzenleme).",

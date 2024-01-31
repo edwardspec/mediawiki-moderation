@@ -41,7 +41,7 @@
 	"moderation-blocker": "Модерационный фильтр",
 	"moderation-block": "Это спамер",
 	"moderation-block-ok": "Участник [[Special:Contributions/$1|$1]] добавлен в список спамеров.",
-	"moderation-desc": "Отправляет все правки и загрузки от новичков на модерацию",
+	"moderation-desc": "Отправляет все правки и загрузки от новичков на [[Special:Moderation|модерацию]]",
 	"moderation-diff-header-after": "После",
 	"moderation-diff-header-before": "До",
 	"moderation-diff-no-changes": "Текст страницы не изменён (нулевая правка).",

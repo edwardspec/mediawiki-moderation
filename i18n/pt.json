@@ -37,7 +37,7 @@
 	"moderation-blocker": "Bloqueio de moderação",
 	"moderation-block": "Marcar como criador de spam",
 	"moderation-block-ok": "[[Special:Contributions/$1|$1]] foi marcado como criador de spam.",
-	"moderation-desc": "Envia todas as edições e carregamentos de utilizadores novos para a moderação",
+	"moderation-desc": "Envia todas as edições e carregamentos de utilizadores novos para a [[Special:Moderation|moderação]]",
 	"moderation-diff-header-after": "Depois",
 	"moderation-diff-header-before": "Antes",
 	"moderation-diff-no-changes": "Não houve alterações ao texto da página (edição nula).",

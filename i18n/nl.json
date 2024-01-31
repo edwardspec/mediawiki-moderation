@@ -37,7 +37,7 @@
 	"moderation-approved-ok": "$1 {{plural:$1|bewerking|bewerkingen}} goedgekeurd.",
 	"moderation-block": "Gemarkeerd als spammer",
 	"moderation-block-ok": "[[Special:Contributions/$1|$1]] is als spammer gemarkeerd.",
-	"moderation-desc": "Stuurt alle bewerkingen en uploads van nieuwe gebruikers op voor controle",
+	"moderation-desc": "Stuurt alle bewerkingen en uploads van nieuwe gebruikers op voor [[Special:Moderation|controle]]",
 	"moderation-diff-header-after": "Na",
 	"moderation-diff-header-before": "Voor",
 	"moderation-diff-no-changes": "Geen wijzigingen aan de paginatekst (nullbewerking).",
