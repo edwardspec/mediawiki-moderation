@@ -45,7 +45,7 @@
 	"moderation-blocker": "Bloque de moderación",
 	"moderation-block": "Marcar como spammer",
 	"moderation-block-ok": "Marcado con éxito [[Special:Contributions/$1|$1]] como spammer.",
-	"moderation-desc": "Envía todas las ediciones y subidas de nuevos usuarios a moderación",
+	"moderation-desc": "Envía todas las ediciones y subidas de nuevos usuarios a [[Special:Moderation|moderación]]",
 	"moderation-diff-header-after": "Después",
 	"moderation-diff-header-before": "Antes",
 	"moderation-diff-no-changes": "No hay cambios en el texto de la página (edición nula).",

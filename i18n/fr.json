@@ -40,7 +40,7 @@
 	"moderation-blocker": "Blocage de modération",
 	"moderation-block": "Marquer comme spammeur",
 	"moderation-block-ok": "[[Special:Contributions/$1|$1]] bien marqué comme spammeur.",
-	"moderation-desc": "Envoie toutes les modifications et les téléchargements des nouveaux utilisateurs pour modération",
+	"moderation-desc": "Envoie toutes les modifications et les téléchargements des nouveaux utilisateurs pour [[Special:Moderation|modération]]",
 	"moderation-diff-header-after": "Après",
 	"moderation-diff-header-before": "Avant",
 	"moderation-diff-no-changes": "Aucun changement au texte de la page (modification nulle).",
