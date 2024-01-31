@@ -2,7 +2,15 @@ List of changes between releases of Extension:Moderation.
 
 == master branch (1.8.x versions) ==
 
-No changes since Moderation 1.7.9.
+No changes since Moderation 1.7.10.
+
+== Moderation 1.7.10 ==
+
+Features:
+* Add a useful link to Special:Moderation in i18n
+
+Bugfixes:
+* Change DB_MASTER into DB_PRIMARY (since MediaWiki 1.35.4)
 
 == Moderation 1.7.9 ==
 

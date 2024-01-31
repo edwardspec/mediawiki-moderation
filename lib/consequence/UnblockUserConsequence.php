@@ -38,7 +38,7 @@ class UnblockUserConsequence implements IConsequence {
 	 * @return bool True if existing block was removed, false otherwise.
 	 */
 	public function run() {
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_PRIMARY );
 		$dbw->delete( 'moderation_block', [ 'mb_address' => $this->username ], __METHOD__ );
 
 		return ( $dbw->affectedRows() > 0 );
