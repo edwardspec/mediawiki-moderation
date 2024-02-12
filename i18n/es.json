@@ -73,6 +73,7 @@
 	"moderation-notification-subject": "[Moderación] Nuevo cambio en espera de moderación",
 	"moderation-pending-review": "Revisión pendiente",
 	"moderation-preview": "previsualizar",
+	"moderation-preview-title": "Revisión de \"$1\" pendiente de moderación",
 	"moderation-rejectall": "Rechazar todos",
 	"moderation-rejected-auto": "Rechazar automáticamente",
 	"moderation-rejected-by": "{{GENDER:$2|Rechazado|Rechazada}} por $1",
