@@ -4,6 +4,9 @@ List of changes between releases of Extension:Moderation.
 
 Note: this version requires MediaWiki 1.39+. MediaWiki 1.35 is no longer supported.
 
+Features:
+* Support MediaWiki 1.42 (everything except MobileFrontend and VisualEditor).
+
 Bugfixes:
 * Very long edit summaries are now truncated instead of showing an error.
 
