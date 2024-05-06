@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2021 Edward Chernenko.
+	Copyright (C) 2014-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ class ModerationActionShowImage extends ModerationAction {
 
 		try {
 			$file = $stash->getFile( $row->stash_key );
-		} catch ( MWException $_ ) {
+		} catch ( UploadStashException $_ ) {
 			return [ 'missing' => '' ];
 		}
 
