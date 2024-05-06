@@ -233,7 +233,7 @@ class ModerationInterceptTest extends ModerationTestCase {
 			[ 'edit was intercepted' => $this->result->isIntercepted() ]
 		);
 
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		$row = $dbw->selectRow( 'moderation', '*', '', __METHOD__ );
 
 		$this->assertEquals(

@@ -45,7 +45,7 @@ class RejectAllConsequence implements IConsequence {
 	 * @return int Number of newly rejected edits.
 	 */
 	public function run() {
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = \ModerationCompatTools::getDB( DB_PRIMARY );
 		$dbw->update( 'moderation',
 			[
 				'mod_rejected' => 1,

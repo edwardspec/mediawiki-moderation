@@ -99,4 +99,13 @@ class ModerationCompatTools {
 		// This is backward compatibility format, we don't really need to provide sortkeys here.
 		return array_fill_keys( $pout->getCategoryNames(), '' );
 	}
+
+	/**
+	 * Get a Database object.
+	 * @param int $db Either DB_PRIMARY or DB_REPLICA.
+	 * @return \Wikimedia\Rdbms\IDatabase
+	 */
+	public static function getDB( $db ) {
+		return MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( $db );
+	}
 }

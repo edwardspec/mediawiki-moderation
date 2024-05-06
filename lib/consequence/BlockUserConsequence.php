@@ -50,7 +50,7 @@ class BlockUserConsequence implements IConsequence {
 	 * @return bool True if a new block was added, false otherwise.
 	 */
 	public function run() {
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = \ModerationCompatTools::getDB( DB_PRIMARY );
 		$dbw->insert( 'moderation_block',
 			[
 				'mb_address' => $this->username,

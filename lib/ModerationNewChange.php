@@ -77,7 +77,7 @@ class ModerationNewChange {
 		$this->contentLanguage = $contentLanguage;
 
 		$request = $user->getRequest();
-		$dbr = wfGetDB( DB_REPLICA ); /* Only for $dbr->timestamp(), won't do any SQL queries */
+		$dbr = ModerationCompatTools::getDB( DB_REPLICA ); /* Only for $dbr->timestamp(), won't do any SQL queries */
 
 		/* Prepare known values of $fields */
 		$this->fields = [

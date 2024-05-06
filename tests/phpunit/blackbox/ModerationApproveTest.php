@@ -142,7 +142,7 @@ class ModerationApproveTest extends ModerationTestCase {
 			$t->doTestEdit( $title );
 		}
 
-		$dbr = wfGetDB( DB_REPLICA ); // Only for $dbr->timestamp();
+		$dbr = ModerationCompatTools::getDB( DB_REPLICA ); // Only for $dbr->timestamp();
 
 		$t->fetchSpecial();
 		foreach ( $t->new_entries as $entry ) {
@@ -157,7 +157,7 @@ class ModerationApproveTest extends ModerationTestCase {
 
 		# Check rev_timestamp/rc_ip.
 
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 
 		foreach ( $testPages as $title => $task ) {
 			$row = $dbw->selectRow(

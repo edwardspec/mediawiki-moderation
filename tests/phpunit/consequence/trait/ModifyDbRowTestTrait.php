@@ -63,7 +63,7 @@ trait ModifyDbRowTestTrait {
 			$this->authorUser = self::getTestUser()->getUser();
 		}
 
-		$dbr = wfGetDB( DB_REPLICA );
+		$dbr = ModerationCompatTools::getDB( DB_REPLICA );
 		return [
 			'mod_timestamp' => $dbr->timestamp(),
 			'mod_user' => $this->authorUser->getId(),

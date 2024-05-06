@@ -159,7 +159,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 			'page2_namespace' => 0,
 			'page2_title' => 'Test_page_2_' . rand( 0, 100000 ),
 			'id' => 12345,
-			'timestamp' => wfGetDB( DB_REPLICA )->timestamp(),
+			'timestamp' => ModerationCompatTools::getDB( DB_REPLICA )->timestamp(),
 			'comment' => 'Some reason ' . rand( 0, 100000 ),
 			'minor' => 0,
 			'bot' => 0,

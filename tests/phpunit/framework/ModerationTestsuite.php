@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2023 Edward Chernenko.
+	Copyright (C) 2015-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -253,7 +253,7 @@ class ModerationTestsuite {
 			$this->engine->escapeDbSandbox();
 		}
 
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = $this->getDB();
 
 		/* Make sure the database is in a consistent state
 			(after messy tests like RollbackResistantQueryTest.php) */
@@ -330,11 +330,19 @@ class ModerationTestsuite {
 	}
 
 	/**
+	 * Get a Database object that allows maintenance methods like fieldExists().
+	 * @return DBConnRef
+	 */
+	protected function getDB() {
+		return MediaWikiServices::getInstance()->getDBLoadBalancer()->getMaintenanceConnectionRef( DB_PRIMARY );
+	}
+
+	/**
 	 * Delete all contents of the SQL table.
 	 * @param string $table
 	 */
 	protected function truncateDbTable( $table ) {
-		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getMaintenanceConnectionRef( DB_PRIMARY );
+		$dbw = $this->getDB();
 		if ( !$dbw->tableExists( $table ) ) {
 			return;
 		}
@@ -373,7 +381,7 @@ class ModerationTestsuite {
 	private function getKeyField( $table ) {
 		$keyField = "${table}_id";
 
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = $this->getDB();
 		if ( $dbw->getType() == 'postgres' && $table == 'mwuser' ) {
 			$keyField = 'user_id';
 		}
@@ -394,7 +402,7 @@ class ModerationTestsuite {
 		}
 
 		// Load from cache.
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = $this->getDB();
 		$dbw->begin( __METHOD__ );
 
 		foreach ( self::$prepopulateDbCache as $table => $rows ) {
@@ -459,7 +467,8 @@ class ModerationTestsuite {
 		$this->createTestUser( 'User 6', [] );
 		$this->createTestUser( 'User 7', [ 'moderator', 'checkuser' ] );
 
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = $this->getDB();
+
 		self::$prepopulateDbCache = [];
 		foreach ( self::$prepopulateDbNeededTables as $table ) {
 			if ( $table == 'user' && $dbw->getType() == 'postgres' && !$dbw->tableExists( 'user' ) ) {
@@ -789,7 +798,7 @@ class ModerationTestsuite {
 	 * @return callable
 	 */
 	public function waitForRecentChangesToAppear() {
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = $this->getDB();
 		$lastRcId = $dbw->selectField( 'recentchanges', 'rc_id', '', __METHOD__,
 			[ 'ORDER BY' => 'rc_timestamp DESC' ]
 		);
@@ -854,7 +863,7 @@ class ModerationTestsuite {
 	 * @return string[] List of user-agents.
 	 */
 	public function getCUCAgents( $limit ) {
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = $this->getDB();
 		return $dbw->selectFieldValues(
 			'cu_changes', 'cuc_agent', '',
 			__METHOD__,
@@ -870,7 +879,7 @@ class ModerationTestsuite {
 	 * @return int ID of the newly created filter.
 	 */
 	public function addTagAllAbuseFilter( array $tags ) {
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = $this->getDB();
 		$dbw->insert( 'abuse_filter',
 			[
 				'af_pattern' => 'true',
@@ -908,7 +917,7 @@ class ModerationTestsuite {
 	 * Disable AbuseFilter rule #$filterId.
 	 */
 	public function disableAbuseFilter( $filterId ) {
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = $this->getDB();
 		$dbw->update( 'abuse_filter', [ 'af_enabled' => 0 ], [ 'af_id' => $filterId ], __METHOD__ );
 		$this->purgeTagCache();
 	}
@@ -941,7 +950,7 @@ class ModerationTestsuite {
 
 	/** Apply ModerationBlock to $user */
 	public function modblock( User $user ) {
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = $this->getDB();
 		$dbw->insert( 'moderation_block',
 			[
 				'mb_address' => $user->getName(),

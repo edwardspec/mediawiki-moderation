@@ -97,7 +97,7 @@ class ModerationApproveHook implements
 		$revid = Title::newFromLinkTarget( $oldTitle )->getLatestRevID();
 		if ( $revid ) {
 			// Redirect was created. Its timestamp should also be modified.
-			$dbr = wfGetDB( DB_REPLICA );
+			$dbr = ModerationCompatTools::getDB( DB_REPLICA );
 			$timestamp = $dbr->timestamp( $task['timestamp'] ); // Possibly in PostgreSQL format
 
 			$this->queueUpdate( 'revision', [ $revid ], [ 'rev_timestamp' => $timestamp ] );
@@ -269,7 +269,7 @@ class ModerationApproveHook implements
 
 		$title = $file->getTitle();
 
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		foreach ( $this->logEntriesToFix as $logid => $logEntry ) {
 			if ( $logEntry->getTarget()->equals( $title ) ) {
 				$params = $logEntry->getParameters();
@@ -322,7 +322,7 @@ class ModerationApproveHook implements
 		$idFieldName = $this->idFieldNames[$table]; /* e.g. "rev_id" */
 		$newTimestamp = $values['rev_timestamp'] ?? null;
 
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 
 		if ( $table === 'revision' && $newTimestamp ) {
 			// Double-check that $newTimestamp is not more ancient
@@ -398,7 +398,7 @@ class ModerationApproveHook implements
 			);
 		}
 
-		$dbr = wfGetDB( DB_REPLICA );
+		$dbr = ModerationCompatTools::getDB( DB_REPLICA );
 		$timestamp = $dbr->timestamp( $task['timestamp'] ); // Possibly in PostgreSQL format
 
 		/* Fix rev_timestamp to be equal to mod_timestamp

@@ -30,7 +30,7 @@ class ModerationUploadStorage {
 	 * @param User $user
 	 */
 	protected static function migrateFromPerUploaderStashes( User $user ) {
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		$dbw->update(
 			'uploadstash',
 			[

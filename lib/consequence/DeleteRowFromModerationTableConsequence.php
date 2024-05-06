@@ -37,7 +37,7 @@ class DeleteRowFromModerationTableConsequence implements IConsequence {
 	 * Execute the consequence.
 	 */
 	public function run() {
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = \ModerationCompatTools::getDB( DB_PRIMARY );
 		$dbw->delete( 'moderation', [ 'mod_id' => $this->modid ], __METHOD__ );
 	}
 }

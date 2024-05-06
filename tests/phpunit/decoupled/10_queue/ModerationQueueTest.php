@@ -468,7 +468,7 @@ class ModerationQueueTest extends ModerationTestCase {
 		$this->assertEquals( $this->notifyEmail, $to[0]['address'] );
 		$this->assertEquals( '(moderation-notification-subject)', $subject );
 
-		$modid = wfGetDB( DB_PRIMARY )->selectField( 'moderation', 'mod_id', '', __METHOD__ );
+		$modid = ModerationCompatTools::getDB( DB_PRIMARY )->selectField( 'moderation', 'mod_id', '', __METHOD__ );
 		$this->assertEquals( '(moderation-notification-content: ' .
 			$this->title->getFullText() . ', ' .
 			$this->user->getName() . ', ' .

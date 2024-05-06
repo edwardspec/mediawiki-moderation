@@ -29,6 +29,7 @@ use MediaWiki\Revision\RevisionLookup;
 use ModerationApprovableEntry;
 use ModerationApproveHook;
 use ModerationCanSkip;
+use ModerationCompatTools;
 use ModerationEntryEdit;
 use ModerationEntryFormatter;
 use ModerationEntryMove;
@@ -172,7 +173,7 @@ class EntryFactory {
 	 * @return ModerationApprovableEntry[]
 	 */
 	public function findAllApprovableEntries( $username ) {
-		$dbw = wfGetDB( DB_PRIMARY ); # Need latest data without lag
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY ); # Need latest data without lag
 
 		$orderBy = [];
 
@@ -265,7 +266,7 @@ class EntryFactory {
 			$where = [ 'mod_id' => $where ];
 		}
 
-		$db = wfGetDB( $dbType );
+		$db = ModerationCompatTools::getDB( $dbType );
 		$row = $db->selectRow( 'moderation', $fields, $where, __METHOD__, $options );
 		if ( !$row ) {
 			return false;

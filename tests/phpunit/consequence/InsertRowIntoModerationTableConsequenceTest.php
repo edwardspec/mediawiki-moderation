@@ -148,7 +148,7 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 	 * @return array
 	 */
 	protected function getSampleFields() {
-		$dbr = wfGetDB( DB_REPLICA ); // Only for $dbr->timestamp();
+		$dbr = ModerationCompatTools::getDB( DB_REPLICA ); // Only for $dbr->timestamp();
 
 		return [
 			'mod_timestamp' => $dbr->timestamp(),

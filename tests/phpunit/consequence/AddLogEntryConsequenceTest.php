@@ -77,7 +77,7 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 		$consequence->run();
 
 		// Test the new LogEntry that appeared in the database.
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		$logid = $dbw->selectField( 'logging', 'log_id', '', __METHOD__ );
 
 		$logEntry = DatabaseLogEntry::newFromId( $logid, $dbw );

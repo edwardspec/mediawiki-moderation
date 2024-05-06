@@ -51,7 +51,7 @@ class ModerationTestUtil {
 		$summary = '',
 		User $user = null
 	) {
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 
 		$page = ModerationCompatTools::makeWikiPage( $title );
 		$page->insertOn( $dbw );

@@ -66,7 +66,7 @@ trait ModerationTestsuitePendingChangeTestSet {
 			}
 		}
 
-		$dbr = wfGetDB( DB_REPLICA ); // Only for $dbr->timestamp();
+		$dbr = ModerationCompatTools::getDB( DB_REPLICA ); // Only for $dbr->timestamp();
 
 		/* Anonymous users have mod_user_text=mod_ip, so we don't want mod_ip in $options
 			(for better readability of dataProvider and to avoid typos).
@@ -166,7 +166,7 @@ trait ModerationTestsuitePendingChangeTestSet {
 		$t = $this->getTestsuite();
 		$user = $t->unprivilegedUser;
 
-		$dbr = wfGetDB( DB_REPLICA ); // Only for $dbr->timestamp();
+		$dbr = ModerationCompatTools::getDB( DB_REPLICA ); // Only for $dbr->timestamp();
 
 		return [
 			'mod_timestamp' => $dbr->timestamp(),
@@ -247,7 +247,7 @@ trait ModerationTestsuitePendingChangeTestSet {
 	 * Execute the TestSet, making an edit/upload/move with requested parameters.
 	 */
 	protected function makeChanges() {
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		$dbw->insert( 'moderation', $this->fields, __METHOD__ );
 
 		$this->assertSame( 1, $dbw->affectedRows(),

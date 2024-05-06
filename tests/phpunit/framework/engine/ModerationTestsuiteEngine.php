@@ -372,7 +372,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 				'To run Moderation testsuite, PHPUnit needs PHPUNIT_USE_NORMAL_TABLES=1 in enviroment.' );
 		}
 
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		$this->setMwConfig( 'DBprefix', $dbw->tablePrefix() );
 
 		// Ensure that ModerationVersionCheck doesn't have an old version number in cache,

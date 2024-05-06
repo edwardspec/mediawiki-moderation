@@ -863,7 +863,7 @@ class ModerationActionTest extends ModerationTestCase {
 	 * Check whether/how was the database row modified by this action.
 	 */
 	protected function assertDatabaseChanges() {
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		if ( $this->expectApproved ) {
 			$row = $dbw->selectRow(
 				'moderation',
@@ -928,7 +928,7 @@ class ModerationActionTest extends ModerationTestCase {
 
 		// Check that recentchanges (unlike page history) contain the timestamp of approval,
 		// not timestamp of the original edit.
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		$rcTimestamp = $dbw->selectField( 'recentchanges', 'rc_timestamp', [], __METHOD__,
 			[ 'ORDER BY' => 'rc_timestamp DESC' ] );
 		$this->assertTimestampIsRecent( $rcTimestamp );
@@ -948,7 +948,7 @@ class ModerationActionTest extends ModerationTestCase {
 			$expectedBlocker = $this->getModeratorWhoBlocked();
 		}
 
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		$row = $dbw->selectRow(
 			'moderation_block',
 			[
@@ -989,7 +989,7 @@ class ModerationActionTest extends ModerationTestCase {
 		$queryInfo['conds']['log_type'] = 'moderation';
 		$queryInfo['options']['ORDER BY'] = 'log_id DESC';
 
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		$row = $dbw->selectRow(
 			$queryInfo['tables'],
 			$queryInfo['fields'],

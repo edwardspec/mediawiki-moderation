@@ -301,7 +301,7 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 		list( $idsToFind, $idsToSkip ) = array_chunk( $this->makeSeveralDbRows( 7 ), 4 );
 
 		// Make $idsToSkip ineligible for selecting (e.g. due to having another mod_user_text).
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		$dbw->update( 'moderation',
 			$ineligibleFieldValues,
 			[ 'mod_id' => $idsToSkip ],

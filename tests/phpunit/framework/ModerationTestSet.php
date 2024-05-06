@@ -121,7 +121,7 @@ trait ModerationTestsuiteTestSet {
 	 * @return stdClass $row
 	 */
 	protected function assertRowEquals( array $expectedFields ) {
-		$dbw = wfGetDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		$row = $dbw->selectRow( 'moderation', '*', '', __METHOD__ );
 
 		// Create sorted arrays Expected and Actual and ensure no difference between them.
