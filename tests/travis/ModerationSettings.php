@@ -63,7 +63,7 @@ if ( $wgDBtype != 'postgres' ) {
 	// FIXME: what AbuseFilter does in its "UnitTestsAfterDatabaseSetup" and
 	// "UnitTestsBeforeDatabaseTeardown" hooks interferes with CliEngine.
 	// Until a workaround is found, we can't test with it.
-	wfLoadExtension( 'AbuseFilter' ); # For PHPUnit testsuite
+	// wfLoadExtension( 'AbuseFilter' ); # For PHPUnit testsuite
 }
 
 // wfLoadExtension( 'CheckUser' ); # For PHPUnit testsuite
