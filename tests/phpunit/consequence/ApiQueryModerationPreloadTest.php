@@ -96,8 +96,17 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 			if ( ( $extraParams['mpmode'] ?? 'wikitext' ) === 'wikitext' ) {
 				$expectedResult['wikitext'] = $text;
 			} else {
+				if ( version_compare( MW_VERSION, '1.42.0-alpha', '>=' ) ) {
+					// MediaWiki 1.42+
+					$expectedText = '<div class="mw-content-ltr mw-parser-output" lang="en" dir="ltr">';
+				} else {
+					// MediaWiki 1.39-1.41
+					$expectedText = '<div class="mw-parser-output">';
+				}
+				$expectedText .= "<p>$text\n</p></div>";
+
 				$expectedResult['parsed'] = [
-					'text' => "<div class=\"mw-parser-output\"><p>$text\n</p></div>",
+					'text' => $expectedText,
 					'categorieshtml' => '<div id="catlinks" class="catlinks catlinks-allhidden" ' .
 						'data-mw="interface"></div>',
 					'displaytitle' => $title->getFullText()
