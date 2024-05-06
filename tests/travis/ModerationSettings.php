@@ -66,7 +66,7 @@ if ( $wgDBtype != 'postgres' ) {
 	wfLoadExtension( 'AbuseFilter' ); # For PHPUnit testsuite
 }
 
-wfLoadExtension( 'CheckUser' ); # For PHPUnit testsuite
+// wfLoadExtension( 'CheckUser' ); # For PHPUnit testsuite
 
 if ( !preg_match( '/^1\.40\./', MW_VERSION ) ) {
 	// Extension:PageForms has deprecation warnings in 1.40 (which interferes with tests).
