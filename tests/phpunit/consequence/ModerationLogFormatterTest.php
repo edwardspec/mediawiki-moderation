@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -330,7 +330,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 		// Split $href (URL of this link as a string)
 		// into an array of querystring parameters.
 
-		$wrapper = TestingAccessWrapper::newFromClass( 'WebRequest' );
+		$wrapper = TestingAccessWrapper::newFromObject( new WebRequest() );
 
 		$_SERVER['REQUEST_URI'] = $href;
 		$parsed['query'] = $wrapper->getPathInfo(); // Will find 'title', if any.
