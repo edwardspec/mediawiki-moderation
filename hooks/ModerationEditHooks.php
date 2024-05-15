@@ -84,12 +84,12 @@ class ModerationEditHooks implements
 	 * Intercept normal edits and queue them for moderation.
 	 * @param RenderedRevision $renderedRevision
 	 * @param UserIdentity $user
-	 * @param CommentStoreComment $summary
+	 * @param CommentStoreComment $storedSummary
 	 * @param int $flags
 	 * @param Status $status
 	 * @return bool|void
 	 */
-	public function onMultiContentSave( $renderedRevision, $user, $summary, $flags, $status ) {
+	public function onMultiContentSave( $renderedRevision, $user, $storedSummary, $flags, $status ) {
 		$rev = $renderedRevision->getRevision();
 		$page = ModerationCompatTools::makeWikiPage( $rev->getPageAsLinkTarget() );
 		$user = User::newFromIdentity( $user );
@@ -99,7 +99,7 @@ class ModerationEditHooks implements
 			return;
 		}
 
-		$summary = $summary->text;
+		$summary = mb_strcut( $storedSummary->text, 0, 250 );
 		$content = $rev->getSlot( SlotRecord::MAIN )->getContent(); // TODO: support non-main slot edits
 		$is_minor = $flags & EDIT_MINOR;
 

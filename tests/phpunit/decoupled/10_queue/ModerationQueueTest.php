@@ -61,6 +61,7 @@ class ModerationQueueTest extends ModerationTestCase {
 				] ],
 			'edit with summary #1' => [ [ 'summary' => 'Summary 1' ] ],
 			'edit with summary #2' => [ [ 'summary' => 'Summary 2' ] ],
+			'edit with very long summary (>255 bytes)' => [ [ 'summary' => str_repeat( 'length 16 string', 100 ) ] ],
 			'edit with User-Agent #1' => [ [ 'userAgent' => 'UserAgent for Testing/1.0' ] ],
 			'edit with User-Agent #2' =>
 				[ [ 'userAgent' => 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) ' .
@@ -581,10 +582,10 @@ class ModerationQueueTest extends ModerationTestCase {
 	}
 
 	/**
-	 * Return expected post-edit edit summary (value of mod_comment DB field).
+	 * Return non-truncated edit summary that was in the user's request.
 	 * @return string
 	 */
-	protected function getExpectedSummary() {
+	protected function getSubmittedSummary() {
 		if ( !$this->filename ) {
 			/* Normal edit (not an upload) */
 			return $this->summary;
@@ -597,6 +598,14 @@ class ModerationQueueTest extends ModerationTestCase {
 
 		/* Special:Upload copies text into summary */
 		return $this->text;
+	}
+
+	/**
+	 * Return expected post-edit edit summary (value of mod_comment DB field).
+	 * @return string
+	 */
+	protected function getExpectedSummary() {
+		return mb_strcut( $this->getSubmittedSummary(), 0, 250 );
 	}
 
 	/**
