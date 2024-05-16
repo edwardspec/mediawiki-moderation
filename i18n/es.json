@@ -41,7 +41,7 @@
 	"moderation-approveall": "Aprobar todo",
 	"moderation-approve": "Aprobar",
 	"moderation-approved-errors": "Error al aprobar $1 {{plural:$1|edición|ediciónes}}: conflictos de edición, etc.",
-	"moderation-approved-ok": "Aprobado $1 {{plural:$1|edición|ediciónes}}.",
+	"moderation-approved-ok": "Aprobado $1 edici{{plural:$1|ón|ones}}.",
 	"moderation-blocker": "Bloque de moderación",
 	"moderation-block": "Marcar como spammer",
 	"moderation-block-ok": "Marcado con éxito [[Special:Contributions/$1|$1]] como spammer.",
