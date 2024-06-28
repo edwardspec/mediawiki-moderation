@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.8.5",
+	"version": "1.8.6",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -245,7 +245,7 @@
 			"scripts": "ext.moderation.notify.js",
 			"styles": "ext.moderation.notify.css",
 			"dependencies": [
-				"jquery.cookie",
+				"mediawiki.cookie",
 				"mediawiki.jqueryMsg",
 				"mediawiki.user",
 				"mediawiki.Uri",

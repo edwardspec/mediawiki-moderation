@@ -113,7 +113,7 @@
 			/* Set cookie for [ext.moderation.notify.js].
 				It means "edit was just queued for moderation".
 			*/
-			$.cookie( 'modqueued', '1', { path: '/' } );
+			mw.cookie.set( 'modqueued', '1', { path: '/' } );
 
 			/*
 				Error from api.php?action=edit: edit was queued for moderation.

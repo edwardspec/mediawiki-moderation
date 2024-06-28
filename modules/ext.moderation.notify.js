@@ -35,7 +35,7 @@
 		}
 
 		var q = {};
-		if ( !isMobile && $.cookie( 'VEE' ) === 'visualeditor' ) {
+		if ( !isMobile && mw.cookie.get( 'VEE' ) === 'visualeditor' ) {
 			q.veaction = 'edit';
 		} else {
 			q.action = 'edit';
@@ -82,7 +82,7 @@
 
 		show( $div ).done( function () {
 			/* Remove the cookie from [ext.moderation.ajaxhook.js] */
-			$.cookie( 'modqueued', null, { path: '/' } );
+			mw.cookie.set( 'modqueued', null, { path: '/' } );
 
 			/* If requested, display HTML of this queued edit */
 			if ( options.showParsed ) {
@@ -111,7 +111,7 @@
 		/* 1. From the normal edit form: redirect contains ?modqueued=1 */
 		mw.util.getParamValue( 'modqueued' ) === '1' ||
 		/* 2. From [ext.moderation.ajaxhook.js]: page was edited via API */
-		$.cookie( 'modqueued' ) === '1'
+		mw.cookie.get( 'modqueued' ) === '1'
 	);
 
 	if ( justQueued && ( mw.config.get( 'wgAction' ) === 'view' ) ) {
