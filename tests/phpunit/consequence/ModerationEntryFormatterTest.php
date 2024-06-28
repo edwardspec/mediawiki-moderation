@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2023 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -210,8 +210,8 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 						$title->getDBKey() . '|' . ( $query['diff'] ?? 'unknown' ) . '}';
 				} );
 		$this->context->expects( $this->any() )->method( 'msg' )
-			->willReturnCallback( static function ( ...$args ) use ( $lang ) {
-				return wfMessage( ...$args )->inLanguage( $lang );
+			->willReturnCallback( static function ( $key, ...$args ) use ( $lang ) {
+				return wfMessage( $key, ...$args )->inLanguage( $lang );
 			} );
 		$this->timestampFormatter->expects( $this->once() )->method( 'format' )->with(
 			$this->identicalTo( $row->timestamp )
@@ -274,8 +274,6 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 		// TODO: result of "can reapprove rejected?" should be mockable,
 		// and this should be tested elsewhere.
 		global $wgModerationTimeToOverrideRejection;
-
-		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable
 		$timeToOverride = $wgModerationTimeToOverrideRejection;
 
 		$ts = new MWTimestamp();

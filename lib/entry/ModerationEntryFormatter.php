@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2023 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -71,11 +71,12 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 	/**
 	 * Same as wfMessage(), but respects local context.
+	 * @param mixed $key
 	 * @param mixed ...$args
 	 * @return Message
 	 */
-	public function msg( ...$args ) {
-		return $this->context->msg( ...$args );
+	public function msg( $key, ...$args ) {
+		return $this->context->msg( $key, ...$args );
 	}
 
 	/**
@@ -241,6 +242,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 			$url = $this->msg( 'moderation-whois-link-url', $ip )->plain();
 			$text = $this->msg( 'moderation-whois-link-text' )->plain();
 
+			// @phan-suppress-next-line SecurityCheck-DoubleEscaped
 			$link = Linker::makeExternalLink( $url, $text );
 			$line .= Xml::tags( 'sup', [ 'class' => 'whois plainlinks' ], "[$link]" );
 		}

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017-2020 Edward Chernenko.
+	Copyright (C) 2017-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -124,7 +124,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 			and therefore won't know things like $wgServer or wfParseUrl() */
 		$bits = wfParseUrl( $url );
 		if ( $bits['host'] !== $wgServerName ) {
-			throw new Exception( "CliEngine can only access the wiki itself " .
+			throw new LogicException( "CliEngine can only access the wiki itself " .
 				"($wgServerName), not another host (${bits['host']})" );
 		}
 
