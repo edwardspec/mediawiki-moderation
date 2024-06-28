@@ -192,7 +192,7 @@ class ModerationApproveHook implements
 	 * @return bool
 	 */
 	public function isApprovingNow() {
-		return !empty( $this->tasks );
+		return count( $this->tasks ) > 0;
 	}
 
 	/**

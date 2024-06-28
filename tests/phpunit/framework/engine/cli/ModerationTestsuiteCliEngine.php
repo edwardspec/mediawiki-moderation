@@ -124,7 +124,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 			and therefore won't know things like $wgServer or wfParseUrl() */
 		$bits = wfParseUrl( $url );
 		if ( $bits['host'] !== $wgServerName ) {
-			throw new Exception( "CliEngine can only access the wiki itself " .
+			throw new LogicException( "CliEngine can only access the wiki itself " .
 				"($wgServerName), not another host (${bits['host']})" );
 		}
 

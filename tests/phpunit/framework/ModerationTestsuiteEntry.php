@@ -319,7 +319,7 @@ class ModerationTestsuiteEntry {
 				return $this->mergedDiffLink;
 		}
 
-		throw new Exception( __METHOD__ . ": unknown modaction='$modaction'" );
+		throw new UnexpectedValueException( __METHOD__ . ": unknown modaction='$modaction'" );
 	}
 
 	public static function findById( array $array, $id ) {

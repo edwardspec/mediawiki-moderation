@@ -20,6 +20,8 @@
  * Handles exceptions thrown by actions on Special:Moderation.
  */
 
+/** @phan-file-suppress PhanUndeclaredClassMethod */
+
 class ModerationError extends ErrorPageError {
 
 	/** @var Status Error details */
@@ -49,9 +51,7 @@ class ModerationError extends ErrorPageError {
 
 		if ( method_exists( $wgOut, 'setPageTitleMsg' ) ) {
 			// MediaWiki 1.41+
-			// @phan-suppress-next-line PhanParamTooFew
 			$wgOut->prepareErrorPage();
-			// @phan-suppress-next-line PhanUndeclaredMethod
 			$wgOut->setPageTitleMsg( $msg );
 		} else {
 			// MediaWiki 1.39-1.40

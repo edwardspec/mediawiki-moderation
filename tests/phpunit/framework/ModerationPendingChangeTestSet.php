@@ -60,7 +60,7 @@ trait ModerationTestsuitePendingChangeTestSet {
 
 				default:
 					if ( strpos( $key, 'mod_' ) !== 0 ) {
-						throw new Exception( "Incorrect key \"{$key}\": expected \"mod_\" prefix." );
+						throw new UnexpectedValueException( "Incorrect key \"{$key}\": expected \"mod_\" prefix." );
 					}
 					$this->fields[$key] = $value;
 			}

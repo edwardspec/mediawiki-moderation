@@ -219,7 +219,7 @@ class ModerationInterceptTest extends ModerationTestCase {
 					break;
 
 				default:
-					throw new Exception( __CLASS__ . ": unknown key {$key} in options" );
+					throw new UnexpectedValueException( __CLASS__ . ": unknown key {$key} in options" );
 			}
 		}
 	}
