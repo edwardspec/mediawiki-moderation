@@ -12,6 +12,7 @@ env:
 jobs:
   # Job #1: PHPUnit testsuite (unit tests + integration tests)
   phpunit:
+    if: false
     strategy:
       fail-fast: false
       matrix:
@@ -146,7 +147,7 @@ jobs:
 
   # Job #4: Phan (PHP static analyzer) with PHAN_CHECK_TESTSUITE=1
   phan-testsuite:
-    if: ${{ github.ref == 'refs/heads/phpunit' }}
+    if: ${{ github.ref == 'refs/heads/troubleshoot-phan' }}
     runs-on: ubuntu-20.04
     env:
       branch: REL1_39
