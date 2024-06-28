@@ -197,10 +197,14 @@ class ModerationApproveHook implements
 
 	/**
 	 * Find the entry in $tasks about change $rc.
-	 * @param RecentChange $rc
+	 * @param ?RecentChange $rc
 	 * @return array|false
 	 */
-	protected function getTaskByRC( RecentChange $rc ) {
+	protected function getTaskByRC( ?RecentChange $rc ) {
+		if ( !$rc ) {
+			return false;
+		}
+
 		$logAction = $rc->mAttribs['rc_log_action'] ?? '';
 
 		$type = ModerationNewChange::MOD_TYPE_EDIT;
@@ -226,6 +230,8 @@ class ModerationApproveHook implements
 	 * @return bool|void
 	 *
 	 * @phan-param array<string,string|int|null> &$fields
+	 *
+	 * MediaWiki 1.39 only, not used in MediaWiki 1.40+.
 	 */
 	public function onCheckUserInsertForRecentChange( RecentChange $rc, array &$fields ) {
 		$task = $this->getTaskByRC( $rc );
@@ -247,6 +253,82 @@ class ModerationApproveHook implements
 			$fields['cuc_xff'] = '';
 			$fields['cuc_xff_hex'] = null;
 		}
+	}
+
+	/**
+	 * onCheckUserInsertChangesRow()
+	 * Only used in MediaWiki 1.40+, not in MediaWiki 1.39.
+	 *
+	 * Update IP, user-agent and XFF of newly approved edit in cu_changes table.
+	 *
+	 * @param string &$ip
+	 * @param string|false &$xff
+	 * @param array &$row
+	 * @param UserIdentity $user @phan-unused-param
+	 * @param ?RecentChange $rc
+	 */
+	public function onCheckUserInsertChangesRow( string &$ip, &$xff, array &$row,
+		UserIdentity $user, ?RecentChange $rc
+	) {
+		$task = $this->getTaskByRC( $rc );
+		if ( !$task ) {
+			return;
+		}
+
+		$ip = IPUtils::sanitizeIP( $task['ip'] );
+		$xff = $task['xff'] ?? '';
+		$row['cuc_agent'] = $task['ua'];
+	}
+
+	/**
+	 * onCheckUserInsertLogEventRow()
+	 * Only used in MediaWiki 1.40+, not in MediaWiki 1.39.
+	 *
+	 * Update IP, user-agent and XFF of newly approved edit in cu_log_event table.
+	 *
+	 * @param string &$ip
+	 * @param string|false &$xff
+	 * @param array &$row
+	 * @param UserIdentity $user @phan-unused-param
+	 * @param int $id @phan-unused-param
+	 * @param ?RecentChange $rc
+	 */
+	public function onCheckUserInsertLogEventRow( string &$ip, &$xff, array &$row,
+		UserIdentity $user, int $id, ?RecentChange $rc
+	) {
+		$task = $this->getTaskByRC( $rc );
+		if ( !$task ) {
+			return;
+		}
+
+		$ip = IPUtils::sanitizeIP( $task['ip'] );
+		$xff = $task['xff'] ?? '';
+		$row['cule_agent'] = $task['ua'];
+	}
+
+	/**
+	 * onCheckUserInsertPrivateEventRow()
+	 * Only used in MediaWiki 1.40+, not in MediaWiki 1.39.
+	 *
+	 * Update IP, user-agent and XFF of newly approved edit in cu_private_event table.
+	 *
+	 * @param string &$ip
+	 * @param string|false &$xff
+	 * @param array &$row
+	 * @param UserIdentity $user @phan-unused-param
+	 * @param ?RecentChange $rc
+	 */
+	public function onCheckUserInsertPrivateEventRow( string &$ip, &$xff, array &$row,
+		UserIdentity $user, ?RecentChange $rc
+	) {
+		$task = $this->getTaskByRC( $rc );
+		if ( !$task ) {
+			return;
+		}
+
+		$ip = IPUtils::sanitizeIP( $task['ip'] );
+		$xff = $task['xff'] ?? '';
+		$row['cupe_agent'] = $task['ua'];
 	}
 
 	/**

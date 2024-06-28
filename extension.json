@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.8.4",
+	"version": "1.8.5",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -366,7 +366,13 @@
 		"ApiCheckCanExecute": "api",
 		"BeforePageDisplay": "edit",
 		"ChangeTagsAllowedAdd": "edit",
-		"CheckUserInsertForRecentChange": "approveHook",
+		"CheckUserInsertForRecentChange": {
+			"handler": "approveHook",
+			"deprecated": true
+		},
+		"CheckUserInsertChangesRow": "approveHook",
+		"CheckUserInsertLogEventRow": "approveHook",
+		"CheckUserInsertPrivateEventRow": "approveHook",
 		"EchoCanAbortNewMessagesAlert": "notifyModerator",
 		"EditFilter": "editFormOptions",
 		"EditFormInitialText": "preload",
