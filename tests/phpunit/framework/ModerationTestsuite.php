@@ -879,26 +879,31 @@ class ModerationTestsuite {
 	 * @return int ID of the newly created filter.
 	 */
 	public function addTagAllAbuseFilter( array $tags ) {
+		$user = User::newSystemUser( 'MediaWiki default' );
 		$dbw = $this->getDB();
-		$dbw->insert( 'abuse_filter',
-			[
-				'af_pattern' => 'true',
-				'af_user' => 0,
-				'af_user_text' => 'MediaWiki default',
-				'af_timestamp' => $dbw->timestamp(),
-				'af_enabled' => 1,
-				'af_comments' => '',
-				'af_public_comments' => 'Assign tags to all edits',
-				'af_hidden' => 0,
-				'af_hit_count' => 0,
-				'af_throttled' => 0,
-				'af_deleted' => 0,
-				'af_actions' => 'tag',
-				'af_global' => 0,
-				'af_group' => 'default'
-			],
-			__METHOD__
-		);
+
+		$fields = [
+			'af_pattern' => '1',
+			'af_user' => $user->getId(),
+			'af_user_text' => $user->getName(),
+			'af_timestamp' => $dbw->timestamp(),
+			'af_enabled' => 1,
+			'af_comments' => '',
+			'af_public_comments' => 'Assign tags to all edits',
+			'af_hidden' => 0,
+			'af_hit_count' => 0,
+			'af_throttled' => 0,
+			'af_deleted' => 0,
+			'af_actions' => 'tag',
+			'af_global' => 0,
+			'af_group' => 'default'
+		];
+		if ( $dbw->fieldExists( 'abuse_filter', 'af_actor', __METHOD__ ) ) {
+			// MediaWiki 1.41+
+			$fields['af_actor'] = $user->getActorId();
+		}
+
+		$dbw->insert( 'abuse_filter', $fields, __METHOD__ );
 		$filterId = $dbw->insertId();
 
 		$dbw->insert( 'abuse_filter_action',
