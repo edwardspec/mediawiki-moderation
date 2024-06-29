@@ -8,8 +8,6 @@
 
 	mw.moderation = mw.moderation || {};
 
-	var M = mw.mobileFrontend;
-
 	/**
 		@brief Identify popups that should be overwritten.
 	*/
@@ -24,27 +22,27 @@
 		return true;
 	}
 
-	/* Override Toast class to suppress default notification ("edit saved"),
+	/* Override notifyOnPageReload() to suppress default notification ("edit saved"),
 		because notifyQueued() already shows "edit queued for moderation" */
-	var $d = $.Deferred();
-
 	mw.loader.using( 'mobile.startup', function () {
-		$d.resolve( M.require( 'mobile.startup' ).toast );
-	} );
+		var M = require( 'mobile.startup' ),
+			oldReload = M.toast ?
+				M.toast.showOnPageReload : // MediaWiki 1.39-1.41
+				M.notifyOnPageReload; // MediaWiki 1.42+
 
-	$d.done( function ( toast ) {
-		var oldReload = toast.showOnPageReload;
-
-		/*
-			We must modify the message in showOnPageReload(),
-			because _showPending() will be called before we have
-			a chance to override show().
-		*/
-		toast.showOnPageReload = function ( msg, cssClass ) {
+		var newReload = function ( msg, cssClass ) {
 			if ( shouldAllowMessage( msg ) ) {
 				oldReload( msg, cssClass );
 			}
 		};
+
+		if ( M.toast ) {
+			// MediaWiki 1.39-1.41
+			M.toast.showOnPageReload = newReload;
+		} else {
+			// MediaWiki 1.42+
+			M.notifyOnPageReload = newReload;
+		}
 	} );
 
 	/*
