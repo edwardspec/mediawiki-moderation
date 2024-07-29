@@ -3,6 +3,7 @@
 		"authors": [
 			"Amire80",
 			"Edward Chernenko",
+			"McDutchie",
 			"Robby",
 			"Shirayuki",
 			"Verdy p"
@@ -25,7 +26,7 @@
 	"logentry-moderation-approveall": "{{Logentry|[[Special:Log/moderation]]}}\nLogentry when moderator approves ALL changes of ONE author.\n\nParameters: $1 - link to moderator, $4 - number of approved edits, $3 - link to author, $2 - plaintext name of moderator (for GENDER).",
 	"logentry-moderation-approve-move": "{{Logentry|[[Special:Log/moderation]]}}\nLogentry when moderator approves suggestion to rename  the page.\n\nParameters: $1 - link to moderator, $3 - old title of the article, $4 - new title of the article, $5 - link to user who suggested the move, $2 - plaintext name of moderator (for GENDER).",
 	"logentry-moderation-block": "{{Logentry|[[Special:Log/moderation]]}}\nLogentry when moderator marks someone as spammer.\n\nParameters: $1 - link to moderator, $3 - affected user, $2 - plaintext name of moderator (for GENDER).",
-	"logentry-moderation-editchange": "{{Logentry|[[Special:Log/moderation]]}}\nLogentry when moderator modifies the text of pending change.\n\nParameters: $1 - link to moderator, $3 - target page, $4 - \"{{msg-mw|moderation-log-change}}\", $2 - plaintext name of moderator (for GENDER).",
+	"logentry-moderation-editchange": "Log entry when a moderator modifies the text of a pending change. <strong style=\"color:red\">Parameter $4 is tricky! See below.</strong>\n\nParameters:\n* $1 - link to moderator\n* $2 - plain text name of the moderator (for GENDER).\n* $3 - target page\n* $4 - <strong style=\"color:red\">translation of message {{msg-mw|moderation-log-change}}</strong>\n\n----\n{{Logentry|[[Special:Log/moderation]]}}",
 	"logentry-moderation-merge": "{{Logentry|[[Special:Log/moderation]]}}\nLogentry when moderator manually resolves an edit conflict.\n\nParameters: $1 - link to moderator, $3 - affected page, $4 - \"{{msg-mw|moderation-log-change}}\", $5 - \"{{msg-mw|moderation-log-diff}}\", $2 - plaintext name of moderator (for GENDER).",
 	"logentry-moderation-reject": "{{Logentry|[[Special:Log/moderation]]}}\nLogentry when moderator rejects ONE change.\n\nParameters: $1 - link to moderator, $3 - link to author, $4 - \"{{msg-mw|moderation-log-change}}\", $2 - plaintext name of moderator (for GENDER).",
 	"logentry-moderation-rejectall": "{{Logentry|[[Special:Log/moderation]]}}\nLogentry when moderator rejects ALL changes of ONE author.\n\nParameters: $1 - link to moderator, $3 - link to author, $4 - number of edits, $2 - plaintext name of moderator (for GENDER).",

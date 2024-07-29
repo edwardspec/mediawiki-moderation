@@ -4,7 +4,8 @@
 			"Elroy",
 			"Mainframe98",
 			"McDutchie",
-			"SPQRobin"
+			"SPQRobin",
+			"Siebrand"
 		]
 	},
 	"action-moderation": "bewerkingen te controleren",
@@ -24,6 +25,7 @@
 	"logentry-moderation-approveall": "$1 heeft $4 bewerkingen door $3 {{GENDER:$2|goedgekeurd}}",
 	"logentry-moderation-approve-move": "$1 heeft het hernoemen van $3 naar $4 door $5 {{GENDER:$2|goedgekeurd}}",
 	"logentry-moderation-block": "$1 heeft $3 als spammer {{GENDER:$2|gemarkeerd}}",
+	"logentry-moderation-editchange": "$1 heeft $4 van pagina $3 {{GENDER:$2|handmatig bewerkt}}",
 	"logentry-moderation-merge": "$1 heeft $4 op pagina $3 {{GENDER:$2|samengevoegd}} in $5",
 	"logentry-moderation-reject": "$1 heeft $4 op pagina $3 door $5 {{GENDER:$2|afgewezen}}",
 	"logentry-moderation-rejectall": "$1 heeft $4 bewerkingen door $3 {{GENDER:$2|afgewezen}}",
@@ -35,6 +37,7 @@
 	"moderation-approve": "Goedkeuren",
 	"moderation-approved-errors": "Kon $1 {{plural:$1|bewerking|bewerkingen}} niet goedkeuren vanwege bewerkingsconflicten, etc.",
 	"moderation-approved-ok": "$1 {{plural:$1|bewerking|bewerkingen}} goedgekeurd.",
+	"moderation-blocker": "Moderatieblokkade",
 	"moderation-block": "Gemarkeerd als spammer",
 	"moderation-block-ok": "[[Special:Contributions/$1|$1]] is als spammer gemarkeerd.",
 	"moderation-desc": "Stuurt alle bewerkingen en uploads van nieuwe gebruikers op voor controle",
@@ -47,6 +50,8 @@
 	"moderation-editing-your-version": "U bewerkt momenteel uw versie van dit artikel. Deze versie staat in de wachtrij voor controle.<br>Wanneer deze versie goedgekeurd is, zal het voor alle gebruikers zichtbaar zijn.",
 	"moderation-edit-not-found": "Bewerking niet gevonden. Deze is waarschijnlijk al goedgekeurd.",
 	"moderation-edit-queued": "Geslaagd: uw bewerking is voor controle opgestuurd.<br>U kunt <a href='$1'>uw versie van deze pagina</a> verder bewerken.",
+	"moderation-editchange": "bewerken",
+	"moderation-editchange-not-edit": "Dit is geen bewerking. Alleen bewerkingen kunnen worden gewijzigd.",
 	"moderation-folder-merged": "Samengevoegd",
 	"moderation-folder-pending": "Afwachtend controle.",
 	"moderation-folder-rejected": "Afgewezen",
