@@ -6,6 +6,7 @@ Note: this version requires MediaWiki 1.39+. MediaWiki 1.35 is no longer support
 
 Features:
 * Support MediaWiki 1.42.
+* Support Vector 2022 skin.
 
 Bugfixes:
 * Very long edit summaries are now truncated instead of showing an error.
