@@ -21,7 +21,7 @@ jobs:
     env:
       branch: ${{ matrix.branch }}
       DBTYPE: ${{ matrix.dbtype }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     services:
       memcached:
         image: memcached:latest
@@ -29,12 +29,12 @@ jobs:
           - 11211:11211
         options: --health-cmd "timeout 5 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/11211'" --health-interval 10s --health-timeout 5s --health-retries 5
       mariadb:
-        image: mariadb:10
+        image: mariadb
         env:
           MYSQL_ROOT_PASSWORD: ${{ env.DBPASS }}
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
       postgres:
         image: postgres:latest
         env:
@@ -44,8 +44,8 @@ jobs:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
         with:
           path: |
             buildcache
@@ -96,14 +96,14 @@ jobs:
 
   # Job #2: phpcs, parallel-lint, etc.
   linter:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
             php-version: '7.4'
             tools: composer:v1
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ~/.composer/cache
           key: buildcache-linter
@@ -114,17 +114,17 @@ jobs:
 
   # Job #3: Phan (PHP static analyzer)
   phan:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     env:
       branch: REL1_39
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
             php-version: '7.4'
             extensions: ast
             tools: composer
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.composer/cache
@@ -147,18 +147,18 @@ jobs:
   # Job #4: Phan (PHP static analyzer) with PHAN_CHECK_TESTSUITE=1
   phan-testsuite:
     if: ${{ github.ref == 'refs/heads/phpunit' }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     env:
       branch: REL1_39
       PHAN_CHECK_TESTSUITE: 1
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
             php-version: '7.4'
             extensions: ast
             tools: composer
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.composer/cache
