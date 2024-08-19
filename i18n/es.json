@@ -81,6 +81,7 @@
 	"moderation-reject": "Rechazar",
 	"moderation-show": "diferencias",
 	"moderation-text": "Esta página especial enumera todas las ediciones que necesitan moderarse (para ser aprobadas o rechazadas).<br>Véase también: [[Special:Log/moderation|registro de moderación]].",
+	"moderation-unblock": "Ya no es un spameador",
 	"right-moderation-checkuser": "Ver IPs de los editores en la interfaz de moderación",
 	"right-moderation": "Editaciones moderadas",
 	"right-skip-moderation": "Hacer que sus ediciones pasen por alto la moderación",
