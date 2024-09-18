@@ -8,7 +8,6 @@
     "@wdio/selenium-standalone-service": "^5.16.5",
     "@wdio/spec-reporter": "^5.9.3",
     "@wdio/sync": "^5.10.1",
-    "assert": "^1.4.0",
     "bluebird": "^3.5.1",
     "chai": "^3.5.0",
     "chromedriver": "^75.0.0",
