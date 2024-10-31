@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -59,6 +59,39 @@ class ModifyPendingChangeConsequenceTest extends ModerationUnitTestCase {
 			[ [
 				$newText,
 				$newComment,
+				$newLen
+			] ]
+		);
+	}
+
+	/**
+	 * Verify that ModifyPendingChangeConsequence truncates long mod_comment to fit the database field.
+	 * @covers MediaWiki\Moderation\ModifyPendingChangeConsequence
+	 */
+	public function testTruncateLongSummary() {
+		$modid = $this->makeDbRow();
+		$newText = 'Modified text';
+		$newLen = strlen( $newText );
+
+		$submittedComment = str_repeat( 'length 16 string', 100 );
+		$expectedComment = mb_strcut( $submittedComment, 0, 250 );
+
+		// Create and run the Consequence.
+		$consequence = new ModifyPendingChangeConsequence(
+			$modid, $newText, $submittedComment, $newLen );
+		$consequence->run();
+
+		// Check the state of the database.
+		$this->assertSelect( 'moderation',
+			[
+				'mod_text',
+				'mod_comment',
+				'mod_new_len'
+			],
+			[ 'mod_id' => $modid ],
+			[ [
+				$newText,
+				$expectedComment,
 				$newLen
 			] ]
 		);
