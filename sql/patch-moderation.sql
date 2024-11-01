@@ -44,7 +44,7 @@ CREATE TABLE /*_*/moderation (
 	mod_namespace int NOT NULL default 0,
 	mod_title varchar(255) binary NOT NULL default '',
 
-	mod_comment varchar(255) binary NOT NULL default '',
+	mod_comment TEXT NOT NULL,
 	mod_minor tinyint unsigned NOT NULL default 0,
 	mod_bot tinyint unsigned NOT NULL default 0,
 	mod_new tinyint unsigned NOT NULL default 0,

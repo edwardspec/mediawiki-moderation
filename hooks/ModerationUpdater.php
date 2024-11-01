@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2021 Edward Chernenko.
+	Copyright (C) 2014-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -17,63 +17,42 @@
 
 /**
  * @file
- * Creates/updates the SQL tables when 'update.php' is invoked.
+ * Handles update.php.
  */
 
-use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
-use MediaWiki\MediaWikiServices;
+use MediaWiki\Installer\SchemaChanges;
 
-class ModerationUpdater implements LoadExtensionSchemaUpdatesHook {
-	/**
-	 * @param DatabaseUpdater $updater
-	 * @return bool|void
-	 */
-	public function onLoadExtensionSchemaUpdates( $updater ) {
-		$db = $updater->getDB();
-		$dbType = $db->getType();
+class ModerationUpdater {
+	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
+		$base = dirname( __DIR__ ) . '/sql/';
 
-		$sqlDir = __DIR__ . '/../sql' . ( $dbType == 'postgres' ? '/postgres' : '' );
+		$updater->addExtensionTable( 'moderation', $base . 'patch-moderation.sql' );
+		$updater->addExtensionField(
+			'moderation', 'mod_type',
+			$base . 'patch-moderation-mod_type.sql'
+		);
+		$updater->addExtensionField(
+			'moderation', 'mod_tags',
+			$base . 'patch-moderation-mod_tags.sql'
+		);
+		$updater->addExtensionIndex(
+			'moderation', 'moderation_signup',
+			$base . 'patch-make-preload-unique.sql'
+		);
 
-		/* Main database schema */
-		$updater->addExtensionTable( 'moderation',
-			"$sqlDir/patch-moderation.sql" );
-		$updater->addExtensionTable( 'moderation_block',
-			"$sqlDir/patch-moderation_block.sql" );
+		// Fix incorrect titledbkey in existing moderation entries
+		$updater->addExtensionUpdate( [
+			'runMaintenance',
+			'PopulateModerationDbKey',
+			$base . 'patch-fix-titledbkey.sql'
+		] );
 
-		/* DB changes needed when updating Moderation from its previous version */
-		if ( $dbType == 'postgres' ) {
-			// PostgreSQL support was added in Moderation 1.4.12,
-			// there were no schema changes since then.
-		} else {
-			// ... to Moderation 1.1.29
-			$updater->addExtensionField( 'moderation', 'mod_tags',
-				"$sqlDir/patch-moderation-mod_tags.sql" );
-
-			// ... to Moderation 1.1.31
-			$updater->modifyExtensionField( 'moderation', 'mod_title',
-				"$sqlDir/patch-fix-titledbkey.sql" );
-
-			// ... to Moderation 1.2.9
-			if ( $db->tableExists( 'moderation' ) &&
-				!$db->indexUnique( 'moderation', 'moderation_load' )
-			) {
-				$updater->addExtensionUpdate( [ 'applyPatch',
-					"$sqlDir/patch-make-preload-unique.sql", true ] );
-			}
-
-			// ... to Moderation 1.2.17
-			$updater->addExtensionField( 'moderation', 'mod_type',
-				"$sqlDir/patch-moderation-mod_type.sql" );
-		}
-
-		// Workaround for T258159 (extension-provided services are not loaded during the Web Updater,
-		// but Moderation.VersionCheck service is needed for invalidateCache() call below).
-		// This code is not needed during normal installation (when running update.php via the console).
-		$services = MediaWikiServices::getInstance();
-		if ( !$services->hasService( 'Moderation.VersionCheck' ) ) {
-			$services->loadWiringFiles( [ __DIR__ . '/ServiceWiring.php' ] );
-		}
-
-		$updater->addExtensionUpdate( [ 'ModerationVersionCheck::invalidateCache' ] );
+		$updater->addExtensionUpdate( [
+			'modifyField',
+			'moderation',
+			'mod_comment',
+			$base . 'patch-increase-mod_comment-size.sql',
+			true
+		] );
 	}
 }
