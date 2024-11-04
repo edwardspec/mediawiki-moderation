@@ -67,7 +67,7 @@
 	"moderation-merged-link": "samengevoegde wijz",
 	"moderation-merge-not-automoderated": "Om te kunnen samenvoegen moet de controleur ook automatisch kunnen controleren.",
 	"moderation-merge-not-needed": "Probeer deze bewerking eerst goed te keuren: handmatig samenvoegen is misschien niet nodig.",
-	"moderation-missing-stashed-image": "Deze upload kan niet worden goedgekeurd:de afbeelding ontbreekt uit de uploadstash. (Waarschijnlijk heeft de gebruiker deze verwijderd via [[Special:UploadStash]])",
+	"moderation-missing-stashed-image": "Deze upload kan niet worden goedgekeurd: de afbeelding ontbreekt in de opgeborgen uploads. (Waarschijnlijk heeft de gebruiker deze verwijderd via [[Special:UploadStash]])",
 	"moderation": "Bewerkingscontrole",
 	"moderation-move": "$1 hernoemd naar $2",
 	"moderation-move-queued": "Geslaagd: uw suggestie voor het hernoemen van deze pagina is naar de controleurs gestuurd.",
