@@ -65,7 +65,7 @@ trait MockModerationActionTrait {
 	// These methods are in MediaWikiIntegrationTestCase (this trait is used by its subclasses).
 
 	/** @inheritDoc */
-	abstract protected function setService( $name, $service );
+	abstract protected function setService( string $name, $service );
 
 	/** @inheritDoc */
 	abstract protected function createMock( string $originalClassName );
