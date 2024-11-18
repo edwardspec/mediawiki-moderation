@@ -348,7 +348,13 @@ class ModerationTestsuite {
 		}
 
 		if ( $dbw->getType() == 'postgres' ) {
-			$dbw->truncate( $table, __METHOD__ );
+			if ( method_exists( $dbw, 'truncateTable' ) ) {
+				// MediaWiki 1.42+
+				$dbw->truncateTable( $table, __METHOD__ );
+			} else {
+				// MediaWiki 1.39-1.41
+				$dbw->truncate( $table, __METHOD__ );
+			}
 		} else {
 			// Can't use $dbw->truncate(), in MediaWiki 1.41 it doesn't seem to empty test tables.
 			$dbw->delete( $table, '*', __METHOD__ );
