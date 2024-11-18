@@ -884,8 +884,6 @@ class ModerationTestsuite {
 
 		$fields = [
 			'af_pattern' => '1',
-			'af_user' => $user->getId(),
-			'af_user_text' => $user->getName(),
 			'af_timestamp' => $dbw->timestamp(),
 			'af_enabled' => 1,
 			'af_comments' => '',
@@ -901,6 +899,12 @@ class ModerationTestsuite {
 		if ( $dbw->fieldExists( 'abuse_filter', 'af_actor', __METHOD__ ) ) {
 			// MediaWiki 1.41+
 			$fields['af_actor'] = $user->getActorId();
+		}
+
+		if ( $dbw->fieldExists( 'abuse_filter', 'af_user', __METHOD__ ) ) {
+			// MediaWiki 1.39-1.42
+			$fields['af_user'] = $user->getId();
+			$fields['af_user_text'] = $user->getName();
 		}
 
 		$dbw->insert( 'abuse_filter', $fields, __METHOD__ );
