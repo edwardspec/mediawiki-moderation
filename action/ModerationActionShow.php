@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2021 Edward Chernenko.
+	Copyright (C) 2014-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ class ModerationActionShow extends ModerationAction {
 
 	public function outputResult( array $result, OutputPage $out ) {
 		$out->addModuleStyles( [ 'mediawiki.diff.styles' ] );
-		$out->setPageTitle( $this->msg( 'difference-title', $result['title'] ) );
+		$out->setPageTitle( $this->msg( 'difference-title', $result['title'] )->escaped() );
 
 		if ( isset( $result['image-thumb-html'] ) ) {
 			$out->addHTML( Xml::tags( 'a', [
