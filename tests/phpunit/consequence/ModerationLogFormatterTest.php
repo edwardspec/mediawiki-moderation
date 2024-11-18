@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\Linker\LinkTarget;
+use MediaWiki\MediaWikiServices;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -34,6 +35,8 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 	 * @dataProvider dataProvider
 	 */
 	public function testLogFormatter( array $options ) {
+		$services = MediaWikiServices::getInstance();
+
 		$this->setMwGlobals( 'wgLogRestrictions', [] );
 		$this->setContentLang( 'qqx' );
 
@@ -45,7 +48,15 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 		$entry->setTarget( $target );
 		$entry->setParameters( $options['params'] ?? [] );
 
-		$formatter = LogFormatter::newFromEntry( $entry );
+		if ( method_exists( $services, 'getLogFormatterFactory' ) ) {
+			// MediaWiki 1.42+
+			// @phan-suppress-next-line PhanUndeclaredMethod
+			$formatter = $services->getLogFormatterFactory()->newFromEntry( $entry );
+		} else {
+			// MediaWiki 1.39-1.41
+			$formatter = LogFormatter::newFromEntry( $entry );
+		}
+
 		$html = $formatter->getActionText();
 
 		// Check $html for validity
@@ -78,9 +89,8 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 				"Incorrect userlink to the target user."
 			);
 		} else {
-			$linkRenderer = MediaWiki\MediaWikiServices::getInstance()->getLinkRenderer();
 			$this->assertEquals(
-				$linkRenderer->makeLink( $target ),
+				$services->getLinkRenderer()->makeLink( $target ),
 				$params[2],
 				"Incorrect link to the target page."
 			);
