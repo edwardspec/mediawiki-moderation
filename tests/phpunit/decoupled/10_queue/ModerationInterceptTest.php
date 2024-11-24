@@ -23,6 +23,7 @@
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Tests\User\TempUser\TempUserTestTrait;
 
 /**
  * @group Database
@@ -152,6 +153,7 @@ class ModerationInterceptTest extends ModerationTestCase {
 	/*-------------------------------------------------------------------*/
 
 	use ModerationTestsuiteTestSet;
+	use TempUserTestTrait;
 
 	/**
 	 * @const Namespace which is used when not selected by the test.
@@ -286,8 +288,10 @@ class ModerationInterceptTest extends ModerationTestCase {
 		$title = $this->getTitle();
 		$page2Title = $this->getPage2Title();
 
-		$user = User::newFromName( '127.0.0.1', false );
-		if ( !$this->anonymously ) {
+		if ( $this->anonymously ) {
+			$this->disableAutoCreateTempUser();
+			$user = User::newFromName( '127.0.0.1', false );
+		} else {
 			$user = $t->unprivilegedUser;
 			$userGroupManager = MediaWikiServices::getInstance()->getUserGroupManager();
 
