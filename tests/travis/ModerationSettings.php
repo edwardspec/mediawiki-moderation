@@ -100,6 +100,10 @@ $wgVirtualRestConfig['modules']['parsoid'] = [
 ];
 $wgDefaultUserOptions['visualeditor-enable'] = 1; # Enable VisualEditor for all users
 
+# Necessary for blackbox testsuite in MediaWiki 1.43+,
+# where $wgScriptPath is always set to empty string during tests.
+$wgModerationTestsuiteScriptPath = $wgScriptPath;
+
 # Tested extension.
 # Note: Moderation should always be enabled LAST in LocalSettings.php, after any other extension.
 wfLoadExtension( "Moderation" );

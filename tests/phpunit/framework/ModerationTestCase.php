@@ -139,8 +139,15 @@ class ModerationTestCase extends MediaWikiIntegrationTestCase {
 
 		// ModerationTestsuite already sets language to "qqx" when running tests "server-side"
 		// (via CliEngine). However, to double-check results of PreSaveTransform, etc.,
-		// it's necessary to lso set Content Language to 'qqx' on the PHPUnit side too.
+		// it's necessary to also set Content Language to 'qqx' on the PHPUnit side too.
 		$this->setContentLang( ModerationTestUtil::getLanguageQqx() );
+
+		// Workaround for MediaWiki 1.43+ clearing $wgScriptPath during tests
+		global $wgModerationTestsuiteScriptPath;
+		if ( $wgModerationTestsuiteScriptPath ) {
+			$this->setMwGlobals( 'wgScriptPath', $wgModerationTestsuiteScriptPath );
+			$this->setMwGlobals( 'wgScript', "$wgModerationTestsuiteScriptPath/index.php" );
+		}
 	}
 
 	protected function addCoreDBData() {
