@@ -104,6 +104,12 @@ $wgDefaultUserOptions['visualeditor-enable'] = 1; # Enable VisualEditor for all 
 # where $wgScriptPath is always set to empty string during tests.
 $wgModerationTestsuiteScriptPath = $wgScriptPath;
 
+// In MediaWiki 1.43+, ParserLimitReporting needs to be disabled,
+// because it causes deprecation warnings (unrelated to Moderation) during tests.
+if ( version_compare( MW_VERSION, '1.43.0-alpha', '>=' ) ) {
+	$wgEnableParserLimitReporting = false;
+}
+
 # Tested extension.
 # Note: Moderation should always be enabled LAST in LocalSettings.php, after any other extension.
 wfLoadExtension( "Moderation" );
