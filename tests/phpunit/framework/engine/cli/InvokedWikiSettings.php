@@ -196,6 +196,9 @@ function wfModerationTestsuiteSetup() {
 	ModerationTestsuiteMockAutoLoader::replaceFunction( 'header',
 		'wfModerationTestsuiteMockedHeader'
 	);
+	ModerationTestsuiteMockAutoLoader::replaceFunction( '( $this->headerFunc )',
+		'wfModerationTestsuiteMockedHeader'
+	);
 
 	/*
 		Install hook to replace ApiMain class
