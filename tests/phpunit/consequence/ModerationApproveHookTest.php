@@ -22,6 +22,7 @@
 
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Tests\User\TempUser\TempUserTestTrait;
 use Psr\Log\NullLogger;
 use Wikimedia\IPUtils;
 
@@ -32,6 +33,7 @@ require_once __DIR__ . "/autoload.php";
  */
 class ModerationApproveHookTest extends ModerationUnitTestCase {
 	use MakeEditTestTrait;
+	use TempUserTestTrait;
 	use UploadTestTrait;
 
 	/** @var string[] */
@@ -606,9 +608,13 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 				$pageCreatedByThisTest[$pageName] = true;
 			}
 
-			$user = IPUtils::isIPAddress( $username ) ?
-				User::newFromName( $username, false ) :
-				( new TestUser( $username ) )->getUser();
+			if ( IPUtils::isIPAddress( $username ) ) {
+				$this->disableAutoCreateTempUser();
+
+				$user = User::newFromName( $username, false );
+			} else {
+				$user = ( new TestUser( $username ) )->getUser();
+			}
 
 			$extraInfo = $testParameters['extra'] ?? [];
 			if ( isset( $extraInfo['newTitle'] ) ) {

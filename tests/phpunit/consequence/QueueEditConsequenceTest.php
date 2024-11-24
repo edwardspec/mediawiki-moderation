@@ -26,6 +26,7 @@ use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
+use MediaWiki\Tests\User\TempUser\TempUserTestTrait;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -34,6 +35,7 @@ require_once __DIR__ . "/autoload.php";
  */
 class QueueEditConsequenceTest extends ModerationUnitTestCase {
 	use MakeEditTestTrait;
+	use TempUserTestTrait;
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'moderation', 'user' ];
@@ -60,6 +62,10 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 		$opt->section ??= '';
 		$opt->sectionText ??= '';
 		$opt->preloadedText ??= '';
+
+		if ( $opt->anonymously ) {
+			$this->disableAutoCreateTempUser();
+		}
 
 		$user = $opt->anonymously ? User::newFromName( '127.0.0.1', false ) :
 			self::getTestUser()->getUser();

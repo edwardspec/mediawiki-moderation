@@ -124,7 +124,7 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 	public function testMovePageOnlyView() {
 		$oldTitle = Title::newFromText( 'Old title' );
 		$newTitle = Title::newFromText( 'New title' );
-		$user = User::newFromName( '127.0.0.1', false );
+		$user = self::getTestUser()->getUser();
 		$reason = 'Some reason';
 		$status = Status::newGood();
 

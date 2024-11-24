@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2023 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
+use MediaWiki\Tests\User\TempUser\TempUserTestTrait;
 use Wikimedia\IPUtils;
 
 require_once __DIR__ . "/autoload.php";
@@ -33,6 +34,8 @@ require_once __DIR__ . "/autoload.php";
  * @group Database
  */
 class ModerationPreloadTest extends ModerationUnitTestCase {
+	use TempUserTestTrait;
+
 	/**
 	 * Verify that getId() returns correct values for both logged-in and anonymous users.
 	 * @param string|false $expectedResult Value that getId() should return.
@@ -53,6 +56,8 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		$expectedConsequences = [];
 
 		if ( IPUtils::isIPAddress( $username ) ) {
+			$this->disableAutoCreateTempUser();
+
 			$user->expects( $this->once() )->method( 'isRegistered' )->willReturn( false );
 			$user->expects( $this->never() )->method( 'getName' );
 

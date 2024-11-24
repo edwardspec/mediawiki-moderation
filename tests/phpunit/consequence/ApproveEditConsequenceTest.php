@@ -52,7 +52,7 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 		$opt->summary ??= 'Some summary ' . rand( 0, 100000 );
 		$opt->anonymously ??= false;
 
-		if ( $opt->anonymously || $opt->existing ) {
+		if ( $opt->anonymously ) {
 			$this->disableAutoCreateTempUser();
 		}
 
@@ -66,7 +66,11 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 
 		if ( $opt->existing ) {
 			// Precreate the page.
-			$this->makeEdit( $title, User::newFromName( '127.0.0.2', false ), "Before $newText" );
+			$this->makeEdit(
+				$title,
+				self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser(),
+				"Before $newText"
+			);
 		}
 
 		$baseRevId = $opt->existing ?

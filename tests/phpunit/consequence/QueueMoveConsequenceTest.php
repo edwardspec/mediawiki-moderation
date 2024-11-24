@@ -26,6 +26,7 @@ use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\QueueMoveConsequence;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
+use MediaWiki\Tests\User\TempUser\TempUserTestTrait;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -34,6 +35,7 @@ require_once __DIR__ . "/autoload.php";
  */
 class QueueMoveConsequenceTest extends ModerationUnitTestCase {
 	use MakeEditTestTrait;
+	use TempUserTestTrait;
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'moderation', 'user' ];
@@ -53,6 +55,10 @@ class QueueMoveConsequenceTest extends ModerationUnitTestCase {
 		$opt->notifyEmail ??= false;
 		$opt->notifyNewOnly ??= false;
 		$opt->anonymously ??= false;
+
+		if ( $opt->anonymously ) {
+			$this->disableAutoCreateTempUser();
+		}
 
 		$user = $opt->anonymously ? User::newFromName( '127.0.0.1', false ) :
 			self::getTestUser()->getUser();
