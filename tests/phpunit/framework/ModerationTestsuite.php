@@ -343,7 +343,7 @@ class ModerationTestsuite {
 	 */
 	protected function truncateDbTable( $table ) {
 		$dbw = $this->getDB();
-		if ( !$dbw->tableExists( $table ) ) {
+		if ( !$dbw->tableExists( $table, __METHOD__ ) ) {
 			return;
 		}
 
@@ -477,7 +477,7 @@ class ModerationTestsuite {
 
 		self::$prepopulateDbCache = [];
 		foreach ( self::$prepopulateDbNeededTables as $table ) {
-			if ( $table == 'user' && $dbw->getType() == 'postgres' && !$dbw->tableExists( 'user' ) ) {
+			if ( $table == 'user' && $dbw->getType() == 'postgres' && !$dbw->tableExists( 'user', __METHOD__ ) ) {
 				$table = 'mwuser';
 			}
 
