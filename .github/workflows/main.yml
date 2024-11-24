@@ -29,7 +29,7 @@ jobs:
           - 11211:11211
         options: --health-cmd "timeout 5 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/11211'" --health-interval 10s --health-timeout 5s --health-retries 5
       mariadb:
-        image: mariadb
+        image: mariadb:11.4
         env:
           MYSQL_ROOT_PASSWORD: ${{ env.DBPASS }}
         ports:
