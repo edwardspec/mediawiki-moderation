@@ -125,7 +125,7 @@ class ModerationCheckuserTest extends ModerationTestCase {
 
 		/* Counting backwards, because getCUCAgents() selects in newest-to-latest order */
 		$i = $NUMBER_OF_UPLOADS;
-		foreach ( $t->getCUCAgents( $NUMBER_OF_UPLOADS ) as $agent ) {
+		foreach ( $t->getCULEAgents( $NUMBER_OF_UPLOADS ) as $agent ) {
 			$this->assertNotEquals( $this->moderatorUA, $agent,
 				"testApproveAllUploadPrevervesUA(): Upload #$i: UserAgent in checkuser " .
 				"tables matches moderator's UserAgent" );

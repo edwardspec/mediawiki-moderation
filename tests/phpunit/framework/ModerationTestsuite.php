@@ -881,6 +881,28 @@ class ModerationTestsuite {
 	}
 
 	/**
+	 * Get cule_agent of the last entries in "cu_log_event" table.
+	 * @param int $limit How many entries to select.
+	 * @return string[] List of user-agents.
+	 */
+	public function getCULEAgents( $limit ) {
+		if ( version_compare( MW_VERSION, '1.43.0-alpha', '<' ) ) {
+			// MediaWiki 1.39-1.42 stored log events in "cu_changes" table.
+			return $this->getCUCAgents( $limit );
+		}
+
+		$dbw = $this->getDB();
+		return $dbw->selectFieldValues(
+			'cu_log_event', 'cule_agent', '',
+			__METHOD__,
+			[
+				'ORDER BY' => 'cule_id DESC',
+				'LIMIT' => $limit
+			]
+		);
+	}
+
+	/**
 	 * Create AbuseFilter rule that will assign tags to all edits.
 	 * @return int ID of the newly created filter.
 	 */
