@@ -21,6 +21,8 @@
  */
 
 class ModerationTestCase extends MediaWikiIntegrationTestCase {
+	use ModerationTempUserTestTrait;
+
 	/** @var ModerationTestsuite|null */
 	private $testsuite = null;
 

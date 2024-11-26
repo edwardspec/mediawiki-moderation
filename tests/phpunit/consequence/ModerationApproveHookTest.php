@@ -22,7 +22,6 @@
 
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Tests\User\TempUser\TempUserTestTrait;
 use Psr\Log\NullLogger;
 use Wikimedia\IPUtils;
 
@@ -33,7 +32,6 @@ require_once __DIR__ . "/autoload.php";
  */
 class ModerationApproveHookTest extends ModerationUnitTestCase {
 	use MakeEditTestTrait;
-	use TempUserTestTrait;
 	use UploadTestTrait;
 
 	/** @var string[] */

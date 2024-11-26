@@ -25,7 +25,6 @@ use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
-use MediaWiki\Tests\User\TempUser\TempUserTestTrait;
 use Wikimedia\IPUtils;
 
 require_once __DIR__ . "/autoload.php";
@@ -34,8 +33,6 @@ require_once __DIR__ . "/autoload.php";
  * @group Database
  */
 class ModerationPreloadTest extends ModerationUnitTestCase {
-	use TempUserTestTrait;
-
 	/**
 	 * Verify that getId() returns correct values for both logged-in and anonymous users.
 	 * @param string|false $expectedResult Value that getId() should return.

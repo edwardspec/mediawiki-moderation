@@ -23,7 +23,6 @@
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ApproveEditConsequence;
 use MediaWiki\Revision\SlotRecord;
-use MediaWiki\Tests\User\TempUser\TempUserTestTrait;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -32,7 +31,6 @@ require_once __DIR__ . "/autoload.php";
  */
 class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 	use MakeEditTestTrait;
-	use TempUserTestTrait;
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'user', 'page', 'logging', 'log_search' ];

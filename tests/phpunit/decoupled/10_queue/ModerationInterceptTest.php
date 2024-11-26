@@ -23,7 +23,6 @@
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Tests\User\TempUser\TempUserTestTrait;
 
 /**
  * @group Database
@@ -153,7 +152,6 @@ class ModerationInterceptTest extends ModerationTestCase {
 	/*-------------------------------------------------------------------*/
 
 	use ModerationTestsuiteTestSet;
-	use TempUserTestTrait;
 
 	/**
 	 * @const Namespace which is used when not selected by the test.

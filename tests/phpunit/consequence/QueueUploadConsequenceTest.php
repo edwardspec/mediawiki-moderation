@@ -25,7 +25,6 @@ use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\QueueUploadConsequence;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
-use MediaWiki\Tests\User\TempUser\TempUserTestTrait;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -33,7 +32,6 @@ require_once __DIR__ . "/autoload.php";
  * @group Database
  */
 class QueueUploadConsequenceTest extends ModerationUnitTestCase {
-	use TempUserTestTrait;
 	use UploadTestTrait;
 
 	/** @var string[] */
