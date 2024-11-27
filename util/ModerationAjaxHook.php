@@ -48,7 +48,9 @@ class ModerationAjaxHook {
 				// HACK: fake wgArticleId makes MobileFrontend think that this page exists.
 				$out->addJsConfigVars( 'wgArticleId', -1 ); // Not 0 means "page exists"
 			}
-		} elseif ( class_exists( 'MediaWiki\Extension\VisualEditor\ApiVisualEditorEdit' ) ) {
+		}
+
+		if ( class_exists( 'MediaWiki\Extension\VisualEditor\ApiVisualEditorEdit' ) ) {
 			$modules[] = 'ext.moderation.ve';
 		}
 

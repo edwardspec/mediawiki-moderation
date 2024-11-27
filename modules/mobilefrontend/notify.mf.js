@@ -63,9 +63,14 @@
 			} );
 
 			/* Remove when moving to another page */
-			$( window ).one( 'hashchange', function () {
-				$notif.remove();
-			} );
+			var onhashchange = function ( $ev ) {
+				var ev = $ev.originalEvent;
+				if ( !ev.oldURL.match( '#/editor/' ) && !ev.newURL.match( /#$/ ) ) {
+					$notif.remove();
+					$( window ).off( 'hashchange', onhashchange );
+				}
+			};
+			$( window ).on( 'hashchange', onhashchange );
 
 			readyCallback();
 		} );
