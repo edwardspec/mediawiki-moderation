@@ -35,7 +35,7 @@
 		}
 
 		var q = {};
-		if ( !isMobile && mw.cookie.get( 'VEE' ) === 'visualeditor' ) {
+		if ( !isMobile && mw.cookie.get( 'VEE', '' ) === 'visualeditor' ) {
 			q.veaction = 'edit';
 		} else {
 			q.action = 'edit';
@@ -73,7 +73,7 @@
 			).plain()
 		) );
 
-		/* ""To skip moderation in the future, please sign up" */
+		/* "To skip moderation in the future, please sign up" */
 		if ( mw.user.getId() === 0 ) {
 			$div.append( $( '<p>' ).append(
 				mw.message( 'moderation-suggest-signup' ).parse()
