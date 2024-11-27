@@ -42,8 +42,11 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 		parent::setUp();
 
 		if ( ExtensionRegistry::getInstance()->isLoaded( 'CheckUser' ) ) {
-			// PostgreSQL tests may run without Extension:CheckUser due to T241827.
 			$this->tablesUsed[] = 'cu_changes';
+
+			if ( version_compare( MW_VERSION, '1.43.0-alpha', '>=' ) ) {
+				$this->tablesUsed[] = 'cu_log_events';
+			}
 		}
 	}
 
@@ -606,9 +609,13 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 				$pageCreatedByThisTest[$pageName] = true;
 			}
 
-			$user = IPUtils::isIPAddress( $username ) ?
-				User::newFromName( $username, false ) :
-				( new TestUser( $username ) )->getUser();
+			if ( IPUtils::isIPAddress( $username ) ) {
+				$this->disableAutoCreateTempUser();
+
+				$user = User::newFromName( $username, false );
+			} else {
+				$user = ( new TestUser( $username ) )->getUser();
+			}
 
 			$extraInfo = $testParameters['extra'] ?? [];
 			if ( isset( $extraInfo['newTitle'] ) ) {
@@ -777,32 +784,74 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 					];
 				}
 
-				$cuWhere = [
-					'cuc_namespace' => $title->getNamespace(),
-					'cuc_title' => $title->getDBKey()
-				];
-				if ( version_compare( MW_VERSION, '1.40.0-alpha', '<' ) ) {
-					$cuWhere['cuc_user_text'] = $user->getName();
-				} else {
-					$cuWhere['cuc_actor'] = $user->getActorId();
-				}
+				$hasActionText = version_compare( MW_VERSION, '1.43.0-alpha', '<' );
 
-				if ( $type == ModerationNewChange::MOD_TYPE_EDIT ) {
-					$cuWhere['cuc_actiontext'] = '';
-				} else {
-					$cuWhere[] = 'cuc_actiontext <> \'\'';
-				}
+				if ( $type == ModerationNewChange::MOD_TYPE_MOVE && !$hasActionText ) {
+					// In MediaWiki 1.43, log events are no longer in cu_changes table,
+					// they have their own table.
+					$res = $this->db->select(
+						[
+							'cu_log_event',
+							'logging'
+						],
+						[
+							'cule_ip',
+							'cule_ip_hex',
+							'cule_agent',
+							'cule_xff'
+						],
+						[
+							'cule_actor' => $user->getActorId(),
+							'log_id=cule_log_id',
+							'log_namespace' => $title->getNamespace(),
+							'log_title' => $title->getDBKey()
+						],
+						__METHOD__
+					);
 
-				$this->assertSelect( 'cu_changes',
-					[
-						'cuc_ip',
-						'cuc_ip_hex',
-						'cuc_agent',
-						'cuc_xff'
-					],
-					$cuWhere,
-					[ $expectedRow ]
-				);
+					$actualRows = [];
+					foreach ( $res as $row ) {
+						$actualRows[] = [
+							$row->cule_ip,
+							$row->cule_ip_hex,
+							$row->cule_agent,
+							$row->cule_xff
+						];
+					}
+
+					$this->assertSame( [ $expectedRow ], $actualRows );
+				} else {
+					// A normal edit. Also used for moves in MediaWiki 1.39-1.42.
+					$cuWhere = [
+						'cuc_namespace' => $title->getNamespace(),
+						'cuc_title' => $title->getDBKey()
+					];
+					if ( version_compare( MW_VERSION, '1.40.0-alpha', '<' ) ) {
+						$cuWhere['cuc_user_text'] = $user->getName();
+					} else {
+						$cuWhere['cuc_actor'] = $user->getActorId();
+					}
+
+					if ( $hasActionText ) {
+						// MediaWiki 1.39-1.42
+						if ( $type == ModerationNewChange::MOD_TYPE_EDIT ) {
+							$cuWhere['cuc_actiontext'] = '';
+						} else {
+							$cuWhere[] = 'cuc_actiontext <> \'\'';
+						}
+					}
+
+					$this->assertSelect( 'cu_changes',
+						[
+							'cuc_ip',
+							'cuc_ip_hex',
+							'cuc_agent',
+							'cuc_xff'
+						],
+						$cuWhere,
+						[ $expectedRow ]
+					);
+				}
 			}
 
 			// Verify that ChangeTagsAfterUpdateTags hook was called for all revisions, etc.

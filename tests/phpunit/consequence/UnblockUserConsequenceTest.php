@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\UnblockUserConsequence;
+use Wikimedia\IPUtils;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -29,7 +30,6 @@ require_once __DIR__ . "/autoload.php";
  * @group Database
  */
 class UnblockUserConsequenceTest extends ModerationUnitTestCase {
-
 	/** @var string[] */
 	protected $tablesUsed = [ 'moderation_block', 'user' ];
 
@@ -55,6 +55,10 @@ class UnblockUserConsequenceTest extends ModerationUnitTestCase {
 	 * @dataProvider dataProviderUnblockUser
 	 */
 	public function testUnblockUser( $username ) {
+		if ( IPUtils::isIPAddress( $username ) ) {
+			$this->disableAutoCreateTempUser();
+		}
+
 		// Make a currently blocked user.
 		$user = User::createNew( $username );
 		$moderator = User::createNew( 'Some moderator' );

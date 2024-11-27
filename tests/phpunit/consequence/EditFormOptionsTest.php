@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -124,13 +124,13 @@ class EditFormOptionsTest extends ModerationUnitTestCase {
 		$editPage = new EditPage( new Article( Title::newFromText( 'whatever' ) ) );
 		$editPage->importFormData( $request );
 
-		// Prevent internalAttemptSave() from actually saving the edit.
+		// Prevent attemptSave() from actually saving the edit.
 		$this->setTemporaryHook( 'MultiContentSave', static function () {
 			return false;
 		} );
 
 		$unusedResult = [];
-		$editPage->internalAttemptSave( $unusedResult );
+		$editPage->attemptSave( $unusedResult );
 
 		$this->assertSame( $text, $opt->getSectionText(), 'getSectionText()' );
 		$this->assertEquals( $section, $opt->getSection(), 'getSection()' );

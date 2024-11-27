@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -70,9 +70,7 @@ class ModerationActionEditChange extends ModerationAction {
 
 		$editPage->showEditForm();
 
-		$out->setPageTitle( $this->msg(
-			'moderation-editchange-title',
-			$title->getFullText()
-		) );
+		$titleMsg = $this->msg( 'moderation-editchange-title', $title->getFullText() );
+		$out->setPageTitle( $titleMsg->escaped() );
 	}
 }

@@ -48,10 +48,14 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 		$opt->bot ??= false;
 		$opt->minor ??= false;
 		$opt->summary ??= 'Some summary ' . rand( 0, 100000 );
+		$opt->anonymously ??= false;
 
-		$user = empty( $opt->anonymously ) ?
-			self::getTestUser( $opt->bot ? [ 'bot' ] : [] )->getUser() :
-			User::newFromName( '127.0.0.1', false );
+		if ( $opt->anonymously ) {
+			$this->disableAutoCreateTempUser();
+		}
+
+		$user = $opt->anonymously ? User::newFromName( '127.0.0.1', false ) :
+			self::getTestUser( $opt->bot ? [ 'bot' ] : [] )->getUser();
 		$title = Title::newFromText( $opt->title ?? 'UTPage-' . rand( 0, 100000 ) );
 		$newText = 'New text ' . rand( 0, 100000 );
 
@@ -60,7 +64,11 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 
 		if ( $opt->existing ) {
 			// Precreate the page.
-			$this->makeEdit( $title, User::newFromName( '127.0.0.2', false ), "Before $newText" );
+			$this->makeEdit(
+				$title,
+				self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser(),
+				"Before $newText"
+			);
 		}
 
 		$baseRevId = $opt->existing ?
@@ -124,6 +132,8 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 	 * See also: ModerationEditConflictTest::testResolvableEditConflict()
 	 */
 	public function testResolvableEditConflict() {
+		$this->disableAutoCreateTempUser();
+
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 		$user = User::newFromName( '127.0.0.1', false );
 
@@ -161,6 +171,8 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 	 * See also: ModerationMergeTest::testMerge()
 	 */
 	public function testUnresolvableEditConflict() {
+		$this->disableAutoCreateTempUser();
+
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 		$user = User::newFromName( '127.0.0.1', false );
 

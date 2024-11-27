@@ -286,8 +286,10 @@ class ModerationInterceptTest extends ModerationTestCase {
 		$title = $this->getTitle();
 		$page2Title = $this->getPage2Title();
 
-		$user = User::newFromName( '127.0.0.1', false );
-		if ( !$this->anonymously ) {
+		if ( $this->anonymously ) {
+			$this->disableAutoCreateTempUser();
+			$user = User::newFromName( '127.0.0.1', false );
+		} else {
 			$user = $t->unprivilegedUser;
 			$userGroupManager = MediaWikiServices::getInstance()->getUserGroupManager();
 

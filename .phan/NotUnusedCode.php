@@ -9,6 +9,9 @@ use MediaWiki\Moderation\EditFormOptions;
 
 ModerationApproveHook::hookHandlerFactory();
 ModerationApproveHook::onCheckUserInsertForRecentChange();
+ModerationApproveHook::onCheckUserInsertChangesRow();
+ModerationApproveHook::onCheckUserInsertLogEventRow();
+ModerationApproveHook::onCheckUserInsertPrivateEventRow();
 ModerationEditHooks::onMultiContentSave();
 ModerationNotifyModerator::hookHandlerFactory();
 ModerationNotifyModerator::onEchoCanAbortNewMessagesAlert();

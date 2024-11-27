@@ -50,6 +50,12 @@ $wgSessionPbkdf2Iterations = 1;
 // Sanity check: disallow deprecated session management via session_id(), etc.
 $wgPHPSessionHandling = 'disable';
 
+if ( $wgModerationTestsuiteCliDescriptor['expectedUser'][0] === 0 ) {
+	// Testsuite has requested that we operate as an anonymous user, so we must disable
+	// the temporary accounts (otherwise MediaWiki would automatically register anonymous users).
+	$wgAutoCreateTempUser['enabled'] = false;
+}
+
 /* Apply variables requested by ModerationTestsuiteCliEngine::setMwConfig() */
 foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 	if ( $name == 'DBprefix' && $wgDBtype == 'postgres' ) {
@@ -109,8 +115,7 @@ function wfModerationTestsuiteCliLogin() {
 		// Login as $user. If this user doesn't exist, it will be created.
 		$manager = MediaWikiServices::getInstance()->getAuthManager();
 		$status = $manager->autoCreateUser( $user, AuthManager::AUTOCREATE_SOURCE_SESSION, true );
-
-		if ( !$status->isOK() ) {
+		if ( !$status->isOK() && !( $expectedId === 0 && $status->hasMessage( 'noname' ) ) ) {
 			throw new MWException( "Failed to login as User:$expectedName (#$expectedId)." );
 		}
 
@@ -194,6 +199,9 @@ function wfModerationTestsuiteSetup() {
 		[MockAutoLoader.php] replaces header() calls with our function.
 	*/
 	ModerationTestsuiteMockAutoLoader::replaceFunction( 'header',
+		'wfModerationTestsuiteMockedHeader'
+	);
+	ModerationTestsuiteMockAutoLoader::replaceFunction( '( $this->headerFunc )',
 		'wfModerationTestsuiteMockedHeader'
 	);
 

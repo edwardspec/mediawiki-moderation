@@ -73,6 +73,19 @@ class ModerationTestHTML extends DOMDocument {
 	 * @return static
 	 */
 	public function loadString( $string ) {
+		$parts = explode( '<!DOCTYPE html>', $string );
+		if ( count( $parts ) > 1 ) {
+			[ $phpWarnings, $string ] = $parts;
+			$phpWarnings = trim( $phpWarnings );
+
+			if ( $phpWarnings !== '' ) {
+				// Any text found before the doctype is likely PHP Deprecation warnings, etc.
+				// It should result in test failure, so we are printing it here,
+				// but it shouldn't prevent HTML of this document from being parsed.
+				print "Found PHP warnings before the HTML document:\n" . trim( $phpWarnings ) . "\n";
+			}
+		}
+
 		// Forget any unhandled errors from previous LibXML parse attempts.
 		libxml_clear_errors();
 

@@ -78,6 +78,7 @@ class ModerationErrorTest extends ModerationUnitTestCase {
 		$linkRenderer->expects( $this->once() )->method( 'makeLink' )->with(
 			$this->identicalTo( $title )
 		)->willReturn( '{MockedReturnToLink}' );
+		$linkRenderer->expects( $this->any() )->method( 'getLinkClasses' )->willReturn( '' );
 
 		$lrFactory = $this->createMock( LinkRendererFactory::class );
 		$lrFactory->expects( $this->any() )->method( 'create' )

@@ -61,6 +61,10 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 		$opt->sectionText ??= '';
 		$opt->preloadedText ??= '';
 
+		if ( $opt->anonymously ) {
+			$this->disableAutoCreateTempUser();
+		}
+
 		$user = $opt->anonymously ? User::newFromName( '127.0.0.1', false ) :
 			self::getTestUser()->getUser();
 		$title = Title::newFromText( $opt->title ?? 'UTPage-' . rand( 0, 100000 ) );

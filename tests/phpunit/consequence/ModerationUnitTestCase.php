@@ -25,6 +25,8 @@ use MediaWiki\Moderation\IsConsequenceEqual;
 use MediaWiki\Moderation\MockConsequenceManager;
 
 class ModerationUnitTestCase extends MediaWikiIntegrationTestCase {
+	use ModerationTempUserTestTrait;
+
 	protected function addCoreDBData() {
 		// Do nothing. Normally this method creates test user, etc.,
 		// but our unit tests don't need this.

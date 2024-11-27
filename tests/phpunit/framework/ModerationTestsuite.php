@@ -343,12 +343,18 @@ class ModerationTestsuite {
 	 */
 	protected function truncateDbTable( $table ) {
 		$dbw = $this->getDB();
-		if ( !$dbw->tableExists( $table ) ) {
+		if ( !$dbw->tableExists( $table, __METHOD__ ) ) {
 			return;
 		}
 
 		if ( $dbw->getType() == 'postgres' ) {
-			$dbw->truncate( $table, __METHOD__ );
+			if ( method_exists( $dbw, 'truncateTable' ) ) {
+				// MediaWiki 1.42+
+				$dbw->truncateTable( $table, __METHOD__ );
+			} else {
+				// MediaWiki 1.39-1.41
+				$dbw->truncate( $table, __METHOD__ );
+			}
 		} else {
 			// Can't use $dbw->truncate(), in MediaWiki 1.41 it doesn't seem to empty test tables.
 			$dbw->delete( $table, '*', __METHOD__ );
@@ -471,7 +477,7 @@ class ModerationTestsuite {
 
 		self::$prepopulateDbCache = [];
 		foreach ( self::$prepopulateDbNeededTables as $table ) {
-			if ( $table == 'user' && $dbw->getType() == 'postgres' && !$dbw->tableExists( 'user' ) ) {
+			if ( $table == 'user' && $dbw->getType() == 'postgres' && !$dbw->tableExists( 'user', __METHOD__ ) ) {
 				$table = 'mwuser';
 			}
 
@@ -875,6 +881,28 @@ class ModerationTestsuite {
 	}
 
 	/**
+	 * Get cule_agent of the last entries in "cu_log_event" table.
+	 * @param int $limit How many entries to select.
+	 * @return string[] List of user-agents.
+	 */
+	public function getCULEAgents( $limit ) {
+		if ( version_compare( MW_VERSION, '1.43.0-alpha', '<' ) ) {
+			// MediaWiki 1.39-1.42 stored log events in "cu_changes" table.
+			return $this->getCUCAgents( $limit );
+		}
+
+		$dbw = $this->getDB();
+		return $dbw->selectFieldValues(
+			'cu_log_event', 'cule_agent', '',
+			__METHOD__,
+			[
+				'ORDER BY' => 'cule_id DESC',
+				'LIMIT' => $limit
+			]
+		);
+	}
+
+	/**
 	 * Create AbuseFilter rule that will assign tags to all edits.
 	 * @return int ID of the newly created filter.
 	 */
@@ -884,8 +912,6 @@ class ModerationTestsuite {
 
 		$fields = [
 			'af_pattern' => '1',
-			'af_user' => $user->getId(),
-			'af_user_text' => $user->getName(),
 			'af_timestamp' => $dbw->timestamp(),
 			'af_enabled' => 1,
 			'af_comments' => '',
@@ -901,6 +927,12 @@ class ModerationTestsuite {
 		if ( $dbw->fieldExists( 'abuse_filter', 'af_actor', __METHOD__ ) ) {
 			// MediaWiki 1.41+
 			$fields['af_actor'] = $user->getActorId();
+		}
+
+		if ( $dbw->fieldExists( 'abuse_filter', 'af_user', __METHOD__ ) ) {
+			// MediaWiki 1.39-1.42
+			$fields['af_user'] = $user->getId();
+			$fields['af_user_text'] = $user->getName();
 		}
 
 		$dbw->insert( 'abuse_filter', $fields, __METHOD__ );

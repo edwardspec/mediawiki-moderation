@@ -101,9 +101,15 @@ abstract class ModerationBenchmark extends Maintenance {
 	 * Main function: test the performance of doActualWork().
 	 */
 	public function execute() {
+		$services = MediaWikiServices::getInstance();
+		$actorStore = $services->getActorStore();
+		if ( method_exists( $actorStore, 'setAllowCreateIpActors' ) ) {
+			$actorStore->setAllowCreateIpActors( true );
+		}
+
 		$user = User::newSystemUser( 'Benchmark User', [ 'steal' => true ] );
 
-		$userGroupManager = MediaWikiServices::getInstance()->getUserGroupManager();
+		$userGroupManager = $services->getUserGroupManager();
 		foreach ( $userGroupManager->getUserGroups( $user ) as $existingGroup ) {
 			$userGroupManager->removeUserFromGroup( $user, $existingGroup );
 		}
