@@ -15,7 +15,7 @@
 	line-height: 25px;
 }
 
-.skin-vector-2022 .mw-notification-area.mw-notification-area-modqueued {
-	margin-top: 60px;
+.skin-vector-2022 .mw-notification-area-overlay {
+	z-index: 3;
 }
 
