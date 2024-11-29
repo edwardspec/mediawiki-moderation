@@ -913,6 +913,7 @@ class ModerationActionTest extends ModerationTestCase {
 			return;
 		}
 
+		$services = $this->getServiceContainer();
 		$rev = $this->getTestsuite()->getLastRevision( $this->getExpectedTitle() );
 
 		$this->assertEquals( $this->fields['mod_user_text'], $rev['user'] );
@@ -934,7 +935,7 @@ class ModerationActionTest extends ModerationTestCase {
 		}
 
 		if ( $this->filename ) {
-			$repoGroup = MediaWikiServices::getInstance()->getRepoGroup();
+			$repoGroup = $services->getRepoGroup();
 			$file = $repoGroup->findFile( $this->getExpectedTitleObj() );
 
 			$this->assertTrue( $file->exists(), "Approved file doesn't exist in FileRepo" );
@@ -950,13 +951,20 @@ class ModerationActionTest extends ModerationTestCase {
 
 		// Check that recentchanges (unlike page history) contain the timestamp of approval,
 		// not timestamp of the original edit.
+		$rcQueryFields = [ 'rc_timestamp' ];
+		if ( $services->hasService( 'ChangeTagsStore' ) ) {
+			// MediaWiki 1.41+
+			// @phan-suppress-next-line PhanUndeclaredMethod
+			$rcQueryFields['ts_tags'] = MediaWikiServices::getInstance()->getChangeTagsStore()
+				->makeTagSummarySubquery( 'recentchanges' );
+		} else {
+			// MediaWiki 1.39-1.40
+			$rcQueryFields[] = 'rc_id';
+		}
+
 		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		$rcRow = $dbw->selectRow( 'recentchanges',
-			[
-				'rc_timestamp',
-				'ts_tags' => MediaWikiServices::getInstance()->getChangeTagsStore()
-					->makeTagSummarySubquery( 'recentchanges' )
-			],
+			$rcQueryFields,
 			[],
 			__METHOD__,
 			[ 'ORDER BY' => 'rc_timestamp DESC' ]
@@ -964,11 +972,18 @@ class ModerationActionTest extends ModerationTestCase {
 		$this->assertTimestampIsRecent( $rcRow->rc_timestamp );
 
 		// Check that change tags were preserved on approval.
-		$expectedTags = null;
-		if ( $this->fields['mod_tags'] !== null ) {
-			$expectedTags = str_replace( "\n", ',', $this->fields['mod_tags'] );
+		if ( $services->hasService( 'ChangeTagsStore' ) ) {
+			// MediaWiki 1.41+
+			$actualTags = $rcRow->ts_tags;
+			$expectedTags = $this->fields['mod_tags'] === null ? null :
+				str_replace( "\n", ',', $this->fields['mod_tags'] );
+		} else {
+			// MediaWiki 1.39-1.40
+			$actualTags = ChangeTags::getTags( $dbw, $rcRow->rc_id );
+			$expectedTags = $this->fields['mod_tags'] === null ? [] :
+				explode( "\n", $this->fields['mod_tags'] );
 		}
-		$this->assertSame( $expectedTags, $rcRow->ts_tags );
+		$this->assertSame( $expectedTags, $actualTags );
 	}
 
 	/**
