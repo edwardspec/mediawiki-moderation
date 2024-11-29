@@ -177,6 +177,29 @@ class ModerationQueueTest extends ModerationTestCase {
 			'ignored minor edit flag (new page)' => [ [ 'minor' => true ] ],
 			'ignored minor edit flag (new page) via API' =>
 				[ [ 'minor' => true, 'viaApi' => true ] ],
+
+			// Change tags added by AbuseFilter
+			'edit tagged by AbuseFilter' => [ [
+				'tags' => [
+					'Author of edit likes cats',
+					'Author of edit likes dogs'
+				]
+			] ],
+			'upload tagged by AbuseFilter' => [ [
+				'filename' => 'image100x100.png',
+				'tags' => [
+					'Author of edit likes cats',
+					'Author of edit likes dogs'
+				]
+			] ],
+			'page move tagged by AbuseFilter' => [ [
+				'title' => 'Old title',
+				'newTitle' => 'New title',
+				'tags' => [
+					'Author of edit likes cats',
+					'Author of edit likes dogs'
+				]
+			] ],
 		];
 	}
 
@@ -249,6 +272,9 @@ class ModerationQueueTest extends ModerationTestCase {
 	/** @var bool If true, $wgModerationNotificationNewOnly is set to true. */
 	protected $notifyNewOnly = false;
 
+	/** @var string[] Tags that AbuseFilter will add to this edit. */
+	protected $tags = [];
+
 	/**
 	 * Initialize this TestSet from the input of dataProvider.
 	 * @param array $options
@@ -287,6 +313,7 @@ class ModerationQueueTest extends ModerationTestCase {
 				case 'modblocked':
 				case 'notifyEmail':
 				case 'notifyNewOnly':
+				case 'tags':
 					$this->$key = $value;
 					break;
 
@@ -376,6 +403,12 @@ class ModerationQueueTest extends ModerationTestCase {
 			$watchlistManager->addWatchIgnoringRights( $this->user, $this->title );
 		}
 
+		$abuseFilterId = null;
+		if ( $this->tags ) {
+			$this->requireExtension( 'Abuse Filter' );
+			$abuseFilterId = $t->addTagAllAbuseFilter( $this->tags );
+		}
+
 		$extraParams = [];
 		if ( $this->watch === true ) {
 			$watchField = $this->newTitle ? 'wpWatch' : 'wpWatchthis';
@@ -423,6 +456,11 @@ class ModerationQueueTest extends ModerationTestCase {
 			);
 			$this->assertTrue( $result->isIntercepted(),
 				"Edit wasn't intercepted by Moderation." );
+		}
+
+		if ( $abuseFilterId ) {
+			/* Disable the filter (so that it would no longer add tags to newly made edits). */
+			$t->disableAbuseFilter( $abuseFilterId );
 		}
 	}
 
@@ -671,7 +709,7 @@ class ModerationQueueTest extends ModerationTestCase {
 			'mod_merged_revid' => 0,
 			'mod_text' => $this->newTitle ? '' : $expectedText,
 			'mod_stash_key' => $this->filename ? new ModerationTestSetRegex( '/^[0-9a-z\.]+$/i' ) : null,
-			'mod_tags' => null,
+			'mod_tags' => $this->tags ? implode( "\n", $this->tags ) : null,
 			'mod_type' => $this->newTitle ? 'move' : 'edit',
 			'mod_page2_namespace' => $this->newTitle ? $this->newTitle->getNamespace() : 0,
 			'mod_page2_title' => $this->newTitle ? $this->newTitle->getDBKey() : '',
