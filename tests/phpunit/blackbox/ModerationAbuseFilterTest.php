@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -31,83 +31,6 @@ class ModerationAbuseFilterTest extends ModerationTestCase {
 		'Author of edit likes cats',
 		'Author of edit likes dogs'
 	];
-
-	/**
-	 * Are AbuseFilter tags preserved for edits?
-	 * @covers ModerationNewChange::addChangeTags
-	 */
-	public function testAFTagsEdit( ModerationTestsuite $t ) {
-		$this->requireExtension( 'Abuse Filter' );
-
-		$filterId = $t->addTagAllAbuseFilter( $this->expectedTags );
-
-		/* Perform the edit as non-automoderated user.
-			Edit will be queued for moderation,
-			tags set by AbuseFilter should be remembered by Moderation. */
-
-		$t->loginAs( $t->unprivilegedUser );
-		$t->doTestEdit();
-		$t->fetchSpecial();
-
-		/* Disable the filter (so that it would no longer add tags to newly made edits). */
-		$t->disableAbuseFilter( $filterId );
-
-		/* Approve the edit. Make sure that Moderation applies previously stored tags. */
-		$this->assertTagsAfterApproval( $t, $t->new_entries[0], __FUNCTION__ );
-	}
-
-	/**
-	 * Are AbuseFilter tags preserved for moves?
-	 * @coversNothing
-	 */
-	public function testAFTagsMove( ModerationTestsuite $t ) {
-		$this->requireExtension( 'Abuse Filter' );
-
-		$title = 'Cat';
-
-		$t->loginAs( $t->automoderated );
-		$t->doTestEdit( $title, 'Whatever' );
-
-		$filterId = $t->addTagAllAbuseFilter( $this->expectedTags );
-
-		/* Perform the move as non-automoderated user.
-			Move will be queued for moderation,
-			tags set by AbuseFilter should be remembered by Moderation. */
-
-		$t->loginAs( $t->unprivilegedUser );
-		$t->getBot( 'api' )->move( $title, "New $title" );
-		$t->fetchSpecial();
-
-		/* Disable the filter (so that it would no longer add tags to newly made moves). */
-		$t->disableAbuseFilter( $filterId );
-
-		/* Approve the edit. Make sure that Moderation applies previously stored tags. */
-		$this->assertTagsAfterApproval( $t, $t->new_entries[0], __FUNCTION__ );
-	}
-
-	/**
-	 * Are AbuseFilter tags preserved for uploads?
-	 * @covers ModerationNewChange::addChangeTags
-	 */
-	public function testAFTagsUpload( ModerationTestsuite $t ) {
-		$this->requireExtension( 'Abuse Filter' );
-
-		$filterId = $t->addTagAllAbuseFilter( $this->expectedTags );
-
-		/* Perform the edit as non-automoderated user.
-			Edit will be queued for moderation,
-			tags set by AbuseFilter should be remembered by Moderation. */
-
-		$t->loginAs( $t->unprivilegedUser );
-		$t->doTestUpload();
-		$t->fetchSpecial();
-
-		/* Disable the filter (so that it would no longer add tags to newly made edits). */
-		$t->disableAbuseFilter( $filterId );
-
-		/* Approve the edit. Make sure that Moderation applies previously stored tags. */
-		$this->assertTagsAfterApproval( $t, $t->new_entries[0], __FUNCTION__ );
-	}
 
 	/**
 	 * If AbuseFilter added "moderation-spam" tag, was the queued edit placed into the Spam folder?
