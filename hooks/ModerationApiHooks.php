@@ -153,7 +153,7 @@ class ModerationApiHooks implements
 
 		$req = new DerivativeRequest( $request, $query, true );
 
-		// FIXME: don't imply that getContext() returns DerivativeContext than knows setRequest(),
+		// FIXME: don't imply that getContext() returns DerivativeContext that knows setRequest(),
 		// use $main->setContext( new DerivativeContext( ... ) ) explicitly.
 		// @phan-suppress-next-line PhanUndeclaredMethod
 		$main->getContext()->setRequest( $req );
