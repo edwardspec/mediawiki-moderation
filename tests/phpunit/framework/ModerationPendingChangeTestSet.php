@@ -62,6 +62,10 @@ trait ModerationTestsuitePendingChangeTestSet {
 					if ( strpos( $key, 'mod_' ) !== 0 ) {
 						throw new UnexpectedValueException( "Incorrect key \"{$key}\": expected \"mod_\" prefix." );
 					}
+					if ( !array_key_exists( $key, $this->fields ) ) {
+						throw new UnexpectedValueException(
+							"Unknown key \"{$key}\": not listed in default field values." );
+					}
 					$this->fields[$key] = $value;
 			}
 		}

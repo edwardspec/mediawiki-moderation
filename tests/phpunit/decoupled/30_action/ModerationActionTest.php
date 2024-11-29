@@ -108,6 +108,28 @@ class ModerationActionTest extends ModerationTestCase {
 				'expectedLogAction' => 'approve-move'
 			] ],
 
+			'successful Approve (tagged edit)' => [ [
+				'modaction' => 'approve',
+				'expectedOutput' => '(moderation-approved-ok: 1)',
+				'expectApproved' => true,
+				'mod_tags' => "Cat-related tag\nTag about dogs"
+			] ],
+			'successful Approve (tagged upload)' => [ [
+				'modaction' => 'approve',
+				'filename' => 'image100x100.png',
+				'expectedOutput' => '(moderation-approved-ok: 1)',
+				'expectApproved' => true,
+				'mod_tags' => "Cat-related tag\nTag about dogs"
+			] ],
+			'successful Approve (tagged move)' => [ [
+				'modaction' => 'approve',
+				'mod_type' => 'move',
+				'expectedOutput' => '(moderation-approved-ok: 1)',
+				'expectApproved' => true,
+				'expectedLogAction' => 'approve-move',
+				'mod_tags' => "Cat-related tag\nTag about dogs"
+			] ],
+
 			'successful ApproveAll' => [ [
 				'modaction' => 'approveall',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
@@ -929,9 +951,24 @@ class ModerationActionTest extends ModerationTestCase {
 		// Check that recentchanges (unlike page history) contain the timestamp of approval,
 		// not timestamp of the original edit.
 		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
-		$rcTimestamp = $dbw->selectField( 'recentchanges', 'rc_timestamp', [], __METHOD__,
-			[ 'ORDER BY' => 'rc_timestamp DESC' ] );
-		$this->assertTimestampIsRecent( $rcTimestamp );
+		$rcRow = $dbw->selectRow( 'recentchanges',
+			[
+				'rc_timestamp',
+				'ts_tags' => MediaWikiServices::getInstance()->getChangeTagsStore()
+					->makeTagSummarySubquery( 'recentchanges' )
+			],
+			[],
+			__METHOD__,
+			[ 'ORDER BY' => 'rc_timestamp DESC' ]
+		);
+		$this->assertTimestampIsRecent( $rcRow->rc_timestamp );
+
+		// Check that change tags were preserved on approval.
+		$expectedTags = null;
+		if ( $this->fields['mod_tags'] !== null ) {
+			$expectedTags = str_replace( "\n", ',', $this->fields['mod_tags'] );
+		}
+		$this->assertSame( $expectedTags, $rcRow->ts_tags );
 	}
 
 	/**
