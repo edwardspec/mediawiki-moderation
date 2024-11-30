@@ -200,6 +200,18 @@ class ModerationQueueTest extends ModerationTestCase {
 					'Author of edit likes dogs'
 				]
 			] ],
+			'edit marked as spam by AbuseFilter' => [ [
+				'tags' => [
+					'moderation-spam'
+				]
+			] ],
+			'edit marked as spam AND tagged by AbuseFilter' => [ [
+				'tags' => [
+					'Author of edit likes cats',
+					'Author of edit likes dogs',
+					'moderation-spam'
+				]
+			] ],
 		];
 	}
 
@@ -485,9 +497,9 @@ class ModerationQueueTest extends ModerationTestCase {
 			return;
 		}
 
-		if ( $this->modblocked ) {
+		if ( $this->isExpectedToBeSpam() ) {
 			$this->assertEmpty( $hooks,
-				"An email was sent after an edit from modblocked user." );
+				"An email was sent after a spam edit (e.g. edit from modblocked user)." );
 			return;
 		}
 
@@ -647,6 +659,14 @@ class ModerationQueueTest extends ModerationTestCase {
 	}
 
 	/**
+	 * Return true if edit is supposed to end up in the Spam folder, false otherwise.
+	 * @return bool
+	 */
+	protected function isExpectedToBeSpam() {
+		return $this->modblocked || in_array( 'moderation-spam', $this->tags );
+	}
+
+	/**
 	 * Returns array of expected post-edit values of all mod_* fields in the database.
 	 * @note Values like "/value/" are treated as regular expressions.
 	 * @return array [ 'mod_user' => ..., 'mod_namespace' => ..., ... ]
@@ -674,6 +694,12 @@ class ModerationQueueTest extends ModerationTestCase {
 			$expectedText = "$headerText\n$expectedText";
 		}
 
+		$isSpam = $this->isExpectedToBeSpam();
+		$expectedTags = array_filter( $this->tags, static function ( $tag ) {
+			// All tags except "moderation-spam" are preserved.
+			return $tag !== 'moderation-spam';
+		} );
+
 		return [
 			'mod_id' => new ModerationTestSetRegex( '/^[0-9]+$/' ),
 			'mod_timestamp' => new ModerationTestSetRegex( '/^[0-9]{14}$/' ),
@@ -698,18 +724,17 @@ class ModerationQueueTest extends ModerationTestCase {
 					'[' . $this->user->getName() :
 					new ModerationTestSetRegex( '/^\][0-9a-f]+$/' )
 			),
-			'mod_rejected' => $this->modblocked ? 1 : 0,
+			'mod_rejected' => $isSpam ? 1 : 0,
 			'mod_rejected_by_user' => 0,
-			'mod_rejected_by_user_text' => $this->modblocked ?
-				'(moderation-blocker)' : null,
+			'mod_rejected_by_user_text' => $isSpam ? '(moderation-blocker)' : null,
 			'mod_rejected_batch' => 0,
-			'mod_rejected_auto' => $this->modblocked ? 1 : 0,
+			'mod_rejected_auto' => $isSpam ? 1 : 0,
 			'mod_preloadable' => 0,
 			'mod_conflict' => 0,
 			'mod_merged_revid' => 0,
 			'mod_text' => $this->newTitle ? '' : $expectedText,
 			'mod_stash_key' => $this->filename ? new ModerationTestSetRegex( '/^[0-9a-z\.]+$/i' ) : null,
-			'mod_tags' => $this->tags ? implode( "\n", $this->tags ) : null,
+			'mod_tags' => $expectedTags ? implode( "\n", $expectedTags ) : null,
 			'mod_type' => $this->newTitle ? 'move' : 'edit',
 			'mod_page2_namespace' => $this->newTitle ? $this->newTitle->getNamespace() : 0,
 			'mod_page2_title' => $this->newTitle ? $this->newTitle->getDBKey() : '',
