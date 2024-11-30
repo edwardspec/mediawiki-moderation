@@ -90,10 +90,6 @@ class ModerationShowTest extends ModerationTestCase {
 		$this->assertEquals( 'Second string', $deleted_lines[0] );
 	}
 
-	/**
-	 * @requires extension curl
-	 * @note Only cURL version of MWHttpRequest supports uploads.
-	 */
 	public function testShowUpload( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestUpload( "Test image 1" . $t->uniqueSuffix() . ".png", "image640x50.png",
@@ -158,8 +154,6 @@ class ModerationShowTest extends ModerationTestCase {
 	/**
 	 * Ensures that non-image uploads (e.g. OGG files) are shown correctly.
 	 * @covers ModerationActionShowImage
-	 * @requires extension curl
-	 * @note Only cURL version of MWHttpRequest supports uploads.
 	 */
 	public function testShowUploadNonImage( ModerationTestsuite $t ) {
 		/* Allow OGG files (music, i.e. not images) to be uploaded */

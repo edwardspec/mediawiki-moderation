@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2020 Edward Chernenko.
+	Copyright (C) 2015-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -27,10 +27,6 @@ require_once __DIR__ . "/../framework/ModerationTestsuite.php";
  * @covers ModerationError
  */
 class ModerationErrorsTest extends ModerationTestCase {
-	/**
-	 * @requires extension curl
-	 * @note Only cURL version of MWHttpRequest supports uploads.
-	 */
 	public function testMissingStashedImage( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestUpload();

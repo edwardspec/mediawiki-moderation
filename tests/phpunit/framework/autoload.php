@@ -41,6 +41,7 @@ $wgAutoloadClasses += [
 	'ModerationTestsuiteBot' => __DIR__ . '/bot/ModerationTestsuiteBot.php',
 	'ModerationTestsuiteBotResponse' => __DIR__ . '/bot/response/ModerationTestsuiteBotResponseTrait.php',
 	'ModerationTestsuiteEngine' => __DIR__ . '/engine/ModerationTestsuiteEngine.php',
+	'ModerationTestsuiteCliEngine' => __DIR__ . '/engine/cli/ModerationTestsuiteCliEngine.php',
 	'ModerationTestsuiteEntry' => __DIR__ . '/ModerationTestsuiteEntry.php',
 	'ModerationTestsuiteHTML' => __DIR__ . '/ModerationTestsuiteHTML.php',
 	'ModerationTestsuiteLogger' => __DIR__ . '/ModerationTestsuiteLogger.php',
@@ -49,12 +50,6 @@ $wgAutoloadClasses += [
 	'ModerationTestsuitePendingChangeTestSet' => __DIR__ . '/ModerationPendingChangeTestSet.php',
 	'ModerationTestsuiteResponse' => __DIR__ . '/ModerationTestsuiteResponse.php',
 	'ModerationTestsuiteTestSet' => __DIR__ . '/ModerationTestSet.php',
-	'ModerationTestsuiteTestSetRegex' => __DIR__ . '/ModerationTestSetRegex.php',
-
-	/* Completely working Engine, used for integration tests */
-	'ModerationTestsuiteCliEngine' => __DIR__ . '/engine/cli/ModerationTestsuiteCliEngine.php',
-
-	/* Deprecated Engine, incompatible with latest MediaWiki due to sandboxing of tests */
-	'ModerationTestsuiteRealHttpEngine' => __DIR__ . '/engine/realhttp/ModerationTestsuiteRealHttpEngine.php'
+	'ModerationTestsuiteTestSetRegex' => __DIR__ . '/ModerationTestSetRegex.php'
 ];
 // phpcs:enable

@@ -47,9 +47,6 @@ class ModerationTestsuite {
 
 		# With "qqx" language selected, messages are replaced with
 		# their names, so parsing process is translation-independent.
-		# NOTE: this requires ModerationTestsuiteEngine subclass to support setMwConfig(),
-		# which was optional before (RealHttpEngine doesn't support it,
-		# but RealHttpEngine is incompatible with MW 1.28+, so it can be ignored for now).
 		$this->setMwConfig( 'LanguageCode', 'qqx' );
 	}
 
@@ -70,9 +67,8 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * Sets MediaWiki global variable. Not supported by RealHttpEngine.
+	 * Sets MediaWiki global variable.
 	 * @param string $name Name of variable without the $wg prefix.
-	 * @throws PHPUnit\Framework\SkippedTestError TestsuiteEngine doesn't support this method.
 	 */
 	public function setMwConfig( $name, $value ) {
 		$this->engine->setMwConfig( $name, $value );
@@ -316,8 +312,6 @@ class ModerationTestsuite {
 		// Create test users like $t->moderator.
 		$this->prepopulateDb();
 
-		$this->purgeTagCache();
-
 		// Avoid stale data being reported by Title::getArticleId(), etc. on the test side
 		// when running multiple sequential tests, e.g. in ModerationQueueTest.
 		Title::clearCaches();
@@ -506,11 +500,6 @@ class ModerationTestsuite {
 	public function doesMemcachedWork() {
 		// Obsolete: CliEngine now uses ModerationTestsuiteBagOStuff for CACHE_MEMCACHED.
 		return true;
-	}
-
-	/** Prevent tags set by the previous test from affecting the current test */
-	public function purgeTagCache() {
-		ChangeTags::purgeTagCacheAll(); /* For RealHttpEngine tests */
 	}
 
 	#
@@ -956,7 +945,6 @@ class ModerationTestsuite {
 	public function disableAbuseFilter( $filterId ) {
 		$dbw = $this->getDB();
 		$dbw->update( 'abuse_filter', [ 'af_enabled' => 0 ], [ 'af_id' => $filterId ], __METHOD__ );
-		$this->purgeTagCache();
 	}
 
 	/**

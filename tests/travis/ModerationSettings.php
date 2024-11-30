@@ -53,11 +53,6 @@ foreach ( [ 'default', 'bureaucrat', 'sysop', 'interface-admin', 'bot' ] as $gro
 	$wgPasswordPolicy['policies'][$group] = [];
 }
 
-if ( getenv( 'MODERATION_TEST_ENGINE' ) == 'realhttp' ) {
-	// phpcs:ignore Generic.Files.LineLength.TooLong
-	require_once "$IP/extensions/Moderation/tests/phpunit/framework/engine/realhttp/SandboxWikiSettings.php";
-}
-
 # Extensions below are needed for some tests of Extension:Moderation.
 wfLoadExtension( 'AbuseFilter' ); # For PHPUnit testsuite
 wfLoadExtension( 'CheckUser' ); # For PHPUnit testsuite

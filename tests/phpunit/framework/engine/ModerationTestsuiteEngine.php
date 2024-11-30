@@ -19,9 +19,9 @@
  * @file
  * Abstract parent class for sending requests (HTTP or API) to MediaWiki.
  *
- * Possible subclasses:
- * 1) send real HTTP requests via network (RealHttpEngine),
- * 2) invoke MediaWiki as a command-line script (CliEngine).
+ * The only implementation is CliEngine (which invokes MediaWiki as a command-line script).
+ * In the past, there was also RealHttpEngine (which was sending real HTTP requests via network),
+ * but it's no longer possible in modern MediaWiki (which isolates tests from the real database).
  */
 
 use MediaWiki\MediaWikiServices;
@@ -36,9 +36,6 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 */
 	protected $reqHeaders = [];
 
-	/** @var string|null Cached CSRF token, as obtained by getEditToken() */
-	protected $editToken = null;
-
 	/**
 	 * @var User|null
 	 * Requests should be executed on behalf of this user.
@@ -51,12 +48,6 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 * @return IModerationTestsuiteEngine
 	 */
 	public static function factory() {
-		switch ( getenv( 'MODERATION_TEST_ENGINE' ) ) {
-			case 'realhttp':
-				return new ModerationTestsuiteRealHttpEngine;
-		}
-
-		/* Default */
 		return new ModerationTestsuiteCliEngine;
 	}
 
@@ -76,21 +67,6 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	}
 
 	/**
-	 * Detect invocations of the hook and capture the parameters that were passed to it.
-	 * @param string $name @phan-unused-param Name of the hook, e.g. "ModerationPending".
-	 * @param callable $postfactumCallback @phan-unused-param Receives array of received
-	 * parameter types and array of received parameters. Non-serializable parameters will be empty.
-	 * @note This callback is called after httpRequest() has already been completed.
-	 * @note If there were several invocations of the hook, callback is called for each of them.
-	 *
-	 * @phan-param callable(string[],array) $postfactumCallback
-	 */
-	public function trackHook( $name, callable $postfactumCallback ) {
-		throw new PHPUnit\Framework\SkippedTestError(
-			'Test skipped: ' . __METHOD__ . ' is not yet implemented.' );
-	}
-
-	/**
 	 * Obtain an aggregating Logger that doesn't print anything unless the test has failed.
 	 * @return ModerationTestsuiteLogger
 	 */
@@ -105,7 +81,7 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 * @param array $postData
 	 * @return IModerationTestsuiteResponse
 	 */
-	public function httpRequest( $url, $method = 'GET', array $postData = [] ) {
+	final public function httpRequest( $url, $method = 'GET', array $postData = [] ) {
 		$logger = $this->getLogger();
 
 		$user = $this->loggedInAs();
@@ -234,62 +210,20 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 */
 	final public function loginAs( User $user ) {
 		$this->loginAsInternal( $user );
-		$this->forgetEditToken(); # It's different for a logged-in user
 		$this->currentUser = $user;
 	}
 
 	/**
-	 * Default implementation of loginAs(). Can be overridden in the engine subclass.
+	 * Engine-specific implementation of loginAs().
 	 * @param User $user
 	 */
-	protected function loginAsInternal( User $user ) {
-		# Step 1. Get the token.
-		$ret = $this->query( [
-			'action' => 'query',
-			'meta' => 'tokens',
-			'type' => 'login'
-		] );
-		$loginToken = $ret['query']['tokens']['logintoken'];
-
-		# Step 2. Actual login.
-		$maxAttempts = 1;
-		for ( $attempt = 1; ; $attempt++ ) {
-			$ret = $this->query( [
-				'action' => 'clientlogin',
-				'username' => $user->getName(),
-				'password' => ModerationTestsuite::TEST_PASSWORD,
-				'loginreturnurl' => 'http://localhost/not.really.used',
-				'logintoken' => $loginToken
-			] );
-
-			$error = isset( $ret['error'] ) ? $ret['error']['code'] : false;
-			if ( !$error && $ret['clientlogin']['status'] == 'PASS' ) {
-				// Success.
-				return;
-			}
-
-			if ( $error == 'badtoken' && $attempt < $maxAttempts ) {
-				// Sometimes logintoken that we just obtained gets rejected as "badtoken",
-				// so retry several times (after 0.5 seconds delay) if we get "badtoken" error.
-				$this->getLogger()->notice( '[login] Retrying login due to incorrect "badtoken"', [
-					'failedAttemptNumber' => $attempt,
-					'maxAttempts' => $maxAttempts
-				] );
-				time_nanosleep( 0, 500000000 );
-				continue;
-			}
-
-			throw new MWException( 'Failed to login as [' . $user->getName() . ']: ' .
-				FormatJson::encode( $ret ) );
-		}
-	}
+	abstract protected function loginAsInternal( User $user );
 
 	/**
 	 * Forget the login cookies, etc. and become an anonymous user.
 	 */
 	final public function logout() {
 		$this->logoutInternal();
-		$this->forgetEditToken(); # It's different for anonymous user
 		$this->currentUser = null;
 	}
 
@@ -297,30 +231,6 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 * Engine-specific implementation of logout().
 	 */
 	abstract protected function logoutInternal();
-
-	/**
-	 * Obtain edit token. Can be overridden in the engine subclass.
-	 * @return string
-	 */
-	public function getEditToken() {
-		if ( !$this->editToken ) {
-			$ret = $this->query( [
-				'action' => 'query',
-				'meta' => 'tokens',
-				'type' => 'csrf'
-			] );
-			$this->editToken = $ret['query']['tokens']['csrftoken'];
-		}
-
-		return $this->editToken;
-	}
-
-	/**
-	 * Invalidate the cache of getEditToken().
-	 */
-	protected function forgetEditToken() {
-		$this->editToken = null;
-	}
 
 	/**
 	 * Create an account and return User object.
@@ -360,11 +270,6 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 	 *
 	 * MediaWiki 1.28+ started to agressively isolate tests from the real database,
 	 * which means that executed HTTP requests must also be in the sandbox.
-	 *
-	 * RealHttp engine can't instruct the HTTP server to use another database prefix
-	 * (which is how the sandbox is selected instead of the real database),
-	 * so its only choice is to break out of the sandbox.
-	 * Engine like CliEngine can handle this properly (by actually using the sandbox).
 	 */
 	public function escapeDbSandbox() {
 		if ( !(bool)getenv( 'PHPUNIT_USE_NORMAL_TABLES' ) ) {

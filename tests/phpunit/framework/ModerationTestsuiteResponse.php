@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017-2018 Edward Chernenko.
+	Copyright (C) 2017-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -17,10 +17,7 @@
 
 /**
  * @file
- * HTTP response to be analyzed by tests. Made from MWHttpRequest or OutputPage.
- *
- * This class mimics the methods of MWHttpRequest, even if it was created
- * from OutputPage (as the result of internal invocation).
+ * HTTP response to be analyzed by tests. Made from FauxResponse and content.
  */
 
 class ModerationTestsuiteResponse implements IModerationTestsuiteResponse {
@@ -41,20 +38,7 @@ class ModerationTestsuiteResponse implements IModerationTestsuiteResponse {
 	}
 
 	/**
-	 * Create response from real MWHttpRequest.
-	 * @param MWHttpRequest $httpRequest
-	 * @return IModerationTestsuiteResponse
-	 */
-	public static function newFromMWHttpRequest( MWHttpRequest $httpRequest ) {
-		return new self(
-			$httpRequest->getContent(),
-			$httpRequest->getStatus(),
-			[ $httpRequest, 'getResponseHeader' ]
-		);
-	}
-
-	/**
-	 * Create response after internal invocation.
+	 * Create response from FauxResponse and its content.
 	 * @param FauxResponse $mwResponse Response object after $mediaWiki->run
 	 * @param string $capturedContent Text printed by $mediaWiki->run
 	 * @return IModerationTestsuiteResponse
