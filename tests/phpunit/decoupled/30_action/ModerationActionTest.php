@@ -22,8 +22,6 @@
 
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 
-use MediaWiki\MediaWikiServices;
-
 /**
  * @group Database
  * @covers ModerationAction
@@ -910,52 +908,20 @@ class ModerationActionTest extends ModerationTestCase {
 
 		if ( $this->fields['mod_type'] == 'move' ) {
 			// TODO: test consequences of the move
-			return;
-		}
-
-		$services = $this->getServiceContainer();
-		$rev = $this->getTestsuite()->getLastRevision( $this->getExpectedTitle() );
-
-		$this->assertEquals( $this->fields['mod_user_text'], $rev['user'] );
-		$this->assertEquals( $this->fields['mod_text'], $rev['*'] );
-
-		$this->assertEquals(
-			[ "is minor edit" => (bool)$this->fields['mod_minor'] ],
-			[ "is minor edit" => array_key_exists( 'minor', $rev ) ]
-		);
-
-		$isReupload = $this->existing && $this->filename;
-		if ( !$isReupload ) {
-			// Reuploads don't place edit comment into rev_comment.
-			$this->assertEquals( $this->fields['mod_comment'], $rev['comment'] );
-
-			// Changing rev_timestamp in ApproveHook is not yet implemented for reuploads.
-			$expectedTimestamp = wfTimestamp( TS_ISO_8601, $this->fields['mod_timestamp'] );
-			$this->assertEquals( $expectedTimestamp, $rev['timestamp'] );
-		}
-
-		if ( $this->filename ) {
-			$repoGroup = $services->getRepoGroup();
-			$file = $repoGroup->findFile( $this->getExpectedTitleObj() );
-
-			$this->assertTrue( $file->exists(), "Approved file doesn't exist in FileRepo" );
-
-			$srcPath = ModerationTestsuite::findSourceFilename( $this->filename );
-			$expectedContents = file_get_contents( $srcPath );
-
-			$contents = file_get_contents( $file->getLocalRefPath() );
-
-			$this->assertEquals( $expectedContents, $contents,
-				"Approved file is different from uploaded file" );
+		} else {
+			// Test consequences of edit or upload
+			$this->assertEditApproved();
 		}
 
 		// Check that recentchanges (unlike page history) contain the timestamp of approval,
 		// not timestamp of the original edit.
 		$rcQueryFields = [ 'rc_timestamp' ];
+
+		$services = $this->getServiceContainer();
 		if ( $services->hasService( 'ChangeTagsStore' ) ) {
 			// MediaWiki 1.41+
 			// @phan-suppress-next-line PhanUndeclaredMethod
-			$rcQueryFields['ts_tags'] = MediaWikiServices::getInstance()->getChangeTagsStore()
+			$rcQueryFields['ts_tags'] = $services->getChangeTagsStore()
 				->makeTagSummarySubquery( 'recentchanges' );
 		} else {
 			// MediaWiki 1.39-1.40
@@ -984,6 +950,46 @@ class ModerationActionTest extends ModerationTestCase {
 				explode( "\n", $this->fields['mod_tags'] );
 		}
 		$this->assertSame( $expectedTags, $actualTags );
+	}
+
+	/**
+	 * Check the necessary consequences of approving an edit or upload.
+	 */
+	protected function assertEditApproved() {
+		$rev = $this->getTestsuite()->getLastRevision( $this->getExpectedTitle() );
+
+		$this->assertEquals( $this->fields['mod_user_text'], $rev['user'] );
+		$this->assertEquals( $this->fields['mod_text'], $rev['*'] );
+
+		$this->assertEquals(
+			[ "is minor edit" => (bool)$this->fields['mod_minor'] ],
+			[ "is minor edit" => array_key_exists( 'minor', $rev ) ]
+		);
+
+		$isReupload = $this->existing && $this->filename;
+		if ( !$isReupload ) {
+			// Reuploads don't place edit comment into rev_comment.
+			$this->assertEquals( $this->fields['mod_comment'], $rev['comment'] );
+
+			// Changing rev_timestamp in ApproveHook is not yet implemented for reuploads.
+			$expectedTimestamp = wfTimestamp( TS_ISO_8601, $this->fields['mod_timestamp'] );
+			$this->assertEquals( $expectedTimestamp, $rev['timestamp'] );
+		}
+
+		if ( $this->filename ) {
+			$repoGroup = $this->getServiceContainer()->getRepoGroup();
+			$file = $repoGroup->findFile( $this->getExpectedTitleObj() );
+
+			$this->assertTrue( $file->exists(), "Approved file doesn't exist in FileRepo" );
+
+			$srcPath = ModerationTestsuite::findSourceFilename( $this->filename );
+			$expectedContents = file_get_contents( $srcPath );
+
+			$contents = file_get_contents( $file->getLocalRefPath() );
+
+			$this->assertEquals( $expectedContents, $contents,
+				"Approved file is different from uploaded file" );
+		}
 	}
 
 	/**
