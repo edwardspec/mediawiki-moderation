@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2021 Edward Chernenko.
+	Copyright (C) 2015-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -83,10 +83,7 @@ class ModerationCheckuserTest extends ModerationTestCase {
 		$entry = $t->getSampleEntry();
 
 		$t->setUserAgent( $this->moderatorUA );
-
-		$waiter = $t->waitForRecentChangesToAppear();
 		$t->httpGet( $entry->approveLink );
-		$waiter( 1 );
 
 		$agent = $t->getCUCAgent();
 		$this->assertNotEquals( $this->moderatorUA, $agent,
@@ -118,10 +115,7 @@ class ModerationCheckuserTest extends ModerationTestCase {
 		# contain UserAgent of user who made the edit,
 		# not UserAgent or the moderator who approved it.
 		$t->setUserAgent( $this->moderatorUA );
-
-		$waiter = $t->waitForRecentChangesToAppear();
 		$t->httpGet( $entry->approveAllLink ); # Try modaction=approveall
-		$waiter( $NUMBER_OF_UPLOADS );
 
 		/* Counting backwards, because getCUCAgents() selects in newest-to-latest order */
 		$i = $NUMBER_OF_UPLOADS;

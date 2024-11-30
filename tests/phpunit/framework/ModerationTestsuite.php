@@ -87,9 +87,9 @@ class ModerationTestsuite {
 	 */
 	public function trackHook( $name ) {
 		$this->capturedHooks[$name] = [];
-		$this->engine->trackHook( $name, Closure::bind( function ( $paramTypes, $params ) use ( $name ) {
+		$this->engine->trackHook( $name, function ( $paramTypes, $params ) use ( $name ) {
 			$this->capturedHooks[$name][] = [ $paramTypes, $params ];
-		}, $this ) );
+		} );
 	}
 
 	/**
@@ -781,48 +781,6 @@ class ModerationTestsuite {
 	public function badTokenTitle( $url ) {
 		$bad_url = preg_replace( '/(token=)([^&]*)/', '\1WRONG\2', $url );
 		return $this->html->loadUrl( $bad_url )->getTitle();
-	}
-
-	/**
-	 * Wait for "recentchanges" table to be updated by DeferredUpdates.
-	 *
-	 * Usage:
-	 * 	$waiter = $t->waitForRecentChangesToAppear();
-	 * 	// Do something that should create N recentchanges entries
-	 * 	$waiter( N );
-	 * @return callable
-	 */
-	public function waitForRecentChangesToAppear() {
-		$dbw = $this->getDB();
-		$lastRcId = $dbw->selectField( 'recentchanges', 'rc_id', '', __METHOD__,
-			[ 'ORDER BY' => 'rc_timestamp DESC' ]
-		);
-
-		return static function ( $numberOfEdits ) use ( $dbw, $lastRcId ) {
-			$pollTimeLimitSeconds = 5; /* Polling will fail after these many seconds */
-			$pollRetryPeriodSeconds = 0.2; /* How often to check recentchanges */
-
-			/* Wait for all $revisionIds to appear in recentchanges table */
-			$maxTime = time() + $pollTimeLimitSeconds;
-			do {
-				$rcRowsFound = $dbw->selectRowCount(
-					'recentchanges', 'rc_id',
-					[ 'rc_id > ' . $dbw->addQuotes( $lastRcId ) ],
-					'waitForRecentChangesToAppear',
-					[ 'LIMIT' => $numberOfEdits ]
-				);
-				if ( $rcRowsFound >= $numberOfEdits ) {
-					return; /* Success */
-				}
-
-				/* Continue polling */
-				usleep( (int)( $pollRetryPeriodSeconds * 1000 * 1000 ) );
-			} while ( time() < $maxTime );
-
-			throw new MWException(
-				"waitForRecentChangesToAppear(): new $numberOfEdits entries haven't " .
-				"appeared in $pollTimeLimitSeconds seconds." );
-		};
 	}
 
 	/**
