@@ -460,6 +460,10 @@ class ModerationActionTest extends ModerationTestCase {
 
 	private const READONLY_REASON = 'Simulated ReadOnly mode';
 
+	private const USER_AGENT_OF_AUTHOR = ModerationTestsuite::DEFAULT_USER_AGENT . ' (AuthorOfEdit)';
+
+	private const USER_AGENT_OF_MODERATOR = ModerationTestsuite::DEFAULT_USER_AGENT . ' (Moderator)';
+
 	/**
 	 * @var string Name of action, e.g. 'approve' or 'rejectall'.
 	 */
@@ -594,6 +598,8 @@ class ModerationActionTest extends ModerationTestCase {
 	 * @param array $options
 	 */
 	protected function applyOptions( array $options ) {
+		$options['mod_header_ua'] = self::USER_AGENT_OF_AUTHOR;
+
 		foreach ( $options as $key => $value ) {
 			switch ( $key ) {
 				case 'enableEditChange':
@@ -725,6 +731,7 @@ class ModerationActionTest extends ModerationTestCase {
 		}
 
 		$t->loginAs( $this->getModerator() );
+		$t->setUserAgent( self::USER_AGENT_OF_MODERATOR );
 
 		if ( $this->readonly ) {
 			$t->setMwConfig( 'ReadOnly', self::READONLY_REASON );
@@ -950,6 +957,16 @@ class ModerationActionTest extends ModerationTestCase {
 				explode( "\n", $this->fields['mod_tags'] );
 		}
 		$this->assertSame( $expectedTags, $actualTags );
+
+		// Check that UserAgent was preserved on approval.
+		$agents = ( $this->filename || $this->fields['mod_type'] == 'move' ) ?
+			$this->getTestsuite()->getCULEAgents( 1 ) :
+			$this->getTestsuite()->getCUCAgents( 1 );
+
+		$this->assertNotSame( self::USER_AGENT_OF_MODERATOR, $agents[0],
+			'UserAgent in checkuser tables matches moderator\'s UserAgent' );
+		$this->assertSame( self::USER_AGENT_OF_AUTHOR, $agents[0],
+			'UserAgent in checkuser tables doesn\'t match UserAgent of user who made the edit' );
 	}
 
 	/**

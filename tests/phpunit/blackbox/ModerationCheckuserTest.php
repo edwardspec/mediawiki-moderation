@@ -70,30 +70,6 @@ class ModerationCheckuserTest extends ModerationTestCase {
 	}
 
 	/**
-	 * Ensure that modaction=approve preserves user-agent of edits.
-	 */
-	public function testApproveEditPrevervesUA( ModerationTestsuite $t ) {
-		$this->requireExtension( 'CheckUser' );
-
-		# When the edit is approved, cu_changes.cuc_agent field should
-		# contain UserAgent of user who made the edit,
-		# not UserAgent or the moderator who approved it.
-
-		$t->setUserAgent( $this->userUA );
-		$entry = $t->getSampleEntry();
-
-		$t->setUserAgent( $this->moderatorUA );
-		$t->httpGet( $entry->approveLink );
-
-		$agent = $t->getCUCAgent();
-		$this->assertNotEquals( $this->moderatorUA, $agent,
-			"testApproveEditPrevervesUA(): UserAgent in checkuser tables matches moderator's UserAgent" );
-		$this->assertEquals( $this->userUA, $agent,
-			"testApproveEditPrevervesUA(): UserAgent in checkuser tables " .
-			"doesn't match UserAgent of user who made the edit" );
-	}
-
-	/**
 	 * Ensure that modaction=approveall preserves user-agent of uploads.
 	 * @covers ModerationApproveHook::getTask()
 	 */
