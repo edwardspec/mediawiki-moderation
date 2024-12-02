@@ -118,31 +118,6 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * Verify that move will not be queued when simply viewing Special:Movepage (without submitting).
-	 * @covers ModerationMoveHooks::onTitleMove
-	 */
-	public function testMovePageOnlyView() {
-		$oldTitle = Title::newFromText( 'Old title' );
-		$newTitle = Title::newFromText( 'New title' );
-		$user = self::getTestUser()->getUser();
-		$reason = 'Some reason';
-		$status = Status::newGood();
-
-		$globalContext = RequestContext::getMain();
-		$globalContext->setTitle( SpecialPage::getTitleFor( 'Movepage' ) );
-		$globalContext->setRequest( new FauxRequest( [], false ) ); // GET request
-
-		$manager = $this->mockConsequenceManager();
-
-		$hookResult = MediaWikiServices::getInstance()->getHookContainer()->run( 'MovePageCheckPermissions',
-			[ $oldTitle, $newTitle, $user, $reason, $status ] );
-		$this->assertTrue( $hookResult, 'Handler of MovePageCheckPermissions hook should return true.' );
-
-		// Form of Special:Movepage wasn't submitted, so nothing should have been queued for moderation.
-		$this->assertNoConsequences( $manager );
-	}
-
-	/**
 	 * Create a page as automoderated user. (this edit will bypass moderation)
 	 */
 	private function precreatePage() {

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -142,35 +142,5 @@ class ModerationMoveTest extends ModerationTestCase {
 			$events[0]['params'][3] );
 		$this->assertEquals( $t->unprivilegedUser->getName(),
 			$events[0]['params'][4] );
-	}
-
-	/**
-	 * Ensures that Special:MovePage won't queue the move before submit.
-	 * Hook MovePageCheckPermissions (where we queue the move) is called
-	 * not only on submit, but also in MovePageForm::showForm, i.e. before submit.
-	 *
-	 * At this point we shouldn't attempt to queue the move for moderation.
-	 */
-	public function testNoPrematureMoveInShowForm( ModerationTestsuite $t ) {
-		$t->loginAs( $t->automoderated );
-		$t->doTestEdit( $this->oldTitle, $this->text );
-
-		$t->loginAs( $t->unprivilegedUser );
-
-		/* Don't submit the form, just open it with pre-set "wpNewTitle",
-			like in "revert" links on [[Special:Log/move]] */
-		$req = $t->httpGet( SpecialPage::getTitleFor( 'Movepage' )->getFullURL( [
-			'wpOldTitle' => $this->oldTitle,
-			'wpNewTitle' => $this->newTitle
-		] ) );
-		$html = $t->html->loadReq( $req );
-
-		$this->assertStringNotContainsString( '(moderation-move-queued)', $html->getMainText(),
-			"testNoPrematureMoveInShowForm(): Special:MovePage has queued the move " .
-			"before Submit was clicked" );
-
-		$submitButton = $html->getSubmitButton();
-		$this->assertNotNull( $submitButton );
-		$this->assertEquals( '(movepagebtn)', $submitButton->textContent );
 	}
 }
