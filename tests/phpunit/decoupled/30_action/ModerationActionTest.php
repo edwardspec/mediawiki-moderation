@@ -914,7 +914,7 @@ class ModerationActionTest extends ModerationTestCase {
 		}
 
 		if ( $this->fields['mod_type'] == 'move' ) {
-			// TODO: test consequences of the move
+			$this->assertMoveApproved();
 		} else {
 			// Test consequences of edit or upload
 			$this->assertEditApproved();
@@ -1007,6 +1007,28 @@ class ModerationActionTest extends ModerationTestCase {
 			$this->assertEquals( $expectedContents, $contents,
 				"Approved file is different from uploaded file" );
 		}
+	}
+
+	/**
+	 * Check the necessary consequences of approving a move.
+	 */
+	protected function assertMoveApproved() {
+		$t = $this->getTestsuite();
+		$newTitle = $this->getExpectedPage2Title();
+
+		// New title: should contain the text of this page.
+		$rev = $t->getLastRevision( $newTitle );
+		$this->assertSame( $this->fields['mod_user_text'], $rev['user'] );
+		$this->assertSame( $this->textOfPrecreatedPage, $rev['*'] );
+
+		// Old title: should contain a redirect.
+		$rev = $t->getLastRevision( $this->getExpectedTitle() );
+		$this->assertSame( $this->fields['mod_user_text'], $rev['user'] );
+		$this->assertNotSame( $this->fields['mod_text'], $rev['*'] );
+		$this->assertRegExp(
+			'/^#[^ ]+ \[\[' . preg_quote( $newTitle ) . '\]\]\n\(move-redirect-text\)$/',
+			$rev['*']
+		);
 	}
 
 	/**

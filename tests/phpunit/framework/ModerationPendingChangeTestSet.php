@@ -43,6 +43,9 @@ trait ModerationTestsuitePendingChangeTestSet {
 	/** @var bool If true, mod_text will equal the text of previous revision (if any) or "". */
 	protected $nullEdit = false;
 
+	/** @var string Text of existing page. Used if 1) $existing is true or 2) when testing a move. */
+	protected $textOfPrecreatedPage = 'Original text of the page precreated by PendingChangeTestSet';
+
 	/**
 	 * Initialize this TestSet from the input of dataProvider.
 	 */
@@ -122,17 +125,16 @@ trait ModerationTestsuitePendingChangeTestSet {
 		if ( $this->existing || $this->fields['mod_type'] == 'move' ) {
 			// Precreate the page/file.
 			$title = $this->getExpectedTitleObj();
-			$oldText = 'Old text';
 
 			$this->precreatePage(
 				$title,
-				$oldText,
+				$this->textOfPrecreatedPage,
 				$this->filename
 			);
 
 			$this->fields['mod_new'] = 0;
 			$this->fields['mod_last_oldid'] = $title->getLatestRevID( IDBAccessObject::READ_LATEST );
-			$this->fields['mod_old_len'] = strlen( $oldText );
+			$this->fields['mod_old_len'] = strlen( $this->textOfPrecreatedPage );
 
 			// Make sure that mod_timestamp is not earlier than the timestamp of precreated edit,
 			// otherwise the order of history will be wrong.
@@ -243,7 +245,7 @@ trait ModerationTestsuitePendingChangeTestSet {
 	 */
 	protected function getModeratorWhoBlocked() {
 		// We don't really need this account to exist,
-		// it's only used for logging its ID/Name as mb_by/mb_by_tezt.
+		// it's only used for logging its ID/Name as mb_by/mb_by_text.
 		return User::newFromName( 'Some moderator', false );
 	}
 
