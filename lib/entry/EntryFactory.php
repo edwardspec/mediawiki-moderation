@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -205,12 +205,6 @@ class EntryFactory {
 				'USE INDEX' => 'moderation_approveall'
 			]
 		);
-		// @codeCoverageIgnoreStart
-		if ( !$res ) {
-			// In practice (the way DB::select() is implemented) this never happens.
-			return [];
-		}
-		// @codeCoverageIgnoreEnd
 
 		$entries = [];
 		foreach ( $res as $row ) {
