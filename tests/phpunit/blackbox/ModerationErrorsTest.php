@@ -47,21 +47,4 @@ class ModerationErrorsTest extends ModerationTestCase {
 			"testMissingStashedImage(): URL of modaction=showimg doesn't return 404 Not Found"
 		);
 	}
-
-	public function testEditNoChange( ModerationTestsuite $t ) {
-		$page = 'Test page 1';
-		$text = 'This is some ext';
-
-		$t->loginAs( $t->automoderated );
-		$t->doTestEdit( $page, $text );
-
-		$t->loginAs( $t->unprivilegedUser );
-		$t->doTestEdit( $page, $text ); # Make zero edit
-		$t->fetchSpecial();
-
-		$entry = $t->new_entries[0];
-
-		$error = $t->html->loadUrl( $entry->approveLink )->getModerationError();
-		$this->assertEquals( '(edit-no-change)', $error );
-	}
 }

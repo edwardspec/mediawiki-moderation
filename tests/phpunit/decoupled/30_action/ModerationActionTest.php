@@ -251,6 +251,12 @@ class ModerationActionTest extends ModerationTestCase {
 				'mod_rejected' => 1,
 				'expectedError' => '(moderation-already-rejected)'
 			] ],
+			'Error: attempt to Approve a null edit (same text as current text of the page)' => [ [
+				'modaction' => 'approve',
+				'existing' => true,
+				'nullEdit' => true,
+				'expectedError' => '(edit-no-change)'
+			] ],
 			'Error: attempt to Approve edit which was rejected long ago' => [ [
 				'modaction' => 'approve',
 				'mod_rejected' => 1,
