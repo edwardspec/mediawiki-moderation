@@ -267,7 +267,13 @@ class ModerationActionTest extends ModerationTestCase {
 				// approve: handing of situation when doEditContent() results in an error
 				'modaction' => 'approve',
 				'simulateInvalidJsonContent' => true,
-				'expectedOutput' => '(invalid-json-data: (json-error-syntax))'
+				'expectedError' => '(invalid-json-data: (json-error-syntax))'
+			] ],
+			'Error: attempt to Approve upload when the file was deleted from stash' => [ [
+				'modaction' => 'approve',
+				'filename' => 'image100x100.png',
+				'simulateMissingStashedImage' => true,
+				'expectedError' => '(moderation-missing-stashed-image)'
 			] ],
 			'Error: attempt to ApproveAll when there is nothing to approve' => [ [
 				'modaction' => 'approveall',
@@ -366,8 +372,6 @@ class ModerationActionTest extends ModerationTestCase {
 				because they are handled differently.
 				First test is on image640x50.png (large image),
 				second on image100x100.png (smaller image).
-
-				TODO: move testMissingStashedImage() here? (error 404 "image is missing from stash")
 			*/
 			'ShowImage (650x50 PNG image)' => [ [
 				'modaction' => 'showimg',
@@ -416,7 +420,13 @@ class ModerationActionTest extends ModerationTestCase {
 
 				// OGG is not an image, thumbnail will be the same as the original file.
 				'expectOutputToEqualUploadedFile' => true
-			] ]
+			] ],
+			'ShowImage: missing stash image' => [ [
+				'modaction' => 'showimg',
+				'filename' => 'image100x100.png',
+				'simulateMissingStashedImage' => true,
+				'expectedHttpStatus' => 404
+			] ],
 		];
 
 		// "Already merged" error
@@ -519,6 +529,11 @@ class ModerationActionTest extends ModerationTestCase {
 	protected $expectedContentType = null;
 
 	/**
+	 * @var int Expected HTTP status code of the response (e.g. 404 for "Not Found").
+	 */
+	protected $expectedHttpStatus = 200;
+
+	/**
 	 * @var int|null If not null, we expect response to be an image with this width.
 	 */
 	protected $expectedImageWidth = null;
@@ -590,6 +605,11 @@ class ModerationActionTest extends ModerationTestCase {
 	protected $simulateInvalidJsonContent = false;
 
 	/**
+	 * @var bool If true, uploaded image would be deleted from stash.
+	 */
+	protected $simulateMissingStashedImage = false;
+
+	/**
 	 * @var bool If true, incorrect modid will be used in the action URL.
 	 */
 	protected $simulateNoSuchEntry = false;
@@ -611,6 +631,7 @@ class ModerationActionTest extends ModerationTestCase {
 				case 'enableEditChange':
 				case 'expectedContentType':
 				case 'expectedContentDisposition':
+				case 'expectedHttpStatus':
 				case 'expectedFields':
 				case 'expectedError':
 				case 'expectedImageWidth':
@@ -630,6 +651,7 @@ class ModerationActionTest extends ModerationTestCase {
 				case 'postData':
 				case 'readonly':
 				case 'simulateInvalidJsonContent':
+				case 'simulateMissingStashedImage':
 				case 'simulateNoSuchEntry':
 				case 'showThumb':
 					$this->$key = $value;
@@ -662,6 +684,11 @@ class ModerationActionTest extends ModerationTestCase {
 			$this->getTestsuite()->setMwConfig( 'NamespaceContentModels',
 				[ $this->fields['mod_namespace'] => CONTENT_MODEL_JSON ]
 			);
+		}
+
+		if ( $this->simulateMissingStashedImage ) {
+			$stash = ModerationUploadStorage::getStash();
+			$stash->removeFile( $this->fields['mod_stash_key'] );
 		}
 
 		$this->expectedFields += $this->fields;
@@ -762,6 +789,9 @@ class ModerationActionTest extends ModerationTestCase {
 		// wouldn't return stale data after modaction=approve.
 		Title::clearCaches();
 
+		$this->assertSame( $this->expectedHttpStatus, $req->getStatus(),
+			"modaction={$this->modaction}: wrong HTTP status code." );
+
 		if ( $this->expectedContentType ) {
 			$this->assertBinaryOutput( $req );
 		} else {
@@ -797,7 +827,7 @@ class ModerationActionTest extends ModerationTestCase {
 			);
 		}
 
-		$output = $html->getMainText();
+		$output = $html->getMainText() ?? '';
 		if ( $this->expectedOutput ) {
 			$this->assertStringContainsString( $this->expectedOutput, $output,
 				"modaction={$this->modaction}: unexpected output." );
