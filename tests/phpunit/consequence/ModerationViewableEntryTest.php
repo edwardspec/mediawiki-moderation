@@ -198,7 +198,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	 * @covers ModerationViewableEntry
 	 */
 	public function testThumbNotImage() {
-		$file = TempFSFile::factory( '', '.txt' );
+		$file = $this->getServiceContainer()->getTempFSFileFactory()->newTempFSFile( '', 'txt' );
 		$path = $file->getPath();
 
 		file_put_contents( $path, "Non-image upload (e.g. OGG file with music)" );

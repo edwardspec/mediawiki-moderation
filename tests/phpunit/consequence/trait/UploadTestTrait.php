@@ -20,6 +20,8 @@
  * Trait for tests that need an UploadBase object which can be used for performUpload() calls.
  */
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * @codingStandardsIgnoreStart
  * @method static void assertEquals($a, $b, string $message='', float $d=0.0, int $e=10, bool $f=false, bool $g=false)
@@ -52,7 +54,8 @@ trait UploadTestTrait {
 
 		/* Create a temporary copy of this file,
 			so that the original file won't be deleted after the upload */
-		$tmpFile = TempFSFile::factory( 'testsuite.upload', basename( $srcPath ) );
+		$tmpFileFactory = MediaWikiServices::getInstance()->getTempFSFileFactory();
+		$tmpFile = $tmpFileFactory->newTempFSFile( 'testsuite.upload', basename( $srcPath ) );
 		$tmpFile->preserve(); // Otherwise it will be deleted after exiting prepareTestUpload()
 
 		$tmpFilePath = $tmpFile->getPath();
@@ -89,7 +92,7 @@ trait UploadTestTrait {
 	 * @return string Valid stash_key of newly stored file.
 	 */
 	protected function stashSampleImage( $srcPath = null ) {
-		$file = TempFSFile::factory( '', 'png' );
+		$file = MediaWikiServices::getInstance()->getTempFSFileFactory()->newTempFSFile( '', 'png' );
 		$path = $file->getPath();
 
 		file_put_contents( $path, file_get_contents( $srcPath ?? $this->sampleImageFile ) );
