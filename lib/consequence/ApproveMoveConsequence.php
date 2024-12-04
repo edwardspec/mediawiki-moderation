@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ class ApproveMoveConsequence implements IConsequence {
 			return $status;
 		}
 
-		/* There is no need to call $mp->checkPermissions( $this->getUser(), $reason ),
+		/* There is no need to call $mp->authorizeMove( $this->getUser(), $reason ),
 			because (1) it was already checked BEFORE the move was queued,
 			(2) this move is now being approved by moderator, so it doesn't matter
 			whether $user has lost its right to move (e.g. got blocked) or not.
@@ -84,9 +84,10 @@ class ApproveMoveConsequence implements IConsequence {
 			and they don't necessarily want to give them "move" right,
 			because "move" right can be used for hard-to-revert vandalism.
 		*/
-		$status = $mp->checkPermissions( $this->moderator, $this->reason );
-		if ( !$status->isOK() ) {
-			return $status; /* Moderator is not allowed to move */
+		$permissionStatus = $mp->authorizeMove( $this->moderator, $this->reason );
+		if ( !$permissionStatus->isOK() ) {
+			/* Moderator is not allowed to move */
+			return Status::wrap( $permissionStatus );
 		}
 
 		return $mp->move(

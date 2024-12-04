@@ -902,7 +902,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 		/* Sanity checks like "page with the new name should not exist" */
 		$status = $mp->isValidMove();
 		if ( $status->isOK() ) {
-			$status->merge( $mp->checkPermissions( $user, $reason ) );
+			$status->merge( $mp->authorizeMove( $user, $reason ) );
 			if ( $status->isOK() ) {
 				$status->merge( $mp->move( $user, $reason, $createRedirect ) );
 			}
