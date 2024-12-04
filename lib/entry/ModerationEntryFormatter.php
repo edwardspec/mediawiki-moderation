@@ -242,7 +242,6 @@ class ModerationEntryFormatter extends ModerationEntry {
 			$url = $this->msg( 'moderation-whois-link-url', $ip )->plain();
 			$text = $this->msg( 'moderation-whois-link-text' )->plain();
 
-			// @phan-suppress-next-line SecurityCheck-DoubleEscaped
 			$link = Linker::makeExternalLink( $url, $text );
 			$line .= Xml::tags( 'sup', [ 'class' => 'whois plainlinks' ], "[$link]" );
 		}

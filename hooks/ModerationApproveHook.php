@@ -359,7 +359,8 @@ class ModerationApproveHook implements
 
 				$dbw->update( 'logging',
 					[ 'log_params' => $logEntry->makeParamBlob( $params ) ],
-					[ 'log_id' => $logid ]
+					[ 'log_id' => $logid ],
+					__METHOD__
 				);
 			}
 		}

@@ -134,7 +134,6 @@ class SpecialModeration extends QueryPage {
 			$label = $this->msg( 'moderation-folder-' . $f_name )->plain();
 
 			if ( $f_name == $this->folder ) {
-				// @phan-suppress-next-line SecurityCheck-DoubleEscaped
 				$folderLinks[] = Xml::element( 'strong', [ 'class' => 'selflink' ], $label );
 			} else {
 				$folderLinks[] = $linkRenderer->makePreloadedLink(

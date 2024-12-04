@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2021 Edward Chernenko.
+	Copyright (C) 2014-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -54,8 +54,8 @@ class ModerationUpdater implements LoadExtensionSchemaUpdatesHook {
 				"$sqlDir/patch-fix-titledbkey.sql" );
 
 			// ... to Moderation 1.2.9
-			if ( $db->tableExists( 'moderation' ) &&
-				!$db->indexUnique( 'moderation', 'moderation_load' )
+			if ( $db->tableExists( 'moderation', __METHOD__ ) &&
+				!$db->indexUnique( 'moderation', 'moderation_load', __METHOD__ )
 			) {
 				$updater->addExtensionUpdate( [ 'applyPatch',
 					"$sqlDir/patch-make-preload-unique.sql", true ] );

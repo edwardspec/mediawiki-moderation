@@ -72,6 +72,7 @@ class ModerationCompatTools {
 
 		if ( method_exists( '\MediaWiki\CheckUser\Hooks', 'getClientIPfromXFF' ) ) {
 			// MediaWiki 1.39 only
+			// @phan-suppress-next-line PhanUndeclaredStaticMethod
 			return \MediaWiki\CheckUser\Hooks::getClientIPfromXFF( $xff );
 		}
 

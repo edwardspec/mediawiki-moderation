@@ -20,8 +20,6 @@
  * Handles exceptions thrown by actions on Special:Moderation.
  */
 
-/** @phan-file-suppress PhanUndeclaredClassMethod */
-
 class ModerationError extends ErrorPageError {
 
 	/** @var Status Error details */
