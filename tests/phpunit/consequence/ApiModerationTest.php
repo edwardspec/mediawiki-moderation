@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\Moderation\ActionFactory;
+use Wikimedia\ParamValidator\ParamValidator;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -151,9 +152,9 @@ class ApiModerationTest extends ApiTestCase {
 		$this->assertArrayHasKey( 'modaction', $allowedParams );
 		$this->assertArrayHasKey( 'modid', $allowedParams );
 
-		$this->assertFalse( empty( $allowedParams['modaction'][ApiBase::PARAM_REQUIRED] ),
+		$this->assertFalse( empty( $allowedParams['modaction'][ParamValidator::PARAM_REQUIRED] ),
 			'Parameter modaction= must be required.' );
-		$this->assertFalse( empty( $allowedParams['modid'][ApiBase::PARAM_REQUIRED] ),
+		$this->assertFalse( empty( $allowedParams['modid'][ParamValidator::PARAM_REQUIRED] ),
 			'Parameter modid= must be required.' );
 
 		$wrapper = TestingAccessWrapper::newFromObject( $api );
