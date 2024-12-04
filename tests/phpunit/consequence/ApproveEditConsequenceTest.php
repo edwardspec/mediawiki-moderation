@@ -83,7 +83,7 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 
 			$performer = $rc->getPerformerIdentity();
 
-			$this->assertEquals( $title->getFullText(), $rc->getTitle()->getFullText() );
+			$this->assertTrue( $rc->getPage()->isSamePageAs( $title ), 'Wrong title' );
 			$this->assertEquals( $user->getName(), $performer->getName() );
 			$this->assertEquals( $user->getId(), $performer->getId() );
 			$this->assertEquals( $opt->minor ? 1 : 0, $rc->getAttribute( 'rc_minor' ) );

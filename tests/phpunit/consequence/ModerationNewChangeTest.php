@@ -471,7 +471,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 			use ( $title, $user, $action, $expectedTags ) {
 				$this->assertFalse( $clear );
 
-				$this->assertSame( $title, $rc->getTitle() );
+				$this->assertTrue( $rc->getPage()->isSamePageAs( $title ), 'Wrong title' );
 				$this->assertSame( $user, $rc->getPerformerIdentity() );
 				$this->assertSame( $action, $rc->getAttribute( 'rc_log_type' ) );
 				$this->assertSame( $action, $rc->getAttribute( 'rc_log_action' ) );
