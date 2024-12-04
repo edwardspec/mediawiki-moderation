@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ class ModerationActionMergeTest extends ModerationUnitTestCase {
 		];
 
 		// $result['summary'] should have a message in ContentLanguage
-		$this->setContentLang( 'qqx' );
+		$this->overrideConfigValue( 'LanguageCode', 'qqx' );
 
 		$action = $this->makeActionForTesting( ModerationActionMerge::class,
 			function (

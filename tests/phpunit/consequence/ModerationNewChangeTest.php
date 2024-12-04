@@ -51,7 +51,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 		$userId = 567;
 		$username = 'Test user';
 
-		$this->setContentLang( 'qqx' );
+		$this->overrideConfigValue( 'LanguageCode', 'qqx' );
 
 		$request = new FauxRequest();
 		$request->setHeaders( [

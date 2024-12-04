@@ -94,7 +94,7 @@ class ModerationErrorTest extends ModerationUnitTestCase {
 		$context->setTitle( $title );
 		$out = $wgOut = $context->getOutput();
 
-		$this->setContentLang( 'qqx' );
+		$this->overrideConfigValue( 'LanguageCode', 'qqx' );
 
 		// Create and report() an exception.
 		if ( $isMadeFromString ) {

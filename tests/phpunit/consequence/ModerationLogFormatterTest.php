@@ -38,7 +38,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 		$services = MediaWikiServices::getInstance();
 
 		$this->setMwGlobals( 'wgLogRestrictions', [] );
-		$this->setContentLang( 'qqx' );
+		$this->overrideConfigValue( 'LanguageCode', 'qqx' );
 
 		$performer = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
 		$target = Title::newFromText( $options['target'] );
