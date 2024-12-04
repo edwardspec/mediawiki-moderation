@@ -176,7 +176,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 			// @phan-suppress-next-line PhanTypeMismatchArgument
 			->environment( $env )
 			->limits( $limits )
-			->restrict( Shell::NO_ROOT )
+			->privateUserNamespace()
 			->input( serialize( $descriptor ) )
 			->execute();
 
