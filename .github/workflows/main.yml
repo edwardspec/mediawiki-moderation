@@ -175,5 +175,8 @@ jobs:
           rsync -a --exclude buildcache --exclude mediawiki --exclude .git . mediawiki/extensions/Moderation/
           cd mediawiki/extensions/Moderation
           composer install
+          # Workaround incorrect annotation of with() method in PHPUnit 9 (used in MediaWiki 1.43)
+          # to avoid over 100 false positive Phan warnings.
+          sed -i '/@param mixed\[\] \$arguments/d' ../../vendor/phpunit/phpunit/src/Framework/MockObject/Builder/InvocationMocker.php
       - name: RUN -- phan
         run: cd mediawiki/extensions/Moderation && ./vendor/bin/phan --analyze-twice
