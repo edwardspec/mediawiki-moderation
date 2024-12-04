@@ -151,7 +151,6 @@ function wfModerationTestsuiteCliLogin() {
 function wfFakeHooksRegister( $hookName, callable $handler ) {
 	if ( version_compare( MW_VERSION, '1.41.0-alpha', '>=' ) ) {
 		// MediaWiki 1.41+
-		// @phan-suppress-next-line PhanUndeclaredStaticMethod
 		MediaWikiServices::allowGlobalInstanceAfterUnitTests();
 		MediaWikiServices::getInstance()->getHookContainer()->register( $hookName, $handler );
 		return;

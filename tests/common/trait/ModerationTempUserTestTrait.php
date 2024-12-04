@@ -22,10 +22,9 @@
 
 use MediaWiki\Tests\User\TempUser\TempUserTestTrait;
 
-// @phan-suppress-next-line PhanUndeclaredClassReference
 if ( trait_exists( TempUserTestTrait::class ) ) {
 	// MediaWiki 1.42+
-	// @phan-suppress-next-line PhanUndeclaredClassReference, PhanUndeclaredClassAliasOriginal
+	// @phan-suppress-next-line PhanRedefineClassAlias
 	class_alias( TempUserTestTrait::class, 'ModerationTempUserTestTrait' );
 } else {
 	// MediaWiki 1.39-1.41.

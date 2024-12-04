@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 
 /**
- * @method static TestUser getTestUser($groups=null)
+ * @method TestUser getTestUser($groups=null)
  */
 trait ModifyDbRowTestTrait {
 	/** @var User */
@@ -60,7 +60,7 @@ trait ModifyDbRowTestTrait {
 	 */
 	public function getDefaultFields() {
 		if ( !$this->authorUser ) {
-			$this->authorUser = self::getTestUser()->getUser();
+			$this->authorUser = $this->getTestUser()->getUser();
 		}
 
 		$dbr = ModerationCompatTools::getDB( DB_REPLICA );

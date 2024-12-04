@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2022 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,6 +19,14 @@
  * @file
  * Selectively cleanable BagOStuff. Used for parallel PHPUnit testing.
  */
+
+use Wikimedia\ObjectCache\HashBagOStuff as HashBagOStuff43;
+
+if ( !class_exists( 'HashBagOStuff' ) ) {
+	// MediaWiki 1.43+
+	// @phan-suppress-next-line PhanRedefineClassAlias
+	class_alias( HashBagOStuff43::class, 'HashBagOStuff' );
+}
 
 class ModerationTestsuiteBagOStuff extends MediumSpecificBagOStuff {
 	/**
@@ -114,11 +122,15 @@ class ModerationTestsuiteBagOStuff extends MediumSpecificBagOStuff {
 
 	/** @inheritDoc */
 	public function incr( $key, $value = 1, $flags = 0 ) {
+		// Only for 1.39-1.40, not needed in 1.41+
+		// @phan-suppress-next-line PhanUndeclaredMethod
 		return self::$store->incr( $key, $value, $flags );
 	}
 
 	/** @inheritDoc */
 	public function decr( $key, $value = 1, $flags = 0 ) {
+		// Only for 1.39-1.40, not needed in 1.41+
+		// @phan-suppress-next-line PhanUndeclaredMethod
 		return self::$store->decr( $key, $value, $flags );
 	}
 

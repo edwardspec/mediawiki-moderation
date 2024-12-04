@@ -128,10 +128,10 @@ class ModerationTestCase extends MediaWikiIntegrationTestCase {
 		*/
 		if ( method_exists( $this, 'hasDependencies' ) ) {
 			// MediaWiki 1.39 only
+			// @phan-suppress-next-line PhanUndeclaredMethod
 			$hasDependencies = $this->hasDependencies();
 		} else {
 			// MediaWiki 1.40+
-			// @phan-suppress-next-line PhanUndeclaredMethod
 			$hasDependencies = count( $this->requires() ) > 0;
 		}
 
@@ -166,7 +166,6 @@ class ModerationTestCase extends MediaWikiIntegrationTestCase {
 	public static function assertRegExp( string $pattern, string $string, string $message = '' ): void {
 		$args = [ $pattern, $string, $message ];
 		if ( method_exists( __CLASS__, 'assertMatchesRegularExpression' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredStaticMethod
 			self::assertMatchesRegularExpression( ...$args );
 		} else {
 			parent::assertRegExp( ...$args );
@@ -182,7 +181,6 @@ class ModerationTestCase extends MediaWikiIntegrationTestCase {
 	public static function assertNotRegExp( string $pattern, string $string, string $message = '' ): void {
 		$args = [ $pattern, $string, $message ];
 		if ( method_exists( __CLASS__, 'assertMatchesRegularExpression' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredStaticMethod
 			self::assertDoesNotMatchRegularExpression( ...$args );
 		} else {
 			parent::assertNotRegExp( ...$args );

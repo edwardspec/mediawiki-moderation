@@ -963,7 +963,6 @@ class ModerationActionTest extends ModerationTestCase {
 		$services = $this->getServiceContainer();
 		if ( $services->hasService( 'ChangeTagsStore' ) ) {
 			// MediaWiki 1.41+
-			// @phan-suppress-next-line PhanUndeclaredMethod
 			$rcQueryFields['ts_tags'] = $services->getChangeTagsStore()
 				->makeTagSummarySubquery( 'recentchanges' );
 		} else {

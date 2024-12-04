@@ -50,7 +50,6 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 
 		if ( method_exists( $services, 'getLogFormatterFactory' ) ) {
 			// MediaWiki 1.42+
-			// @phan-suppress-next-line PhanUndeclaredMethod
 			$formatter = $services->getLogFormatterFactory()->newFromEntry( $entry );
 		} else {
 			// MediaWiki 1.39-1.41

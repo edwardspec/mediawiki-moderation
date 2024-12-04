@@ -35,7 +35,6 @@ if ( method_exists( HookRunnerTestBase::class, 'provideHookRunnersStatically' ) 
 	class HookRunnerTest extends HookRunnerTestBase {
 		/**
 		 * @return array
-		 * @suppress PhanAccessNonStaticToStatic
 		 */
 		public static function provideHookRunners() {
 			return [ HookRunner::class => [ HookRunner::class ] ];
