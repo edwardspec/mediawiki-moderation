@@ -151,12 +151,10 @@ class ModerationApiHooks implements
 			unset( $query['sectiontitle'] );
 		}
 
-		$req = new DerivativeRequest( $request, $query, true );
+		$context = new DerivativeContext( $main->getContext() );
+		$context->setRequest( new DerivativeRequest( $request, $query, true ) );
 
-		// FIXME: don't imply that getContext() returns DerivativeContext that knows setRequest(),
-		// use $main->setContext( new DerivativeContext( ... ) ) explicitly.
-		// @phan-suppress-next-line PhanUndeclaredMethod
-		$main->getContext()->setRequest( $req );
+		$main->setContext( $context );
 
 		/* Let ApiEdit handle the rest */
 	}
