@@ -220,7 +220,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 				$link->getAttribute( 'title' ) );
 
 			$url = $link->getAttribute( 'href' );
-			$bits = wfParseUrl( wfExpandUrl( $url ) );
+			$bits = ModerationTestUtil::parseUrl( $url );
 			$query = wfCgiToArray( $bits['query'] );
 
 			$this->assertEquals( [ 'title' => 'Special:Moderation', 'folder' => $folder ], $query );

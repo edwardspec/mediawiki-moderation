@@ -345,7 +345,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 		$parsed['query'] = $wrapper->getPathInfo(); // Will find 'title', if any.
 		unset( $_SERVER['REQUEST_URI'] );
 
-		$bits = wfParseUrl( wfExpandUrl( $href ) );
+		$bits = ModerationTestUtil::parseUrl( $href );
 		if ( isset( $bits['query'] ) ) {
 			$parsed['query'] += wfCgiToArray( $bits['query'] );
 		}

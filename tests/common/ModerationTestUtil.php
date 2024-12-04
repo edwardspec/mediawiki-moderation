@@ -107,4 +107,23 @@ class ModerationTestUtil {
 	public static function getLanguageQqx() {
 		return MediaWikiServices::getInstance()->getLanguageFactory()->getLanguage( 'qqx' );
 	}
+
+	/**
+	 * Shortcut for UrlUtils::parse(). Can use relative (non-expanded) URLs.
+	 * @param string $url
+	 * @return array
+	 * @phan-return array<string,string>
+	 */
+	public static function parseUrl( $url ) {
+		$services = MediaWikiServices::getInstance();
+		if ( $services->hasService( 'UrlUtils' ) ) {
+			// MediaWiki 1.43+
+			$urlUtils = $services->getUrlUtils();
+		} else {
+			// MediaWiki 1.39-1.42
+			$urlUtils = wfGetUrlUtils();
+		}
+
+		return $urlUtils->parse( $urlUtils->expand( $url ) ?? '' ) ?? [];
+	}
 }

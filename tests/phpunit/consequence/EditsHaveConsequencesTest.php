@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -172,7 +172,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		$this->assertNotEmpty( $redirectURL, "User wasn't redirected after making an edit." );
 
 		// Parse $redirectURL, extract query string parameters and check "returnto" parameter.
-		$bits = wfParseUrl( wfExpandUrl( $redirectURL ) );
+		$bits = ModerationTestUtil::parseUrl( $redirectURL );
 		$this->assertArrayHasKey( 'query', $bits, 'No querystring in the redirect URL.' );
 
 		$query = wfCgiToArray( $bits['query'] );

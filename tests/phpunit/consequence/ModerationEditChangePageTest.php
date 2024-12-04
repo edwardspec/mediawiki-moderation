@@ -68,7 +68,7 @@ class ModerationEditChangePageTest extends ModerationUnitTestCase {
 		$wrapper = TestingAccessWrapper::newFromObject( $editPage );
 		$url = $wrapper->getActionURL( Title::newFromText( "unused" ) );
 
-		$query = wfCgiToArray( wfParseUrl( wfExpandUrl( $url ) )['query'] );
+		$query = wfCgiToArray( ( ModerationTestUtil::parseUrl( $url ) )['query'] );
 		$expectedQuery = [
 			'title' => 'Special:Moderation',
 			'modid' => (string)$modid,

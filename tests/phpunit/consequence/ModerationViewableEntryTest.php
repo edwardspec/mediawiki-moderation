@@ -239,7 +239,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 		$src = $image->getAttribute( 'src' );
 		$this->assertNotNull( $src );
 
-		$bits = wfParseUrl( wfExpandUrl( $src ) );
+		$bits = ModerationTestUtil::parseUrl( $src );
 		$this->assertEquals( wfScript(), $bits['path'] );
 		$this->assertArrayHasKey( 'query', $bits );
 

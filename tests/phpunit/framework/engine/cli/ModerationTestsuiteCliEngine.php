@@ -83,7 +83,6 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 	 */
 	protected function httpRequestInternal( $url, $method, array $postData ) {
 		global $wgServerName, $IP;
-		$url = wfExpandURL( $url, PROTO_CANONICAL );
 
 		/* Handle CURL uploads in $postData */
 		$files = [];
@@ -121,8 +120,8 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 
 		/* We must parse $url here,
 			because invokeFromScript() is called before reading LocalSettings.php
-			and therefore won't know things like $wgServer or wfParseUrl() */
-		$bits = wfParseUrl( $url );
+			and therefore won't have access to things like $wgServer or UrlUtils service. */
+		$bits = ModerationTestUtil::parseUrl( $url );
 		if ( $bits['host'] !== $wgServerName ) {
 			throw new LogicException( "CliEngine can only access the wiki itself " .
 				"($wgServerName), not another host (${bits['host']})" );

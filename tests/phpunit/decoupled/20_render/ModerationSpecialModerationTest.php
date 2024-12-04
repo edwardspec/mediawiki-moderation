@@ -485,7 +485,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 	 * @param array $expectedQuery Querystring arguments: [ key1 => value1, ... ]
 	 */
 	protected function assertQueryString( $url, array $expectedQuery ) {
-		$bits = wfParseUrl( wfExpandUrl( $url ) );
+		$bits = ModerationTestUtil::parseUrl( $url );
 		$query = wfCgiToArray( $bits['query'] );
 
 		if ( array_key_exists( 'token', $expectedQuery ) &&
