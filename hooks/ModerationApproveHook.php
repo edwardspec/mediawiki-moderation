@@ -205,6 +205,11 @@ class ModerationApproveHook implements
 			return false;
 		}
 
+		$title = Title::castFromPageReference( $rc->getPage() );
+		if ( !$title ) {
+			return false;
+		}
+
 		$logAction = $rc->mAttribs['rc_log_action'] ?? '';
 
 		$type = ModerationNewChange::MOD_TYPE_EDIT;
@@ -213,7 +218,7 @@ class ModerationApproveHook implements
 		}
 
 		return $this->getTask(
-			$rc->getTitle(),
+			$title,
 			$rc->mAttribs['rc_user_text'],
 			$type
 		);
