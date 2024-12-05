@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017-2020 Edward Chernenko.
+	Copyright (C) 2017-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -56,7 +56,8 @@ interface IModerationTestsuiteEngine {
 
 	/**
 	 * Create an account and return User object.
-	 * @note Will not login automatically (loginAs must be called).
+	 * Note: Will not login automatically (loginAs must be called).
+	 * @param string $username
 	 * @return User|null
 	 */
 	public function createAccount( $username );

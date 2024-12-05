@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@ class ModerationTestsuiteMockAutoLoader {
 
 	/**
 	 * Cache the fact that $className doesn't need mocking.
+	 * @param string $className
 	 */
 	protected function cacheThatNoMockIsNeeded( $className ) {
 		$fp = fopen( self::NOMOCK_CACHE_FILENAME, 'a' );
@@ -73,6 +74,8 @@ class ModerationTestsuiteMockAutoLoader {
 
 	/**
 	 * Replace all calls to function A with calls to function B.
+	 * @param string $oldFunctionName
+	 * @param string $newFunctionName
 	 */
 	public static function replaceFunction( $oldFunctionName, $newFunctionName ) {
 		$self = self::singleton();
@@ -81,6 +84,7 @@ class ModerationTestsuiteMockAutoLoader {
 
 	/**
 	 * Autoload the mock-modified file instead of the original file.
+	 * @param string $className
 	 */
 	public function autoload( $className ) {
 		global $wgAutoloadClasses, $wgAutoloadLocalClasses;

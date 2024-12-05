@@ -238,6 +238,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 
 	/**
 	 * Safely split $bits['path'] into SCRIPT_NAME and PATH_INFO
+	 * @param string $relPath
 	 * @return array that contains two strings: script name (e.g. "api.php") and pathinfo.
 	 */
 	protected function safelyExtractPathInfo( $relPath ) {

@@ -50,6 +50,7 @@ trait ModerationTestsuiteTestSet {
 
 	/**
 	 * Initialize this TestSet from the input of dataProvider.
+	 * @param array $options
 	 */
 	abstract protected function applyOptions( array $options );
 

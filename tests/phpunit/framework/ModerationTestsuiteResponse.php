@@ -65,7 +65,10 @@ class ModerationTestsuiteResponse implements IModerationTestsuiteResponse {
 		);
 	}
 
-	/** @return string|null */
+	/**
+	 * @param string $headerName
+	 * @return string|null
+	 */
 	public function getResponseHeader( $headerName ) {
 		return call_user_func( $this->getHeaderMethod, $headerName );
 	}

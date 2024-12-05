@@ -51,7 +51,11 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 		return new ModerationTestsuiteCliEngine;
 	}
 
-	/** Add an arbitrary HTTP header to all outgoing requests. */
+	/**
+	 * Add an arbitrary HTTP header to all outgoing requests.
+	 * @param string $name
+	 * @param string $value
+	 */
 	public function setHeader( $name, $value ) {
 		$this->reqHeaders[$name] = $value;
 	}
@@ -167,6 +171,10 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 	/**
 	 * Engine-specific implementation of httpRequest().
+	 * @param string $url
+	 * @param string $method
+	 * @param array $postData
+	 * @return IModerationTestsuiteResponse
 	 */
 	abstract protected function httpRequestInternal( $url, $method, array $postData );
 

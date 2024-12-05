@@ -385,6 +385,8 @@ class ModerationTestsuiteEntry {
 
 	/**
 	 * Returns the URL of modaction=$action for this entry.
+	 * @param string $action
+	 * @param bool $needsToken
 	 * @return string
 	 */
 	public function expectedActionLink( $action, $needsToken = true ) {

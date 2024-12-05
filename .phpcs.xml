@@ -10,11 +10,6 @@
 
 	</rule>
 
-	<rule ref="MediaWiki.Commenting.FunctionComment.MissingParamTag">
-		<!-- TODO: missing documentation in blackbox tests: this can be fixed -->
-		<exclude-pattern>*/tests/phpunit/framework/*</exclude-pattern>
-	</rule>
-
 	<rule ref="MediaWiki.Files.ClassMatchesFilename.NotMatch">
 		<!-- Benchmark scripts should have short names, not full class names -->
 		<exclude-pattern>*/tests/benchmarks/*</exclude-pattern>

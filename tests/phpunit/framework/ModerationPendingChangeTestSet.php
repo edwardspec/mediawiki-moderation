@@ -48,6 +48,7 @@ trait ModerationTestsuitePendingChangeTestSet {
 
 	/**
 	 * Initialize this TestSet from the input of dataProvider.
+	 * @param array $options
 	 */
 	protected function applyOptions( array $options ) {
 		$this->fields = $this->getDefaultFields();
@@ -211,6 +212,8 @@ trait ModerationTestsuitePendingChangeTestSet {
 
 	/**
 	 * Returns Title object of the page mentioned in $this->fields.
+	 * @param string $nsField Database field with namespace number.
+	 * @param string $titleField Database field with title.
 	 * @return Title
 	 */
 	protected function getExpectedTitleObj( $nsField = 'mod_namespace', $titleField = 'mod_title' ) {
@@ -222,6 +225,8 @@ trait ModerationTestsuitePendingChangeTestSet {
 
 	/**
 	 * Returns pagename (string) of the page mentioned in $this->fields.
+	 * @param string $nsField Database field with namespace number.
+	 * @param string $titleField Database field with title.
 	 * @return string
 	 */
 	protected function getExpectedTitle( $nsField = 'mod_namespace', $titleField = 'mod_title' ) {

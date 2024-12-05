@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,7 +22,10 @@
 
 interface IModerationTestsuiteResponse {
 
-	/** @return string|null */
+	/**
+	 * @param string $headerName
+	 * @return string|null
+	 */
 	public function getResponseHeader( $headerName );
 
 	/** @return int */

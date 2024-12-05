@@ -35,7 +35,10 @@ class ModerationTestsuiteNonApiBotResponse implements IModerationTestsuiteRespon
 		$this->httpResp = $httpResp;
 	}
 
-	/** @return string|null */
+	/**
+	 * @param string $headerName
+	 * @return string|null
+	 */
 	public function getResponseHeader( $headerName ) {
 		return $this->httpResp->getResponseHeader( $headerName );
 	}

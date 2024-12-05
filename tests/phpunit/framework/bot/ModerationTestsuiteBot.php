@@ -40,6 +40,7 @@ abstract class ModerationTestsuiteBot {
 	/**
 	 * Create a new bot.
 	 * @param string $method One of the following: 'api', 'nonApi'.
+	 * @param ModerationTestsuite $t
 	 * @return ModerationTestsuiteBot
 	 */
 	public static function factory( $method, ModerationTestsuite $t ) {
@@ -146,15 +147,41 @@ abstract class ModerationTestsuiteBot {
 		return $result;
 	}
 
-	/** Bot-specific (e.g. API or non-API) implementation of edit(). */
+	/**
+	 * Bot-specific (e.g. API or non-API) implementation of edit().
+	 * Make an edit via API.
+	 * @param ModerationTestsuite $t
+	 * @param string $title
+	 * @param string $text
+	 * @param string $summary
+	 * @param string|int $section
+	 * @param array $extraParams Bot-specific parameters.
+	 * @return ModerationTestsuiteApiBotResponse|ModerationTestsuiteNonApiBotResponse
+	 */
 	abstract public function doEdit( ModerationTestsuite $t,
 		$title, $text, $summary, $section, array $extraParams );
 
-	/** Bot-specific (e.g. API or non-API) implementation of move(). */
+	/**
+	 * Bot-specific (e.g. API or non-API) implementation of move().
+	 * @param ModerationTestsuite $t
+	 * @param string $oldTitle
+	 * @param string $newTitle
+	 * @param string $reason
+	 * @param array $extraParams Bot-specific parameters.
+	 * @return ModerationTestsuiteApiBotResponse|ModerationTestsuiteNonApiBotResponse
+	 */
 	abstract public function doMove( ModerationTestsuite $t,
 		$oldTitle, $newTitle, $reason, array $extraParams );
 
-	/** Bot-specific (e.g. API or non-API) implementation of upload(). */
+	/**
+	 * Bot-specific (e.g. API or non-API) implementation of upload().
+	 * @param ModerationTestsuite $t
+	 * @param string $title
+	 * @param string $srcPath
+	 * @param string $text
+	 * @param array $extraParams Bot-specific parameters.
+	 * @return ModerationTestsuiteApiBotResponse|ModerationTestsuiteNonApiBotResponse
+	 */
 	abstract public function doUpload( ModerationTestsuite $t,
 		$title, $srcPath, $text, array $extraParams );
 

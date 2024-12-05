@@ -89,6 +89,7 @@ class ModerationTestCase extends MediaWikiIntegrationTestCase {
 
 	/**
 	 * Dump the logs related to the current test.
+	 * @inheritDoc
 	 */
 	protected function onNotSuccessfulTest( Throwable $e ): void {
 		switch ( get_class( $e ) ) {

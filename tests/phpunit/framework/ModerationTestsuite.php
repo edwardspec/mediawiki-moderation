@@ -92,6 +92,7 @@ class ModerationTestsuite {
 	/**
 	 * Sets MediaWiki global variable.
 	 * @param string $name Name of variable without the $wg prefix.
+	 * @param mixed $value
 	 */
 	public function setMwConfig( $name, $value ) {
 		$this->engine->setMwConfig( $name, $value );
@@ -128,16 +129,21 @@ class ModerationTestsuite {
 		return $this->capturedHooks[$name] ?? [];
 	}
 
-	/** Add an arbitrary HTTP header to all outgoing requests. */
+	/**
+	 * Add an arbitrary HTTP header to all outgoing requests.
+	 * @param string $name
+	 * @param string $value
+	 */
 	public function setHeader( $name, $value ) {
 		$this->engine->setHeader( $name, $value );
 	}
 
 	/**
 	 * Set User-Agent header for all outgoing requests.
+	 * @param string $userAgent
 	 */
-	public function setUserAgent( $ua ) {
-		$this->setHeader( 'User-Agent', $ua );
+	public function setUserAgent( $userAgent ) {
+		$this->setHeader( 'User-Agent', $userAgent );
 	}
 
 	#
@@ -173,6 +179,7 @@ class ModerationTestsuite {
 	 * Delete the results of previous fetchSpecial().
 	 * If fetchSpecial() is then called, all entries
 	 * in this folder will be considered new entries.
+	 * @param string $folder
 	 */
 	public function assumeFolderIsEmpty( $folder = 'DEFAULT' ) {
 		$this->lastFetchedSpecial[$folder] = [];
@@ -183,6 +190,7 @@ class ModerationTestsuite {
 	 * state with the previously downloaded/parsed state, and
 	 * populate the arrays \b $new_entries, \b $old_entries.
 	 * @note Logs in as $moderator.
+	 * @param string $folder
 	 */
 	public function fetchSpecial( $folder = 'DEFAULT' ) {
 		if ( !$this->isModerator() ) { /* Don't relogin in testModeratorNotAutomoderated() */
@@ -225,10 +233,10 @@ class ModerationTestsuite {
 	 *	$timeSpent = $t->profiler();
 	 *	// Do something
 	 *	echo "It took $timeSpent seconds";
-	 * @return mixed Value that can be cast to "seconds spent" formatted string.
+	 * @return Stringable Value that can be cast to "seconds spent" formatted string.
 	 */
 	protected function profiler() {
-		return new class() {
+		return new class() implements Stringable {
 			protected $startTime;
 
 			public function __construct() {
@@ -246,6 +254,8 @@ class ModerationTestsuite {
 	#
 
 	/**
+	 * @param string $name
+	 * @param string[] $groups
 	 * @return User
 	 */
 	private function createTestUser( $name, $groups = [] ) {
@@ -608,6 +618,10 @@ class ModerationTestsuite {
 
 	/**
 	 * Perform a test move.
+	 * @param string $oldTitle
+	 * @param string $newTitle
+	 * @param string $reason
+	 * @param array $extraParams Bot-specific parameters.
 	 * @return ModerationTestsuiteNonApiBotResponse
 	 */
 	public function doTestMove( $oldTitle, $newTitle, $reason = '', array $extraParams = [] ) {
@@ -616,6 +630,9 @@ class ModerationTestsuite {
 
 	/**
 	 * Place information about newly made change into lastEdit[] array.
+	 * @param string $title Full page name (including namespace).
+	 * @param string $summary Edit comment.
+	 * @param array $extraData
 	 */
 	public function setLastEdit( $title, $summary, array $extraData = [] ) {
 		$this->lastEdit = $extraData + [
@@ -636,6 +653,11 @@ class ModerationTestsuite {
 
 	/**
 	 * Perform a test edit.
+	 * @param string|null $title
+	 * @param string|null $text
+	 * @param string|null $summary
+	 * @param string|int $section One of the following: section number, empty string or 'new'.
+	 * @param array $extraParams Bot-specific parameters.
 	 * @return ModerationTestsuiteNonApiBotResponse
 	 */
 	public function doTestEdit(
@@ -658,6 +680,10 @@ class ModerationTestsuite {
 	 * Do 2*N alternated edits - N by $user1 and N by $user2.
 	 * Number of edits is $TEST_EDITS_COUNT.
 	 * If $user2 is null, only makes N edits by $user1.
+	 * @param User $user1
+	 * @param User|null $user2
+	 * @param string $prefix1
+	 * @param string $prefix2
 	 */
 	public function doNTestEditsWith( $user1, $user2 = null,
 		$prefix1 = 'Page', $prefix2 = 'AnotherPage'
@@ -676,6 +702,7 @@ class ModerationTestsuite {
 	/**
 	 * Makes one edit and returns its correct entry.
 	 * @note Logs in as $moderator.
+	 * @param string|null $title
 	 * @return ModerationTestsuiteEntry
 	 */
 	public function getSampleEntry( $title = null ) {
@@ -697,6 +724,10 @@ class ModerationTestsuite {
 
 	/**
 	 * Perform a test upload.
+	 * @param string|null $title
+	 * @param string|null $srcFilename
+	 * @param string|null $text
+	 * @param array $extraParams Bot-specific parameters.
 	 * @return ModerationTestsuiteNonApiBotResponse
 	 */
 	public function doTestUpload(
@@ -711,6 +742,7 @@ class ModerationTestsuite {
 	/**
 	 * Resolve $srcFilename into an absolute path.
 	 * Used in tests: '1.png' is found at [tests/resources/1.png].
+	 * @param string $srcFilename
 	 * @return string
 	 */
 	public static function findSourceFilename( $srcFilename ) {
@@ -727,6 +759,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Get up to $count moderation log entries via API (most recent first).
+	 * @param int $count
 	 * @return array
 	 */
 	public function apiLogEntries( $count = 100 ) {
@@ -741,6 +774,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Get up to $count moderation log entries NOT via API (most recent first).
+	 * @param int $count
 	 * @return array
 	 */
 	public function nonApiLogEntries( $count = 100 ) {
@@ -805,6 +839,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Remove "token=" from URL and return its new HTML title.
+	 * @param string $url
 	 * @return string|null
 	 */
 	public function noTokenTitle( $url ) {
@@ -814,6 +849,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Corrupt "token=" in URL and return its new HTML title.
+	 * @param string $url
 	 * @return string|null
 	 */
 	public function badTokenTitle( $url ) {
@@ -823,6 +859,10 @@ class ModerationTestsuite {
 
 	/**
 	 * Queue an edit that would cause an edit conflict when approved.
+	 * @param string $title
+	 * @param string $origText
+	 * @param string $textOfUser1
+	 * @param string $textOfUser2
 	 * @return ModerationTestsuiteEntry
 	 */
 	public function causeEditConflict( $title, $origText, $textOfUser1, $textOfUser2 ) {
@@ -889,6 +929,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Create AbuseFilter rule that will assign tags to all edits.
+	 * @param string[] $tags
 	 * @return int ID of the newly created filter.
 	 */
 	public function addTagAllAbuseFilter( array $tags ) {
@@ -937,6 +978,7 @@ class ModerationTestsuite {
 
 	/**
 	 * Disable AbuseFilter rule #$filterId.
+	 * @param int $filterId
 	 */
 	public function disableAbuseFilter( $filterId ) {
 		$dbw = $this->getDB();
@@ -945,6 +987,9 @@ class ModerationTestsuite {
 
 	/**
 	 * Assert that API response $ret contains error $expectedErrorCode.
+	 * @param string $expectedErrorCode
+	 * @param array $ret
+	 * @param MediaWikiIntegrationTestCase $tcase
 	 */
 	public function assertApiError( $expectedErrorCode, array $ret, MediaWikiIntegrationTestCase $tcase ) {
 		$tcase->assertArrayHasKey( 'error', $ret );
@@ -953,6 +998,8 @@ class ModerationTestsuite {
 
 	/**
 	 * Call version_compare on MW_VERSION.
+	 * @param string $compareWith
+	 * @param string $operator Comparison operator, e.g. '<' or '>='.
 	 * @return bool
 	 */
 	public static function mwVersionCompare( $compareWith, $operator ) {
@@ -969,7 +1016,10 @@ class ModerationTestsuite {
 		usleep( 1000 * 1000 - gettimeofday()['usec'] );
 	}
 
-	/** Apply ModerationBlock to $user */
+	/**
+	 * Apply ModerationBlock to $user.
+	 * @param User $user
+	 */
 	public function modblock( User $user ) {
 		$dbw = $this->getDB();
 		$dbw->insert( 'moderation_block',

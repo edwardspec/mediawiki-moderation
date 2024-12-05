@@ -28,6 +28,7 @@ class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 	 * @param string $text
 	 * @param string $summary
 	 * @param string|int $section
+	 * @param array $extraParams
 	 * @return ModerationTestsuiteNonApiBotResponse
 	 */
 	public function doEdit( ModerationTestsuite $t,
