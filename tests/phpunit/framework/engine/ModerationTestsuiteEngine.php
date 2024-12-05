@@ -234,7 +234,8 @@ abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 
 	/**
 	 * Create an account and return User object.
-	 * @note Will not login automatically (loginAs must be called).
+	 * Note: Will not login automatically (loginAs must be called).
+	 * @param string $username
 	 * @return User|null
 	 */
 	public function createAccount( $username ) {

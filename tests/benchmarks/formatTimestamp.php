@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -47,11 +47,17 @@ class BenchmarkFormatTimestamp extends ModerationBenchmark {
 		return 100000;
 	}
 
+	/**
+	 * @param int $numberOfUsers
+	 */
 	public function beforeBenchmark( $numberOfUsers ) {
 		$this->context = RequestContext::getMain();
 		$this->timestampFormatter = new TimestampFormatter();
 	}
 
+	/**
+	 * @param int $i
+	 */
 	public function doActualWork( $i ) {
 		$this->timestampFormatter->format( '20180101000000', $this->context );
 	}

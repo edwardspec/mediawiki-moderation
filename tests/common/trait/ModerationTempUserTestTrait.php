@@ -35,6 +35,9 @@ if ( trait_exists( TempUserTestTrait::class ) ) {
 			$this->markTestSkipped( "Temporary accounts are only supported in MediaWiki 1.43+" );
 		}
 
+		/**
+		 * @param string $message
+		 */
 		abstract public static function markTestSkipped( string $message = '' ): void;
 	}
 }

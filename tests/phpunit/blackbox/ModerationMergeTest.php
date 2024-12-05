@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2021 Edward Chernenko.
+	Copyright (C) 2015-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -205,7 +205,7 @@ class ModerationMergeTest extends ModerationTestCase {
 	public function testPreserveMergeID( ModerationTestsuite $t ) {
 		$t->loginAs( $t->moderator );
 
-		$someID = 12345;
+		$someID = '12345';
 
 		$req = $t->httpPost( wfScript( 'index' ), [
 			'action' => 'submit',
@@ -232,7 +232,7 @@ class ModerationMergeTest extends ModerationTestCase {
 
 		$this->assertArrayHasKey( 'wpMergeID', $inputs,
 			"testPreserveMergeID(): Edit form doesn't contain wpMergeID field" );
-		$this->assertEquals( $someID, $inputs['wpMergeID'],
+		$this->assertSame( $someID, $inputs['wpMergeID'],
 			"testPreserveMergeID(): Value of wpMergeID field doesn't match expected id" );
 	}
 

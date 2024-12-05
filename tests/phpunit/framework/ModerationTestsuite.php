@@ -51,18 +51,40 @@ class ModerationTestsuite {
 		$this->setMwConfig( 'LanguageCode', 'qqx' );
 	}
 
+	/**
+	 * Send an API request to the wiki.
+	 * @param array $apiQuery
+	 * @return array
+	 * @phan-param array<string,mixed> $apiQuery
+	 */
 	public function query( $apiQuery ) {
 		return $this->engine->query( $apiQuery );
 	}
 
+	/**
+	 * Send a HTTP GET request to the wiki.
+	 * @param string $url
+	 * @return IModerationTestsuiteResponse
+	 */
 	public function httpGet( $url ) {
 		return $this->engine->httpRequest( $url, 'GET' );
 	}
 
+	/**
+	 * Send a HTTP POST request to the wiki.
+	 * @param string $url
+	 * @param array $postData
+	 * @return IModerationTestsuiteResponse
+	 * @phan-param array<string,string> $postData
+	 */
 	public function httpPost( $url, array $postData = [] ) {
 		return $this->engine->httpRequest( $url, 'POST', $postData );
 	}
 
+	/**
+	 * Get a valid edit token.
+	 * @return string
+	 */
 	public function getEditToken() {
 		return $this->engine->getEditToken();
 	}
@@ -136,6 +158,12 @@ class ModerationTestsuite {
 	/** @var ModerationTestsuiteEntry[] */
 	public $deleted_entries;
 
+	/**
+	 * Returns correct URL of Special:Moderation.
+	 * @param array $query Query string parameters, e.g. [ 'modaction' => 'approve', 'id' => 123 ].
+	 * @return string
+	 * @phan-param array<string,string> $query
+	 */
 	public function getSpecialURL( $query = [] ) {
 		$title = Title::newFromText( 'Moderation', NS_SPECIAL )->fixSpecialName();
 		return wfAppendQuery( $title->getLocalURL(), $query );
@@ -544,6 +572,10 @@ class ModerationTestsuite {
 		] );
 	}
 
+	/**
+	 * Instruct the testsuite that further requests should be sent on behalf of $user.
+	 * @param User $user
+	 */
 	public function loginAs( User $user ) {
 		if ( $user->getId() == $this->loggedInAs()->getId() ) {
 			return; /* Nothing to do, already logged in */
@@ -557,13 +589,17 @@ class ModerationTestsuite {
 		$this->engine->loginAs( $user );
 	}
 
+	/**
+	 * Instruct the testsuite that further requests should be sent on behalf of anonymous user.
+	 */
 	public function logout() {
 		$this->engine->logout();
 	}
 
 	/**
 	 * Create an account and return User object.
-	 * @note Will not login automatically (loginAs must be called).
+	 * Note: Will not login automatically (loginAs must be called).
+	 * @param string $username
 	 * @return User|null
 	 */
 	public function createAccount( $username ) {

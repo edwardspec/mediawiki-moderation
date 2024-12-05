@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -49,12 +49,18 @@ class ModerationQueuedSuccessException extends ErrorPageError {
 		}
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function isLoggable() {
 		/* This is a successful action, not an error,
 			it doesn't belong in the error log */
 		return false;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function __construct( $msg, array $params ) {
 		parent::__construct( 'moderation', $msg, $params );
 	}

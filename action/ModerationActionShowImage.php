@@ -32,6 +32,9 @@ class ModerationActionShowImage extends ModerationAction {
 		return false;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function outputResult( array $result, OutputPage $out ) {
 		$out->disable(); # No HTML output (image only)
 

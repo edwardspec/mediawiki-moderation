@@ -36,6 +36,9 @@ class ModerationTestsuiteBagOStuff extends MediumSpecificBagOStuff {
 	 */
 	protected static $store = null;
 
+	/**
+	 * @param array $params
+	 */
 	public function __construct( $params = [] ) {
 		parent::__construct( $params );
 

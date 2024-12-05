@@ -31,6 +31,11 @@ class ModerationTestsuiteResponse implements IModerationTestsuiteResponse {
 	/** @var callable Implementation-specific callback used by getResponseHeader() */
 	protected $getHeaderMethod;
 
+	/**
+	 * @param string $content
+	 * @param int $httpCode
+	 * @param callable $getHeaderMethod
+	 */
 	protected function __construct( $content, $httpCode, callable $getHeaderMethod ) {
 		$this->content = $content;
 		$this->httpCode = $httpCode;
@@ -60,18 +65,22 @@ class ModerationTestsuiteResponse implements IModerationTestsuiteResponse {
 		);
 	}
 
+	/** @return string|null */
 	public function getResponseHeader( $headerName ) {
 		return call_user_func( $this->getHeaderMethod, $headerName );
 	}
 
+	/** @return int */
 	public function getStatus() {
 		return $this->httpCode;
 	}
 
+	/** @return string */
 	public function getContent() {
 		return $this->content;
 	}
 
+	/** @return bool */
 	public function isRedirect() {
 		return ( $this->httpCode >= 300 && $this->httpCode <= 303 );
 	}

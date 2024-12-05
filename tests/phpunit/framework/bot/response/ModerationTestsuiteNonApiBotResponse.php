@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -28,6 +28,9 @@ class ModerationTestsuiteNonApiBotResponse implements IModerationTestsuiteRespon
 	/** @var IModerationTestsuiteResponse */
 	private $httpResp;
 
+	/**
+	 * @param IModerationTestsuiteResponse $httpResp
+	 */
 	protected function __construct( IModerationTestsuiteResponse $httpResp ) {
 		$this->httpResp = $httpResp;
 	}

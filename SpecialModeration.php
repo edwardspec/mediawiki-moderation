@@ -94,14 +94,23 @@ class SpecialModeration extends QueryPage {
 		$this->linkBatchFactory = $linkBatchFactory;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function getGroupName() {
 		return 'spam';
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function isSyndicated() {
 		return false;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function isCacheable() {
 		return false;
 	}
@@ -122,10 +131,16 @@ class SpecialModeration extends QueryPage {
 		$res->seek( 0 );
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function linkParameters() {
 		return [ 'folder' => $this->folder ];
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function getPageHeader() {
 		$linkRenderer = $this->getLinkRenderer();
 
@@ -214,10 +229,16 @@ class SpecialModeration extends QueryPage {
 		$out->addReturnTo( SpecialPage::getTitleFor( 'Moderation' ) );
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function getOrderFields() {
 		return [ 'mod_timestamp' ];
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function getQueryInfo() {
 		$this->folder = $this->getRequest()->getVal( 'folder', $this->default_folder );
 		if ( !array_key_exists( $this->folder, $this->folders_list ) ) {

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,14 +32,25 @@ class BenchmarkQueueMove extends ModerationBenchmark {
 	/** @var MovePageFactory */
 	private $movePageFactory;
 
+	/**
+	 * @param int $i
+	 * @return Title
+	 */
 	public function getOldTitle( $i ) {
 		return $this->getTestTitle( 'Old title ' . $i );
 	}
 
+	/**
+	 * @param int $i
+	 * @return Title
+	 */
 	public function getNewTitle( $i ) {
 		return $this->getTestTitle( 'New title ' . $i );
 	}
 
+	/**
+	 * @param int $numberOfLoops
+	 */
 	public function beforeBenchmark( $numberOfLoops ) {
 		$this->movePageFactory = MediaWikiServices::getInstance()->getMovePageFactory();
 
@@ -49,6 +60,9 @@ class BenchmarkQueueMove extends ModerationBenchmark {
 		}
 	}
 
+	/**
+	 * @param int $i
+	 */
 	public function doActualWork( $i ) {
 		$mp = $this->movePageFactory->newMovePage(
 			$this->getOldTitle( $i ),

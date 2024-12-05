@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,6 +23,9 @@
 namespace MediaWiki\Moderation;
 
 class ConsequenceManager implements IConsequenceManager {
+	/**
+	 * @inheritDoc
+	 */
 	public function add( IConsequence $consequence ) {
 		return $consequence->run();
 	}

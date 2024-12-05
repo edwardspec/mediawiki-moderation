@@ -30,6 +30,9 @@ class ModerationActionPreview extends ModerationAction {
 		return false;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function outputResult( array $result, OutputPage $out ) {
 		$out->setPageTitle( $this->msg(
 			'moderation-preview-title',

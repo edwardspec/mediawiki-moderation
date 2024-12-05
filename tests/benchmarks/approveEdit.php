@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2023 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -40,15 +40,24 @@ class BenchmarkApproveEdit extends ModerationBenchmark {
 		return 100;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function beforeBenchmark( $numberOfLoops ) {
 		$this->becomeModerator();
 	}
 
+	/**
+	 * @param int $i
+	 */
 	public function beforeBenchmarkPrepareLoop( $i ) {
 		/* Prepopulate 'moderation' table */
 		$this->ids[] = $this->fastQueue( $this->getTestTitle( $i ) );
 	}
 
+	/**
+	 * @param int $i
+	 */
 	public function doActualWork( $i ) {
 		$html = $this->runSpecialModeration( [
 			'modaction' => 'approve',

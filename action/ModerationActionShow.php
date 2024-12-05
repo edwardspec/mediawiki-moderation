@@ -30,6 +30,9 @@ class ModerationActionShow extends ModerationAction {
 		return false;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function outputResult( array $result, OutputPage $out ) {
 		$out->addModuleStyles( [ 'mediawiki.diff.styles' ] );
 		$out->setPageTitle( $this->msg( 'difference-title', $result['title'] )->escaped() );

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2023 Edward Chernenko.
+	Copyright (C) 2018-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ class ModerationPageForms {
 	 * @param Title $formTitle @phan-unused-param
 	 * @return bool|void
 	 */
-	// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
+	// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName, MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 	public function onPageForms__EditFormPreloadText( &$preloadContent, $targetTitle, $formTitle ) {
 		$this->preloadText( $preloadContent, $targetTitle );
 	}
@@ -52,7 +52,7 @@ class ModerationPageForms {
 	 * @param Title $formTitle @phan-unused-param
 	 * @return bool|void
 	 */
-	// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
+	// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName, MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 	public function onPageForms__EditFormInitialText( &$preloadContent, $targetTitle, $formTitle ) {
 		$this->preloadText( $preloadContent, $targetTitle );
 	}

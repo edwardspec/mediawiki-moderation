@@ -55,6 +55,16 @@ class ModerationNewChange {
 	/** @var Language */
 	protected $contentLanguage;
 
+	/**
+	 * @param Title $title
+	 * @param User $user
+	 * @param IConsequenceManager $consequenceManager
+	 * @param ModerationPreload $preload
+	 * @param HookRunner $hookRunner
+	 * @param ModerationNotifyModerator $notifyModerator
+	 * @param ModerationBlockCheck $blockCheck
+	 * @param Language $contentLanguage
+	 */
 	public function __construct(
 		Title $title,
 		User $user,

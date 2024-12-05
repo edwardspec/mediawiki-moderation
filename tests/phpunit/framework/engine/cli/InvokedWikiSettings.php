@@ -89,6 +89,13 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 	}
 }
 
+/**
+ * Replacement for header() function that (unlike header() itself) always records headers
+ * inside the FauxResponse of global WebRequest (thus allowing our tests to inspect them).
+ * @param string $string
+ * @param bool $replace
+ * @param null|int $http_response_code
+ */
 function wfModerationTestsuiteMockedHeader( $string, $replace = true, $http_response_code = null ) {
 	$response = RequestContext::getMain()->getRequest()->response();
 	if ( !( $response instanceof FauxResponse ) ) {

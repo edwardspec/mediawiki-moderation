@@ -292,7 +292,7 @@ class ModerationEditHooks implements
 	 * @param OutputPage $out
 	 * @return bool|void
 	 */
-	// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
+	// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName, MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 	public function onEditPage__showEditForm_fields( $editpage, $out ) {
 		$mergeID = $this->editFormOptions->getMergeID();
 		if ( $mergeID ) {

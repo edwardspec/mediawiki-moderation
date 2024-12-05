@@ -121,6 +121,9 @@ class ModerationTestsuiteEntry {
 	/** @var string Raw HTML of this entry. Useless for tests, but handy for troubleshooting */
 	public $rawHTML;
 
+	/**
+	 * @param DomElement $span
+	 */
 	public function __construct( DomElement $span ) {
 		if ( strpos( $span->getAttribute( 'class' ), 'modconflict' ) !== false ) {
 			$this->conflict = true;
@@ -322,8 +325,14 @@ class ModerationTestsuiteEntry {
 		throw new UnexpectedValueException( __METHOD__ . ": unknown modaction='$modaction'" );
 	}
 
-	public static function findById( array $array, $id ) {
-		foreach ( $array as $e ) {
+	/**
+	 * Scans $allEntries and returns an entry with mod_id=$id.
+	 * @param ModerationTestsuiteEntry[] $allEntries
+	 * @param string|null $id
+	 * @return ModerationTestsuiteEntry|null
+	 */
+	public static function findById( array $allEntries, $id ) {
+		foreach ( $allEntries as $e ) {
 			if ( $e->id == $id ) {
 				return $e;
 			}
@@ -331,13 +340,19 @@ class ModerationTestsuiteEntry {
 		return null;
 	}
 
-	public static function findByUser( array $array, $user ) {
+	/**
+	 * Scans $allEntries and returns an array of entries that were made by $user.
+	 * @param ModerationTestsuiteEntry[] $allEntries
+	 * @param User $user
+	 * @return ModerationTestsuiteEntry[]
+	 */
+	public static function findByUser( array $allEntries, $user ) {
 		if ( get_class( $user ) == 'User' ) {
 			$user = $user->getName();
 		}
 
 		$entries = [];
-		foreach ( $array as $entry ) {
+		foreach ( $allEntries as $entry ) {
 			if ( $entry->user == $user ) {
 				$entries[] = $entry;
 			}

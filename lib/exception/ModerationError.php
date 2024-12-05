@@ -25,6 +25,9 @@ class ModerationError extends ErrorPageError {
 	/** @var Status Error details */
 	public $status;
 
+	/**
+	 * @inheritDoc
+	 */
 	public function __construct( $message ) {
 		if ( $message instanceof Status ) {
 			$this->status = $message;
