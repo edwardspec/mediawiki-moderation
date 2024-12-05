@@ -237,11 +237,6 @@ class ModerationEditHooks implements
 	public function onPageSaveComplete(
 		$wikiPage, $user, $summary, $flags, $revisionRecord, $editResult
 	) {
-		if ( !$revisionRecord ) {
-			// Double edit - nothing to do on the second time
-			return;
-		}
-
 		$this->markAsMergedIfNeeded(
 			$wikiPage,
 			$revisionRecord->getId(),
