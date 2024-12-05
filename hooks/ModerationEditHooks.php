@@ -231,12 +231,17 @@ class ModerationEditHooks implements
 	 * @param string $summary @phan-unused-param
 	 * @param int $flags @phan-unused-param
 	 * @param RevisionRecord $revisionRecord
-	 * @param EditResult $editResult @phan-unused-param
+	 * @param EditResult $editResult
 	 * @return bool|void
 	 */
 	public function onPageSaveComplete(
 		$wikiPage, $user, $summary, $flags, $revisionRecord, $editResult
 	) {
+		if ( $editResult->isNullEdit() ) {
+			// Moderator didn't do anything.
+			return;
+		}
+
 		$this->markAsMergedIfNeeded(
 			$wikiPage,
 			$revisionRecord->getId(),

@@ -272,6 +272,33 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	}
 
 	/**
+	 * Test consequences when moderator tries to manually merge, but it results in a null edit.
+	 * @covers ModerationEditHooks::onPageSaveComplete
+	 */
+	public function testMergedNullEdit() {
+		$this->user = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
+
+		// Cause a null edit by precreating the page with the same text.
+		$text = 'Sample text ' . rand( 0, 1000000 );
+		$content = ContentHandler::makeContent( $text, null, CONTENT_MODEL_WIKITEXT );
+
+		$status = $this->makeEdit( $content );
+		$this->assertTrue( $status->isOK(), 'Failed to save an edit.' );
+
+		$modid = 12345;
+		RequestContext::getMain()->getRequest()->setVal( 'wpMergeID', $modid );
+
+		// Replace real ConsequenceManager with a mock.
+		$manager = $this->mockConsequenceManager();
+
+		$status = $this->makeEdit( $content );
+		$this->assertTrue( $status->isOK(), 'Failed to save an edit.' );
+		$this->assertTrue( $status->hasMessage( 'edit-no-change' ), 'Not a null edit.' );
+
+		$this->assertNoConsequences( $manager );
+	}
+
+	/**
 	 * Test consequences of 1) editing a section, 2) "Watch this page" checkbox being (un)checked.
 	 * @covers ModerationEditHooks::onMultiContentSave
 	 */

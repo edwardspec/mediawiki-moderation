@@ -10,6 +10,8 @@ Features:
 Bugfixes:
 * "Edit change" now truncates very long edit summaries instead of showing an error.
 * "Continue editing" link now points to VisualEditor if the user just used VisualEditor.
+* Fixed "moderation-merged" tag being unnecessarily added if the moderator
+didn't modify the page while using modaction=merge.
 
 == Moderation 1.8.9 ==
 
