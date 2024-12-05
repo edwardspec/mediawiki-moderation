@@ -285,8 +285,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		$status = $this->makeEdit( $content );
 		$this->assertTrue( $status->isOK(), 'Failed to save an edit.' );
 
-		$modid = 12345;
-		RequestContext::getMain()->getRequest()->setVal( 'wpMergeID', $modid );
+		RequestContext::getMain()->getRequest()->setVal( 'wpMergeID', 12345 );
 
 		// Replace real ConsequenceManager with a mock.
 		$manager = $this->mockConsequenceManager();
