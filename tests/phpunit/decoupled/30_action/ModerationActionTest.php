@@ -255,7 +255,9 @@ class ModerationActionTest extends ModerationTestCase {
 				'modaction' => 'approve',
 				'existing' => true,
 				'nullEdit' => true,
-				'expectedError' => '(edit-no-change)'
+				'expectedError' => '(edit-no-change)',
+				'expectRejected' => true,
+				'expectedLogAction' => 'reject'
 			] ],
 			'Error: attempt to Approve edit which was rejected long ago' => [ [
 				'modaction' => 'approve',

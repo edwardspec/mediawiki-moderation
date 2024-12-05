@@ -6,6 +6,7 @@ Features:
 * Support MediaWiki 1.43.
 * Support temporary accounts.
 * Support visual editing mode of MobileFrontend editor.
+* If trying to Approve fails due to null edit, the change is now automatically rejected.
 
 Bugfixes:
 * "Edit change" now truncates very long edit summaries instead of showing an error.

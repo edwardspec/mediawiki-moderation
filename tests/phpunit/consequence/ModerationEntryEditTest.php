@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2023 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,9 +20,11 @@
  * Unit test of ModerationEntryEdit.
  */
 
+use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ApproveEditConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\MarkAsConflictConsequence;
+use MediaWiki\Moderation\RejectOneConsequence;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -36,6 +38,7 @@ class ModerationEntryEditTest extends ModerationUnitTestCase {
 	 */
 	public function testApprove( array $opt ) {
 		$errorFromConsequence = $opt['errorFromConsequence'] ?? null;
+		$warningFromConsequence = $opt['warningFromConsequence'] ?? null;
 		$isMinor = $opt['minor'] ?? false;
 		$isBot = $opt['bot'] ?? false;
 		$isAllowedBot = $opt['isAllowedBot'] ?? false;
@@ -46,9 +49,13 @@ class ModerationEntryEditTest extends ModerationUnitTestCase {
 			'text' => 'New text',
 			'minor' => $isMinor ? 1 : 0,
 			'bot' => $isBot ? 1 : 0,
-			'last_oldid' => $opt['last_oldid'] ?? 0
+			'last_oldid' => $opt['last_oldid'] ?? 0,
+			'user' => 678,
+			'user_text' => 'Username of author'
 		];
+
 		$title = $this->createMock( Title::class );
+		$moderatorUser = $this->createMock( User::class );
 		$authorUser = $this->createMock( User::class );
 
 		$authorUser->expects( $this->any() )->method( 'isAllowed' )->with(
@@ -59,9 +66,13 @@ class ModerationEntryEditTest extends ModerationUnitTestCase {
 		if ( $errorFromConsequence ) {
 			$status->fatal( $errorFromConsequence );
 		}
+		if ( $warningFromConsequence ) {
+			$status->warning( $warningFromConsequence );
+		}
 
 		'@phan-var Title $title';
 		'@phan-var User $authorUser';
+		'@phan-var User $moderatorUser';
 
 		$expectedCalls = [ [
 			$this->consequenceEqualTo(
@@ -82,12 +93,37 @@ class ModerationEntryEditTest extends ModerationUnitTestCase {
 					new MarkAsConflictConsequence( $row->id )
 				)
 			];
+		} elseif ( $warningFromConsequence === 'edit-no-change' ) {
+			// Attempt to Approve has revealed that this change is a null edit.
+			// Null edit can't be approved, so it should be automatically Rejected.
+			$expectedCalls[] = [
+				$this->consequenceEqualTo(
+					new RejectOneConsequence( $row->id, $moderatorUser )
+				)
+			];
+			$expectedCalls[] = [
+				$this->consequenceEqualTo(
+					new AddLogEntryConsequence(
+						'reject',
+						$moderatorUser,
+						$title,
+						[
+							'modid' => $row->id,
+							'user' => (int)$row->user,
+							'user_text' => $row->user_text
+						]
+					)
+				)
+			];
 		}
 
 		$manager = $this->createMock( IConsequenceManager::class );
 		$manager->expects( $this->exactly( count( $expectedCalls ) ) )->method( 'add' )
 			->withConsecutive( ...$expectedCalls )
-			->willReturnOnConsecutiveCalls( $status );
+			->willReturnOnConsecutiveCalls(
+				$status, // From ApproveEditConsequence
+				1 // From RejectOneConsequence
+			);
 
 		$entry = $this->getMockBuilder( ModerationEntryEdit::class )
 			->disableOriginalConstructor()
@@ -101,7 +137,7 @@ class ModerationEntryEditTest extends ModerationUnitTestCase {
 		$wrapper = TestingAccessWrapper::newFromObject( $entry );
 		$wrapper->consequenceManager = $manager;
 
-		$result = $wrapper->doApprove( $this->createMock( User::class ) );
+		$result = $wrapper->doApprove( $moderatorUser );
 		$this->assertSame( $status, $result, "Result of doApprove() doesn't match expected." );
 	}
 
@@ -118,6 +154,10 @@ class ModerationEntryEditTest extends ModerationUnitTestCase {
 			'error: ApproveEditConsequence returned Status that indicates edit conflict' => [ [
 				'errorFromConsequence' => 'moderation-edit-conflict'
 			] ],
+			'warning: ApproveEditConsequence returned Status that indicates null edit' => [ [
+				'warningFromConsequence' => 'edit-no-change'
+			] ],
+
 			'successful approval: minor edit' => [ [ 'minor' => true ] ],
 			'successful approval: ignored bot=true: author is not allowed to make bot edits' =>
 				[ [ 'bot' => true, 'isAllowedBot' => false ] ],

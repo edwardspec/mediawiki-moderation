@@ -20,7 +20,7 @@ Low-prio:
 	It's not a simple UI change, because "moderation" SQL table currently
 	doesn't have an index for selecting edits by author.
 * (feature) Should ApproveHook update timestamps of upload/move logs?
-* (UX) Automatically reject null edits during modaction=approve and modaction=merge.
+* (UX) Automatically reject null edits during modaction=merge.
 
 FIXME:
 * When approving, tags related to moderator (and unrelated to original author)
