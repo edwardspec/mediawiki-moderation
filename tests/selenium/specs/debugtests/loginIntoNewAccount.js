@@ -1,7 +1,7 @@
 'use strict';
 
 const expect = require( 'chai' ).expect,
-	EditPage = require( '../../pageobjects/edit.page' );
+	EditPage = require( '../../pageobjects/edit.page.js' );
 
 describe( 'Utility function browser.loginIntoNewAccount()', function () {
 

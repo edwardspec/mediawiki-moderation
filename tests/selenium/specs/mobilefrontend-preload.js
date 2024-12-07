@@ -1,7 +1,7 @@
 'use strict';
 
 const expect = require( 'chai' ).expect,
-	MobileFrontend = require( '../pageobjects/mobilefrontend.page' );
+	MobileFrontend = require( '../pageobjects/mobilefrontend.page.js' );
 
 /*
 	Title of MediaWiki page which should be edited during this test.

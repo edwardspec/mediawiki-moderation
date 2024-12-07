@@ -1,5 +1,5 @@
 'use strict';
-const Page = require( './page' );
+const Page = require( './page.js' );
 
 class EditPage extends Page {
 

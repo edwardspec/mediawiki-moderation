@@ -9,7 +9,7 @@
 'use strict';
 
 const expect = require( 'chai' ).expect,
-	MobileFrontend = require( '../../pageobjects/mobilefrontend.page' ),
+	MobileFrontend = require( '../../pageobjects/mobilefrontend.page.js' ),
 	BlankPage = require( 'wdio-mediawiki/BlankPage' );
 
 var PageName = 'Test' + Math.random();

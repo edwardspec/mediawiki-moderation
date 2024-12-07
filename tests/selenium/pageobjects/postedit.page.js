@@ -1,5 +1,5 @@
 'use strict';
-const Page = require( './page' );
+const Page = require( './page.js' );
 
 /**
 	@brief Represents the page visited immediately after editing.
