@@ -95,9 +95,9 @@
 				} ).done( function ( ret ) {
 					var parsed = ret.query.moderationpreload.parsed;
 					if ( parsed ) {
-						var $div = $( '<div>' ).html( parsed.text );
+						var $div2 = $( '<div>' ).html( parsed.text );
 						mw.hook( 'wikipage.content' ).fire(
-							$( '#mw-content-text' ).empty().append( $div )
+							$( '#mw-content-text' ).empty().append( $div2 )
 						);
 
 						$( '#catlinks' ).html( parsed.categorieshtml );

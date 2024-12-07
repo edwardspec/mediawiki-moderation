@@ -38,8 +38,8 @@ describe( 'When user opens MobileFrontend editor and has a pending edit', functi
 	} );
 
 	/* Test preloading of a single section into MobileFrontend */
-	for ( var idx in Sections ) {
-		it( 'section #' + idx + ' should be shown', function ( idx ) {
+	for ( var sectionNumber in Sections ) {
+		it( 'section #' + sectionNumber + ' should be shown', function ( idx ) {
 			MobileFrontend.open( PageName, idx );
 
 			browser.waitUntil( function () {
@@ -50,7 +50,7 @@ describe( 'When user opens MobileFrontend editor and has a pending edit', functi
 				MobileFrontend.content.getValue(),
 				'MobileFrontend.content[' + idx + ']' )
 			.to.equal( Sections[ idx ] );
-		}.bind( null, idx ) );
+		}.bind( null, sectionNumber ) );
 	}
 
 	it( 'edit summary should be shown', function () {

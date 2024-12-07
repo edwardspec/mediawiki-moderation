@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.8.21",
+	"version": "1.8.22",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -422,19 +422,19 @@
 			"value": "",
 			"description": "Email address to send notifications to."
 		},
-		"ModerationUseAjax":  {
+		"ModerationUseAjax": {
 			"value": false,
 			"description": "Experimental: if true, enable Ajax handling of links on Special:Moderation."
 		},
-		"ModerationOnlyInNamespaces":  {
+		"ModerationOnlyInNamespaces": {
 			"value": [],
 			"description": "If set to an array of namespace numbers (e.g. NS_MAIN, NS_FILE), moderation is only enabled in these namespaces (edits in other namespaces will bypass moderation). Default (empty array): moderation is enabled everywhere."
 		},
-		"ModerationIgnoredInNamespaces":  {
+		"ModerationIgnoredInNamespaces": {
 			"value": [],
 			"description": "If set to an array of namespace numbers (e.g. NS_MAIN, NS_FILE), non-automoderated users can bypass moderation in these namespaces. Default (empty array): moderation can't be bypassed anywhere."
 		},
-		"ModerationEnableEditChange":  {
+		"ModerationEnableEditChange": {
 			"value": false,
 			"description": "If true, moderators are allowed to edit pending changes before approving. DANGEROUS: moderator can accidentally delete the text of pending change. Enable this only when you use Moderation for pre-publish review."
 		}

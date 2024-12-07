@@ -38,14 +38,14 @@ class PostEdit extends Page {
 			$( '.mw-notification-visible' ).waitForExist();
 		}
 
-		this.inittime = new Date().getTime(); /* Used in waitUsualFadeTime() */
+		this.inittime = Date.now(); /* Used in waitUsualFadeTime() */
 	}
 
 	/**
 		@brief Pause until the time when MediaWiki should have removed this notification.
 	*/
 	waitUsualFadeTime() {
-		browser.pause( this.usualFadeTime - ( new Date().getTime() - this.inittime ) );
+		browser.pause( this.usualFadeTime - ( Date.now() - this.inittime ) );
 	}
 }
 
