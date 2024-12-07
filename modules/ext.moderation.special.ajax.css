@@ -7,7 +7,7 @@
 .modlink-disabled {
 	color: #c9c9c9;
 	cursor: default;
-	text-decoration: none ! important;
+	text-decoration: none !important;
 }
 
 /* An icon to display the result of Ajax action */
@@ -19,21 +19,21 @@
 }
 
 .modstatus-untouched .modicon {
-	background-image: url( 'images/untouched16x16.png' );
+	background-image: url( images/untouched16x16.png );
 }
 
 .modstatus-processing .modicon {
-	background-image: url( 'images/processing16x16.png' );
+	background-image: url( images/processing16x16.png );
 }
 
 .modstatus-approved .modicon {
-	background-image: url( 'images/approved16x16.png' );
+	background-image: url( images/approved16x16.png );
 }
 
 .modstatus-rejected .modicon {
-	background-image: url( 'images/rejected16x16.png' );
+	background-image: url( images/rejected16x16.png );
 }
 
 .modstatus-error .modicon {
-	background-image: url( 'images/error16x16.png' );
+	background-image: url( images/error16x16.png );
 }

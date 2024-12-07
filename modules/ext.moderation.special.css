@@ -1,1 +1,4 @@
-.modconflict { background-color: #ffaaaa; } /* Edit conflict detected */
+.modconflict {
+	/* Edit conflict detected */
+	background-color: #faa;
+}
