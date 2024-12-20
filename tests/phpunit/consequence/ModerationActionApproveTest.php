@@ -37,9 +37,11 @@ class ModerationActionApproveTest extends ModerationUnitTestCase {
 	 */
 	public function testExecuteApproveOne() {
 		$modid = 12345;
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 
 		$entry = $this->createMock( ModerationApprovableEntry::class );
 		$entry->expects( $this->once() )->method( 'approve' );
+		$entry->expects( $this->once() )->method( 'getTitle' )->willReturn( $title );
 
 		$action = $this->makeActionForTesting( ModerationActionApprove::class,
 			function ( $context, $entryFactory, $manager ) use ( $entry, $modid ) {
@@ -58,7 +60,11 @@ class ModerationActionApproveTest extends ModerationUnitTestCase {
 			}
 		);
 
-		$this->assertSame( [ 'approved' => [ $modid ] ], $action->execute() );
+		$expectedResult = [
+			'approved' => [ $modid ],
+			'returnto' => $title->getFullText()
+		];
+		$this->assertSame( $expectedResult, $action->execute() );
 	}
 
 	/**
@@ -212,6 +218,8 @@ class ModerationActionApproveTest extends ModerationUnitTestCase {
 
 		$this->assertSame( $expectedHtml, $output->getHTML(),
 			"Result of outputResult() doesn't match expected." );
+
+		// TODO: check 'returnto' parameter
 	}
 
 	/**
