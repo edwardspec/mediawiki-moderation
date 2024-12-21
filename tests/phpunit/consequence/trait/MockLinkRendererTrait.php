@@ -38,9 +38,12 @@ trait MockLinkRenderer {
 	public function mockLinkRenderer( LinkTarget $title, $mockedText ) {
 		// Mock LinkRendererFactory service to ensure that OutputPage::addReturnTo() added expected link.
 		$linkRenderer = $this->createMock( LinkRenderer::class );
-		$linkRenderer->expects( $this->once() )->method( 'makeLink' )->with(
-			$this->identicalTo( $title )
-		)->willReturn( $mockedText );
+		$linkRenderer->expects( $this->once() )->method( 'makeLink' )->willReturnCallback(
+			function ( $title2 ) use ( $title, $mockedText ) {
+				$this->assertTrue( $title->isSameLinkAs( $title2 ) );
+				return $mockedText;
+			}
+		);
 		$linkRenderer->expects( $this->any() )->method( 'getLinkClasses' )->willReturn( '' );
 
 		$lrFactory = $this->createMock( LinkRendererFactory::class );

@@ -32,6 +32,7 @@ require_once __DIR__ . "/autoload.php";
  */
 class SpecialModerationTest extends ModerationUnitTestCase {
 	use MockModerationActionTrait;
+	use MockLinkRenderer;
 
 	/** @var string[] */
 	protected $tablesUsed = [ 'moderation', 'moderation_block' ];
@@ -106,6 +107,10 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		$mockedResult = [ 'cat' => 'feline', 'fennec fox' => 'canine' ];
 		$mockedHtml = 'This is HTML that will be returned by outputResult()';
 
+		// Mock LinkRendererFactory service to ensure that OutputPage::addReturnTo() added expected link.
+		$specialTitle = SpecialPage::getTitleFor( 'Moderation' );
+		$this->mockLinkRenderer( $specialTitle, '{MockedReturnToLink}' );
+
 		$mock->expects( $this->once() )->method( 'execute' )->willReturn( $mockedResult );
 		$mock->expects( $this->once() )->method( 'outputResult' )->with(
 			$this->identicalTo( $mockedResult ),
@@ -116,10 +121,17 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 			}
 		) );
 
-		$html = ModerationTestUtil::runSpecialModeration( $moderator, $params );
-		$this->assertStringContainsString( $mockedHtml, $html );
+		$printedText = ModerationTestUtil::runSpecialModeration( $moderator, $params );
+		$this->assertStringContainsString( $mockedHtml, $printedText );
 
-		// TODO: assert that $html contains "return to Special:Moderation" link
+		$html = new ModerationTestHTML;
+		$html->loadString( $printedText );
+
+		// Assert that $html contains "return to Special:Moderation" link
+		$returnto = $html->getElementById( 'mw-returnto' );
+		$this->assertNotNull( $returnto, 'HTML element with id="mw-returnto" not found on the page.' );
+		$this->assertSame( '(returnto: {MockedReturnToLink})', $returnto->textContent,
+			'Incorrect "Return to" link.' );
 	}
 
 	/**
