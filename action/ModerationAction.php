@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2022 Edward Chernenko.
+	Copyright (C) 2014-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -42,6 +42,12 @@ abstract class ModerationAction extends ContextSource {
 	 * Moderator who is enacting this action.
 	 */
 	public $moderator;
+
+	/**
+	 * @var LinkTarget|null
+	 * Title of the page to be used for "Return to PageName" link after the action is completed.
+	 */
+	protected $returnTo = null;
 
 	/** @var EntryFactory */
 	protected $entryFactory;
@@ -182,5 +188,21 @@ abstract class ModerationAction extends ContextSource {
 			'mod_user_text AS user_text'
 		] );
 		return $row ? Title::makeTitle( NS_USER, $row->user_text ) : false;
+	}
+
+	/**
+	 * Returns title (if any) for OutputPage::addReturnTo() link, or null if no such link is needed.
+	 * @return LinkTarget|null
+	 */
+	public function getReturnTo() {
+		return $this->returnTo;
+	}
+
+	/**
+	 * Set page to be used for OutputPage::addReturnTo() link.
+	 * @param LinkTarget $title
+	 */
+	public function setReturnTo( LinkTarget $title ) {
+		$this->returnTo = $title;
 	}
 }
