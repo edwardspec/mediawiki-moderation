@@ -58,45 +58,52 @@ class ModerationActionTest extends ModerationTestCase {
 			'successful Approve (newly created page)' => [ [
 				'modaction' => 'approve',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
-				'expectApproved' => true
+				'expectApproved' => true,
+				'expectReturnLinks' => [ 'Test page 1' ]
 			] ],
 			'successful Approve (edit on the existing page)' => [ [
 				'modaction' => 'approve',
 				'existing' => true, // edit in existing page
 				'expectedOutput' => '(moderation-approved-ok: 1)',
-				'expectApproved' => true
+				'expectApproved' => true,
+				'expectReturnLinks' => [ 'Test page 1' ]
 			] ],
 			'successful Approve (minor edit on the existing page)' => [ [
 				'modaction' => 'approve',
 				'mod_minor' => 1,
 				'existing' => true, // edit in existing page
 				'expectedOutput' => '(moderation-approved-ok: 1)',
-				'expectApproved' => true
+				'expectApproved' => true,
+				'expectReturnLinks' => [ 'Test page 1' ]
 			] ],
 			'successful Approve (previously rejected change)' => [ [
 				'modaction' => 'approve',
 				'mod_rejected' => 1,
 				'expectedOutput' => '(moderation-approved-ok: 1)',
-				'expectApproved' => true
+				'expectApproved' => true,
+				'expectReturnLinks' => [ 'Test page 1' ]
 			] ],
 			'successful Approve should preserve the timestamp of original edit' => [ [
 				'modaction' => 'approve',
 				'mod_timestamp' => '-6 hours',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
-				'expectApproved' => true
+				'expectApproved' => true,
+				'expectReturnLinks' => [ 'Test page 1' ]
 			] ],
 			'successful Approve (upload)' => [ [
 				'modaction' => 'approve',
 				'filename' => 'image100x100.png',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
-				'expectApproved' => true
+				'expectApproved' => true,
+				'expectReturnLinks' => [ 'File:Image100x100.png' ]
 			] ],
 			'successful Approve (reupload)' => [ [
 				'modaction' => 'approve',
 				'existing' => true, // reupload
 				'filename' => 'image100x100.png',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
-				'expectApproved' => true
+				'expectApproved' => true,
+				'expectReturnLinks' => [ 'File:Image100x100.png' ]
 			] ],
 			'successful Approve (move)' => [ [
 				'modaction' => 'approve',
@@ -110,14 +117,16 @@ class ModerationActionTest extends ModerationTestCase {
 				'modaction' => 'approve',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true,
-				'mod_tags' => "Cat-related tag\nTag about dogs"
+				'mod_tags' => "Cat-related tag\nTag about dogs",
+				'expectReturnLinks' => [ 'Test page 1' ]
 			] ],
 			'successful Approve (tagged upload)' => [ [
 				'modaction' => 'approve',
 				'filename' => 'image100x100.png',
 				'expectedOutput' => '(moderation-approved-ok: 1)',
 				'expectApproved' => true,
-				'mod_tags' => "Cat-related tag\nTag about dogs"
+				'mod_tags' => "Cat-related tag\nTag about dogs",
+				'expectReturnLinks' => [ 'File:Image100x100.png' ]
 			] ],
 			'successful Approve (tagged move)' => [ [
 				'modaction' => 'approve',
@@ -559,6 +568,11 @@ class ModerationActionTest extends ModerationTestCase {
 	protected $expectActionLinks = [];
 
 	/**
+	 * @var array Page names of expected "Return to" links (not counting Special:Moderation).
+	 */
+	protected $expectReturnLinks = [];
+
+	/**
 	 * @var bool If true, binary output of this modaction must be the same as content of $filename.
 	 */
 	protected $expectOutputToEqualUploadedFile = false;
@@ -645,6 +659,7 @@ class ModerationActionTest extends ModerationTestCase {
 				case 'expectedOutput':
 				case 'expectedOutputHtml':
 				case 'expectActionLinks':
+				case 'expectReturnLinks':
 				case 'expectOutputToEqualUploadedFile':
 				case 'expectReadOnlyError':
 				case 'expectRejected':
@@ -859,6 +874,35 @@ class ModerationActionTest extends ModerationTestCase {
 				[ "action link [$action] exists" => $isExpected ],
 				[ "action link [$action] exists" => (bool)$link ]
 			);
+		}
+
+		$expectedReturnTo = [];
+		if ( $this->expectedHttpStatus !== 404 ) {
+			if ( $this->expectReadOnlyError ) {
+				$expectedReturnTo[] = [ '(mainpage)', null ];
+			} else {
+				$expectedReturnTo[] = [ 'Special:Moderation', SpecialPage::getTitleFor( 'Moderation' ) ];
+				foreach ( $this->expectReturnLinks as $pageName ) {
+					$expectedReturnTo[] = [ $pageName, Title::newFromText( $pageName ) ];
+				}
+			}
+		}
+
+		$returnLinks = $html->getElementsByXPath( '//*[@id="mw-returnto"]/a' . '|' .
+			'//*[@class="mw-returnto-extra"]/a' );
+		$this->assertCount( count( $expectedReturnTo ), $returnLinks,
+			'Unexpected number of "Return to" links.' );
+
+		foreach ( $returnLinks as $idx => $link ) {
+			[ $expectedPageName, $expectedTitle ] = $expectedReturnTo[$idx];
+
+			$this->assertSame( "(returnto: $expectedPageName)", $link->parentNode->textContent );
+			if ( $expectedTitle ) {
+				$this->assertSame(
+					$expectedTitle->getLocalURL(),
+					$link->getAttribute( 'href' )
+				);
+			}
 		}
 	}
 

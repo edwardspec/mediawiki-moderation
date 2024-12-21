@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
+use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -37,9 +38,11 @@ class ModerationActionApproveTest extends ModerationUnitTestCase {
 	 */
 	public function testExecuteApproveOne() {
 		$modid = 12345;
+		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 
 		$entry = $this->createMock( ModerationApprovableEntry::class );
 		$entry->expects( $this->once() )->method( 'approve' );
+		$entry->expects( $this->once() )->method( 'getTitle' )->willReturn( $title );
 
 		$action = $this->makeActionForTesting( ModerationActionApprove::class,
 			function ( $context, $entryFactory, $manager ) use ( $entry, $modid ) {
@@ -59,6 +62,12 @@ class ModerationActionApproveTest extends ModerationUnitTestCase {
 		);
 
 		$this->assertSame( [ 'approved' => [ $modid ] ], $action->execute() );
+
+		// Verify that page was added to "Return to" links.
+		$wrapper = TestingAccessWrapper::newFromObject( $action );
+		$this->assertCount( 1, $wrapper->returnTitles, 'Expected 1 return link.' );
+		$this->assertTrue( $title->isSamePageAs( $wrapper->returnTitles[0] ),
+			'Unexpected return link.' );
 	}
 
 	/**

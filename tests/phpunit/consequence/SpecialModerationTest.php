@@ -115,11 +115,18 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 				$out->addHTML( $mockedHtml );
 			}
 		) );
+		$mock->expects( $this->once() )->method( 'printReturnLinks' )->willReturnCallback(
+			static function ( OutputPage $out ) {
+				$out->addHTML( '{MockedReturnLinks}' );
+			}
+		);
 
 		$html = ModerationTestUtil::runSpecialModeration( $moderator, $params );
 		$this->assertStringContainsString( $mockedHtml, $html );
 
-		// TODO: assert that $html contains "return to Special:Moderation" link
+		// Assert that $html contains "return to Special:Moderation" link
+		$this->assertStringContainsString( '{MockedReturnLinks}', $html,
+			'Return links weren\'t printed.' );
 	}
 
 	/**

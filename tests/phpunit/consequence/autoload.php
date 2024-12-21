@@ -28,6 +28,7 @@ $wgAutoloadClasses += [
 	'ModerationTempUserTestTrait' => __DIR__ . '/../../common/trait/ModerationTempUserTestTrait.php',
 	'ActionTestTrait' => __DIR__ . '/trait/ActionTestTrait.php',
 	'MakeEditTestTrait' => __DIR__ . '/trait/MakeEditTestTrait.php',
+	'MockLinkRendererTrait' => __DIR__ . '/trait/MockLinkRendererTrait.php',
 	'MockLoadRowTestTrait' => __DIR__ . '/trait/MockLoadRowTestTrait.php',
 	'MockModerationActionTrait' => __DIR__ . '/trait/MockModerationActionTrait.php',
 	'MockRevisionLookupTestTrait' => __DIR__ . '/trait/MockRevisionLookupTestTrait.php',

@@ -20,15 +20,14 @@
  * Unit test of ModerationError.
  */
 
-use MediaWiki\Linker\LinkRenderer;
-use MediaWiki\Linker\LinkRendererFactory;
-
 require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database
  */
 class ModerationErrorTest extends ModerationUnitTestCase {
+	use MockLinkRendererTrait;
+
 	/**
 	 * Test that ModerationError exception can be constructed from string (name of i18n message).
 	 * @covers ModerationError
@@ -74,18 +73,7 @@ class ModerationErrorTest extends ModerationUnitTestCase {
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 
 		// Mock LinkRendererFactory service to ensure that OutputPage::addReturnTo() added expected link.
-		$linkRenderer = $this->createMock( LinkRenderer::class );
-		$linkRenderer->expects( $this->once() )->method( 'makeLink' )->with(
-			$this->identicalTo( $title )
-		)->willReturn( '{MockedReturnToLink}' );
-		$linkRenderer->expects( $this->any() )->method( 'getLinkClasses' )->willReturn( '' );
-
-		$lrFactory = $this->createMock( LinkRendererFactory::class );
-		$lrFactory->expects( $this->any() )->method( 'create' )
-			->willReturn( $linkRenderer );
-		$lrFactory->expects( $this->any() )->method( 'createFromLegacyOptions' )
-			->willReturn( $linkRenderer );
-		$this->setService( 'LinkRendererFactory', $lrFactory );
+		$this->mockLinkRenderer( [ '{MockedReturnToLink}' => $title ] );
 
 		// ErrorPageError class prints to $wgOut (global OutputPage), ModerationError does the same.
 		global $wgOut;

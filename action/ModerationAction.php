@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2022 Edward Chernenko.
+	Copyright (C) 2014-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,6 +20,8 @@
  * Parent class for all moderation actions.
  */
 
+use MediaWiki\Linker\LinkTarget;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
@@ -42,6 +44,12 @@ abstract class ModerationAction extends ContextSource {
 	 * Moderator who is enacting this action.
 	 */
 	public $moderator;
+
+	/**
+	 * @var LinkTarget[]
+	 * Titles of pages to be used for "Return to Page" links after the action is completed.
+	 */
+	protected $returnTitles = [];
 
 	/** @var EntryFactory */
 	protected $entryFactory;
@@ -182,5 +190,33 @@ abstract class ModerationAction extends ContextSource {
 			'mod_user_text AS user_text'
 		] );
 		return $row ? Title::makeTitle( NS_USER, $row->user_text ) : false;
+	}
+
+	/**
+	 * Print "Return to Page" links to $out.
+	 * @param OutputPage $out
+	 */
+	public function printReturnLinks( OutputPage $out ): void {
+		$linkRenderer = MediaWikiServices::getInstance()->getLinkRendererFactory()->create();
+		$specialTitle = SpecialPage::getTitleFor( 'Moderation' );
+		$attr = [ 'id' => 'mw-returnto' ];
+
+		foreach ( array_merge( [ $specialTitle ], $this->returnTitles ) as $title ) {
+			// Can't use OutputPage::addReturnTo(), because it would create several elements
+			// with the same id="mw-returnto", which wouldn't be valid HTML.
+			$link = $out->msg( 'returnto' )->rawParams(
+				$linkRenderer->makeKnownLink( $title ) )->escaped();
+			$out->addHTML( Xml::tags( 'p', $attr, $link ) . "\n" );
+
+			$attr = [ 'class' => 'mw-returnto-extra' ];
+		}
+	}
+
+	/**
+	 * Add page to be used for "Return to Page" link.
+	 * @param LinkTarget $title
+	 */
+	public function addReturnTitle( LinkTarget $title ) {
+		$this->returnTitles[] = $title;
 	}
 }

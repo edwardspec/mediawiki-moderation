@@ -60,6 +60,10 @@ class ModerationActionApprove extends ModerationAction {
 		$entry = $this->entryFactory->findApprovableEntry( $this->id );
 		$entry->approve( $this->moderator );
 
+		if ( !$entry->isMove() ) {
+			$this->addReturnTitle( $entry->getTitle() );
+		}
+
 		return [
 			'approved' => [ $this->id ]
 		];

@@ -26,7 +26,11 @@ use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
+/**
+ * @group Database
+ */
 class ModerationActionUnitTest extends ModerationUnitTestCase {
+	use MockLinkRendererTrait;
 	use MockLoadRowTestTrait;
 
 	/**
@@ -158,6 +162,67 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 			'readonly action (wiki in readonly mode)' => [ false, true ],
 			'non-readonly action (wiki NOT in readonly mode)' => [ true, false ],
 			'non-readonly action (wiki in readonly mode)' => [ true, true ]
+		];
+	}
+
+	/**
+	 * Test that "Return to Page" links are printed when needed.
+	 * @param string ...$pageNames List of titles that will be passed to addReturnTitle().
+	 * @dataProvider dataProviderReturnLinks
+	 *
+	 * @covers ModerationAction::addReturnTitle()
+	 * @covers ModerationAction::printReturnLinks()
+	 *
+	 */
+	public function testReturnLinks( ...$pageNames ) {
+		$mock = $this->getModerationActionMock();
+
+		'@phan-var ModerationAction $mock';
+
+		$mockWrapper = TestingAccessWrapper::newFromObject( $mock );
+		$this->assertCount( 0, $mockWrapper->returnTitles );
+
+		$mockedLinks = [];
+		foreach ( $pageNames as $pageName ) {
+			$title = Title::newFromText( $pageName );
+			$mock->addReturnTitle( $title );
+
+			$mockedLinks["{MockedReturnTo.$pageName}"] = $title;
+		}
+
+		$this->mockLinkRenderer( array_merge(
+			[ '{MockedReturnToSpecialModeration}' => SpecialPage::getTitleFor( 'Moderation' ) ],
+			$mockedLinks
+		) );
+
+		$this->assertCount( count( $mockedLinks ), $mockWrapper->returnTitles,
+			'Unexpected number of return links.' );
+
+		// Verify that page was added to "Return to" links.
+		$context = new RequestContext;
+		$context->setLanguage( ModerationTestUtil::getLanguageQqx() );
+		$out = $context->getOutput();
+		$mock->printReturnLinks( $out );
+
+		$expectedHtml = "<p id=\"mw-returnto\">(returnto: {MockedReturnToSpecialModeration})</p>\n";
+		foreach ( array_keys( $mockedLinks ) as $linkHtml ) {
+			$expectedHtml .= "<p class=\"mw-returnto-extra\">(returnto: $linkHtml)</p>\n";
+		}
+
+		$this->assertSame( $expectedHtml, $out->getHTML(),
+			'Output of printReturnLinks() doesn\'t contain expected links.' );
+	}
+
+	/**
+	 * Provide datasets for testReturnLinks() runs.
+	 * @return array
+	 */
+	public function dataProviderReturnLinks() {
+		return [
+			'no return links' => [],
+			'1 return link' => [ 'Project:Some page' ],
+			'2 return links' => [ 'Some page', 'Category:Some category' ],
+			'3 return links' => [ 'Talk:A', 'B', 'User:C' ]
 		];
 	}
 }

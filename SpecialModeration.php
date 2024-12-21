@@ -226,7 +226,7 @@ class SpecialModeration extends QueryPage {
 
 		$out = $this->getOutput();
 		$A->outputResult( $result, $out );
-		$out->addReturnTo( SpecialPage::getTitleFor( 'Moderation' ) );
+		$A->printReturnLinks( $out );
 	}
 
 	/**
