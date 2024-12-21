@@ -54,12 +54,6 @@ class ModerationActionApprove extends ModerationAction {
 				count( $result['failed'] )
 			);
 		}
-
-		$returnto = $result['returnto'] ?? null;
-		if ( $returnto ) {
-			$title = Title::newFromText( $returnto );
-			$out->addReturnTo( $title );
-		}
 	}
 
 	public function executeApproveOne() {
@@ -67,8 +61,7 @@ class ModerationActionApprove extends ModerationAction {
 		$entry->approve( $this->moderator );
 
 		return [
-			'approved' => [ $this->id ],
-			'returnto' => $entry->getTitle()->getFullText()
+			'approved' => [ $this->id ]
 		];
 	}
 
