@@ -89,11 +89,12 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 	/**
 	 * Verify that Special:Moderation?modaction=something runs execute() and then outputResult().
 	 * @param bool $isTokenNeeded If true, tested ModerationAction will require an edit token.
+	 * @param string|null $returnPageName Page name for "Return to Page" link (if needed) or null.
 	 * @dataProvider dataProviderSuccessfulAction
 	 *
 	 * @covers SpecialModeration
 	 */
-	public function testSuccessfulAction( $isTokenNeeded ) {
+	public function testSuccessfulAction( $isTokenNeeded, $returnPageName ) {
 		$moderator = self::getTestUser( [ 'moderator' ] )->getUser();
 		$params = [ 'modaction' => 'makesandwich' ];
 		if ( $isTokenNeeded ) {
@@ -108,8 +109,15 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		$mockedHtml = 'This is HTML that will be returned by outputResult()';
 
 		// Mock LinkRendererFactory service to ensure that OutputPage::addReturnTo() added expected link.
-		$specialTitle = SpecialPage::getTitleFor( 'Moderation' );
-		$this->mockLinkRenderer( $specialTitle, '{MockedReturnToLink}' );
+		$returnTitle = null;
+		$mockSettings = [
+			'{MockedReturnToSpecialModeration}' => SpecialPage::getTitleFor( 'Moderation' )
+		];
+		if ( $returnPageName ) {
+			$returnTitle = Title::newFromText( $returnPageName );
+			$mockSettings['{MockedReturnToArticle}'] = $returnTitle;
+		}
+		$this->mockLinkRenderer( $mockSettings );
 
 		$mock->expects( $this->once() )->method( 'execute' )->willReturn( $mockedResult );
 		$mock->expects( $this->once() )->method( 'outputResult' )->with(
@@ -120,6 +128,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 				$out->addHTML( $mockedHtml );
 			}
 		) );
+		$mock->expects( $this->once() )->method( 'getReturnTo' )->willReturn( $returnTitle );
 
 		$printedText = ModerationTestUtil::runSpecialModeration( $moderator, $params );
 		$this->assertStringContainsString( $mockedHtml, $printedText );
@@ -130,8 +139,13 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		// Assert that $html contains "return to Special:Moderation" link
 		$returnto = $html->getElementById( 'mw-returnto' );
 		$this->assertNotNull( $returnto, 'HTML element with id="mw-returnto" not found on the page.' );
-		$this->assertSame( '(returnto: {MockedReturnToLink})', $returnto->textContent,
+		$this->assertSame( '(returnto: {MockedReturnToSpecialModeration})', $returnto->textContent,
 			'Incorrect "Return to" link.' );
+
+		if ( $returnPageName ) {
+			// FIXME: there are 2 elements with id="mw-returnto", it's invalid HTML and should be avoided.
+			$this->assertStringContainsString( '(returnto: {MockedReturnToArticle})', $printedText );
+		}
 	}
 
 	/**
@@ -140,8 +154,9 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 	 */
 	public function dataProviderSuccessfulAction() {
 		return [
-			'token needed, provided token is correct' => [ true ],
-			'token NOT needed' => [ false ]
+			'token needed, provided token is correct' => [ true, null ],
+			'token NOT needed' => [ false, null ],
+			'has returnto page' => [ true, 'Project:Some page' ]
 		];
 	}
 

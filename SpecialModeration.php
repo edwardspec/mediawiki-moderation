@@ -230,6 +230,8 @@ class SpecialModeration extends QueryPage {
 
 		$returnTitle = $A->getReturnTo();
 		if ( $returnTitle ) {
+			// FIXME: this results in 2 elements with the same id="mw-returnto",
+			// which is invalid HTML and should be avoided.
 			$out->addReturnTo( $returnTitle );
 		}
 	}

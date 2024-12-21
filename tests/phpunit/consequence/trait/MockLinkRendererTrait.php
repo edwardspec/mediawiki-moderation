@@ -32,15 +32,22 @@ use MediaWiki\Linker\LinkRendererFactory;
 trait MockLinkRenderer {
 	/**
 	 * Mocks LinkRendererFactory service to return $linkText instead of link to $title.
-	 * @param LinkTarget $title
-	 * @param $mockedText
+	 * @param array $linkTextToTitle
+	 * @phan-param <string,LinkTarget>[] $linkTextToTitle
 	 */
-	public function mockLinkRenderer( LinkTarget $title, $mockedText ) {
+	public function mockLinkRenderer( array $linkTextToTitle ) {
 		// Mock LinkRendererFactory service to ensure that OutputPage::addReturnTo() added expected link.
 		$linkRenderer = $this->createMock( LinkRenderer::class );
-		$linkRenderer->expects( $this->once() )->method( 'makeLink' )->willReturnCallback(
-			function ( $title2 ) use ( $title, $mockedText ) {
-				$this->assertTrue( $title->isSameLinkAs( $title2 ) );
+		$linkRenderer->expects( $this->any() )->method( 'makeLink' )->willReturnCallback(
+			function ( $title ) use ( $linkTextToTitle ) {
+				foreach ( $linkTextToTitle as $mockedText => $title2 ) {
+					if ( $title2 && $title->isSameLinkAs( $title2 ) ) {
+						return $mockedText;
+					}
+				}
+
+				$this->assertTrue( false,
+					'Mocked LinkRenderer was called for non-configured title: ' . $title->getFullText() );
 				return $mockedText;
 			}
 		);

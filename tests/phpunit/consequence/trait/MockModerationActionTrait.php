@@ -37,7 +37,7 @@ trait MockModerationActionTrait {
 		$actionMock = $this->getMockBuilder( ModerationAction::class )
 			->disableOriginalConstructor()
 			->disableProxyingToOriginalMethods()
-			->setMethods( [ 'requiresEditToken', 'execute' ] )
+			->setMethods( [ 'requiresEditToken', 'execute', 'getReturnTo' ] )
 			->getMockForAbstractClass();
 
 		// Since we are not calling the constructor (which sets ReadOnlyMode via dependency injection),
