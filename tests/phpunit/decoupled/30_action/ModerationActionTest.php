@@ -220,25 +220,29 @@ class ModerationActionTest extends ModerationTestCase {
 			] ],
 
 			// Check modaction=show for uploads/moves
-			// TODO: check download link (for non-images) and full image link (for images)
 			'Show (100x100 PNG image, no description)' => [ [
 				'modaction' => 'show',
 				'filename' => 'image100x100.png',
 				'nullEdit' => true,
-				'expectedOutput' => '(moderation-diff-upload-notext)'
+				'expectedOutput' => '(moderation-diff-upload-notext)',
+				'expectShowImageLink' => true,
+				'expectShowImageThumbnail' => true
 			] ],
 			'Show (100x100 PNG image, with description)' => [ [
 				'modaction' => 'show',
 				'filename' => 'image100x100.png',
 				'mod_text' => 'Funny description',
 				'mod_new_len' => 17,
-				'expectedOutput' => 'Funny description'
+				'expectedOutput' => 'Funny description',
+				'expectShowImageLink' => true,
+				'expectShowImageThumbnail' => true
 			] ],
 			'Show (non-image upload: OGG audio file, no description)' => [ [
 				'modaction' => 'show',
 				'filename' => 'sound.ogg',
 				'nullEdit' => true,
-				'expectedOutput' => '(moderation-diff-upload-notext)'
+				'expectedOutput' => '(moderation-diff-upload-notext)',
+				'expectShowImageLink' => true
 			] ],
 			'Show (move)' => [ [
 				'modaction' => 'show',
@@ -573,6 +577,16 @@ class ModerationActionTest extends ModerationTestCase {
 	protected $expectReturnLinks = [];
 
 	/**
+	 * @var bool If true, output must have a link to modaction=showimg.
+	 */
+	protected $expectShowImageLink = false;
+
+	/**
+	 * @var bool If true, output must have a thumbnail image.
+	 */
+	protected $expectShowImageThumbnail = false;
+
+	/**
 	 * @var bool If true, binary output of this modaction must be the same as content of $filename.
 	 */
 	protected $expectOutputToEqualUploadedFile = false;
@@ -660,6 +674,8 @@ class ModerationActionTest extends ModerationTestCase {
 				case 'expectedOutputHtml':
 				case 'expectActionLinks':
 				case 'expectReturnLinks':
+				case 'expectShowImageLink':
+				case 'expectShowImageThumbnail':
 				case 'expectOutputToEqualUploadedFile':
 				case 'expectReadOnlyError':
 				case 'expectRejected':
@@ -876,6 +892,42 @@ class ModerationActionTest extends ModerationTestCase {
 			);
 		}
 
+		$link = $html->getElementByXPath( '//*[@id="mw-content-text"]//a[contains(@href,"modaction=showimg")]' );
+		if ( $this->expectShowImageLink ) {
+			$this->assertNotNull( $link, 'Missing show image link' );
+
+			$expectedUrl = SpecialPage::getTitleFor( 'Moderation' )->getLocalURL( [
+				'modaction' => 'showimg',
+				'modid' => $this->fields['mod_id']
+			] );
+			$this->assertSame( $expectedUrl, $link->getAttribute( 'href' ) );
+		} else {
+			$this->assertNull( $link, 'Unexpected show image link' );
+		}
+
+		$thumb = $html->getElementByXPath( '//img[contains(@src,"modaction=showimg")]', $link );
+		if ( $this->expectShowImageThumbnail ) {
+			$this->assertNotNull( $thumb, 'Missing show image thumbnail' );
+
+			$expectedUrl = SpecialPage::getTitleFor( 'Moderation' )->getLocalURL( [
+				'modaction' => 'showimg',
+				'modid' => $this->fields['mod_id'],
+				'thumb' => 1
+			] );
+			$this->assertSame( $expectedUrl, $thumb->getAttribute( 'src' ) );
+		} else {
+			$this->assertNull( $thumb, 'Unexpected show image thumbnail' );
+		}
+
+		$this->assertReturnLinks( $html );
+	}
+
+	/**
+	 * Check "Return to" links in output printed by the action URL.
+	 * @param ModerationTestsuiteHTML $html
+	 * @see assertBinaryOutput
+	 */
+	protected function assertReturnLinks( ModerationTestsuiteHTML $html ) {
 		$expectedReturnTo = [];
 		if ( $this->expectedHttpStatus !== 404 ) {
 			if ( $this->expectReadOnlyError ) {

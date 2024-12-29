@@ -156,10 +156,11 @@ class ModerationTestHTML extends DOMDocument {
 	 * Find the DOM element by XPath selector.
 	 * E.g. $t->html->getElementsByXPath( '//row[@name="wpSummary"]' )
 	 * @param string $selector
+	 * @param ?DOMNode $contextNode
 	 * @return DOMElement|null
 	 */
-	public function getElementByXPath( $selector ) {
-		$elements = $this->getElementsByXPath( $selector );
+	public function getElementByXPath( $selector, ?DOMNode $contextNode = null ) {
+		$elements = $this->getElementsByXPath( $selector, $contextNode );
 		if ( !$elements ) {
 			return null;
 		}
@@ -174,11 +175,12 @@ class ModerationTestHTML extends DOMDocument {
 	 * Find all DOM elements matching the XPath selector.
 	 * E.g. $t->html->getElementsByXPath( '//a[@class="new"]' )
 	 * @param string $selector
+	 * @param ?DOMNode $contextNode
 	 * @return DOMNodeList
 	 */
-	public function getElementsByXPath( $selector ) {
+	public function getElementsByXPath( $selector, ?DOMNode $contextNode = null ) {
 		$xpath = new DomXpath( $this );
-		return $xpath->query( $selector );
+		return $xpath->query( $selector, $contextNode );
 	}
 
 	/**
