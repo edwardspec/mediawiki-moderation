@@ -23,8 +23,4 @@ Low-prio:
 * (UX) Automatically reject null edits during modaction=merge.
 
 FIXME:
-* When approving, tags related to moderator (and unrelated to original author)
-	shouldn't be applied (e.g. if moderator clicks Approve in Mobile view,
-	approved edit shouldn't be tagged as "Mobile edit" - unless, of course,
-	the original author also used Mobile view and this tag is in mod_tags).
 * "Move associated talk page" checkbox should work for intercepted page moves.
