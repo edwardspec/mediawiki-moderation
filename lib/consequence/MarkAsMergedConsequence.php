@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -51,7 +51,8 @@ class MarkAsMergedConsequence implements IConsequence {
 			],
 			[
 				'mod_id' => $this->modid,
-				'mod_merged_revid' => 0 # No more than one merging
+				'mod_merged_revid' => 0, # No more than one merging
+				'mod_conflict' => 1 # Only changes with an edit conflict can be merged
 			],
 			__METHOD__
 		);

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2024 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -39,21 +39,42 @@ class MarkAsMergedConsequenceTest extends ModerationUnitTestCase {
 	 */
 	public function testMarkAsMerged() {
 		$revid = 12345;
-		$modid = $this->makeDbRow();
+		$modid = $this->makeDbRow( [ 'mod_conflict' => 1 ] );
 
 		// Create and run the Consequence.
 		$consequence = new MarkAsMergedConsequence( $modid, $revid );
 		$somethingChanged = $consequence->run();
 
-		$this->assertTrue( $somethingChanged );
+		$this->assertTrue( $somethingChanged, 'No changes after MarkAsMergedConsequence.' );
 		$this->assertIsMerged( $modid, $revid );
+	}
+
+	/**
+	 * Verify that MarkAsMergedConsequence does nothing when not applicable (already merged, etc.).
+	 * @covers MediaWiki\Moderation\MarkAsMergedConsequence
+	 * @param array $fields
+	 * @dataProvider dataProviderNoopMarkAsMerged
+	 */
+	public function testNoopMarkAsMerged( $fields ) {
+		$revid = 12345;
+		$modid = $this->makeDbRow( $fields );
 
 		// Noop test: try applying MarkAsMergedConsequence to an already merged row again.
 		$consequence = new MarkAsMergedConsequence( $modid, $revid );
 		$somethingChanged = $consequence->run();
 
-		$this->assertFalse( $somethingChanged );
-		$this->assertIsMerged( $modid, $revid ); // Should remain merged (as it was before)
+		$this->assertFalse( $somethingChanged, 'Unexpected changes after MarkAsMergedConsequence.' );
+	}
+
+	/**
+	 * Provide datasets for testNoopMarkAsMerged() runs.
+	 * @return array
+	 */
+	public function dataProviderNoopMarkAsMerged() {
+		return [
+			'already merged' => [ [ 'mod_conflict' => 1, 'mod_merged_revid' => 56789 ] ],
+			'not a conflict' => [ [ 'mod_conflict' => 0 ] ]
+		];
 	}
 
 	/**
