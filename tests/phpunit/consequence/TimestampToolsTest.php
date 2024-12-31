@@ -88,12 +88,12 @@ class TimestampToolsTest extends ModerationUnitTestCase {
 		'@phan-var IContextSource $context';
 		'@phan-var Language $lang';
 
-		$formatter = new TimestampTools();
-		$result = $formatter->format( $timestamp, $context );
+		$timestampTools = new TimestampTools();
+		$result = $timestampTools->format( $timestamp, $context );
 		$this->assertEquals( $mockedResult, $result );
 
 		// Additionally test the internal cache of TimestampTools ($skippedToday).
-		$skippedToday = TestingAccessWrapper::newFromObject( $formatter )->skippedToday;
+		$skippedToday = TestingAccessWrapper::newFromObject( $timestampTools )->skippedToday;
 		if ( $expectTimeOnly ) {
 			$this->assertFalse( $skippedToday,
 				"After today's timestamp \$skippedToday was incorrectly set to true." );
@@ -118,7 +118,7 @@ class TimestampToolsTest extends ModerationUnitTestCase {
 			'@phan-var IContextSource $context';
 			'@phan-var Language $lang';
 
-			$result = $formatter->format( $timestamp, $context );
+			$result = $timestampTools->format( $timestamp, $context );
 			$this->assertEquals( $mockedResult, $result );
 		}
 	}
@@ -167,6 +167,51 @@ class TimestampToolsTest extends ModerationUnitTestCase {
 				'20120103080000', // $mockedAdjustedToday
 				false // $expectTimeOnly
 			],
+		];
+	}
+
+	/**
+	 * Check the return value of canReapproveRejected().
+	 * @param bool $expectedResult
+	 * @param int $timeDiffFromNow How long ago did "timestamp" take place.
+	 * @param int $maxTimeDiffFromNow Value of $wgModerationTimeToOverrideRejection.
+	 * @dataProvider dataProviderCanReapproveRejected
+	 * @covers MediaWiki\Moderation\TimestampTools
+	 */
+	public function testCanReapproveRejected( $expectedResult,
+		$timeDiffFromNow, $maxTimeDiffFromNow
+	) {
+		$this->overrideConfigValue( 'ModerationTimeToOverrideRejection', $maxTimeDiffFromNow );
+
+		$timestampTools = new TimestampTools();
+		$result = $timestampTools->canReapproveRejected(
+			$this->pastTimestamp( $timeDiffFromNow )
+		);
+		$this->assertSame( $expectedResult, $result, 'canReapproveRejected' );
+
+		// Additionally test the internal cache of TimestampTools ($earliestReapprovableTimestamp).
+		$earliest = TestingAccessWrapper::newFromObject( $timestampTools )->earliestReapprovableTimestamp;
+		$this->assertNotNull( $earliest, 'canReapproveRejected() didn\'t create the cache.' );
+		$this->assertEqualsWithDelta(
+			intval( MWTimestamp::now( TS_UNIX ) ) - $maxTimeDiffFromNow,
+			MWTimestamp::convert( TS_UNIX, $earliest ),
+			5, // This assertion should succeed if canReapproveRejected() was called less than 5 seconds ago.
+			'Value of $earliestReapprovableTimestamp is too far away from current time.'
+		);
+	}
+
+	/**
+	 * Provide datasets for testCanReapproveRejected() runs.
+	 * @return array
+	 */
+	public function dataProviderCanReapproveRejected() {
+		return [
+			'allowed: rejected 1000 seconds ago, default time to override (2 weeks)' =>
+				[ true, 1000, 1209600 ],
+			'allowed: rejected 500 seconds ago, time to override is 501 second' =>
+				[ true, 500, 501 ],
+			'NOT allowed: rejected 500 seconds ago, time to override is 499 seconds' =>
+				[ false, 500, 499 ],
 		];
 	}
 }
