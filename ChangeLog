@@ -7,6 +7,7 @@ Features:
 
 Refactoring, performance optimizations:
 * Reduced the number of SQL queries when using PostgreSQL.
+* Shortened SQL query in InsertRowIntoModerationTable.
 
 == Moderation 1.8.22 ==
 

@@ -52,11 +52,12 @@ class InsertRowIntoModerationTableConsequence implements IConsequence {
 
 		$rrQuery = MediaWikiServices::getInstance()->getService( 'Moderation.RollbackResistantQuery' );
 		$rrQuery->perform( function () use ( $dbw, $uniqueFields ) {
+			$set = array_diff_key( $this->fields, array_flip( $uniqueFields ) );
 			$dbw->upsert(
 				'moderation',
 				$this->fields,
 				[ $uniqueFields ],
-				$this->fields,
+				$set,
 				'InsertRowIntoModerationTableConsequence::run'
 			);
 		} );
