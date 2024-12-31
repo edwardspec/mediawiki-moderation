@@ -217,6 +217,16 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 			$this->identicalTo( $row->timestamp )
 		)->willReturn( '{FormattedTime}' );
 
+		$canReapprove = $options['allowReapprove'] ?? null;
+		if ( $canReapprove === null ) {
+			// canReapproveRejected() is not supposed to be called for this entry.
+			$this->timestampTools->expects( $this->never() )->method( 'canReapproveRejected' );
+		} else {
+			$this->timestampTools->expects( $this->once() )->method( 'canReapproveRejected' )->with(
+				$this->identicalTo( $row->timestamp )
+			)->willReturn( $canReapprove );
+		}
+
 		if ( isset( $options['moderatorIsAutomoderated'] ) ) {
 			// Edit conflict test: $canSkip will be used to confirm that moderator is automoderated.
 			$this->canSkip->expects( $this->once() )->method( 'canEditSkip' )->with(
@@ -271,19 +281,6 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 	 * @return array
 	 */
 	public function dataProviderGetHTML() {
-		// TODO: result of "can reapprove rejected?" should be mockable,
-		// and this should be tested elsewhere.
-		global $wgModerationTimeToOverrideRejection;
-		$timeToOverride = $wgModerationTimeToOverrideRejection;
-
-		$ts = new MWTimestamp();
-		$ts->timestamp->modify( '-' . ( $timeToOverride + 1 ) . ' seconds' );
-		$longAgo = $ts->getTimestamp( TS_MW ); // Can't reapprove rejected edit with this timestamp
-
-		$ts = new MWTimestamp();
-		$ts->timestamp->modify( '-' . ( $timeToOverride - 600 ) . ' seconds' );
-		$notLongAgoEnough = $ts->getTimestamp( TS_MW );
-
 		// phpcs:disable Generic.Files.LineLength.TooLong
 		return [
 			'pending edit' => [ [
@@ -358,9 +355,9 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 				'fields' => [
 					'rejected' => 1,
 					'rejected_by_user' => 12345,
-					'rejected_by_user_text' => 'Name of moderator',
-					'timestamp' => $notLongAgoEnough
+					'rejected_by_user_text' => 'Name of moderator'
 				],
+				'allowReapprove' => true,
 				'expectedResult' => '<span class="modline">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve}] . . [{ActionLink:block}] . . (moderation-rejected-by: {UserLink:12345|Name of moderator}, {Row:rejected_by_user_text})</span>'
 			] ],
 			'rejected edit, too long ago to approve' => [ [
@@ -368,8 +365,8 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 					'rejected' => 1,
 					'rejected_by_user' => 12345,
 					'rejected_by_user_text' => 'Name of moderator',
-					'timestamp' => $longAgo
 				],
+				'allowReapprove' => false,
 				'expectedResult' => '<span class="modline">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [] . . [{ActionLink:block}] . . (moderation-rejected-by: {UserLink:12345|Name of moderator}, {Row:rejected_by_user_text})</span>'
 			] ],
 			'rejected edit, rejected via "Reject all"' => [ [
@@ -379,6 +376,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 					'rejected_by_user' => 12345,
 					'rejected_by_user_text' => 'Name of moderator'
 				],
+				'allowReapprove' => true,
 				'expectedResult' => '<span class="modline">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve}] . . [{ActionLink:block}] . . (moderation-rejected-by: {UserLink:12345|Name of moderator}, {Row:rejected_by_user_text}) . . (moderation-rejected-batch)</span>'
 			] ],
 			'spam edit (automatically rejected)' => [ [
@@ -387,6 +385,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 					'rejected_by_user' => 0,
 					'rejected_auto' => 1
 				],
+				'allowReapprove' => true,
 				'expectedResult' => '<span class="modline">({ActionLink:show}) . .  {PageLink:{Row:namespace}|{Row:title}} {FormattedTime} . . {CharDiff} . . {AuthorUserLink}  <span class="comment">({Row:comment})</span> [{ActionLink:approve}] . . [{ActionLink:block}] . . (moderation-rejected-auto)</span>'
 			] ],
 
