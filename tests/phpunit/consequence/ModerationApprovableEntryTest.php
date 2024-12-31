@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2023 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
+use MediaWiki\Moderation\TimestampTools;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -43,7 +44,7 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 		$moderatorUser = User::newFromName( '10.60.110.160', false );
 
 		$entry = $this->makeEntry(
-		function ( &$row, $manager, $approveHook ) use ( $moderatorUser, $opt, $expectedError ) {
+		function ( &$row, $manager, $approveHook, $timestampTools ) use ( $moderatorUser, $opt, $expectedError ) {
 			$authorUser = self::getTestUser()->getUser();
 			$title = Title::newFromText( "Project:Some page" );
 
@@ -68,6 +69,9 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 			if ( $opt['isAlreadyMerged'] ?? false ) {
 				$row->merged_revid = 56789;
 			}
+
+			$timestampTools->expects( $this->any() )->method( 'canReapproveRejected' )
+				->willReturn( $opt['canReapproveRejected'] ?? true );
 
 			if ( $expectedError ) {
 				// Unsuccessful action shouldn't have any consequences,
@@ -111,7 +115,7 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 					]
 				);
 			}
-		}, [ 'doApprove', 'getApproveLogSubtype', 'getApproveLogParameters', 'canReapproveRejected' ] );
+		}, [ 'doApprove', 'getApproveLogSubtype', 'getApproveLogParameters' ] );
 
 		// Mock methods like doApprove() that are supposed to be overridden by subclasses.
 		if ( $expectedError && !$doApproveError ) {
@@ -127,8 +131,6 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 				->willReturn( 'mocked-approve-subtype' );
 			$entry->expects( $this->any() )->method( 'getApproveLogParameters' )
 				->willReturn( [ 'mocked-log-param' => 'mocked-param-value' ] );
-			$entry->expects( $this->any() )->method( 'canReapproveRejected' )
-				->willReturn( $opt['canReapproveRejected'] ?? true );
 		}
 
 		'@phan-var ModerationApprovableEntry $entry';
@@ -213,9 +215,10 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 		$row = (object)[];
 		$manager = $this->createMock( IConsequenceManager::class );
 		$approveHook = $this->createMock( ModerationApproveHook::class );
+		$timestampTools = $this->createMock( TimestampTools::class );
 
 		if ( $setupMocks ) {
-			$setupMocks( $row, $manager, $approveHook );
+			$setupMocks( $row, $manager, $approveHook, $timestampTools );
 		} else {
 			// Since we are not configuring a mock of ConsequenceManager,
 			// it means that we expect no consequences to be added.
@@ -223,7 +226,7 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 		}
 
 		return $this->getMockBuilder( ModerationApprovableEntry::class )
-			->setConstructorArgs( [ $row, $manager, $approveHook ] )
+			->setConstructorArgs( [ $row, $manager, $approveHook, $timestampTools ] )
 			->onlyMethods( $methods )
 			->getMockForAbstractClass();
 	}
