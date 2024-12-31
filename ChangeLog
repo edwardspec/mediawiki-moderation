@@ -8,6 +8,7 @@ Features:
 Refactoring, performance optimizations:
 * Reduced the number of SQL queries when using PostgreSQL.
 * Shortened SQL query in InsertRowIntoModerationTable.
+* Moved timestamp-related methods to TimestampTools service.
 
 == Moderation 1.8.22 ==
 

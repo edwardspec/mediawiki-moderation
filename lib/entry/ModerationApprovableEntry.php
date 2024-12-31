@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
+use MediaWiki\Moderation\TimestampTools;
 
 abstract class ModerationApprovableEntry extends ModerationEntry {
 	/** @var IConsequenceManager */
@@ -31,18 +32,26 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 	/** @var ModerationApproveHook */
 	protected $approveHook;
 
+	/** @var TimestampTools */
+	protected $timestampTools;
+
 	/**
 	 * @param stdClass $row
 	 * @param IConsequenceManager $consequenceManager
 	 * @param ModerationApproveHook $approveHook
+	 * @param TimestampTools $timestampTools
 	 */
-	public function __construct( $row, IConsequenceManager $consequenceManager,
-		ModerationApproveHook $approveHook
+	public function __construct(
+		$row,
+		IConsequenceManager $consequenceManager,
+		ModerationApproveHook $approveHook,
+		TimestampTools $timestampTools
 	) {
 		parent::__construct( $row );
 
 		$this->consequenceManager = $consequenceManager;
 		$this->approveHook = $approveHook;
+		$this->timestampTools = $timestampTools;
 	}
 
 	/**
@@ -132,7 +141,7 @@ abstract class ModerationApprovableEntry extends ModerationEntry {
 		if ( $row->merged_revid ) {
 			throw new ModerationError( 'moderation-already-merged' );
 		}
-		if ( $row->rejected && !$this->canReapproveRejected() ) {
+		if ( $row->rejected && !$this->timestampTools->canReapproveRejected( $row->timestamp ) ) {
 			throw new ModerationError( 'moderation-rejected-long-ago' );
 		}
 

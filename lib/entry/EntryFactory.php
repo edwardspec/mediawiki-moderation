@@ -141,7 +141,7 @@ class EntryFactory {
 	 * @return ModerationApprovableEntry
 	 */
 	public function makeApprovableEntry( $row ) {
-		$args = [ $row, $this->consequenceManager, $this->approveHook ];
+		$args = [ $row, $this->consequenceManager, $this->approveHook, $this->timestampTools ];
 
 		if ( isset( $row->type ) && $row->type == ModerationNewChange::MOD_TYPE_MOVE ) {
 			return new ModerationEntryMove( ...$args );

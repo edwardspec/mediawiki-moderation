@@ -261,7 +261,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 						'moderation-no-merge-link-not-automoderated' )->plain();
 				}
 			} else {
-				if ( !$row->rejected || $this->canReapproveRejected() ) {
+				if ( !$row->rejected || $this->timestampTools->canReapproveRejected( $row->timestamp ) ) {
 					$line .= $actionLinkRenderer->makeLink( 'approve', $row->id );
 				}
 

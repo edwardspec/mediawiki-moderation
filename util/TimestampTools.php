@@ -24,6 +24,7 @@ namespace MediaWiki\Moderation;
 
 use IContextSource;
 use Language;
+use MWTimestamp;
 
 class TimestampTools {
 	/**
@@ -45,6 +46,9 @@ class TimestampTools {
 	 * Cache used by isToday(): result of userAdjust(wfTimestampNow()).
 	 */
 	protected $today = '';
+
+	/** @var string|null Cache used by canReapproveRejected() */
+	protected $earliestReapprovableTimestamp = null;
 
 	/**
 	 * Returns human-readable version of $timestamp.
@@ -81,5 +85,25 @@ class TimestampTools {
 		// First 8 symbols are YYYYMMDD. If they are the same, then the day is the same.
 		$timestamp = (string)$lang->userAdjust( wfTimestamp( TS_MW, $timestamp ) );
 		return ( strncmp( $this->today, $timestamp, 8 ) == 0 );
+	}
+
+	/**
+	 * Returns true if $timestamp is recent enough to be reapproved after rejection, false otherwise.
+	 * @param string $timestamp
+	 * @return bool
+	 */
+	public function canReapproveRejected( $timestamp ) {
+		if ( $this->earliestReapprovableTimestamp === null ) {
+			global $wgModerationTimeToOverrideRejection;
+
+			$ts = new MWTimestamp();
+			$ts->timestamp->modify( '-' . intval( $wgModerationTimeToOverrideRejection ) . ' seconds' );
+			$this->earliestReapprovableTimestamp = $ts->getTimestamp( TS_MW );
+		}
+
+		$ts = new MWTimestamp( $timestamp );
+		$timestampOfEntry = $ts->getTimestamp( TS_MW );
+
+		return $timestampOfEntry > $this->earliestReapprovableTimestamp;
 	}
 }

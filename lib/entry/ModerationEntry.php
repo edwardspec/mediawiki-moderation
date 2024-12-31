@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,9 +32,6 @@ abstract class ModerationEntry {
 
 	/** @var Title Page affected by this change */
 	private $title = null;
-
-	/** @var string|null Cache used by canReapproveRejected() */
-	protected static $earliestReapprovableTimestamp = null;
 
 	/** @return stdClass */
 	protected function getRow() {
@@ -71,27 +68,6 @@ abstract class ModerationEntry {
 	 */
 	public function isMove() {
 		return $this->row->type == ModerationNewChange::MOD_TYPE_MOVE;
-	}
-
-	/**
-	 * True if this edit is recent enough to be reapproved after rejection, false otherwise.
-	 * @return bool
-	 *
-	 * TODO: move this elsewhere: mod_timestamp field is not selected by ModerationViewableEntry.
-	 */
-	public function canReapproveRejected() {
-		if ( self::$earliestReapprovableTimestamp === null ) {
-			global $wgModerationTimeToOverrideRejection;
-
-			$ts = new MWTimestamp();
-			$ts->timestamp->modify( '-' . intval( $wgModerationTimeToOverrideRejection ) . ' seconds' );
-			self::$earliestReapprovableTimestamp = $ts->getTimestamp( TS_MW );
-		}
-
-		$ts = new MWTimestamp( $this->row->timestamp );
-		$timestampOfEntry = $ts->getTimestamp( TS_MW );
-
-		return $timestampOfEntry > self::$earliestReapprovableTimestamp;
 	}
 
 	/**
