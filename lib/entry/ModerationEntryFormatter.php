@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
-use MediaWiki\Moderation\TimestampFormatter;
+use MediaWiki\Moderation\TimestampTools;
 use Wikimedia\IPUtils;
 
 class ModerationEntryFormatter extends ModerationEntry {
@@ -35,8 +35,8 @@ class ModerationEntryFormatter extends ModerationEntry {
 	/** @var ActionLinkRenderer */
 	protected $actionLinkRenderer;
 
-	/** @var TimestampFormatter */
-	protected $timestampFormatter;
+	/** @var TimestampTools */
+	protected $timestampTools;
 
 	/** @var ModerationCanSkip */
 	protected $canSkip;
@@ -46,11 +46,11 @@ class ModerationEntryFormatter extends ModerationEntry {
 	 * @param IContextSource $context
 	 * @param LinkRenderer $linkRenderer
 	 * @param ActionLinkRenderer $actionLinkRenderer
-	 * @param TimestampFormatter $timestampFormatter
+	 * @param TimestampTools $timestampTools
 	 * @param ModerationCanSkip $canSkip
 	 */
 	public function __construct( $row, IContextSource $context, LinkRenderer $linkRenderer,
-		ActionLinkRenderer $actionLinkRenderer, TimestampFormatter $timestampFormatter,
+		ActionLinkRenderer $actionLinkRenderer, TimestampTools $timestampTools,
 		ModerationCanSkip $canSkip
 	) {
 		parent::__construct( $row );
@@ -58,7 +58,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 		$this->context = $context;
 		$this->linkRenderer = $linkRenderer;
 		$this->actionLinkRenderer = $actionLinkRenderer;
-		$this->timestampFormatter = $timestampFormatter;
+		$this->timestampTools = $timestampTools;
 		$this->canSkip = $canSkip;
 	}
 
@@ -219,7 +219,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 
 		$line .= ' ';
 
-		$line .= $this->timestampFormatter->format( $row->timestamp, $this->context );
+		$line .= $this->timestampTools->format( $row->timestamp, $this->context );
 
 		$line .= ' . . ';
 		$line .= ChangesList::showCharacterDifference(

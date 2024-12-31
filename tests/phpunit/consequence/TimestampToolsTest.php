@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2023 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -17,24 +17,24 @@
 
 /**
  * @file
- * Unit test of TimestampFormatter.
+ * Unit test of TimestampTools.
  */
 
-use MediaWiki\Moderation\TimestampFormatter;
+use MediaWiki\Moderation\TimestampTools;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
 
-class TimestampFormatterTest extends ModerationUnitTestCase {
+class TimestampToolsTest extends ModerationUnitTestCase {
 	/**
-	 * Test the results of TimestampFormatter::format().
+	 * Test the results of TimestampTools::format().
 	 * @dataProvider dataProviderFormat
 	 * @param string $timestamp First parameter passed to format().
 	 * @param string $mockedAdjustedTimestamp Mocked value of "userAdjust($timestamp)".
 	 * @param string $mockedAdjustedToday Mocked value of "userAdjust(wfTimestampNow())".
 	 * @param bool $expectTimeOnly Whether format() should return date+time (false) or time (true).
 	 *
-	 * @covers MediaWiki\Moderation\TimestampFormatter
+	 * @covers MediaWiki\Moderation\TimestampTools
 	 */
 	public function testFormat( $timestamp, $mockedAdjustedTimestamp,
 		$mockedAdjustedToday, $expectTimeOnly
@@ -88,11 +88,11 @@ class TimestampFormatterTest extends ModerationUnitTestCase {
 		'@phan-var IContextSource $context';
 		'@phan-var Language $lang';
 
-		$formatter = new TimestampFormatter();
+		$formatter = new TimestampTools();
 		$result = $formatter->format( $timestamp, $context );
 		$this->assertEquals( $mockedResult, $result );
 
-		// Additionally test the internal cache of TimestampFormatter ($skippedToday).
+		// Additionally test the internal cache of TimestampTools ($skippedToday).
 		$skippedToday = TestingAccessWrapper::newFromObject( $formatter )->skippedToday;
 		if ( $expectTimeOnly ) {
 			$this->assertFalse( $skippedToday,

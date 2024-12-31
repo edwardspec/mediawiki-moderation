@@ -153,7 +153,7 @@
 		"MediaWiki\\Moderation\\RollbackResistantQuery": "util/RollbackResistantQuery.php",
 		"MediaWiki\\Moderation\\SendNotificationEmailConsequence": "lib/consequence/SendNotificationEmailConsequence.php",
 		"MediaWiki\\Moderation\\TagRevisionAsMergedConsequence": "lib/consequence/TagRevisionAsMergedConsequence.php",
-		"MediaWiki\\Moderation\\TimestampFormatter": "util/TimestampFormatter.php",
+		"MediaWiki\\Moderation\\TimestampTools": "util/TimestampTools.php",
 		"MediaWiki\\Moderation\\UnblockUserConsequence": "lib/consequence/UnblockUserConsequence.php",
 		"MediaWiki\\Moderation\\WatchOrUnwatchConsequence": "lib/consequence/WatchOrUnwatchConsequence.php",
 		"ModerationAction": "action/ModerationAction.php",

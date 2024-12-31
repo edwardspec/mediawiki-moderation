@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Moderation\NewChangeFactory;
 use MediaWiki\Moderation\RollbackResistantQuery;
-use MediaWiki\Moderation\TimestampFormatter;
+use MediaWiki\Moderation\TimestampTools;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -65,7 +65,7 @@ class ServiceWiringTest extends ModerationUnitTestCase {
 			[ 'Moderation.NotifyModerator', ModerationNotifyModerator::class ],
 			[ 'Moderation.Preload', ModerationPreload::class ],
 			[ 'Moderation.RollbackResistantQuery', RollbackResistantQuery::class ],
-			[ 'Moderation.TimestampFormatter', TimestampFormatter::class ],
+			[ 'Moderation.TimestampTools', TimestampTools::class ],
 			[ 'Moderation.VersionCheck', ModerationVersionCheck::class ],
 		];
 	}

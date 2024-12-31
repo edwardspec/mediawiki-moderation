@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2024 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -46,8 +46,8 @@ class EntryFactory {
 	/** @var ActionLinkRenderer */
 	protected $actionLinkRenderer;
 
-	/** @var TimestampFormatter */
-	protected $timestampFormatter;
+	/** @var TimestampTools */
+	protected $timestampTools;
 
 	/** @var IConsequenceManager */
 	protected $consequenceManager;
@@ -67,7 +67,7 @@ class EntryFactory {
 	/**
 	 * @param LinkRenderer $linkRenderer
 	 * @param ActionLinkRenderer $actionLinkRenderer
-	 * @param TimestampFormatter $timestampFormatter
+	 * @param TimestampTools $timestampTools
 	 * @param IConsequenceManager $consequenceManager
 	 * @param ModerationCanSkip $canSkip
 	 * @param ModerationApproveHook $approveHook
@@ -76,7 +76,7 @@ class EntryFactory {
 	 */
 	public function __construct( LinkRenderer $linkRenderer,
 		ActionLinkRenderer $actionLinkRenderer,
-		TimestampFormatter $timestampFormatter,
+		TimestampTools $timestampTools,
 		IConsequenceManager $consequenceManager,
 		ModerationCanSkip $canSkip,
 		ModerationApproveHook $approveHook,
@@ -85,7 +85,7 @@ class EntryFactory {
 	) {
 		$this->linkRenderer = $linkRenderer;
 		$this->actionLinkRenderer = $actionLinkRenderer;
-		$this->timestampFormatter = $timestampFormatter;
+		$this->timestampTools = $timestampTools;
 		$this->consequenceManager = $consequenceManager;
 		$this->canSkip = $canSkip;
 		$this->approveHook = $approveHook;
@@ -105,7 +105,7 @@ class EntryFactory {
 			$context,
 			$this->linkRenderer,
 			$this->actionLinkRenderer,
-			$this->timestampFormatter,
+			$this->timestampTools,
 			$this->canSkip
 		);
 	}

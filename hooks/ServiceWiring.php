@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2022 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Moderation\NewChangeFactory;
 use MediaWiki\Moderation\RollbackResistantQuery;
-use MediaWiki\Moderation\TimestampFormatter;
+use MediaWiki\Moderation\TimestampTools;
 
 // @codeCoverageIgnoreStart
 // (PHPUnit doesn't support @covers for out-of-class code)
@@ -84,7 +84,7 @@ return [
 		return new EntryFactory(
 			$services->getLinkRenderer(),
 			$services->getService( 'Moderation.ActionLinkRenderer' ),
-			$services->getService( 'Moderation.TimestampFormatter' ),
+			$services->getService( 'Moderation.TimestampTools' ),
 			$services->getService( 'Moderation.ConsequenceManager' ),
 			$services->getService( 'Moderation.CanSkip' ),
 			$services->getService( 'Moderation.ApproveHook' ),
@@ -124,8 +124,8 @@ return [
 			$services->getDBLoadBalancer()
 		);
 	},
-	'Moderation.TimestampFormatter' => static function (): TimestampFormatter {
-		return new TimestampFormatter();
+	'Moderation.TimestampTools' => static function (): TimestampTools {
+		return new TimestampTools();
 	},
 	'Moderation.VersionCheck' => static function ( MediaWikiServices $services ): ModerationVersionCheck {
 		return new ModerationVersionCheck(

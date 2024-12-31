@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\PendingEdit;
-use MediaWiki\Moderation\TimestampFormatter;
+use MediaWiki\Moderation\TimestampTools;
 use MediaWiki\Revision\RevisionLookup;
 
 require_once __DIR__ . "/autoload.php";
@@ -344,7 +344,7 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 	private function makeFactory() {
 		$linkRenderer = $this->createMock( LinkRenderer::class );
 		$actionLinkRenderer = $this->createMock( ActionLinkRenderer::class );
-		$timestampFormatter = $this->createMock( TimestampFormatter::class );
+		$timestampTools = $this->createMock( TimestampTools::class );
 		$consequenceManager = $this->createMock( IConsequenceManager::class );
 		$canSkip = $this->createMock( ModerationCanSkip::class );
 		$approveHook = $this->createMock( ModerationApproveHook::class );
@@ -353,14 +353,14 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 
 		'@phan-var LinkRenderer $linkRenderer';
 		'@phan-var ActionLinkRenderer $actionLinkRenderer';
-		'@phan-var TimestampFormatter $timestampFormatter';
+		'@phan-var TimestampTools $timestampTools';
 		'@phan-var IConsequenceManager $consequenceManager';
 		'@phan-var ModerationCanSkip $canSkip';
 		'@phan-var ModerationApproveHook $approveHook';
 		'@phan-var IContentHandlerFactory $contentHandlerFactory';
 		'@phan-var RevisionLookup $revisionLookup';
 
-		return new EntryFactory( $linkRenderer, $actionLinkRenderer, $timestampFormatter,
+		return new EntryFactory( $linkRenderer, $actionLinkRenderer, $timestampTools,
 			$consequenceManager, $canSkip, $approveHook, $contentHandlerFactory, $revisionLookup );
 	}
 }

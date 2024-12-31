@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2024 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
-use MediaWiki\Moderation\TimestampFormatter;
+use MediaWiki\Moderation\TimestampTools;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -43,7 +43,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 	/**
 	 * @var mixed
 	 */
-	private $timestampFormatter;
+	private $timestampTools;
 
 	/**
 	 * @var mixed
@@ -186,7 +186,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 		$this->context->expects( $this->any() )->method( 'getConfig' )
 			->willReturn( RequestContext::getMain()->getConfig() );
 
-		// Mock all calls to msg(), makeLink() and TimestampFormatter:format().
+		// Mock all calls to msg(), makeLink() and TimestampTools:format().
 		$this->actionLinkRenderer->expects( $this->any() )->method( 'makeLink' )
 			->willReturnCallback( function ( $action, $id ) use ( $row ) {
 				$this->assertEquals( $row->id, $id );
@@ -213,7 +213,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 			->willReturnCallback( static function ( $key, ...$args ) use ( $lang ) {
 				return wfMessage( $key, ...$args )->inLanguage( $lang );
 			} );
-		$this->timestampFormatter->expects( $this->once() )->method( 'format' )->with(
+		$this->timestampTools->expects( $this->once() )->method( 'format' )->with(
 			$this->identicalTo( $row->timestamp )
 		)->willReturn( '{FormattedTime}' );
 
@@ -403,7 +403,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 	private function makeTestFormatter( $row = null ) {
 		return new ModerationEntryFormatter( $row ?? new stdClass, $this->context,
 			$this->linkRenderer, $this->actionLinkRenderer,
-			$this->timestampFormatter, $this->canSkip );
+			$this->timestampTools, $this->canSkip );
 	}
 
 	/**
@@ -414,7 +414,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 
 		$this->linkRenderer = $this->createMock( LinkRenderer::class );
 		$this->actionLinkRenderer = $this->createMock( ActionLinkRenderer::class );
-		$this->timestampFormatter = $this->createMock( TimestampFormatter::class );
+		$this->timestampTools = $this->createMock( TimestampTools::class );
 		$this->context = $this->createMock( IContextSource::class );
 		$this->canSkip = $this->createMock( ModerationCanSkip::class );
 	}

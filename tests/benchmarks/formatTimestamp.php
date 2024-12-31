@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2024 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 /**
  * @file
- * Benchmark: how fast is TimestampFormatter)?
+ * Benchmark: how fast is TimestampTools)?
  *
  * Usage:
  *	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/formatTimestamp.php
@@ -25,7 +25,7 @@
 
 require_once __DIR__ . '/ModerationBenchmark.php';
 
-use MediaWiki\Moderation\TimestampFormatter;
+use MediaWiki\Moderation\TimestampTools;
 
 class BenchmarkFormatTimestamp extends ModerationBenchmark {
 
@@ -35,9 +35,9 @@ class BenchmarkFormatTimestamp extends ModerationBenchmark {
 	protected $context;
 
 	/**
-	 * @var TimestampFormatter
+	 * @var TimestampTools
 	 */
-	protected $timestampFormatter;
+	protected $timestampTools;
 
 	/**
 	 * Default number of loops.
@@ -52,14 +52,14 @@ class BenchmarkFormatTimestamp extends ModerationBenchmark {
 	 */
 	public function beforeBenchmark( $numberOfUsers ) {
 		$this->context = RequestContext::getMain();
-		$this->timestampFormatter = new TimestampFormatter();
+		$this->timestampTools = new TimestampTools();
 	}
 
 	/**
 	 * @param int $i
 	 */
 	public function doActualWork( $i ) {
-		$this->timestampFormatter->format( '20180101000000', $this->context );
+		$this->timestampTools->format( '20180101000000', $this->context );
 	}
 }
 
