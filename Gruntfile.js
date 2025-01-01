@@ -14,7 +14,7 @@ module.exports = function ( grunt ) {
 			},
 			all: [
 				'**/*.{js,json}',
-				'!{vendor,node_modules}/**',
+				'!**/{vendor,node_modules}/**',
 				'!**/wdio.conf*.js'
 			]
 		},
@@ -22,7 +22,7 @@ module.exports = function ( grunt ) {
 		stylelint: {
 			all: [
 				'**/*.css',
-				'!{vendor,node_modules}/**'
+				'!**/{vendor,node_modules}/**'
 			]
 		}
 	} );
