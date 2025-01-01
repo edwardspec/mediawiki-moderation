@@ -28,7 +28,7 @@ var PageName = 'Test ' + browser.getTestString(),
 
 describe( 'Postedit notification', function () {
 
-	before( function () {
+	before( async () => {
 		ExistingPagePromise = browser.precreatePageAsync();
 		browser.loginIntoNewAccount();
 	} );
@@ -42,12 +42,12 @@ describe( 'Postedit notification', function () {
 		doTestEdit( PageName );
 	} );
 
-	it( 'should be visible', function () {
+	it( 'should be visible', async function () {
 		PostEdit.init();
 		expect( PostEdit.notification.isDisplayed(), 'notification.isDisplayed' ).to.be.true;
 	} );
 
-	it( 'shouldn\'t contain default text (for wikis without Moderation)', function () {
+	it( 'shouldn\'t contain default text (for wikis without Moderation)', async function () {
 		/* i18n messages from MediaWiki core:
 			postedit-confirmation-created
 			postedit-confirmation-saved
@@ -56,16 +56,16 @@ describe( 'Postedit notification', function () {
 		expect( PostEdit.text ).to.not.contain( 'Your edit was saved' );
 	} );
 
-	it ( 'should contain "Pending Review" icon', function () {
+	it ( 'should contain "Pending Review" icon', async function () {
 		expect( PostEdit.pendingIcon.isDisplayed(), 'pendingIcon.isDisplayed' ).to.be.true;
 	} );
 
-	it ( 'should say "your edit has been sent to moderation"', function () {
+	it ( 'should say "your edit has been sent to moderation"', async function () {
 		expect( PostEdit.text )
 			.to.contain( 'Success: your edit has been sent to moderation' );
 	} );
 
-	it ( 'should contain "continue editing" link', function () {
+	it ( 'should contain "continue editing" link', async function () {
 
 		expect( PostEdit.editLink.isDisplayed(), 'editLink.isDisplayed' ).to.be.true;
 
@@ -75,11 +75,11 @@ describe( 'Postedit notification', function () {
 			.to.equal( 'edit' );
 	} );
 
-	it ( 'shouldn\'t contain "sign up" link if the user is logged in', function () {
+	it ( 'shouldn\'t contain "sign up" link if the user is logged in', async function () {
 		expect( PostEdit.signupLink.isDisplayed(), 'signupLink.isDisplayed' ).to.be.false;
 	} );
 
-	it ( 'shouldn\'t disappear after 3.5 seconds', function () {
+	it ( 'shouldn\'t disappear after 3.5 seconds', async function () {
 		/* Default postedit notification of MediaWiki is removed after 3.5 seconds
 			(because it's not important whether the user reads it or not).
 
@@ -91,13 +91,13 @@ describe( 'Postedit notification', function () {
 		expect( PostEdit.notification.isDisplayed(), 'notification.isDisplayed' ).to.be.true;
 	} );
 
-	it ( 'should be removed when you click on it', function () {
+	it ( 'should be removed when you click on it', async function () {
 		/* Clicking on notification should remove it */
 		PostEdit.notification.click();
 		PostEdit.notification.waitForDisplayed( 500, true ); /* Wait for it to vanish */
 	} );
 
-	it ( 'should be shown after editing the existing article', function () {
+	it ( 'should be shown after editing the existing article', async function () {
 		/*
 			Older MobileFrontend (for MediaWiki <=1.26) reloaded the page
 			when creating a new article and didn't reload it when editing
