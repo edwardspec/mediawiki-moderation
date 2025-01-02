@@ -38,7 +38,7 @@ class CreatingNewUserHasConsequencesTest extends ModerationUnitTestCase {
 	/**
 	 * Test consequences when user who already made some edit creates an account.
 	 * @covers MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence
-	 * @covers ModerationPreload
+	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testCreateAccountAfterEditing() {
 		$username = 'Newly registered user ' . rand( 0, 100000 );
@@ -70,7 +70,7 @@ class CreatingNewUserHasConsequencesTest extends ModerationUnitTestCase {
 	/**
 	 * Test consequences when user who never edited before creates an account.
 	 * @covers MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence
-	 * @covers ModerationPreload
+	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testCreateAccountWithNoPriorEdits() {
 		$manager = $this->mockConsequenceManager();

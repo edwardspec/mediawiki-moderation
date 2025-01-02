@@ -22,6 +22,7 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\EntryFactory;
+use MediaWiki\Moderation\ModerationEntryFormatter;
 use Wikimedia\Rdbms\FakeResultWrapper;
 use Wikimedia\TestingAccessWrapper;
 
@@ -38,7 +39,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that Special:Moderation will throw PermissionsError for non-moderators.
-	 * @covers SpecialModeration
+	 * @covers MediaWiki\Moderation\SpecialModeration
 	 */
 	public function testNotPermitted() {
 		$notModerator = self::getTestUser()->getUser();
@@ -55,7 +56,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 	 * @param string|null $token Value of token= parameter (if any) or null.
 	 * @dataProvider dataProviderSessionFailure
 	 *
-	 * @covers SpecialModeration
+	 * @covers MediaWiki\Moderation\SpecialModeration
 	 */
 	public function testSessionFailure( $token ) {
 		$moderator = self::getTestUser( [ 'moderator' ] )->getUser();
@@ -90,7 +91,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 	 * @param bool $isTokenNeeded If true, tested ModerationAction will require an edit token.
 	 * @dataProvider dataProviderSuccessfulAction
 	 *
-	 * @covers SpecialModeration
+	 * @covers MediaWiki\Moderation\SpecialModeration
 	 */
 	public function testSuccessfulAction( $isTokenNeeded ) {
 		$moderator = self::getTestUser( [ 'moderator' ] )->getUser();
@@ -142,7 +143,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test that SpecialModeration subclass overrides some methods of SpecialPage class.
-	 * @covers SpecialModeration
+	 * @covers MediaWiki\Moderation\SpecialModeration
 	 */
 	public function testSpecialPageSubclass() {
 		$special = $this->getSpecial();
@@ -159,8 +160,8 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 	 * @param array $expectedOptions
 	 * @dataProvider dataProviderFolders
 	 *
-	 * @covers SpecialModeration
-	 * @covers ModerationEntryFormatter::getQueryInfo()
+	 * @covers MediaWiki\Moderation\SpecialModeration
+	 * @covers MediaWiki\Moderation\ModerationEntryFormatter::getQueryInfo()
 	 */
 	public function testFolders( $folder, array $expectedConds, array $expectedOptions ) {
 		$expectedFields = ModerationEntryFormatter::getFields();
@@ -299,8 +300,8 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 	 * @param bool $useAjax
 	 * @dataProvider dataProviderShowChangesList
 	 *
-	 * @covers SpecialModeration::showChangesList()
-	 * @covers SpecialModeration::execute()
+	 * @covers MediaWiki\Moderation\SpecialModeration::showChangesList()
+	 * @covers MediaWiki\Moderation\SpecialModeration::execute()
 	 */
 	public function testShowChangesList( $useAjax ) {
 		$expectedStyles = [
@@ -334,7 +335,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 
 	/**
 	 * Ensure that formatResult() returns the result of ModerationEntryFormatter::getHTML().
-	 * @covers SpecialModeration
+	 * @covers MediaWiki\Moderation\SpecialModeration
 	 */
 	public function testFormatResult() {
 		$skin = $this->createMock( Skin::class );
@@ -371,8 +372,8 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 
 	/**
 	 * Ensure that SpecialModeration::preprocessResults() adds all necessary pages to LinkCache.
-	 * @covers SpecialModeration
-	 * @covers ModerationEntryFormatter::addToLinkBatch
+	 * @covers MediaWiki\Moderation\SpecialModeration
+	 * @covers MediaWiki\Moderation\ModerationEntryFormatter::addToLinkBatch
 	 */
 	public function testPreprocessResults() {
 		// Mock the response of DB::select()

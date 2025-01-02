@@ -25,6 +25,17 @@ use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\MockConsequenceManager;
+use MediaWiki\Moderation\ModerationActionApprove;
+use MediaWiki\Moderation\ModerationActionBlock;
+use MediaWiki\Moderation\ModerationActionEditChange;
+use MediaWiki\Moderation\ModerationActionEditChangeSubmit;
+use MediaWiki\Moderation\ModerationActionMerge;
+use MediaWiki\Moderation\ModerationActionPreview;
+use MediaWiki\Moderation\ModerationActionReject;
+use MediaWiki\Moderation\ModerationActionShow;
+use MediaWiki\Moderation\ModerationActionShowImage;
+use MediaWiki\Moderation\ModerationCanSkip;
+use MediaWiki\Moderation\ModerationError;
 use MediaWiki\Revision\RevisionRenderer;
 use Wikimedia\TestingAccessWrapper;
 
@@ -43,14 +54,14 @@ class ActionFactoryTest extends ModerationUnitTestCase {
 	 * @phan-param class-string $expectedClass
 	 *
 	 * @covers MediaWiki\Moderation\ActionFactory
-	 * @covers ModerationAction
-	 * @covers ModerationActionEditChange::requiresEditToken
-	 * @covers ModerationActionPreview::requiresEditToken
-	 * @covers ModerationActionPreview::requiresWrite
-	 * @covers ModerationActionShowImage::requiresEditToken
-	 * @covers ModerationActionShowImage::requiresWrite
-	 * @covers ModerationActionShow::requiresEditToken
-	 * @covers ModerationActionShow::requiresWrite
+	 * @covers MediaWiki\Moderation\ModerationAction
+	 * @covers MediaWiki\Moderation\ModerationActionEditChange::requiresEditToken
+	 * @covers MediaWiki\Moderation\ModerationActionPreview::requiresEditToken
+	 * @covers MediaWiki\Moderation\ModerationActionPreview::requiresWrite
+	 * @covers MediaWiki\Moderation\ModerationActionShowImage::requiresEditToken
+	 * @covers MediaWiki\Moderation\ModerationActionShowImage::requiresWrite
+	 * @covers MediaWiki\Moderation\ModerationActionShow::requiresEditToken
+	 * @covers MediaWiki\Moderation\ModerationActionShow::requiresWrite
 	 */
 	public function testFactory( $modaction, $expectedClass, $requiresWrite, $requiresEditToken ) {
 		$user = User::newFromName( '10.11.12.13', false );

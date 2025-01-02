@@ -30,7 +30,7 @@ require_once __DIR__ . "/../ModerationTestsuite.php";
 class ModerationTestsuiteSelfTest extends ModerationTestCase {
 	/**
 	 * Ensures that API response is correct.
-	 * @covers ModerationTestsuiteEngine::query
+	 * @covers MediaWiki\Moderation\ModerationTestsuiteEngine::query
 	 * @dataProvider engineDataProvider
 	 */
 	public function testEngineApi( ModerationTestsuiteEngine $engine ) {
@@ -50,7 +50,7 @@ class ModerationTestsuiteSelfTest extends ModerationTestCase {
 
 	/**
 	 * Ensures that login works (and/or login cookies are remembered).
-	 * @covers ModerationTestsuiteEngine::loginAs
+	 * @covers MediaWiki\Moderation\ModerationTestsuiteEngine::loginAs
 	 * @dataProvider engineDataProvider
 	 */
 	public function testEngineApiLogin( ModerationTestsuiteEngine $engine, ModerationTestsuite $t ) {
@@ -75,7 +75,7 @@ class ModerationTestsuiteSelfTest extends ModerationTestCase {
 
 	/**
 	 * Ensures that non-API HTTP response is correct.
-	 * @covers ModerationTestsuiteEngine::httpRequest
+	 * @covers MediaWiki\Moderation\ModerationTestsuiteEngine::httpRequest
 	 * @dataProvider engineAndMethodDataProvider
 	 */
 	public function testEngineNonApi( ModerationTestsuiteEngine $engine, $method ) {

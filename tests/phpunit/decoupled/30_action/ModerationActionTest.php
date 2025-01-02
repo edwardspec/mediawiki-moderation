@@ -22,9 +22,13 @@
 
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 
+use MediaWiki\Moderation\ModerationActionShowImage;
+use MediaWiki\Moderation\ModerationCompatTools;
+use MediaWiki\Moderation\ModerationUploadStorage;
+
 /**
  * @group Database
- * @covers ModerationAction
+ * @covers MediaWiki\Moderation\ModerationAction
  */
 class ModerationActionTest extends ModerationTestCase {
 	/**

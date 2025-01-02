@@ -21,6 +21,8 @@
  */
 
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
+use MediaWiki\Moderation\ModerationCompatTools;
+use MediaWiki\Moderation\ModerationNewChange;
 
 /**
  * @method TestUser getTestUser($groups=null)

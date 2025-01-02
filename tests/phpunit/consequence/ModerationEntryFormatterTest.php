@@ -22,6 +22,9 @@
 
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
+use MediaWiki\Moderation\ModerationCanSkip;
+use MediaWiki\Moderation\ModerationCompatTools;
+use MediaWiki\Moderation\ModerationEntryFormatter;
 use MediaWiki\Moderation\TimestampTools;
 
 require_once __DIR__ . "/autoload.php";
@@ -57,7 +60,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test that ModerationEntryFormatter::getModerator() returns current User from $context.
-	 * @covers ModerationEntryFormatter
+	 * @covers MediaWiki\Moderation\ModerationEntryFormatter
 	 */
 	public function testGetModerator() {
 		$expectedUser = self::getTestUser()->getUser();
@@ -69,7 +72,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test that ModerationEntryFormatter::msg() is a shortcut for $context->msg().
-	 * @covers ModerationEntryFormatter
+	 * @covers MediaWiki\Moderation\ModerationEntryFormatter
 	 */
 	public function testMsg() {
 		$expectedResult = 'Result ' . rand( 0, 100000 );
@@ -91,7 +94,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 	 * @param bool $isCheckUser
 	 * @dataProvider dataProviderFields
 	 *
-	 * @covers ModerationEntryFormatter
+	 * @covers MediaWiki\Moderation\ModerationEntryFormatter
 	 */
 	public function testFields( $isCheckUser ) {
 		$expectedUser = self::getTestUser( $isCheckUser ? [ 'checkuser' ] : [] )->getUser();
@@ -146,7 +149,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 	 * @param array $options
 	 * @dataProvider dataProviderGetHTML
 	 *
-	 * @covers ModerationEntryFormatter
+	 * @covers MediaWiki\Moderation\ModerationEntryFormatter
 	 */
 	public function testGetHTML( array $options ) {
 		$authorUser = self::getTestUser()->getUser();

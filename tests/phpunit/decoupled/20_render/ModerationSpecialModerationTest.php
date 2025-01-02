@@ -26,8 +26,8 @@ use MediaWiki\MediaWikiServices;
 
 /**
  * @group Database
- * @covers ModerationEntryFormatter
- * @covers SpecialModeration
+ * @covers MediaWiki\Moderation\ModerationEntryFormatter
+ * @covers MediaWiki\Moderation\SpecialModeration
  */
 class ModerationSpecialModerationTest extends ModerationTestCase {
 	/**

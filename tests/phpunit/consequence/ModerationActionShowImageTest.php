@@ -23,6 +23,7 @@
 require_once __DIR__ . "/autoload.php";
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\ModerationActionShowImage;
 
 /**
  * @group Database
@@ -35,7 +36,7 @@ class ModerationActionShowImageTest extends ModerationUnitTestCase {
 	 * Verify that execute() returns expected result.
 	 * @param array $opt
 	 * @dataProvider dataProviderExecute
-	 * @covers ModerationActionShowImage
+	 * @covers MediaWiki\Moderation\ModerationActionShowImage
 	 */
 	public function testExecute( array $opt ) {
 		$isThumb = $opt['thumb'] ?? false;
@@ -154,7 +155,7 @@ class ModerationActionShowImageTest extends ModerationUnitTestCase {
 	 * @param bool $expectFound If false, 404 Not Found is expected instead of streaming.
 	 * @param array $executeResult Return value of execute().
 	 * @dataProvider dataProviderOutputResult
-	 * @covers ModerationActionShowImage
+	 * @covers MediaWiki\Moderation\ModerationActionShowImage
 	 */
 	public function testOutputResult( $expectFound, array $executeResult ) {
 		$action = $this->makeActionForTesting( ModerationActionShowImage::class,

@@ -18,6 +18,7 @@
 require_once __DIR__ . '/autoload.php';
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\ModerationCompatTools;
 use Wikimedia\Rdbms\DBConnRef;
 
 /**

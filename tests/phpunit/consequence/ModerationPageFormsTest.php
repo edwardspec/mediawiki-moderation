@@ -20,6 +20,9 @@
  * Unit test of ModerationPageForms
  */
 
+use MediaWiki\Moderation\ModerationPageForms;
+use MediaWiki\Moderation\ModerationPreload;
+
 require_once __DIR__ . "/autoload.php";
 
 /**
@@ -33,7 +36,7 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 	 * @param string $expectedReturnTo
 	 * @param array $expectedReturnToQuery
 	 * @dataProvider dataProviderContinueEditingLinkHook
-	 * @covers ModerationPageForms
+	 * @covers MediaWiki\Moderation\ModerationPageForms
 	 */
 	public function testContinueEditingLinkHook( array $requestParams,
 		$expectedReturnTo, array $expectedReturnToQuery
@@ -95,7 +98,7 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 
 	/**
 	 * Ensure that preloadText() does nothing when visiting Special:FormEdit without target page.
-	 * @covers ModerationPageForms
+	 * @covers MediaWiki\Moderation\ModerationPageForms
 	 */
 	public function testPreloadNoTargetTitle() {
 		$this->skipIfNoPageForms();
@@ -116,7 +119,7 @@ class ModerationPageFormsTest extends ModerationUnitTestCase {
 
 	/**
 	 * Ensure that preloadText() provides preloaded text.
-	 * @covers ModerationPageForms
+	 * @covers MediaWiki\Moderation\ModerationPageForms
 	 */
 	public function testPreload() {
 		$this->skipIfNoPageForms();

@@ -149,7 +149,7 @@ class ModerationEditTest extends ModerationTestCase {
 
 	/**
 	 * Verifies that api.php?action=edit&{append,prepend}text=[...] works correctly.
-	 * @covers ModerationApiHooks::onApiBeforeMain
+	 * @covers MediaWiki\Moderation\ModerationApiHooks::onApiBeforeMain
 	 */
 	public function testApiEditAppend( ModerationTestsuite $t ) {
 		# Does
@@ -196,7 +196,7 @@ class ModerationEditTest extends ModerationTestCase {
 	/**
 	 * Verifies that api.php?action=edit&section=N works when section #N doesn't exist
 	 * in the article, but already exists in the pending (preloaded) revision.
-	 * @covers ModerationApiHooks::onApiBeforeMain
+	 * @covers MediaWiki\Moderation\ModerationApiHooks::onApiBeforeMain
 	 */
 	public function testApiNoSuchSectionYet( ModerationTestsuite $t ) {
 		$title = 'Test page 1';

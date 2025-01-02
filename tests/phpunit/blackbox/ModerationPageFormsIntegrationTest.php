@@ -28,7 +28,7 @@ require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 class ModerationPageFormsIntegrationTest extends ModerationTestCase {
 	/**
 	 * Is pending edit preloaded into the edit form of Special:FormEdit?
-	 * @covers ModerationPageForms
+	 * @covers MediaWiki\Moderation\ModerationPageForms
 	 * @dataProvider dataProviderPageFormsPreload
 	 */
 	public function testPageFormsPreload( $isExistingPage, ModerationTestsuite $t ) {

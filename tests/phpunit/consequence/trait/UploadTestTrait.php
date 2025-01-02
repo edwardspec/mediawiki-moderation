@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\ModerationUploadStorage;
 
 /**
  * @codingStandardsIgnoreStart

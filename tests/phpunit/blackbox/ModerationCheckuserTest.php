@@ -24,7 +24,7 @@ require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @group Database
- * @covers ModerationApproveHook
+ * @covers MediaWiki\Moderation\ModerationApproveHook
  */
 class ModerationCheckuserTest extends ModerationTestCase {
 	/** @var string */
@@ -71,7 +71,7 @@ class ModerationCheckuserTest extends ModerationTestCase {
 
 	/**
 	 * Ensure that modaction=approveall preserves user-agent of uploads.
-	 * @covers ModerationApproveHook::getTask()
+	 * @covers MediaWiki\Moderation\ModerationApproveHook::getTask()
 	 */
 	public function testApproveAllUploadPrevervesUA( ModerationTestsuite $t ) {
 		$this->requireExtension( 'CheckUser' );

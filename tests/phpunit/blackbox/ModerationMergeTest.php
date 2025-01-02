@@ -24,7 +24,7 @@ require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @group Database
- * @covers ModerationActionMerge
+ * @covers MediaWiki\Moderation\ModerationActionMerge
  */
 class ModerationMergeTest extends ModerationTestCase {
 	/*
@@ -199,7 +199,7 @@ class ModerationMergeTest extends ModerationTestCase {
 	}
 
 	/**
-	 * @covers ModerationEditHooks::onEditPage__showEditForm_fields
+	 * @covers MediaWiki\Moderation\ModerationEditHooks::onEditPage__showEditForm_fields
 	 * Ensure that wpMergeID is preserved when user clicks Preview.
 	 */
 	public function testPreserveMergeID( ModerationTestsuite $t ) {

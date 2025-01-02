@@ -24,6 +24,7 @@ use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ApproveEditConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\MarkAsConflictConsequence;
+use MediaWiki\Moderation\ModerationEntryEdit;
 use MediaWiki\Moderation\RejectOneConsequence;
 use Wikimedia\TestingAccessWrapper;
 
@@ -34,7 +35,7 @@ class ModerationEntryEditTest extends ModerationUnitTestCase {
 	 * Check result/consequences of ModerationEntryEdit::doApprove.
 	 * @param array $opt
 	 * @dataProvider dataProviderApprove
-	 * @covers ModerationEntryEdit
+	 * @covers MediaWiki\Moderation\ModerationEntryEdit
 	 */
 	public function testApprove( array $opt ) {
 		$errorFromConsequence = $opt['errorFromConsequence'] ?? null;

@@ -24,7 +24,7 @@ require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @group Database
- * @covers ModerationActionShow
+ * @covers MediaWiki\Moderation\ModerationActionShow
  */
 class ModerationShowTest extends ModerationTestCase {
 	public function testShow( ModerationTestsuite $t ) {
@@ -153,7 +153,7 @@ class ModerationShowTest extends ModerationTestCase {
 
 	/**
 	 * Ensures that non-image uploads (e.g. OGG files) are shown correctly.
-	 * @covers ModerationActionShowImage
+	 * @covers MediaWiki\Moderation\ModerationActionShowImage
 	 */
 	public function testShowUploadNonImage( ModerationTestsuite $t ) {
 		/* Allow OGG files (music, i.e. not images) to be uploaded */

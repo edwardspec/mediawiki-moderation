@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\ModerationCanSkip;
 use MediaWiki\Moderation\QueueMoveConsequence;
 
 require_once __DIR__ . "/autoload.php";
@@ -42,7 +43,7 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences when a move is queued for moderation.
-	 * @covers ModerationMoveHooks::onTitleMove
+	 * @covers MediaWiki\Moderation\ModerationMoveHooks::onTitleMove
 	 */
 	public function testMove() {
 		$this->precreatePage();
@@ -80,7 +81,7 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of move when User is automoderated (can bypass moderation of moves).
-	 * @covers ModerationMoveHooks::onTitleMove
+	 * @covers MediaWiki\Moderation\ModerationMoveHooks::onTitleMove
 	 */
 	public function testAutomoderatedMove() {
 		$this->precreatePage();

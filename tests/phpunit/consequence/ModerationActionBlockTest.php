@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\BlockUserConsequence;
+use MediaWiki\Moderation\ModerationActionBlock;
 use MediaWiki\Moderation\UnblockUserConsequence;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -38,7 +39,7 @@ class ModerationActionBlockTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check result/consequences of modaction=block.
-	 * @covers ModerationActionBlock
+	 * @covers MediaWiki\Moderation\ModerationActionBlock
 	 */
 	public function testExecuteBlock() {
 		$this->runExecuteTest( 'block', [
@@ -67,7 +68,7 @@ class ModerationActionBlockTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check result/consequences of modaction=block when the user is already blocked.
-	 * @covers ModerationActionBlock
+	 * @covers MediaWiki\Moderation\ModerationActionBlock
 	 */
 	public function testNoopBlock() {
 		$this->runExecuteTest( 'block', [
@@ -83,7 +84,7 @@ class ModerationActionBlockTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check result/consequences of modaction=unblock.
-	 * @covers ModerationActionBlock
+	 * @covers MediaWiki\Moderation\ModerationActionBlock
 	 */
 	public function testExecuteUnblock() {
 		$this->runExecuteTest( 'unblock', [
@@ -112,7 +113,7 @@ class ModerationActionBlockTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check result/consequences of modaction=unblock when the user is already not blocked.
-	 * @covers ModerationActionBlock
+	 * @covers MediaWiki\Moderation\ModerationActionBlock
 	 */
 	public function testExecuteNoopUnblock() {
 		$this->runExecuteTest( 'unblock', [
@@ -131,7 +132,7 @@ class ModerationActionBlockTest extends ModerationUnitTestCase {
 	 * @param array $expectedHtml What should outputResult() write into its OutputPage parameter.
 	 * @param array $executeResult Return value of execute().
 	 * @dataProvider dataProviderOutputResult
-	 * @covers ModerationActionBlock
+	 * @covers MediaWiki\Moderation\ModerationActionBlock
 	 */
 	public function testOutputResult( $expectedHtml, array $executeResult ) {
 		$action = $this->makeActionForTesting( ModerationActionBlock::class );

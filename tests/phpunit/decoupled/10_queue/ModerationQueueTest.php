@@ -23,10 +23,12 @@
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\ModerationCompatTools;
+use MediaWiki\Moderation\ModerationUploadStorage;
 
 /**
  * @group Database
- * @covers ModerationNewChange
+ * @covers MediaWiki\Moderation\ModerationNewChange
  */
 class ModerationQueueTest extends ModerationTestCase {
 	/**

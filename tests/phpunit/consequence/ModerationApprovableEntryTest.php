@@ -23,6 +23,10 @@
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
+use MediaWiki\Moderation\ModerationApprovableEntry;
+use MediaWiki\Moderation\ModerationApproveHook;
+use MediaWiki\Moderation\ModerationError;
+use MediaWiki\Moderation\ModerationNewChange;
 use MediaWiki\Moderation\TimestampTools;
 use Wikimedia\TestingAccessWrapper;
 
@@ -35,7 +39,7 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 	/**
 	 * Check possible errors and consequences of ModerationApprovableEntry::approve().
 	 * @param array $opt
-	 * @covers ModerationApprovableEntry
+	 * @covers MediaWiki\Moderation\ModerationApprovableEntry
 	 * @dataProvider dataProviderApprove
 	 */
 	public function testApprove( array $opt ) {
@@ -169,7 +173,7 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test return value of getApproveLogParameters() when it is not overridden in a subclass.
-	 * @covers ModerationApprovableEntry
+	 * @covers MediaWiki\Moderation\ModerationApprovableEntry
 	 */
 	public function testDefaultApproveLogParameters() {
 		$entry = $this->makeEntry( function ( $row, $manager, $approveHook ) {
@@ -183,7 +187,7 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test return value of getApproveLogSubtype() when it is not overridden in a subclass.
-	 * @covers ModerationApprovableEntry
+	 * @covers MediaWiki\Moderation\ModerationApprovableEntry
 	 */
 	public function testDefaultApproveLogSubtype() {
 		$wrapper = TestingAccessWrapper::newFromObject( $this->makeEntry() );
@@ -192,7 +196,7 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test return value of getId().
-	 * @covers ModerationApprovableEntry
+	 * @covers MediaWiki\Moderation\ModerationApprovableEntry
 	 */
 	public function testGetId() {
 		$entry = $this->makeEntry( function ( $row, $manager, $approveHook ) {
@@ -233,7 +237,7 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test the return value of ModerationApprovableEntry::getFields().
-	 * @covers ModerationApprovableEntry
+	 * @covers MediaWiki\Moderation\ModerationApprovableEntry
 	 */
 	public function testFields() {
 		$expectedFields = [

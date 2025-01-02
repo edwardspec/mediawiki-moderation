@@ -24,7 +24,7 @@ require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @group Database
- * @covers ModerationUploadHooks
+ * @covers MediaWiki\Moderation\ModerationUploadHooks
  */
 class ModerationUploadTest extends ModerationTestCase {
 	public function testUpload( ModerationTestsuite $t ) {
@@ -91,7 +91,7 @@ class ModerationUploadTest extends ModerationTestCase {
 	}
 
 	/**
-	 * @covers ModerationApproveHook::onRevisionFromEditComplete
+	 * @covers MediaWiki\Moderation\ModerationApproveHook::onRevisionFromEditComplete
 	 */
 	public function testReupload( ModerationTestsuite $t ) {
 		$title = "Test image " . $t->uniqueSuffix() . ".png";

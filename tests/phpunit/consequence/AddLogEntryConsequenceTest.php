@@ -21,6 +21,8 @@
  */
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
+use MediaWiki\Moderation\ModerationApproveHook;
+use MediaWiki\Moderation\ModerationCompatTools;
 
 require_once __DIR__ . "/autoload.php";
 

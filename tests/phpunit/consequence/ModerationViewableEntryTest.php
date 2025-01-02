@@ -23,6 +23,9 @@
 use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\ModerationNewChange;
+use MediaWiki\Moderation\ModerationUploadStorage;
+use MediaWiki\Moderation\ModerationViewableEntry;
 use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
@@ -43,7 +46,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test that isUpload() returns true for uploads.
-	 * @covers ModerationViewableEntry
+	 * @covers MediaWiki\Moderation\ModerationViewableEntry
 	 */
 	public function testIsUpload() {
 		$entry = $this->makeViewableEntry( [ 'stash_key' => 'not empty' ] );
@@ -52,7 +55,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test that isUpload() returns false for non-uploads.
-	 * @covers ModerationViewableEntry
+	 * @covers MediaWiki\Moderation\ModerationViewableEntry
 	 */
 	public function testNotUpload() {
 		$entry = $this->makeViewableEntry( [ 'stash_key' => null ] );
@@ -61,7 +64,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test that getPendingRevision() returns RevisionRecord with expected content.
-	 * @covers ModerationViewableEntry
+	 * @covers MediaWiki\Moderation\ModerationViewableEntry
 	 */
 	public function testPendingRevision() {
 		$title = Title::newFromText( 'Project:UTPage ' . rand( 0, 100000 ) );
@@ -93,7 +96,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	 * @param int $oldid
 	 * @param string|null $oldText If null, RevisionRecord won't be found.
 	 * @dataProvider dataProviderPreviousRevision
-	 * @covers ModerationViewableEntry
+	 * @covers MediaWiki\Moderation\ModerationViewableEntry
 	 */
 	public function testPreviousRevision( $oldid, $oldText ) {
 		$title = Title::newFromText( 'Project:UTPage ' . rand( 0, 100000 ) );
@@ -128,7 +131,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	 * @param bool $isThumb True to test thumbnail URL, false otherwise.
 	 * @dataProvider dataProviderImageURL
 	 *
-	 * @covers ModerationViewableEntry
+	 * @covers MediaWiki\Moderation\ModerationViewableEntry
 	 */
 	public function testImageURL( $isThumb ) {
 		$modid = 12345;
@@ -170,7 +173,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that getImageThumbHTML() returns empty string for non-uploads.
-	 * @covers ModerationViewableEntry
+	 * @covers MediaWiki\Moderation\ModerationViewableEntry
 	 */
 	public function testThumbNotUpload() {
 		$entry = $this->makeViewableEntry( [ 'stash_key' => null ] );
@@ -180,7 +183,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that getImageThumbHTML() returns page name (string) for images not found in Stash.
-	 * @covers ModerationViewableEntry
+	 * @covers MediaWiki\Moderation\ModerationViewableEntry
 	 */
 	public function testThumbMissingStashFile() {
 		$title = Title::newFromText( 'File:UTUpload ' . rand( 0, 100000 ) . '.png' );
@@ -195,7 +198,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that getImageThumbHTML() returns page name (string) for non-image uploads.
-	 * @covers ModerationViewableEntry
+	 * @covers MediaWiki\Moderation\ModerationViewableEntry
 	 */
 	public function testThumbNotImage() {
 		$file = $this->getServiceContainer()->getTempFSFileFactory()->newTempFSFile( '', 'txt' );
@@ -216,7 +219,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that getImageThumbHTML() returns correct HTML of thumbnail for image uploads.
-	 * @covers ModerationViewableEntry
+	 * @covers MediaWiki\Moderation\ModerationViewableEntry
 	 */
 	public function testThumbImage() {
 		$title = Title::newFromText( 'File:UTUpload ' . rand( 0, 100000 ) . '.png' );
@@ -256,7 +259,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test the return value of ModerationViewableEntry::getFields().
-	 * @covers ModerationViewableEntry
+	 * @covers MediaWiki\Moderation\ModerationViewableEntry
 	 */
 	public function testFields() {
 		$expectedFields = [
@@ -278,7 +281,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that getDiffHTML() returns an empty string for reuploads.
-	 * @covers ModerationViewableEntry
+	 * @covers MediaWiki\Moderation\ModerationViewableEntry
 	 */
 	public function testDiffReupload() {
 		$context = $this->createMock( IContextSource::class );
@@ -303,7 +306,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that getDiffHTML() returns "movepage-page-moved" message for moves.
-	 * @covers ModerationViewableEntry
+	 * @covers MediaWiki\Moderation\ModerationViewableEntry
 	 */
 	public function testDiffMove() {
 		$context = new DerivativeContext( RequestContext::getMain() );
@@ -342,7 +345,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check the return value of ModerationViewableEntry::getDiffHTML().
-	 * @covers ModerationViewableEntry
+	 * @covers MediaWiki\Moderation\ModerationViewableEntry
 	 */
 	public function testDiff() {
 		$title = Title::newFromText( 'File:UTUpload ' . rand( 0, 100000 ) . '.png' );

@@ -21,6 +21,8 @@
  */
 
 use MediaWiki\Moderation\ActionFactory;
+use MediaWiki\Moderation\ApiModeration;
+use MediaWiki\Moderation\ModerationError;
 use Wikimedia\ParamValidator\ParamValidator;
 use Wikimedia\TestingAccessWrapper;
 
@@ -35,7 +37,7 @@ class ApiModerationTest extends ApiTestCase {
 
 	/**
 	 * Verify that api.php?action=moderation will throw ApiUsageException for non-moderators.
-	 * @covers ApiModeration
+	 * @covers MediaWiki\Moderation\ApiModeration
 	 */
 	public function testNotPermitted() {
 		$notModerator = self::getTestUser()->getUser();
@@ -61,7 +63,7 @@ class ApiModerationTest extends ApiTestCase {
 
 	/**
 	 * Verify that api.php?action=moderation will throw ApiUsageException if token= is invalid.
-	 * @covers ApiModeration
+	 * @covers MediaWiki\Moderation\ApiModeration
 	 */
 	public function testNoToken() {
 		$mock = $this->addMockedAction( 'reject' );
@@ -87,7 +89,7 @@ class ApiModerationTest extends ApiTestCase {
 	/**
 	 * Verify that api.php?action=moderation catches ModerationError from execute()
 	 * and throws a properly formatted ApiUsageException instead.
-	 * @covers ApiModeration
+	 * @covers MediaWiki\Moderation\ApiModeration
 	 */
 	public function testThrownModerationError() {
 		$mock = $this->addMockedAction( 'reject' );
@@ -117,7 +119,7 @@ class ApiModerationTest extends ApiTestCase {
 
 	/**
 	 * Verify that api.php?action=moderation runs execute() and adds its result into API response.
-	 * @covers ApiModeration
+	 * @covers MediaWiki\Moderation\ApiModeration
 	 */
 	public function testSuccessfulAction() {
 		$mockedResult = [ 'cat' => 'feline', 'fennec fox' => 'canine' ];
@@ -136,7 +138,7 @@ class ApiModerationTest extends ApiTestCase {
 
 	/**
 	 * Test that ApiModeration subclass overrides some methods of ApiBase class.
-	 * @covers ApiModeration
+	 * @covers MediaWiki\Moderation\ApiModeration
 	 */
 	public function testApiBaseSubclass() {
 		$actionFactory = $this->createMock( ActionFactory::class );

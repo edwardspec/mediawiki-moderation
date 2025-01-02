@@ -23,6 +23,8 @@
 require_once __DIR__ . "/autoload.php";
 
 use MediaWiki\Config\ServiceOptions;
+use MediaWiki\Moderation\ModerationApproveHook;
+use MediaWiki\Moderation\ModerationCanSkip;
 
 class ModerationCanSkipTest extends ModerationUnitTestCase {
 	/**
@@ -34,7 +36,7 @@ class ModerationCanSkipTest extends ModerationUnitTestCase {
 	 * @param array $configVars Configuration settings (if any), e.g. [ 'ModerationEnable' => false ].
 	 * @dataProvider dataProviderCanSkip
 	 *
-	 * @covers ModerationCanSkip
+	 * @covers MediaWiki\Moderation\ModerationCanSkip
 	 */
 	public function testCanSkip( $expectedResult, $method, array $args, array $isAllowed,
 		array $configVars

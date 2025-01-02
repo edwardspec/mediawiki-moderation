@@ -23,6 +23,7 @@
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\MockConsequenceManager;
+use MediaWiki\Moderation\ModerationPreload;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
 use Wikimedia\IPUtils;
@@ -41,7 +42,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	 * @param bool $create This parameter is passed to getId().
 	 * @dataProvider dataProviderGetId
 	 *
-	 * @covers ModerationPreload
+	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testGetId( $expectedResult, $username, $existingAnonId, $create ) {
 		RequestContext::getMain()->getRequest()->setSessionData( 'anon_id', $existingAnonId );
@@ -102,7 +103,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that getId() will use main RequestContext if setUser() was never called.
-	 * @covers ModerationPreload
+	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testGetIdMainContext() {
 		$entryFactory = $this->createMock( EntryFactory::class );
@@ -127,7 +128,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that findPendingEdit() returns expected PendingEdit object.
-	 * @covers ModerationPreload
+	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testFindPendingEdit() {
 		RequestContext::getMain()->getRequest()->setSessionData( 'anon_id', 'ExistingAnonId' );
@@ -153,7 +154,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that findPendingEdit will return false if current user doesn't have an existing AnonId.
-	 * @covers ModerationPreload
+	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testNoPendingEdit() {
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
@@ -175,7 +176,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	/**
 	 * Ensure that EditFormPreloadText hook correctly preloads text/comment of PendingEdit.
 	 * This happens when user is creating a new article via the UI (action=edit).
-	 * @covers ModerationPreload
+	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testNewArticlePreloadHook() {
 		list( $title, $preloadedText, $preloadedComment ) = $this->beginShowTest();
@@ -207,7 +208,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	 * Ensure that EditFormPreloadText hook works even if AlternateEdit hook wasn't called.
 	 * This doesn't happen when editing normally via UI, but it is possible in ApiQueryInfo, etc.
 	 * @see testNewArticlePreloadHook() - checks the situation when AlternateEdit hook is called.
-	 * @covers ModerationPreload
+	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testNewArticlePreloadHookNoEditPage() {
 		list( $title, $preloadedText ) = $this->beginShowTest();
@@ -229,7 +230,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	/**
 	 * Ensure that onEditFormInitialText hook correctly preloads text/comment of PendingEdit.
 	 * This happens when user is editing an existing article via the UI (action=edit).
-	 * @covers ModerationPreload
+	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testExistingArticlePreloadHook() {
 		list( $title, $preloadedText, $preloadedComment ) = $this->beginShowTest();
@@ -252,7 +253,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	/**
 	 * Ensure that onEditFormInitialText hook correctly handles "section=NUMBER" parameter.
 	 * This happens when user is editing one section of existing article via the UI.
-	 * @covers ModerationPreload
+	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testEditSectionPreloadHook() {
 		$sectionId = 2;
@@ -271,7 +272,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check situation when EditFormPreloadText hook doesn't find a PendingEdit (nothing to preload).
-	 * @covers ModerationPreload
+	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testNothingToPreloadNewArticleHook() {
 		list( $title ) = $this->beginShowTest( true );
@@ -292,7 +293,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check situation when onEditFormInitialText hook doesn't find a PendingEdit (nothing to preload).
-	 * @covers ModerationPreload
+	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testNothingToPreloadExistingArticleHook() {
 		list( $title ) = $this->beginShowTest( true );
@@ -385,7 +386,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 
 	/**
 	 * Ensure that EditFormPreloadText hook skips preloading if Request contains "section=new".
-	 * @covers ModerationPreload
+	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testPreloadingSkippedForNewSection() {
 		RequestContext::getMain()->getRequest()->setVal( 'section', 'new' );

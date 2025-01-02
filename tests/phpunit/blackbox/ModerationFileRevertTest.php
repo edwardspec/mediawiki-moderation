@@ -28,7 +28,7 @@ require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 class ModerationFileRevertTest extends ModerationTestCase {
 	/**
 	 * Check that index.php?action=revert can't be used to bypass Moderation.
-	 * @covers ModerationUploadHooks::ongetUserPermissionsErrors
+	 * @covers MediaWiki\Moderation\ModerationUploadHooks::ongetUserPermissionsErrors
 	 */
 	public function testFileRevert( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
@@ -44,7 +44,7 @@ class ModerationFileRevertTest extends ModerationTestCase {
 
 	/**
 	 * Check that api.php?action=filerevert can't be used to bypass Moderation.
-	 * @covers ModerationApiHooks::onApiCheckCanExecute
+	 * @covers MediaWiki\Moderation\ModerationApiHooks::onApiCheckCanExecute
 	 */
 	public function testApiFileRevert( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );

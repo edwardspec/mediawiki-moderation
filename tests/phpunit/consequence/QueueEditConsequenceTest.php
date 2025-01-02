@@ -23,6 +23,8 @@
 use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
+use MediaWiki\Moderation\ModerationCompatTools;
+use MediaWiki\Moderation\ModerationPreload;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
@@ -41,7 +43,7 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 	/**
 	 * Check the secondary consequences of running QueueEditConsequence.
 	 * @covers MediaWiki\Moderation\QueueEditConsequence
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 * @dataProvider dataProviderQueueEdit
 	 *
 	 * See also: ModerationQueueTest from the blackbox integration tests.

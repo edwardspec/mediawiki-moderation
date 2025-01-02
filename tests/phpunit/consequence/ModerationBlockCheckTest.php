@@ -20,6 +20,8 @@
  * Unit test of ModerationBlockCheck.
  */
 
+use MediaWiki\Moderation\ModerationBlockCheck;
+
 require_once __DIR__ . "/autoload.php";
 
 /**
@@ -31,7 +33,7 @@ class ModerationBlockCheckTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test that ModerationBlockCheck::isModerationBlocked() returns correct value.
-	 * @covers ModerationBlockCheck
+	 * @covers MediaWiki\Moderation\ModerationBlockCheck
 	 */
 	public function testIsBlocked() {
 		$blockedUser = User::newFromName( 'Some blocked user ' . rand( 0, 100000 ), false );

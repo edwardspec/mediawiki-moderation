@@ -22,6 +22,8 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
+use MediaWiki\Moderation\ModerationActionReject;
+use MediaWiki\Moderation\ModerationError;
 use MediaWiki\Moderation\RejectAllConsequence;
 use MediaWiki\Moderation\RejectOneConsequence;
 
@@ -37,7 +39,7 @@ class ModerationActionRejectTest extends ModerationUnitTestCase {
 	 * Check result/consequences of modaction=reject.
 	 * @param array $opt
 	 * @dataProvider dataProviderExecuteRejectOne
-	 * @covers ModerationActionReject
+	 * @covers MediaWiki\Moderation\ModerationActionReject
 	 */
 	public function testExecuteRejectOne( array $opt ) {
 		$expectedError = $opt['expectedError'] ?? null;
@@ -150,7 +152,7 @@ class ModerationActionRejectTest extends ModerationUnitTestCase {
 	 * Check result/consequences of modaction=reject.
 	 * @param array $opt
 	 * @dataProvider dataProviderExecuteRejectAll
-	 * @covers ModerationActionReject
+	 * @covers MediaWiki\Moderation\ModerationActionReject
 	 */
 	public function testExecuteRejectAll( array $opt ) {
 		$username = $opt['usernameOfPerformer'] ?? "Author's username";
@@ -236,7 +238,7 @@ class ModerationActionRejectTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that outputResult() correctly converts return value of execute() into HTML output.
-	 * @covers ModerationActionReject
+	 * @covers MediaWiki\Moderation\ModerationActionReject
 	 */
 	public function testOutputResult() {
 		$action = $this->makeActionForTesting( ModerationActionReject::class );

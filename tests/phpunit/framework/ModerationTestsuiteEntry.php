@@ -20,6 +20,8 @@
  * Methods to parse/analyze single entry on Special:Moderation.
  */
 
+use MediaWiki\Moderation\ModerationCompatTools;
+
 /**
  * @class ModerationTestsuiteEntry
  * Represents one line on [[Special:Moderation]]

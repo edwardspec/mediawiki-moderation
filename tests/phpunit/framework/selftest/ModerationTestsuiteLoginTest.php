@@ -25,7 +25,7 @@ require_once __DIR__ . "/../ModerationTestsuite.php";
 class ModerationTestsuiteLoginTest extends ModerationTestCase {
 	/**
 	 * Attempt to login via the ModerationTestsuite.
-	 * @covers ModerationTestsuite::loginAs()
+	 * @covers MediaWiki\Moderation\ModerationTestsuite::loginAs()
 	 */
 	public function testLogin( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );

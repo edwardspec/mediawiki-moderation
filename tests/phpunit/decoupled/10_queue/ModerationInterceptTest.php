@@ -23,10 +23,11 @@
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\ModerationCompatTools;
 
 /**
  * @group Database
- * @covers ModerationCanSkip
+ * @covers MediaWiki\Moderation\ModerationCanSkip
  */
 class ModerationInterceptTest extends ModerationTestCase {
 	/**

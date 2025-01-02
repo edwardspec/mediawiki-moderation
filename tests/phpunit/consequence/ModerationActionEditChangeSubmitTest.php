@@ -21,6 +21,9 @@
  */
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
+use MediaWiki\Moderation\ModerationActionEditChangeSubmit;
+use MediaWiki\Moderation\ModerationError;
+use MediaWiki\Moderation\ModerationNewChange;
 use MediaWiki\Moderation\ModifyPendingChangeConsequence;
 
 require_once __DIR__ . "/autoload.php";
@@ -35,7 +38,7 @@ class ModerationActionEditChangeSubmitTest extends ModerationUnitTestCase {
 	 * Verify that execute() returns expected result.
 	 * @param array $opt
 	 * @dataProvider dataProviderExecute
-	 * @covers ModerationActionEditChangeSubmit
+	 * @covers MediaWiki\Moderation\ModerationActionEditChangeSubmit
 	 */
 	public function testExecute( array $opt ) {
 		$expectedError = $opt['expectedError'] ?? null;
@@ -151,7 +154,7 @@ class ModerationActionEditChangeSubmitTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that outputResult() correctly converts return value of execute() into HTML output.
-	 * @covers ModerationActionEditChangeSubmit
+	 * @covers MediaWiki\Moderation\ModerationActionEditChangeSubmit
 	 */
 	public function testOutputResult() {
 		$action = $this->makeActionForTesting( ModerationActionEditChangeSubmit::class );

@@ -24,7 +24,7 @@ require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @group Database
- * @covers ModerationNotifyModerator
+ * @covers MediaWiki\Moderation\ModerationNotifyModerator
  */
 class ModerationNotifyModeratorIntegrationTest extends ModerationTestCase {
 	/**

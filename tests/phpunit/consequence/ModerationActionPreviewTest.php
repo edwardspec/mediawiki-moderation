@@ -22,6 +22,8 @@
 
 require_once __DIR__ . "/autoload.php";
 
+use MediaWiki\Moderation\ModerationActionPreview;
+use MediaWiki\Moderation\ModerationViewableEntry;
 use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Revision\RevisionRecord;
 
@@ -33,7 +35,7 @@ class ModerationActionPreviewTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check result/consequences of modaction=preview.
-	 * @covers ModerationActionPreview
+	 * @covers MediaWiki\Moderation\ModerationActionPreview
 	 */
 	public function testExecute() {
 		$title = Title::makeTitle( NS_PROJECT, 'Some page ' . rand( 0, 100000 ) );
@@ -85,7 +87,7 @@ class ModerationActionPreviewTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that outputResult() correctly converts return value of execute() into HTML output.
-	 * @covers ModerationActionPreview
+	 * @covers MediaWiki\Moderation\ModerationActionPreview
 	 */
 	public function testOutputResult() {
 		$executeResult = [

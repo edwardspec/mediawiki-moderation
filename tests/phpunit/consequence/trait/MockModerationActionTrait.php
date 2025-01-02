@@ -22,6 +22,7 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionFactory;
+use MediaWiki\Moderation\ModerationAction;
 use Wikimedia\TestingAccessWrapper;
 
 /**

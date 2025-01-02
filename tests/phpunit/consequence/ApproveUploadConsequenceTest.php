@@ -22,6 +22,8 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ApproveUploadConsequence;
+use MediaWiki\Moderation\ModerationCompatTools;
+use MediaWiki\Moderation\ModerationUploadStorage;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -38,7 +40,7 @@ class ApproveUploadConsequenceTest extends ModerationUnitTestCase {
 	/**
 	 * Verify that ApproveUploadConsequence uploads a new file.
 	 * @covers MediaWiki\Moderation\ApproveUploadConsequence
-	 * @covers ModerationUploadStorage
+	 * @covers MediaWiki\Moderation\ModerationUploadStorage
 	 * @dataProvider dataProviderApproveUpload
 	 * @param bool $existing
 	 */

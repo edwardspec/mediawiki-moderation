@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\ModerationVersionCheck;
 use Wikimedia\Rdbms\DBConnRef;
 use Wikimedia\Rdbms\ILoadBalancer;
 use Wikimedia\Rdbms\IMaintainableDatabase;
@@ -33,7 +34,7 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 	 * Ensure that all returned values are correct for the most recent DB schema.
 	 * Because a testsuite always runs on a newly created DB, B/C values should not be returned.
 	 *
-	 * @covers ModerationVersionCheck
+	 * @covers MediaWiki\Moderation\ModerationVersionCheck
 	 */
 	public function testModernSchema() {
 		$this->markTestSkipped( 'testModernSchema(): not needed: all feature check methods were removed ' .
@@ -51,7 +52,7 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 	 * @param string $version
 	 * @param mixed $expectedResult
 	 * @dataProvider dataProviderFeatureChecks
-	 * @covers ModerationVersionCheck
+	 * @covers MediaWiki\Moderation\ModerationVersionCheck
 	 */
 	public function testFeatureChecks( $method, $version, $expectedResult ) {
 		$this->markTestSkipped( 'testModernSchema(): not needed: all feature check methods were removed ' .
@@ -73,7 +74,7 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that getDbUpdatedVersion() checks the cache and (if found) returns the cached value.
-	 * @covers ModerationVersionCheck
+	 * @covers MediaWiki\Moderation\ModerationVersionCheck
 	 */
 	public function testDbUpdatedVersionFromCache() {
 		$loadBalancer = $this->createMock( ILoadBalancer::class );
@@ -99,7 +100,7 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that getDbUpdatedVersion() uses *Uncached() method if value is not found in cache.
-	 * @covers ModerationVersionCheck
+	 * @covers MediaWiki\Moderation\ModerationVersionCheck
 	 */
 	public function testDbUpdatedVersionNotFoundInCache() {
 		$cache = $this->createMock( BagOStuff::class );
@@ -143,7 +144,7 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that invalidateCache() clears the cache.
-	 * @covers ModerationVersionCheck
+	 * @covers MediaWiki\Moderation\ModerationVersionCheck
 	 */
 	public function testInvalidateCache() {
 		$loadBalancer = $this->createMock( ILoadBalancer::class );
@@ -171,7 +172,7 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 	 * @param string $dbType Mocked result of $db->getType()
 	 * @param array $fieldExists E.g. [ 'mod_type' => true ]
 	 * @dataProvider dataProviderDbUpdatedVersionUncached
-	 * @covers ModerationVersionCheck
+	 * @covers MediaWiki\Moderation\ModerationVersionCheck
 	 */
 	public function testDbUpdatedVersionUncached( $expectedResult, $dbType, array $fieldExists ) {
 		// Mock the database (which is a parameter of getDbUpdatedVersionUncached).

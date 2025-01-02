@@ -25,6 +25,8 @@
  */
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\ModerationCompatTools;
+use MediaWiki\Moderation\ModerationVersionCheck;
 
 abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 

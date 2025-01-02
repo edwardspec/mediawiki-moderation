@@ -22,6 +22,11 @@
 
 require_once __DIR__ . "/autoload.php";
 
+use MediaWiki\Moderation\ModerationActionEditChange;
+use MediaWiki\Moderation\ModerationEditChangePage;
+use MediaWiki\Moderation\ModerationError;
+use MediaWiki\Moderation\ModerationNewChange;
+
 /**
  * @group Database
  */
@@ -32,7 +37,7 @@ class ModerationActionEditChangeTest extends ModerationUnitTestCase {
 	 * Verify that execute() returns expected result.
 	 * @param array $opt
 	 * @dataProvider dataProviderExecute
-	 * @covers ModerationActionEditChange
+	 * @covers MediaWiki\Moderation\ModerationActionEditChange
 	 */
 	public function testExecute( array $opt ) {
 		$expectedError = $opt['expectedError'] ?? null;
@@ -105,7 +110,7 @@ class ModerationActionEditChangeTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that outputResult() correctly shows the ModerationEditChangePage form.
-	 * @covers ModerationActionEditChange
+	 * @covers MediaWiki\Moderation\ModerationActionEditChange
 	 */
 	public function testOutputResult() {
 		$modid = 12345;

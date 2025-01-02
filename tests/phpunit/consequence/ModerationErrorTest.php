@@ -22,6 +22,8 @@
 
 require_once __DIR__ . "/autoload.php";
 
+use MediaWiki\Moderation\ModerationError;
+
 /**
  * @group Database
  */
@@ -30,7 +32,7 @@ class ModerationErrorTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test that ModerationError exception can be constructed from string (name of i18n message).
-	 * @covers ModerationError
+	 * @covers MediaWiki\Moderation\ModerationError
 	 */
 	public function testNewExceptionFromString() {
 		$messageName = 'name-of-some-message';
@@ -51,7 +53,7 @@ class ModerationErrorTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test that ModerationError exception can be constructed from Status object.
-	 * @covers ModerationError
+	 * @covers MediaWiki\Moderation\ModerationError
 	 */
 	public function testNewExceptionFromStatus() {
 		$status = Status::newGood();
@@ -67,7 +69,7 @@ class ModerationErrorTest extends ModerationUnitTestCase {
 	 * Test that ModerationError::report() correctly prints Status into the global OutputPage object.
 	 * @param bool $isMadeFromString
 	 * @dataProvider dataProviderReport
-	 * @covers ModerationError
+	 * @covers MediaWiki\Moderation\ModerationError
 	 */
 	public function testReport( $isMadeFromString ) {
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );

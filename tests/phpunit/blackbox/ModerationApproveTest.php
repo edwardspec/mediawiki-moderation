@@ -22,9 +22,11 @@
 
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
+use MediaWiki\Moderation\ModerationCompatTools;
+
 /**
  * @group Database
- * @covers ModerationActionApprove
+ * @covers MediaWiki\Moderation\ModerationActionApprove
  */
 class ModerationApproveTest extends ModerationTestCase {
 	public function testApproveAll( ModerationTestsuite $t ) {

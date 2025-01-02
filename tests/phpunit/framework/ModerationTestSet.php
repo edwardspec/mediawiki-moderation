@@ -22,6 +22,8 @@
  * This trait must be included into ModerationTestCase subclasses.
  */
 
+use MediaWiki\Moderation\ModerationCompatTools;
+
 /**
  * @codingStandardsIgnoreStart
  * @method static void assertEquals($a, $b, string $message='', float $d=0.0, int $e=10, bool $f=false, bool $g=false)

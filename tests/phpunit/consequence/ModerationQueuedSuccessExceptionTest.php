@@ -20,12 +20,14 @@
  * Unit test of ModerationQueuedSuccessException.
  */
 
+use MediaWiki\Moderation\ModerationQueuedSuccessException;
+
 require_once __DIR__ . "/autoload.php";
 
 class ModerationQueuedSuccessExceptionTest extends ModerationUnitTestCase {
 	/**
 	 * Test that ModerationQueuedSuccessException overrides some methods of ErrorPageError class.
-	 * @covers ModerationQueuedSuccessException
+	 * @covers MediaWiki\Moderation\ModerationQueuedSuccessException
 	 */
 	public function testExceptionSubclass() {
 		$e = new ModerationQueuedSuccessException( 'whatever', [] );
@@ -39,7 +41,7 @@ class ModerationQueuedSuccessExceptionTest extends ModerationUnitTestCase {
 	 * @param bool $expectException If true, exception is expected to be thrown.
 	 * @param string|null $specialPageName Name of special page (if any), e.g. "Upload".
 	 * @dataProvider dataProviderThrowIfNeeded
-	 * @covers ModerationQueuedSuccessException
+	 * @covers MediaWiki\Moderation\ModerationQueuedSuccessException
 	 */
 	public function testThrowIfNeeded( $expectException, $specialPageName = null ) {
 		$msg = 'some-msg';

@@ -27,6 +27,8 @@ use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
 use MediaWiki\Moderation\MockConsequenceManager;
+use MediaWiki\Moderation\ModerationCanSkip;
+use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
 use MediaWiki\Revision\SlotRecord;
@@ -55,8 +57,8 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences when normal edit is queued for moderation.
-	 * @covers ModerationEditHooks::onMultiContentSave
-	 * @covers ModerationEditHooks::getRedirectURL
+	 * @covers MediaWiki\Moderation\ModerationEditHooks::onMultiContentSave
+	 * @covers MediaWiki\Moderation\ModerationEditHooks::getRedirectURL
 	 */
 	public function testEdit() {
 		// Replace real ConsequenceManager with a mock.
@@ -96,7 +98,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of normal edit when User is automoderated (can bypass moderation of edits).
-	 * @covers ModerationEditHooks::onMultiContentSave
+	 * @covers MediaWiki\Moderation\ModerationEditHooks::onMultiContentSave
 	 */
 	public function testAutomoderatedEdit() {
 		// Replace real ConsequenceManager with a mock.
@@ -122,7 +124,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	/**
 	 * Verify that ModerationIntercept hook is called when edit is about to be queued for moderation.
 	 * Also verify that returning false from this hook will allow this edit to bypass moderation.
-	 * @covers ModerationEditHooks::onMultiContentSave
+	 * @covers MediaWiki\Moderation\ModerationEditHooks::onMultiContentSave
 	 */
 	public function testModerationInterceptHook() {
 		// Replace real ConsequenceManager with a mock.
@@ -153,7 +155,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that ModerationContinueEditingLink hook can override redirect URL when edit is queued.
-	 * @covers ModerationEditHooks::getRedirectURL
+	 * @covers MediaWiki\Moderation\ModerationEditHooks::getRedirectURL
 	 */
 	public function testModerationContinueEditingLinkHook() {
 		$expectedReturnTo = FormatJson::encode( [ 'Another page',
@@ -186,7 +188,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that editing non-text content (such as Flow forums) will bypass moderation.
-	 * @covers ModerationEditHooks::onMultiContentSave
+	 * @covers MediaWiki\Moderation\ModerationEditHooks::onMultiContentSave
 	 */
 	public function testEditNonTextContent() {
 		// Replace real ConsequenceManager with a mock.
@@ -217,7 +219,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that edits in namespace of Extension:CommentStreams will bypass moderation.
-	 * @covers ModerationEditHooks::onMultiContentSave
+	 * @covers MediaWiki\Moderation\ModerationEditHooks::onMultiContentSave
 	 */
 	public function testEditCommentStreams() {
 		$excludedNamespace = 4; // Arbitrary namespace number
@@ -236,7 +238,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences when moderator saves a manually merged edit (resolving an edit conflict).
-	 * @covers ModerationEditHooks::onPageSaveComplete
+	 * @covers MediaWiki\Moderation\ModerationEditHooks::onPageSaveComplete
 	 */
 	public function testMergedEdit() {
 		// Replace real ConsequenceManager with a mock.
@@ -273,7 +275,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences when moderator tries to manually merge, but it results in a null edit.
-	 * @covers ModerationEditHooks::onPageSaveComplete
+	 * @covers MediaWiki\Moderation\ModerationEditHooks::onPageSaveComplete
 	 */
 	public function testMergedNullEdit() {
 		$this->user = self::getTestUser( [ 'moderator', 'automoderated' ] )->getUser();
@@ -299,7 +301,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of 1) editing a section, 2) "Watch this page" checkbox being (un)checked.
-	 * @covers ModerationEditHooks::onMultiContentSave
+	 * @covers MediaWiki\Moderation\ModerationEditHooks::onMultiContentSave
 	 */
 	public function testSectionEditAndWatchthis() {
 		$section = "2"; // Section is a string (not integer), because it can be "new", etc.

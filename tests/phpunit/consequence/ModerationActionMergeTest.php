@@ -22,6 +22,9 @@
 
 require_once __DIR__ . "/autoload.php";
 
+use MediaWiki\Moderation\ModerationActionMerge;
+use MediaWiki\Moderation\ModerationError;
+
 /**
  * @group Database
  */
@@ -32,7 +35,7 @@ class ModerationActionMergeTest extends ModerationUnitTestCase {
 	 * Verify that execute() returns expected result.
 	 * @param array $opt
 	 * @dataProvider dataProviderExecute
-	 * @covers ModerationActionMerge
+	 * @covers MediaWiki\Moderation\ModerationActionMerge
 	 */
 	public function testExecute( array $opt ) {
 		$expectedError = $opt['expectedError'] ?? null;
@@ -124,7 +127,7 @@ class ModerationActionMergeTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that outputResult() correctly shows the EditPage form in "edit conflict" mode.
-	 * @covers ModerationActionMerge
+	 * @covers MediaWiki\Moderation\ModerationActionMerge
 	 */
 	public function testOutputResult() {
 		$modid = 12345;

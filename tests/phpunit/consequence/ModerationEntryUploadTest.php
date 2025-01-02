@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\ApproveUploadConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
+use MediaWiki\Moderation\ModerationEntryUpload;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -29,7 +30,7 @@ require_once __DIR__ . "/autoload.php";
 class ModerationEntryUploadTest extends ModerationUnitTestCase {
 	/**
 	 * Check result/consequences of ModerationEntryUpload::doApprove.
-	 * @covers ModerationEntryUpload
+	 * @covers MediaWiki\Moderation\ModerationEntryUpload
 	 */
 	public function testApprove() {
 		$row = (object)[

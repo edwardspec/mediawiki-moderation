@@ -20,6 +20,8 @@
  * Unit test of ModerationUpdater.
  */
 
+use MediaWiki\Moderation\ModerationUpdater;
+use MediaWiki\Moderation\ModerationVersionCheck;
 use Wikimedia\Rdbms\IDatabase;
 
 require_once __DIR__ . "/autoload.php";
@@ -28,7 +30,7 @@ class ModerationUpdaterTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that our LoadExtensionSchemaUpdates hook adds the necessary database updates.
-	 * @covers ModerationUpdater
+	 * @covers MediaWiki\Moderation\ModerationUpdater
 	 */
 	public function testHook() {
 		$updater = $this->createMock( DatabaseUpdater::class );
@@ -42,7 +44,7 @@ class ModerationUpdaterTest extends ModerationUnitTestCase {
 			[ $this->identicalTo( 'moderation_block' ), $this->fileExists() ]
 		);
 		$updater->expects( $this->any() )->method( 'addExtensionUpdate' )->with(
-			$this->identicalTo( [ 'ModerationVersionCheck::invalidateCache' ] )
+			$this->identicalTo( [ ModerationVersionCheck::class . '::invalidateCache' ] )
 		);
 
 		// TODO: check both mysql and postgresql.

@@ -24,6 +24,8 @@ use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\IConsequenceManager;
+use MediaWiki\Moderation\ModerationAction;
+use MediaWiki\Moderation\ModerationCanSkip;
 use MediaWiki\Revision\RevisionRenderer;
 
 /**

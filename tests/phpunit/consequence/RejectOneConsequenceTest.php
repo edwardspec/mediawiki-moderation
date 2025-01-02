@@ -20,6 +20,7 @@
  * Unit test of RejectOneConsequence.
  */
 
+use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\RejectOneConsequence;
 
 require_once __DIR__ . "/autoload.php";

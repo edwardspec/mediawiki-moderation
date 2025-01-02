@@ -22,6 +22,8 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\EditFormOptions;
+use MediaWiki\Moderation\ModerationCanSkip;
+use MediaWiki\Moderation\SpecialModeration;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -31,7 +33,7 @@ require_once __DIR__ . "/autoload.php";
  */
 class HooksTest extends ModerationUnitTestCase {
 	/**
-	 * @covers ModerationApiHooks::onwgQueryPages
+	 * @covers MediaWiki\Moderation\ModerationApiHooks::onwgQueryPages
 	 */
 	public function testQueryPageListed() {
 		$this->assertContains(
@@ -42,7 +44,7 @@ class HooksTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * @covers ModerationEditHooks::onListDefinedTags
+	 * @covers MediaWiki\Moderation\ModerationEditHooks::onListDefinedTags
 	 */
 	public function testDefinedTagListed() {
 		$definedTags = ChangeTags::listDefinedTags();
@@ -53,7 +55,7 @@ class HooksTest extends ModerationUnitTestCase {
 	}
 
 	/**
-	 * @covers ModerationEditHooks::onChangeTagsAllowedAdd
+	 * @covers MediaWiki\Moderation\ModerationEditHooks::onChangeTagsAllowedAdd
 	 */
 	public function testCanAddSpamTag() {
 		$this->assertTrue( ChangeTags::canAddTagsAccompanyingChange( [ 'moderation-spam' ] )->isOK(),
@@ -66,7 +68,7 @@ class HooksTest extends ModerationUnitTestCase {
 	 * @param bool $isAutomoderated
 	 * @param string $mwActionName Name of MediaWiki action (NOT modaction!), e.g. "revert".
 	 * @dataProvider dataProviderRevertImageRestrictedViaUI
-	 * @covers ModerationUploadHooks::ongetUserPermissionsErrors
+	 * @covers MediaWiki\Moderation\ModerationUploadHooks::ongetUserPermissionsErrors
 	 */
 	public function testRevertImageRestrictedViaUI( $isAutomoderated, $mwActionName ) {
 		$title = Title::newFromText( 'File:Something.png' );
@@ -115,7 +117,7 @@ class HooksTest extends ModerationUnitTestCase {
 	 * @see testRotateImageRestricted
 	 * @param bool $isAutomoderated
 	 * @dataProvider dataProviderIsAutomoderated
-	 * @covers ModerationApiHooks::onApiCheckCanExecute
+	 * @covers MediaWiki\Moderation\ModerationApiHooks::onApiCheckCanExecute
 	 */
 	public function testRevertImageRestrictedViaApi( $isAutomoderated ) {
 		$context = new RequestContext();
@@ -160,7 +162,7 @@ class HooksTest extends ModerationUnitTestCase {
 	 * @see testRevertImageRestrictedViaApi
 	 * @param bool $isAutomoderated
 	 * @dataProvider dataProviderIsAutomoderated
-	 * @covers ModerationApiHooks::onApiCheckCanExecute
+	 * @covers MediaWiki\Moderation\ModerationApiHooks::onApiCheckCanExecute
 	 */
 	public function testRotateImageRestricted( $isAutomoderated ) {
 		$context = new RequestContext();
@@ -214,7 +216,7 @@ class HooksTest extends ModerationUnitTestCase {
 	 * Ensure that API actions other than filerevert/imagerotate are not restricted to automoderated users.
 	 * @see testRevertImageRestrictedViaApi
 	 * @see testRotateImageRestricted
-	 * @covers ModerationApiHooks::onApiCheckCanExecute
+	 * @covers MediaWiki\Moderation\ModerationApiHooks::onApiCheckCanExecute
 	 */
 	public function testActionsOtherThanRevertOrRotateAreNotRestrictedViaApi() {
 		$context = new RequestContext();
@@ -244,7 +246,7 @@ class HooksTest extends ModerationUnitTestCase {
 	 * Ensure that EditPage::showEditForm:fields hook adds merge-related fields to the EditPage form.
 	 * @param int $mergeID
 	 * @dataProvider dataProviderMergeFieldsInEditForm
-	 * @covers ModerationEditHooks::onEditPage__showEditForm_fields
+	 * @covers MediaWiki\Moderation\ModerationEditHooks::onEditPage__showEditForm_fields
 	 */
 	public function testMergeFieldsInEditForm( $mergeID ) {
 		// Mock the EditFormOptions service.
@@ -296,7 +298,7 @@ class HooksTest extends ModerationUnitTestCase {
 	 * Ensure that BeforePageDisplay hook adds CSS/JS modules of postedit notifications, etc.
 	 * @param bool $isAutomoderated
 	 * @dataProvider dataProviderBeforePageDisplayHook
-	 * @covers ModerationEditHooks::onBeforePageDisplay
+	 * @covers MediaWiki\Moderation\ModerationEditHooks::onBeforePageDisplay
 	 */
 	public function testBeforePageDisplayHook( $isAutomoderated ) {
 		$title = Title::newFromText( 'Project:UTPage-' . rand( 0, 100000 ) );

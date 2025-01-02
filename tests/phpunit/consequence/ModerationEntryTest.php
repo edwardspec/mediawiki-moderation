@@ -20,6 +20,8 @@
  * Unit test of ModerationEntry.
  */
 
+use MediaWiki\Moderation\ModerationEntry;
+use MediaWiki\Moderation\ModerationNewChange;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -34,7 +36,7 @@ class ModerationEntryTest extends ModerationUnitTestCase {
 	 * @param bool $expectedResult
 	 * @param string $type
 	 * @dataProvider dataProviderIsMove
-	 * @covers ModerationEntry
+	 * @covers MediaWiki\Moderation\ModerationEntry
 	 */
 	public function testIsMove( $expectedResult, $type ) {
 		$entry = $this->makeEntry( [ 'type' => $type ] );
@@ -58,7 +60,7 @@ class ModerationEntryTest extends ModerationUnitTestCase {
 	 * @param string $namespaceField Name of field that contains the namespace.
 	 * @param string $dbKeyField Name of field that contains non-prefixed title (with underscores).
 	 * @dataProvider dataProviderGetTitle
-	 * @covers ModerationEntry
+	 * @covers MediaWiki\Moderation\ModerationEntry
 	 */
 	public function testGetTitle( $method, $namespaceField, $dbKeyField ) {
 		$dbKey = 'Some_page';
@@ -84,7 +86,7 @@ class ModerationEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check the return value of getPage2Title() when the second title is empty.
-	 * @covers ModerationEntry
+	 * @covers MediaWiki\Moderation\ModerationEntry
 	 */
 	public function testNoPage2Title() {
 		$entry = $this->makeEntry( [ 'page2_namespace' => 10, 'page2_title' => '' ] );
@@ -95,7 +97,7 @@ class ModerationEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check the return value of getUser() for anonymous user.
-	 * @covers ModerationEntry
+	 * @covers MediaWiki\Moderation\ModerationEntry
 	 */
 	public function testGetAnonymousUser() {
 		$ip = '10.11.12.13';
@@ -108,7 +110,7 @@ class ModerationEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check the return value of getUser() for existing non-anonymous user.
-	 * @covers ModerationEntry
+	 * @covers MediaWiki\Moderation\ModerationEntry
 	 */
 	public function testGetRegisteredUser() {
 		$expectedUser = self::getTestUser()->getUser();
@@ -124,7 +126,7 @@ class ModerationEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check the return value of getUser() for deleted (not found in the database) non-anonymous user.
-	 * @covers ModerationEntry
+	 * @covers MediaWiki\Moderation\ModerationEntry
 	 */
 	public function testGetDeletedUser() {
 		$userId = 12345;
@@ -142,7 +144,7 @@ class ModerationEntryTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test the return value of ModerationEntry::getFields().
-	 * @covers ModerationEntry
+	 * @covers MediaWiki\Moderation\ModerationEntry
 	 */
 	public function testFields() {
 		$expectedFields = [

@@ -22,6 +22,7 @@
 
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\EntryFactory;
+use MediaWiki\Moderation\ModerationNotifyModerator;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -29,7 +30,7 @@ require_once __DIR__ . "/autoload.php";
 class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 	/**
 	 * Test that invalidateCache() clears the cache of ModerationNotifyModerator.
-	 * @covers ModerationNotifyModerator
+	 * @covers MediaWiki\Moderation\ModerationNotifyModerator
 	 */
 	public function testInvalidateCache() {
 		$linkRenderer = $this->createMock( LinkRenderer::class );
@@ -53,7 +54,7 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test that setPendingTime() populates "getPendingTime cache" of ModerationNotifyModerator.
-	 * @covers ModerationNotifyModerator
+	 * @covers MediaWiki\Moderation\ModerationNotifyModerator
 	 */
 	public function testSetPendingTime() {
 		$linkRenderer = $this->createMock( LinkRenderer::class );
@@ -81,7 +82,7 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test that setPendingTime() populates "getSeen cache" of ModerationNotifyModerator.
-	 * @covers ModerationNotifyModerator
+	 * @covers MediaWiki\Moderation\ModerationNotifyModerator
 	 */
 	public function testSetSeen() {
 		$linkRenderer = $this->createMock( LinkRenderer::class );
@@ -119,7 +120,7 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 	 * @param array $opt
 	 * @dataProvider dataProviderGetNotificationHTML
 	 *
-	 * @covers ModerationNotifyModerator
+	 * @covers MediaWiki\Moderation\ModerationNotifyModerator
 	 */
 	public function testGetNotificationHTML( $expectShown, array $opt ) {
 		$isModerator = $opt['isModerator'] ?? true;
@@ -268,7 +269,7 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 	 * @param bool $mustNotify If true, getNotificationHTML() will return non-empty string.
 	 * @dataProvider dataProviderNotifyHook
 	 *
-	 * @covers ModerationNotifyModerator
+	 * @covers MediaWiki\Moderation\ModerationNotifyModerator
 	 */
 	public function testNotifyHook( $mustNotify ) {
 		$out = $this->createMock( OutputPage::class );
@@ -309,7 +310,7 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that EchoCanAbortNewMessagesAlert hook returns false ("Echo can't disable notification").
-	 * @covers ModerationNotifyModerator
+	 * @covers MediaWiki\Moderation\ModerationNotifyModerator
 	 */
 	public function testEchoHook() {
 		$notify = $this->makePartialNotifyMock( [] );

@@ -24,7 +24,7 @@ require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @group Database
- * @covers ApiModeration
+ * @covers MediaWiki\Moderation\ApiModeration
  */
 class ModerationApiTest extends ModerationTestCase {
 

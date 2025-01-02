@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
+use MediaWiki\Moderation\ModerationNotifyModerator;
 
 require_once __DIR__ . "/autoload.php";
 
@@ -29,7 +30,7 @@ class InvalidatePendingTimeCacheConsequenceTest extends ModerationUnitTestCase {
 	 * Verify that InvalidatePendingTimeCacheConsequence invalidates the cache
 	 * used by ModerationNotifyModerator::getPendingTime().
 	 * @covers MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence
-	 * @covers ModerationNotifyModerator
+	 * @covers MediaWiki\Moderation\ModerationNotifyModerator
 	 */
 	public function testPendingTimeCacheInvalidated() {
 		$notify = $this->createMock( ModerationNotifyModerator::class );

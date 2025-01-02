@@ -22,6 +22,7 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\EntryFactory;
+use MediaWiki\Moderation\ModerationAction;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -39,7 +40,7 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 	 * @param bool $simulateReadOnlyMode If true, the wiki will be ReadOnly during this test.
 	 * @dataProvider dataProviderActionRun
 	 *
-	 * @covers ModerationAction
+	 * @covers MediaWiki\Moderation\ModerationAction
 	 */
 	public function testActionRun( $requiresWrite, $simulateReadOnlyMode ) {
 		if ( $simulateReadOnlyMode ) {
@@ -115,7 +116,7 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test ModerationAction::getUserpageOfPerformer() returns correct userpage when edit is found.
-	 * @covers ModerationAction::getUserpageOfPerformer()
+	 * @covers MediaWiki\Moderation\ModerationAction::getUserpageOfPerformer()
 	 */
 	public function testUserpageOfPerformer() {
 		$username = 'Test user ' . rand( 0, 100000 );
@@ -139,7 +140,7 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test ModerationAction::getUserpageOfPerformer() returns false when edit is NOT found.
-	 * @covers ModerationAction::getUserpageOfPerformer()
+	 * @covers MediaWiki\Moderation\ModerationAction::getUserpageOfPerformer()
 	 */
 	public function testUserpageOfPerformerNotFound() {
 		$entryFactory = $this->createMock( EntryFactory::class );
@@ -170,8 +171,8 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 	 * @param string ...$pageNames List of titles that will be passed to addReturnTitle().
 	 * @dataProvider dataProviderReturnLinks
 	 *
-	 * @covers ModerationAction::addReturnTitle()
-	 * @covers ModerationAction::printReturnLinks()
+	 * @covers MediaWiki\Moderation\ModerationAction::addReturnTitle()
+	 * @covers MediaWiki\Moderation\ModerationAction::printReturnLinks()
 	 *
 	 */
 	public function testReturnLinks( ...$pageNames ) {

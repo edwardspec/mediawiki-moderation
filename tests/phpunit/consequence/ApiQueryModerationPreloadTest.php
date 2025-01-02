@@ -20,6 +20,8 @@
  * Unit test of ApiQueryModerationPreload.
  */
 
+use MediaWiki\Moderation\ApiQueryModerationPreload;
+use MediaWiki\Moderation\ModerationPreload;
 use MediaWiki\Moderation\PendingEdit;
 use Wikimedia\TestingAccessWrapper;
 
@@ -36,7 +38,7 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 	 * @param array $extraParams
 	 * @dataProvider dataProviderPreload
 	 *
-	 * @covers ApiQueryModerationPreload
+	 * @covers MediaWiki\Moderation\ApiQueryModerationPreload
 	 */
 	public function testPreload( $notFound, array $extraParams ) {
 		$user = self::getTestUser()->getUser();
@@ -133,7 +135,7 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 
 	/**
 	 * Test that ApiQueryModerationPreload subclass overrides some methods of ApiBase class.
-	 * @covers ApiQueryModerationPreload
+	 * @covers MediaWiki\Moderation\ApiQueryModerationPreload
 	 */
 	public function testApiBaseSubclass() {
 		$preload = $this->createMock( ModerationPreload::class );

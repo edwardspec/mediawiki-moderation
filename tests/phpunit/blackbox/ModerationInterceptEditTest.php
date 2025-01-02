@@ -24,7 +24,7 @@ require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @group Database
- * @covers ModerationEditHooks
+ * @covers MediaWiki\Moderation\ModerationEditHooks
  */
 class ModerationInterceptEditTest extends ModerationTestCase {
 	public function testPostEditRedirect( ModerationTestsuite $t ) {

@@ -20,6 +20,7 @@
  * Trait that provides makeEdit() for quickly precreating pages.
  */
 
+use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Revision\SlotRecord;
 
 /**

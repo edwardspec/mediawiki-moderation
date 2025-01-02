@@ -20,6 +20,7 @@
  * Unit test of ModerationEditChangePage and ModerationCompatTools.
  */
 
+use MediaWiki\Moderation\ModerationEditChangePage;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -30,7 +31,7 @@ require_once __DIR__ . "/autoload.php";
 class ModerationEditChangePageTest extends ModerationUnitTestCase {
 	/**
 	 * Ensure that showFormAfterText() adds HTML field 'token' (for modaction=editchangesubmit).
-	 * @covers ModerationEditChangePage
+	 * @covers MediaWiki\Moderation\ModerationEditChangePage
 	 */
 	public function testShowFormAfterText() {
 		$context = new RequestContext();
@@ -55,7 +56,7 @@ class ModerationEditChangePageTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check return value of getActionURL().
-	 * @covers ModerationEditChangePage
+	 * @covers MediaWiki\Moderation\ModerationEditChangePage
 	 */
 	public function testGetActionURL() {
 		$modid = 12345;
@@ -80,7 +81,7 @@ class ModerationEditChangePageTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check return value of getEditButtons().
-	 * @covers ModerationEditChangePage
+	 * @covers MediaWiki\Moderation\ModerationEditChangePage
 	 */
 	public function testGetEditButtons() {
 		$editPage = new ModerationEditChangePage( new Article( Title::newFromText( "pagename" ) ) );
@@ -96,7 +97,7 @@ class ModerationEditChangePageTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check return value of getContextTitle().
-	 * @covers ModerationEditChangePage
+	 * @covers MediaWiki\Moderation\ModerationEditChangePage
 	 */
 	public function testGetContextTitle() {
 		$editPage = new ModerationEditChangePage( new Article( Title::newFromText( "pagename" ) ) );

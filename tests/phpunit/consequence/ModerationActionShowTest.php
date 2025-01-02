@@ -20,6 +20,9 @@
  * Unit test of ModerationActionShow.
  */
 
+use MediaWiki\Moderation\ModerationActionShow;
+use MediaWiki\Moderation\ModerationViewableEntry;
+
 require_once __DIR__ . "/autoload.php";
 
 /**
@@ -35,7 +38,7 @@ class ModerationActionShowTest extends ModerationUnitTestCase {
 	 * e.g. [ 'isUpload' => false, 'getDiffHTML' => 'some HTML' ].
 	 * @param bool $pageExists True means "edit in existing article", false - newly created article.
 	 * @dataProvider dataProviderExecute
-	 * @covers ModerationActionShow
+	 * @covers MediaWiki\Moderation\ModerationActionShow
 	 */
 	public function testExecute( array $expectedResult, array $methodResults, $pageExists ) {
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
@@ -143,7 +146,7 @@ class ModerationActionShowTest extends ModerationUnitTestCase {
 	 * @param array $expectedHtml What should outputResult() write into its OutputPage parameter.
 	 * @param array $executeResult Return value of execute().
 	 * @dataProvider dataProviderOutputResult
-	 * @covers ModerationActionShow
+	 * @covers MediaWiki\Moderation\ModerationActionShow
 	 */
 	public function testOutputResult( $expectedHtml, array $executeResult ) {
 		$modid = 12345;

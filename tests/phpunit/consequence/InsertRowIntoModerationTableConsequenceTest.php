@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
+use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\RollbackResistantQuery;
 
 require_once __DIR__ . "/autoload.php";

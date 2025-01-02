@@ -20,6 +20,8 @@
  * Unit test of ModerationAjaxHook
  */
 
+use MediaWiki\Moderation\ModerationAjaxHook;
+use MediaWiki\Moderation\ModerationPreload;
 use MediaWiki\Moderation\PendingEdit;
 
 require_once __DIR__ . "/autoload.php";
@@ -35,7 +37,7 @@ class ModerationAjaxHookTest extends ModerationUnitTestCase {
 	 * and VisualEditor are installed during the test)
 	 * @param array $opt
 	 * @dataProvider dataProviderAjaxHook
-	 * @covers ModerationAjaxHook
+	 * @covers MediaWiki\Moderation\ModerationAjaxHook
 	 */
 	public function testAjaxHook( array $opt ) {
 		$installedExtensions = $opt['installedExtensions'] ?? [];

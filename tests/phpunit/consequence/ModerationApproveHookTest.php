@@ -22,6 +22,8 @@
 
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\ModerationApproveHook;
+use MediaWiki\Moderation\ModerationNewChange;
 use Psr\Log\NullLogger;
 use Wikimedia\IPUtils;
 
@@ -55,7 +57,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 	 * @param array $logEntryParams Parameters for ManualLogEntry.
 	 * @param bool $isReupload True to reupload the image, false to upload a new image.
 	 * @dataProvider dataProviderCheckLogEntry
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testCheckLogEntry( array $logEntryParams, $isReupload ) {
 		$title = Title::newFromText( 'File:UTUpload-' . rand( 0, 100000 ) . '.png' );
@@ -100,8 +102,8 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that getLastRevId() returns rev_id of the most recently created revision.
-	 * @covers ModerationApproveHook::getLastRevId
-	 * @covers ModerationApproveHook::onRevisionFromEditComplete
+	 * @covers MediaWiki\Moderation\ModerationApproveHook::getLastRevId
+	 * @covers MediaWiki\Moderation\ModerationApproveHook::onRevisionFromEditComplete
 	 */
 	public function testGetLastRevId() {
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
@@ -117,7 +119,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that isApprovingNow() returns false if no tasks were added to ApproveHook.
-	 * @covers ModerationApproveHook::isApprovingNow
+	 * @covers MediaWiki\Moderation\ModerationApproveHook::isApprovingNow
 	 */
 	public function testIsApprovingNowNo() {
 		$approveHook = new ModerationApproveHook( new NullLogger() );
@@ -127,7 +129,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that isApprovingNow() returns false if no tasks were added to ApproveHook.
-	 * @covers ModerationApproveHook::isApprovingNow
+	 * @covers MediaWiki\Moderation\ModerationApproveHook::isApprovingNow
 	 */
 	public function testIsApprovingNowYes() {
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
@@ -175,7 +177,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 	 * Verify that ApproveHook (without tags) works with one edit.
 	 * This is the most common situation of ApproveHook being used in production,
 	 * because tags are optional, and most edits won't have them.
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testOneEdit() {
 		$this->runApproveHookTest( [ [ 'task' => $this->defaultTask() ] ] );
@@ -184,7 +186,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 	/**
 	 * Verify that ApproveHook works when DeferredUpdates are immediate.
 	 * This doesn't happen in production (unless ApproveHook is used in a maintenance script).
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testOneEditImmediateDeferredUpdates() {
 		$this->runApproveHookTest( [ [ 'task' => $this->defaultTask() ] ],
@@ -194,7 +196,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that ApproveHook (with tags) works with one edit.
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testOneEditWithTags() {
 		$this->runApproveHookTest( [ [
@@ -204,7 +206,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that ApproveHook changes wouldn't happen if ApproveHook wasn't installed for this edit.
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testEditWithoutApproveHook() {
 		$this->runApproveHookTest( [ [
@@ -215,7 +217,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that ApproveHook (without tags) works with one move.
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testOneMove() {
 		$this->runApproveHookTest( [ [
@@ -226,7 +228,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that ApproveHook works with one move with suppressed redirect.
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testOneMoveWithoutRedirect() {
 		$this->setGroupPermissions( '*', 'suppressredirect', true );
@@ -240,7 +242,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that ApproveHook changes wouldn't happen if ApproveHook wasn't installed for this move.
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testMoveWithoutApproveHook() {
 		$this->runApproveHookTest( [ [
@@ -252,7 +254,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 	/**
 	 * Verify that ApproveHook won't affect edits that weren't targeted by it,
 	 * e.g. changes without ApproveHook or with another $title OR $user OR $type.
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testSomeEditsWithoutApproveHook() {
 		$this->runApproveHookTest( [
@@ -269,7 +271,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test situation when ApproveHook uses "CASE...WHEN...THEN" to reduce the number of SQL queries.
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testCaseWhenThenChanges() {
 		$this->runApproveHookTest( [
@@ -301,7 +303,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 	/**
 	 * Verify that ApproveHook works when a user edits AND moves the same page.
 	 * This is what happens during modaction=approveall, where moves are approved after edits.
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testEditAndMoveWithSameUserAndPage() {
 		$pageName = 'UTPage-to-both-edit-and-move';
@@ -337,7 +339,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 	/**
 	 * Verify that ApproveHook works when a user moves AND edits the same page.
 	 * Same as testEditAndMoveWithSameUserAndPage(), but move is performed before the edit.
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testMoveAndEditWithSameUserAndPage() {
 		$pageName = 'UTPage-to-both-move-and-edit';
@@ -372,7 +374,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that ApproveHook won't populate rc_id if $wgPutIPinRC=false.
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testOneEditDisabledPutIPinRC() {
 		$this->setMwGlobals( 'wgPutIPinRC', false );
@@ -411,7 +413,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that timestamp of edit is ignored if more recent revisions exist in the history.
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testOneEditWithIgnoredTimestamp() {
 		// Precreate a page: if history doesn't exist, then rev_timestamp is never ignored.
@@ -435,7 +437,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 	/**
 	 * Verify that timestamp of move is ignored if more recent revisions exist in the history.
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testOneMoveWithIgnoredTimestamp() {
 		$pageName = 'UTPage-' . rand( 0, 100000 );
@@ -453,7 +455,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test situation when ApproveHook uses "CASE...WHEN...THEN", but SOME timestamps are ignored.
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testCaseWhenThenIgnoredTimestamp() {
 		// Precreate a page: if history doesn't exist, then rev_timestamp is never ignored.
@@ -492,7 +494,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test situation when ApproveHook uses "CASE...WHEN...THEN", but ALL timestamps are ignored.
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testCaseWhenThenIgnoredAllTimestamps() {
 		// Precreate a page: if history doesn't exist, then rev_timestamp is never ignored.
@@ -533,7 +535,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 	/**
 	 * Verify that ApproveHook works with a move that overwrites a redirect,
 	 * i.e. when before the move $oldTitle was an article and $newTitle a redirect to $oldTitle.
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testOneMoveOverwriteRedirect() {
 		$pageName = 'UTPage-' . rand( 0, 100000 );
@@ -551,7 +553,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 	/**
 	 * Same as testOneMoveOverwriteRedirect(), but with ignored timestamp.
-	 * @covers ModerationApproveHook
+	 * @covers MediaWiki\Moderation\ModerationApproveHook
 	 */
 	public function testOneMoveOverwriteRedirectWithIgnoredTimestamp() {
 		$pageName = 'UTPage-' . rand( 0, 100000 );

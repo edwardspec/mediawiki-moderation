@@ -20,6 +20,8 @@
  * Basic TestSet for tests which precreate a change that awaits moderation.
  */
 
+use MediaWiki\Moderation\ModerationCompatTools;
+use MediaWiki\Moderation\ModerationUploadStorage;
 use MediaWiki\Revision\RevisionRecord;
 
 trait ModerationTestsuitePendingChangeTestSet {

@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\ApproveMoveConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
+use MediaWiki\Moderation\ModerationEntryMove;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -29,7 +30,7 @@ require_once __DIR__ . "/autoload.php";
 class ModerationEntryMoveTest extends ModerationUnitTestCase {
 	/**
 	 * Check result/consequences of ModerationEntryMove::doApprove().
-	 * @covers ModerationEntryMove
+	 * @covers MediaWiki\Moderation\ModerationEntryMove
 	 */
 	public function testApprove() {
 		$row = (object)[ 'comment' => 'Sample reason for moving the page' ];
@@ -69,7 +70,7 @@ class ModerationEntryMoveTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test return value of getApproveLogSubtype().
-	 * @covers ModerationEntryMove
+	 * @covers MediaWiki\Moderation\ModerationEntryMove
 	 */
 	public function testApproveLogSubtype() {
 		$wrapper = TestingAccessWrapper::newFromObject( $this->makeEntry() );
@@ -78,7 +79,7 @@ class ModerationEntryMoveTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test return value of getApproveLogParameters().
-	 * @covers ModerationEntryMove
+	 * @covers MediaWiki\Moderation\ModerationEntryMove
 	 */
 	public function testApproveLogParameters() {
 		$row = (object)[ 'user' => 678, 'user_text' => 'Some username' ];

@@ -25,6 +25,10 @@ use MediaWiki\Extension\AbuseFilter\ChangeTags\ChangeTagger;
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
+use MediaWiki\Moderation\ModerationBlockCheck;
+use MediaWiki\Moderation\ModerationNewChange;
+use MediaWiki\Moderation\ModerationNotifyModerator;
+use MediaWiki\Moderation\ModerationPreload;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 use MediaWiki\Revision\RevisionRecord;
@@ -41,7 +45,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 	 * Check values of all fields after ModerationNewChange object has just been constructed.
 	 * @param bool $isBlocked True if the user is marked as spammer, false otherwise.
 	 * @dataProvider dataProviderConstructor
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 */
 	public function testConstructor( $isBlocked ) {
 		$preloadId = '{MockedPreloadId}';
@@ -152,7 +156,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 	 * @param string $dbKeyField Database field name, e.g. "mod_comment".
 	 * @param array $testValues Map: [ argumentToSetter => expectedDatabaseFieldValue ].
 	 * @dataProvider dataProviderSetters
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 */
 	public function testSetters( $method, $dbKeyField, $testValues ) {
 		$change = $this->makeNewChange();
@@ -188,7 +192,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check that move() sets the necessary database fields.
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 */
 	public function testMove() {
 		$newTitle = Title::makeTitle( NS_PROJECT, 'UTRenamedPage-' . rand( 0, 100000 ) );
@@ -211,7 +215,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check that upload() sets the necessary database fields.
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 */
 	public function testUpload() {
 		$stashKey = 'someStashKey123';
@@ -236,7 +240,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 	 * Check that edit() sets the necessary database fields.
 	 * @param int|null $oldSize Length of existing page (in bytes) or null (if page doesn't exist).
 	 * @dataProvider dataProviderEdit
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 */
 	public function testEdit( $oldSize ) {
 		$newContent = $this->createMock( Content::class );
@@ -323,7 +327,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check that applySectionToNewContent() doesn't change $newContent if $section is empty string.
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 */
 	public function testApplySectionNoSection() {
 		$newContent = $this->createMock( Content::class );
@@ -338,7 +342,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check that applySectionToNewContent() doesn't change $newContent if there is no pending edit.
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 */
 	public function testApplySectionNoPendingEdit() {
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
@@ -359,7 +363,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check that applySectionToNewContent() adjusts $newContent when this is needed.
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 */
 	public function testApplySectionAdjusted() {
 		$section = 3;
@@ -418,7 +422,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 	 * @param string $expectedFieldValue Correct value of mod_tags field.
 	 * @param string[] $foundTags Mocked return value of findAbuseFilterTags().
 	 * @dataProvider dataProviderAddChangeTags
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 */
 	public function testAddChangeTags( $expectedFieldValue, array $foundTags ) {
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
@@ -455,7 +459,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check that findAbuseFilterTags() can find AbuseFilter tags.
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 */
 	public function testFindAbuseFilterTags() {
 		$this->skipIfNoAbuseFilter();
@@ -490,7 +494,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check that preSaveTransform() correctly transforms Content object.
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 */
 	public function testPreSaveTransform() {
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
@@ -509,7 +513,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check that queue() performs expected actions.
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 */
 	public function testQueue() {
 		$modid = 12345;
@@ -540,7 +544,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check that insert() performs expected actions.
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 */
 	public function testInsert() {
 		$modid = 12345;
@@ -565,7 +569,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check that notify() performs expected actions.
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 */
 	public function testNotify() {
 		$modid = 12345;
@@ -596,7 +600,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check that notify() doesn't do anything if mod_rejected_auto=1.
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 */
 	public function testNotifySkippedRejectedAuto() {
 		$modid = 12345;
@@ -624,7 +628,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 	 * @param array $configVars Configuration settings (if any), e.g. [ 'wgModerationEnable' => false ].
 	 * @param array $fieldValues Database fields of this NewChange, e.g. [ 'mod_new' => 1 ].
 	 * @dataProvider dataProviderSendNotificationEmail
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 */
 	public function testSendNotificationEmail(
 		$isSendingExpected,

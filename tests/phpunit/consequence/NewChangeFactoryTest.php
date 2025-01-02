@@ -22,6 +22,9 @@
 
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Moderation\IConsequenceManager;
+use MediaWiki\Moderation\ModerationNewChange;
+use MediaWiki\Moderation\ModerationNotifyModerator;
+use MediaWiki\Moderation\ModerationPreload;
 use MediaWiki\Moderation\NewChangeFactory;
 
 require_once __DIR__ . "/autoload.php";

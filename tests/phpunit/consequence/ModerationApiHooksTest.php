@@ -21,6 +21,7 @@
  */
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\ModerationPreload;
 use MediaWiki\Moderation\PendingEdit;
 
 require_once __DIR__ . "/autoload.php";
@@ -32,7 +33,7 @@ class ModerationApiHooksTest extends ModerationUnitTestCase {
 	/**
 	 * Ensure that ApiEdit parameters appendtext, prependtext and section work for intercepted edits.
 	 * @dataProvider dataProviderApiBeforeMain
-	 * @covers ModerationApiHooks
+	 * @covers MediaWiki\Moderation\ModerationApiHooks
 	 */
 	public function testApiBeforeMain( array $opt ) {
 		$title = Title::newFromText( "Talk:UTPage " . rand( 0, 100000 ) );

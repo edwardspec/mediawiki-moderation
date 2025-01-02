@@ -22,6 +22,9 @@
 
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
+use MediaWiki\Moderation\ModerationCompatTools;
+use MediaWiki\Moderation\ModerationUploadStorage;
+
 /**
  * @group Database
  */
@@ -30,7 +33,7 @@ class ModerationUploadStorageTest extends ModerationTestCase {
 	/**
 	 * Check that ModerationUploadStorage::getStash() migrates old uploads from per-upload stashes
 	 * into a centralized stash (owned by a reserved user).
-	 * @covers ModerationUploadStorage::getStash()
+	 * @covers MediaWiki\Moderation\ModerationUploadStorage::getStash()
 	 */
 	public function testMigrationFromPerUploaderStashes( ModerationTestsuite $t ) {
 		$numberOfUploads = 5;

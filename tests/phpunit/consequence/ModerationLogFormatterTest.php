@@ -31,7 +31,7 @@ require_once __DIR__ . "/autoload.php";
  */
 class ModerationLogFormatterTest extends ModerationUnitTestCase {
 	/**
-	 * @covers ModerationLogFormatter
+	 * @covers MediaWiki\Moderation\ModerationLogFormatter
 	 * @dataProvider dataProvider
 	 */
 	public function testLogFormatter( array $options ) {

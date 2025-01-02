@@ -22,6 +22,7 @@
 
 use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
+use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\QueueUploadConsequence;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
@@ -40,7 +41,7 @@ class QueueUploadConsequenceTest extends ModerationUnitTestCase {
 	/**
 	 * Check the secondary consequences of running QueueUploadConsequence.
 	 * @covers MediaWiki\Moderation\QueueUploadConsequence
-	 * @covers ModerationNewChange
+	 * @covers MediaWiki\Moderation\ModerationNewChange
 	 * @dataProvider dataProviderQueueUpload
 	 *
 	 * See also: ModerationQueueTest from the blackbox integration tests.

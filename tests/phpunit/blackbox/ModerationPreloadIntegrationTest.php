@@ -24,10 +24,10 @@ require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @group Database
- * @covers ModerationPreload
+ * @covers MediaWiki\Moderation\ModerationPreload
  */
 class ModerationPreloadIntegrationTest extends ModerationTestCase {
-	/** @covers ModerationPreload::onEditFormPreloadText */
+	/** @covers MediaWiki\Moderation\ModerationPreload::onEditFormPreloadText */
 	public function testPreloadNewPage( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
 		$t->doTestEdit( null, null, "The quick brown fox jumps over the lazy dog" );
@@ -35,7 +35,7 @@ class ModerationPreloadIntegrationTest extends ModerationTestCase {
 		$this->tryToPreload( $t, __FUNCTION__ );
 	}
 
-	/** @covers ModerationPreload::onEditFormInitialText */
+	/** @covers MediaWiki\Moderation\ModerationPreload::onEditFormInitialText */
 	public function testPreloadExistingPage( ModerationTestsuite $t ) {
 		$page = "Test page 1";
 
@@ -48,7 +48,7 @@ class ModerationPreloadIntegrationTest extends ModerationTestCase {
 		$this->tryToPreload( $t, __FUNCTION__ );
 	}
 
-	/** @covers ModerationPreload::onLocalUserCreated */
+	/** @covers MediaWiki\Moderation\ModerationPreload::onLocalUserCreated */
 	public function testAnonymousPreload( ModerationTestsuite $t ) {
 		$t->logout();
 		$t->doTestEdit();
@@ -77,7 +77,7 @@ class ModerationPreloadIntegrationTest extends ModerationTestCase {
 			"testAnonymousPreload(): Text was not preloaded after creating an account" );
 	}
 
-	/** @covers ApiQueryModerationPreload */
+	/** @covers MediaWiki\Moderation\ApiQueryModerationPreload */
 	public function testApiPreload( ModerationTestsuite $t ) {
 		/* We make an edit with '''bold''' and ''italic'' markup
 			and then check for <b> and <i> tags in "mpmode=parsed" mode.

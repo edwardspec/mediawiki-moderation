@@ -22,6 +22,9 @@
 
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
+use MediaWiki\Moderation\ModerationActionApprove;
+use MediaWiki\Moderation\ModerationApprovableEntry;
+use MediaWiki\Moderation\ModerationError;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -34,7 +37,7 @@ class ModerationActionApproveTest extends ModerationUnitTestCase {
 
 	/**
 	 * Check result/consequences of modaction=approve.
-	 * @covers ModerationActionApprove
+	 * @covers MediaWiki\Moderation\ModerationActionApprove
 	 */
 	public function testExecuteApproveOne() {
 		$modid = 12345;
@@ -74,7 +77,7 @@ class ModerationActionApproveTest extends ModerationUnitTestCase {
 	 * Check result/consequences of modaction=approveall.
 	 * @param array $opt
 	 * @dataProvider dataProviderExecuteApproveAll
-	 * @covers ModerationActionApprove
+	 * @covers MediaWiki\Moderation\ModerationActionApprove
 	 */
 	public function testExecuteApproveAll( array $opt = [] ) {
 		$username = $opt['usernameOfPerformer'] ?? "Author's username";
@@ -208,7 +211,7 @@ class ModerationActionApproveTest extends ModerationUnitTestCase {
 	 * @param array $expectedHtml What should outputResult() write into its OutputPage parameter.
 	 * @param array $executeResult Return value of execute().
 	 * @dataProvider dataProviderOutputResult
-	 * @covers ModerationActionApprove
+	 * @covers MediaWiki\Moderation\ModerationActionApprove
 	 */
 	public function testOutputResult( $expectedHtml, array $executeResult ) {
 		$action = $this->makeActionForTesting( ModerationActionApprove::class );

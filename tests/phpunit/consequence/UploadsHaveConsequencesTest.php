@@ -20,6 +20,7 @@
  * Verifies that uploading a file has consequences.
  */
 
+use MediaWiki\Moderation\ModerationCanSkip;
 use MediaWiki\Moderation\QueueUploadConsequence;
 
 require_once __DIR__ . "/autoload.php";
@@ -41,7 +42,7 @@ class UploadsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences when an upload is queued for moderation.
-	 * @covers ModerationUploadHooks::onUploadVerifyUpload
+	 * @covers MediaWiki\Moderation\ModerationUploadHooks::onUploadVerifyUpload
 	 */
 	public function testUpload() {
 		$title = Title::newFromText( 'File:UTUpload-' . rand( 0, 100000 ) . '.png' );
@@ -76,7 +77,7 @@ class UploadsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test consequences of upload when User is automoderated (can bypass moderation of uploads).
-	 * @covers ModerationUploadHooks::onUploadVerifyUpload
+	 * @covers MediaWiki\Moderation\ModerationUploadHooks::onUploadVerifyUpload
 	 */
 	public function testAutomoderatedUpload() {
 		$title = Title::newFromText( 'File:UTUpload-' . rand( 0, 100000 ) . '.png' );
@@ -116,7 +117,7 @@ class UploadsHaveConsequencesTest extends ModerationUnitTestCase {
 
 	/**
 	 * Test situation when upload was to be queued, but QueueUploadConsequence failed for some reason.
-	 * @covers ModerationUploadHooks::onUploadVerifyUpload
+	 * @covers MediaWiki\Moderation\ModerationUploadHooks::onUploadVerifyUpload
 	 */
 	public function testUploadQueueFailed() {
 		$title = Title::newFromText( 'File:UTUpload-' . rand( 0, 100000 ) . '.png' );
