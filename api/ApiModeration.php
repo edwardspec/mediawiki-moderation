@@ -20,7 +20,10 @@
  * API to invoke moderation actions like Approve, Reject, etc.
  */
 
-use MediaWiki\Moderation\ActionFactory;
+namespace MediaWiki\Moderation;
+
+use ApiBase;
+use ApiMain;
 use Wikimedia\ParamValidator\ParamValidator;
 
 class ApiModeration extends ApiBase {

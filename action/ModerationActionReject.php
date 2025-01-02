@@ -20,10 +20,10 @@
  * Implements modaction=reject(all) on [[Special:Moderation]].
  */
 
-use MediaWiki\Moderation\AddLogEntryConsequence;
-use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
-use MediaWiki\Moderation\RejectAllConsequence;
-use MediaWiki\Moderation\RejectOneConsequence;
+namespace MediaWiki\Moderation;
+
+use OutputPage;
+use Title;
 
 class ModerationActionReject extends ModerationAction {
 

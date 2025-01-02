@@ -20,7 +20,10 @@
  * Page move (proposal to rename the page) that awaits moderation.
  */
 
-use MediaWiki\Moderation\ApproveMoveConsequence;
+namespace MediaWiki\Moderation;
+
+use Status;
+use User;
 
 class ModerationEntryMove extends ModerationApprovableEntry {
 	/**

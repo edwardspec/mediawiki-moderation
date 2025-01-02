@@ -20,8 +20,9 @@
  * Implements modaction=approve(all) on [[Special:Moderation]].
  */
 
-use MediaWiki\Moderation\AddLogEntryConsequence;
-use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
+namespace MediaWiki\Moderation;
+
+use OutputPage;
 
 class ModerationActionApprove extends ModerationAction {
 

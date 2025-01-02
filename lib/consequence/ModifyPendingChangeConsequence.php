@@ -52,7 +52,7 @@ class ModifyPendingChangeConsequence implements IConsequence {
 	 * Execute the consequence.
 	 */
 	public function run() {
-		$dbw = \ModerationCompatTools::getDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		$dbw->update( 'moderation',
 			[
 				'mod_text' => $this->newText,

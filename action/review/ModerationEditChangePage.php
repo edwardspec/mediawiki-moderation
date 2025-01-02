@@ -20,6 +20,13 @@
  * Subclass of EditPage used by modaction=editchange
  */
 
+namespace MediaWiki\Moderation;
+
+use EditPage;
+use Html;
+use SpecialPage;
+use Title;
+
 class ModerationEditChangePage extends EditPage {
 
 	/**

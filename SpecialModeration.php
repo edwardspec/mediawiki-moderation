@@ -20,9 +20,16 @@
  * Implements [[Special:Moderation]].
  */
 
+namespace MediaWiki\Moderation;
+
+use ErrorPageError;
 use MediaWiki\Cache\LinkBatchFactory;
-use MediaWiki\Moderation\ActionFactory;
-use MediaWiki\Moderation\EntryFactory;
+use QueryPage;
+use Skin;
+use stdClass;
+use Wikimedia\Rdbms\IDatabase;
+use Wikimedia\Rdbms\IResultWrapper;
+use Xml;
 
 class SpecialModeration extends QueryPage {
 
@@ -116,8 +123,8 @@ class SpecialModeration extends QueryPage {
 	}
 
 	/**
-	 * @param Wikimedia\Rdbms\IDatabase $db @phan-unused-param
-	 * @param Wikimedia\Rdbms\IResultWrapper $res
+	 * @param IDatabase $db @phan-unused-param
+	 * @param IResultWrapper $res
 	 */
 	protected function preprocessResults( $db, $res ) {
 		/* Check all pages for whether they exist or not -

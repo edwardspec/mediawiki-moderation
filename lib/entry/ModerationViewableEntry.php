@@ -20,12 +20,20 @@
  * Formatter for displaying entry in modaction=show.
  */
 
+namespace MediaWiki\Moderation;
+
+use ContentHandler;
+use IContextSource;
 use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Revision\MutableRevisionRecord;
 use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
+use SpecialPage;
+use stdClass;
+use UploadStashException;
+use Xml;
 
 class ModerationViewableEntry extends ModerationEntry {
 	/** @var LinkRenderer */

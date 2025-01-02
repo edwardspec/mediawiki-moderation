@@ -20,10 +20,16 @@
  * Hooks that notify the moderators that new pending edit has appeared in the moderation queue.
  */
 
+namespace MediaWiki\Moderation;
+
+use BagOStuff;
+use IContextSource;
 use MediaWiki\Hook\GetNewMessagesAlertHook;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Moderation\EntryFactory;
+use OutputPage;
+use SpecialPage;
+use User;
 
 class ModerationNotifyModerator implements GetNewMessagesAlertHook {
 	/** @var LinkRenderer */

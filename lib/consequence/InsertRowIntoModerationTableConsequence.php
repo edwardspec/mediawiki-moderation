@@ -48,7 +48,7 @@ class InsertRowIntoModerationTableConsequence implements IConsequence {
 			'mod_type'
 		];
 
-		$dbw = \ModerationCompatTools::getDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 
 		$rrQuery = MediaWikiServices::getInstance()->getService( 'Moderation.RollbackResistantQuery' );
 		$rrQuery->perform( function () use ( $dbw, $uniqueFields ) {

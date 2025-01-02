@@ -25,18 +25,6 @@ namespace MediaWiki\Moderation;
 use IContextSource;
 use Language;
 use MediaWiki\Revision\RevisionRenderer;
-use ModerationAction;
-use ModerationActionApprove;
-use ModerationActionBlock;
-use ModerationActionEditChange;
-use ModerationActionEditChangeSubmit;
-use ModerationActionMerge;
-use ModerationActionPreview;
-use ModerationActionReject;
-use ModerationActionShow;
-use ModerationActionShowImage;
-use ModerationCanSkip;
-use ModerationError;
 use ReadOnlyMode;
 use RepoGroup;
 

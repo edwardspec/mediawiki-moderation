@@ -20,6 +20,15 @@
  * Defines the format of [[Special:Log/moderation]]
  */
 
+namespace MediaWiki\Moderation;
+
+use Linker;
+use LogFormatter;
+use Message;
+use SpecialPage;
+use Title;
+use User;
+
 class ModerationLogFormatter extends LogFormatter {
 	/**
 	 * @inheritDoc

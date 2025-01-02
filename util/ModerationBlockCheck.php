@@ -20,6 +20,10 @@
  * Checks if the user is blacklisted.
  */
 
+namespace MediaWiki\Moderation;
+
+use User;
+
 class ModerationBlockCheck {
 	/**
 	 * Returns true if $user is blacklisted, false otherwise.

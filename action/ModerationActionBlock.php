@@ -20,9 +20,10 @@
  * Implements modaction=(un)block on [[Special:Moderation]].
  */
 
-use MediaWiki\Moderation\AddLogEntryConsequence;
-use MediaWiki\Moderation\BlockUserConsequence;
-use MediaWiki\Moderation\UnblockUserConsequence;
+namespace MediaWiki\Moderation;
+
+use OutputPage;
+use Title;
 
 class ModerationActionBlock extends ModerationAction {
 

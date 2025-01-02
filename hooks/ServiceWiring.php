@@ -20,18 +20,16 @@
  * Register services like ActionFactory in MediaWikiServices container.
  */
 
+namespace MediaWiki\Moderation;
+
+use CachedBagOStuff;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Moderation\ActionFactory;
-use MediaWiki\Moderation\ActionLinkRenderer;
-use MediaWiki\Moderation\ConsequenceManager;
-use MediaWiki\Moderation\EditFormOptions;
-use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\Hook\HookRunner;
-use MediaWiki\Moderation\NewChangeFactory;
-use MediaWiki\Moderation\RollbackResistantQuery;
-use MediaWiki\Moderation\TimestampTools;
+use ObjectCache;
+use RequestContext;
+use SpecialPage;
 
 // @codeCoverageIgnoreStart
 // (PHPUnit doesn't support @covers for out-of-class code)

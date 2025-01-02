@@ -20,6 +20,11 @@
  * Plugin for using Moderation with Extension:PageForms.
  */
 
+namespace MediaWiki\Moderation;
+
+use IContextSource;
+use Title;
+
 class ModerationPageForms {
 	/** @var ModerationPreload */
 	protected $preload;

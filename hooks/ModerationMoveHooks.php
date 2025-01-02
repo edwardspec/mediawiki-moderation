@@ -20,10 +20,12 @@
  * Hooks related to moving (renaming) pages.
  */
 
+namespace MediaWiki\Moderation;
+
 use MediaWiki\Hook\TitleMoveHook;
-use MediaWiki\Moderation\EditFormOptions;
-use MediaWiki\Moderation\IConsequenceManager;
-use MediaWiki\Moderation\QueueMoveConsequence;
+use Status;
+use Title;
+use User;
 
 class ModerationMoveHooks implements TitleMoveHook {
 	/** @var IConsequenceManager */

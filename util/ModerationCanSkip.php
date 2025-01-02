@@ -20,7 +20,10 @@
  * Checks if the user is allowed to skip moderation.
  */
 
+namespace MediaWiki\Moderation;
+
 use MediaWiki\Config\ServiceOptions;
+use User;
 
 class ModerationCanSkip {
 	/** @var ServiceOptions */

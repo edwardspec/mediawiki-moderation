@@ -20,6 +20,15 @@
  * Implements modaction=showimg on [[Special:Moderation]].
  */
 
+namespace MediaWiki\Moderation;
+
+use File;
+use FileBackend;
+use HTTPFileStreamer;
+use OutputPage;
+use UnregisteredLocalFile;
+use UploadStashException;
+
 class ModerationActionShowImage extends ModerationAction {
 
 	public const THUMB_WIDTH = 320;

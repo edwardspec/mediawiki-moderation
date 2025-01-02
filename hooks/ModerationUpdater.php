@@ -20,6 +20,9 @@
  * Creates/updates the SQL tables when 'update.php' is invoked.
  */
 
+namespace MediaWiki\Moderation;
+
+use DatabaseUpdater;
 use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
 use MediaWiki\MediaWikiServices;
 
@@ -74,6 +77,6 @@ class ModerationUpdater implements LoadExtensionSchemaUpdatesHook {
 			$services->loadWiringFiles( [ __DIR__ . '/ServiceWiring.php' ] );
 		}
 
-		$updater->addExtensionUpdate( [ 'ModerationVersionCheck::invalidateCache' ] );
+		$updater->addExtensionUpdate( [ 'MediaWiki\Moderation\ModerationVersionCheck::invalidateCache' ] );
 	}
 }

@@ -24,10 +24,6 @@ namespace MediaWiki\Moderation;
 
 use Language;
 use MediaWiki\Moderation\Hook\HookRunner;
-use ModerationBlockCheck;
-use ModerationNewChange;
-use ModerationNotifyModerator;
-use ModerationPreload;
 use Title;
 use User;
 

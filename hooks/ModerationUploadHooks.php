@@ -20,11 +20,14 @@
  * Hooks related to file uploads.
  */
 
+namespace MediaWiki\Moderation;
+
 use MediaWiki\Hook\UploadVerifyUploadHook;
-use MediaWiki\Moderation\EditFormOptions;
-use MediaWiki\Moderation\IConsequenceManager;
-use MediaWiki\Moderation\QueueUploadConsequence;
 use MediaWiki\Permissions\Hook\GetUserPermissionsErrorsHook;
+use RequestContext;
+use Title;
+use UploadBase;
+use User;
 
 class ModerationUploadHooks implements GetUserPermissionsErrorsHook, UploadVerifyUploadHook {
 	/** @var IConsequenceManager */

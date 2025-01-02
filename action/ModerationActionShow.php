@@ -20,6 +20,11 @@
  * Implements modaction=show on [[Special:Moderation]].
  */
 
+namespace MediaWiki\Moderation;
+
+use OutputPage;
+use Xml;
+
 class ModerationActionShow extends ModerationAction {
 
 	public function requiresEditToken() {

@@ -3,7 +3,7 @@
 // This file helps Phan to avoid false positives in "detect unused code" mode.
 // For example, MediaWiki hook handlers (listed in extension.json) shouldn't be considered unused.
 
-use MediaWiki\Moderation\EditFormOptions;
+namespace MediaWiki\Moderation;
 
 /** @phan-file-suppress PhanParamTooFew, PhanStaticCallToNonStatic, PhanAccessMethodProtected */
 

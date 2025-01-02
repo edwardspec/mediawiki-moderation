@@ -29,6 +29,11 @@
  * followed by explanation about moderation.
  */
 
+namespace MediaWiki\Moderation;
+
+use ErrorPageError;
+use RequestContext;
+
 class ModerationQueuedSuccessException extends ErrorPageError {
 	/**
 	 * Throw this exception if the user is on a special page that needs it.

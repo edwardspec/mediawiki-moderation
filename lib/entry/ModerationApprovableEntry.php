@@ -20,10 +20,11 @@
  * Parent class for all entry types (edit, upload, move, etc.).
  */
 
-use MediaWiki\Moderation\AddLogEntryConsequence;
-use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
-use MediaWiki\Moderation\IConsequenceManager;
-use MediaWiki\Moderation\TimestampTools;
+namespace MediaWiki\Moderation;
+
+use Status;
+use stdClass;
+use User;
 
 abstract class ModerationApprovableEntry extends ModerationEntry {
 	/** @var IConsequenceManager */

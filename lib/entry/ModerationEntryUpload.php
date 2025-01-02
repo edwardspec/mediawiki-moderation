@@ -20,7 +20,10 @@
  * File upload that awaits moderation.
  */
 
-use MediaWiki\Moderation\ApproveUploadConsequence;
+namespace MediaWiki\Moderation;
+
+use Status;
+use User;
 
 class ModerationEntryUpload extends ModerationApprovableEntry {
 	/**

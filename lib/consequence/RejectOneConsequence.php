@@ -45,7 +45,7 @@ class RejectOneConsequence implements IConsequence {
 	 * @return int Number of newly rejected edits (0 or 1).
 	 */
 	public function run() {
-		$dbw = \ModerationCompatTools::getDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		$dbw->update( 'moderation',
 			[
 				'mod_rejected' => 1,

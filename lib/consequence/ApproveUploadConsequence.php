@@ -22,7 +22,6 @@
 
 namespace MediaWiki\Moderation;
 
-use ModerationUploadStorage;
 use Status;
 use Title;
 use UploadFromStash;

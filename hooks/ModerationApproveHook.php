@@ -21,6 +21,12 @@
  * Corrects rev_timestamp, rc_ip and checkuser logs when edit is approved.
  */
 
+namespace MediaWiki\Moderation;
+
+use ChangeTags;
+use File;
+use FormatJson;
+use ManualLogEntry;
 use MediaWiki\Hook\FileUploadHook;
 use MediaWiki\Hook\PageMoveCompletingHook;
 use MediaWiki\Hook\RecentChange_saveHook;
@@ -30,7 +36,11 @@ use MediaWiki\Page\Hook\RevisionFromEditCompleteHook;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\User\UserIdentity;
 use Psr\Log\LoggerInterface;
+use RecentChange;
+use Title;
+use User;
 use Wikimedia\IPUtils;
+use WikiPage;
 
 class ModerationApproveHook implements
 	FileUploadHook,

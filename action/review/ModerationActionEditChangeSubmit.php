@@ -22,8 +22,13 @@
  * @see ModerationActionEditChange - handles the edit form
  */
 
-use MediaWiki\Moderation\AddLogEntryConsequence;
-use MediaWiki\Moderation\ModifyPendingChangeConsequence;
+namespace MediaWiki\Moderation;
+
+use ContentHandler;
+use OutputPage;
+use ParserOptions;
+use Title;
+use User;
 
 class ModerationActionEditChangeSubmit extends ModerationAction {
 

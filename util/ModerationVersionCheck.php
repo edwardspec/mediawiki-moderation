@@ -20,6 +20,9 @@
  * Functions for seamless database updates between versions.
  */
 
+namespace MediaWiki\Moderation;
+
+use BagOStuff;
 use MediaWiki\MediaWikiServices;
 use Wikimedia\Rdbms\ILoadBalancer;
 use Wikimedia\Rdbms\IMaintainableDatabase;

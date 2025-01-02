@@ -20,8 +20,17 @@
  * Backward compatibility functions to support older versions of MediaWiki.
  */
 
+namespace MediaWiki\Moderation;
+
+use Content;
+use IContextSource;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
+use ParserOptions;
+use ParserOutput;
+use Title;
+use User;
+use WikiPage;
 
 class ModerationCompatTools {
 	/**

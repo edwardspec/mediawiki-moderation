@@ -49,7 +49,7 @@ class GiveAnonChangesToNewUserConsequence implements IConsequence {
 	 * Execute the consequence.
 	 */
 	public function run() {
-		$dbw = \ModerationCompatTools::getDB( DB_PRIMARY );
+		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		$dbw->update( 'moderation',
 			[
 				'mod_user' => $this->user->getId(),

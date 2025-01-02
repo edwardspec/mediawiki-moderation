@@ -21,7 +21,10 @@
  * (when MobileFrontend and/or VisualEditor extensions are installed and used).
  */
 
+namespace MediaWiki\Moderation;
+
 use MediaWiki\MediaWikiServices;
+use OutputPage;
 
 class ModerationAjaxHook {
 	/**

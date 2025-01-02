@@ -20,17 +20,19 @@
  * Hooks/methods to preload edits which are pending moderation.
  */
 
+namespace MediaWiki\Moderation;
+
+use EditPage;
 use MediaWiki\Auth\Hook\LocalUserCreatedHook;
 use MediaWiki\Hook\AlternateEditHook;
 use MediaWiki\Hook\EditFormInitialTextHook;
 use MediaWiki\Hook\EditFormPreloadTextHook;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Moderation\EntryFactory;
-use MediaWiki\Moderation\ForgetAnonIdConsequence;
-use MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence;
-use MediaWiki\Moderation\IConsequenceManager;
-use MediaWiki\Moderation\PendingEdit;
-use MediaWiki\Moderation\RememberAnonIdConsequence;
+use RequestContext;
+use Title;
+use User;
+use WebRequest;
+use Xml;
 
 /*
 	Calculating 'mod_preload_id':

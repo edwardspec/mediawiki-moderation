@@ -20,12 +20,19 @@
  * Methods to manage "moderation" SQL table.
  */
 
+namespace MediaWiki\Moderation;
+
+use Content;
+use ContentHandler;
+use Language;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\Hook\HookRunner;
-use MediaWiki\Moderation\IConsequenceManager;
-use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
-use MediaWiki\Moderation\SendNotificationEmailConsequence;
 use MediaWiki\Revision\RevisionRecord;
+use ParserOptions;
+use RecentChange;
+use Title;
+use User;
+use WikiPage;
 
 class ModerationNewChange {
 	public const MOD_TYPE_EDIT = 'edit';

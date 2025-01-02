@@ -20,9 +20,17 @@
  * Hooks related to edits/uploads via API.
  */
 
+namespace MediaWiki\Moderation;
+
+use ApiBase;
+use ApiMain;
+use ContentHandler;
+use DerivativeContext;
+use DerivativeRequest;
 use MediaWiki\Api\Hook\ApiCheckCanExecuteHook;
 use MediaWiki\Hook\ApiBeforeMainHook;
 use MediaWiki\SpecialPage\Hook\WgQueryPagesHook;
+use User;
 
 class ModerationApiHooks implements
 	ApiBeforeMainHook,

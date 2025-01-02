@@ -23,6 +23,13 @@
  * for example Extension:VisualEditor or Extension:MobileFrontend.
  */
 
+namespace MediaWiki\Moderation;
+
+use ApiMain;
+use ApiQuery;
+use ApiQueryBase;
+use DerivativeRequest;
+use Title;
 use Wikimedia\ParamValidator\ParamValidator;
 
 class ApiQueryModerationPreload extends ApiQueryBase {

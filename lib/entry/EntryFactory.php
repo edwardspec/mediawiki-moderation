@@ -26,17 +26,6 @@ use IContextSource;
 use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Revision\RevisionLookup;
-use ModerationApprovableEntry;
-use ModerationApproveHook;
-use ModerationCanSkip;
-use ModerationCompatTools;
-use ModerationEntryEdit;
-use ModerationEntryFormatter;
-use ModerationEntryMove;
-use ModerationEntryUpload;
-use ModerationError;
-use ModerationNewChange;
-use ModerationViewableEntry;
 use Title;
 
 class EntryFactory {

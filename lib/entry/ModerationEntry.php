@@ -20,6 +20,12 @@
  * Parent class for objects that represent one row in the 'moderation' SQL table.
  */
 
+namespace MediaWiki\Moderation;
+
+use stdClass;
+use Title;
+use User;
+
 abstract class ModerationEntry {
 	/**
 	 * @var stdClass

@@ -20,19 +20,19 @@
  * Hooks related to normal edits.
  */
 
+namespace MediaWiki\Moderation;
+
+use CommentStoreComment;
+use EditPage;
+use FormatJson;
+use Html;
+use IContextSource;
 use MediaWiki\ChangeTags\Hook\ChangeTagsAllowedAddHook;
 use MediaWiki\ChangeTags\Hook\ListDefinedTagsHook;
 use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Hook\EditPage__showEditForm_fieldsHook;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Moderation\AddLogEntryConsequence;
-use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\Hook\HookRunner;
-use MediaWiki\Moderation\IConsequenceManager;
-use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
-use MediaWiki\Moderation\MarkAsMergedConsequence;
-use MediaWiki\Moderation\QueueEditConsequence;
-use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
 use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
@@ -40,6 +40,14 @@ use MediaWiki\Storage\EditResult;
 use MediaWiki\Storage\Hook\MultiContentSaveHook;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\UserIdentity;
+use OutputPage;
+use RequestContext;
+use Skin;
+use Status;
+use TextContentHandler;
+use Title;
+use User;
+use WikiPage;
 
 class ModerationEditHooks implements
 	BeforePageDisplayHook,

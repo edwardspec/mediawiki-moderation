@@ -20,10 +20,19 @@
  * Formatter for displaying entry on Special:Moderation.
  */
 
+namespace MediaWiki\Moderation;
+
+use ChangesList;
+use IContextSource;
+use LinkBatch;
+use Linker;
 use MediaWiki\Linker\LinkRenderer;
-use MediaWiki\Moderation\ActionLinkRenderer;
-use MediaWiki\Moderation\TimestampTools;
+use Message;
+use RequestContext;
+use stdClass;
+use User;
 use Wikimedia\IPUtils;
+use Xml;
 
 class ModerationEntryFormatter extends ModerationEntry {
 	/** @var IContextSource */

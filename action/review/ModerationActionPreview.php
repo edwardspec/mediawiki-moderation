@@ -20,6 +20,10 @@
  * Implements modaction=preview on [[Special:Moderation]].
  */
 
+namespace MediaWiki\Moderation;
+
+use OutputPage;
+
 class ModerationActionPreview extends ModerationAction {
 
 	public function requiresEditToken() {

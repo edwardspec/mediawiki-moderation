@@ -24,6 +24,12 @@
  * so the moderator can accidentally erase their text.
  */
 
+namespace MediaWiki\Moderation;
+
+use Article;
+use OutputPage;
+use Title;
+
 class ModerationActionEditChange extends ModerationAction {
 
 	public function requiresEditToken() {

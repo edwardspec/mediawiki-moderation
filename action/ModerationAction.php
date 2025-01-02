@@ -20,13 +20,23 @@
  * Parent class for all moderation actions.
  */
 
+namespace MediaWiki\Moderation;
+
+use ContextSource;
+use IContextSource;
+use Language;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Moderation\ActionLinkRenderer;
-use MediaWiki\Moderation\EditFormOptions;
-use MediaWiki\Moderation\EntryFactory;
-use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Revision\RevisionRenderer;
+use OutputPage;
+use Profiler;
+use ReadOnlyError;
+use ReadOnlyMode;
+use RepoGroup;
+use SpecialPage;
+use Title;
+use User;
+use Xml;
 
 abstract class ModerationAction extends ContextSource {
 	/**

@@ -24,7 +24,6 @@ namespace MediaWiki\Moderation;
 
 use ContentHandler;
 use MediaWiki\MediaWikiServices;
-use ModerationUploadStorage;
 use UploadBase;
 use User;
 use WikiPage;

@@ -20,6 +20,13 @@
  * Implements modaction=merge on [[Special:Moderation]].
  */
 
+namespace MediaWiki\Moderation;
+
+use Article;
+use EditPage;
+use OutputPage;
+use Title;
+
 class ModerationActionMerge extends ModerationAction {
 
 	public function execute() {

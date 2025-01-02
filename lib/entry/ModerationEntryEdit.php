@@ -20,10 +20,10 @@
  * Normal edit (modification of page text) that awaits moderation.
  */
 
-use MediaWiki\Moderation\AddLogEntryConsequence;
-use MediaWiki\Moderation\ApproveEditConsequence;
-use MediaWiki\Moderation\MarkAsConflictConsequence;
-use MediaWiki\Moderation\RejectOneConsequence;
+namespace MediaWiki\Moderation;
+
+use Status;
+use User;
 
 class ModerationEntryEdit extends ModerationApprovableEntry {
 	/**

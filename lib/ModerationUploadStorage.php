@@ -20,7 +20,12 @@
  * Methods to place intercepted uploaded files into UploadStash and retrieve them back.
  */
 
+namespace MediaWiki\Moderation;
+
 use MediaWiki\MediaWikiServices;
+use MWException;
+use UploadStash;
+use User;
 
 class ModerationUploadStorage {
 	public const USERNAME = 'ModerationUploadStash';

@@ -20,6 +20,13 @@
  * Handles exceptions thrown by actions on Special:Moderation.
  */
 
+namespace MediaWiki\Moderation;
+
+use ErrorPageError;
+use Message;
+use Status;
+use Xml;
+
 class ModerationError extends ErrorPageError {
 
 	/** @var Status Error details */
