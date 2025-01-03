@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ trait ModerationTestsuiteBotResponse {
 
 	/**
 	 * Returns the error string (if any) or null (if the operation was successful).
-	 * @return string|error
+	 * @return string|null
 	 */
 	public function getError() {
 		return $this->error;
