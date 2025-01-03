@@ -52,9 +52,9 @@ class ModerationUpdaterTest extends ModerationUnitTestCase {
 			$this->identicalTo( 'moderation_load' ),
 		)->willReturn( $isIndexUnique );
 
-		$updater->expects( $this->exactly( 2 ) )->method( 'addExtensionTable' )->withConsecutive(
-			[ $this->identicalTo( 'moderation' ), $this->fileExists() ],
-			[ $this->identicalTo( 'moderation_block' ), $this->fileExists() ]
+		$updater->expects( $this->once() )->method( 'addExtensionTable' )->with(
+			$this->identicalTo( 'moderation' ),
+			$this->fileExists()
 		);
 
 		if ( $databaseType === 'mysql' ) {

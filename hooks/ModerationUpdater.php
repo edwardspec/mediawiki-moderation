@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2024 Edward Chernenko.
+	Copyright (C) 2014-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -35,38 +35,36 @@ class ModerationUpdater implements LoadExtensionSchemaUpdatesHook {
 		$db = $updater->getDB();
 		$dbType = $db->getType();
 
-		$sqlDir = __DIR__ . '/../sql' . ( $dbType == 'postgres' ? '/postgres' : '' );
+		$sqlDir = __DIR__ . '/../sql/' . $updater->getDB()->getType();
 
 		/* Main database schema */
 		$updater->addExtensionTable( 'moderation',
-			"$sqlDir/patch-moderation.sql" );
-		$updater->addExtensionTable( 'moderation_block',
-			"$sqlDir/patch-moderation_block.sql" );
+			"$sqlDir/tables-generated.sql" );
 
 		/* DB changes needed when updating Moderation from its previous version */
 		if ( $dbType == 'postgres' ) {
 			// PostgreSQL support was added in Moderation 1.4.12,
 			// there were no schema changes since then.
-		} else {
+		} elseif ( $dbType == 'mysql' ) {
 			// ... to Moderation 1.1.29
 			$updater->addExtensionField( 'moderation', 'mod_tags',
-				"$sqlDir/patch-moderation-mod_tags.sql" );
+				"$sqlDir/../mysql/patch-moderation-mod_tags.sql" );
 
 			// ... to Moderation 1.1.31
 			$updater->modifyExtensionField( 'moderation', 'mod_title',
-				"$sqlDir/patch-fix-titledbkey.sql" );
+				"$sqlDir/../mysql/patch-fix-titledbkey.sql" );
 
 			// ... to Moderation 1.2.9
 			if ( $db->tableExists( 'moderation', __METHOD__ ) &&
 				!$db->indexUnique( 'moderation', 'moderation_load', __METHOD__ )
 			) {
 				$updater->addExtensionUpdate( [ 'applyPatch',
-					"$sqlDir/patch-make-preload-unique.sql", true ] );
+					"$sqlDir/../mysql/patch-make-preload-unique.sql", true ] );
 			}
 
 			// ... to Moderation 1.2.17
 			$updater->addExtensionField( 'moderation', 'mod_type',
-				"$sqlDir/patch-moderation-mod_type.sql" );
+				"$sqlDir/../mysql/patch-moderation-mod_type.sql" );
 		}
 
 		// Workaround for T258159 (extension-provided services are not loaded during the Web Updater,
