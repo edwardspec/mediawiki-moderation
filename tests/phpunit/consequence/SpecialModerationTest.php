@@ -20,9 +20,21 @@
  * Unit test of SpecialModeration.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use DerivativeContext;
+use ErrorPageError;
+use FauxRequest;
+use IContextSource;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\ModerationEntryFormatter;
+use OutputPage;
+use PermissionsError;
+use QueryPage;
+use RequestContext;
+use Skin;
+use Title;
 use Wikimedia\Rdbms\FakeResultWrapper;
 use Wikimedia\TestingAccessWrapper;
 

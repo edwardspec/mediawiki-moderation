@@ -20,6 +20,8 @@
  * Performs editing methods of the testsuite (edit/upload/move) via API.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 class ModerationTestsuiteApiBot extends ModerationTestsuiteBot {
 	/**
 	 * Make an edit via API.

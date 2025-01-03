@@ -20,6 +20,10 @@
  * Basic interface of sending requests (HTTP or API) to MediaWiki.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use User;
+
 interface IModerationTestsuiteEngine {
 	/**
 	 * Perform API request and return the resulting structure.

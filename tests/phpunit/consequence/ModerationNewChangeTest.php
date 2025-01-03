@@ -20,6 +20,13 @@
  * Unit test of ModerationNewChange.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use Content;
+use ContentHandler;
+use ExtensionRegistry;
+use FauxRequest;
+use Language;
 use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Extension\AbuseFilter\ChangeTags\ChangeTagger;
 use MediaWiki\Moderation\Hook\HookRunner;
@@ -32,7 +39,12 @@ use MediaWiki\Moderation\ModerationPreload;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
 use MediaWiki\Revision\RevisionRecord;
+use RecentChange;
+use Title;
+use User;
 use Wikimedia\TestingAccessWrapper;
+use WikiPage;
+use WikitextContent;
 
 require_once __DIR__ . "/autoload.php";
 

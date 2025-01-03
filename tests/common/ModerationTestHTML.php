@@ -20,6 +20,14 @@
  * Implements HTML parsing methods for the automated testsuite.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use DOMDocument;
+use DOMElement;
+use DOMNode;
+use DOMNodeList;
+use DomXpath;
+
 class ModerationTestHTML extends DOMDocument {
 
 	/**
@@ -120,7 +128,7 @@ class ModerationTestHTML extends DOMDocument {
 
 	/**
 	 * Returns HTML element of the main text of the page.
-	 * @return DomElement|null
+	 * @return DOMElement|null
 	 */
 	public function getMainContent() {
 		return $this->getElementById( 'mw-content-text' );
@@ -208,10 +216,10 @@ class ModerationTestHTML extends DOMDocument {
 
 	/**
 	 * Return the array of <input> elements in the form (name => value).
-	 * @param DomElement|null $formElement
-	 * @return DomElement[]
+	 * @param DOMElement|null $formElement
+	 * @return DOMElement[]
 	 */
-	public function getFormElements( DomElement $formElement = null ) {
+	public function getFormElements( DOMElement $formElement = null ) {
 		if ( !$formElement ) {
 			$formElement = $this;
 		}

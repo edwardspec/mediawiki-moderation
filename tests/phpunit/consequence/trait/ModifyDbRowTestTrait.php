@@ -20,9 +20,13 @@
  * Trait with makeDbRow() that creates 1 row in "moderation" table and returns its mod_id.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\ModerationNewChange;
+use TestUser;
+use User;
 
 /**
  * @method TestUser getTestUser($groups=null)

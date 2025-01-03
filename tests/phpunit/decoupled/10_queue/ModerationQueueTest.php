@@ -20,11 +20,21 @@
  * Checks SQL table 'moderation' after the edit.
  */
 
-require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
+namespace MediaWiki\Moderation\Tests;
 
+use ContentHandler;
+use IDBAccessObject;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\ModerationUploadStorage;
+use ParserOptions;
+use ReflectionClass;
+use SpecialPage;
+use Title;
+use UnexpectedValueException;
+use User;
+
+require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 
 /**
  * @group Database

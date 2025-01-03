@@ -20,6 +20,8 @@
  * Unit test of MarkAsMergedConsequence.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\MarkAsMergedConsequence;
 
 require_once __DIR__ . "/autoload.php";

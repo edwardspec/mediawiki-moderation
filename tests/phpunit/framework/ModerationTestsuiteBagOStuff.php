@@ -20,6 +20,11 @@
  * Selectively cleanable BagOStuff. Used for parallel PHPUnit testing.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use HashBagOStuff;
+use MediaWiki\Session\SessionManager;
+use MediumSpecificBagOStuff;
 use Wikimedia\ObjectCache\HashBagOStuff as HashBagOStuff43;
 
 if ( !class_exists( 'HashBagOStuff' ) ) {
@@ -94,7 +99,7 @@ class ModerationTestsuiteBagOStuff extends MediumSpecificBagOStuff {
 		// SessionManager also uses register_shutdown_function() to save all active sessions,
 		// and it's possible that SessionManager's shutdown handler would get called later.
 		// So we must call save() explicitly to place session data info self::$store immediately.
-		$session = MediaWiki\Session\SessionManager::getGlobalSession();
+		$session = SessionManager::getGlobalSession();
 		$session->save();
 
 		file_put_contents( self::defaultFileName(), serialize( self::$store ) );

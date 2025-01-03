@@ -20,9 +20,18 @@
  * Unit test of ModerationNotifyModerator.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use BagOStuff;
+use HashBagOStuff;
+use IContextSource;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\ModerationNotifyModerator;
+use OutputPage;
+use RawMessage;
+use Title;
+use User;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";

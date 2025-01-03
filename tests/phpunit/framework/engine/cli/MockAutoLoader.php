@@ -20,6 +20,8 @@
  * Intercepts header() calls in PHP CLI.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 class ModerationTestsuiteMockAutoLoader {
 
 	protected const NOMOCK_CACHE_FILENAME = '.NOMOCK_CACHE.mocked.php';

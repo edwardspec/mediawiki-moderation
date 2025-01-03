@@ -20,8 +20,11 @@
  * Unit test of UnblockUserConsequence.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\UnblockUserConsequence;
+use User;
 use Wikimedia\IPUtils;
 
 require_once __DIR__ . "/autoload.php";

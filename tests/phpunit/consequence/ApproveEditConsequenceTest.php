@@ -20,9 +20,15 @@
  * Unit test of ApproveEditConsequence.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use IDBAccessObject;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ApproveEditConsequence;
 use MediaWiki\Revision\SlotRecord;
+use RecentChange;
+use Title;
+use User;
 
 require_once __DIR__ . "/autoload.php";
 

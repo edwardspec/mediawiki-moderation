@@ -20,6 +20,8 @@
  * Unit test of MarkAsConflictConsequence.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\MarkAsConflictConsequence;
 
 require_once __DIR__ . "/autoload.php";

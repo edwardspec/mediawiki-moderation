@@ -20,8 +20,16 @@
  * Trait for tests that need an UploadBase object which can be used for performUpload() calls.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use CURLFile;
+use FauxRequest;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationUploadStorage;
+use RequestContext;
+use Title;
+use UploadBase;
+use UploadFromFile;
 
 /**
  * @codingStandardsIgnoreStart

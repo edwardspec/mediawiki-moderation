@@ -20,6 +20,8 @@
  * Ensures that reverting image to old revision doesn't bypass Moderation.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**

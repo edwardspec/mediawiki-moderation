@@ -20,6 +20,10 @@
  * Verifies that modaction=show works as expected.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use DomElement;
+
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**

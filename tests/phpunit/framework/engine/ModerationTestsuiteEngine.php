@@ -24,9 +24,14 @@
  * but it's no longer possible in modern MediaWiki (which isolates tests from the real database).
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use FormatJson;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\ModerationVersionCheck;
+use MWException;
+use User;
 
 abstract class ModerationTestsuiteEngine implements IModerationTestsuiteEngine {
 

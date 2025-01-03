@@ -20,9 +20,12 @@
  * Verifies that renaming a page has consequences.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationCanSkip;
 use MediaWiki\Moderation\QueueMoveConsequence;
+use Title;
 
 require_once __DIR__ . "/autoload.php";
 

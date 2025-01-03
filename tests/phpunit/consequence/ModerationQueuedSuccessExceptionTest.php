@@ -20,7 +20,12 @@
  * Unit test of ModerationQueuedSuccessException.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use ErrorPageError;
 use MediaWiki\Moderation\ModerationQueuedSuccessException;
+use RequestContext;
+use Title;
 
 require_once __DIR__ . "/autoload.php";
 

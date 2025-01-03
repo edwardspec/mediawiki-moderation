@@ -20,6 +20,10 @@
  * Verifies that moderators see "New changes await moderation" notice.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use Title;
+
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**

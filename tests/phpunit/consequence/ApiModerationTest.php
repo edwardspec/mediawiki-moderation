@@ -20,6 +20,11 @@
  * Unit test of ApiModeration.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use ApiMain;
+use ApiTestCase;
+use ApiUsageException;
 use MediaWiki\Moderation\ActionFactory;
 use MediaWiki\Moderation\ApiModeration;
 use MediaWiki\Moderation\ModerationError;

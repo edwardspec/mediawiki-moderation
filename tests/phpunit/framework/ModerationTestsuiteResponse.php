@@ -20,6 +20,10 @@
  * HTTP response to be analyzed by tests. Made from FauxResponse and content.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use FauxResponse;
+
 class ModerationTestsuiteResponse implements IModerationTestsuiteResponse {
 
 	/** @var string Response text */

@@ -20,10 +20,14 @@
  * Unit test of ApproveUploadConsequence.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use File;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ApproveUploadConsequence;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\ModerationUploadStorage;
+use Title;
 
 require_once __DIR__ . "/autoload.php";
 

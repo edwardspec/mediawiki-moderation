@@ -19,7 +19,13 @@
  * @file
  * Logger used by Moderation testsuite to dump the log of HTTP requests related to the failed test.
  */
-class ModerationTestsuiteLogger extends MediaWiki\Logger\LegacyLogger {
+
+namespace MediaWiki\Moderation\Tests;
+
+use FormatJson;
+use MediaWiki\Logger\LegacyLogger;
+
+class ModerationTestsuiteLogger extends LegacyLogger {
 	/**
 	 * @var string
 	 * This name is mentioned by printBuffer() to avoid confusion "which test printed what".

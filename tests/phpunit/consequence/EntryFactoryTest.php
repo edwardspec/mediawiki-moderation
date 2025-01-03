@@ -20,6 +20,9 @@
  * Unit test of EntryFactory.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use IContextSource;
 use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
@@ -38,6 +41,7 @@ use MediaWiki\Moderation\ModerationViewableEntry;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\TimestampTools;
 use MediaWiki\Revision\RevisionLookup;
+use Title;
 
 require_once __DIR__ . "/autoload.php";
 

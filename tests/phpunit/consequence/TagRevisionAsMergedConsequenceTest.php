@@ -20,7 +20,10 @@
  * Unit test of TagRevisionAsMergedConsequence.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
+use Title;
 
 require_once __DIR__ . "/autoload.php";
 

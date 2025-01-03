@@ -20,12 +20,20 @@
  * Unit test of ModerationEntryFormatter.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use ChangesList;
+use IContextSource;
+use Linker;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\ModerationCanSkip;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\ModerationEntryFormatter;
 use MediaWiki\Moderation\TimestampTools;
+use RequestContext;
+use stdClass;
+use Title;
 
 require_once __DIR__ . "/autoload.php";
 

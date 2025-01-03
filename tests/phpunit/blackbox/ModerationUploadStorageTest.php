@@ -20,10 +20,15 @@
  * Ensures that ModerationUploadStorage works for existing uploads and new uploads.
  */
 
-require_once __DIR__ . "/../framework/ModerationTestsuite.php";
+namespace MediaWiki\Moderation\Tests;
 
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\ModerationUploadStorage;
+use UploadStash;
+use User;
+use Wikimedia\TestingAccessWrapper;
+
+require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
  * @group Database
@@ -77,7 +82,7 @@ class ModerationUploadStorageTest extends ModerationTestCase {
 		$stash = ModerationUploadStorage::getStash();
 		$this->assertInstanceOf( UploadStash::class, $stash );
 
-		$stashAccessWrapper = Wikimedia\TestingAccessWrapper::newFromObject( $stash );
+		$stashAccessWrapper = TestingAccessWrapper::newFromObject( $stash );
 		$stashOwner = $stashAccessWrapper->user;
 
 		$this->assertEquals( ModerationUploadStorage::USERNAME, $stashOwner->getName() );

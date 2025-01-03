@@ -20,8 +20,18 @@
  * Unit test of ModerationLogFormatter.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use DOMElement;
+use Linker;
+use LogFormatter;
+use ManualLogEntry;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
+use SpecialPage;
+use Title;
+use User;
+use WebRequest;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";

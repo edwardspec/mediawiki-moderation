@@ -20,9 +20,14 @@
  * Unit test of ModerationEntryUpload.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\ApproveUploadConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\ModerationEntryUpload;
+use Status;
+use Title;
+use User;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";

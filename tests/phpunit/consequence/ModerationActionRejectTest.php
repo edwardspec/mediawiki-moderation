@@ -20,12 +20,16 @@
  * Unit test of ModerationActionReject.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use FauxRequest;
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\ModerationActionReject;
 use MediaWiki\Moderation\ModerationError;
 use MediaWiki\Moderation\RejectAllConsequence;
 use MediaWiki\Moderation\RejectOneConsequence;
+use Title;
 
 require_once __DIR__ . "/autoload.php";
 

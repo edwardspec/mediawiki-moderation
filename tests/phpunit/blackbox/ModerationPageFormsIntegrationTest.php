@@ -20,6 +20,10 @@
  * Verifies compatibility with Extension:PageForms.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use SpecialPage;
+
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**

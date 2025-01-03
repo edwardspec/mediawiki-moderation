@@ -20,7 +20,10 @@
  * Unit test of ModerationBlockCheck.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\ModerationBlockCheck;
+use User;
 
 require_once __DIR__ . "/autoload.php";
 

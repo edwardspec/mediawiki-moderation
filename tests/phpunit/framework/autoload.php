@@ -20,36 +20,36 @@
  * List of testsuite-related classes for MediaWiki Autoloader.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 global $wgAutoloadClasses;
 
 // phpcs:disable Generic.Files.LineLength
 $wgAutoloadClasses += [
 	/* Common test/benchmark methods */
-	'ModerationTestHTML' => __DIR__ . '/../../common/ModerationTestHTML.php',
-	'ModerationTestUtil' => __DIR__ . '/../../common/ModerationTestUtil.php',
-	'ModerationTempUserTestTrait' => __DIR__ . '/../../common/trait/ModerationTempUserTestTrait.php',
+	ModerationTestHTML::class => __DIR__ . '/../../common/ModerationTestHTML.php',
+	ModerationTestUtil::class => __DIR__ . '/../../common/ModerationTestUtil.php',
+	ModerationTempUserTestTrait::class => __DIR__ . '/../../common/trait/ModerationTempUserTestTrait.php',
 
 	/* Moderation Testsuite framework */
-	'IModerationTestsuiteEngine' => __DIR__ . '/engine/IModerationTestsuiteEngine.php',
-	'IModerationTestsuiteResponse' => __DIR__ . '/IModerationTestsuiteResponse.php',
-	'ModerationTestsuiteBagOStuff' => __DIR__ . '/ModerationTestsuiteBagOStuff.php',
-	'ModerationPendingChangeTestSet' => __DIR__ . '/ModerationPendingChangeTestSet.php',
-	'ModerationTestCase' => __DIR__ . '/ModerationTestCase.php',
-	'ModerationTestSetRegex' => __DIR__ . '/ModerationTestSetRegex.php',
-	'ModerationTestsuiteApiBot' => __DIR__ . '/bot/ModerationTestsuiteApiBot.php',
-	'ModerationTestsuiteApiBotResponse' => __DIR__ . '/bot/response/ModerationTestsuiteApiBotResponse.php',
-	'ModerationTestsuiteBot' => __DIR__ . '/bot/ModerationTestsuiteBot.php',
-	'ModerationTestsuiteBotResponse' => __DIR__ . '/bot/response/ModerationTestsuiteBotResponseTrait.php',
-	'ModerationTestsuiteEngine' => __DIR__ . '/engine/ModerationTestsuiteEngine.php',
-	'ModerationTestsuiteCliEngine' => __DIR__ . '/engine/cli/ModerationTestsuiteCliEngine.php',
-	'ModerationTestsuiteEntry' => __DIR__ . '/ModerationTestsuiteEntry.php',
-	'ModerationTestsuiteHTML' => __DIR__ . '/ModerationTestsuiteHTML.php',
-	'ModerationTestsuiteLogger' => __DIR__ . '/ModerationTestsuiteLogger.php',
-	'ModerationTestsuiteNonApiBot' => __DIR__ . '/bot/ModerationTestsuiteNonApiBot.php',
-	'ModerationTestsuiteNonApiBotResponse' => __DIR__ . '/bot/response/ModerationTestsuiteNonApiBotResponse.php',
-	'ModerationTestsuitePendingChangeTestSet' => __DIR__ . '/ModerationPendingChangeTestSet.php',
-	'ModerationTestsuiteResponse' => __DIR__ . '/ModerationTestsuiteResponse.php',
-	'ModerationTestsuiteTestSet' => __DIR__ . '/ModerationTestSet.php',
-	'ModerationTestsuiteTestSetRegex' => __DIR__ . '/ModerationTestSetRegex.php'
+	IModerationTestsuiteEngine::class => __DIR__ . '/engine/IModerationTestsuiteEngine.php',
+	IModerationTestsuiteResponse::class => __DIR__ . '/IModerationTestsuiteResponse.php',
+	ModerationTestsuiteBagOStuff::class => __DIR__ . '/ModerationTestsuiteBagOStuff.php',
+	ModerationTestCase::class => __DIR__ . '/ModerationTestCase.php',
+	ModerationTestSetRegex::class => __DIR__ . '/ModerationTestSetRegex.php',
+	ModerationTestsuiteApiBot::class => __DIR__ . '/bot/ModerationTestsuiteApiBot.php',
+	ModerationTestsuiteApiBotResponse::class => __DIR__ . '/bot/response/ModerationTestsuiteApiBotResponse.php',
+	ModerationTestsuiteBot::class => __DIR__ . '/bot/ModerationTestsuiteBot.php',
+	ModerationTestsuiteBotResponse::class => __DIR__ . '/bot/response/ModerationTestsuiteBotResponseTrait.php',
+	ModerationTestsuiteEngine::class => __DIR__ . '/engine/ModerationTestsuiteEngine.php',
+	ModerationTestsuiteCliEngine::class => __DIR__ . '/engine/cli/ModerationTestsuiteCliEngine.php',
+	ModerationTestsuiteEntry::class => __DIR__ . '/ModerationTestsuiteEntry.php',
+	ModerationTestsuiteHTML::class => __DIR__ . '/ModerationTestsuiteHTML.php',
+	ModerationTestsuiteLogger::class => __DIR__ . '/ModerationTestsuiteLogger.php',
+	ModerationTestsuiteNonApiBot::class => __DIR__ . '/bot/ModerationTestsuiteNonApiBot.php',
+	ModerationTestsuiteNonApiBotResponse::class => __DIR__ . '/bot/response/ModerationTestsuiteNonApiBotResponse.php',
+	ModerationTestsuitePendingChangeTestSet::class => __DIR__ . '/ModerationPendingChangeTestSet.php',
+	ModerationTestsuiteResponse::class => __DIR__ . '/ModerationTestsuiteResponse.php',
+	ModerationTestsuiteTestSet::class => __DIR__ . '/ModerationTestSet.php'
 ];
 // phpcs:enable

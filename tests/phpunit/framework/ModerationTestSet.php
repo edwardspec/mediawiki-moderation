@@ -22,7 +22,13 @@
  * This trait must be included into ModerationTestCase subclasses.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\ModerationCompatTools;
+use MWTimestamp;
+use PHPUnit\Framework\AssertionFailedError;
+use stdClass;
+use Title;
 
 /**
  * @codingStandardsIgnoreStart
@@ -120,7 +126,7 @@ trait ModerationTestsuiteTestSet {
 	/**
 	 * Assert that recent row in 'moderation' SQL table consists of $expectedFields.
 	 * @param array $expectedFields Key-value list of all mod_* fields.
-	 * @throws PHPUnit\Framework\AssertionFailedError
+	 * @throws AssertionFailedError
 	 * @return stdClass $row
 	 */
 	protected function assertRowEquals( array $expectedFields ) {

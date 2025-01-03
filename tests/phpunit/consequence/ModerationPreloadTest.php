@@ -20,12 +20,18 @@
  * Unit test of ModerationPreload.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use Article;
+use EditPage;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\EntryFactory;
-use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\ModerationPreload;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
+use RequestContext;
+use Title;
+use User;
 use Wikimedia\IPUtils;
 
 require_once __DIR__ . "/autoload.php";

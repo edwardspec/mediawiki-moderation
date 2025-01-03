@@ -20,11 +20,14 @@
  * Unit test of ModerationCanSkip.
  */
 
-require_once __DIR__ . "/autoload.php";
+namespace MediaWiki\Moderation\Tests;
 
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Moderation\ModerationApproveHook;
 use MediaWiki\Moderation\ModerationCanSkip;
+use User;
+
+require_once __DIR__ . "/autoload.php";
 
 class ModerationCanSkipTest extends ModerationUnitTestCase {
 	/**

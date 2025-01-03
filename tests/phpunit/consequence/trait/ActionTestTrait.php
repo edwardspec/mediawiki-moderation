@@ -20,6 +20,9 @@
  * Trait that helps to create ModerationAction object with all mocked dependencies.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use Language;
 use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
@@ -27,6 +30,9 @@ use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\ModerationAction;
 use MediaWiki\Moderation\ModerationCanSkip;
 use MediaWiki\Revision\RevisionRenderer;
+use ReadOnlyMode;
+use RepoGroup;
+use RequestContext;
 
 /**
  * @method static \PHPUnit\Framework\MockObject\Rule\InvokedCount never()

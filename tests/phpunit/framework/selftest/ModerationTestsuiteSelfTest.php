@@ -22,6 +22,8 @@
  * Used for debugging subclasses of ModerationTestsuiteEngine.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 require_once __DIR__ . "/../ModerationTestsuite.php";
 
 /**

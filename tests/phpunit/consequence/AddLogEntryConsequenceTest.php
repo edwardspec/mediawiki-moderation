@@ -20,9 +20,15 @@
  * Unit test of AddLogEntryConsequence.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use DatabaseLogEntry;
+use ManualLogEntry;
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ModerationApproveHook;
 use MediaWiki\Moderation\ModerationCompatTools;
+use Title;
+use User;
 
 require_once __DIR__ . "/autoload.php";
 

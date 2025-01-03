@@ -20,6 +20,8 @@
  * Unit test of GiveAnonChangesToNewUserConsequence.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence;
 use MediaWiki\Moderation\ModerationCompatTools;
 

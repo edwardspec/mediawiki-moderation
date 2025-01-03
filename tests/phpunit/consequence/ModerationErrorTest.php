@@ -20,9 +20,15 @@
  * Unit test of ModerationError.
  */
 
-require_once __DIR__ . "/autoload.php";
+namespace MediaWiki\Moderation\Tests;
 
+use ErrorPageError;
 use MediaWiki\Moderation\ModerationError;
+use RequestContext;
+use Status;
+use Title;
+
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database

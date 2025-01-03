@@ -20,6 +20,12 @@
  * Unit test of ModerationViewableEntry.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use ContentHandler;
+use DerivativeContext;
+use DifferenceEngine;
+use IContextSource;
 use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\MediaWikiServices;
@@ -29,6 +35,10 @@ use MediaWiki\Moderation\ModerationViewableEntry;
 use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
+use Parser;
+use RequestContext;
+use SpecialPage;
+use Title;
 
 require_once __DIR__ . "/autoload.php";
 

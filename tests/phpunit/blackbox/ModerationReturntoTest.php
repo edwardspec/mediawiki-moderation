@@ -18,6 +18,8 @@
  * @file
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**

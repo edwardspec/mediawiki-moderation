@@ -20,7 +20,14 @@
  * Methods to parse/analyze single entry on Special:Moderation.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use DomElement;
+use DOMText;
 use MediaWiki\Moderation\ModerationCompatTools;
+use MWException;
+use UnexpectedValueException;
+use User;
 
 /**
  * @class ModerationTestsuiteEntry

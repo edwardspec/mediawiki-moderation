@@ -20,12 +20,18 @@
  * Unit test of ModerationActionEditChange.
  */
 
-require_once __DIR__ . "/autoload.php";
+namespace MediaWiki\Moderation\Tests;
 
+use EditPage;
+use FauxRequest;
 use MediaWiki\Moderation\ModerationActionEditChange;
 use MediaWiki\Moderation\ModerationEditChangePage;
 use MediaWiki\Moderation\ModerationError;
 use MediaWiki\Moderation\ModerationNewChange;
+use OutputPage;
+use Title;
+
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database

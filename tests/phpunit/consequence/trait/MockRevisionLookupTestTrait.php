@@ -20,9 +20,13 @@
  * Trait that helps to mock the result of RevisionLookup::getRevisionById()
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Revision\MutableRevisionRecord;
 use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Revision\SlotRecord;
+use TextContent;
+use Title;
 
 /**
  * @method static \PHPUnit\Framework\MockObject\Rule\AnyInvokedCount any()

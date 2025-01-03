@@ -20,9 +20,10 @@
  * Subclass of MediaWikiIntegrationTestCase that is used for Consequence tests. (NOT for blackbox tests)
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\IConsequence;
-use MediaWiki\Moderation\IsConsequenceEqual;
-use MediaWiki\Moderation\MockConsequenceManager;
+use MediaWikiIntegrationTestCase;
 
 class ModerationUnitTestCase extends MediaWikiIntegrationTestCase {
 	use ModerationTempUserTestTrait;

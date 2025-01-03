@@ -20,6 +20,8 @@
  * Verifies that modaction=reject(all) works as expected.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**

@@ -20,10 +20,17 @@
  * Unit test of ModerationActionMerge.
  */
 
-require_once __DIR__ . "/autoload.php";
+namespace MediaWiki\Moderation\Tests;
 
+use EditPage;
+use FauxRequest;
 use MediaWiki\Moderation\ModerationActionMerge;
 use MediaWiki\Moderation\ModerationError;
+use OutputPage;
+use Title;
+use User;
+
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database

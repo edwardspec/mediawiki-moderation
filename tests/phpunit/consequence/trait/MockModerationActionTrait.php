@@ -20,9 +20,13 @@
  * Trait that allows to mock ModerationAction object that will be returned by ActionFactory.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use IContextSource;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionFactory;
 use MediaWiki\Moderation\ModerationAction;
+use MWException;
 use Wikimedia\TestingAccessWrapper;
 
 /**

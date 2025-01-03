@@ -20,6 +20,8 @@
  * Unit test of InsertRowIntoModerationTableConsequence.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\RollbackResistantQuery;

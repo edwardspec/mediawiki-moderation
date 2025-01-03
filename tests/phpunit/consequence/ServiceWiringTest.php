@@ -20,6 +20,8 @@
  * Unit test of ServiceWiring.php.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ActionFactory;
 use MediaWiki\Moderation\ActionLinkRenderer;

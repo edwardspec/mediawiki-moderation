@@ -20,7 +20,13 @@
  * Unit test of ModerationEditChangePage and ModerationCompatTools.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use Article;
+use FauxRequest;
 use MediaWiki\Moderation\ModerationEditChangePage;
+use RequestContext;
+use Title;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";

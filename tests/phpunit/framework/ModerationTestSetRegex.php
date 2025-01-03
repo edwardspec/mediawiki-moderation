@@ -20,6 +20,8 @@
  * Regular expression that can be used in TestSet::assertRowEquals() as values of $expectedFields.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 class ModerationTestSetRegex {
 	/**
 	 * @var string

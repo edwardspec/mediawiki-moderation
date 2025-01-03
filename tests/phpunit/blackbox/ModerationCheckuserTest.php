@@ -20,6 +20,10 @@
  * Ensures that checkuser-related functionality works correctly.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use User;
+
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**

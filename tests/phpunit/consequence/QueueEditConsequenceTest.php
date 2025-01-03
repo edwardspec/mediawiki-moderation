@@ -20,6 +20,10 @@
  * Unit test of QueueEditConsequence.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use ContentHandler;
+use IDBAccessObject;
 use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
@@ -28,6 +32,8 @@ use MediaWiki\Moderation\ModerationPreload;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
+use Title;
+use User;
 
 require_once __DIR__ . "/autoload.php";
 

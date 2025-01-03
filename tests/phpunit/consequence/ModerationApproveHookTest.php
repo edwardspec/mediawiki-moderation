@@ -20,11 +20,23 @@
  * Unit test of ModerationApproveHook.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use DeferredUpdates;
+use ExtensionRegistry;
+use IDBAccessObject;
+use LogEntryBase;
+use ManualLogEntry;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationApproveHook;
 use MediaWiki\Moderation\ModerationNewChange;
+use MWException;
 use Psr\Log\NullLogger;
+use RecentChange;
+use TestUser;
+use Title;
+use User;
 use Wikimedia\IPUtils;
 
 require_once __DIR__ . "/autoload.php";

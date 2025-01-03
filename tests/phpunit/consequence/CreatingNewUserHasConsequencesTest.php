@@ -20,10 +20,14 @@
  * Verifies that registering a new user account has consequences.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Auth\AuthManager;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ForgetAnonIdConsequence;
 use MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence;
+use RequestContext;
+use User;
 
 require_once __DIR__ . "/autoload.php";
 

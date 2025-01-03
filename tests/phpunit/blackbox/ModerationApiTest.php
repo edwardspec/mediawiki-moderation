@@ -20,6 +20,10 @@
  * Verifies that modactions work via api.php?action=moderation.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use FormatJson;
+
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**

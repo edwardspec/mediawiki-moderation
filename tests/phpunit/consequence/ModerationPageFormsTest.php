@@ -20,8 +20,14 @@
  * Unit test of ModerationPageForms
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use ExtensionRegistry;
+use FauxRequest;
 use MediaWiki\Moderation\ModerationPageForms;
 use MediaWiki\Moderation\ModerationPreload;
+use RequestContext;
+use Title;
 
 require_once __DIR__ . "/autoload.php";
 

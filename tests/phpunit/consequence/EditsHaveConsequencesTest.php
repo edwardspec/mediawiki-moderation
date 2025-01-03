@@ -20,18 +20,31 @@
  * Verifies that editing a page has consequences.
  */
 
-require_once __DIR__ . "/autoload.php";
+namespace MediaWiki\Moderation\Tests;
 
+use CommentStoreComment;
+use Content;
+use ContentHandler;
+use DummyNonTextContent;
+use DummyNonTextContentHandler;
+use FormatJson;
+use IContextSource;
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\MarkAsMergedConsequence;
-use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\ModerationCanSkip;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
 use MediaWiki\Revision\SlotRecord;
+use RequestContext;
+use Status;
+use Title;
+use User;
+use WikiPage;
+
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database

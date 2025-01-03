@@ -22,6 +22,8 @@
  * Note: unresolvable edit conflicts are tested by ModerationMergeTest.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**

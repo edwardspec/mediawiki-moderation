@@ -20,6 +20,8 @@
  * Unit test of DeleteRowFromModerationTableConsequence.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 
 require_once __DIR__ . "/autoload.php";

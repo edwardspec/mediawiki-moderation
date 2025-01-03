@@ -20,7 +20,10 @@
  * Trait that helps to mock the result of EntryFactory::loadRow().
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\EntryFactory;
+use stdClass;
 
 /**
  * @method static \PHPUnit\Framework\MockObject\Rule\InvokedCount once()

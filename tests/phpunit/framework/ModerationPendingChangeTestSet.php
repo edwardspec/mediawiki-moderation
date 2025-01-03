@@ -20,9 +20,16 @@
  * Basic TestSet for tests which precreate a change that awaits moderation.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use IDBAccessObject;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\ModerationUploadStorage;
 use MediaWiki\Revision\RevisionRecord;
+use MWTimestamp;
+use Title;
+use UnexpectedValueException;
+use User;
 
 trait ModerationTestsuitePendingChangeTestSet {
 	use ModerationTestsuiteTestSet;

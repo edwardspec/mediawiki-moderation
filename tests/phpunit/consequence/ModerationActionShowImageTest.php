@@ -20,10 +20,17 @@
  * Unit test of ModerationActionShowImage.
  */
 
-require_once __DIR__ . "/autoload.php";
+namespace MediaWiki\Moderation\Tests;
 
+use FauxRequest;
+use FileBackend;
+use LocalRepo;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationActionShowImage;
+use MWException;
+use UnregisteredLocalFile;
+
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database

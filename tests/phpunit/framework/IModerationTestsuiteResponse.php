@@ -20,6 +20,8 @@
  * Interface that represents HTTP response.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 interface IModerationTestsuiteResponse {
 
 	/**

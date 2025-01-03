@@ -20,9 +20,16 @@
  * Unit test of ModerationAction.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\ModerationAction;
+use Profiler;
+use ReadOnlyError;
+use RequestContext;
+use SpecialPage;
+use Title;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";

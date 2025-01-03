@@ -20,6 +20,8 @@
  * Checks that user can continue editing their version of the page.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**

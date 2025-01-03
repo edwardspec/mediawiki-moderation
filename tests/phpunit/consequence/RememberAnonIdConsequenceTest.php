@@ -20,7 +20,10 @@
  * Unit test of RememberAnonIdConsequence.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\RememberAnonIdConsequence;
+use RequestContext;
 
 require_once __DIR__ . "/autoload.php";
 

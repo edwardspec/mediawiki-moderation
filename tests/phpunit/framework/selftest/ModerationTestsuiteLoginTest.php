@@ -20,6 +20,8 @@
  * Verifies that ModerationTestsuite can login.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 require_once __DIR__ . "/../ModerationTestsuite.php";
 
 class ModerationTestsuiteLoginTest extends ModerationTestCase {

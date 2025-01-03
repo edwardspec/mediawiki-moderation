@@ -20,9 +20,12 @@
  * Checks how HTML of Special:Moderation is rendered from the 'moderation' SQL table.
  */
 
-require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
+namespace MediaWiki\Moderation\Tests;
 
 use MediaWiki\MediaWikiServices;
+use SpecialPage;
+
+require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 
 /**
  * @group Database

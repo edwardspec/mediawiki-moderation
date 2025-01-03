@@ -20,7 +20,10 @@
  * Unit test of BlockUserConsequence.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\BlockUserConsequence;
+use User;
 
 require_once __DIR__ . "/autoload.php";
 

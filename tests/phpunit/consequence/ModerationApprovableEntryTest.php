@@ -20,6 +20,8 @@
  * Unit test of ModerationApprovableEntry.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\DeleteRowFromModerationTableConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
@@ -28,6 +30,9 @@ use MediaWiki\Moderation\ModerationApproveHook;
 use MediaWiki\Moderation\ModerationError;
 use MediaWiki\Moderation\ModerationNewChange;
 use MediaWiki\Moderation\TimestampTools;
+use Status;
+use Title;
+use User;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";

@@ -20,6 +20,8 @@
  * Trait for classes that represent return value of bot methods edit(), move(), upload().
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 trait ModerationTestsuiteBotResponse {
 
 	/** @var bool */

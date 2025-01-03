@@ -20,6 +20,10 @@
  * ApiMain subclass for testing API requests via CliEngine.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use ApiMain;
+
 class ModerationTestsuiteCliApiMain extends ApiMain {
 
 	public function execute() {

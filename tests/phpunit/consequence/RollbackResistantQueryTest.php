@@ -20,7 +20,10 @@
  * Unit test of RollbackResistantQuery.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\RollbackResistantQuery;
+use stdClass;
 use Wikimedia\Rdbms\IDatabase;
 use Wikimedia\Rdbms\ILoadBalancer;
 

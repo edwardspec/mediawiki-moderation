@@ -20,7 +20,15 @@
  * Testsuite engine that runs index.php/api.php in PHP CLI.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use CURLFile;
+use Exception;
+use FormatJson;
+use LogicException;
 use MediaWiki\Shell\Shell;
+use MWException;
+use User;
 
 class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 

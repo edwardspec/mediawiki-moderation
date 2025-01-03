@@ -20,12 +20,17 @@
  * Unit test of ModerationEntryEdit.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ApproveEditConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\MarkAsConflictConsequence;
 use MediaWiki\Moderation\ModerationEntryEdit;
 use MediaWiki\Moderation\RejectOneConsequence;
+use Status;
+use Title;
+use User;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";

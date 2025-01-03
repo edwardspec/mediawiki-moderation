@@ -20,6 +20,12 @@
  * Performs editing methods of the testsuite (edit/upload/move) NOT via API.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use EditPage;
+use MWException;
+use Title;
+
 class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 	/**
 	 * Make an edit via the usual interface, as real users do.

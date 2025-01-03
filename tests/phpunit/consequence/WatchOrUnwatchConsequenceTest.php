@@ -20,7 +20,12 @@
  * Unit test of WatchOrUnwatchConsequence.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\WatchOrUnwatchConsequence;
+use Title;
+use WatchedItem;
+use WatchedItemStore;
 
 require_once __DIR__ . "/autoload.php";
 

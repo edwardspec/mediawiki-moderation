@@ -20,8 +20,11 @@
  * Verifies that uploading a file has consequences.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\ModerationCanSkip;
 use MediaWiki\Moderation\QueueUploadConsequence;
+use Title;
 
 require_once __DIR__ . "/autoload.php";
 

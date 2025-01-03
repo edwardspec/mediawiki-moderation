@@ -20,6 +20,8 @@
  * Unit test of InvalidatePendingTimeCacheConsequence.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\ModerationNotifyModerator;
 

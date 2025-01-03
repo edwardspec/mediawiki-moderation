@@ -20,11 +20,16 @@
  * Unit test of ModerationActionBlock.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use FauxRequest;
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\ModerationActionBlock;
 use MediaWiki\Moderation\UnblockUserConsequence;
 use PHPUnit\Framework\MockObject\MockObject;
+use Title;
+use User;
 
 require_once __DIR__ . "/autoload.php";
 

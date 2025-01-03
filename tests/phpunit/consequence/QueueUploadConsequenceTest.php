@@ -20,12 +20,19 @@
  * Unit test of QueueUploadConsequence.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use ContentHandler;
+use IDBAccessObject;
 use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\QueueUploadConsequence;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
+use RequestContext;
+use Title;
+use User;
 
 require_once __DIR__ . "/autoload.php";
 

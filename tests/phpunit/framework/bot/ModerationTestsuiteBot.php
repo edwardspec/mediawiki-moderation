@@ -20,6 +20,11 @@
  * Implements testsuite methods edit(), upload() and move().
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use MWException;
+use Title;
+
 abstract class ModerationTestsuiteBot {
 
 	/** @var ModerationTestsuite */

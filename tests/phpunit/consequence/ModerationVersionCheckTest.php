@@ -20,6 +20,11 @@
  * Unit test of ModerationVersionCheck and ModerationCompatTools.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use BagOStuff;
+use EmptyBagOStuff;
+use HashBagOStuff;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationVersionCheck;
 use Wikimedia\Rdbms\DBConnRef;

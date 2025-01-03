@@ -20,11 +20,19 @@
  * Checks consequences of the moderation actions on Special:Moderation.
  */
 
-require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
+namespace MediaWiki\Moderation\Tests;
 
+use ChangeTags;
+use DatabaseLogEntry;
 use MediaWiki\Moderation\ModerationActionShowImage;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\ModerationUploadStorage;
+use MWException;
+use SpecialPage;
+use Title;
+use User;
+
+require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 
 /**
  * @group Database

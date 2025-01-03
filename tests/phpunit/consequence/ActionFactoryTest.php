@@ -20,11 +20,15 @@
  * Unit test of ActionFactory.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use DerivativeContext;
+use FauxRequest;
+use Language;
 use MediaWiki\Moderation\ActionFactory;
 use MediaWiki\Moderation\ActionLinkRenderer;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\EntryFactory;
-use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\ModerationActionApprove;
 use MediaWiki\Moderation\ModerationActionBlock;
 use MediaWiki\Moderation\ModerationActionEditChange;
@@ -37,6 +41,10 @@ use MediaWiki\Moderation\ModerationActionShowImage;
 use MediaWiki\Moderation\ModerationCanSkip;
 use MediaWiki\Moderation\ModerationError;
 use MediaWiki\Revision\RevisionRenderer;
+use ReadOnlyMode;
+use RepoGroup;
+use RequestContext;
+use User;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";

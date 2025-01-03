@@ -20,6 +20,10 @@
  * Subclass of ModerationTestHTML with networking methods like loadUrl(), loadReq(), etc.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use MWException;
+
 class ModerationTestsuiteHTML extends ModerationTestHTML {
 
 	/** @var IModerationTestsuiteEngine|null */

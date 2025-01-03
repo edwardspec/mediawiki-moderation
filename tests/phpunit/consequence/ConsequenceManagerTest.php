@@ -20,6 +20,8 @@
  * Unit test of ConsequenceManager.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\ConsequenceManager;
 use MediaWiki\Moderation\IConsequence;
 

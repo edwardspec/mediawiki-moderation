@@ -20,7 +20,10 @@
  * Unit test of ApproveMoveConsequence.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\ApproveMoveConsequence;
+use Title;
 
 require_once __DIR__ . "/autoload.php";
 

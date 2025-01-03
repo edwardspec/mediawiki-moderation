@@ -20,6 +20,12 @@
  * Subclass of MediaWikiIntegrationTestCase that prints TestsuiteLogger debug messages for failed tests.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use ExtensionRegistry;
+use MediaWikiIntegrationTestCase;
+use Throwable;
+
 class ModerationTestCase extends MediaWikiIntegrationTestCase {
 	use ModerationTempUserTestTrait;
 

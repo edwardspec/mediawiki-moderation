@@ -20,6 +20,9 @@
  * Unit test of ModerationUpdater.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use DatabaseUpdater;
 use MediaWiki\Moderation\ModerationUpdater;
 use MediaWiki\Moderation\ModerationVersionCheck;
 use Wikimedia\Rdbms\IDatabase;

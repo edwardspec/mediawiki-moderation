@@ -20,9 +20,14 @@
  * Unit test of ModerationEntryMove.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\ApproveMoveConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\ModerationEntryMove;
+use Status;
+use Title;
+use User;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";

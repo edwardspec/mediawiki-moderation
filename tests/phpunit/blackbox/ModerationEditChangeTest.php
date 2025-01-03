@@ -21,6 +21,10 @@
  * @note modaction=editchangesubmit is tested in ModerationActionTest.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use SpecialPage;
+
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**

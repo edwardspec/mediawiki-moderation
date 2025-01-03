@@ -22,6 +22,10 @@
  * Behaves like a usual API response array, but also has ModerationTestsuiteBotResponse methods.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use ArrayObject;
+
 class ModerationTestsuiteApiBotResponse extends ArrayObject {
 	use ModerationTestsuiteBotResponse;
 }

@@ -33,6 +33,9 @@ require_once "$IP/LocalSettings.php";
 
 use MediaWiki\Auth\AuthManager;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\Tests\ModerationTestsuiteBagOStuff;
+use MediaWiki\Moderation\Tests\ModerationTestsuiteCliApiMain;
+use MediaWiki\Moderation\Tests\ModerationTestsuiteMockAutoLoader;
 use Wikimedia\Rdbms\DatabaseDomain;
 
 # Replace Memcached with our caching class. This is needed for Parallel PHPUnit testing,
@@ -173,7 +176,7 @@ function wfModerationTestsuiteSetup() {
 	global $wgModerationTestsuiteCliDescriptor, $wgModerationTestsuiteCliUploadData,
 		$wgRequest, $wgAutoloadClasses;
 
-	$wgAutoloadClasses['ModerationTestsuiteCliApiMain'] =
+	$wgAutoloadClasses[ModerationTestsuiteCliApiMain::class] =
 		__DIR__ . '/ModerationTestsuiteCliApiMain.php';
 
 	/*

@@ -20,12 +20,14 @@
  * Polyfill for TempUserTestTrait (which doesn't exist in MediaWiki 1.39-1.41).
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Tests\User\TempUser\TempUserTestTrait;
 
 if ( trait_exists( TempUserTestTrait::class ) ) {
 	// MediaWiki 1.42+
 	// @phan-suppress-next-line PhanRedefineClassAlias
-	class_alias( TempUserTestTrait::class, 'ModerationTempUserTestTrait' );
+	class_alias( TempUserTestTrait::class, ModerationTempUserTestTrait::class );
 } else {
 	// MediaWiki 1.39-1.41.
 	// Temporary accounts weren't enabled by default (or supported by Moderation) before 1.43,

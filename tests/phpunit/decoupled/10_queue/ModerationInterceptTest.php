@@ -20,10 +20,16 @@
  * Checks that automoderated users can bypass moderation and others can't.
  */
 
-require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
+namespace MediaWiki\Moderation\Tests;
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationCompatTools;
+use MWException;
+use Title;
+use UnexpectedValueException;
+use User;
+
+require_once __DIR__ . "/../../framework/ModerationTestsuite.php";
 
 /**
  * @group Database

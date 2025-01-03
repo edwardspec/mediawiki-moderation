@@ -20,12 +20,17 @@
  * Unit test of ModerationActionPreview.
  */
 
-require_once __DIR__ . "/autoload.php";
+namespace MediaWiki\Moderation\Tests;
 
+use FauxRequest;
 use MediaWiki\Moderation\ModerationActionPreview;
 use MediaWiki\Moderation\ModerationViewableEntry;
 use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Revision\RevisionRecord;
+use ParserOutput;
+use Title;
+
+require_once __DIR__ . "/autoload.php";
 
 /**
  * @group Database

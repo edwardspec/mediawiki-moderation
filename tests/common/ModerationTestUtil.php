@@ -20,10 +20,21 @@
  * Utility functions used in both benchmark and PHPUnit Testsuite.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use CommentStoreComment;
+use ContentHandler;
+use FauxRequest;
+use IContextSource;
+use Language;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Revision\MutableRevisionRecord;
 use MediaWiki\Revision\SlotRecord;
+use MediaWikiIntegrationTestCase;
+use RequestContext;
+use Title;
+use User;
 
 class ModerationTestUtil {
 	/**

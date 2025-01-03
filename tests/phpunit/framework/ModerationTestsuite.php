@@ -15,11 +15,20 @@
 	GNU General Public License for more details.
 */
 
-require_once __DIR__ . '/autoload.php';
+namespace MediaWiki\Moderation\Tests;
 
+use CommentStoreComment;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationCompatTools;
+use MediaWikiIntegrationTestCase;
+use MWException;
+use Stringable;
+use TestUser;
+use Title;
+use User;
 use Wikimedia\Rdbms\DBConnRef;
+
+require_once __DIR__ . '/autoload.php';
 
 /**
  * @file

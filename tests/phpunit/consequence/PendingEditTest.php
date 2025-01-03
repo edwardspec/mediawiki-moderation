@@ -20,7 +20,10 @@
  * Unit test of PendingEdit.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 use MediaWiki\Moderation\PendingEdit;
+use Title;
 
 require_once __DIR__ . "/autoload.php";
 

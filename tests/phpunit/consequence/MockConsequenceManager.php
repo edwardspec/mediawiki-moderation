@@ -20,8 +20,10 @@
  * Mocked version of ConsequenceManager for tests. Allows to easily examine queued consequences.
  */
 
-namespace MediaWiki\Moderation;
+namespace MediaWiki\Moderation\Tests;
 
+use MediaWiki\Moderation\IConsequence;
+use MediaWiki\Moderation\IConsequenceManager;
 use MWException;
 
 class MockConsequenceManager implements IConsequenceManager {

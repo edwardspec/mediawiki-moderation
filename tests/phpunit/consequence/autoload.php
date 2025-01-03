@@ -20,21 +20,23 @@
  * List of classes used by Consequence tests (these classes are provided to MediaWiki Autoloader).
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 global $wgAutoloadClasses;
 
 $wgAutoloadClasses += [
-	'ModerationTestHTML' => __DIR__ . '/../../common/ModerationTestHTML.php',
-	'ModerationTestUtil' => __DIR__ . '/../../common/ModerationTestUtil.php',
-	'ModerationTempUserTestTrait' => __DIR__ . '/../../common/trait/ModerationTempUserTestTrait.php',
-	'ActionTestTrait' => __DIR__ . '/trait/ActionTestTrait.php',
-	'MakeEditTestTrait' => __DIR__ . '/trait/MakeEditTestTrait.php',
-	'MockLinkRendererTrait' => __DIR__ . '/trait/MockLinkRendererTrait.php',
-	'MockLoadRowTestTrait' => __DIR__ . '/trait/MockLoadRowTestTrait.php',
-	'MockModerationActionTrait' => __DIR__ . '/trait/MockModerationActionTrait.php',
-	'MockRevisionLookupTestTrait' => __DIR__ . '/trait/MockRevisionLookupTestTrait.php',
-	'MediaWiki\\Moderation\\IsConsequenceEqual' => __DIR__ . '/trait/IsConsequenceEqual.php',
-	'MediaWiki\\Moderation\\MockConsequenceManager' => __DIR__ . '/MockConsequenceManager.php',
-	'ModerationUnitTestCase' => __DIR__ . '/ModerationUnitTestCase.php',
-	'ModifyDbRowTestTrait' => __DIR__ . '/trait/ModifyDbRowTestTrait.php',
-	'UploadTestTrait' => __DIR__ . '/trait/UploadTestTrait.php',
+	ModerationTestHTML::class => __DIR__ . '/../../common/ModerationTestHTML.php',
+	ModerationTestUtil::class => __DIR__ . '/../../common/ModerationTestUtil.php',
+	ModerationTempUserTestTrait::class => __DIR__ . '/../../common/trait/ModerationTempUserTestTrait.php',
+	ActionTestTrait::class => __DIR__ . '/trait/ActionTestTrait.php',
+	MakeEditTestTrait::class => __DIR__ . '/trait/MakeEditTestTrait.php',
+	MockLinkRendererTrait::class => __DIR__ . '/trait/MockLinkRendererTrait.php',
+	MockLoadRowTestTrait::class => __DIR__ . '/trait/MockLoadRowTestTrait.php',
+	MockModerationActionTrait::class => __DIR__ . '/trait/MockModerationActionTrait.php',
+	MockRevisionLookupTestTrait::class => __DIR__ . '/trait/MockRevisionLookupTestTrait.php',
+	IsConsequenceEqual::class => __DIR__ . '/trait/IsConsequenceEqual.php',
+	MockConsequenceManager::class => __DIR__ . '/MockConsequenceManager.php',
+	ModerationUnitTestCase::class => __DIR__ . '/ModerationUnitTestCase.php',
+	ModifyDbRowTestTrait::class => __DIR__ . '/trait/ModifyDbRowTestTrait.php',
+	UploadTestTrait::class => __DIR__ . '/trait/UploadTestTrait.php',
 ];

@@ -20,9 +20,17 @@
  * Unit test of EditFormOptions.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use Article;
+use EditPage;
+use FauxRequest;
 use MediaWiki\Moderation\EditFormOptions;
-use MediaWiki\Moderation\MockConsequenceManager;
 use MediaWiki\Moderation\WatchOrUnwatchConsequence;
+use RequestContext;
+use SpecialPage;
+use Title;
+use User;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";

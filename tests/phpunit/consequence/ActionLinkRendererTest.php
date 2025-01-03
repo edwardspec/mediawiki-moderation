@@ -20,8 +20,14 @@
  * Unit test of ActionLinkRenderer.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use IContextSource;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
+use RawMessage;
+use Title;
+use User;
 
 require_once __DIR__ . "/autoload.php";
 

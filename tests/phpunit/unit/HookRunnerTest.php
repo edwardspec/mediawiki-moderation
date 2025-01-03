@@ -20,11 +20,13 @@
  * Unit test of HookRunner class.
  */
 
-// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
-// @phan-file-suppress PhanRedefineClass
+namespace MediaWiki\Moderation\Tests;
 
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Tests\HookContainer\HookRunnerTestBase;
+
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+// @phan-file-suppress PhanRedefineClass
 
 if ( method_exists( HookRunnerTestBase::class, 'provideHookRunnersStatically' ) ) {
 	// MediaWiki 1.41+

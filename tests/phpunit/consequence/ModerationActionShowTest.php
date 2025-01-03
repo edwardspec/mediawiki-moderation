@@ -20,8 +20,12 @@
  * Unit test of ModerationActionShow.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use FauxRequest;
 use MediaWiki\Moderation\ModerationActionShow;
 use MediaWiki\Moderation\ModerationViewableEntry;
+use Title;
 
 require_once __DIR__ . "/autoload.php";
 

@@ -20,7 +20,13 @@
  * Unit test of TimestampTools.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use IContextSource;
+use Language;
 use MediaWiki\Moderation\TimestampTools;
+use MWTimestamp;
+use User;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";

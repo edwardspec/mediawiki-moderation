@@ -20,9 +20,16 @@
  * Unit test of ModerationApiHooks.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use ApiMain;
+use ApiUsageException;
+use FauxRequest;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationPreload;
 use MediaWiki\Moderation\PendingEdit;
+use RequestContext;
+use Title;
 
 require_once __DIR__ . "/autoload.php";
 

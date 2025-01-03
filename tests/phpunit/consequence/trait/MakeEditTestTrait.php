@@ -20,8 +20,14 @@
  * Trait that provides makeEdit() for quickly precreating pages.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use CommentStoreComment;
+use ContentHandler;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Revision\SlotRecord;
+use Title;
+use User;
 
 /**
  * @method static void assertTrue($a, string $message='')

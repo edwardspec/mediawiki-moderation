@@ -20,9 +20,11 @@
  * PHPUnit constraint to compare Consequence objects, as expected by assertThat() checks.
  */
 
-namespace MediaWiki\Moderation;
+namespace MediaWiki\Moderation\Tests;
 
 use FormatJson;
+use MediaWiki\Moderation\IConsequence;
+use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;

@@ -20,10 +20,22 @@
  * Unit test of various hooks like onwgQueryPages that are not covered by other tests.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use ApiMain;
+use ApiUsageException;
+use Article;
+use ChangeTags;
+use EditPage;
+use FauxRequest;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\ModerationCanSkip;
 use MediaWiki\Moderation\SpecialModeration;
+use QueryPage;
+use RequestContext;
+use Status;
+use Title;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";

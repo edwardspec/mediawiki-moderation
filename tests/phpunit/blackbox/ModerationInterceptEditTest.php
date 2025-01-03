@@ -20,6 +20,8 @@
  * Ensures that edits are intercepted by Extension:Moderation.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**

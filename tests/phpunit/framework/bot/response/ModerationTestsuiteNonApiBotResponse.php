@@ -22,6 +22,8 @@
  * Behaves like ModerationTestsuiteResponse, but also has ModerationTestsuiteBotResponse methods.
  */
 
+namespace MediaWiki\Moderation\Tests;
+
 class ModerationTestsuiteNonApiBotResponse implements IModerationTestsuiteResponse {
 	use ModerationTestsuiteBotResponse;
 
