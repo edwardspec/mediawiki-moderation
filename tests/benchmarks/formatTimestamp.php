@@ -17,15 +17,19 @@
 
 /**
  * @file
- * Benchmark: how fast is TimestampTools)?
+ * Benchmark: how fast is TimestampTools::format()?
  *
  * Usage:
- *	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/formatTimestamp.php
+ *	php maintenance/run.php `pwd`/extensions/Moderation/tests/benchmarks/formatTimestamp.php
  */
 
-require_once __DIR__ . '/ModerationBenchmark.php';
+namespace MediaWiki\Moderation\Tests;
 
+use IContextSource;
 use MediaWiki\Moderation\TimestampTools;
+use RequestContext;
+
+require_once __DIR__ . '/ModerationBenchmark.php';
 
 class BenchmarkFormatTimestamp extends ModerationBenchmark {
 

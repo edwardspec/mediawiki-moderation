@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,13 +20,17 @@
  * Benchmark: how fast are moves queued for moderation?
  *
  * Usage:
- *	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/queueMove.php
+ *	php maintenance/run.php `pwd`/extensions/Moderation/tests/benchmarks/queueMove.php
  */
 
-require_once __DIR__ . '/ModerationBenchmark.php';
+namespace MediaWiki\Moderation\Tests;
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\MovePageFactory;
+use Title;
+use Wikimedia\Assert\Assert;
+
+require_once __DIR__ . '/ModerationBenchmark.php';
 
 class BenchmarkQueueMove extends ModerationBenchmark {
 	/** @var MovePageFactory */
@@ -70,12 +74,12 @@ class BenchmarkQueueMove extends ModerationBenchmark {
 		);
 		$status = $mp->move( $this->getUser(), 'Reason for moving #' . $i );
 
-		Wikimedia\Assert\Assert::postcondition(
+		Assert::postcondition(
 			( $status->getMessage()->getKey() == 'moderation-move-queued' ),
 			'Move not queued'
 		);
 	}
 }
 
-$maintClass = 'BenchmarkQueueMove';
+$maintClass = BenchmarkQueueMove::class;
 require RUN_MAINTENANCE_IF_MAIN;

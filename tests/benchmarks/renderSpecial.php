@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,8 +20,10 @@
  * Benchmark: how fast is HTML of Special:Moderation generated?
  *
  * Usage:
- *	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/renderSpecial.php
+ *	php maintenance/run.php `pwd`/extensions/Moderation/tests/benchmarks/renderSpecial.php
  */
+
+namespace MediaWiki\Moderation\Tests;
 
 require_once __DIR__ . '/ModerationBenchmark.php';
 
@@ -67,5 +69,5 @@ class BenchmarkRenderSpecial extends ModerationBenchmark {
 	}
 }
 
-$maintClass = 'BenchmarkRenderSpecial';
+$maintClass = BenchmarkRenderSpecial::class;
 require RUN_MAINTENANCE_IF_MAIN;

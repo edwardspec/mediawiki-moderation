@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,8 +20,12 @@
  * Benchmark: how fast is Approve on Special:Moderation?
  *
  * Usage:
- *	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/approveEdit.php
+ *	php maintenance/run.php `pwd`/extensions/Moderation/tests/benchmarks/approveEdit.php
  */
+
+namespace MediaWiki\Moderation\Tests;
+
+use Wikimedia\Assert\Assert;
 
 require_once __DIR__ . '/ModerationBenchmark.php';
 
@@ -65,12 +69,12 @@ class BenchmarkApproveEdit extends ModerationBenchmark {
 			'token' => $this->getUser()->getEditToken()
 		] );
 
-		Wikimedia\Assert\Assert::postcondition(
+		Assert::postcondition(
 			( strpos( $html, '(moderation-approved-ok: 1)' ) !== false ),
 			'Approve failed'
 		);
 	}
 }
 
-$maintClass = 'BenchmarkApproveEdit';
+$maintClass = BenchmarkApproveEdit::class;
 require RUN_MAINTENANCE_IF_MAIN;

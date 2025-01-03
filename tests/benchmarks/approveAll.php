@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,9 +20,15 @@
  * Benchmark: how fast is ApproveAll on Special:Moderation?
  *
  * Usage:
- *	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/approveAll.php
+ *	php maintenance/run.php `pwd`/extensions/Moderation/tests/benchmarks/approveAll.php
  */
 
+namespace MediaWiki\Moderation\Tests;
+
+use DeferredUpdates;
+use MediaWiki\Moderation\ModerationCompatTools;
+use User;
+use Wikimedia\Assert\Assert;
 use Wikimedia\IPUtils;
 
 require_once __DIR__ . '/ModerationBenchmark.php';
@@ -98,12 +104,12 @@ class BenchmarkApproveAll extends ModerationBenchmark {
 		// Run the DeferredUpdates
 		DeferredUpdates::doUpdates();
 
-		Wikimedia\Assert\Assert::postcondition(
+		Assert::postcondition(
 			( strpos( $html, '(moderation-approved-ok: ' . $this->getEditsPerUser() . ')' ) !== false ),
 			'ApproveAll failed'
 		);
 	}
 }
 
-$maintClass = 'BenchmarkApproveAll';
+$maintClass = BenchmarkApproveAll::class;
 require RUN_MAINTENANCE_IF_MAIN;

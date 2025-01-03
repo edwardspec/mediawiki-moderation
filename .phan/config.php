@@ -38,6 +38,7 @@ if ( getenv( 'PHAN_CHECK_TESTSUITE' ) ) {
 	# and we don't want it basing its assumptions on testsuite code when checking the main code.
 	$cfg['directory_list'][] = 'tests/phpunit';
 	$cfg['directory_list'][] = 'tests/common';
+	$cfg['directory_list'][] = 'tests/benchmark';
 
 	# PHPUnit classes, etc. Should be parsed, but not analyzed.
 	$cfg['directory_list'][] = $IP . '/tests';

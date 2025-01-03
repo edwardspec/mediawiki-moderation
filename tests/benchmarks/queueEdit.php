@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,8 +20,12 @@
  * Benchmark: how fast are edits queued for moderation?
  *
  * Usage:
- *	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/queueEdit.php
+ *	php maintenance/run.php `pwd`/extensions/Moderation/tests/benchmarks/queueEdit.php
  */
+
+namespace MediaWiki\Moderation\Tests;
+
+use Wikimedia\Assert\Assert;
 
 require_once __DIR__ . '/ModerationBenchmark.php';
 
@@ -36,12 +40,12 @@ class BenchmarkQueueEdit extends ModerationBenchmark {
 			'Test summary ' . $i
 		);
 
-		Wikimedia\Assert\Assert::postcondition(
+		Assert::postcondition(
 			( $status->getMessage()->getKey() == 'moderation-edit-queued' ),
 			'Edit not queued'
 		);
 	}
 }
 
-$maintClass = 'BenchmarkQueueEdit';
+$maintClass = BenchmarkQueueEdit::class;
 require RUN_MAINTENANCE_IF_MAIN;

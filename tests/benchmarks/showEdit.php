@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,8 +20,12 @@
  * Benchmark: how fast is Show on Special:Moderation?
  *
  * Usage:
- *	php maintenance/runScript.php extensions/Moderation/tests/benchmarks/showEdit.php
+ *	php maintenance/run.php `pwd`/extensions/Moderation/tests/benchmarks/showEdit.php
  */
+
+namespace MediaWiki\Moderation\Tests;
+
+use Wikimedia\Assert\Assert;
 
 require_once __DIR__ . '/ModerationBenchmark.php';
 
@@ -50,7 +54,7 @@ class BenchmarkShowEdit extends ModerationBenchmark {
 		$this->fastEdit( $this->getTestTitle(), self::TEXT_BEFORE );
 		$this->id = $this->fastQueue( $this->getTestTitle(), self::TEXT_AFTER );
 
-		$this->getUser()->addGroup( 'moderator' );
+		$this->becomeModerator();
 	}
 
 	/**
@@ -62,12 +66,12 @@ class BenchmarkShowEdit extends ModerationBenchmark {
 			'modid' => $this->id
 		] );
 
-		Wikimedia\Assert\Assert::postcondition(
+		Assert::postcondition(
 			( strpos( $html, 'Text before</del>' ) !== false ),
 			'Unexpected output from modaction=show'
 		);
 	}
 }
 
-$maintClass = 'BenchmarkShowEdit';
+$maintClass = BenchmarkShowEdit::class;
 require RUN_MAINTENANCE_IF_MAIN;

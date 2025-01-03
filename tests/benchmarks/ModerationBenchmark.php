@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2023 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,10 +20,20 @@
  * Parent class for benchmark scripts.
  */
 
-require_once __DIR__ . '/../common/ModerationTestUtil.php';
+namespace MediaWiki\Moderation\Tests;
 
+use CommentStoreComment;
+use ContentHandler;
+use Maintenance;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Moderation\ModerationCompatTools;
+use MediaWiki\Moderation\ModerationNewChange;
 use MediaWiki\Revision\SlotRecord;
+use Status;
+use Title;
+use User;
+
+require_once __DIR__ . '/../common/ModerationTestUtil.php';
 
 abstract class ModerationBenchmark extends Maintenance {
 	/**
