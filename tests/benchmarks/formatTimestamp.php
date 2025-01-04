@@ -52,7 +52,7 @@ class BenchmarkFormatTimestamp extends ModerationBenchmark {
 	}
 
 	/**
-	 * @param int $numberOfUsers
+	 * @param int $numberOfUsers @phan-unused-param
 	 */
 	public function beforeBenchmark( $numberOfUsers ) {
 		$this->context = RequestContext::getMain();
@@ -60,7 +60,7 @@ class BenchmarkFormatTimestamp extends ModerationBenchmark {
 	}
 
 	/**
-	 * @param int $i
+	 * @param int $i @phan-unused-param
 	 */
 	public function doActualWork( $i ) {
 		$this->timestampTools->format( '20180101000000', $this->context );

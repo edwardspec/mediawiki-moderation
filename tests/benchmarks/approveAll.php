@@ -66,12 +66,12 @@ class BenchmarkApproveAll extends ModerationBenchmark {
 		$editsPerUser = $this->getEditsPerUser();
 
 		for ( $i = 0; $i < $numberOfUsers; $i++ ) {
-			$fakeIP = IPUtils::formatHex( base_convert( $i, 10, 16 ) );
+			$fakeIP = IPUtils::formatHex( base_convert( "$i", 10, 16 ) );
 			$user = User::newFromName( $fakeIP, false );
 
 			$dbw->delete( 'moderation', [ 'mod_user_text' => $fakeIP ], __METHOD__ );
 
-			$modid = false;
+			$modid = 0;
 			for ( $j = 0; $j < $editsPerUser; $j++ ) {
 				$modid = $this->fastQueue(
 					$this->getTestTitle( $i + $j * $numberOfUsers ),

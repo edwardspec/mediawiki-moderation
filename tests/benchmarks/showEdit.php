@@ -48,7 +48,7 @@ class BenchmarkShowEdit extends ModerationBenchmark {
 	}
 
 	/**
-	 * @param int $numberOfLoops
+	 * @param int $numberOfLoops @phan-unused-param
 	 */
 	public function beforeBenchmark( $numberOfLoops ) {
 		$this->fastEdit( $this->getTestTitle(), self::TEXT_BEFORE );
@@ -58,7 +58,7 @@ class BenchmarkShowEdit extends ModerationBenchmark {
 	}
 
 	/**
-	 * @param int $i
+	 * @param int $i @phan-unused-param
 	 */
 	public function doActualWork( $i ) {
 		$html = $this->runSpecialModeration( [

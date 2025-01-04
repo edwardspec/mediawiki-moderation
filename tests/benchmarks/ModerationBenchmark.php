@@ -61,7 +61,7 @@ abstract class ModerationBenchmark extends Maintenance {
 
 	/**
 	 * Returns Title object for testing.
-	 * @param string $suffix Full text of the title, e.g. "Talk:Welsh corgi".
+	 * @param string|int $suffix Full text of the title, e.g. "Talk:Welsh corgi".
 	 * @return Title
 	 *
 	 * During this benchmark, same value is returned for same $suffix,
@@ -83,7 +83,7 @@ abstract class ModerationBenchmark extends Maintenance {
 
 	/**
 	 * Initialize everything before the tests. Called once.
-	 * @param int $numberOfLoops
+	 * @param int $numberOfLoops @phan-unused-param
 	 */
 	public function beforeBenchmark( $numberOfLoops ) {
 		/* Nothing to do.
@@ -92,7 +92,7 @@ abstract class ModerationBenchmark extends Maintenance {
 
 	/**
 	 * Same as beforeBenchmark, but is called getDefaultLoops() times.
-	 * @param int $iterationNumber Number of the loop (integer starting with 0).
+	 * @param int $iterationNumber Number of the loop (integer starting with 0). @phan-unused-param
 	 */
 	public function beforeBenchmarkPrepareLoop( $iterationNumber ) {
 		/* Nothing to do.
@@ -206,7 +206,7 @@ abstract class ModerationBenchmark extends Maintenance {
 	 * @param string $newText
 	 * @param string $summary
 	 * @param User|null $user
-	 * @return mod_id of the newly inserted row.
+	 * @return int mod_id of the newly inserted row.
 	 */
 	public function fastQueue(
 		Title $title,

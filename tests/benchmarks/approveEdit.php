@@ -45,7 +45,7 @@ class BenchmarkApproveEdit extends ModerationBenchmark {
 	}
 
 	/**
-	 * @inheritDoc
+	 * @param int $numberOfLoops @phan-unused-param
 	 */
 	public function beforeBenchmark( $numberOfLoops ) {
 		$this->becomeModerator();
