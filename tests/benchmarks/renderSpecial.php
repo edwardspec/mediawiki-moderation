@@ -46,7 +46,7 @@ class BenchmarkRenderSpecial extends ModerationBenchmark {
 	}
 
 	/**
-	 * @param int $numberOfLoops
+	 * @param int $numberOfLoops @phan-unused-param
 	 */
 	public function beforeBenchmark( $numberOfLoops ) {
 		/* Prepopulate 'moderation' table */
@@ -60,7 +60,7 @@ class BenchmarkRenderSpecial extends ModerationBenchmark {
 	}
 
 	/**
-	 * @param int $i
+	 * @param int $i @phan-unused-param
 	 */
 	public function doActualWork( $i ) {
 		$this->runSpecialModeration( [
