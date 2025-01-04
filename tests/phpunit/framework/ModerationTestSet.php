@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -153,7 +153,7 @@ trait ModerationTestsuiteTestSet {
 				if ( preg_match( $regex, $actualValue ) ) {
 					// This is a trick to display a simple diff of Expected/Actual arrays,
 					// even though some of the $expectedFields are regexes (not constants).
-					$actualValue .= " (regex: ${regex})";
+					$actualValue .= ' (regex: ' . $regex . ')';
 					$expected[$key] = $actualValue;
 				} else {
 					$actualValue .= " (DOESN'T MATCH REGEX)";

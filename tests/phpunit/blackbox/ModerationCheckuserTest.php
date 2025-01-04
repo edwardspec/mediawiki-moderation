@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2024 Edward Chernenko.
+	Copyright (C) 2015-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -86,7 +86,7 @@ class ModerationCheckuserTest extends ModerationTestCase {
 		$t->loginAs( $t->unprivilegedUser );
 		for ( $i = 1; $i <= $NUMBER_OF_UPLOADS; $i++ ) {
 			$t->setUserAgent( $this->userUA . '#' . $i );
-			$t->doTestUpload( "UA_Test_Upload${i}.png" );
+			$t->doTestUpload( 'UA_Test_Upload' . $i . '.png' );
 		}
 		$t->fetchSpecial();
 		$entry = $t->new_entries[0];

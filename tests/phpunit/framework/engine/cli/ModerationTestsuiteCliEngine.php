@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2017-2024 Edward Chernenko.
+	Copyright (C) 2017-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -132,7 +132,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 		$bits = ModerationTestUtil::parseUrl( $url );
 		if ( $bits['host'] !== $wgServerName ) {
 			throw new LogicException( "CliEngine can only access the wiki itself " .
-				"($wgServerName), not another host (${bits['host']})" );
+				"($wgServerName), not another host ({$bits['host']})" );
 		}
 
 		if ( isset( $bits['query'] ) ) {

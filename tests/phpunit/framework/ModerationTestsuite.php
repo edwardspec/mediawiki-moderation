@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2024 Edward Chernenko.
+	Copyright (C) 2015-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -428,7 +428,7 @@ class ModerationTestsuite {
 	 * @return string|false Name of the field.
 	 */
 	private function getKeyField( $table ) {
-		$keyField = "${table}_id";
+		$keyField = $table . '_id';
 
 		$dbw = $this->getDB();
 		if ( $dbw->getType() == 'postgres' && $table == 'mwuser' ) {
