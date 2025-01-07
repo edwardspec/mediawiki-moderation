@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,8 +22,6 @@
 
 namespace MediaWiki\Moderation\Tests;
 
-use FormatJson;
-
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
 /**
@@ -41,15 +39,11 @@ class ModerationApiTest extends ModerationTestCase {
 		/* Prepare a fake moderation entry */
 		$entry = $t->getSampleEntry();
 
-		/* Replace {{ID}} and {{AUTHOR}} in $expectedResult */
-		$expectedResult = FormatJson::decode(
-			str_replace(
-				[ '{{ID}}', '{{AUTHOR}}', '{{TITLE}}' ],
-				[ $entry->id, $entry->user, $entry->title ],
-				FormatJson::encode( $expectedResult )
-			),
-			true
-		);
+		$this->recursiveReplace( $expectedResult, [
+			'{{ID}}' => (int)$entry->id,
+			'{{AUTHOR}}' => $entry->user,
+			'{{TITLE}}' => $entry->title
+		] );
 
 		$ret = $t->query( [
 			'action' => 'moderation',
@@ -101,5 +95,30 @@ class ModerationApiTest extends ModerationTestCase {
 				"title" => "{{TITLE}}"
 			] ]
 		];
+	}
+
+	/**
+	 * Recursively search $data for any strings and apply replacements to them.
+	 * @param array|string &$data
+	 * @param array $replacements E.g. [ 'A' => 'B', 'textToReplace' => 'newText' ].
+	 */
+	protected function recursiveReplace( &$data, array $replacements ): void {
+		if ( !is_array( $data ) ) {
+			// Value found: replace it if needed.
+			if ( array_key_exists( $data, $replacements ) ) {
+				$data = $replacements[$data];
+			}
+			return;
+		}
+
+		// Search the array and apply replacements to both keys and values.
+		$newArray = [];
+		foreach ( $data as $key => $val ) {
+			$this->recursiveReplace( $key, $replacements );
+			$this->recursiveReplace( $val, $replacements );
+
+			$newArray[$key] = $val;
+		}
+		$data = $newArray;
 	}
 }
