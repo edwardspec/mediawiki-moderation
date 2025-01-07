@@ -165,7 +165,7 @@ class HooksTest extends ModerationUnitTestCase {
 		} else {
 			$this->assertFalse( $status->isOK(),
 				"Non-automoderated user wasn't disallowed to revert image to previous revision." );
-			$this->assertEquals( 'moderation-revert-not-allowed', $status->getMessage()->getKey() );
+			$this->assertSame( 'moderation-revert-not-allowed', $status->getMessage()->getKey() );
 		}
 	}
 
@@ -209,7 +209,7 @@ class HooksTest extends ModerationUnitTestCase {
 		} else {
 			$this->assertFalse( $status->isOK(),
 				"Non-automoderated user wasn't disallowed to rotate image." );
-			$this->assertEquals( 'moderation-imagerotate-not-allowed', $status->getMessage()->getKey() );
+			$this->assertSame( 'moderation-imagerotate-not-allowed', $status->getMessage()->getKey() );
 		}
 	}
 
@@ -283,7 +283,7 @@ class HooksTest extends ModerationUnitTestCase {
 
 		if ( $mergeID ) {
 			$this->assertNotNull( $mergeInput, 'wpMergeID field not found.' );
-			$this->assertEquals( $mergeID, $mergeInput->getAttribute( 'value' ), 'wpMergeID.value' );
+			$this->assertSame( $mergeID, $mergeInput->getAttribute( 'value' ), 'wpMergeID.value' );
 
 			$this->assertNotNull( $blankSummaryInput, 'wpIgnoreBlankSummary field not found.' );
 			$this->assertSame( "1", $blankSummaryInput->getAttribute( 'value' ),

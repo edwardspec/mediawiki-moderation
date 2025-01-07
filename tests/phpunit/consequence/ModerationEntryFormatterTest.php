@@ -138,7 +138,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 		}
 
 		$fields = ModerationEntryFormatter::getFields();
-		$this->assertEquals( $expectedFields, $fields );
+		$this->assertSame( $expectedFields, $fields );
 	}
 
 	/**
@@ -200,7 +200,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 		// Mock all calls to msg(), makeLink() and TimestampTools:format().
 		$this->actionLinkRenderer->expects( $this->any() )->method( 'makeLink' )
 			->willReturnCallback( function ( $action, $id ) use ( $row ) {
-				$this->assertEquals( $row->id, $id );
+				$this->assertSame( $row->id, $id );
 				return "{ActionLink:$action}";
 			} );
 		$this->linkRenderer->expects( $this->any() )
@@ -284,7 +284,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 			$expectedResult
 		);
 		$formatter = $this->makeTestFormatter( $row );
-		$this->assertEquals( $expectedResult, $formatter->getHTML() );
+		$this->assertSame( $expectedResult, $formatter->getHTML() );
 	}
 
 	/**

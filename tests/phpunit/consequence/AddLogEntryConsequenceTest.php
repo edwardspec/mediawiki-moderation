@@ -90,24 +90,24 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 
 		$logEntry = DatabaseLogEntry::newFromId( $logid, $dbw );
 
-		$this->assertEquals( 'moderation', $logEntry->getType() );
-		$this->assertEquals( $subtype, $logEntry->getSubtype() );
-		$this->assertEquals( $user->getName(), $logEntry->getPerformerIdentity()->getName() );
-		$this->assertEquals( $title->getPrefixedText(),
+		$this->assertSame( 'moderation', $logEntry->getType() );
+		$this->assertSame( $subtype, $logEntry->getSubtype() );
+		$this->assertSame( $user->getName(), $logEntry->getPerformerIdentity()->getName() );
+		$this->assertSame( $title->getPrefixedText(),
 			$logEntry->getTarget()->getPrefixedText() );
-		$this->assertEquals( $params, $logEntry->getParameters() );
+		$this->assertSame( $params, $logEntry->getParameters() );
 
 		if ( $runApproveHook ) {
-			$this->assertEquals( $logid, $checkedLogId,
+			$this->assertSame( $logid, $checkedLogId,
 				"logid passed to ApproveHook:checkLogEntry() doesn't match expected." );
 
-			$this->assertEquals( 'moderation', $checkedLogEntry->getType() );
-			$this->assertEquals( $subtype, $checkedLogEntry->getSubtype() );
-			$this->assertEquals( $user->getName(),
+			$this->assertSame( 'moderation', $checkedLogEntry->getType() );
+			$this->assertSame( $subtype, $checkedLogEntry->getSubtype() );
+			$this->assertSame( $user->getName(),
 				$checkedLogEntry->getPerformerIdentity()->getName() );
-			$this->assertEquals( $title->getPrefixedText(),
+			$this->assertSame( $title->getPrefixedText(),
 				$checkedLogEntry->getTarget()->getPrefixedText() );
-			$this->assertEquals( $params, $checkedLogEntry->getParameters() );
+			$this->assertSame( $params, $checkedLogEntry->getParameters() );
 		}
 	}
 

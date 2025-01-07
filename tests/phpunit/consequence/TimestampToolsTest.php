@@ -96,7 +96,7 @@ class TimestampToolsTest extends ModerationUnitTestCase {
 
 		$timestampTools = new TimestampTools();
 		$result = $timestampTools->format( $timestamp, $context );
-		$this->assertEquals( $mockedResult, $result );
+		$this->assertSame( $mockedResult, $result );
 
 		// Additionally test the internal cache of TimestampTools ($skippedToday).
 		$skippedToday = TestingAccessWrapper::newFromObject( $timestampTools )->skippedToday;
@@ -125,7 +125,7 @@ class TimestampToolsTest extends ModerationUnitTestCase {
 			'@phan-var Language $lang';
 
 			$result = $timestampTools->format( $timestamp, $context );
-			$this->assertEquals( $mockedResult, $result );
+			$this->assertSame( $mockedResult, $result );
 		}
 	}
 

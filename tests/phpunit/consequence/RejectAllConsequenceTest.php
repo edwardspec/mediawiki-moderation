@@ -62,7 +62,7 @@ class RejectAllConsequenceTest extends ModerationUnitTestCase {
 		$consequence = new RejectAllConsequence( $this->authorUser->getName(), $moderatorUser );
 		$rejectedCount = $consequence->run();
 
-		$this->assertEquals( count( $idsToReject ), $rejectedCount );
+		$this->assertSame( count( $idsToReject ), $rejectedCount );
 
 		// Check the state of the database.
 		$this->assertWereBatchRejected( $idsToReject, $moderatorUser );

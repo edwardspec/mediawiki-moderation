@@ -857,7 +857,7 @@ class ModerationActionTest extends ModerationTestCase {
 	 */
 	protected function assertHtmlOutput( ModerationTestsuiteHTML $html ) {
 		if ( $this->expectedHtmlTitle ) {
-			$this->assertEquals(
+			$this->assertSame(
 				'(pagetitle: ' . $this->expectedHtmlTitle . ')',
 				$html->getTitle(),
 				"modaction={$this->modaction}: unexpected HTML title."
@@ -889,7 +889,7 @@ class ModerationActionTest extends ModerationTestCase {
 
 		$error = $html->getModerationError();
 		if ( $this->expectedError ) {
-			$this->assertEquals( $this->expectedError, $error,
+			$this->assertSame( $this->expectedError, $error,
 				"modaction={$this->modaction}: expected error not shown." );
 		} else {
 			$this->assertNull( $this->expectedError,
@@ -898,7 +898,7 @@ class ModerationActionTest extends ModerationTestCase {
 
 		foreach ( $this->expectActionLinks as $action => $isExpected ) {
 			$link = $html->getElementByXPath( '//a[contains(@href,"modaction=' . $action . '")]' );
-			$this->assertEquals(
+			$this->assertSame(
 				[ "action link [$action] exists" => $isExpected ],
 				[ "action link [$action] exists" => (bool)$link ]
 			);
@@ -976,7 +976,7 @@ class ModerationActionTest extends ModerationTestCase {
 	 * @see assertHtmlOutput
 	 */
 	protected function assertBinaryOutput( IModerationTestsuiteResponse $req ) {
-		$this->assertEquals(
+		$this->assertSame(
 			$this->expectedContentType,
 			$req->getResponseHeader( 'Content-Type' ),
 			"modaction={$this->modaction}: wrong Content-Type header."
@@ -987,7 +987,7 @@ class ModerationActionTest extends ModerationTestCase {
 			$downloadedFile = $req->getContent();
 
 			$testedMetric = "output matches contents of [{$this->filename}]";
-			$this->assertEquals(
+			$this->assertSame(
 				[ $testedMetric => $this->expectOutputToEqualUploadedFile ],
 				[ $testedMetric => ( $origFile == $downloadedFile ) ]
 			);
@@ -996,13 +996,13 @@ class ModerationActionTest extends ModerationTestCase {
 				// Determine width/height of image in $req->getContent().
 				list( $width, $height ) = $this->getImageSize( $downloadedFile );
 
-				$this->assertEquals( $this->expectedImageWidth, $width,
+				$this->assertSame( $this->expectedImageWidth, $width,
 					"modaction={$this->modaction}: thumbnail's width doesn't match expected" );
 
 				// Has the ratio been preserved?
 				list( $origWidth, $origHeight ) = $this->getImageSize( $origFile );
 
-				$this->assertEquals(
+				$this->assertSame(
 					round( $origWidth / $origHeight, 2 ),
 					round( $width / $height, 2 ),
 					"modaction={$this->modaction}: thumbnail's ratio doesn't match original" );
@@ -1010,7 +1010,7 @@ class ModerationActionTest extends ModerationTestCase {
 		}
 
 		if ( $this->expectedContentDisposition ) {
-			$this->assertEquals(
+			$this->assertSame(
 				$this->expectedContentDisposition,
 				$req->getResponseHeader( 'Content-Disposition' ),
 				"modaction={$this->modaction}: wrong Content-Disposition header."
@@ -1120,10 +1120,10 @@ class ModerationActionTest extends ModerationTestCase {
 	protected function assertEditApproved() {
 		$rev = $this->getTestsuite()->getLastRevision( $this->getExpectedTitle() );
 
-		$this->assertEquals( $this->fields['mod_user_text'], $rev['user'] );
-		$this->assertEquals( $this->fields['mod_text'], $rev['*'] );
+		$this->assertSame( $this->fields['mod_user_text'], $rev['user'] );
+		$this->assertSame( $this->fields['mod_text'], $rev['*'] );
 
-		$this->assertEquals(
+		$this->assertSame(
 			[ "is minor edit" => (bool)$this->fields['mod_minor'] ],
 			[ "is minor edit" => array_key_exists( 'minor', $rev ) ]
 		);
@@ -1131,11 +1131,11 @@ class ModerationActionTest extends ModerationTestCase {
 		$isReupload = $this->existing && $this->filename;
 		if ( !$isReupload ) {
 			// Reuploads don't place edit comment into rev_comment.
-			$this->assertEquals( $this->fields['mod_comment'], $rev['comment'] );
+			$this->assertSame( $this->fields['mod_comment'], $rev['comment'] );
 
 			// Changing rev_timestamp in ApproveHook is not yet implemented for reuploads.
 			$expectedTimestamp = wfTimestamp( TS_ISO_8601, $this->fields['mod_timestamp'] );
-			$this->assertEquals( $expectedTimestamp, $rev['timestamp'] );
+			$this->assertSame( $expectedTimestamp, $rev['timestamp'] );
 		}
 
 		if ( $this->filename ) {
@@ -1149,7 +1149,7 @@ class ModerationActionTest extends ModerationTestCase {
 
 			$contents = file_get_contents( $file->getLocalRefPath() );
 
-			$this->assertEquals( $expectedContents, $contents,
+			$this->assertSame( $expectedContents, $contents,
 				"Approved file is different from uploaded file" );
 		}
 	}
@@ -1215,7 +1215,7 @@ class ModerationActionTest extends ModerationTestCase {
 				'mb_by' => $expectedBlocker->getId(),
 				'mb_by_text' => $expectedBlocker->getName()
 			];
-			$this->assertEquals( $expectedFields, $fields );
+			$this->assertSame( $expectedFields, $fields );
 		} else {
 			$this->assertFalse( $row,
 				"modaction={$this->modaction}: Author is unexpectedly blacklisted as spammer." );
@@ -1250,15 +1250,15 @@ class ModerationActionTest extends ModerationTestCase {
 
 			$logEntry = DatabaseLogEntry::newFromRow( $row );
 
-			$this->assertEquals( 'moderation', $logEntry->getType(),
+			$this->assertSame( 'moderation', $logEntry->getType(),
 				"modaction={$this->modaction}: incorrect LogEntry type" );
-			$this->assertEquals( $this->expectedLogAction, $logEntry->getSubtype(),
+			$this->assertSame( $this->expectedLogAction, $logEntry->getSubtype(),
 				"modaction={$this->modaction}: incorrect LogEntry subtype" );
-			$this->assertEquals(
+			$this->assertSame(
 				$this->getModerator()->getName(),
 				$logEntry->getPerformerIdentity()->getName(),
 				"modaction={$this->modaction}: incorrect name of moderator in LogEntry" );
-			$this->assertEquals( $this->getExpectedLogTarget(), $logEntry->getTarget(),
+			$this->assertSame( $this->getExpectedLogTarget(), $logEntry->getTarget(),
 				"modaction={$this->modaction}: incorrect LogEntry target" );
 
 			$this->assertTimestampIsRecent( $logEntry->getTimestamp() );
@@ -1300,7 +1300,7 @@ class ModerationActionTest extends ModerationTestCase {
 					];
 			}
 
-			$this->assertEquals( $expectedParams, $logEntry->getParameters(),
+			$this->assertSame( $expectedParams, $logEntry->getParameters(),
 				"modaction={$this->modaction}: incorrect LogEntry parameters" );
 		}
 	}

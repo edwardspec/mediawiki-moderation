@@ -77,13 +77,13 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 		$this->assertSame( 1, $isMatched, "Malformed log line." );
 
 		list( , $subtype, $paramLine ) = $matches;
-		$this->assertEquals( $options['subtype'], $subtype, "Incorrect subtype." );
+		$this->assertSame( $options['subtype'], $subtype, "Incorrect subtype." );
 
 		// Now check $paramLine for correctness
 		$params = explode( ', ', $paramLine );
 
-		$this->assertEquals( $performer->getName(), $params[1], "Incorrect performer." );
-		$this->assertEquals(
+		$this->assertSame( $performer->getName(), $params[1], "Incorrect performer." );
+		$this->assertSame(
 			Linker::userLink( $performer->getId(), $performer->getName() ),
 			$params[0],
 			"Incorrect link to performer."
@@ -92,13 +92,13 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 		// Check $params[2], which is the link to the target
 		if ( $options['expectTargetUserlink'] ?? false ) {
 			$user = User::newFromName( $target->getText(), false );
-			$this->assertEquals(
+			$this->assertSame(
 				Linker::userLink( $user->getId(), $user->getName() ),
 				$params[2],
 				"Incorrect userlink to the target user."
 			);
 		} else {
-			$this->assertEquals(
+			$this->assertSame(
 				$services->getLinkRenderer()->makeLink( $target ),
 				$params[2],
 				"Incorrect link to the target page."
@@ -118,7 +118,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 		$preloadTitles = array_map( static function ( LinkTarget $linkTarget ) {
 			return Title::newFromLinkTarget( $linkTarget )->getFullText();
 		}, $formatter->getPreloadTitles() );
-		$this->assertEquals( $options['expectedPreloadTitles'] ?? [], $preloadTitles,
+		$this->assertSame( $options['expectedPreloadTitles'] ?? [], $preloadTitles,
 			'Incorrect values returned by getPreloadTitles().' );
 	}
 
@@ -293,7 +293,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 				unset( $expectedParam['pagelink'] );
 			} else {
 				// Plaintext parameter (not a link).
-				$this->assertEquals( $expectedParam['text'], $paramHtml,
+				$this->assertSame( $expectedParam['text'], $paramHtml,
 					"Incorrect text of parameter #$idx." );
 				return;
 			}
@@ -326,7 +326,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 		}
 
 		$param = $this->parseParam( $paramHtml );
-		$this->assertEquals( $expectedParam, $param, "Incorrect HTML of parameter #$idx." );
+		$this->assertSame( $expectedParam, $param, "Incorrect HTML of parameter #$idx." );
 	}
 
 	protected function parseParam( $paramHtml ) {

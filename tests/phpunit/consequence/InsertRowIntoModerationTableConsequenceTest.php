@@ -73,7 +73,7 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 		$consequence = new InsertRowIntoModerationTableConsequence( $fields );
 		$modid = $consequence->run();
 
-		$this->assertEquals( $oldRowId, $modid );
+		$this->assertSame( $oldRowId, $modid );
 		$this->assertRowExistsAndCorrect( $modid, $fields );
 	}
 

@@ -55,7 +55,7 @@ class ModerationReturntoTest extends ModerationTestCase {
 
 		/* 2) check if "Return to" link is present after error */
 		$t->html->loadUrl( $url );
-		$this->assertEquals( '(moderation-already-rejected)', $t->html->getModerationError(),
+		$this->assertSame( '(moderation-already-rejected)', $t->html->getModerationError(),
 			"testReturnto(): Error page doesn't contain (moderation-already-rejected)"
 		);
 		$this->assertRegExp( '/\(returnto: Special:Moderation\)/', $t->html->getMainText(),

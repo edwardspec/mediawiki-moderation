@@ -51,18 +51,18 @@ class ModerationEditChangeTest extends ModerationTestCase {
 			'modid' => $entry->id,
 			'modaction' => 'editchangesubmit'
 		] );
-		$this->assertEquals( $expectedAction, $form->getAttribute( 'action' ),
+		$this->assertSame( $expectedAction, $form->getAttribute( 'action' ),
 			"testEditChangeForm(): Incorrect action= attribute in the edit form."
 		);
 
 		$textarea = $t->html->getElementById( 'wpTextbox1' );
 		$this->assertNotNull( $textarea,
 			"testEditChangeForm(): <textarea> not found." );
-		$this->assertEquals( $t->lastEdit['Text'], trim( $textarea->textContent ),
+		$this->assertSame( $t->lastEdit['Text'], trim( $textarea->textContent ),
 			"testEditChangeForm(): <textarea> doesn't contain the current text of pending change." );
 
 		$summaryInput = $t->html->getElementByXPath( '//input[@name="wpSummary"]' );
-		$this->assertEquals( $t->lastEdit['Summary'], $summaryInput->getAttribute( 'value' ),
+		$this->assertSame( $t->lastEdit['Summary'], $summaryInput->getAttribute( 'value' ),
 			"testEditChangeForm(): Preloaded summary doesn't match." );
 
 		$tokenInput = $t->html->getElementByXPath( '//input[@name="token"]' );

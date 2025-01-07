@@ -151,7 +151,7 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 				$this->assertSame( $this->title->getFullText(), $page->getTitle()->getFullText() );
 				$this->assertSame( $this->user->getName(), $user->getName() );
 				$this->assertSame( $this->user->getId(), $user->getId() );
-				$this->assertEquals( $this->summary, $summary );
+				$this->assertSame( $this->summary, $summary );
 
 				// Returning false from this hook means "this edit should bypass moderation".
 				return false;

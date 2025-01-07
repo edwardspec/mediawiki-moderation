@@ -65,8 +65,8 @@ class ModerationRejectTest extends ModerationTestCase {
 			$de = ModerationTestsuiteEntry::findById( $t->deleted_entries, $entry->id );
 			$this->assertNotNull( $de );
 
-			$this->assertEquals( $entry->user, $de->user );
-			$this->assertEquals( $entry->title, $de->title );
+			$this->assertSame( $entry->user, $de->user );
+			$this->assertSame( $entry->title, $de->title );
 		}
 
 		$t->fetchSpecial( 'rejected' );
@@ -80,10 +80,10 @@ class ModerationRejectTest extends ModerationTestCase {
 			$de = ModerationTestsuiteEntry::findById( $t->new_entries, $entry->id );
 			$this->assertNotNull( $de );
 
-			$this->assertEquals( $entry->user, $de->user );
-			$this->assertEquals( $entry->title, $de->title );
+			$this->assertSame( $entry->user, $de->user );
+			$this->assertSame( $entry->title, $de->title );
 
-			$this->assertEquals( $t->moderator->getName(), $de->rejected_by_user );
+			$this->assertSame( $t->moderator->getName(), $de->rejected_by_user );
 			$this->assertTrue( $de->rejected_batch,
 				"testRejectAll(): Edit rejected via modaction=rejectall has rejected_batch flag OFF" );
 			$this->assertFalse( $de->rejected_auto,
@@ -103,19 +103,19 @@ class ModerationRejectTest extends ModerationTestCase {
 			"testRejectAll(): Number of log entries isn't 1." );
 		$le = $events[0];
 
-		$this->assertEquals( 'rejectall', $le['action'],
+		$this->assertSame( 'rejectall', $le['action'],
 			"testRejectAll(): Most recent log entry is not 'rejectall'" );
-		$this->assertEquals( $t->moderator->getName(), $le['user'] );
-		$this->assertEquals( $t->unprivilegedUser->getUserPage(), $le['title'] );
-		$this->assertEquals( $t->TEST_EDITS_COUNT, $le['params']['count'] );
+		$this->assertSame( $t->moderator->getName(), $le['user'] );
+		$this->assertSame( $t->unprivilegedUser->getUserPage(), $le['title'] );
+		$this->assertSame( $t->TEST_EDITS_COUNT, $le['params']['count'] );
 
 		$events = $t->nonApiLogEntries( 1 );
-		$this->assertEquals( 'rejectall', $events[0]['type'] );
+		$this->assertSame( 'rejectall', $events[0]['type'] );
 
-		$this->assertEquals( $t->moderator->getName(),
+		$this->assertSame( $t->moderator->getName(),
 			$events[0]['params'][1] );
-		$this->assertEquals( $t->unprivilegedUser->getUserPage()->getText(),
+		$this->assertSame( $t->unprivilegedUser->getUserPage()->getText(),
 			$events[0]['params'][2] );
-		$this->assertEquals( $t->TEST_EDITS_COUNT, $events[0]['params'][3] );
+		$this->assertSame( $t->TEST_EDITS_COUNT, $events[0]['params'][3] );
 	}
 }

@@ -164,7 +164,7 @@ class ModerationActionShowTest extends ModerationUnitTestCase {
 
 				$actionLinkRenderer->expects( $this->any() )->method( 'makeLink' )
 					->willReturnCallback( function ( $actionName, $id ) use ( $modid ) {
-						$this->assertEquals( $modid, $id );
+						$this->assertSame( $modid, $id );
 						return "{ActionLink:$actionName}";
 					} );
 				$manager->expects( $this->never() )->method( 'add' );

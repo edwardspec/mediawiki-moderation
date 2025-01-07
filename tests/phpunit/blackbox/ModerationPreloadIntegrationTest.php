@@ -55,7 +55,7 @@ class ModerationPreloadIntegrationTest extends ModerationTestCase {
 		$t->logout();
 		$t->doTestEdit();
 
-		$this->assertEquals(
+		$this->assertSame(
 			$t->lastEdit['Text'],
 			$t->html->getPreloadedText( $t->lastEdit['Title'] ),
 			"testAnonymousPreload(): Preloaded text differs from what the user saved before" );
@@ -73,7 +73,7 @@ class ModerationPreloadIntegrationTest extends ModerationTestCase {
 		// Note: phan doesn't know that markTestIncomplete() unconditionally throws an exception.
 		// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
 		$t->loginAs( $user );
-		$this->assertEquals(
+		$this->assertSame(
 			$t->lastEdit['Text'],
 			$t->html->getPreloadedText( $t->lastEdit['Title'] ),
 			"testAnonymousPreload(): Text was not preloaded after creating an account" );
@@ -109,12 +109,12 @@ class ModerationPreloadIntegrationTest extends ModerationTestCase {
 		$this->assertArrayHasKey( 'moderationpreload', $ret['query'] );
 
 		$mp = $ret['query']['moderationpreload'];
-		$this->assertEquals( $t->lastEdit['User'], $mp['user'] );
-		$this->assertEquals( $t->lastEdit['Title'], $mp['title'] );
-		$this->assertEquals( $t->lastEdit['Summary'], $mp['comment'] );
+		$this->assertSame( $t->lastEdit['User'], $mp['user'] );
+		$this->assertSame( $t->lastEdit['Title'], $mp['title'] );
+		$this->assertSame( $t->lastEdit['Summary'], $mp['comment'] );
 		$this->assertArrayHasKey( 'wikitext', $mp );
 		$this->assertArrayNotHasKey( 'parsed', $mp );
-		$this->assertEquals( $text, $mp['wikitext'] );
+		$this->assertSame( $text, $mp['wikitext'] );
 
 		/* Test 2: mpmode=parsed */
 		$ret = $t->query( [
@@ -149,17 +149,17 @@ class ModerationPreloadIntegrationTest extends ModerationTestCase {
 			'mptitle' => $t->lastEdit['Title'],
 			'mpsection' => 1
 		] );
-		$this->assertEquals( $extraSectionText, $ret['query']['moderationpreload']['wikitext'] );
+		$this->assertSame( $extraSectionText, $ret['query']['moderationpreload']['wikitext'] );
 	}
 
 	private function tryToPreload( ModerationTestsuite $t, $caller ) {
-		$this->assertEquals(
+		$this->assertSame(
 			$t->lastEdit['Text'],
 			$t->html->getPreloadedText( $t->lastEdit['Title'] ),
 			"$caller(): Preloaded text differs from what the user saved before" );
 
 		$elem = $t->html->getElementByXPath( '//input[@name="wpSummary"]' );
-		$this->assertEquals( $t->lastEdit['Summary'], $elem->getAttribute( 'value' ),
+		$this->assertSame( $t->lastEdit['Summary'], $elem->getAttribute( 'value' ),
 			"$caller(): Preloaded summary doesn't match"
 		);
 
@@ -169,7 +169,7 @@ class ModerationPreloadIntegrationTest extends ModerationTestCase {
 		$elem = $t->html->getElementById( 'mw-editing-your-version' );
 		$this->assertNotNull( $elem,
 			"$caller(): #mw-editing-your-version not found" );
-		$this->assertEquals( '(moderation-editing-your-version)', $elem->textContent,
+		$this->assertSame( '(moderation-editing-your-version)', $elem->textContent,
 			"$caller(): #mw-editing-your-version doesn't contain " .
 			"(moderation-editing-your-version) message" );
 	}

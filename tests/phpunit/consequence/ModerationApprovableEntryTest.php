@@ -271,6 +271,6 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 		];
 
 		$fields = ModerationApprovableEntry::getFields();
-		$this->assertEquals( $expectedFields, $fields );
+		$this->assertSame( $expectedFields, $fields );
 	}
 }

@@ -160,7 +160,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 	public function testSpecialPageSubclass() {
 		$special = $this->getSpecial();
 
-		$this->assertEquals( 'spam', $special->getFinalGroupName(), 'getGroupName' );
+		$this->assertSame( 'spam', $special->getFinalGroupName(), 'getGroupName' );
 		$this->assertFalse( $special->isSyndicated(), 'isSyndicated' );
 		$this->assertFalse( $special->isCacheable(), 'isCacheable' );
 	}
@@ -192,29 +192,29 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		$queryInfo = $special->getQueryInfo();
 
 		$this->assertArrayHasKey( 'tables', $queryInfo );
-		$this->assertEquals( [ 'moderation', 'moderation_block' ], $queryInfo['tables'] );
+		$this->assertSame( [ 'moderation', 'moderation_block' ], $queryInfo['tables'] );
 
 		$this->assertArrayHasKey( 'fields', $queryInfo );
-		$this->assertEquals( $expectedFields, $queryInfo['fields'] );
+		$this->assertSame( $expectedFields, $queryInfo['fields'] );
 
 		$this->assertArrayHasKey( 'join_conds', $queryInfo );
-		$this->assertEquals(
+		$this->assertSame(
 			[ 'moderation_block' => [ 'LEFT JOIN', [ 'mb_address=mod_user_text' ] ] ],
 			$queryInfo['join_conds']
 		);
 
 		$this->assertArrayHasKey( 'conds', $queryInfo );
-		$this->assertEquals( $expectedConds, $queryInfo['conds'] );
+		$this->assertSame( $expectedConds, $queryInfo['conds'] );
 
 		$this->assertArrayHasKey( 'options', $queryInfo );
-		$this->assertEquals( $expectedOptions, $queryInfo['options'] );
+		$this->assertSame( $expectedOptions, $queryInfo['options'] );
 
 		// Check getOrderFields()
-		$this->assertEquals( [ 'mod_timestamp' ], $wrapper->getOrderFields() );
+		$this->assertSame( [ 'mod_timestamp' ], $wrapper->getOrderFields() );
 
 		// Check linkParameters()
 		$expectedFolder = ( $folder == 'nosuchfolder' ) ? 'pending' : ( $folder ?? 'pending' );
-		$this->assertEquals( [ 'folder' => $expectedFolder ], $wrapper->linkParameters() );
+		$this->assertSame( [ 'folder' => $expectedFolder ], $wrapper->linkParameters() );
 
 		// Check getPageHeader(): it should contain (1) HTML links to other folders,
 		// (2) <strong> tag with the name of current folder.
@@ -235,21 +235,21 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		foreach ( $links as $link ) {
 			$folder = array_shift( $expectedFolderLinks );
 
-			$this->assertEquals( "(moderation-folder-$folder)", $link->textContent );
-			$this->assertEquals( "(tooltip-moderation-folder-$folder)",
+			$this->assertSame( "(moderation-folder-$folder)", $link->textContent );
+			$this->assertSame( "(tooltip-moderation-folder-$folder)",
 				$link->getAttribute( 'title' ) );
 
 			$url = $link->getAttribute( 'href' );
 			$bits = ModerationTestUtil::parseUrl( $url );
 			$query = wfCgiToArray( $bits['query'] );
 
-			$this->assertEquals( [ 'title' => 'Special:Moderation', 'folder' => $folder ], $query );
+			$this->assertSame( [ 'title' => 'Special:Moderation', 'folder' => $folder ], $query );
 		}
 
 		$selflink = $html->getElementByXPath(
 			'//*[@class="mw-moderation-folders"]//strong[@class="selflink"]' );
 		$this->assertNotNull( $selflink );
-		$this->assertEquals( "(moderation-folder-$expectedFolder)", $selflink->textContent );
+		$this->assertSame( "(moderation-folder-$expectedFolder)", $selflink->textContent );
 	}
 
 	/**
@@ -329,8 +329,8 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		$this->assertStringContainsString( '(moderation-text)', $html );
 
 		$out = $context->getOutput();
-		$this->assertEquals( $expectedStyles, $out->getModuleStyles() );
-		$this->assertEquals( $useAjax ? [ 'ext.moderation.special.ajax' ] : [],
+		$this->assertSame( $expectedStyles, $out->getModuleStyles() );
+		$this->assertSame( $useAjax ? [ 'ext.moderation.special.ajax' ] : [],
 			$out->getModules() );
 	}
 
@@ -379,7 +379,7 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		// Run formatResult()
 		$wrapper = TestingAccessWrapper::newFromObject( $special );
 		$result = $wrapper->formatResult( $skin, $sampleRow );
-		$this->assertEquals( $expectedResult, $result );
+		$this->assertSame( $expectedResult, $result );
 	}
 
 	/**

@@ -88,10 +88,10 @@ class ModerationPageFormsIntegrationTest extends ModerationTestCase {
 			$input = $inputs->item( $idx++ );
 
 			// @phan-suppress-next-line PhanUndeclaredMethod
-			$this->assertEquals( "_section[$name]", $input->getAttribute( 'name' ),
+			$this->assertSame( "_section[$name]", $input->getAttribute( 'name' ),
 				"testPageFormsPreload(): name of the EditForm field doesn't match expected" );
 
-			$this->assertEquals( $expectedContent, $input->textContent,
+			$this->assertSame( $expectedContent, $input->textContent,
 				"testPageFormsPreload(): value of the EditForm field doesn't match expected" );
 		}
 	}

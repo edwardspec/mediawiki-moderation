@@ -653,7 +653,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 			$tagsToAdd, $tagsToRemove, $prevTags,
 			$rc_id, $rev_id, $log_id, $params, $rc, $user
 		) use ( &$taggedRevIds, &$taggedLogIds, &$taggedRcIds ) {
-			$this->assertEquals( [], $tagsToRemove );
+			$this->assertSame( [], $tagsToRemove );
 
 			if ( $tagsToAdd == [ 'mw-new-redirect' ] || $tagsToAdd == [ 'mw-removed-redirect' ] ) {
 				// This tag is irrelevant: it is added when creating/removing a redirect
@@ -778,7 +778,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 					if ( empty( $extraInfo['expectUnchangedTimestamp'] ) || !$rec->getParentId() ) {
 						// Verify that ApproveHook has modified revision.rev_timestamp field.
-						$this->assertEquals( $task['timestamp'], $rec->getTimestamp() );
+						$this->assertSame( $task['timestamp'], $rec->getTimestamp() );
 					} else {
 						$this->assertNotEquals( $task['timestamp'], $rec->getTimestamp() );
 					}
@@ -873,11 +873,11 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 			$expectedTags = empty( $task['tags'] ) ? null : explode( "\n", $task['tags'] );
 
 			foreach ( $revIds as $rev_id ) {
-				$this->assertEquals( $expectedTags, $taggedRevIds[$rev_id] ?? null );
+				$this->assertSame( $expectedTags, $taggedRevIds[$rev_id] ?? null );
 				unset( $taggedRevIds[$rev_id] );
 			}
 
-			$this->assertEquals( $expectedTags, $taggedRcIds[$rc_id] ?? null );
+			$this->assertSame( $expectedTags, $taggedRcIds[$rc_id] ?? null );
 			unset( $taggedRcIds[$rc_id] );
 
 			$logWhere = [
@@ -888,7 +888,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 			$log_ids = $this->db->selectFieldValues( 'logging', 'log_id', $logWhere, __METHOD__ );
 			foreach ( $log_ids as $log_id ) {
-				$this->assertEquals( $expectedTags, $taggedLogIds[$log_id] ?? null );
+				$this->assertSame( $expectedTags, $taggedLogIds[$log_id] ?? null );
 				unset( $taggedLogIds[$log_id] );
 			}
 		}

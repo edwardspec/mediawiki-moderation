@@ -53,7 +53,7 @@ class ModerationEditConflictTest extends ModerationTestCase {
 			"testResolvableEditConflict(): Approval failed" );
 
 		$rev = $t->getLastRevision( $title );
-		$this->assertEquals( $expectedText, $rev['*'],
+		$this->assertSame( $expectedText, $rev['*'],
 			"testResolvableEditConflict(): Unexpected text after approving both edits"
 		);
 	}

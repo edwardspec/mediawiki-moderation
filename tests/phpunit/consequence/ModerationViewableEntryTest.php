@@ -97,7 +97,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	 * @param RevisionRecord $rev
 	 */
 	private function assertRevisionTitleAndText( Title $title, $text, RevisionRecord $rev ) {
-		$this->assertEquals( $text, $rev->getContent( SlotRecord::MAIN )->serialize() );
+		$this->assertSame( $text, $rev->getContent( SlotRecord::MAIN )->serialize() );
 		$this->assertTrue( $title->isSameLinkAs( $rev->getPageAsLinkTarget() ) );
 	}
 
@@ -159,7 +159,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 			function ( $title, &$url, $query ) use ( $expectedQuery, $expectedResult ) {
 				$this->assertTrue( $title->isSpecial( 'Moderation' ),
 					'URL from getImageURL() doesn\'t point to Special:Moderation.' );
-				$this->assertEquals( $expectedQuery, wfCgiToArray( $query ),
+				$this->assertSame( $expectedQuery, wfCgiToArray( $query ),
 					'URL from getImageURL() has incorrect query string.' );
 
 				$url = $expectedResult;
@@ -167,7 +167,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 			}
 		);
 		$result = $entry->getImageURL( $isThumb );
-		$this->assertEquals( $expectedResult, $result );
+		$this->assertSame( $expectedResult, $result );
 	}
 
 	/**
@@ -253,7 +253,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 		$this->assertNotNull( $src );
 
 		$bits = ModerationTestUtil::parseUrl( $src );
-		$this->assertEquals( wfScript(), $bits['path'] );
+		$this->assertSame( wfScript(), $bits['path'] );
 		$this->assertArrayHasKey( 'query', $bits );
 
 		$query = wfCgiToArray( $bits['query'] );
@@ -264,7 +264,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 			'modid' => $modid,
 			'thumb' => 1
 		];
-		$this->assertEquals( $expectedQuery, $query, 'Incorrect URL of <img> tag.' );
+		$this->assertSame( $expectedQuery, $query, 'Incorrect URL of <img> tag.' );
 	}
 
 	/**
@@ -286,7 +286,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 		];
 
 		$fields = ModerationViewableEntry::getFields();
-		$this->assertEquals( $expectedFields, $fields );
+		$this->assertSame( $expectedFields, $fields );
 	}
 
 	/**
@@ -347,7 +347,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 		] );
 
 		$result = $entry->getDiffHTML( $context );
-		$this->assertEquals(
+		$this->assertSame(
 			'(movepage-page-moved: {OldTitleLink}, {NewTitleLink})',
 			Parser::stripOuterParagraph( $result )
 		);
@@ -419,7 +419,7 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 
 		// Run the method we are testing.
 		$result = $entry->getDiffHTML( $context );
-		$this->assertEquals( '{GeneratedDiff+Header}', $result );
+		$this->assertSame( '{GeneratedDiff+Header}', $result );
 	}
 
 	/**

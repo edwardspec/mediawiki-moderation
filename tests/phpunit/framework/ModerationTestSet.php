@@ -31,9 +31,6 @@ use stdClass;
 use Title;
 
 /**
- * @codingStandardsIgnoreStart
- * @method static void assertEquals($a, $b, string $message='', float $d=0.0, int $e=10, bool $f=false, bool $g=false)
- * @codingStandardsIgnoreEnd
  * @method static void assertSame($a, $b, string $message='')
  * @method static void assertLessThanOrEqual($a, $b, string $message='')
  * @method static void assertGreaterThan($a, $b, string $message='')
@@ -143,7 +140,7 @@ trait ModerationTestsuiteTestSet {
 
 			if ( is_numeric( $actualValue ) ) {
 				// DB::selectRow() returns numbers as strings, so we need to cast them to numbers,
-				// or else assertEquals() would fail.
+				// or else assertSame() would fail.
 				// E.g. "1" => 1.
 				$actualValue += 0;
 			}
@@ -175,7 +172,7 @@ trait ModerationTestsuiteTestSet {
 		asort( $expected );
 		asort( $actual );
 
-		$this->assertEquals( $expected, $actual,
+		$this->assertSame( $expected, $actual,
 			"Database row doesn't match expected."
 		);
 

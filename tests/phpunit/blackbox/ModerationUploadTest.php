@@ -45,8 +45,8 @@ class ModerationUploadTest extends ModerationTestCase {
 			"added entries in Pending folder isn't 1" );
 		$this->assertCount( 0, $t->deleted_entries,
 			"testUpload(): Something was deleted from Pending folder during the queueing" );
-		$this->assertEquals( $t->lastEdit['User'], $entry->user );
-		$this->assertEquals( $t->lastEdit['Title'], $entry->title );
+		$this->assertSame( $t->lastEdit['User'], $entry->user );
+		$this->assertSame( $t->lastEdit['Title'], $entry->title );
 
 		# Can we approve this upload?
 		$this->assertNotNull( $entry->approveLink,
@@ -72,9 +72,9 @@ class ModerationUploadTest extends ModerationTestCase {
 
 		$ii = $retPage['imageinfo'][0];
 
-		$this->assertEquals( $t->lastEdit['User'], $ii['user'] );
-		$this->assertEquals( $t->lastEdit['Text'], $ii['comment'] );
-		$this->assertEquals( $t->lastEdit['SHA1'], $ii['sha1'] );
+		$this->assertSame( $t->lastEdit['User'], $ii['user'] );
+		$this->assertSame( $t->lastEdit['Text'], $ii['comment'] );
+		$this->assertSame( $t->lastEdit['SHA1'], $ii['sha1'] );
 	}
 
 	public function testUploadHookVerifies( ModerationTestsuite $t ) {
@@ -88,7 +88,7 @@ class ModerationUploadTest extends ModerationTestCase {
 		$result = $t->getBot( 'nonApi' )->upload( "1.png", $path );
 		unlink( $path );
 
-		$this->assertEquals( '(emptyfile)', $result->getError(),
+		$this->assertSame( '(emptyfile)', $result->getError(),
 			"testUploadHookVerifies(): no error was printed when trying to upload empty file." );
 	}
 
@@ -118,8 +118,8 @@ class ModerationUploadTest extends ModerationTestCase {
 			"added entries in Pending folder isn't 1" );
 		$this->assertCount( 0, $t->deleted_entries,
 			"testReupload(): Something was deleted from Pending folder during the queueing" );
-		$this->assertEquals( $t->lastEdit['User'], $entry->user );
-		$this->assertEquals( $t->lastEdit['Title'], $entry->title );
+		$this->assertSame( $t->lastEdit['User'], $entry->user );
+		$this->assertSame( $t->lastEdit['Title'], $entry->title );
 
 		# Does modaction=show display (moderation-diff-reupload) message?
 		$this->assertRegExp( '/\(moderation-diff-reupload\)/',
@@ -153,8 +153,8 @@ class ModerationUploadTest extends ModerationTestCase {
 
 		$ii = $retPage['imageinfo'][0];
 
-		$this->assertEquals( $t->lastEdit['User'], $ii['user'] );
-		$this->assertEquals( $t->lastEdit['Text'], $ii['comment'] );
-		$this->assertEquals( $t->lastEdit['SHA1'], $ii['sha1'] );
+		$this->assertSame( $t->lastEdit['User'], $ii['user'] );
+		$this->assertSame( $t->lastEdit['Text'], $ii['comment'] );
+		$this->assertSame( $t->lastEdit['SHA1'], $ii['sha1'] );
 	}
 }

@@ -50,7 +50,7 @@ class ModerationCheckuserTest extends ModerationTestCase {
 		$ip = $this->getIpFromApi( $t, $t->moderatorAndCheckuser );
 		$this->assertNotNull( $ip,
 			"testModerationCheckuser(): API didn't show IP to checkuser" );
-		$this->assertEquals( "127.0.0.1", $ip,
+		$this->assertSame( "127.0.0.1", $ip,
 			"testModerationCheckuser(): incorrect IP shown via API" );
 	}
 
@@ -103,7 +103,7 @@ class ModerationCheckuserTest extends ModerationTestCase {
 			$this->assertNotEquals( $this->moderatorUA, $agent,
 				"testApproveAllUploadPrevervesUA(): Upload #$i: UserAgent in checkuser " .
 				"tables matches moderator's UserAgent" );
-			$this->assertEquals( $this->userUA . '#' . $i, $agent,
+			$this->assertSame( $this->userUA . '#' . $i, $agent,
 				"testApproveAllUploadPrevervesUA(): Upload #$i: UserAgent in checkuser " .
 				"tables doesn't match UserAgent of user who made the upload" );
 

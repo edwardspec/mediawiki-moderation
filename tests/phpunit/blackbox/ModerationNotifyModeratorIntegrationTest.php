@@ -40,7 +40,7 @@ class ModerationNotifyModeratorIntegrationTest extends ModerationTestCase {
 
 		/* Notification "New changes await!" is shown to moderator on all pages... */
 		$t->loginAs( $t->moderator );
-		$this->assertEquals(
+		$this->assertSame(
 			"\n(moderation-new-changes-appeared)",
 			$this->getNotice( $t ),
 			"Notification not shown to moderator"
@@ -105,7 +105,7 @@ class ModerationNotifyModeratorIntegrationTest extends ModerationTestCase {
 
 		/* ... notification should still be shown to another moderator #2 */
 		$t->loginAs( $t->moderatorButNotAutomoderated );
-		$this->assertEquals(
+		$this->assertSame(
 			"\n(moderation-new-changes-appeared)",
 			$this->getNotice( $t ),
 			"Notification not shown to the second moderator"

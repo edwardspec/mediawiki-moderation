@@ -53,7 +53,7 @@ class ModerationErrorTest extends ModerationUnitTestCase {
 
 		// Fields used by ErrorPageError class.
 		$this->assertSame( 'moderation', $e->title, 'ErrorPageError::$title' );
-		$this->assertEquals( "($messageName)", $e->getMessageObject()->inLanguage( 'qqx' )->plain(),
+		$this->assertSame( "($messageName)", $e->getMessageObject()->inLanguage( 'qqx' )->plain(),
 			'ErrorPageError::getMessageObject()' );
 	}
 

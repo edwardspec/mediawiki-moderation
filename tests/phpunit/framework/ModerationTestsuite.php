@@ -1003,7 +1003,7 @@ class ModerationTestsuite {
 	 */
 	public function assertApiError( $expectedErrorCode, array $ret, MediaWikiIntegrationTestCase $tcase ) {
 		$tcase->assertArrayHasKey( 'error', $ret );
-		$tcase->assertEquals( $expectedErrorCode, $ret['error']['code'] );
+		$tcase->assertSame( $expectedErrorCode, $ret['error']['code'] );
 	}
 
 	/**

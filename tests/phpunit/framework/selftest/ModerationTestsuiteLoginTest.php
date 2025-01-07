@@ -31,7 +31,7 @@ class ModerationTestsuiteLoginTest extends ModerationTestCase {
 	 */
 	public function testLogin( ModerationTestsuite $t ) {
 		$t->loginAs( $t->unprivilegedUser );
-		$this->assertEquals( $t->unprivilegedUser, $t->loggedInAs(),
+		$this->assertSame( $t->unprivilegedUser, $t->loggedInAs(),
 			"testLogin(): Login unsuccessful." );
 	}
 }

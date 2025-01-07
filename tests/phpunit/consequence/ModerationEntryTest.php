@@ -161,7 +161,7 @@ class ModerationEntryTest extends ModerationUnitTestCase {
 		];
 
 		$fields = ModerationEntry::getFields();
-		$this->assertEquals( $expectedFields, $fields );
+		$this->assertSame( $expectedFields, $fields );
 	}
 
 	/**

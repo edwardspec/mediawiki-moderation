@@ -98,7 +98,7 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 			$this->assertNotEquals( $unchanged, $differentExpectations,
 				"TransactionProfiler expectations weren't set by non-readonly action." );
 		} else {
-			$this->assertEquals( $unchanged, $differentExpectations,
+			$this->assertSame( $unchanged, $differentExpectations,
 				"TransactionProfiler expectations were changed when they shouldn't have been." );
 		}
 	}
@@ -142,7 +142,7 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 		$title = $mockWrapper->getUserpageOfPerformer();
 
 		$this->assertInstanceof( Title::class, $title );
-		$this->assertEquals( "User:$username", $title->getFullText() );
+		$this->assertSame( "User:$username", $title->getFullText() );
 	}
 
 	/**

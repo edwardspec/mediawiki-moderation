@@ -87,18 +87,18 @@ class ActionFactoryTest extends ModerationUnitTestCase {
 
 		$this->assertInstanceof( $expectedClass, $action );
 
-		$this->assertEquals( $requiresWrite, $action->requiresWrite(),
+		$this->assertSame( $requiresWrite, $action->requiresWrite(),
 			'Incorrect return value of requiresWrite()' );
-		$this->assertEquals( $requiresEditToken, $action->requiresEditToken(),
+		$this->assertSame( $requiresEditToken, $action->requiresEditToken(),
 			'Incorrect return value of requiresEditToken()' );
 
-		$this->assertEquals( $modaction, $action->actionName,
+		$this->assertSame( $modaction, $action->actionName,
 			'Incorrect value of $action->actionName' );
-		$this->assertEquals( $user, $action->moderator,
+		$this->assertSame( $user, $action->moderator,
 			'Incorrect return value of $action->moderator' );
 
 		$actionWrapper = TestingAccessWrapper::newFromObject( $action );
-		$this->assertEquals( $modid, $actionWrapper->id,
+		$this->assertSame( $modid, $actionWrapper->id,
 			'Incorrect return value of requiresEditToken()' );
 	}
 

@@ -41,6 +41,6 @@ class ConsequenceManagerTest extends ModerationUnitTestCase {
 		'@phan-var IConsequence $consequence';
 
 		$manager = new ConsequenceManager;
-		$this->assertEquals( $expectedResult, $manager->add( $consequence ) );
+		$this->assertSame( $expectedResult, $manager->add( $consequence ) );
 	}
 }

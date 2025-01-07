@@ -61,10 +61,10 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 			use ( $user, $title, $reason, &$hookFired ) {
 				$hookFired = true;
 
-				$this->assertEquals( $title->getFullText(), $hookTitle->getFullText() );
-				$this->assertEquals( $user->getName(), $hookUser->getName() );
-				$this->assertEquals( $user->getId(), $hookUser->getId() );
-				$this->assertEquals( $reason, $hookReason );
+				$this->assertSame( $title->getFullText(), $hookTitle->getFullText() );
+				$this->assertSame( $user->getName(), $hookUser->getName() );
+				$this->assertSame( $user->getId(), $hookUser->getId() );
+				$this->assertSame( $reason, $hookReason );
 
 				return true;
 			} );
@@ -143,7 +143,7 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 
 		$this->assertFalse( $status->isOK(),
 			"ApproveMoveConsequence succeeded for a moderator who is not allowed to move." );
-		$this->assertEquals( 'movenotallowed', $status->getMessage()->getKey(),
+		$this->assertSame( 'movenotallowed', $status->getMessage()->getKey(),
 			"ApproveMoveConsequence didn't return expected Status." );
 		$this->assertFalse( $hookFired, "PageMoveComplete hook was fired for non-allowed move." );
 	}

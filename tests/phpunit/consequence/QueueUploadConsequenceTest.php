@@ -229,7 +229,7 @@ class QueueUploadConsequenceTest extends ModerationUnitTestCase {
 			$this->prepareTestUpload( $title ), $user, '', '' );
 		$error = $consequence->run();
 
-		$this->assertEquals( [ 'api-error-stashfailed' ], $error );
+		$this->assertSame( [ 'api-error-stashfailed' ], $error );
 		$this->assertConsequencesEqual( [], $manager->getConsequences() );
 	}
 }

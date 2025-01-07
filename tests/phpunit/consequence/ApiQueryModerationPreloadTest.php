@@ -69,7 +69,7 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 		$preload = $this->createMock( ModerationPreload::class );
 		$preload->expects( $this->any() )->method( 'findPendingEdit' )->will(
 			$this->returnCallback( function ( $target ) use ( $title, $pendingEdit ) {
-				$this->assertEquals( $title->getFullText(), $target->getFullText() );
+				$this->assertSame( $title->getFullText(), $target->getFullText() );
 				return $pendingEdit;
 			} )
 		);
@@ -122,7 +122,7 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 				];
 			}
 		}
-		$this->assertEquals( $expectedResult, $actualResult, "API response doesn't match expected." );
+		$this->assertSame( $expectedResult, $actualResult, "API response doesn't match expected." );
 	}
 
 	/**

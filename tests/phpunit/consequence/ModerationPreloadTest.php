@@ -84,7 +84,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		$preload->setUser( $user );
 		$preloadId = $preload->getId( $create );
 
-		$this->assertEquals( $expectedResult, $preloadId, "Result of getId() doesn't match expected." );
+		$this->assertSame( $expectedResult, $preloadId, "Result of getId() doesn't match expected." );
 		$this->assertConsequencesEqual( $expectedConsequences, $manager->getConsequences() );
 	}
 
@@ -128,7 +128,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		$preload = new ModerationPreload( $entryFactory, $manager );
 		$preloadId = $preload->getId();
 
-		$this->assertEquals( "[Global User", $preloadId, "Result of getId() doesn't match expected." );
+		$this->assertSame( "[Global User", $preloadId, "Result of getId() doesn't match expected." );
 		$this->assertNoConsequences( $manager );
 	}
 
@@ -374,7 +374,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	 */
 	private function checkOutputAfterShowTest() {
 		$out = RequestContext::getMain()->getOutput();
-		$this->assertEquals( [ 'ext.moderation.edit' ], $out->getModules() );
+		$this->assertSame( [ 'ext.moderation.edit' ], $out->getModules() );
 		$this->assertStringContainsString(
 			'<div id="mw-editing-your-version">(moderation-editing-your-version)</div>',
 			$out->getHTML()

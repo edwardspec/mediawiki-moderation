@@ -85,7 +85,7 @@ class ModerationUploadStorageTest extends ModerationTestCase {
 		$stashAccessWrapper = TestingAccessWrapper::newFromObject( $stash );
 		$stashOwner = $stashAccessWrapper->user;
 
-		$this->assertEquals( ModerationUploadStorage::USERNAME, $stashOwner->getName() );
+		$this->assertSame( ModerationUploadStorage::USERNAME, $stashOwner->getName() );
 		$this->assertFalse( $stashOwner->isAnon() );
 		$this->assertTrue( $stashOwner->isSystemUser() );
 

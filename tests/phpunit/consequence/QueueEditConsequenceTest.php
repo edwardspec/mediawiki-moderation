@@ -175,7 +175,7 @@ class QueueEditConsequenceTest extends ModerationUnitTestCase {
 		$hookRunner = $this->createMock( HookRunner::class );
 		$hookRunner->expects( $this->once() )->method( 'onModerationPending' )->will(
 			$this->returnCallback( function ( $hookFields, $hookModid ) use ( $expectedFields, $modid ) {
-				$this->assertEquals( $modid, $hookModid );
+				$this->assertSame( $modid, $hookModid );
 
 				// With the exception of timestamp, all fields must match.
 				unset( $expectedFields['mod_timestamp'] );

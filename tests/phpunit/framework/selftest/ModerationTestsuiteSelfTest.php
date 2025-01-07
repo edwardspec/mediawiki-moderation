@@ -47,7 +47,7 @@ class ModerationTestsuiteSelfTest extends ModerationTestCase {
 		$this->assertArrayHasKey( 'sitename', $ret['query']['general'] );
 
 		global $wgSitename;
-		$this->assertEquals( $wgSitename, $ret['query']['general']['sitename'] );
+		$this->assertSame( $wgSitename, $ret['query']['general']['sitename'] );
 	}
 
 	/**
@@ -71,7 +71,7 @@ class ModerationTestsuiteSelfTest extends ModerationTestCase {
 		$this->assertArrayNotHasKey( 'anon', $ret['query']['userinfo'],
 			"User is still anonymous after loginAs()" );
 
-		$this->assertEquals( $user->getName(),
+		$this->assertSame( $user->getName(),
 			$ret['query']['userinfo']['name'] );
 	}
 
@@ -94,7 +94,7 @@ class ModerationTestsuiteSelfTest extends ModerationTestCase {
 			$req = $engine->httpRequest( wfAppendQuery( $url, $data ) );
 		}
 
-		$this->assertEquals( 200, $req->getStatus(),
+		$this->assertSame( 200, $req->getStatus(),
 			'Incorrect HTTP response code.' );
 
 		$html = new ModerationTestsuiteHTML( $engine );

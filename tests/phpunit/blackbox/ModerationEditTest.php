@@ -94,7 +94,7 @@ class ModerationEditTest extends ModerationTestCase {
 
 		$expectedText = implode( '', $sections );
 
-		$this->assertEquals( $expectedText, $t->new_entries[0]->getDbText(),
+		$this->assertSame( $expectedText, $t->new_entries[0]->getDbText(),
 			"testEditSections(): Resulting text doesn't match expected" );
 
 		# Does PreSaveTransform work when editing sections?
@@ -111,7 +111,7 @@ class ModerationEditTest extends ModerationTestCase {
 		$bot->edit( $title, $sections[2], null, 2 );
 
 		$expectedText = implode( '', $sections );
-		$this->assertEquals( $expectedText, $t->new_entries[0]->getDbText(),
+		$this->assertSame( $expectedText, $t->new_entries[0]->getDbText(),
 			"testEditSections(): When section header is deleted, resulting text doesn't match expected " );
 	}
 
@@ -145,7 +145,7 @@ class ModerationEditTest extends ModerationTestCase {
 		$this->assertNotEquals( strlen( $sections[0] ), $newlen,
 			"testNewSizeAfterEditSection(): Incorrect length: " .
 			"matches the length of the edited section" );
-		$this->assertEquals( strlen( $origText ), $newlen,
+		$this->assertSame( strlen( $origText ), $newlen,
 			"testNewSizeAfterEditSection(): Length changed after null edit in a section" );
 	}
 
@@ -191,7 +191,7 @@ class ModerationEditTest extends ModerationTestCase {
 
 		$t->fetchSpecial();
 
-		$this->assertEquals( $expectedText, $t->new_entries[0]->getDbText(),
+		$this->assertSame( $expectedText, $t->new_entries[0]->getDbText(),
 			"testApiEditAppend(): Resulting text doesn't match expected" );
 	}
 

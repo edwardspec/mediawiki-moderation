@@ -227,11 +227,11 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 	 * @param ModerationTestsuiteEntry $entry
 	 */
 	protected function assertBasicInfo( ModerationTestsuiteEntry $entry ) {
-		$this->assertEquals( $this->fields['mod_id'], $entry->id,
+		$this->assertSame( $this->fields['mod_id'], $entry->id,
 			"Special:Moderation: ID of the change doesn't match expected" );
-		$this->assertEquals( $this->getExpectedTitle(), $entry->title,
+		$this->assertSame( $this->getExpectedTitle(), $entry->title,
 			"Special:Moderation: Title of the edited page doesn't match expected" );
-		$this->assertEquals( $this->fields['mod_user_text'], $entry->user,
+		$this->assertSame( $this->fields['mod_user_text'], $entry->user,
 			"Special:Moderation: Username of the author doesn't match expected" );
 
 		MediaWikiServices::getInstance()->getLinkCache()->clear();
@@ -242,7 +242,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 		$commentFormatter = MediaWikiServices::getInstance()->getCommentFormatter();
 		$expectedComment = $commentFormatter->format( $comment, $title );
 
-		$this->assertEquals( $expectedComment, $entry->commentHtml,
+		$this->assertSame( $expectedComment, $entry->commentHtml,
 			"Special:Moderation: Edit summary doesn't match expected" );
 	}
 
@@ -271,9 +271,9 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 		$expectedDatetime = $expectTimeOnly ? $expectedTime :
 			$lang->userTimeAndDate( $timestamp, $user );
 
-		$this->assertEquals( $expectedTime, $entry->time,
+		$this->assertSame( $expectedTime, $entry->time,
 			"Special:Moderation: time of the change doesn't match expected" );
-		$this->assertEquals( $expectedDatetime, $entry->datetime,
+		$this->assertSame( $expectedDatetime, $entry->datetime,
 			"Special:Moderation: datetime of the change doesn't match expected" );
 	}
 
@@ -293,7 +293,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 			'is creation of new page' => $entry->new
 		];
 
-		$this->assertEquals( $expectedFlags, $shownFlags,
+		$this->assertSame( $expectedFlags, $shownFlags,
 			"Special:Moderation: Incorrect entry flags." );
 	}
 
@@ -306,7 +306,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 
 		$expectedChange = $this->fields['mod_new_len'] - $this->fields['mod_old_len'];
 
-		$this->assertEquals( [
+		$this->assertSame( [
 			'change in length' => $expectedChange,
 			'is length change hightlighted?' =>
 				( abs( $expectedChange ) >= $wgRCChangedSizeThreshold )
@@ -321,7 +321,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 	 * @param ModerationTestsuiteEntry $entry
 	 */
 	protected function assertConflictStatus( ModerationTestsuiteEntry $entry ) {
-		$this->assertEquals( [
+		$this->assertSame( [
 			'shown as edit conflict?' => $this->fields['mod_conflict']
 		], [
 			'shown as edit conflict?' => $entry->conflict
@@ -353,11 +353,11 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 	 */
 	protected function assertWhoisLink( ModerationTestsuiteEntry $entry ) {
 		if ( $this->fields['mod_user'] == 0 ) {
-			$this->assertEquals( $this->fields['mod_user_text'], $entry->ip,
+			$this->assertSame( $this->fields['mod_user_text'], $entry->ip,
 				"Special:Moderation: incorrect Whois link for anonymous user." );
 		} else {
 			if ( $this->isCheckuser ) {
-				$this->assertEquals( $this->fields['mod_ip'], $entry->ip,
+				$this->assertSame( $this->fields['mod_ip'], $entry->ip,
 					"Special:Moderation (viewed by checkuser): incorrect Whois link for registered user." );
 			} else {
 				$this->assertNull( $entry->ip,
@@ -375,7 +375,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 			$this->assertTrue( $entry->isMove,
 				"Special:Moderation: incorrect formatting of the move entry." );
 
-			$this->assertEquals( $this->getExpectedPage2Title(), $entry->page2Title,
+			$this->assertSame( $this->getExpectedPage2Title(), $entry->page2Title,
 				"Special:Moderation: New Title of suggested move doesn't match expected" );
 		}
 	}
@@ -502,7 +502,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 		asort( $query );
 		asort( $expectedQuery );
 
-		$this->assertEquals( $expectedQuery, $query,
+		$this->assertSame( $expectedQuery, $query,
 			"QueryString of [$url] doesn't match expected"
 		);
 	}
@@ -512,12 +512,12 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 	 * @param ModerationTestsuiteEntry $entry
 	 */
 	protected function assertRejectedBy( ModerationTestsuiteEntry $entry ) {
-		$this->assertEquals(
+		$this->assertSame(
 			$this->fields['mod_rejected_by_user_text'],
 			$entry->rejected_by_user,
 			"Special:Moderation: incorrect name of moderator who rejected the edit" );
 
-		$this->assertEquals( [
+		$this->assertSame( [
 			'rejected via RejectAll' => (bool)$this->fields['mod_rejected_batch'],
 			'rejected automatically' => (bool)$this->fields['mod_rejected_auto']
 		], [

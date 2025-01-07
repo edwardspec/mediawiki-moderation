@@ -70,7 +70,7 @@ class ModerationCanSkipTest extends ModerationUnitTestCase {
 		'@phan-var User $user';
 
 		$result = $canSkip->$method( $user, ...$args );
-		$this->assertEquals( $expectedResult, $result, "Result on $method() doesn't match expected." );
+		$this->assertSame( $expectedResult, $result, "Result on $method() doesn't match expected." );
 	}
 
 	/**

@@ -67,7 +67,7 @@ class ModerationApproveTest extends ModerationTestCase {
 
 		foreach ( $entries as $entry ) {
 			$rev = $t->getLastRevision( $entry->title );
-			$this->assertEquals( $t->unprivilegedUser->getName(), $rev['user'] );
+			$this->assertSame( $t->unprivilegedUser->getName(), $rev['user'] );
 		}
 
 		# Check the log entries: there should be
@@ -85,14 +85,14 @@ class ModerationApproveTest extends ModerationTestCase {
 		$this->assertNotNull( $le );
 		'@phan-var array $le';
 
-		$this->assertEquals( 'approveall', $le['action'],
+		$this->assertSame( 'approveall', $le['action'],
 			"testApproveAll(): Most recent log entry is not 'approveall'" );
-		$this->assertEquals( $t->moderator->getName(), $le['user'] );
-		$this->assertEquals( $t->unprivilegedUser->getUserPage(), $le['title'] );
+		$this->assertSame( $t->moderator->getName(), $le['user'] );
+		$this->assertSame( $t->unprivilegedUser->getUserPage(), $le['title'] );
 
 		foreach ( $events as $le ) {
-			$this->assertEquals( 'approve', $le['action'] );
-			$this->assertEquals( $t->moderator->getName(), $le['user'] );
+			$this->assertSame( 'approve', $le['action'] );
+			$this->assertSame( $t->moderator->getName(), $le['user'] );
 		}
 	}
 
@@ -188,9 +188,9 @@ class ModerationApproveTest extends ModerationTestCase {
 			$ts = new MWTimestamp( $row->rev_timestamp );
 			$foundTimestamp = $ts->getTimestamp( TS_MW );
 
-			$this->assertEquals( $task['timestamp'], $foundTimestamp,
+			$this->assertSame( $task['timestamp'], $foundTimestamp,
 				"testApproveAllTimestamp(): approved edit has incorrect timestamp in the page history" );
-			$this->assertEquals( $task['ip'], $row->rc_ip,
+			$this->assertSame( $task['ip'], $row->rc_ip,
 				"testApproveAllTimestamp(): approved edit has incorrect IP in recentchanges" );
 		}
 	}

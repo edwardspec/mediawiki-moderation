@@ -54,9 +54,9 @@ class TagRevisionAsMergedConsequenceTest extends ModerationUnitTestCase {
 		) use ( &$hookFired, $revid ) {
 			$hookFired = true;
 
-			$this->assertEquals( $revid, $hookRevId );
-			$this->assertEquals( [ 'moderation-merged' ], $tagsToAdd );
-			$this->assertEquals( [], $tagsToRemove );
+			$this->assertSame( $revid, $hookRevId );
+			$this->assertSame( [ 'moderation-merged' ], $tagsToAdd );
+			$this->assertSame( [], $tagsToRemove );
 
 			return true;
 		} );

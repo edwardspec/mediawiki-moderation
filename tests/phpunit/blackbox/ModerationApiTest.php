@@ -65,7 +65,7 @@ class ModerationApiTest extends ModerationTestCase {
 			$ret['moderation']['diff-html'] = '{{DIFF}}';
 		}
 
-		$this->assertEquals( [ 'moderation' => $expectedResult ], $ret );
+		$this->assertSame( [ 'moderation' => $expectedResult ], $ret );
 	}
 
 	/**

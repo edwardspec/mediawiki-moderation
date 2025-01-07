@@ -90,18 +90,18 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 			$performer = $rc->getPerformerIdentity();
 
 			$this->assertTrue( $rc->getPage()->isSamePageAs( $title ), 'Wrong title' );
-			$this->assertEquals( $user->getName(), $performer->getName() );
-			$this->assertEquals( $user->getId(), $performer->getId() );
-			$this->assertEquals( $opt->minor ? 1 : 0, $rc->getAttribute( 'rc_minor' ) );
-			$this->assertEquals( $opt->bot ? 1 : 0, $rc->getAttribute( 'rc_bot' ) );
-			$this->assertEquals( $opt->summary, $rc->getAttribute( 'rc_comment' ) );
+			$this->assertSame( $user->getName(), $performer->getName() );
+			$this->assertSame( $user->getId(), $performer->getId() );
+			$this->assertSame( $opt->minor ? 1 : 0, $rc->getAttribute( 'rc_minor' ) );
+			$this->assertSame( $opt->bot ? 1 : 0, $rc->getAttribute( 'rc_bot' ) );
+			$this->assertSame( $opt->summary, $rc->getAttribute( 'rc_comment' ) );
 
 			$revid = $rc->getAttribute( 'rc_this_oldid' );
 			$this->assertNotSame( 0, $revid );
 
 			$rec = MediaWikiServices::getInstance()->getRevisionLookup()->getRevisionById( $revid );
-			$this->assertEquals( $baseRevId, $rec->getParentId() );
-			$this->assertEquals( $newText, $rec->getSlot( SlotRecord::MAIN )->getContent()->serialize() );
+			$this->assertSame( $baseRevId, $rec->getParentId() );
+			$this->assertSame( $newText, $rec->getSlot( SlotRecord::MAIN )->getContent()->serialize() );
 
 			return true;
 		}, false );
@@ -167,8 +167,8 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 		$revid = $rev->getId();
 		$rec = MediaWikiServices::getInstance()->getRevisionLookup()->getRevisionById( $revid );
 
-		$this->assertEquals( $revid2, $rec->getParentId() );
-		$this->assertEquals( $expectedText, $rec->getSlot( SlotRecord::MAIN )->getContent()->serialize() );
+		$this->assertSame( $revid2, $rec->getParentId() );
+		$this->assertSame( $expectedText, $rec->getSlot( SlotRecord::MAIN )->getContent()->serialize() );
 	}
 
 	/**
@@ -200,10 +200,10 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 		$this->assertFalse( $status->isOK(),
 			"ApproveEditConsequence returned incorrect Success for unresolvable edit conflict." );
 
-		$this->assertEquals( 'moderation-edit-conflict', $status->getMessage()->getKey(),
+		$this->assertSame( 'moderation-edit-conflict', $status->getMessage()->getKey(),
 			"ApproveEditConsequence didn't return \"moderation-edit-conflict\" error." );
 
-		$this->assertEquals( $revid2, $title->getLatestRevID( IDBAccessObject::READ_LATEST ),
+		$this->assertSame( $revid2, $title->getLatestRevID( IDBAccessObject::READ_LATEST ),
 			"Page was modified after ApproveEditConsequence on unresolvable edit conflict." );
 	}
 

@@ -62,8 +62,8 @@ class WatchOrUnwatchConsequenceTest extends ModerationUnitTestCase {
 			function ( $userIdentity, $wikiPage ) use ( &$watchHookFired, $title, $user ) {
 				$watchHookFired = true;
 
-				$this->assertEquals( $title, $wikiPage->getTitle()->getFullText() );
-				$this->assertEquals( $user->getName(), $userIdentity->getName() );
+				$this->assertSame( $title, $wikiPage->getTitle()->getFullText() );
+				$this->assertSame( $user->getName(), $userIdentity->getName() );
 
 				return true;
 			}
@@ -74,8 +74,8 @@ class WatchOrUnwatchConsequenceTest extends ModerationUnitTestCase {
 			function ( $userIdentity, $wikiPage ) use ( &$unwatchHookFired, $title, $user ) {
 				$unwatchHookFired = true;
 
-				$this->assertEquals( $title, $wikiPage->getTitle()->getFullText() );
-				$this->assertEquals( $user->getName(), $userIdentity->getName() );
+				$this->assertSame( $title, $wikiPage->getTitle()->getFullText() );
+				$this->assertSame( $user->getName(), $userIdentity->getName() );
 
 				return true;
 			}

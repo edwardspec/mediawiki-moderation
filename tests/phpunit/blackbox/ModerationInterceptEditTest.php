@@ -46,7 +46,7 @@ class ModerationInterceptEditTest extends ModerationTestCase {
 		$this->assertCount( 2, $params,
 			"testPostEditRedirect(): redirect URL has parameters other than 'title' and 'modqueued'" );
 
-		$this->assertEquals(
+		$this->assertSame(
 			$t->lastEdit['Title'],
 			preg_replace( '/_/', ' ', $params['title'] ),
 			"testPostEditRedirect(): Title in the redirect URL doesn't match the title of page we edited" );
@@ -73,7 +73,7 @@ class ModerationInterceptEditTest extends ModerationTestCase {
 			"but number of added entries in Pending folder isn't 1" );
 		$this->assertCount( 0, $t->deleted_entries,
 			"testPostEditRedirect(): Something was deleted from Pending folder during the queueing" );
-		$this->assertEquals( $t->lastEdit['User'], $t->new_entries[0]->user );
-		$this->assertEquals( $t->lastEdit['Title'], $t->new_entries[0]->title );
+		$this->assertSame( $t->lastEdit['User'], $t->new_entries[0]->user );
+		$this->assertSame( $t->lastEdit['Title'], $t->new_entries[0]->title );
 	}
 }

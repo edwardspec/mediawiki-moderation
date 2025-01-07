@@ -48,7 +48,7 @@ class EditFormOptionsTest extends ModerationUnitTestCase {
 
 		$val = 12345;
 		$opt->setMergeID( $val );
-		$this->assertEquals( $val, $opt->getMergeID() );
+		$this->assertSame( $val, $opt->getMergeID() );
 	}
 
 	/**
@@ -61,7 +61,7 @@ class EditFormOptionsTest extends ModerationUnitTestCase {
 		$val = 12345;
 		RequestContext::getMain()->getRequest()->setVal( 'wpMergeID', 12345 );
 
-		$this->assertEquals( $val, $opt->getMergeID() );
+		$this->assertSame( $val, $opt->getMergeID() );
 	}
 
 	/**
@@ -141,7 +141,7 @@ class EditFormOptionsTest extends ModerationUnitTestCase {
 		$editPage->attemptSave( $unusedResult );
 
 		$this->assertSame( $text, $opt->getSectionText(), 'getSectionText()' );
-		$this->assertEquals( $section, $opt->getSection(), 'getSection()' );
+		$this->assertSame( $section, $opt->getSection(), 'getSection()' );
 
 		$wrapper = TestingAccessWrapper::newFromObject( $opt );
 		$this->assertSame( $isWatch, $wrapper->watchthis, 'watchthis' );

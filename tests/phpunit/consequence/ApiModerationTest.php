@@ -59,7 +59,7 @@ class ApiModerationTest extends ApiTestCase {
 			], null, $notModerator );
 		} catch ( ApiUsageException $e ) {
 			$exceptionThrown = true;
-			$this->assertEquals( '(apierror-permissiondenied: (action-moderation))',
+			$this->assertSame( '(apierror-permissiondenied: (action-moderation))',
 				$e->getMessageObject()->inLanguage( 'qqx' )->plain() );
 		}
 
@@ -84,7 +84,7 @@ class ApiModerationTest extends ApiTestCase {
 			], null, false, self::getTestUser( [ 'moderator' ] )->getUser() );
 		} catch ( ApiUsageException $e ) {
 			$exceptionThrown = true;
-			$this->assertEquals( '(apierror-badtoken)',
+			$this->assertSame( '(apierror-badtoken)',
 				$e->getMessageObject()->inLanguage( 'qqx' )->plain() );
 		}
 
@@ -114,7 +114,7 @@ class ApiModerationTest extends ApiTestCase {
 			], null, self::getTestUser( [ 'moderator' ] )->getUser() );
 		} catch ( ApiUsageException $e ) {
 			$exceptionThrown = true;
-			$this->assertEquals( '(error-thrown-by-tested-action)',
+			$this->assertSame( '(error-thrown-by-tested-action)',
 				$e->getMessageObject()->inLanguage( 'qqx' )->plain() );
 		}
 
@@ -138,7 +138,7 @@ class ApiModerationTest extends ApiTestCase {
 			'modid' => 12345
 		], null, self::getTestUser( [ 'moderator' ] )->getUser() );
 
-		$this->assertEquals( [ 'moderation' => $mockedResult ], $result );
+		$this->assertSame( [ 'moderation' => $mockedResult ], $result );
 	}
 
 	/**

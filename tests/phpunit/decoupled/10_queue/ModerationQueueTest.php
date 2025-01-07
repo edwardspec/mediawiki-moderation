@@ -526,12 +526,12 @@ class ModerationQueueTest extends ModerationTestCase {
 		list( , $to, $from, $subject, $body ) = $hooks[0][1];
 
 		global $wgPasswordSender;
-		$this->assertEquals( $wgPasswordSender, $from['address'] );
-		$this->assertEquals( $this->notifyEmail, $to[0]['address'] );
-		$this->assertEquals( '(moderation-notification-subject)', $subject );
+		$this->assertSame( $wgPasswordSender, $from['address'] );
+		$this->assertSame( $this->notifyEmail, $to[0]['address'] );
+		$this->assertSame( '(moderation-notification-subject)', $subject );
 
 		$modid = ModerationCompatTools::getDB( DB_PRIMARY )->selectField( 'moderation', 'mod_id', '', __METHOD__ );
-		$this->assertEquals( '(moderation-notification-content: ' .
+		$this->assertSame( '(moderation-notification-content: ' .
 			$this->title->getFullText() . ', ' .
 			$this->user->getName() . ', ' .
 			SpecialPage::getTitleFor( 'Moderation' )->getCanonicalURL( [
@@ -564,32 +564,32 @@ class ModerationQueueTest extends ModerationTestCase {
 		$this->assertCount( 1, $hooks, "Number of times ModerationIntercept hook was called isn't 1." );
 
 		list( $paramTypes, $params ) = $hooks[0];
-		$this->assertEquals( 'WikiPage', $paramTypes[0] );
+		$this->assertSame( 'WikiPage', $paramTypes[0] );
 
 		$expectedUserClass = 'MediaWiki\User\User'; // MediaWiki 1.41+
 		if ( !class_exists( $expectedUserClass, false ) ) {
 			// MediaWiki 1.39-1.40
 			$expectedUserClass = 'User';
 		}
-		$this->assertEquals( $expectedUserClass, $paramTypes[1] );
+		$this->assertSame( $expectedUserClass, $paramTypes[1] );
 
 		$this->assertTrue(
 			( new ReflectionClass( $paramTypes[2] ) )->implementsInterface( 'Content' ) );
-		$this->assertEquals( 'string', $paramTypes[3] ); // $summary
+		$this->assertSame( 'string', $paramTypes[3] ); // $summary
 
 		// $is_minor: 0 or EDIT_MINOR (int, not bool), same as received in PageContentSave hook
-		$this->assertEquals( 'integer', $paramTypes[4] );
+		$this->assertSame( 'integer', $paramTypes[4] );
 
-		$this->assertEquals( 'NULL', $paramTypes[5] ); // Unused
-		$this->assertEquals( 'NULL', $paramTypes[6] ); // Unused
-		$this->assertEquals( 'integer', $paramTypes[7] ); // $flags
+		$this->assertSame( 'NULL', $paramTypes[5] ); // Unused
+		$this->assertSame( 'NULL', $paramTypes[6] ); // Unused
+		$this->assertSame( 'integer', $paramTypes[7] ); // $flags
 
 		$expectedStatusClass = 'MediaWiki\Storage\PageUpdateStatus'; // MediaWiki 1.40+
 		if ( !class_exists( $expectedStatusClass ) ) {
 			// MediaWiki 1.39 only
 			$expectedStatusClass = 'Status';
 		}
-		$this->assertEquals( $expectedStatusClass, $paramTypes[8] );
+		$this->assertSame( $expectedStatusClass, $paramTypes[8] );
 
 		// FIXME: loss of types during JSON serialization is very inconvenient.
 		// serialize() is not currently used, because some classes have callbacks, etc.,
@@ -599,9 +599,9 @@ class ModerationQueueTest extends ModerationTestCase {
 			$params[0]['prefixedText']
 		) ) );
 
-		$this->assertEquals( $this->user->getName(), $params[1]['mName'] );
+		$this->assertSame( $this->user->getName(), $params[1]['mName'] );
 		// $params[2] is not serialiable
-		$this->assertEquals( $this->getExpectedSummary(), $params[3] );
+		$this->assertSame( $this->getExpectedSummary(), $params[3] );
 
 		$minorFlag = ( $this->minor && $this->existing ) ? EDIT_MINOR : 0;
 		$this->assertSame( $minorFlag, $params[4] );
@@ -614,7 +614,7 @@ class ModerationQueueTest extends ModerationTestCase {
 			$expectedFlags |= EDIT_AUTOSUMMARY;
 		}
 
-		$this->assertEquals( $expectedFlags, $params[7] );
+		$this->assertSame( $expectedFlags, $params[7] );
 		$this->assertSame( 0, $params[8]['failCount'] );
 	}
 
@@ -627,8 +627,8 @@ class ModerationQueueTest extends ModerationTestCase {
 		$this->assertCount( 1, $hooks, "Number of times ModerationPending hook was called isn't 1." );
 
 		list( $paramTypes, $params ) = $hooks[0];
-		$this->assertEquals( 'array', $paramTypes[0] );
-		$this->assertEquals( 'integer', $paramTypes[1] );
+		$this->assertSame( 'array', $paramTypes[0] );
+		$this->assertSame( 'integer', $paramTypes[1] );
 
 		list( $fields, $id ) = $params;
 		$this->assertArrayNotHasKey( 'mod_id', $fields );
@@ -770,7 +770,7 @@ class ModerationQueueTest extends ModerationTestCase {
 		$file = $stash->getFile( $stashKey );
 		$contents = file_get_contents( $file->getLocalRefPath() );
 
-		$this->assertEquals( $expectedContents, $contents,
+		$this->assertSame( $expectedContents, $contents,
 			"Stashed file is different from uploaded file" );
 	}
 

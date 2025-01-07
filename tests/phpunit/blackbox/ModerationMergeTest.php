@@ -72,7 +72,7 @@ class ModerationMergeTest extends ModerationTestCase {
 			"testMerge(): Edit with not-yet-detected conflict is marked with class='modconflict'" );
 
 		$error = $t->html->loadUrl( $entry->approveLink )->getModerationError();
-		$this->assertEquals( '(moderation-edit-conflict)', $error,
+		$this->assertSame( '(moderation-edit-conflict)', $error,
 			"testMerge(): Edit conflict not detected by modaction=approve" );
 
 		$t->fetchSpecial();
@@ -122,9 +122,9 @@ class ModerationMergeTest extends ModerationTestCase {
 		$this->assertRegExp( '/\(editconflict: ' . $t->lastEdit['Title'] . '\)/', $title,
 			"testMerge(): Wrong HTML title from modaction=merge" );
 
-		$this->assertEquals( $this->text2, $t->html->getElementById( 'wpTextbox1' )->textContent,
+		$this->assertSame( $this->text2, $t->html->getElementById( 'wpTextbox1' )->textContent,
 			"testMerge(): The upper textarea doesn't contain the current page text" );
-		$this->assertEquals( $this->text1, $t->html->getElementById( 'wpTextbox2' )->textContent,
+		$this->assertSame( $this->text1, $t->html->getElementById( 'wpTextbox2' )->textContent,
 			"testMerge(): The lower textarea doesn't contain the text we attempted to approve" );
 
 		$form = $t->html->getElementById( 'editform' );
@@ -140,7 +140,7 @@ class ModerationMergeTest extends ModerationTestCase {
 
 		$this->assertArrayHasKey( 'wpMergeID', $inputs,
 			"testMerge(): Edit form doesn't contain wpMergeID field" );
-		$this->assertEquals( $id, $inputs['wpMergeID'],
+		$this->assertSame( $id, $inputs['wpMergeID'],
 			"testMerge(): Value of wpMergeID field doesn't match the entry id" );
 
 		# Try to edit now
@@ -155,7 +155,7 @@ class ModerationMergeTest extends ModerationTestCase {
 			"testMerge(): non-API edit with wpMergeID failed" );
 
 		$rev = $t->getLastRevision( $this->page );
-		$this->assertEquals( $t->moderator->getName(), $rev['user'] );
+		$this->assertSame( $t->moderator->getName(), $rev['user'] );
 
 		# Was the edit moved into the 'merged' folder?
 
@@ -164,7 +164,7 @@ class ModerationMergeTest extends ModerationTestCase {
 			"testMerge(): Something was added into Pending folder when the edit was merged" );
 		$this->assertCount( 1, $t->deleted_entries,
 			"testMerge(): One edit was merged, but number of deleted entries in Pending folder isn't 1" );
-		$this->assertEquals( $id, $t->deleted_entries[0]->id );
+		$this->assertSame( $id, $t->deleted_entries[0]->id );
 
 		$t->fetchSpecial( 'merged' );
 		$this->assertCount( 1, $t->new_entries,
@@ -173,7 +173,7 @@ class ModerationMergeTest extends ModerationTestCase {
 			"testMerge(): Something was deleted from Merged folder when the edit was merged" );
 
 		$entry = $t->new_entries[0];
-		$this->assertEquals( $id, $entry->id );
+		$this->assertSame( $id, $entry->id );
 
 		$this->assertNull( $entry->rejectLink,
 			"testMerge(): Reject link found for already merged edit" );
@@ -196,7 +196,7 @@ class ModerationMergeTest extends ModerationTestCase {
 		$params = wfCgiToArray( preg_replace( '/^.*?\?/', '', $entry->mergedDiffLink ) );
 
 		$this->assertArrayHasKey( 'diff', $params );
-		$this->assertEquals( $rev['revid'], $params['diff'],
+		$this->assertSame( $rev['revid'], $params['diff'],
 			"testMerge(): diff parameter doesn't match revid of the last revision on the page we edited" );
 	}
 

@@ -127,8 +127,8 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 
 		if ( $isFound ) {
 			$this->assertNotFalse( $row );
-			$this->assertEquals( $expectedUA, $row->header_ua );
-			$this->assertEquals( $expectedIP, $row->ip );
+			$this->assertSame( $expectedUA, $row->header_ua );
+			$this->assertSame( $expectedIP, $row->ip );
 
 			if ( $useWhere ) {
 				// We haven't listed "id" in $fields, and parameter $where is an array (not mod_id).
@@ -136,11 +136,11 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 					"Field \$row->id is not 0, even though $testedMethod() didn't receive an id, " .
 					"and \$fields parameter didn't contain \"id\" field either." );
 			} else {
-				$this->assertEquals( $modid, $row->id,
+				$this->assertSame( $modid, $row->id,
 					"Incorrect \$row->id in return value of $testedMethod." );
 			}
 
-			$this->assertEquals( [ 'header_ua', 'ip', 'id' ], array_keys( get_object_vars( $row ) ),
+			$this->assertSame( [ 'header_ua', 'ip', 'id' ], array_keys( get_object_vars( $row ) ),
 				"List of properties in \$row (return value of $testedMethod)."
 			);
 		} else {
@@ -192,11 +192,11 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 		$anyWhere = [ 'mod_namespace >= 0' ];
 		$row = $factory->$testedMethod( $anyWhere, [ 'mod_namespace AS value' ], DB_PRIMARY,
 			[ 'ORDER BY' => 'mod_namespace' ] );
-		$this->assertEquals( 4, $row->value );
+		$this->assertSame( 4, $row->value );
 
 		$row = $factory->$testedMethod( $anyWhere, [ 'mod_namespace AS value' ], DB_PRIMARY,
 			[ 'ORDER BY' => 'mod_namespace DESC' ] );
-		$this->assertEquals( 10, $row->value );
+		$this->assertSame( 10, $row->value );
 	}
 
 	/**

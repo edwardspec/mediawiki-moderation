@@ -43,10 +43,10 @@ class RememberAnonIdConsequenceTest extends ModerationUnitTestCase {
 		$id = $consequence->run();
 
 		$this->assertNotEmpty( $id );
-		$this->assertEquals( 32, strlen( $id ), 'Length of newly generated anon_id string' );
+		$this->assertSame( 32, strlen( $id ), 'Length of newly generated anon_id string' );
 
 		$request = RequestContext::getMain()->getRequest();
-		$this->assertEquals( $id, $request->getSessionData( 'anon_id' ),
+		$this->assertSame( $id, $request->getSessionData( 'anon_id' ),
 			"Newly generated anon_id wasn't saved into the session." );
 		$this->assertTrue( $request->getSession()->isPersistent(),
 			"Session didn't become persistent after RememberAnonIdConsequence." );

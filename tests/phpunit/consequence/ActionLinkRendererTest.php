@@ -91,7 +91,7 @@ class ActionLinkRendererTest extends ModerationUnitTestCase {
 		$renderer = new ActionLinkRenderer( $context, $linkRenderer, $specialTitle );
 		$result = $renderer->makeLink( $action, $id );
 
-		$this->assertEquals( $expectedResult, $result );
+		$this->assertSame( $expectedResult, $result );
 	}
 
 	/**

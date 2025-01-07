@@ -71,7 +71,7 @@ class ModerationUnitTestCase extends MediaWikiIntegrationTestCase {
 		array $expectedConsequences,
 		array $actualConsequences
 	) {
-		self::assertEquals(
+		self::assertSame(
 			array_map( 'get_class', $expectedConsequences ),
 			array_map( 'get_class', $actualConsequences ),
 			"List of consequences doesn't match expected."

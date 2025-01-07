@@ -33,7 +33,7 @@ use UploadFromFile;
 
 /**
  * @codingStandardsIgnoreStart
- * @method static void assertEquals($a, $b, string $message='', float $d=0.0, int $e=10, bool $f=false, bool $g=false)
+ * @method static void assertSame($a, $b, string $message='', float $d=0.0, int $e=10, bool $f=false, bool $g=false)
  * @codingStandardsIgnoreEnd
  */
 trait UploadTestTrait {
@@ -90,7 +90,7 @@ trait UploadTestTrait {
 			$fauxRequest->getUpload( 'wpUploadFile' )
 		);
 
-		$this->assertEquals( [ 'status' => UploadBase::OK ], $upload->verifyUpload() );
+		$this->assertSame( [ 'status' => UploadBase::OK ], $upload->verifyUpload() );
 
 		return $upload;
 	}

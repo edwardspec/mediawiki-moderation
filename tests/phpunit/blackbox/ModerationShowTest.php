@@ -79,10 +79,10 @@ class ModerationShowTest extends ModerationTestCase {
 		$this->assertCount( 4, $context_lines,
 			"testShow(): Two lines were unchanged, but number of context lines " .
 			"on the difference page is not 4" );
-		$this->assertEquals( 'First string', $context_lines[0] );
-		$this->assertEquals( 'First string', $context_lines[1] );
-		$this->assertEquals( 'Third string', $context_lines[2] );
-		$this->assertEquals( 'Third string', $context_lines[3] );
+		$this->assertSame( 'First string', $context_lines[0] );
+		$this->assertSame( 'First string', $context_lines[1] );
+		$this->assertSame( 'Third string', $context_lines[2] );
+		$this->assertSame( 'Third string', $context_lines[3] );
 
 		$this->assertCount( 1, $added_lines,
 			"testShow(): One line was modified, but number of added lines " .
@@ -90,8 +90,8 @@ class ModerationShowTest extends ModerationTestCase {
 		$this->assertCount( 1, $deleted_lines,
 			"testShow(): One line was modified, but number of deleted lines " .
 			"on the difference page is not 1" );
-		$this->assertEquals( 'Another second string', $added_lines[0] );
-		$this->assertEquals( 'Second string', $deleted_lines[0] );
+		$this->assertSame( 'Another second string', $added_lines[0] );
+		$this->assertSame( 'Second string', $deleted_lines[0] );
 	}
 
 	public function testShowUpload( ModerationTestsuite $t ) {
@@ -140,15 +140,15 @@ class ModerationShowTest extends ModerationTestCase {
 		$link = $thumb->parentNode;
 		'@phan-var DomElement $link';
 
-		$this->assertEquals( 'a', $link->nodeName,
+		$this->assertSame( 'a', $link->nodeName,
 			"testShowUpload(): Thumbnail image isn't encased in <a> tag" );
 
 		$href = $link->getAttribute( 'href' );
-		$this->assertEquals( $entry->expectedShowImgLink(), $href,
+		$this->assertSame( $entry->expectedShowImgLink(), $href,
 			"testShowUpload(): Full image URL doesn't match expected URL" );
 
 		$nonthumb_src = str_replace( '&thumb=1', '', $src );
-		$this->assertEquals( $nonthumb_src, $href,
+		$this->assertSame( $nonthumb_src, $href,
 			"testShowUpload(): Full image URL doesn't match thumbnail image URL without '&thumb=1'" );
 
 		$this->assertNotRegExp( '/token=/', $href,
@@ -175,11 +175,11 @@ class ModerationShowTest extends ModerationTestCase {
 
 		$this->assertNotNull( $link,
 			"testShowUploadNonImage(): no link to download the file" );
-		$this->assertEquals( $t->lastEdit['Title'], $link->textContent,
+		$this->assertSame( $t->lastEdit['Title'], $link->textContent,
 			"testShowUploadNonImage(): text of download link doesn't match expected" );
 
 		$href = $link->getAttribute( 'href' );
-		$this->assertEquals( $entry->expectedShowImgLink(), $href,
+		$this->assertSame( $entry->expectedShowImgLink(), $href,
 			"testShowUploadNonImage(): URL of download link doesn't match expected" );
 	}
 }

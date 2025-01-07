@@ -235,7 +235,7 @@ class ModerationInterceptTest extends ModerationTestCase {
 	 * Assert the state of the database after the edit.
 	 */
 	protected function assertResults() {
-		$this->assertEquals(
+		$this->assertSame(
 			[ 'edit was intercepted' => $this->intercept ],
 			[ 'edit was intercepted' => $this->result->isIntercepted() ]
 		);
@@ -243,7 +243,7 @@ class ModerationInterceptTest extends ModerationTestCase {
 		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		$row = $dbw->selectRow( 'moderation', '*', '', __METHOD__ );
 
-		$this->assertEquals(
+		$this->assertSame(
 			[ 'edit was queued' => $this->intercept ],
 			[ 'edit was queued' => (bool)$row ]
 		);
@@ -254,7 +254,7 @@ class ModerationInterceptTest extends ModerationTestCase {
 		$targetPageExists = (bool)$this->getTestsuite()->getLastRevision(
 			$targetTitle->getFullText()
 		);
-		$this->assertEquals(
+		$this->assertSame(
 			[ 'target page was unchanged' => $this->intercept ],
 			[ 'target page was unchanged' => !$targetPageExists ]
 		);
