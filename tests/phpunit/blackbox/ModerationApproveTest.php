@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2024 Edward Chernenko.
+	Copyright (C) 2015-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -88,7 +88,7 @@ class ModerationApproveTest extends ModerationTestCase {
 		$this->assertSame( 'approveall', $le['action'],
 			"testApproveAll(): Most recent log entry is not 'approveall'" );
 		$this->assertSame( $t->moderator->getName(), $le['user'] );
-		$this->assertSame( $t->unprivilegedUser->getUserPage(), $le['title'] );
+		$this->assertSame( $t->unprivilegedUser->getUserPage()->getFullText(), $le['title'] );
 
 		foreach ( $events as $le ) {
 			$this->assertSame( 'approve', $le['action'] );

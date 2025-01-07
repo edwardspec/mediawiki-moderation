@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2020 Edward Chernenko.
+	Copyright (C) 2015-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ class ModerationRejectTest extends ModerationTestCase {
 		$this->assertSame( 'rejectall', $le['action'],
 			"testRejectAll(): Most recent log entry is not 'rejectall'" );
 		$this->assertSame( $t->moderator->getName(), $le['user'] );
-		$this->assertSame( $t->unprivilegedUser->getUserPage(), $le['title'] );
+		$this->assertSame( $t->unprivilegedUser->getUserPage()->getFullText(), $le['title'] );
 		$this->assertSame( $t->TEST_EDITS_COUNT, $le['params']['count'] );
 
 		$events = $t->nonApiLogEntries( 1 );
@@ -116,6 +116,6 @@ class ModerationRejectTest extends ModerationTestCase {
 			$events[0]['params'][1] );
 		$this->assertSame( $t->unprivilegedUser->getUserPage()->getText(),
 			$events[0]['params'][2] );
-		$this->assertSame( $t->TEST_EDITS_COUNT, $events[0]['params'][3] );
+		$this->assertSame( (string)$t->TEST_EDITS_COUNT, $events[0]['params'][3] );
 	}
 }

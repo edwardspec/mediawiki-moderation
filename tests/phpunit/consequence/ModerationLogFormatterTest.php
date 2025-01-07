@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -134,7 +134,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 				'expectedParams' => [
 					3 => [
 						'text' => '(moderation-log-diff: 12345)',
-						'query' => [ 'title' => '{{TARGET}}', 'diff' => 12345 ],
+						'query' => [ 'title' => '{{TARGET}}', 'diff' => '12345' ],
 						'tooltip' => '(tooltip-moderation-approved-diff)'
 					]
 				]
@@ -176,7 +176,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 						'query' => [
 							'title' => 'Special:Moderation',
 							'modaction' => 'show',
-							'modid' => 678
+							'modid' => '678'
 						],
 						'tooltip' => '(tooltip-moderation-rejected-change)'
 					],
@@ -200,7 +200,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 						'query' => [
 							'title' => 'Special:Moderation',
 							'modaction' => 'show',
-							'modid' => 678
+							'modid' => '678'
 						],
 						'tooltip' => '(tooltip-moderation-rejected-change)'
 					],
@@ -218,7 +218,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 				'expectTargetUserlink' => true,
 				'expectedParams' => [
 					3 => [
-						'text' => 42
+						'text' => '42'
 					]
 				]
 
@@ -240,13 +240,13 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 						'query' => [
 							'title' => 'Special:Moderation',
 							'modaction' => 'show',
-							'modid' => 200
+							'modid' => '200'
 						],
 						'tooltip' => '(tooltip-moderation-rejected-change)'
 					],
 					4 => [
 						'text' => '(moderation-log-diff: 3000)',
-						'query' => [ 'title' => '{{TARGET}}', 'diff' => 3000 ],
+						'query' => [ 'title' => '{{TARGET}}', 'diff' => '3000' ],
 						'tooltip' => '(tooltip-moderation-approved-diff)'
 					]
 				]
@@ -261,7 +261,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 						'query' => [
 							'title' => 'Special:Moderation',
 							'modaction' => 'show',
-							'modid' => 12345
+							'modid' => '12345'
 						],
 						// This link currently doesn't have a custom tooltip.
 						'tooltip' => 'Special:Moderation'
@@ -315,7 +315,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 			// Expect a redlink
 			$expectedParam['query'] += [
 				'action' => 'edit',
-				'redlink' => 1
+				'redlink' => '1'
 			];
 
 			// Add "page does not exist" if this is NOT a customized tooltip
@@ -326,6 +326,11 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 		}
 
 		$param = $this->parseParam( $paramHtml );
+
+		// Order of keys doesn't matter.
+		ksort( $param );
+		ksort( $expectedParam );
+
 		$this->assertSame( $expectedParam, $param, "Incorrect HTML of parameter #$idx." );
 	}
 

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2024 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -101,7 +101,6 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 		if ( $notFound ) {
 			$expectedResult['missing'] = '';
 		} else {
-			$expectedResult['comment'] = $comment;
 			if ( ( $extraParams['mpmode'] ?? 'wikitext' ) === 'wikitext' ) {
 				$expectedResult['wikitext'] = $text;
 			} else {
@@ -121,6 +120,8 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 					'displaytitle' => $title->getFullText()
 				];
 			}
+
+			$expectedResult['comment'] = $comment;
 		}
 		$this->assertSame( $expectedResult, $actualResult, "API response doesn't match expected." );
 	}

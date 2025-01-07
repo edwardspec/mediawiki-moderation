@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -1211,8 +1211,8 @@ class ModerationActionTest extends ModerationTestCase {
 			unset( $fields['mb_timestamp'] );
 
 			$expectedFields = [
-				'mb_user' => $this->fields['mod_user'],
-				'mb_by' => $expectedBlocker->getId(),
+				'mb_user' => (string)$this->fields['mod_user'],
+				'mb_by' => (string)$expectedBlocker->getId(),
 				'mb_by_text' => $expectedBlocker->getName()
 			];
 			$this->assertSame( $expectedFields, $fields );
@@ -1258,8 +1258,11 @@ class ModerationActionTest extends ModerationTestCase {
 				$this->getModerator()->getName(),
 				$logEntry->getPerformerIdentity()->getName(),
 				"modaction={$this->modaction}: incorrect name of moderator in LogEntry" );
-			$this->assertSame( $this->getExpectedLogTarget(), $logEntry->getTarget(),
-				"modaction={$this->modaction}: incorrect LogEntry target" );
+			$this->assertSame(
+				$this->getExpectedLogTarget()->getFullText(),
+				$logEntry->getTarget()->getFullText(),
+				"modaction={$this->modaction}: incorrect LogEntry target"
+			);
 
 			$this->assertTimestampIsRecent( $logEntry->getTimestamp() );
 

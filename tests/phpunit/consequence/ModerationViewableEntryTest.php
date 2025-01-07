@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2024 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -148,9 +148,9 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 		$entry = $this->makeViewableEntry( [ 'id' => $modid ] );
 
 		$expectedResult = 'Some link ' . rand( 0, 100000 );
-		$expectedQuery = [ 'modaction' => 'showimg', 'modid' => $modid ];
+		$expectedQuery = [ 'modaction' => 'showimg', 'modid' => (string)$modid ];
 		if ( $isThumb ) {
-			$expectedQuery['thumb'] = 1;
+			$expectedQuery['thumb'] = '1';
 		}
 
 		// This hook will verify that Title::getLocalURL() was called with correct parameters,
@@ -261,8 +261,8 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 			'title' =>
 				SpecialPage::getTitleFor( 'Moderation' )->fixSpecialName()->getPrefixedDBKey(),
 			'modaction' => 'showimg',
-			'modid' => $modid,
-			'thumb' => 1
+			'modid' => (string)$modid,
+			'thumb' => '1'
 		];
 		$this->assertSame( $expectedQuery, $query, 'Incorrect URL of <img> tag.' );
 	}

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2022 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -283,7 +283,7 @@ class HooksTest extends ModerationUnitTestCase {
 
 		if ( $mergeID ) {
 			$this->assertNotNull( $mergeInput, 'wpMergeID field not found.' );
-			$this->assertSame( $mergeID, $mergeInput->getAttribute( 'value' ), 'wpMergeID.value' );
+			$this->assertSame( (string)$mergeID, $mergeInput->getAttribute( 'value' ), 'wpMergeID.value' );
 
 			$this->assertNotNull( $blankSummaryInput, 'wpIgnoreBlankSummary field not found.' );
 			$this->assertSame( "1", $blankSummaryInput->getAttribute( 'value' ),

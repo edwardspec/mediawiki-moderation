@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2024 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -141,7 +141,7 @@ class EditFormOptionsTest extends ModerationUnitTestCase {
 		$editPage->attemptSave( $unusedResult );
 
 		$this->assertSame( $text, $opt->getSectionText(), 'getSectionText()' );
-		$this->assertSame( $section, $opt->getSection(), 'getSection()' );
+		$this->assertSame( (string)$section, $opt->getSection(), 'getSection()' );
 
 		$wrapper = TestingAccessWrapper::newFromObject( $opt );
 		$this->assertSame( $isWatch, $wrapper->watchthis, 'watchthis' );

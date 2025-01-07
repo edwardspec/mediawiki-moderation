@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -242,7 +242,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 		$commentFormatter = MediaWikiServices::getInstance()->getCommentFormatter();
 		$expectedComment = $commentFormatter->format( $comment, $title );
 
-		$this->assertSame( $expectedComment, $entry->commentHtml,
+		$this->assertSame( $expectedComment, $entry->commentHtml ?? '',
 			"Special:Moderation: Edit summary doesn't match expected" );
 	}
 
@@ -322,7 +322,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 	 */
 	protected function assertConflictStatus( ModerationTestsuiteEntry $entry ) {
 		$this->assertSame( [
-			'shown as edit conflict?' => $this->fields['mod_conflict']
+			'shown as edit conflict?' => (bool)$this->fields['mod_conflict']
 		], [
 			'shown as edit conflict?' => $entry->conflict
 		] );
@@ -466,13 +466,13 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 		if ( $action == 'mergedDiff' ) {
 			$this->assertQueryString( $url, [
 				'title' => strtr( $this->getExpectedTitle(), ' ', '_' ),
-				'diff' => $this->fields['mod_merged_revid']
+				'diff' => (string)$this->fields['mod_merged_revid']
 			] );
 		} else {
 			$expectedQuery = [
 				'title' => SpecialPage::getTitleFor( 'Moderation' )->getFullText(),
 				'modaction' => $action,
-				'modid' => $this->fields['mod_id']
+				'modid' => (string)$this->fields['mod_id']
 			];
 			if ( $action != 'show' && $action != 'preview' ) {
 				$expectedQuery['token'] = null;

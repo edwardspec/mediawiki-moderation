@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2024 Edward Chernenko.
+	Copyright (C) 2015-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -140,7 +140,7 @@ class ModerationMergeTest extends ModerationTestCase {
 
 		$this->assertArrayHasKey( 'wpMergeID', $inputs,
 			"testMerge(): Edit form doesn't contain wpMergeID field" );
-		$this->assertSame( $id, $inputs['wpMergeID'],
+		$this->assertSame( (string)$id, $inputs['wpMergeID'],
 			"testMerge(): Value of wpMergeID field doesn't match the entry id" );
 
 		# Try to edit now
@@ -196,7 +196,7 @@ class ModerationMergeTest extends ModerationTestCase {
 		$params = wfCgiToArray( preg_replace( '/^.*?\?/', '', $entry->mergedDiffLink ) );
 
 		$this->assertArrayHasKey( 'diff', $params );
-		$this->assertSame( $rev['revid'], $params['diff'],
+		$this->assertSame( (string)$rev['revid'], $params['diff'],
 			"testMerge(): diff parameter doesn't match revid of the last revision on the page we edited" );
 	}
 

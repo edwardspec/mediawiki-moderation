@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2021 Edward Chernenko.
+	Copyright (C) 2015-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -145,7 +145,7 @@ class ModerationEditTest extends ModerationTestCase {
 		$this->assertNotEquals( strlen( $sections[0] ), $newlen,
 			"testNewSizeAfterEditSection(): Incorrect length: " .
 			"matches the length of the edited section" );
-		$this->assertSame( strlen( $origText ), $newlen,
+		$this->assertSame( (string)strlen( $origText ), $newlen,
 			"testNewSizeAfterEditSection(): Length changed after null edit in a section" );
 	}
 

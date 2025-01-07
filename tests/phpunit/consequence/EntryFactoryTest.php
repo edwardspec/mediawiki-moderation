@@ -192,11 +192,11 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 		$anyWhere = [ 'mod_namespace >= 0' ];
 		$row = $factory->$testedMethod( $anyWhere, [ 'mod_namespace AS value' ], DB_PRIMARY,
 			[ 'ORDER BY' => 'mod_namespace' ] );
-		$this->assertSame( 4, $row->value );
+		$this->assertSame( '4', $row->value );
 
 		$row = $factory->$testedMethod( $anyWhere, [ 'mod_namespace AS value' ], DB_PRIMARY,
 			[ 'ORDER BY' => 'mod_namespace DESC' ] );
-		$this->assertSame( 10, $row->value );
+		$this->assertSame( '10', $row->value );
 	}
 
 	/**

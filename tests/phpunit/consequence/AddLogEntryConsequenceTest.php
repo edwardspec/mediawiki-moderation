@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2024 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -98,7 +98,7 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 		$this->assertSame( $params, $logEntry->getParameters() );
 
 		if ( $runApproveHook ) {
-			$this->assertSame( $logid, $checkedLogId,
+			$this->assertSame( $logid, (string)$checkedLogId,
 				"logid passed to ApproveHook:checkLogEntry() doesn't match expected." );
 
 			$this->assertSame( 'moderation', $checkedLogEntry->getType() );
