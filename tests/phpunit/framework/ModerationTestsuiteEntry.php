@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2024 Edward Chernenko.
+	Copyright (C) 2015-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -34,8 +34,8 @@ use User;
  * Represents one line on [[Special:Moderation]]
  */
 class ModerationTestsuiteEntry {
-	/** @var string|null */
-	public $id = null;
+	/** @var int */
+	public $id;
 
 	/** @var string|null */
 	public $user = null;
@@ -177,10 +177,10 @@ class ModerationTestsuiteEntry {
 			$matches = null;
 			if ( preg_match( '/\(rc-change-size: ([\-−0-9,]+)\)/', $text, $matches ) ) {
 				$this->charChange = (int)( str_replace( [ ',', '−' ], [ '', '-' ], $matches[1] ) );
-				$this->charChangeBold = ( $child->tagName != 'span' );
+				$this->charChangeBold = ( $child->tagName !== 'span' );
 			}
 
-			if ( !( $child instanceof DOMText ) && $child->getAttribute( 'class' ) == 'comment' ) {
+			if ( !( $child instanceof DOMText ) && $child->getAttribute( 'class' ) === 'comment' ) {
 				$this->commentHtml = '';
 				foreach ( $child->childNodes as $grandchild ) {
 					$this->commentHtml .=
@@ -280,7 +280,7 @@ class ModerationTestsuiteEntry {
 
 		$matches = null;
 		preg_match( '/modid=([0-9]+)/', $this->getAnyLink(), $matches );
-		$this->id = $matches[1];
+		$this->id = (int)$matches[1];
 
 		// Save the entire entry as HTML (not really used in tests, but handy for troubleshooting)
 		$this->rawHTML = $span->ownerDocument->saveXML( $span );
@@ -337,12 +337,12 @@ class ModerationTestsuiteEntry {
 	/**
 	 * Scans $allEntries and returns an entry with mod_id=$id.
 	 * @param ModerationTestsuiteEntry[] $allEntries
-	 * @param string|null $id
+	 * @param int $id
 	 * @return ModerationTestsuiteEntry|null
 	 */
 	public static function findById( array $allEntries, $id ) {
 		foreach ( $allEntries as $e ) {
-			if ( $e->id == $id ) {
+			if ( $e->id === $id ) {
 				return $e;
 			}
 		}
@@ -355,18 +355,11 @@ class ModerationTestsuiteEntry {
 	 * @param User $user
 	 * @return ModerationTestsuiteEntry[]
 	 */
-	public static function findByUser( array $allEntries, $user ) {
-		if ( get_class( $user ) == 'User' ) {
-			$user = $user->getName();
-		}
-
-		$entries = [];
-		foreach ( $allEntries as $entry ) {
-			if ( $entry->user == $user ) {
-				$entries[] = $entry;
-			}
-		}
-		return $entries;
+	public static function findByUser( array $allEntries, User $user ) {
+		$username = $user->getName();
+		return array_values( array_filter( $allEntries, static function ( $entry ) use ( $username ) {
+			return $entry->user === $username;
+		} ) );
 	}
 
 	/**
