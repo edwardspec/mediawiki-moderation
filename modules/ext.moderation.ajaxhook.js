@@ -29,9 +29,11 @@
 
 	var rewriteAjaxResponse; // Defined below
 
-	/*
-		Intercept all API calls made via mw.Api(), rewrite the response if needed.
-	*/
+	/**
+	 * Intercept all API calls made via mw.Api(), rewrite the response if needed.
+	 *
+	 * @param {mw.Api} apiObj
+	 */
 	mw.moderation.trackAjax = function ( apiObj ) {
 		var oldFunc = apiObj.prototype.ajax;
 		apiObj.prototype.ajax = function ( parameters, ajaxOptions ) {
@@ -62,9 +64,12 @@
 		mw.moderation.trackAjax( mw.Api );
 	} );
 
-	/* Make an API response for action=edit.
-		This affects most API-based JavaScript editors, including MobileFrontend.
-	*/
+	/**
+	 * Make an API response for action=edit.
+	 * This affects most API-based JavaScript editors, including MobileFrontend.
+	 *
+	 * @return {Object}
+	 */
 	mw.moderation.ajaxhook.edit = function () {
 		var ret = {},
 			timestamp = '2016-12-08T12:33:23Z'; /* TODO: recalculate */
@@ -88,11 +93,13 @@
 	};
 
 	/**
-		@brief Main logic of AJAX response rewriting.
-		@param query API request, e.g. { action: "edit", "title": "Testpage1", ... }.
-		@param ret API response, e.g. { edit: { result: "success", ... } }.
-		@returns New API response (if overwrite is needed) or false (if no need to overwrite).
-	*/
+	 * Main logic of AJAX response rewriting.
+	 *
+	 * @param {Object} query API request, e.g. { action: "edit", "title": "Testpage1", ... }.
+	 * @param {Object} ret API response, e.g. { edit: { result: "success", ... } }.
+	 * @return {Object|false} New API response (if overwrite is needed) or false
+	 * (if no need to overwrite).
+	 */
 	rewriteAjaxResponse = function ( query, ret ) {
 		// Allow the hook to modify the response (used by [preload33.mf.js])
 		mw.hook( 'ajaxhook.rewriteAjaxResponse' ).fire( query, ret );

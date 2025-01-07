@@ -6,7 +6,11 @@
 ( function () {
 	'use strict';
 
-	/* Make an API response for action=visualeditoredit */
+	/**
+	 * Make an API response for action=visualeditoredit
+	 *
+	 * @return {Object}
+	 */
 	mw.moderation.ajaxhook.visualeditoredit = function () {
 		var ret = {};
 		ret.visualeditoredit = {

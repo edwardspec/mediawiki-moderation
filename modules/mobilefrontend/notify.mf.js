@@ -9,8 +9,11 @@
 	mw.moderation = mw.moderation || {};
 
 	/**
-		@brief Identify popups that should be overwritten.
-	*/
+	 * Returns false if this popup should be suppressed, true otherwise.
+	 *
+	 * @param {string} msg
+	 * @return {boolean}
+	 */
 	function shouldAllowMessage( msg ) {
 		switch ( msg ) {
 			case mw.msg( 'mobile-frontend-editor-success-new-page' ):
@@ -45,10 +48,13 @@
 		}
 	} );
 
-	/*
-		This callback is used by notifyQueued().
-		It displays $div as mw.notification.
-	*/
+	/**
+	 * This callback is used by notifyQueued().
+	 * It displays $div as mw.notification.
+	 *
+	 * @param {jQuery} $div
+	 * @param {Function} readyCallback
+	 */
 	mw.moderation.notifyCb = function ( $div, readyCallback ) {
 		mw.notify( $div, {
 			tag: 'modqueued',

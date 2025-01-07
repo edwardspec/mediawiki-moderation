@@ -8,10 +8,13 @@
 
 	mw.moderation = mw.moderation || {};
 
-	/*
-		This callback is used by notifyQueued().
-		Displays $div as postEdit notification.
-	*/
+	/**
+	 * This callback is used by notifyQueued().
+	 * Displays $div as postEdit notification.
+	 *
+	 * @param {jQuery} $div
+	 * @param {Function} readyCallback
+	 */
 	mw.moderation.notifyCb = function ( $div, readyCallback ) {
 
 		/* Don't remove $div when clicking on links */

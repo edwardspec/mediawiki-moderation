@@ -10,9 +10,13 @@
 
 	mw.moderation = mw.moderation || {};
 
-	/* Display mobile/desktop version */
+	/**
+	 * Display mobile/desktop version of postedit notification.
+	 *
+	 * @param {jQuery} $div
+	 * @return {Deferred}
+	 */
 	function show( $div ) {
-
 		var $d = $.Deferred(),
 			module = ( isMobile ? 'ext.moderation.mf.notify' : 'ext.moderation.notify.desktop' );
 
@@ -25,7 +29,11 @@
 		return $d;
 	}
 
-	/* Get edit URL of the current page */
+	/**
+	 * Get edit URL of the current page.
+	 *
+	 * @return {string}
+	 */
 	function getEditUrl() {
 		var returnto = new mw.Uri().query.returnto;
 		if ( returnto ) {
@@ -43,9 +51,12 @@
 		return mw.util.getUrl( null, q );
 	}
 
-	/* Show "your edit was queued for moderation" to user.
-		May be called from [ext.moderation.ajaxhook.js].
-	*/
+	/**
+	 * Show "your edit was queued for moderation" to user.
+	 * May be called from [ext.moderation.ajaxhook.js].
+	 *
+	 * @param {Object|undefined} options
+	 */
 	mw.moderation.notifyQueued = function ( options ) {
 		if ( !options ) {
 			options = {};

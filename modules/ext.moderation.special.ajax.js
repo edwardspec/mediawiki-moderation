@@ -1,6 +1,6 @@
 /**
-	@brief Makes links on Special:Moderation work via Ajax.
-*/
+ * Makes links on Special:Moderation work via Ajax.
+ */
 
 ( function () {
 	'use strict';
@@ -11,6 +11,10 @@
 	/**
 	 * Find subset of .modline elements by their $.data().
 	 * Note: $.data() of rows is populated in prepareRow().
+	 *
+	 * @param {string} dataKey
+	 * @param {string} dataVal
+	 * @return {jQuery}
 	 */
 	function getRowsByData( dataKey, dataVal ) {
 		return $allRows.filter( function ( idx, rowElem ) {
@@ -18,10 +22,18 @@
 		} );
 	}
 
+	/**
+	 * @param {string} modid
+	 * @return {jQuery}
+	 */
 	function getRowById( modid ) {
 		return getRowsByData( 'modid', modid );
 	}
 
+	/**
+	 * @param {jQuery} $row
+	 * @return {jQuery}
+	 */
 	function getRowsWithSameUser( $row ) {
 		return getRowsByData( 'user', $row.data( 'user' ) );
 	}
@@ -29,6 +41,9 @@
 	/**
 	 * Calculate modid/username for this .modline.
 	 * Will then be used by runModaction() via getRows*() methods.
+	 *
+	 * @param {number} idx
+	 * @param {HTMLElement} rowElem
 	 */
 	function prepareRow( idx, rowElem ) {
 		var $row = $( rowElem ),
@@ -47,7 +62,9 @@
 	}
 
 	/**
-	 * @brief Modify status icon of $rows.
+	 * Modify status icon of $rows.
+	 *
+	 * @param {jQuery} $rows
 	 * @param {string} type One of the following: untouched, processing, approved, rejected, error.
 	 * @param {string} tooltip Text shown when hovering over the icon.
 	 */
@@ -58,7 +75,11 @@
 
 	/**
 	 * Find action links in $rows.
-	 * @param {string[]} E.g. [ 'approve', 'reject' ]. If contains 'ALL', all links are selected.
+	 *
+	 * @param {jQuery} $rows
+	 * @param {string[]} actions E.g. [ 'approve', 'reject' ].
+	 * If contains 'ALL', all links are selected.
+	 * @return {jQuery}
 	 */
 	function findLinks( $rows, actions ) {
 		if ( !actions.length ) {
@@ -79,7 +100,9 @@
 
 	/**
 	 * Enable/disable action links in $rows.
-	 * @param {bool} shouldBeEnabled If true, links will be enabled.
+	 *
+	 * @param {jQuery} $rows
+	 * @param {boolean} shouldBeEnabled If true, links will be enabled.
 	 * If false, they will be disabled.
 	 * @param {string[]} actions E.g. [ 'approve', 'reject' ].
 	 * If contains 'ALL', all links are affected.
@@ -103,7 +126,9 @@
 
 	/**
 	 * Determine which links should be disabled by successful action.
+	 *
 	 * @param {string} action Action name, e.g. 'approve' or 'reject'.
+	 * @return {string[]}
 	 */
 	function getDisabledActions( action ) {
 		var disabledActions = [];
@@ -131,7 +156,8 @@
 
 	/**
 	 * Mark the edit as rejected. Called if Reject(all) returned success.
-	 * @param $rows List of .modline elements.
+	 *
+	 * @param {jQuery} $rows List of .modline elements.
 	 */
 	function markRejected( $rows ) {
 		setRowsStatus( $rows, 'rejected', '' ); /* TODO: add tooltip */
@@ -139,7 +165,8 @@
 
 	/**
 	 * Mark the edit as approved. Called if Approve(all) returned success.
-	 * @param $rows List of .modline elements.
+	 *
+	 * @param {jQuery} $rows List of .modline elements.
 	 */
 	function markApproved( $rows ) {
 		setRowsStatus( $rows, 'approved', '' ); /* TODO: add tooltip */
@@ -147,6 +174,10 @@
 
 	/**
 	 * Mark the row as unsuccessfully modified.
+	 *
+	 * @param {jQuery} $rows
+	 * @param {string} errorText
+	 * @param {string} action
 	 */
 	function markError( $rows, errorText, action ) {
 		setRowsStatus( $rows, 'error', errorText );
@@ -157,6 +188,7 @@
 
 	/**
 	 * Update Special:Moderation after a successful Ajax call.
+	 *
 	 * @param {Object[]} $rows The .modline elements affected by this action.
 	 * @param {Object} q Query, e.g. { modid: 123, modaction: 'reject' }
 	 * @param {Object} ret Parsed JSON response, as returned by the API.
@@ -216,6 +248,8 @@
 
 	/**
 	 * Handle the click on modaction link (e.g. "Reject").
+	 *
+	 * @param {Event} ev
 	 */
 	function runModaction( ev ) {
 		var $link = $( this );

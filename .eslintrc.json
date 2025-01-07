@@ -14,18 +14,24 @@
 		// (this information is helpful for users who are trying to determine why).
 		"no-console": "off",
 
-		// TODO: missing documentation: this can be fixed
-		"jsdoc/check-alignment": "off",
-		"jsdoc/check-param-names": "off",
-		"jsdoc/check-tag-names": "off",
-		"jsdoc/multiline-blocks": "off",
-		"jsdoc/newline-after-description": "off",
-		"jsdoc/no-undefined-types": "off",
-		"jsdoc/require-asterisk-prefix": "off",
-		"jsdoc/require-param": "off",
-		"jsdoc/require-param-type": "off",
-		"jsdoc/require-returns": "off",
-		"jsdoc/require-returns-type": "off",
-		"jsdoc/valid-types": "off"
-	}
+		// Types to allow in jsDoc comments.
+		"jsdoc/no-undefined-types": [ "warn", { "definedTypes": [
+			"Deferred"
+		] } ]
+	},
+	"overrides": [
+		{
+			"files": [ "tests/selenium/**/*.js" ],
+			"rules": {
+				"jsdoc/check-alignment": "off",
+				"jsdoc/check-tag-names": "off",
+				"jsdoc/multiline-blocks": "off",
+				"jsdoc/require-asterisk-prefix": "off",
+				"jsdoc/require-param": "off",
+				"jsdoc/require-param-type": "off",
+				"jsdoc/require-returns": "off",
+				"jsdoc/require-returns-type": "off"
+			}
+		}
+	]
 }
