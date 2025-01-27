@@ -101,7 +101,7 @@
 	"moderation-unblock": "取消标记为破坏者",
 	"moderation-unblock-ok": "用户 [[Special:Contributions/$1|$1]] 已不再被标记为破坏者。",
 	"moderation-unknown-modaction": "未知的版主操作行为。",
-	"right-moderation-checkuser": "在版主审核界面查看编者的IP",
+	"right-moderation-checkuser": "在版主审核界面查看编辑者的IP",
 	"right-moderation": "审核编辑",
 	"right-skip-moderation": "使自己的编辑绕过版主审核",
 	"right-skip-move-moderation": "重命名页面时无需审核",
