@@ -92,7 +92,7 @@
 	"moderation-unblock": "Більше не спамер",
 	"moderation-unblock-ok": "Користувач [[Special:Contributions/$1|$1]] не є у списку спамерів.",
 	"moderation-unknown-modaction": "Невідома модераційна дія.",
-	"right-moderation-checkuser": "Перегляд IP-адрес користувачів у інтерфейсі модерації",
+	"right-moderation-checkuser": "Перегляд IP-адрес користувачів в інтерфейсі модерації",
 	"right-moderation": "Модерація редагувань",
 	"right-skip-moderation": "Редагування в обхід модерації",
 	"right-skip-move-moderation": "Перейменування сторінок в обхід модерації",
