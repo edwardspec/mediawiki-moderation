@@ -48,23 +48,23 @@ class ModerationUpdater implements LoadExtensionSchemaUpdatesHook {
 		} elseif ( $dbType == 'mysql' ) {
 			// ... to Moderation 1.1.29
 			$updater->addExtensionField( 'moderation', 'mod_tags',
-				"$sqlDir/../mysql/patch-moderation-mod_tags.sql" );
+				"$sqlDir/patch-moderation-mod_tags.sql" );
 
 			// ... to Moderation 1.1.31
 			$updater->modifyExtensionField( 'moderation', 'mod_title',
-				"$sqlDir/../mysql/patch-fix-titledbkey.sql" );
+				"$sqlDir/patch-fix-titledbkey.sql" );
 
 			// ... to Moderation 1.2.9
 			if ( $db->tableExists( 'moderation', __METHOD__ ) &&
 				!$db->indexUnique( 'moderation', 'moderation_load', __METHOD__ )
 			) {
 				$updater->addExtensionUpdate( [ 'applyPatch',
-					"$sqlDir/../mysql/patch-make-preload-unique.sql", true ] );
+					"$sqlDir/patch-make-preload-unique.sql", true ] );
 			}
 
 			// ... to Moderation 1.2.17
 			$updater->addExtensionField( 'moderation', 'mod_type',
-				"$sqlDir/../mysql/patch-moderation-mod_type.sql" );
+				"$sqlDir/patch-moderation-mod_type.sql" );
 		}
 
 		// Workaround for T258159 (extension-provided services are not loaded during the Web Updater,
