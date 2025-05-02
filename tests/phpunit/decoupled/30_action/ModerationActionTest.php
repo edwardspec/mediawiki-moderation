@@ -220,6 +220,14 @@ class ModerationActionTest extends ModerationTestCase {
 				// Shouldn't render any HTML: modaction=show displays wikitext
 				'expectedOutputHtml' => "This text is '''very bold''' and ''most italic''."
 			] ],
+			'Show (already rejected edit)' => [ [
+				'modaction' => 'show',
+				'mod_rejected' => 1,
+				'mod_rejected_by_user' => 12345,
+				'mod_rejected_by_user_text' => 'Some moderator',
+				'expectActionLinks' => [ 'approve' => true, 'reject' => false ],
+				'expectedOutput' => '(moderation-rejected-by: Some moderator, Some moderator)',
+			] ],
 
 			// modaction=preview
 			'Preview (normal edit)' => [ [

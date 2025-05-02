@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ namespace MediaWiki\Moderation;
 
 use ContentHandler;
 use IContextSource;
+use Linker;
 use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Revision\MutableRevisionRecord;
@@ -72,7 +73,9 @@ class ModerationViewableEntry extends ModerationEntry {
 		return array_merge( parent::getFields(), [
 			'mod_last_oldid AS last_oldid',
 			'mod_text AS text',
-			'mod_stash_key AS stash_key'
+			'mod_stash_key AS stash_key',
+			'mod_rejected_by_user AS rejected_by_user',
+			'mod_rejected_by_user_text AS rejected_by_user_text'
 		] );
 	}
 
@@ -83,6 +86,22 @@ class ModerationViewableEntry extends ModerationEntry {
 	public function isUpload() {
 		$row = $this->getRow();
 		return $row->stash_key ? true : false;
+	}
+
+	/**
+	 * Returns HTML of "Rejected by NameOfModerator" message (if rejected) or false (if not rejected).
+	 * @return string|false
+	 */
+	public function getRejectedBy() {
+		$row = $this->getRow();
+		if ( !$row->rejected_by_user ) {
+			return false;
+		}
+
+		return wfMessage( 'moderation-rejected-by',
+			Linker::userLink( $row->rejected_by_user, $row->rejected_by_user_text ),
+			$row->rejected_by_user_text // plain username for {{gender:}} syntax
+		)->text();
 	}
 
 	/**

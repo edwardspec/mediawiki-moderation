@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2024 Edward Chernenko.
+	Copyright (C) 2014-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -58,7 +58,12 @@ class ModerationActionShow extends ModerationAction {
 			$out->addHTML( $this->actionLinkRenderer->makeLink( 'approve', $this->id ) );
 			$out->addHTML( ' / ' );
 		}
-		$out->addHTML( $this->actionLinkRenderer->makeLink( 'reject', $this->id ) );
+
+		if ( isset( $result['rejected-message'] ) ) {
+			$out->addHTML( $result['rejected-message'] );
+		} else {
+			$out->addHTML( $this->actionLinkRenderer->makeLink( 'reject', $this->id ) );
+		}
 	}
 
 	public function execute() {
@@ -84,6 +89,11 @@ class ModerationActionShow extends ModerationAction {
 				$result['nodiff-reason'] = 'moderation-diff-no-changes';
 				$result['null-edit'] = '';
 			}
+		}
+
+		$rejectedBy = $entry->getRejectedBy();
+		if ( $rejectedBy ) {
+			$result['rejected-message'] = $rejectedBy;
 		}
 
 		$result['title'] = $title->getPrefixedText();

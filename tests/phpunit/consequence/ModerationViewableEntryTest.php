@@ -73,6 +73,52 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	}
 
 	/**
+	 * Test that getRejectedBy() returns false for edits that weren't rejected.
+	 * @covers MediaWiki\Moderation\ModerationViewableEntry
+	 */
+	public function testNotRejected() {
+		$entry = $this->makeViewableEntry( [
+			'rejected' => 0,
+			'rejected_by_user' => 0,
+			'rejected_by_user_text' => null
+		] );
+		$this->assertFalse( $entry->getRejectedBy(),
+			'getRejectedBy() didn\'t return false for non-rejected edit.' );
+	}
+
+	/**
+	 * Test that getRejectedBy() returns userlink to moderator who rejected the edit.
+	 * @covers MediaWiki\Moderation\ModerationViewableEntry
+	 */
+	public function testRejectedBy() {
+		$username = 'Name of some moderator';
+
+		$this->linkRenderer->expects( $this->once() )->method( 'makeLink' )->will(
+			$this->returnCallback( function ( $linkTarget ) use ( $username ) {
+				$this->assertSame( NS_USER, $linkTarget->getNamespace() );
+				$this->assertSame( $username, $linkTarget->getText() );
+
+				return '{MockedLinkToModerator}';
+			} )
+		);
+		$this->setService( 'LinkRenderer', $this->linkRenderer );
+		$this->overrideConfigValue( 'LanguageCode', 'qqx' );
+
+		$entry = $this->makeViewableEntry( [
+			'rejected' => 1,
+			'rejected_by_user' => 12345,
+			'rejected_by_user_text' => $username
+		] );
+
+		$rejectedBy = $entry->getRejectedBy();
+		$this->assertNotFalse( $rejectedBy, 'getRejectedBy() returned false for rejected edit.' );
+		$this->assertSame(
+			"(moderation-rejected-by: {MockedLinkToModerator}, $username)",
+			$rejectedBy
+		);
+	}
+
+	/**
 	 * Test that getPendingRevision() returns RevisionRecord with expected content.
 	 * @covers MediaWiki\Moderation\ModerationViewableEntry
 	 */
@@ -282,7 +328,9 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 			'mod_page2_title AS page2_title',
 			'mod_last_oldid AS last_oldid',
 			'mod_text AS text',
-			'mod_stash_key AS stash_key'
+			'mod_stash_key AS stash_key',
+			'mod_rejected_by_user AS rejected_by_user',
+			'mod_rejected_by_user_text AS rejected_by_user_text'
 		];
 
 		$fields = ModerationViewableEntry::getFields();

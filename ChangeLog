@@ -5,6 +5,7 @@ List of changes between releases of Extension:Moderation.
 Features:
 * "Return to <title>" link is now shown after successful Approve.
 * Support SQLite.
+* Viewing already rejected edits will show "Rejected by" information instead of Reject link.
 
 Refactoring, performance optimizations:
 * Reduced the number of SQL queries when using PostgreSQL.
