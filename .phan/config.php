@@ -53,13 +53,6 @@ if ( getenv( 'PHAN_CHECK_TESTSUITE' ) ) {
 $cfg['exclude_file_regex'] = preg_replace( '/^@/', '@\/\..*\.mocked\.php$|',
 	$cfg['exclude_file_regex'], 1 );
 
-# Class name collision with testsuite of MediaWiki core. TODO: place tests into the namespace too.
-$cfg['exclude_file_list'] = array_merge( $cfg['exclude_file_list'], [
-	$IP . '/tests/phpunit/includes/HooksTest.php',
-	$IP . '/tests/phpunit/unit/includes/actions/ActionFactoryTest.php',
-	$IP . '/tests/phpunit/unit/includes/ServiceWiringTest.php'
-] );
-
 # Parse the soft dependencies (like MobileFrontend), but don't analyze them.
 $cfg['directory_list'] = array_merge(
 	$cfg['directory_list'],
