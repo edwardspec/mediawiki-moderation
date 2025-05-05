@@ -3,7 +3,8 @@
 		"authors": [
 			"Bluehill",
 			"Theshinster123",
-			"Ykhwong"
+			"Ykhwong",
+			"아라"
 		]
 	},
 	"group-automoderated-member": "{{GENDER:$1|자동 조정된 사용자}}",
@@ -82,6 +83,6 @@
 	"tooltip-moderation-rejectall": "이 사용자/IP의 모든 편집 거부하기",
 	"tooltip-moderation-rejected-change": "거부된 편집을 보기",
 	"tooltip-moderation-reject": "이 편집 거부하기",
-	"tooltip-moderation-show": "제안된 변경 보기",
+	"tooltip-moderation-show": "제안된 변경사항 보기",
 	"tooltip-moderation-unblock": "더 이상 이 사용자의 편집을 스팸 폴더로 보내지 않습니다"
 }
