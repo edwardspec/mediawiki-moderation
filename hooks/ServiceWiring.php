@@ -56,9 +56,10 @@ return [
 			SpecialPage::getTitleFor( 'Moderation' )
 		);
 	},
-	'Moderation.ApproveHook' => static function (): ModerationApproveHook {
+	'Moderation.ApproveHook' => static function ( MediaWikiServices $services ): ModerationApproveHook {
 		return new ModerationApproveHook(
-			LoggerFactory::getInstance( 'ModerationApproveHook' )
+			LoggerFactory::getInstance( 'ModerationApproveHook' ),
+			$services->getChangeTagsStore()
 		);
 	},
 	'Moderation.CanSkip' => static function ( MediaWikiServices $services ): ModerationCanSkip {

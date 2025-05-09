@@ -36,8 +36,8 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\Tests\ModerationTestsuiteBagOStuff;
 use MediaWiki\Moderation\Tests\ModerationTestsuiteCliApiMain;
 use MediaWiki\Moderation\Tests\ModerationTestsuiteMockAutoLoader;
-use Wikimedia\Rdbms\DatabaseDomain;
 use MediaWiki\WikiMap\WikiMap;
+use Wikimedia\Rdbms\DatabaseDomain;
 
 # Replace Memcached with our caching class. This is needed for Parallel PHPUnit testing,
 # where "flush_all" Memcached command is not applicable (it would delete keys of another thread).

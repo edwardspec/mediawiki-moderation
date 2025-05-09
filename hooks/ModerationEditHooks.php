@@ -24,13 +24,13 @@ namespace MediaWiki\Moderation;
 
 use CommentStoreComment;
 use FormatJson;
-use MediaWiki\Html\Html;
 use IContextSource;
 use MediaWiki\ChangeTags\Hook\ChangeTagsAllowedAddHook;
 use MediaWiki\ChangeTags\Hook\ListDefinedTagsHook;
 use MediaWiki\EditPage\EditPage;
 use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Hook\EditPage__showEditForm_fieldsHook;
+use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Revision\RenderedRevision;
