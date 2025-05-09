@@ -23,14 +23,14 @@
 namespace MediaWiki\Moderation\Tests;
 
 use Article;
-use EditPage;
+use MediaWiki\EditPage\EditPage;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\ModerationPreload;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
+use MediaWiki\Title\Title;
 use RequestContext;
-use Title;
 use User;
 use Wikimedia\IPUtils;
 

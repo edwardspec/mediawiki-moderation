@@ -23,9 +23,9 @@
 namespace MediaWiki\Moderation;
 
 use Article;
-use EditPage;
+use MediaWiki\EditPage\EditPage;
+use MediaWiki\Title\Title;
 use OutputPage;
-use Title;
 
 class ModerationActionMerge extends ModerationAction {
 

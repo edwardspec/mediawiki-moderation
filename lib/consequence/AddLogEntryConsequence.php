@@ -24,7 +24,7 @@ namespace MediaWiki\Moderation;
 
 use ManualLogEntry;
 use MediaWiki\MediaWikiServices;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 
 class AddLogEntryConsequence implements IConsequence {

@@ -28,7 +28,7 @@ use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use MediaWiki\Moderation\QueueMoveConsequence;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 
 require_once __DIR__ . "/autoload.php";

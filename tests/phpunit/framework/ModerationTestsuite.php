@@ -20,11 +20,11 @@ namespace MediaWiki\Moderation\Tests;
 use CommentStoreComment;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationCompatTools;
+use MediaWiki\Title\Title;
 use MediaWikiIntegrationTestCase;
 use MWException;
 use Stringable;
 use TestUser;
-use Title;
 use User;
 use Wikimedia\Rdbms\DBConnRef;
 

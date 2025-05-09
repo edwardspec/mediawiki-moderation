@@ -24,7 +24,7 @@ namespace MediaWiki\Moderation;
 
 use IContextSource;
 use MediaWiki\Linker\LinkRenderer;
-use Title;
+use MediaWiki\Title\Title;
 
 class ActionLinkRenderer {
 	/** @var IContextSource */

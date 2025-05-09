@@ -23,11 +23,11 @@
 namespace MediaWiki\Moderation\Tests;
 
 use CURLFile;
-use FauxRequest;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationUploadStorage;
+use MediaWiki\Request\FauxRequest;
+use MediaWiki\Title\Title;
 use RequestContext;
-use Title;
 use UploadBase;
 use UploadFromFile;
 

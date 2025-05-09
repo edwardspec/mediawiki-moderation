@@ -24,8 +24,8 @@ namespace MediaWiki\Moderation\Tests;
 
 use MediaWiki\Mail\IEmailer;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
+use MediaWiki\Title\Title;
 use SpecialPage;
-use Title;
 use User;
 
 require_once __DIR__ . "/autoload.php";

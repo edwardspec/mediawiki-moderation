@@ -27,7 +27,7 @@ use ManualLogEntry;
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ModerationApproveHook;
 use MediaWiki\Moderation\ModerationCompatTools;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 
 require_once __DIR__ . "/autoload.php";

@@ -25,8 +25,8 @@ namespace MediaWiki\Moderation\Tests;
 use IContextSource;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
+use MediaWiki\Title\Title;
 use RawMessage;
-use Title;
 use User;
 
 require_once __DIR__ . "/autoload.php";

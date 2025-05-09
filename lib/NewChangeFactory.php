@@ -24,7 +24,7 @@ namespace MediaWiki\Moderation;
 
 use Language;
 use MediaWiki\Moderation\Hook\HookRunner;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 
 class NewChangeFactory {

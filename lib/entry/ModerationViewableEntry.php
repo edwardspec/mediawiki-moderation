@@ -24,8 +24,8 @@ namespace MediaWiki\Moderation;
 
 use ContentHandler;
 use IContextSource;
-use Linker;
 use MediaWiki\Content\IContentHandlerFactory;
+use MediaWiki\Linker\Linker;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Revision\MutableRevisionRecord;
 use MediaWiki\Revision\RevisionLookup;

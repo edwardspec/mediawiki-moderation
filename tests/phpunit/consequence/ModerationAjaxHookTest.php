@@ -26,9 +26,9 @@ use ExtensionRegistry;
 use MediaWiki\Moderation\ModerationAjaxHook;
 use MediaWiki\Moderation\ModerationPreload;
 use MediaWiki\Moderation\PendingEdit;
+use MediaWiki\Title\Title;
 use MobileContext;
 use OutputPage;
-use Title;
 
 require_once __DIR__ . "/autoload.php";
 

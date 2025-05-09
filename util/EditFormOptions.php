@@ -22,12 +22,12 @@
 
 namespace MediaWiki\Moderation;
 
-use EditPage;
+use MediaWiki\EditPage\EditPage;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Title\Title;
 use ReflectionProperty;
 use RequestContext;
 use SpecialPage;
-use Title;
 use User;
 
 class EditFormOptions {

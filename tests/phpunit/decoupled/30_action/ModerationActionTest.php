@@ -26,9 +26,9 @@ use DatabaseLogEntry;
 use MediaWiki\Moderation\ModerationActionShowImage;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\ModerationUploadStorage;
+use MediaWiki\Title\Title;
 use MWException;
 use SpecialPage;
-use Title;
 use User;
 
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";

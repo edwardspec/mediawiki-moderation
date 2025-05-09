@@ -23,7 +23,7 @@
 namespace MediaWiki\Moderation\Tests;
 
 use MediaWiki\Moderation\WatchOrUnwatchConsequence;
-use Title;
+use MediaWiki\Title\Title;
 use WatchedItem;
 use WatchedItemStore;
 

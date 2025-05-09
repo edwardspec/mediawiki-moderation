@@ -26,9 +26,9 @@ use ApiBase;
 use ApiMain;
 use ContentHandler;
 use DerivativeContext;
-use DerivativeRequest;
 use MediaWiki\Api\Hook\ApiCheckCanExecuteHook;
 use MediaWiki\Hook\ApiBeforeMainHook;
+use MediaWiki\Request\DerivativeRequest;
 use MediaWiki\SpecialPage\Hook\WgQueryPagesHook;
 use User;
 

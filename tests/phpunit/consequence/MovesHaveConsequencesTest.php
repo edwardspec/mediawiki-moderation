@@ -25,7 +25,7 @@ namespace MediaWiki\Moderation\Tests;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationCanSkip;
 use MediaWiki\Moderation\QueueMoveConsequence;
-use Title;
+use MediaWiki\Title\Title;
 
 require_once __DIR__ . "/autoload.php";
 

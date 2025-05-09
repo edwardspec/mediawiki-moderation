@@ -25,7 +25,7 @@ namespace MediaWiki\Moderation;
 use ChangesList;
 use IContextSource;
 use LinkBatch;
-use Linker;
+use MediaWiki\Linker\Linker;
 use MediaWiki\Linker\LinkRenderer;
 use Message;
 use RequestContext;

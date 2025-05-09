@@ -25,9 +25,9 @@
 namespace MediaWiki\Moderation;
 
 use ContentHandler;
+use MediaWiki\Title\Title;
 use OutputPage;
 use ParserOptions;
-use Title;
 use User;
 
 class ModerationActionEditChangeSubmit extends ModerationAction {

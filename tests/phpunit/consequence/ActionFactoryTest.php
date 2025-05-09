@@ -23,7 +23,6 @@
 namespace MediaWiki\Moderation\Tests;
 
 use DerivativeContext;
-use FauxRequest;
 use Language;
 use MediaWiki\Moderation\ActionFactory;
 use MediaWiki\Moderation\ActionLinkRenderer;
@@ -40,6 +39,7 @@ use MediaWiki\Moderation\ModerationActionShow;
 use MediaWiki\Moderation\ModerationActionShowImage;
 use MediaWiki\Moderation\ModerationCanSkip;
 use MediaWiki\Moderation\ModerationError;
+use MediaWiki\Request\FauxRequest;
 use MediaWiki\Revision\RevisionRenderer;
 use ReadOnlyMode;
 use RepoGroup;

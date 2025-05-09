@@ -22,7 +22,7 @@
 
 namespace MediaWiki\Moderation\Tests;
 
-use FauxResponse;
+use MediaWiki\Request\FauxResponse;
 
 class ModerationTestsuiteResponse implements IModerationTestsuiteResponse {
 

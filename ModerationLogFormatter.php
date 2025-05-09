@@ -22,11 +22,11 @@
 
 namespace MediaWiki\Moderation;
 
-use Linker;
 use LogFormatter;
+use MediaWiki\Linker\Linker;
+use MediaWiki\Title\Title;
 use Message;
 use SpecialPage;
-use Title;
 use User;
 
 class ModerationLogFormatter extends LogFormatter {

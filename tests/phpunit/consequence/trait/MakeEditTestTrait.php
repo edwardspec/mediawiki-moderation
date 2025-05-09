@@ -26,7 +26,7 @@ use CommentStoreComment;
 use ContentHandler;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Revision\SlotRecord;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 
 /**

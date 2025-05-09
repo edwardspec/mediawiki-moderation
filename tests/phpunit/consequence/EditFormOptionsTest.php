@@ -23,13 +23,13 @@
 namespace MediaWiki\Moderation\Tests;
 
 use Article;
-use EditPage;
-use FauxRequest;
+use MediaWiki\EditPage\EditPage;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\WatchOrUnwatchConsequence;
+use MediaWiki\Request\FauxRequest;
+use MediaWiki\Title\Title;
 use RequestContext;
 use SpecialPage;
-use Title;
 use User;
 use Wikimedia\TestingAccessWrapper;
 

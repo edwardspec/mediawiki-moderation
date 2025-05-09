@@ -41,7 +41,7 @@ use MediaWiki\Moderation\ModerationViewableEntry;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\TimestampTools;
 use MediaWiki\Revision\RevisionLookup;
-use Title;
+use MediaWiki\Title\Title;
 
 require_once __DIR__ . "/autoload.php";
 

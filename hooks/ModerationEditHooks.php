@@ -23,14 +23,14 @@
 namespace MediaWiki\Moderation;
 
 use CommentStoreComment;
-use EditPage;
 use FormatJson;
-use Html;
 use IContextSource;
 use MediaWiki\ChangeTags\Hook\ChangeTagsAllowedAddHook;
 use MediaWiki\ChangeTags\Hook\ListDefinedTagsHook;
+use MediaWiki\EditPage\EditPage;
 use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Hook\EditPage__showEditForm_fieldsHook;
+use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Revision\RenderedRevision;
@@ -39,13 +39,13 @@ use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Storage\EditResult;
 use MediaWiki\Storage\Hook\MultiContentSaveHook;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
+use MediaWiki\Title\Title;
 use MediaWiki\User\UserIdentity;
 use OutputPage;
 use RequestContext;
 use Skin;
 use Status;
 use TextContentHandler;
-use Title;
 use User;
 use WikiPage;
 

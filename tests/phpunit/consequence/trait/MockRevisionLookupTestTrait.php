@@ -25,8 +25,8 @@ namespace MediaWiki\Moderation\Tests;
 use MediaWiki\Revision\MutableRevisionRecord;
 use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\Title\Title;
 use TextContent;
-use Title;
 
 /**
  * @method static \PHPUnit\Framework\MockObject\Rule\AnyInvokedCount any()

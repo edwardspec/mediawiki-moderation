@@ -35,10 +35,10 @@ use MediaWiki\Moderation\ModerationViewableEntry;
 use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\Title\Title;
 use Parser;
 use RequestContext;
 use SpecialPage;
-use Title;
 
 require_once __DIR__ . "/autoload.php";
 

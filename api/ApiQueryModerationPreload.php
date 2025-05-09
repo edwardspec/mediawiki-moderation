@@ -28,8 +28,8 @@ namespace MediaWiki\Moderation;
 use ApiMain;
 use ApiQuery;
 use ApiQueryBase;
-use DerivativeRequest;
-use Title;
+use MediaWiki\Request\DerivativeRequest;
+use MediaWiki\Title\Title;
 use Wikimedia\ParamValidator\ParamValidator;
 
 class ApiQueryModerationPreload extends ApiQueryBase {

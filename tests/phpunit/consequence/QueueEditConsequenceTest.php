@@ -32,7 +32,7 @@ use MediaWiki\Moderation\ModerationPreload;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 
 require_once __DIR__ . "/autoload.php";

@@ -23,7 +23,7 @@
 namespace MediaWiki\Moderation;
 
 use ContentHandler;
-use Title;
+use MediaWiki\Title\Title;
 
 class PendingEdit {
 	/** @var Title */

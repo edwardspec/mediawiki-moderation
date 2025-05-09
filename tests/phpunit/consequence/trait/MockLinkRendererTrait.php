@@ -25,7 +25,7 @@ namespace MediaWiki\Moderation\Tests;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Linker\LinkRendererFactory;
 use MediaWiki\Linker\LinkTarget;
-use Title;
+use MediaWiki\Title\Title;
 
 /**
  * @method static \PHPUnit\Framework\MockObject\Rule\AnyInvokedCount any()

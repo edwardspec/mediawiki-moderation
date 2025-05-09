@@ -25,8 +25,8 @@ namespace MediaWiki\Moderation\Tests;
 use MediaWiki\Moderation\ApproveMoveConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\ModerationEntryMove;
+use MediaWiki\Title\Title;
 use Status;
-use Title;
 use User;
 use Wikimedia\TestingAccessWrapper;
 

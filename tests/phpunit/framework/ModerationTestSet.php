@@ -25,10 +25,10 @@
 namespace MediaWiki\Moderation\Tests;
 
 use MediaWiki\Moderation\ModerationCompatTools;
+use MediaWiki\Title\Title;
 use MWTimestamp;
 use PHPUnit\Framework\AssertionFailedError;
 use stdClass;
-use Title;
 
 /**
  * @method static void assertSame($a, $b, string $message='')
