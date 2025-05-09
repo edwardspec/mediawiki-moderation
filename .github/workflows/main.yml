@@ -90,13 +90,13 @@ jobs:
         # Start by running non-blackbox unit tests that can use temporary DB tables.
         # These tests are much faster than the integration testsuite.
       - name: Run non-blackbox unit tests (very fast)
-        run: true # cd mediawiki && php tests/phpunit/phpunit.php extensions/Moderation/tests/phpunit/consequence/
+        run: cd mediawiki && php tests/phpunit/phpunit.php extensions/Moderation/tests/phpunit/consequence/
 
         # Run all tests.
       - name: Run integration tests (blackbox)
-        run: true # cd mediawiki && PHPUNIT_USE_NORMAL_TABLES=1 php tests/phpunit/phpunit.php extensions/Moderation/tests/phpunit/blackbox
+        run: cd mediawiki && PHPUNIT_USE_NORMAL_TABLES=1 php tests/phpunit/phpunit.php extensions/Moderation/tests/phpunit/blackbox
       - name: Run integration tests (decoupled)
-        run: true # cd mediawiki && PHPUNIT_USE_NORMAL_TABLES=1 php tests/phpunit/phpunit.php extensions/Moderation/tests/phpunit/decoupled
+        run: cd mediawiki && PHPUNIT_USE_NORMAL_TABLES=1 php tests/phpunit/phpunit.php extensions/Moderation/tests/phpunit/decoupled
 
   # Job #2: phpcs, parallel-lint, etc.
   linter:
