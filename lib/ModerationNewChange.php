@@ -28,9 +28,9 @@ use Language;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Revision\RevisionRecord;
+use MediaWiki\Title\Title;
 use ParserOptions;
 use RecentChange;
-use MediaWiki\Title\Title;
 use User;
 use WikiPage;
 

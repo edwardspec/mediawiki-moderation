@@ -22,12 +22,12 @@
 
 namespace MediaWiki\Moderation\Tests;
 
-use FauxRequest;
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\InvalidatePendingTimeCacheConsequence;
 use MediaWiki\Moderation\ModerationActionApprove;
 use MediaWiki\Moderation\ModerationApprovableEntry;
 use MediaWiki\Moderation\ModerationError;
+use MediaWiki\Request\FauxRequest;
 use MediaWiki\Title\Title;
 use Wikimedia\TestingAccessWrapper;
 

@@ -28,7 +28,7 @@ namespace MediaWiki\Moderation;
 use ApiMain;
 use ApiQuery;
 use ApiQueryBase;
-use DerivativeRequest;
+use MediaWiki\Request\DerivativeRequest;
 use MediaWiki\Title\Title;
 use Wikimedia\ParamValidator\ParamValidator;
 

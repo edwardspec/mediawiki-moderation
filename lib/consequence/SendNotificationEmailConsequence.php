@@ -25,8 +25,8 @@ namespace MediaWiki\Moderation;
 use DeferredUpdates;
 use MailAddress;
 use MediaWiki\MediaWikiServices;
-use SpecialPage;
 use MediaWiki\Title\Title;
+use SpecialPage;
 use User;
 
 class SendNotificationEmailConsequence implements IConsequence {
