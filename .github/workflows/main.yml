@@ -152,10 +152,9 @@ jobs:
 
   # Job #4: Phan (PHP static analyzer) with PHAN_CHECK_TESTSUITE=1
   phan-testsuite:
-    if: ${{ false }}
     runs-on: ubuntu-24.04
     env:
-      branch: REL1_43
+      branch: REL1_44
       PHAN_CHECK_TESTSUITE: 1
     steps:
       - uses: actions/checkout@v4
@@ -169,7 +168,7 @@ jobs:
           path: |
             ~/.composer/cache
             buildcache
-          key: buildcache-phan
+          key: buildcache-phan-mw44
       - uses: edwardspec/github-action-build-mediawiki@v1
         with:
           branch: ${{ env.branch }}
