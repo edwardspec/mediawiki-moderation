@@ -26,9 +26,9 @@ use Content;
 use IContextSource;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Title\Title;
 use ParserOptions;
 use ParserOutput;
-use MediaWiki\Title\Title;
 use User;
 use WikiPage;
 

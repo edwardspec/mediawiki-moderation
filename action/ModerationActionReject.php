@@ -22,8 +22,8 @@
 
 namespace MediaWiki\Moderation;
 
-use OutputPage;
 use MediaWiki\Title\Title;
+use OutputPage;
 
 class ModerationActionReject extends ModerationAction {
 

@@ -30,8 +30,8 @@ use MediaWiki\Moderation\ModerationApproveHook;
 use MediaWiki\Moderation\ModerationError;
 use MediaWiki\Moderation\ModerationNewChange;
 use MediaWiki\Moderation\TimestampTools;
-use Status;
 use MediaWiki\Title\Title;
+use Status;
 use User;
 use Wikimedia\TestingAccessWrapper;
 

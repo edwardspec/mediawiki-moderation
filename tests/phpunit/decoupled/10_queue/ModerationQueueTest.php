@@ -27,10 +27,10 @@ use IDBAccessObject;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\ModerationUploadStorage;
+use MediaWiki\Title\Title;
 use ParserOptions;
 use ReflectionClass;
 use SpecialPage;
-use MediaWiki\Title\Title;
 use UnexpectedValueException;
 use User;
 

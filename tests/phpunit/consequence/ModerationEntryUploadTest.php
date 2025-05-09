@@ -25,8 +25,8 @@ namespace MediaWiki\Moderation\Tests;
 use MediaWiki\Moderation\ApproveUploadConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\ModerationEntryUpload;
-use Status;
 use MediaWiki\Title\Title;
+use Status;
 use User;
 use Wikimedia\TestingAccessWrapper;
 

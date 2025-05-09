@@ -22,8 +22,8 @@
 
 namespace MediaWiki\Moderation;
 
-use Status;
 use MediaWiki\Title\Title;
+use Status;
 use UploadFromStash;
 use UploadStashFileNotFoundException;
 use User;

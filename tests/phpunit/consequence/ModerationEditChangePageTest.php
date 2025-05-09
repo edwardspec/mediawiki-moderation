@@ -23,10 +23,10 @@
 namespace MediaWiki\Moderation\Tests;
 
 use Article;
-use FauxRequest;
 use MediaWiki\Moderation\ModerationEditChangePage;
-use RequestContext;
+use MediaWiki\Request\FauxRequest;
 use MediaWiki\Title\Title;
+use RequestContext;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
