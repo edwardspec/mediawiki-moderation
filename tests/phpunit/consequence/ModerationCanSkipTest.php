@@ -106,9 +106,9 @@ class ModerationCanSkipTest extends ModerationUnitTestCase {
 				[ true, 'canUploadSkip', [], [], [ '__inApprove' => true ] ],
 
 			// "skip-moderation" right
-			'canEditSkip()=true, because user has skip-moderation right' =>
+			'canEditSkip()=true, becauser has skip-moderation right' =>
 				[ true, 'canEditSkip', [ NS_MAIN ], [ 'skip-moderation' => true ], [] ],
-			'canUploadSkip()=true, because user has skip-moderation right' =>
+			'canUploadSkip()=true, becauser has skip-moderation right' =>
 				[ true, 'canUploadSkip', [], [ 'skip-moderation' => true ], [] ],
 			'canMoveSkip()=false: user without skip-move-moderation right (skip-moderation is not enough)' =>
 				[ false, 'canMoveSkip', [ NS_MAIN, NS_PROJECT ], [ 'skip-moderation' => true ], [] ],
@@ -122,7 +122,7 @@ class ModerationCanSkipTest extends ModerationUnitTestCase {
 				[ false, 'canMoveSkip', [ NS_MAIN, NS_PROJECT ], [ 'rollback' => true ], [] ],
 
 			// "skip-move-moderation" right
-			'canMoveSkip()=true, because user has skip-move-moderation right' =>
+			'canMoveSkip()=true, becauser has skip-move-moderation right' =>
 				[ true, 'canMoveSkip', [ NS_MAIN, NS_PROJECT ], [ 'skip-move-moderation' => true ], [] ],
 			'canEditSkip()=false: user without skip-moderation right (skip-move-moderation is not enough)' =>
 				[ false, 'canEditSkip', [ NS_MAIN ], [ 'skip-move-moderation' => true ], [] ],

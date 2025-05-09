@@ -22,13 +22,13 @@
 
 namespace MediaWiki\Moderation\Tests;
 
-use FauxRequest;
 use MediaWiki\Moderation\AddLogEntryConsequence;
 use MediaWiki\Moderation\ModerationActionEditChangeSubmit;
 use MediaWiki\Moderation\ModerationError;
 use MediaWiki\Moderation\ModerationNewChange;
 use MediaWiki\Moderation\ModifyPendingChangeConsequence;
-use Title;
+use MediaWiki\Request\FauxRequest;
+use MediaWiki\Title\Title;
 use User;
 
 require_once __DIR__ . "/autoload.php";

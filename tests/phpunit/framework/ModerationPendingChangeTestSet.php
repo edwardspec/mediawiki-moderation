@@ -26,8 +26,8 @@ use IDBAccessObject;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\ModerationUploadStorage;
 use MediaWiki\Revision\RevisionRecord;
+use MediaWiki\Title\Title;
 use MWTimestamp;
-use Title;
 use UnexpectedValueException;
 use User;
 

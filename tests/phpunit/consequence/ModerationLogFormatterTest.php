@@ -23,12 +23,12 @@
 namespace MediaWiki\Moderation\Tests;
 
 use DOMElement;
-use Linker;
 use ManualLogEntry;
+use MediaWiki\Linker\Linker;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Title\Title;
 use SpecialPage;
-use Title;
 use User;
 use WebRequest;
 use Wikimedia\TestingAccessWrapper;

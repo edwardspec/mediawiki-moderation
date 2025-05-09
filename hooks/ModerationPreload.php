@@ -22,14 +22,14 @@
 
 namespace MediaWiki\Moderation;
 
-use EditPage;
 use MediaWiki\Auth\Hook\LocalUserCreatedHook;
+use MediaWiki\EditPage\EditPage;
 use MediaWiki\Hook\AlternateEditHook;
 use MediaWiki\Hook\EditFormInitialTextHook;
 use MediaWiki\Hook\EditFormPreloadTextHook;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Title\Title;
 use RequestContext;
-use Title;
 use User;
 use WebRequest;
 use Xml;

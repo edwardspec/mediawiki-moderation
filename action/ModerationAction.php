@@ -28,13 +28,13 @@ use Language;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRenderer;
+use MediaWiki\Title\Title;
 use OutputPage;
 use Profiler;
 use ReadOnlyError;
 use ReadOnlyMode;
 use RepoGroup;
 use SpecialPage;
-use Title;
 use User;
 use Xml;
 

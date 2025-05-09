@@ -22,13 +22,13 @@
 
 namespace MediaWiki\Moderation\Tests;
 
-use FauxRequest;
 use MediaWiki\Moderation\ModerationActionPreview;
 use MediaWiki\Moderation\ModerationViewableEntry;
+use MediaWiki\Request\FauxRequest;
 use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Revision\RevisionRecord;
+use MediaWiki\Title\Title;
 use ParserOutput;
-use Title;
 
 require_once __DIR__ . "/autoload.php";
 

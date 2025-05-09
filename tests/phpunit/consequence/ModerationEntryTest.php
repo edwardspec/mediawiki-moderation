@@ -24,7 +24,7 @@ namespace MediaWiki\Moderation\Tests;
 
 use MediaWiki\Moderation\ModerationEntry;
 use MediaWiki\Moderation\ModerationNewChange;
-use Title;
+use MediaWiki\Title\Title;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";

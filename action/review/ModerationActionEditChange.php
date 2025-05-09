@@ -27,8 +27,8 @@
 namespace MediaWiki\Moderation;
 
 use Article;
+use MediaWiki\Title\Title;
 use OutputPage;
-use Title;
 
 class ModerationActionEditChange extends ModerationAction {
 

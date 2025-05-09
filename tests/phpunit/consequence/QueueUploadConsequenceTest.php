@@ -30,8 +30,8 @@ use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\QueueUploadConsequence;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
 use MediaWiki\Moderation\SendNotificationEmailConsequence;
+use MediaWiki\Title\Title;
 use RequestContext;
-use Title;
 use User;
 
 require_once __DIR__ . "/autoload.php";

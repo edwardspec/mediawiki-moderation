@@ -28,9 +28,9 @@ use IContextSource;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\ModerationNotifyModerator;
+use MediaWiki\Title\Title;
 use OutputPage;
 use RawMessage;
-use Title;
 use User;
 use Wikimedia\TestingAccessWrapper;
 
