@@ -42,7 +42,8 @@ class ModerationTestUtil {
 	 * @param MediaWikiIntegrationTestCase $tc @phan-unused-param
 	 */
 	public static function ignoreKnownDeprecations( MediaWikiIntegrationTestCase $tc ) {
-		// Nothing to ignore.
+		// Temporary (1.44 only): MediaWiki core itself calls this in Skin.php.
+		$tc->hideDeprecated( 'MediaWiki\\Skin\\Skin::appendSpecialPagesLinkIfAbsent' );
 	}
 
 	/**
