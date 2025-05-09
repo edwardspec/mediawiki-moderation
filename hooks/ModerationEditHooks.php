@@ -45,7 +45,7 @@ use RequestContext;
 use Skin;
 use Status;
 use TextContentHandler;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use WikiPage;
 

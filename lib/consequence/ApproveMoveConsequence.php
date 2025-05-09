@@ -24,7 +24,7 @@ namespace MediaWiki\Moderation;
 
 use MediaWiki\MediaWikiServices;
 use Status;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 
 class ApproveMoveConsequence implements IConsequence {

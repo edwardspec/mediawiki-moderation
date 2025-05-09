@@ -26,7 +26,7 @@ use IContextSource;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Moderation\ActionLinkRenderer;
 use RawMessage;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 
 require_once __DIR__ . "/autoload.php";

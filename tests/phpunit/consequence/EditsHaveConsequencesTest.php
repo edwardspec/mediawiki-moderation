@@ -40,7 +40,7 @@ use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
 use MediaWiki\Revision\SlotRecord;
 use RequestContext;
 use Status;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use WikiPage;
 

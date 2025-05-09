@@ -29,7 +29,7 @@ use MediaWiki\Moderation\ModerationActionReject;
 use MediaWiki\Moderation\ModerationError;
 use MediaWiki\Moderation\RejectAllConsequence;
 use MediaWiki\Moderation\RejectOneConsequence;
-use Title;
+use MediaWiki\Title\Title;
 
 require_once __DIR__ . "/autoload.php";
 

@@ -29,7 +29,7 @@ use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\WatchOrUnwatchConsequence;
 use RequestContext;
 use SpecialPage;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use Wikimedia\TestingAccessWrapper;
 

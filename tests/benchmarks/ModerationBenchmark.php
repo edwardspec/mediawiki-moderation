@@ -30,7 +30,7 @@ use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\ModerationNewChange;
 use MediaWiki\Revision\SlotRecord;
 use Status;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 
 require_once __DIR__ . '/../common/ModerationTestUtil.php';

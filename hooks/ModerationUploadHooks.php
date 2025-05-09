@@ -25,7 +25,7 @@ namespace MediaWiki\Moderation;
 use MediaWiki\Hook\UploadVerifyUploadHook;
 use MediaWiki\Permissions\Hook\GetUserPermissionsErrorsHook;
 use RequestContext;
-use Title;
+use MediaWiki\Title\Title;
 use UploadBase;
 use User;
 

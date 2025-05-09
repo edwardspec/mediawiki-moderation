@@ -30,7 +30,7 @@ use MediaWiki\Moderation\EntryFactory;
 use MediaWiki\Moderation\ModerationNotifyModerator;
 use OutputPage;
 use RawMessage;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use Wikimedia\TestingAccessWrapper;
 

@@ -26,7 +26,7 @@ use MediaWiki\Moderation\ApproveMoveConsequence;
 use MediaWiki\Moderation\IConsequenceManager;
 use MediaWiki\Moderation\ModerationEntryMove;
 use Status;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use Wikimedia\TestingAccessWrapper;
 

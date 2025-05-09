@@ -29,7 +29,7 @@ use MediaWiki\Moderation\ModerationEditChangePage;
 use MediaWiki\Moderation\ModerationError;
 use MediaWiki\Moderation\ModerationNewChange;
 use OutputPage;
-use Title;
+use MediaWiki\Title\Title;
 
 require_once __DIR__ . "/autoload.php";
 

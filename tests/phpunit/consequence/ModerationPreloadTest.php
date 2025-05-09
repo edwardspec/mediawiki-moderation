@@ -30,7 +30,7 @@ use MediaWiki\Moderation\ModerationPreload;
 use MediaWiki\Moderation\PendingEdit;
 use MediaWiki\Moderation\RememberAnonIdConsequence;
 use RequestContext;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use Wikimedia\IPUtils;
 

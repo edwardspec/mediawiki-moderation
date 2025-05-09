@@ -28,7 +28,7 @@ use MediaWiki\Moderation\ModerationCompatTools;
 use MWTimestamp;
 use PHPUnit\Framework\AssertionFailedError;
 use stdClass;
-use Title;
+use MediaWiki\Title\Title;
 
 /**
  * @method static void assertSame($a, $b, string $message='')

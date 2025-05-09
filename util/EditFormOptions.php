@@ -27,7 +27,7 @@ use MediaWiki\MediaWikiServices;
 use ReflectionProperty;
 use RequestContext;
 use SpecialPage;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 
 class EditFormOptions {

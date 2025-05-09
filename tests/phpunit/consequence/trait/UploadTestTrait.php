@@ -27,7 +27,7 @@ use FauxRequest;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationUploadStorage;
 use RequestContext;
-use Title;
+use MediaWiki\Title\Title;
 use UploadBase;
 use UploadFromFile;
 

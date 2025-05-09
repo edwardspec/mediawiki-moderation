@@ -30,7 +30,7 @@ use MediaWiki\Moderation\ModerationUploadStorage;
 use ParserOptions;
 use ReflectionClass;
 use SpecialPage;
-use Title;
+use MediaWiki\Title\Title;
 use UnexpectedValueException;
 use User;
 

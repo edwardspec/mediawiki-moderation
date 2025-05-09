@@ -27,7 +27,7 @@ use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\ModerationUploadStorage;
 use MediaWiki\Revision\RevisionRecord;
 use MWTimestamp;
-use Title;
+use MediaWiki\Title\Title;
 use UnexpectedValueException;
 use User;
 

@@ -29,7 +29,7 @@ use MediaWiki\Hook\EditFormInitialTextHook;
 use MediaWiki\Hook\EditFormPreloadTextHook;
 use MediaWiki\MediaWikiServices;
 use RequestContext;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use WebRequest;
 use Xml;

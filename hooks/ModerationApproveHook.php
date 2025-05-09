@@ -37,7 +37,7 @@ use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\User\UserIdentity;
 use Psr\Log\LoggerInterface;
 use RecentChange;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use Wikimedia\IPUtils;
 use WikiPage;

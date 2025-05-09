@@ -29,7 +29,7 @@ use MediaWiki\Moderation\MarkAsConflictConsequence;
 use MediaWiki\Moderation\ModerationEntryEdit;
 use MediaWiki\Moderation\RejectOneConsequence;
 use Status;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use Wikimedia\TestingAccessWrapper;
 

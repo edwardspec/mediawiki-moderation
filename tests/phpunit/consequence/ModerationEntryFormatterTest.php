@@ -33,7 +33,7 @@ use MediaWiki\Moderation\ModerationEntryFormatter;
 use MediaWiki\Moderation\TimestampTools;
 use RequestContext;
 use stdClass;
-use Title;
+use MediaWiki\Title\Title;
 
 require_once __DIR__ . "/autoload.php";
 

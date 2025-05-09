@@ -23,7 +23,7 @@
 namespace MediaWiki\Moderation;
 
 use Status;
-use Title;
+use MediaWiki\Title\Title;
 use UploadFromStash;
 use UploadStashFileNotFoundException;
 use User;

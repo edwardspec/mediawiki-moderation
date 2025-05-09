@@ -28,7 +28,7 @@ use MediaWiki\Moderation\BlockUserConsequence;
 use MediaWiki\Moderation\ModerationActionBlock;
 use MediaWiki\Moderation\UnblockUserConsequence;
 use PHPUnit\Framework\MockObject\MockObject;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 
 require_once __DIR__ . "/autoload.php";

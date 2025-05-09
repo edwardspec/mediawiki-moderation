@@ -35,7 +35,7 @@ use MWException;
 use Psr\Log\NullLogger;
 use RecentChange;
 use TestUser;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use Wikimedia\IPUtils;
 

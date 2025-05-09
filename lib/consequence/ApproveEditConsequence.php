@@ -28,7 +28,7 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
 use Status;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use WikiPage;
 

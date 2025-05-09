@@ -28,7 +28,7 @@ use MediaWiki\Moderation\ModerationViewableEntry;
 use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Revision\RevisionRecord;
 use ParserOutput;
-use Title;
+use MediaWiki\Title\Title;
 
 require_once __DIR__ . "/autoload.php";
 

@@ -29,7 +29,7 @@ use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\ModerationUploadStorage;
 use MWException;
 use SpecialPage;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 
 require_once __DIR__ . "/../../framework/ModerationTestsuite.php";

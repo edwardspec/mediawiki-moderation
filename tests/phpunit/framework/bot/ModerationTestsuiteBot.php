@@ -23,7 +23,7 @@
 namespace MediaWiki\Moderation\Tests;
 
 use MWException;
-use Title;
+use MediaWiki\Title\Title;
 
 abstract class ModerationTestsuiteBot {
 
