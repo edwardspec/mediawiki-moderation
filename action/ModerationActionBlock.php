@@ -23,7 +23,7 @@
 namespace MediaWiki\Moderation;
 
 use OutputPage;
-use Title;
+use MediaWiki\Title\Title;
 
 class ModerationActionBlock extends ModerationAction {
 

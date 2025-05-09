@@ -26,7 +26,7 @@ use Linker;
 use LogFormatter;
 use Message;
 use SpecialPage;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 
 class ModerationLogFormatter extends LogFormatter {

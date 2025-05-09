@@ -29,7 +29,7 @@ use ApiTestCase;
 use MediaWiki\Moderation\ApiQueryModerationPreload;
 use MediaWiki\Moderation\ModerationPreload;
 use MediaWiki\Moderation\PendingEdit;
-use Title;
+use MediaWiki\Title\Title;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";

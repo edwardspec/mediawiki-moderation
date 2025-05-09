@@ -35,7 +35,7 @@ use MediaWiki\Moderation\SpecialModeration;
 use QueryPage;
 use RequestContext;
 use Status;
-use Title;
+use MediaWiki\Title\Title;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";

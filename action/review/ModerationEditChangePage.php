@@ -25,7 +25,7 @@ namespace MediaWiki\Moderation;
 use EditPage;
 use Html;
 use SpecialPage;
-use Title;
+use MediaWiki\Title\Title;
 
 class ModerationEditChangePage extends EditPage {
 

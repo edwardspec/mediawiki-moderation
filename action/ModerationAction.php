@@ -34,7 +34,7 @@ use ReadOnlyError;
 use ReadOnlyMode;
 use RepoGroup;
 use SpecialPage;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use Xml;
 

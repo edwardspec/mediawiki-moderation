@@ -24,7 +24,7 @@ use MediaWikiIntegrationTestCase;
 use MWException;
 use Stringable;
 use TestUser;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use Wikimedia\Rdbms\DBConnRef;
 

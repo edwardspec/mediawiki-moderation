@@ -24,7 +24,7 @@ namespace MediaWiki\Moderation\Tests;
 
 use EditPage;
 use MWException;
-use Title;
+use MediaWiki\Title\Title;
 
 class ModerationTestsuiteNonApiBot extends ModerationTestsuiteBot {
 	/**

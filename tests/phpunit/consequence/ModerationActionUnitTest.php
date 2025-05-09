@@ -29,7 +29,7 @@ use Profiler;
 use ReadOnlyError;
 use RequestContext;
 use SpecialPage;
-use Title;
+use MediaWiki\Title\Title;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";

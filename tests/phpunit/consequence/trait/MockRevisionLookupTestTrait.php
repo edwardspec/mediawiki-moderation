@@ -26,7 +26,7 @@ use MediaWiki\Revision\MutableRevisionRecord;
 use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Revision\SlotRecord;
 use TextContent;
-use Title;
+use MediaWiki\Title\Title;
 
 /**
  * @method static \PHPUnit\Framework\MockObject\Rule\AnyInvokedCount any()

@@ -30,7 +30,7 @@ use MediaWiki\Moderation\Hook\HookRunner;
 use MediaWiki\Revision\RevisionRecord;
 use ParserOptions;
 use RecentChange;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use WikiPage;
 

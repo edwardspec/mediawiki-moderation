@@ -33,7 +33,7 @@ use MediaWiki\Revision\MutableRevisionRecord;
 use MediaWiki\Revision\SlotRecord;
 use MediaWikiIntegrationTestCase;
 use RequestContext;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 
 class ModerationTestUtil {

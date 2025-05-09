@@ -28,7 +28,7 @@ use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
 use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use WikiPage;
 

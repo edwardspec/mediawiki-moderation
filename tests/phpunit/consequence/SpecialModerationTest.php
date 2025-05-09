@@ -34,7 +34,7 @@ use PermissionsError;
 use QueryPage;
 use RequestContext;
 use Skin;
-use Title;
+use MediaWiki\Title\Title;
 use Wikimedia\Rdbms\FakeResultWrapper;
 use Wikimedia\TestingAccessWrapper;
 

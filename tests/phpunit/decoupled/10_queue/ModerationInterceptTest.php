@@ -25,7 +25,7 @@ namespace MediaWiki\Moderation\Tests;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MWException;
-use Title;
+use MediaWiki\Title\Title;
 use UnexpectedValueException;
 use User;
 

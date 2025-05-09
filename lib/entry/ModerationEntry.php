@@ -23,7 +23,7 @@
 namespace MediaWiki\Moderation;
 
 use stdClass;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 
 abstract class ModerationEntry {

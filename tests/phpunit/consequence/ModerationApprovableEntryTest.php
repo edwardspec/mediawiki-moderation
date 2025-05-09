@@ -31,7 +31,7 @@ use MediaWiki\Moderation\ModerationError;
 use MediaWiki\Moderation\ModerationNewChange;
 use MediaWiki\Moderation\TimestampTools;
 use Status;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use Wikimedia\TestingAccessWrapper;
 

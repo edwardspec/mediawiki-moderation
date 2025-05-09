@@ -28,7 +28,7 @@ use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
 use ParserOptions;
 use ParserOutput;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use WikiPage;
 

@@ -26,7 +26,7 @@ use Article;
 use FauxRequest;
 use MediaWiki\Moderation\ModerationEditChangePage;
 use RequestContext;
-use Title;
+use MediaWiki\Title\Title;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";

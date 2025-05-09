@@ -25,7 +25,7 @@ namespace MediaWiki\Moderation\Tests;
 use ErrorPageError;
 use MediaWiki\Moderation\ModerationQueuedSuccessException;
 use RequestContext;
-use Title;
+use MediaWiki\Title\Title;
 
 require_once __DIR__ . "/autoload.php";
 

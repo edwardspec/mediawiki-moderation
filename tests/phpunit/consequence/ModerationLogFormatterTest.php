@@ -29,7 +29,7 @@ use ManualLogEntry;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
 use SpecialPage;
-use Title;
+use MediaWiki\Title\Title;
 use User;
 use WebRequest;
 use Wikimedia\TestingAccessWrapper;

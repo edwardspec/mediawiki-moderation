@@ -26,7 +26,7 @@ use IContextSource;
 use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\Revision\RevisionLookup;
-use Title;
+use MediaWiki\Title\Title;
 
 class EntryFactory {
 	/** @var LinkRenderer */

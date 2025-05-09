@@ -24,7 +24,7 @@ namespace MediaWiki\Moderation\Tests;
 
 use MediaWiki\Moderation\ModerationCompatTools;
 use MWTimestamp;
-use Title;
+use MediaWiki\Title\Title;
 
 require_once __DIR__ . "/../framework/ModerationTestsuite.php";
 
