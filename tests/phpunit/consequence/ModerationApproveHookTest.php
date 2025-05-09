@@ -31,11 +31,11 @@ use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationApproveHook;
 use MediaWiki\Moderation\ModerationNewChange;
+use MediaWiki\Title\Title;
 use MWException;
 use Psr\Log\NullLogger;
 use RecentChange;
 use TestUser;
-use Title;
 use User;
 use Wikimedia\IPUtils;
 

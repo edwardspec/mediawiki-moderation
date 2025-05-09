@@ -22,12 +22,12 @@
 
 namespace MediaWiki\Moderation\Tests;
 
-use EditPage;
-use FauxRequest;
+use MediaWiki\EditPage\EditPage;
 use MediaWiki\Moderation\ModerationActionMerge;
 use MediaWiki\Moderation\ModerationError;
+use MediaWiki\Request\FauxRequest;
+use MediaWiki\Title\Title;
 use OutputPage;
-use Title;
 use User;
 
 require_once __DIR__ . "/autoload.php";

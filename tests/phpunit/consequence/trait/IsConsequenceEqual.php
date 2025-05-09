@@ -25,10 +25,10 @@ namespace MediaWiki\Moderation\Tests;
 use FormatJson;
 use MediaWiki\Moderation\IConsequence;
 use MediaWiki\Moderation\InsertRowIntoModerationTableConsequence;
+use MediaWiki\Title\Title;
 use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
-use Title;
 use User;
 use WikiPage;
 

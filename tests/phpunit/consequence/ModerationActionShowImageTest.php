@@ -22,11 +22,11 @@
 
 namespace MediaWiki\Moderation\Tests;
 
-use FauxRequest;
 use FileBackend;
 use LocalRepo;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationActionShowImage;
+use MediaWiki\Request\FauxRequest;
 use MWException;
 use UnregisteredLocalFile;
 

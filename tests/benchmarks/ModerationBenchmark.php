@@ -29,8 +29,8 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\ModerationNewChange;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\Title\Title;
 use Status;
-use Title;
 use User;
 
 require_once __DIR__ . '/../common/ModerationTestUtil.php';

@@ -23,7 +23,7 @@
 namespace MediaWiki\Moderation;
 
 use IContextSource;
-use Title;
+use MediaWiki\Title\Title;
 
 class ModerationPageForms {
 	/** @var ModerationPreload */

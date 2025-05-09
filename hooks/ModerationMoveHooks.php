@@ -23,8 +23,8 @@
 namespace MediaWiki\Moderation;
 
 use MediaWiki\Hook\TitleMoveHook;
+use MediaWiki\Title\Title;
 use Status;
-use Title;
 use User;
 
 class ModerationMoveHooks implements TitleMoveHook {

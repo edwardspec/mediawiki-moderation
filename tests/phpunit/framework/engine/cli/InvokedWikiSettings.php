@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\Tests\ModerationTestsuiteBagOStuff;
 use MediaWiki\Moderation\Tests\ModerationTestsuiteCliApiMain;
 use MediaWiki\Moderation\Tests\ModerationTestsuiteMockAutoLoader;
+use MediaWiki\WikiMap\WikiMap;
 use Wikimedia\Rdbms\DatabaseDomain;
 
 # Replace Memcached with our caching class. This is needed for Parallel PHPUnit testing,

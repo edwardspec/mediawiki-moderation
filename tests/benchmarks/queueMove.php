@@ -27,7 +27,7 @@ namespace MediaWiki\Moderation\Tests;
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\MovePageFactory;
-use Title;
+use MediaWiki\Title\Title;
 use Wikimedia\Assert\Assert;
 
 require_once __DIR__ . '/ModerationBenchmark.php';

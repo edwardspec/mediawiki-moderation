@@ -38,9 +38,9 @@ use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\Title\Title;
 use RequestContext;
 use Status;
-use Title;
 use User;
 use WikiPage;
 
