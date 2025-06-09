@@ -25,7 +25,7 @@ namespace MediaWiki\Moderation\Tests;
 use ApiMain;
 use ApiUsageException;
 use Article;
-use ChangeTags;
+use MediaWiki\ChangeTags\ChangeTags;
 use MediaWiki\EditPage\EditPage;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\EditFormOptions;
@@ -59,7 +59,7 @@ class HooksTest extends ModerationUnitTestCase {
 	 * @covers MediaWiki\Moderation\ModerationEditHooks::onListDefinedTags
 	 */
 	public function testDefinedTagListed() {
-		$definedTags = ChangeTags::listDefinedTags();
+		$definedTags = $this->getServiceContainer()->getChangeTagsStore()->listDefinedTags();
 		$this->assertContains( 'moderation-merged', $definedTags,
 			"Tag 'moderation-merged' isn't listed in the list of defined change tags." );
 		$this->assertContains( 'moderation-spam', $definedTags,

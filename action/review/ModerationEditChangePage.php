@@ -22,8 +22,8 @@
 
 namespace MediaWiki\Moderation;
 
-use MediaWiki\Html\Html;
 use MediaWiki\EditPage\EditPage;
+use MediaWiki\Html\Html;
 use MediaWiki\Title\Title;
 use SpecialPage;
 
