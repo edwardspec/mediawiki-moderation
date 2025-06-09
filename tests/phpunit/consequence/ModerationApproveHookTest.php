@@ -27,7 +27,6 @@ use ExtensionRegistry;
 use IDBAccessObject;
 use LogEntryBase;
 use ManualLogEntry;
-use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\ModerationApproveHook;
 use MediaWiki\Moderation\ModerationNewChange;
@@ -79,7 +78,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 			$this->assertTrue( $status->isGood(), "Upload failed: " . $status->getMessage()->plain() );
 		}
 
-		$approveHook = new ModerationApproveHook( new NullLogger() );
+		$approveHook = $this->makeApproveHook();
 		$this->setService( 'Moderation.ApproveHook', $approveHook );
 
 		$logEntry = new ManualLogEntry( 'moderation', 'SomeLogAction' );
@@ -118,7 +117,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 		$title = Title::newFromText( 'UTPage-' . rand( 0, 100000 ) );
 		$user =	self::getTestUser( [ 'automoderated' ] )->getUser();
 
-		$approveHook = new ModerationApproveHook( new NullLogger() );
+		$approveHook = $this->makeApproveHook();
 		$this->setService( 'Moderation.ApproveHook', $approveHook );
 
 		$revid = $this->makeEdit( $title, $user );
@@ -131,7 +130,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 	 * @covers MediaWiki\Moderation\ModerationApproveHook::isApprovingNow
 	 */
 	public function testIsApprovingNowNo() {
-		$approveHook = new ModerationApproveHook( new NullLogger() );
+		$approveHook = $this->makeApproveHook();
 		$this->assertFalse( $approveHook->isApprovingNow(),
 			'No tasks were added to ApproveHook, but isApprovingNow() returned true.' );
 	}
@@ -146,7 +145,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 		$type = 'move';
 		$task = [ 'ip' => 'a', 'xff' => 'b', 'ua' => 'c', 'tags' => 'd', 'timestamp' => 'e' ];
 
-		$approveHook = new ModerationApproveHook( new NullLogger() );
+		$approveHook = $this->makeApproveHook();
 		$approveHook->addTask( $title, $user, $type, $task );
 
 		$this->assertTrue( $approveHook->isApprovingNow(),
@@ -695,7 +694,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 		}
 
 		// Step 1: install ApproveHook for edits that will happen later.
-		$approveHook = new ModerationApproveHook( LoggerFactory::getInstance( 'ModerationApproveHook' ) );
+		$approveHook = $this->makeApproveHook();
 		foreach ( $todo as $testParameters ) {
 			list( $title, $user, $type, $task ) = $testParameters;
 			if ( $task ) {
@@ -903,5 +902,16 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 		}
 
 		$this->assertTrue( $status->isGood(), "Move failed: " . $status->getMessage()->plain() );
+	}
+
+	/**
+	 * Create ModerationApproveHook for testing. Doesn't install it as service.
+	 * @return ModerationApproveHook
+	 */
+	private function makeApproveHook() {
+		return new ModerationApproveHook(
+			new NullLogger(),
+			$this->getServiceContainer()->getChangeTagsStore()
+		);
 	}
 }
