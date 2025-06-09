@@ -26,6 +26,7 @@ use ApiMain;
 use ApiUsageException;
 use Article;
 use ChangeTags;
+use MediaWiki\ChangeTags\ChangeTags as ChangeTags44;
 use MediaWiki\EditPage\EditPage;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\EditFormOptions;
@@ -37,6 +38,12 @@ use QueryPage;
 use RequestContext;
 use Status;
 use Wikimedia\TestingAccessWrapper;
+
+if ( !class_exists( 'ChangeTags' ) ) {
+	// MediaWiki 1.44+
+	// @phan-suppress-next-line PhanUndeclaredClassAliasOriginal, PhanUndeclaredClassReference
+	class_alias( ChangeTags44::class, 'ChangeTags' );
+}
 
 require_once __DIR__ . "/autoload.php";
 
@@ -59,7 +66,7 @@ class HooksTest extends ModerationUnitTestCase {
 	 * @covers MediaWiki\Moderation\ModerationEditHooks::onListDefinedTags
 	 */
 	public function testDefinedTagListed() {
-		$definedTags = ChangeTags::listDefinedTags();
+		$definedTags = $this->getServiceContainer()->getChangeTagsStore()->listDefinedTags();
 		$this->assertContains( 'moderation-merged', $definedTags,
 			"Tag 'moderation-merged' isn't listed in the list of defined change tags." );
 		$this->assertContains( 'moderation-spam', $definedTags,

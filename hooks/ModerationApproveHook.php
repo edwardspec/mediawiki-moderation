@@ -23,10 +23,10 @@
 
 namespace MediaWiki\Moderation;
 
-use ChangeTags;
 use File;
 use FormatJson;
 use ManualLogEntry;
+use MediaWiki\ChangeTags\ChangeTagsStore;
 use MediaWiki\Hook\FileUploadHook;
 use MediaWiki\Hook\PageMoveCompletingHook;
 use MediaWiki\Hook\RecentChange_saveHook;
@@ -51,6 +51,9 @@ class ModerationApproveHook implements
 	/** @var LoggerInterface */
 	private $logger;
 
+	/** @var ChangeTagsStore */
+	private $changeTagsStore;
+
 	/** @var array List of _id fields in tables that are supported by updateWithoutQueue(). */
 	protected $idFieldNames = [
 		'recentchanges' => 'rc_id',
@@ -73,9 +76,11 @@ class ModerationApproveHook implements
 
 	/**
 	 * @param LoggerInterface $logger
+	 * @param ChangeTagsStore $changeTagsStore
 	 */
-	public function __construct( LoggerInterface $logger ) {
+	public function __construct( LoggerInterface $logger, ChangeTagsStore $changeTagsStore ) {
 		$this->logger = $logger;
+		$this->changeTagsStore = $changeTagsStore;
 	}
 
 	/**
@@ -467,7 +472,7 @@ class ModerationApproveHook implements
 
 		if ( $task['tags'] ) {
 			/* Add tags assigned by AbuseFilter, etc. */
-			ChangeTags::addTags(
+			$this->changeTagsStore->addTags(
 				explode( "\n", $task['tags'] ),
 				$rc->mAttribs['rc_id'],
 				$rc->mAttribs['rc_this_oldid'],
