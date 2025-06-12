@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2024 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
 use ParserOptions;
 use ParserOutput;
+use RecentChange;
 use User;
 use WikiPage;
 
@@ -117,5 +118,28 @@ class ModerationCompatTools {
 	 */
 	public static function getDB( $db ) {
 		return MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( $db );
+	}
+
+	/**
+	 * Add tags to ChangeTagsStore.
+	 * @param string|string[] $tags
+	 * @param int|null $rc_id
+	 * @param int|null $rev_id
+	 * @param int|null $log_id
+	 * @param string|null $params
+	 * @param RecentChange|null $rc
+	 * @return bool
+	 */
+	public static function addTags( $tags, $rc_id = null, $rev_id = null,
+		$log_id = null, $params = null, ?RecentChange $rc = null
+	) {
+		$services = MediaWikiServices::getInstance();
+		if ( method_exists( $services, 'getChangeTagsStore' ) ) {
+			// MediaWiki 1.41+
+			return $services->getChangeTagsStore()->addTags( $tags, $rc_id, $rev_id, $log_id, $params, $rc );
+		}
+
+		// MediaWiki 1.39-1.40
+		return \ChangeTags::addTags( $tags, $rc_id, $rev_id, $log_id, $params, $rc );
 	}
 }

@@ -59,7 +59,15 @@ class HooksTest extends ModerationUnitTestCase {
 	 * @covers MediaWiki\Moderation\ModerationEditHooks::onListDefinedTags
 	 */
 	public function testDefinedTagListed() {
-		$definedTags = ChangeTags::listDefinedTags();
+		$services = $this->getServiceContainer();
+		if ( method_exists( $services, 'getChangeTagsStore' ) ) {
+			// MediaWiki 1.41+
+			$definedTags = $services->getChangeTagsStore()->listDefinedTags();
+		} else {
+			// MediaWiki 1.39-1.40
+			$definedTags = ChangeTags::listDefinedTags();
+		}
+
 		$this->assertContains( 'moderation-merged', $definedTags,
 			"Tag 'moderation-merged' isn't listed in the list of defined change tags." );
 		$this->assertContains( 'moderation-spam', $definedTags,

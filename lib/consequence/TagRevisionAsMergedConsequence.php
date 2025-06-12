@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 
 namespace MediaWiki\Moderation;
 
-use ChangeTags;
 use DeferredUpdates;
 
 class TagRevisionAsMergedConsequence implements IConsequence {
@@ -41,7 +40,7 @@ class TagRevisionAsMergedConsequence implements IConsequence {
 	 */
 	public function run() {
 		DeferredUpdates::addCallableUpdate( function () {
-			ChangeTags::addTags( 'moderation-merged', null, $this->revid, null );
+			ModerationCompatTools::addTags( 'moderation-merged', null, $this->revid, null );
 		} );
 	}
 }
