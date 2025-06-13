@@ -60,7 +60,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
             php-version: ${{ matrix.php }}
-            extensions: mbstring, intl, opcache, mysqli
+            extensions: mbstring, intl, opcache, mysqli, xdebug
             tools: composer
             ini-values: zend.enable_gc=Off, opcache.enable_cli=1, opcache.file_cache="/dev/shm", opcache.file_cache_only=1, opcache.file_cache_consistency_checks=0, opcache.validate_timestamps=0
       - name: (debug) Print "php -i"
@@ -91,7 +91,9 @@ jobs:
           ( cd extensions/Moderation/tests/phpunit/consequence && ln -sv ../unit/*Test.php . )
 
           # Workaround incorrect deprecation note in MediaWiki 1.44.
-          sed -i '/@deprecated since 1.44 - will be hard deprecated in 1.45/d' includes/skins/Skin.php
+          sed -i '/will be hard deprecated in 1\.45/d' includes/skins/Skin.php
+          grep -C 7 -R 'function appendSpecialPagesLinkIfAbsent' .
+          find . -name "*.mocked.php" | xargs rm -fv {} \;
 
         # Start by running non-blackbox unit tests that can use temporary DB tables.
         # These tests are much faster than the integration testsuite.
