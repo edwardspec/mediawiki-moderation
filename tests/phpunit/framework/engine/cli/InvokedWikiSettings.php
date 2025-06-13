@@ -36,6 +36,8 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\Tests\ModerationTestsuiteBagOStuff;
 use MediaWiki\Moderation\Tests\ModerationTestsuiteCliApiMain;
 use MediaWiki\Moderation\Tests\ModerationTestsuiteMockAutoLoader;
+use MediaWiki\Request\FauxRequest;
+use MediaWiki\Request\FauxResponse;
 use MediaWiki\WikiMap\WikiMap;
 use Wikimedia\Rdbms\DatabaseDomain;
 
