@@ -564,7 +564,13 @@ class ModerationQueueTest extends ModerationTestCase {
 		$this->assertCount( 1, $hooks, "Number of times ModerationIntercept hook was called isn't 1." );
 
 		list( $paramTypes, $params ) = $hooks[0];
-		$this->assertSame( 'WikiPage', $paramTypes[0] );
+
+		$expectedPageClass = 'MediaWiki\Page\WikiPage'; // MediaWiki 1.44+
+		if ( !class_exists( $expectedPageClass, false ) ) {
+			// MediaWiki 1.43 only
+			$expectedPageClass = 'WikiPage';
+		}
+		$this->assertSame( $expectedPageClass, $paramTypes[0] );
 		$this->assertSame( 'MediaWiki\User\User', $paramTypes[1] );
 
 		$this->assertTrue(
@@ -579,14 +585,11 @@ class ModerationQueueTest extends ModerationTestCase {
 		$this->assertSame( 'integer', $paramTypes[7] ); // $flags
 		$this->assertSame( 'MediaWiki\Storage\PageUpdateStatus', $paramTypes[8] );
 
-		// FIXME: loss of types during JSON serialization is very inconvenient.
+		// FIXME: loss of types during JSON serialization is inconvenient.
 		// serialize() is not currently used, because some classes have callbacks, etc.,
 		// and where json_encode would provide an empty value, serialize() would fail completely.
 
-		$this->assertTrue( $this->title->equals( Title::newFromText(
-			$params[0]['prefixedText']
-		) ) );
-
+		$this->assertSame( $this->title->getFullText(), $params[0] );
 		$this->assertSame( $this->user->getName(), $params[1]['mName'] );
 		// $params[2] is not serialiable
 		$this->assertSame( $this->getExpectedSummary(), $params[3] );

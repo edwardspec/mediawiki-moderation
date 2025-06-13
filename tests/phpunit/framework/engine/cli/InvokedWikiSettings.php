@@ -278,9 +278,11 @@ function wfModerationTestsuiteSetup() {
 			}, $params );
 
 			$paramsJson = FormatJson::encode( array_map( static function ( $param ) {
-				if ( $param instanceof WikiPage ) {
-					// WikiPage can't be directly serialized, so we replace it with Title object.
-					return $param->getTitle();
+				// @phan-suppress-next-line PhanUndeclaredClassInstanceof
+				if ( $param instanceof WikiPage || $param instanceof MediaWiki\Page\WikiPage ) {
+					// WikiPage can't be directly serialized, so we replace it with full page name.
+					// @phan-suppress-next-line PhanUndeclaredClassMethod
+					return $param->getTitle()->getFullText();
 				}
 
 				return $param;
