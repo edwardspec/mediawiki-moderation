@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2021 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -189,7 +189,7 @@ class CliInvoke {
 		// If an exception happened before wfModerationTestsuiteSetup(),
 		// then $request wouldn't be a FauxResponse yet (and is therefore useless for CliEngine).
 		$response = RequestContext::getMain()->getRequest()->response();
-		if ( $response instanceof FauxResponse ) {
+		if ( $response instanceof MediaWiki\Request\FauxResponse ) {
 			$result['FauxResponse'] = $response;
 		}
 
