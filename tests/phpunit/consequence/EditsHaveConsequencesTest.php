@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2024 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -325,9 +325,12 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		$content = ContentHandler::makeContent( $fullText, null, CONTENT_MODEL_WIKITEXT );
 
 		$editFormOptions = $this->createMock( EditFormOptions::class );
-		$editFormOptions->expects( $this->once() )->method( 'watchIfNeeded' )->with(
-			$this->identicalTo( $this->user ),
-			$this->identicalTo( [ $this->title ] )
+		$editFormOptions->expects( $this->once() )->method( 'watchIfNeeded' )->will(
+			$this->returnCallback( function ( $user, array $titles ) {
+				$this->assertSame( $this->user, $user );
+				$this->assertCount( 1, $titles );
+				$this->assertTrue( $titles[0]->isSameLinkAs( $this->title ) );
+			} )
 		);
 		$editFormOptions->expects( $this->once() )->method( 'getSection' )->willReturn( $section );
 		$editFormOptions->expects( $this->once() )->method( 'getSectionText' )

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2024 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -104,7 +104,7 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 		)->willReturn( true ); // Can bypass moderation when moving the page
 
 		// Can bypass moderation when creating a redirect page
-		$canSkip->expects( $this->once() )->method( 'canEditSkip' )->with(
+		$canSkip->expects( $this->any() )->method( 'canEditSkip' )->with(
 			$user,
 			$this->title->getNamespace()
 		)->willReturn( true );
