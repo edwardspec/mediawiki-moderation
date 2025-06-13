@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -56,14 +56,7 @@ foreach ( [ 'default', 'bureaucrat', 'sysop', 'interface-admin', 'bot' ] as $gro
 # Extensions below are needed for some tests of Extension:Moderation.
 wfLoadExtension( 'AbuseFilter' ); # For PHPUnit testsuite
 wfLoadExtension( 'CheckUser' ); # For PHPUnit testsuite
-
-if ( !preg_match( '/^1\.40\./', MW_VERSION ) ) {
-	// Extension:PageForms has deprecation warnings in 1.40 (which interferes with tests).
-	wfLoadExtensions( [
-		# For PHPUnit testsuite.
-		'PageForms'
-	] );
-}
+wfLoadExtension( 'PageForms' ); # For PHPUnit testsuite
 
 wfLoadExtensions( [
 	# For Selenium testsuite
@@ -92,9 +85,7 @@ $wgModerationTestsuiteScriptPath = $wgScriptPath;
 
 // In MediaWiki 1.43+, ParserLimitReporting needs to be disabled,
 // because it causes deprecation warnings (unrelated to Moderation) during tests.
-if ( version_compare( MW_VERSION, '1.43.0-alpha', '>=' ) ) {
-	$wgEnableParserLimitReporting = false;
-}
+$wgEnableParserLimitReporting = false;
 
 # Tested extension.
 # Note: Moderation should always be enabled LAST in LocalSettings.php, after any other extension.

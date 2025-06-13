@@ -112,10 +112,7 @@ abstract class ModerationBenchmark extends Maintenance {
 	 */
 	public function execute() {
 		$services = MediaWikiServices::getInstance();
-		$actorStore = $services->getActorStore();
-		if ( method_exists( $actorStore, 'setAllowCreateIpActors' ) ) {
-			$actorStore->setAllowCreateIpActors( true );
-		}
+		$services->getActorStore()->setAllowCreateIpActors( true );
 
 		$user = User::newSystemUser( 'Benchmark User', [ 'steal' => true ] );
 

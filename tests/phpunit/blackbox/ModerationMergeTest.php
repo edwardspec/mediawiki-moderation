@@ -119,7 +119,7 @@ class ModerationMergeTest extends ModerationTestCase {
 			"testMerge(): Not yet rejected edit with detected conflict has rejected_auto flag ON" );
 
 		$title = $t->html->loadUrl( $entry->mergeLink )->getTitle();
-		$this->assertRegExp( '/\(editconflict: ' . $t->lastEdit['Title'] . '\)/', $title,
+		$this->assertMatchesRegularExpression( '/\(editconflict: ' . $t->lastEdit['Title'] . '\)/', $title,
 			"testMerge(): Wrong HTML title from modaction=merge" );
 
 		$this->assertSame( $this->text2, $t->html->getElementById( 'wpTextbox1' )->textContent,
@@ -248,8 +248,8 @@ class ModerationMergeTest extends ModerationTestCase {
 		$t->assumeFolderIsEmpty();
 		$t->fetchSpecial();
 		$url = $t->new_entries[0]->mergeLink;
-		$this->assertRegExp( '/\(sessionfailure-title\)/', $t->noTokenTitle( $url ) );
-		$this->assertRegExp( '/\(sessionfailure-title\)/', $t->badTokenTitle( $url ) );
+		$this->assertMatchesRegularExpression( '/\(sessionfailure-title\)/', $t->noTokenTitle( $url ) );
+		$this->assertMatchesRegularExpression( '/\(sessionfailure-title\)/', $t->badTokenTitle( $url ) );
 	}
 
 	public function testApproveAllConflicts( ModerationTestsuite $t ) {
@@ -264,12 +264,12 @@ class ModerationMergeTest extends ModerationTestCase {
 		$t->html->loadUrl( $t->new_entries[0]->approveAllLink );
 
 		$text = $t->html->getMainText();
-		$this->assertRegExp( '/\(moderation-approved-ok: ' .
+		$this->assertMatchesRegularExpression( '/\(moderation-approved-ok: ' .
 				( $t->TEST_EDITS_COUNT * 2 ) . '\)/',
 			$text,
 			"testApproveAllConflicts(): Result page doesn't contain (moderation-approved-ok: N)" );
 
-		$this->assertRegExp( '/\(moderation-approved-errors: 1\)/', $text,
+		$this->assertMatchesRegularExpression( '/\(moderation-approved-errors: 1\)/', $text,
 			"testApproveAllConflicts(): Result page doesn't contain (moderation-approved-errors: 1)" );
 
 		$t->assumeFolderIsEmpty();

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
  * @phan-file-suppress PhanUndeclaredVariableDim
  */
 
-// 1.41+: unfortunately we have to inform MediaWiki that this is being called from unit test,
+// Unfortunately we have to inform MediaWiki that this is being called from unit test,
 // or else it won't allow us to use MediaWikiServices::allowGlobalInstanceAfterUnitTests(),
 // which is necessary to use Hooks::register() very early (for SetupAfterCache hook, etc.).
 define( 'MW_PHPUNIT_TEST', true );
@@ -159,17 +159,8 @@ function wfModerationTestsuiteCliLogin() {
  * @param callable $handler
  */
 function wfFakeHooksRegister( $hookName, callable $handler ) {
-	if ( version_compare( MW_VERSION, '1.41.0-alpha', '>=' ) ) {
-		// MediaWiki 1.41+
-		MediaWikiServices::allowGlobalInstanceAfterUnitTests();
-		MediaWikiServices::getInstance()->getHookContainer()->register( $hookName, $handler );
-		return;
-	}
-
-	// Can't use Hooks::register(): MediaWiki prints a warning when it's called before boostrap,
-	// but this must be called before boostrap.
-	global $wgHooks;
-	$wgHooks[$hookName][] = $handler;
+	MediaWikiServices::allowGlobalInstanceAfterUnitTests();
+	MediaWikiServices::getInstance()->getHookContainer()->register( $hookName, $handler );
 }
 
 function wfModerationTestsuiteSetup() {

@@ -8,7 +8,6 @@ namespace MediaWiki\Moderation;
 /** @phan-file-suppress PhanParamTooFew, PhanStaticCallToNonStatic, PhanAccessMethodProtected */
 
 ModerationApproveHook::hookHandlerFactory();
-ModerationApproveHook::onCheckUserInsertForRecentChange();
 ModerationApproveHook::onCheckUserInsertChangesRow();
 ModerationApproveHook::onCheckUserInsertLogEventRow();
 ModerationApproveHook::onCheckUserInsertPrivateEventRow();

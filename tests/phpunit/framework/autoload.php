@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2024 Edward Chernenko.
+	Copyright (C) 2015-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@ $wgAutoloadClasses += [
 	/* Common test/benchmark methods */
 	ModerationTestHTML::class => __DIR__ . '/../../common/ModerationTestHTML.php',
 	ModerationTestUtil::class => __DIR__ . '/../../common/ModerationTestUtil.php',
-	ModerationTempUserTestTrait::class => __DIR__ . '/../../common/trait/ModerationTempUserTestTrait.php',
 
 	/* Moderation Testsuite framework */
 	IModerationTestsuiteEngine::class => __DIR__ . '/engine/IModerationTestsuiteEngine.php',

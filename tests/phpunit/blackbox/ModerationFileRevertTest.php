@@ -39,7 +39,7 @@ class ModerationFileRevertTest extends ModerationTestCase {
 		] );
 		$t->html->loadReq( $req );
 
-		$this->assertRegExp( '/\(moderation-revert-not-allowed\)/',
+		$this->assertMatchesRegularExpression( '/\(moderation-revert-not-allowed\)/',
 			$t->html->getMainText(),
 			"testFileRevert(): Revert page doesn't contain (moderation-revert-not-allowed)" );
 	}

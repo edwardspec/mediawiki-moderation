@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -565,13 +565,7 @@ class ModerationQueueTest extends ModerationTestCase {
 
 		list( $paramTypes, $params ) = $hooks[0];
 		$this->assertSame( 'WikiPage', $paramTypes[0] );
-
-		$expectedUserClass = 'MediaWiki\User\User'; // MediaWiki 1.41+
-		if ( !class_exists( $expectedUserClass, false ) ) {
-			// MediaWiki 1.39-1.40
-			$expectedUserClass = 'User';
-		}
-		$this->assertSame( $expectedUserClass, $paramTypes[1] );
+		$this->assertSame( 'MediaWiki\User\User', $paramTypes[1] );
 
 		$this->assertTrue(
 			( new ReflectionClass( $paramTypes[2] ) )->implementsInterface( 'Content' ) );
@@ -583,13 +577,7 @@ class ModerationQueueTest extends ModerationTestCase {
 		$this->assertSame( 'NULL', $paramTypes[5] ); // Unused
 		$this->assertSame( 'NULL', $paramTypes[6] ); // Unused
 		$this->assertSame( 'integer', $paramTypes[7] ); // $flags
-
-		$expectedStatusClass = 'MediaWiki\Storage\PageUpdateStatus'; // MediaWiki 1.40+
-		if ( !class_exists( $expectedStatusClass ) ) {
-			// MediaWiki 1.39 only
-			$expectedStatusClass = 'Status';
-		}
-		$this->assertSame( $expectedStatusClass, $paramTypes[8] );
+		$this->assertSame( 'MediaWiki\Storage\PageUpdateStatus', $paramTypes[8] );
 
 		// FIXME: loss of types during JSON serialization is very inconvenient.
 		// serialize() is not currently used, because some classes have callbacks, etc.,

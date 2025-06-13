@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2024 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -75,14 +75,7 @@ class ModerationCompatTools {
 	public static function getClientIPfromXFF( $xff ) {
 		$services = MediaWikiServices::getInstance();
 		if ( $services->has( 'CheckUserUtilityService' ) ) {
-			// MediaWiki 1.40+
 			return $services->get( 'CheckUserUtilityService' )->getClientIPfromXFF( $xff );
-		}
-
-		if ( method_exists( '\MediaWiki\CheckUser\Hooks', 'getClientIPfromXFF' ) ) {
-			// MediaWiki 1.39 only
-			// @phan-suppress-next-line PhanUndeclaredStaticMethod
-			return \MediaWiki\CheckUser\Hooks::getClientIPfromXFF( $xff );
 		}
 
 		// Extension:CheckUser is not installed.

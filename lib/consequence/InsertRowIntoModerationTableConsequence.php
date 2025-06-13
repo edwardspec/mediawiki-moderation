@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2024 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -61,23 +61,6 @@ class InsertRowIntoModerationTableConsequence implements IConsequence {
 				'InsertRowIntoModerationTableConsequence::run'
 			);
 		} );
-
-		if ( $dbw->getType() == 'postgres' &&
-			!method_exists( '\Wikimedia\Rdbms\Database', 'getInsertIdColumnForUpsert' )
-		) {
-			// MediaWiki 1.39-1.40 don't use native UPSERT for PostgreSQL (they use UPDATE and then INSERT IGNORE),
-			// because older versions of MediaWiki supported PostgreSQL 9.2, which didn't have UPSERT.
-			// This means $dbw->insertId() can't be trusted to have a correct value of mod_id
-			// (it's incorrect when changes were caused by UPDATE, not by the following INSERT).
-			// Unfortunately this needs to be corrected with an additional SQL query.
-			// This is not needed in MediaWiki 1.41+, which uses native UPSERT.
-			$where = [];
-			foreach ( $uniqueFields as $field ) {
-				$where[$field] = $this->fields[$field];
-			}
-
-			return (int)$dbw->selectField( 'moderation', 'mod_id', $where, __METHOD__ );
-		}
 
 		return $dbw->insertId();
 	}

@@ -101,7 +101,7 @@ class ModerationTestsuiteSelfTest extends ModerationTestCase {
 		$html->loadReq( $req );
 
 		/* Ensure that this is indeed an edit form */
-		$this->assertRegExp(
+		$this->assertMatchesRegularExpression(
 			'/\(creating: ' . str_replace( '_', ' ', $data['title'] ) . '\)/',
 			$html->getTitle()
 		);

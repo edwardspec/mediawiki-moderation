@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2024 Edward Chernenko.
+	Copyright (C) 2015-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ class ModerationTestHTML extends DOMDocument {
 				continue;
 			}
 			if ( preg_match( '/^ID .* already defined$/', $message ) ) {
-				// MW 1.41 Vector issue: two HTML elements with the same ID.
+				// Duplicate IDs of HTML elements on some pages.
 				continue;
 			}
 

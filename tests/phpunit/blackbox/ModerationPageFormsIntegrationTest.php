@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -37,10 +37,6 @@ class ModerationPageFormsIntegrationTest extends ModerationTestCase {
 	 */
 	public function testPageFormsPreload( $isExistingPage, ModerationTestsuite $t ) {
 		$this->requireExtension( 'PageForms' );
-
-		if ( $t->mwVersionCompare( '1.40.0', '<' ) ) {
-			$this->markTestSkipped( 'Test skipped: Extension:PageForms prints deprecation warnings in 1.39.' );
-		}
 
 		$page = "Test page 1";
 		$formName = 'Cat';

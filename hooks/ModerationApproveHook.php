@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2024 Edward Chernenko.
+	Copyright (C) 2014-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -235,45 +235,7 @@ class ModerationApproveHook implements
 	}
 
 	/**
-	 * onCheckUserInsertForRecentChange()
-	 * This hook is temporarily installed when approving the edit.
-	 * It modifies the IP, user-agent and XFF in the checkuser database,
-	 * so that they match the user who made the edit, not the moderator.
-	 *
-	 * @param RecentChange $rc
-	 * @param array &$fields
-	 * @return bool|void
-	 *
-	 * @phan-param array<string,string|int|null> &$fields
-	 *
-	 * MediaWiki 1.39 only, not used in MediaWiki 1.40+.
-	 */
-	public function onCheckUserInsertForRecentChange( RecentChange $rc, array &$fields ) {
-		$task = $this->getTaskByRC( $rc );
-		if ( !$task ) {
-			return;
-		}
-
-		$fields['cuc_ip'] = IPUtils::sanitizeIP( $task['ip'] );
-		$fields['cuc_ip_hex'] = $task['ip'] ? IPUtils::toHex( $task['ip'] ) : null;
-		$fields['cuc_agent'] = $task['ua'];
-
-		$xff = $task['xff'] ?? '';
-		list( $xff_ip, $isSquidOnly ) = ModerationCompatTools::getClientIPfromXFF( $xff );
-
-		if ( $xff_ip !== null ) {
-			$fields['cuc_xff'] = !$isSquidOnly ? $xff : '';
-			$fields['cuc_xff_hex'] = ( $xff_ip && !$isSquidOnly ) ? IPUtils::toHex( $xff_ip ) : null;
-		} else {
-			$fields['cuc_xff'] = '';
-			$fields['cuc_xff_hex'] = null;
-		}
-	}
-
-	/**
 	 * onCheckUserInsertChangesRow()
-	 * Only used in MediaWiki 1.40+, not in MediaWiki 1.39.
-	 *
 	 * Update IP, user-agent and XFF of newly approved edit in cu_changes table.
 	 *
 	 * @param string &$ip
@@ -297,8 +259,6 @@ class ModerationApproveHook implements
 
 	/**
 	 * onCheckUserInsertLogEventRow()
-	 * Only used in MediaWiki 1.40+, not in MediaWiki 1.39.
-	 *
 	 * Update IP, user-agent and XFF of newly approved edit in cu_log_event table.
 	 *
 	 * @param string &$ip
@@ -323,8 +283,6 @@ class ModerationApproveHook implements
 
 	/**
 	 * onCheckUserInsertPrivateEventRow()
-	 * Only used in MediaWiki 1.40+, not in MediaWiki 1.39.
-	 *
 	 * Update IP, user-agent and XFF of newly approved edit in cu_private_event table.
 	 *
 	 * @param string &$ip

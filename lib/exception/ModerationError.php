@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2024 Edward Chernenko.
+	Copyright (C) 2014-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -57,14 +57,8 @@ class ModerationError extends ErrorPageError {
 		$msg = ( $this->msg instanceof Message ) ?
 			$this->msg : $wgOut->msg( $this->msg );
 
-		if ( method_exists( $wgOut, 'setPageTitleMsg' ) ) {
-			// MediaWiki 1.41+
-			$wgOut->prepareErrorPage();
-			$wgOut->setPageTitleMsg( $msg );
-		} else {
-			// MediaWiki 1.39-1.40
-			$wgOut->prepareErrorPage( $msg );
-		}
+		$wgOut->prepareErrorPage();
+		$wgOut->setPageTitleMsg( $msg );
 
 		$wgOut->addHTML( Xml::tags( 'div', [
 			'id' => 'mw-mod-error',

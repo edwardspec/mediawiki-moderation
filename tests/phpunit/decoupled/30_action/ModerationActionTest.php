@@ -22,7 +22,6 @@
 
 namespace MediaWiki\Moderation\Tests;
 
-use ChangeTags;
 use DatabaseLogEntry;
 use MediaWiki\Moderation\ModerationActionShowImage;
 use MediaWiki\Moderation\ModerationCompatTools;
@@ -1078,15 +1077,8 @@ class ModerationActionTest extends ModerationTestCase {
 		// not timestamp of the original edit.
 		$rcQueryFields = [ 'rc_timestamp' ];
 
-		$services = $this->getServiceContainer();
-		if ( $services->hasService( 'ChangeTagsStore' ) ) {
-			// MediaWiki 1.41+
-			$rcQueryFields['ts_tags'] = $services->getChangeTagsStore()
-				->makeTagSummarySubquery( 'recentchanges' );
-		} else {
-			// MediaWiki 1.39-1.40
-			$rcQueryFields[] = 'rc_id';
-		}
+		$changeTagsStore = $this->getServiceContainer()->getChangeTagsStore();
+		$rcQueryFields['ts_tags'] = $changeTagsStore->makeTagSummarySubquery( 'recentchanges' );
 
 		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		$rcRow = $dbw->selectRow( 'recentchanges',
@@ -1098,18 +1090,9 @@ class ModerationActionTest extends ModerationTestCase {
 		$this->assertTimestampIsRecent( $rcRow->rc_timestamp );
 
 		// Check that change tags were preserved on approval.
-		if ( $services->hasService( 'ChangeTagsStore' ) ) {
-			// MediaWiki 1.41+
-			$actualTags = $rcRow->ts_tags;
-			$expectedTags = $this->fields['mod_tags'] === null ? null :
-				str_replace( "\n", ',', $this->fields['mod_tags'] );
-		} else {
-			// MediaWiki 1.39-1.40
-			$actualTags = ChangeTags::getTags( $dbw, $rcRow->rc_id );
-			$expectedTags = $this->fields['mod_tags'] === null ? [] :
-				explode( "\n", $this->fields['mod_tags'] );
-		}
-		$this->assertSame( $expectedTags, $actualTags );
+		$expectedTags = $this->fields['mod_tags'] === null ? null :
+			str_replace( "\n", ',', $this->fields['mod_tags'] );
+		$this->assertSame( $expectedTags, $rcRow->ts_tags );
 
 		// Check that UserAgent was preserved on approval.
 		$agents = ( $this->filename || $this->fields['mod_type'] == 'move' ) ?
@@ -1178,7 +1161,7 @@ class ModerationActionTest extends ModerationTestCase {
 		$rev = $t->getLastRevision( $this->getExpectedTitle() );
 		$this->assertSame( $this->fields['mod_user_text'], $rev['user'] );
 		$this->assertNotSame( $this->fields['mod_text'], $rev['*'] );
-		$this->assertRegExp(
+		$this->assertMatchesRegularExpression(
 			'/^#[^ ]+ \[\[' . preg_quote( $newTitle ) . '\]\]\n\(move-redirect-text\)$/',
 			$rev['*']
 		);

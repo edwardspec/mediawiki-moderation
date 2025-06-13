@@ -102,7 +102,7 @@ class ModerationEditTest extends ModerationTestCase {
 		$t->loginAs( $t->unprivilegedUser );
 		$bot->edit( $title, "== New section 2 ==\n~~~\n\n", null, 2 );
 
-		$this->assertNotRegExp( '/~~~/', $t->new_entries[0]->getDbText(),
+		$this->assertDoesNotMatchRegularExpression( '/~~~/', $t->new_entries[0]->getDbText(),
 			"testEditSections(): Signature (~~~~) hasn't been properly substituted." );
 
 		# Will editing the section work if section header was deleted?

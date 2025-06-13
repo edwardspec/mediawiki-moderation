@@ -50,7 +50,7 @@ class ModerationRejectTest extends ModerationTestCase {
 			"testRejectAll(): RejectAll link not found" );
 
 		$t->html->loadUrl( $entries[0]->rejectAllLink );
-		$this->assertRegExp( '/\(moderation-rejected-ok: ' . $t->TEST_EDITS_COUNT . '\)/',
+		$this->assertMatchesRegularExpression( '/\(moderation-rejected-ok: ' . $t->TEST_EDITS_COUNT . '\)/',
 			$t->html->getMainText(),
 			"testRejectAll(): Result page doesn't contain (moderation-rejected-ok: N)" );
 

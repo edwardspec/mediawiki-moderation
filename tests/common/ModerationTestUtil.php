@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -127,14 +127,7 @@ class ModerationTestUtil {
 	 * @phan-return array<string,string>
 	 */
 	public static function parseUrl( $url ) {
-		$services = MediaWikiServices::getInstance();
-		if ( $services->hasService( 'UrlUtils' ) ) {
-			// MediaWiki 1.43+
-			$urlUtils = $services->getUrlUtils();
-		} else {
-			// MediaWiki 1.39-1.42
-			$urlUtils = wfGetUrlUtils();
-		}
+		$urlUtils = MediaWikiServices::getInstance()->getUrlUtils();
 
 		return $urlUtils->parse( $urlUtils->expand( $url ) ?? '' ) ?? [];
 	}

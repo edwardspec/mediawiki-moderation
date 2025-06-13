@@ -29,9 +29,7 @@
 		because notifyQueued() already shows "edit queued for moderation" */
 	mw.loader.using( 'mobile.startup', function () {
 		var M = require( 'mobile.startup' ),
-			oldReload = M.toast ?
-				M.toast.showOnPageReload : // MediaWiki 1.39-1.41
-				M.notifyOnPageReload; // MediaWiki 1.42+
+			oldReload = M.notifyOnPageReload;
 
 		var newReload = function ( msg, cssClass ) {
 			if ( shouldAllowMessage( msg ) ) {
@@ -39,13 +37,7 @@
 			}
 		};
 
-		if ( M.toast ) {
-			// MediaWiki 1.39-1.41
-			M.toast.showOnPageReload = newReload;
-		} else {
-			// MediaWiki 1.42+
-			M.notifyOnPageReload = newReload;
-		}
+		M.notifyOnPageReload = newReload;
 	} );
 
 	/**

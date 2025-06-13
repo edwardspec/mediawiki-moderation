@@ -47,12 +47,12 @@ class ModerationShowTest extends ModerationTestCase {
 
 		$this->assertNotNull( $url,
 			"testShow(): Show link not found" );
-		$this->assertNotRegExp( '/token=/', $url,
+		$this->assertDoesNotMatchRegularExpression( '/token=/', $url,
 				"testShow(): Token was found in the read-only Show link" );
 
 		$title = $t->html->loadUrl( $url )->getTitle();
 
-		$this->assertRegExp( '/\(difference-title: ' . preg_quote( $page ) . '\)/', $title,
+		$this->assertMatchesRegularExpression( '/\(difference-title: ' . preg_quote( $page ) . '\)/', $title,
 			"testShow(): Difference page has a wrong HTML title" );
 
 		$added_lines = [];
@@ -107,10 +107,10 @@ class ModerationShowTest extends ModerationTestCase {
 			"testShowUpload(): Show link not found" );
 		$title = $t->html->loadUrl( $url )->getTitle();
 
-		$this->assertRegExp( '/\(difference-title: ' . $t->lastEdit['Title'] . '\)/', $title,
+		$this->assertMatchesRegularExpression( '/\(difference-title: ' . $t->lastEdit['Title'] . '\)/', $title,
 			"testShowUpload(): Difference page has a wrong HTML title" );
 
-		$this->assertRegExp( '/\(moderation-diff-upload-notext\)/',
+		$this->assertMatchesRegularExpression( '/\(moderation-diff-upload-notext\)/',
 			$t->html->getMainText(),
 			"testShowUpload(): File was uploaded without description, " .
 			"but (moderation-diff-upload-notext) is not shown" );
@@ -133,7 +133,7 @@ class ModerationShowTest extends ModerationTestCase {
 		'@phan-var DomElement $thumb';
 
 		$src = $thumb->getAttribute( 'src' );
-		$this->assertRegExp( '/thumb=1/', $src,
+		$this->assertMatchesRegularExpression( '/thumb=1/', $src,
 			"testShowUpload(): Thumbnail image URL doesn't contain thumb=1" );
 
 		# Is the image thumbnail inside the link to the full image?
@@ -151,7 +151,7 @@ class ModerationShowTest extends ModerationTestCase {
 		$this->assertSame( $nonthumb_src, $href,
 			"testShowUpload(): Full image URL doesn't match thumbnail image URL without '&thumb=1'" );
 
-		$this->assertNotRegExp( '/token=/', $href,
+		$this->assertDoesNotMatchRegularExpression( '/token=/', $href,
 				"testShowUpload(): Token was found in the read-only ShowImage link" );
 	}
 

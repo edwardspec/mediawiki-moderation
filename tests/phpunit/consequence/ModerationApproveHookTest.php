@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2024 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -57,10 +57,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 		if ( ExtensionRegistry::getInstance()->isLoaded( 'CheckUser' ) ) {
 			$this->tablesUsed[] = 'cu_changes';
-
-			if ( version_compare( MW_VERSION, '1.43.0-alpha', '>=' ) ) {
-				$this->tablesUsed[] = 'cu_log_events';
-			}
+			$this->tablesUsed[] = 'cu_log_events';
 		}
 	}
 
@@ -798,11 +795,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 					];
 				}
 
-				$hasActionText = version_compare( MW_VERSION, '1.43.0-alpha', '<' );
-
-				if ( $type == ModerationNewChange::MOD_TYPE_MOVE && !$hasActionText ) {
-					// In MediaWiki 1.43, log events are no longer in cu_changes table,
-					// they have their own table.
+				if ( $type == ModerationNewChange::MOD_TYPE_MOVE ) {
 					$res = $this->db->select(
 						[
 							'cu_log_event',
@@ -835,25 +828,12 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 					$this->assertSame( [ $expectedRow ], $actualRows );
 				} else {
-					// A normal edit. Also used for moves in MediaWiki 1.39-1.42.
+					// A normal edit.
 					$cuWhere = [
 						'cuc_namespace' => $title->getNamespace(),
-						'cuc_title' => $title->getDBKey()
+						'cuc_title' => $title->getDBKey(),
+						'cuc_actor' => $user->getActorId()
 					];
-					if ( version_compare( MW_VERSION, '1.40.0-alpha', '<' ) ) {
-						$cuWhere['cuc_user_text'] = $user->getName();
-					} else {
-						$cuWhere['cuc_actor'] = $user->getActorId();
-					}
-
-					if ( $hasActionText ) {
-						// MediaWiki 1.39-1.42
-						if ( $type == ModerationNewChange::MOD_TYPE_EDIT ) {
-							$cuWhere['cuc_actiontext'] = '';
-						} else {
-							$cuWhere[] = 'cuc_actiontext <> \'\'';
-						}
-					}
 
 					$this->assertSelect( 'cu_changes',
 						[

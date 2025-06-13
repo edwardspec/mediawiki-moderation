@@ -494,7 +494,7 @@ class ModerationSpecialModerationTest extends ModerationTestCase {
 		if ( array_key_exists( 'token', $expectedQuery ) &&
 			$expectedQuery['token'] === null
 		) {
-			$this->assertRegExp( '/[+0-9a-f]+/', $query['token'],
+			$this->assertMatchesRegularExpression( '/[+0-9a-f]+/', $query['token'],
 				"QueryString of [$url]: incorrect format of CSRF token." );
 			$expectedQuery['token'] = $query['token'];
 		}

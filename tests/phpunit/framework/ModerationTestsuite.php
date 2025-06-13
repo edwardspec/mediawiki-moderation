@@ -343,21 +343,6 @@ class ModerationTestsuite {
 			$this->truncateDbTable( $table );
 		}
 
-		// HACK: in MediaWiki 1.41, these two tables can for some reason be empty (shouldn't be empty)
-		// at the beginning of the test. For now we just re-add missing rows. TODO: investigate the cause.
-		if ( $dbw->selectRowCount( 'slot_roles', '*', [], __METHOD__ ) === 0 ) {
-			$dbw->insert( 'slot_roles',
-				[ 'role_id' => 1, 'role_name' => 'main' ],
-				__METHOD__
-			);
-		}
-		if ( $dbw->selectRowCount( 'content_models', '*', [], __METHOD__ ) === 0 ) {
-			$dbw->insert( 'content_models',
-				[ 'model_id' => 1, 'model_name' => 'wikitext' ],
-				__METHOD__
-			);
-		}
-
 		// Create test users like $t->moderator.
 		$this->prepopulateDb();
 
@@ -390,18 +375,7 @@ class ModerationTestsuite {
 			return;
 		}
 
-		if ( $dbw->getType() == 'postgres' ) {
-			if ( method_exists( $dbw, 'truncateTable' ) ) {
-				// MediaWiki 1.42+
-				$dbw->truncateTable( $table, __METHOD__ );
-			} else {
-				// MediaWiki 1.39-1.41
-				$dbw->truncate( $table, __METHOD__ );
-			}
-		} else {
-			// Can't use $dbw->truncate(), in MediaWiki 1.41 it doesn't seem to empty test tables.
-			$dbw->delete( $table, '*', __METHOD__ );
-		}
+		$dbw->truncateTable( $table, __METHOD__ );
 	}
 
 	/**
@@ -921,11 +895,6 @@ class ModerationTestsuite {
 	 * @return string[] List of user-agents.
 	 */
 	public function getCULEAgents( $limit ) {
-		if ( version_compare( MW_VERSION, '1.43.0-alpha', '<' ) ) {
-			// MediaWiki 1.39-1.42 stored log events in "cu_changes" table.
-			return $this->getCUCAgents( $limit );
-		}
-
 		$dbw = $this->getDB();
 		return $dbw->selectFieldValues(
 			'cu_log_event', 'cule_agent', '',
@@ -958,18 +927,9 @@ class ModerationTestsuite {
 			'af_deleted' => 0,
 			'af_actions' => 'tag',
 			'af_global' => 0,
-			'af_group' => 'default'
+			'af_group' => 'default',
+			'af_actor' => $user->getActorId()
 		];
-		if ( $dbw->fieldExists( 'abuse_filter', 'af_actor', __METHOD__ ) ) {
-			// MediaWiki 1.41+
-			$fields['af_actor'] = $user->getActorId();
-		}
-
-		if ( $dbw->fieldExists( 'abuse_filter', 'af_user', __METHOD__ ) ) {
-			// MediaWiki 1.39-1.42
-			$fields['af_user'] = $user->getId();
-			$fields['af_user_text'] = $user->getName();
-		}
 
 		$dbw->insert( 'abuse_filter', $fields, __METHOD__ );
 		$filterId = $dbw->insertId();

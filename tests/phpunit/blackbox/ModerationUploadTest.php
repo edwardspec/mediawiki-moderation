@@ -53,7 +53,7 @@ class ModerationUploadTest extends ModerationTestCase {
 			"testUpload(): Approve link not found" );
 
 		$t->html->loadUrl( $entry->approveLink );
-		$this->assertRegExp( '/\(moderation-approved-ok: 1\)/',
+		$this->assertMatchesRegularExpression( '/\(moderation-approved-ok: 1\)/',
 			$t->html->getMainText(),
 			"testUpload(): Result page doesn't contain (moderation-approved-ok: 1)" );
 
@@ -122,7 +122,7 @@ class ModerationUploadTest extends ModerationTestCase {
 		$this->assertSame( $t->lastEdit['Title'], $entry->title );
 
 		# Does modaction=show display (moderation-diff-reupload) message?
-		$this->assertRegExp( '/\(moderation-diff-reupload\)/',
+		$this->assertMatchesRegularExpression( '/\(moderation-diff-reupload\)/',
 			$t->html->loadUrl( $entry->showLink )->getMainText(),
 			"testReupload(): (moderation-diff-reupload) not found in the output of modaction=show" );
 
@@ -134,7 +134,7 @@ class ModerationUploadTest extends ModerationTestCase {
 		$t->sleepUntilNextSecond();
 
 		$t->html->loadUrl( $entry->approveLink );
-		$this->assertRegExp( '/\(moderation-approved-ok: 1\)/',
+		$this->assertMatchesRegularExpression( '/\(moderation-approved-ok: 1\)/',
 			$t->html->getMainText(),
 			"testReupload(): Result page doesn't contain (moderation-approved-ok: 1)" );
 

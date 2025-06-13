@@ -24,7 +24,6 @@ namespace MediaWiki\Moderation\Tests;
 
 use DOMElement;
 use Linker;
-use LogFormatter;
 use ManualLogEntry;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
@@ -58,14 +57,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 		$entry->setTarget( $target );
 		$entry->setParameters( $options['params'] ?? [] );
 
-		if ( method_exists( $services, 'getLogFormatterFactory' ) ) {
-			// MediaWiki 1.42+
-			$formatter = $services->getLogFormatterFactory()->newFromEntry( $entry );
-		} else {
-			// MediaWiki 1.39-1.41
-			$formatter = LogFormatter::newFromEntry( $entry );
-		}
-
+		$formatter = $services->getLogFormatterFactory()->newFromEntry( $entry );
 		$html = $formatter->getActionText();
 
 		// Check $html for validity

@@ -48,7 +48,7 @@ class ModerationTokensTest extends ModerationTestCase {
 			$entry->unblockLink
 		];
 		foreach ( $links as $url ) {
-			$this->assertRegExp( '/\(sessionfailure-title\)/', $t->noTokenTitle( $url ) );
+			$this->assertMatchesRegularExpression( '/\(sessionfailure-title\)/', $t->noTokenTitle( $url ) );
 
 			/* Double-check that nothing happened */
 			$t->fetchSpecial();
@@ -57,7 +57,7 @@ class ModerationTokensTest extends ModerationTestCase {
 
 			# Would the wrong token work?
 
-			$this->assertRegExp( '/\(sessionfailure-title\)/', $t->badTokenTitle( $url ) );
+			$this->assertMatchesRegularExpression( '/\(sessionfailure-title\)/', $t->badTokenTitle( $url ) );
 
 			/* Double-check that nothing happened */
 			$t->fetchSpecial();

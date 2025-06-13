@@ -48,9 +48,9 @@ class ModerationReturntoTest extends ModerationTestCase {
 
 		/* 1) check if "Return to" link is present after successful action */
 		$html = $t->html->loadUrl( $url )->getMainText();
-		$this->assertRegExp( '/\(moderation-rejected-ok: 1\)/', $html,
+		$this->assertMatchesRegularExpression( '/\(moderation-rejected-ok: 1\)/', $html,
 			"testReturnto(): Result page doesn't contain (moderation-rejected-ok: 1)" );
-		$this->assertRegExp( '/\(returnto: Special:Moderation\)/', $html,
+		$this->assertMatchesRegularExpression( '/\(returnto: Special:Moderation\)/', $html,
 			"testReturnto(): Result page doesn't contain (returnto: Special:Moderation)" );
 
 		/* 2) check if "Return to" link is present after error */
@@ -58,7 +58,7 @@ class ModerationReturntoTest extends ModerationTestCase {
 		$this->assertSame( '(moderation-already-rejected)', $t->html->getModerationError(),
 			"testReturnto(): Error page doesn't contain (moderation-already-rejected)"
 		);
-		$this->assertRegExp( '/\(returnto: Special:Moderation\)/', $t->html->getMainText(),
+		$this->assertMatchesRegularExpression( '/\(returnto: Special:Moderation\)/', $t->html->getMainText(),
 			"testReturnto(): Error page doesn't contain (returnto: Special:Moderation)" );
 	}
 }

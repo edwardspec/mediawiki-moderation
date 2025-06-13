@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         php: [8.1]
-        branch: [REL1_39, REL1_42, REL1_43]
+        branch: [REL1_43]
         dbtype: [mysql, postgres]
         include:
            - php: 8.3
@@ -25,12 +25,6 @@ jobs:
            - php: 8.1
              branch: REL1_43
              dbtype: sqlite
-           - php: 8.1
-             branch: REL1_41
-             dbtype: mysql
-           - php: 8.1
-             branch: REL1_40
-             dbtype: mysql
     env:
       branch: ${{ matrix.branch }}
       DBTYPE: ${{ matrix.dbtype }}
@@ -92,7 +86,7 @@ jobs:
           ( cd extensions/AbuseFilter && composer update --no-dev )
           WITH_ECHO=1 php maintenance/update.php --quick
           php maintenance/createAndPromote.php "$MEDIAWIKI_USER" "$MEDIAWIKI_PASSWORD" --custom-groups moderator,automoderated
-          ( cd extensions/Moderation && composer install ${{ matrix.php == '8.0' && '--ignore-platform-reqs' || '' }} )
+          ( cd extensions/Moderation && composer install )
           echo '{{CURRENTVERSION}}' | php maintenance/parse.php
           ( cd extensions/Moderation/tests/phpunit/consequence && ln -sv ../unit/*Test.php . )
 

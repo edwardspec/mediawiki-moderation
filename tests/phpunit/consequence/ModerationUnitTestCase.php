@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2022 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,15 +23,11 @@
 namespace MediaWiki\Moderation\Tests;
 
 use MediaWiki\Moderation\IConsequence;
+use MediaWiki\Tests\User\TempUser\TempUserTestTrait;
 use MediaWikiIntegrationTestCase;
 
 class ModerationUnitTestCase extends MediaWikiIntegrationTestCase {
-	use ModerationTempUserTestTrait;
-
-	protected function addCoreDBData() {
-		// Do nothing. Normally this method creates test user, etc.,
-		// but our unit tests don't need this.
-	}
+	use TempUserTestTrait;
 
 	public function setUp(): void {
 		parent::setUp();

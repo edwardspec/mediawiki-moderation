@@ -1,8 +1,11 @@
 List of changes between releases of Extension:Moderation.
 
-== master branch (1.8.x versions) ==
+== master branch (1.9.x versions) ==
 
-No changes since Moderation 1.8.31.
+Note: this version requires MediaWiki 1.43+. MediaWiki 1.39 is no longer supported.
+
+Refactoring, performance optimizations:
+* Removed legacy code for MediaWiki 1.39-1.42.
 
 == Moderation 1.8.31 ==
 
