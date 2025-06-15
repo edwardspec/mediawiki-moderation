@@ -85,7 +85,7 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 		$reflection->setAccessible( true );
 		$deprecationFilters = $reflection->getValue();
 
-		$deprecationFilters[] = '/Deprecated cross-wiki access.*/';
+		$deprecationFilters['/Deprecated cross-wiki access.*/'] = null;
 		$reflection->setValue( $deprecationFilters );
 	} else {
 		$GLOBALS["wg$name"] = $value;
