@@ -4,6 +4,9 @@ List of changes between releases of Extension:Moderation.
 
 Note: this version requires MediaWiki 1.43+. MediaWiki 1.39 is no longer supported.
 
+Features:
+* Support MediaWiki 1.44.
+
 Refactoring, performance optimizations:
 * Removed legacy code for MediaWiki 1.39-1.42.
 

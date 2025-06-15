@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2024 Edward Chernenko.
+	Copyright (C) 2014-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 
 namespace MediaWiki\Moderation;
 
+use MediaWiki\MediaWikiServices;
 use OutputPage;
 
 class ModerationActionPreview extends ModerationAction {
@@ -53,9 +54,13 @@ class ModerationActionPreview extends ModerationAction {
 		$renderedRevision = $this->revisionRenderer->getRenderedRevision( $entry->getPendingRevision() );
 		$pout = $renderedRevision->getRevisionParserOutput();
 
+		// Remove edit section links.
+		$pipeline = MediaWikiServices::getInstance()->getDefaultOutputPipeline();
+		$pout = $pipeline->run( $pout, null, [ 'enableSectionEditLinks' => false ] );
+
 		return [
 			'title' => $title->getPrefixedText(),
-			'html' => $pout->getText( [ 'enableSectionEditLinks' => false ] ),
+			'html' => $pout->getRawText(),
 			'categories' => ModerationCompatTools::getParserOutputCategories( $pout )
 		];
 	}

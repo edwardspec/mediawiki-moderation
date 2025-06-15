@@ -24,6 +24,7 @@ namespace MediaWiki\Moderation\Tests;
 
 use MediaWiki\Moderation\ModerationActionPreview;
 use MediaWiki\Moderation\ModerationViewableEntry;
+use MediaWiki\OutputTransform\OutputTransformPipeline;
 use MediaWiki\Request\FauxRequest;
 use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Revision\RevisionRecord;
@@ -57,15 +58,23 @@ class ModerationActionPreviewTest extends ModerationUnitTestCase {
 		$entry->expects( $this->once() )->method( 'getPendingRevision' )->willReturn( $revision );
 
 		$parserOutput = $this->createMock( ParserOutput::class );
-		$parserOutput->expects( $this->once() )->method( 'getText' )->with(
-			$this->identicalTo( [ 'enableSectionEditLinks' => false ] )
-		)->willReturn( $expectedResult['html'] );
-		$parserOutput->expects( $this->once() )->method( 'getCategoryNames' )
-			->willReturn( array_keys( $expectedResult['categories'] ) );
-
 		$renderedRevision = $this->createMock( RenderedRevision::class );
 		$renderedRevision->expects( $this->once() )->method( 'getRevisionParserOutput' )
 			->willReturn( $parserOutput );
+
+		$processedOutput = $this->createMock( ParserOutput::class );
+		$processedOutput->expects( $this->once() )->method( 'getRawText' )
+			->willReturn( $expectedResult['html'] );
+		$processedOutput->expects( $this->once() )->method( 'getCategoryNames' )
+			->willReturn( array_keys( $expectedResult['categories'] ) );
+
+		$pipeline = $this->createMock( OutputTransformPipeline::class );
+		$pipeline->expects( $this->once() )->method( 'run' )->with(
+			$this->identicalTo( $parserOutput ),
+			$this->isNull(),
+			$this->identicalTo( [ 'enableSectionEditLinks' => false ] )
+		)->willReturn( $processedOutput );
+		$this->setService( 'DefaultOutputPipeline', $pipeline );
 
 		$action = $this->makeActionForTesting( ModerationActionPreview::class,
 			function (
