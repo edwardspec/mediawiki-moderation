@@ -38,6 +38,10 @@ class ModerationPageFormsIntegrationTest extends ModerationTestCase {
 	public function testPageFormsPreload( $isExistingPage, ModerationTestsuite $t ) {
 		$this->requireExtension( 'PageForms' );
 
+		if ( $t->mwVersionCompare( '1.44.0-alpha', '>=' ) ) {
+			$this->markTestSkipped( 'Test skipped: Extension:PageForms prints deprecation warnings in 1.44.' );
+		}
+
 		$page = "Test page 1";
 		$formName = 'Cat';
 		$sections = [
