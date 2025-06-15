@@ -14,7 +14,6 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 */
-
 /**
  * @file
  * Helper script to run MediaWiki as a command line script.
@@ -24,6 +23,9 @@
  * and we can't use any of the MediaWiki classes.
  * We just populate $_GET, $_POST, etc. and include "index.php".
  */
+
+use MediaWiki\Moderation\Tests\ModerationTestsuiteMockAutoLoader;
+
 $wgModerationTestsuiteCliDescriptor = unserialize( stream_get_contents( STDIN ) );
 
 CliInvoke::singleton()->prepareEverything();
@@ -108,6 +110,21 @@ class CliInvoke {
 		define( 'MW_CONFIG_FILE', __DIR__ . '/InvokedWikiSettings.php' );
 
 		require_once __DIR__ . '/MockAutoLoader.php'; # Intercepts header() calls
+
+		/*
+			Replace all calls to header() PHP function (which does nothing in CLI mode)
+			with calls to wfModerationTestsuiteMockedHeader() (defined inside InvokedWikiSettings.php),
+			so that our tests can inspect HTTP headers.
+
+			This needs to be done here, not in InvokedWikiSettings.php, because HttpStatus class
+			(which needs this replacement) is autoloaded before InvokedWikiSettings.php.
+		*/
+		ModerationTestsuiteMockAutoLoader::replaceFunction( 'header',
+			'\\wfModerationTestsuiteMockedHeader'
+		);
+		ModerationTestsuiteMockAutoLoader::replaceFunction( '( $this->headerFunc )',
+			'\\wfModerationTestsuiteMockedHeader'
+		);
 	}
 
 	/**

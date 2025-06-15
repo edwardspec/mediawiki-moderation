@@ -35,7 +35,6 @@ use MediaWiki\Auth\AuthManager;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Moderation\Tests\ModerationTestsuiteBagOStuff;
 use MediaWiki\Moderation\Tests\ModerationTestsuiteCliApiMain;
-use MediaWiki\Moderation\Tests\ModerationTestsuiteMockAutoLoader;
 use MediaWiki\Request\FauxRequest;
 use MediaWiki\Request\FauxResponse;
 use MediaWiki\WikiMap\WikiMap;
@@ -98,6 +97,7 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 /**
  * Replacement for header() function that (unlike header() itself) always records headers
  * inside the FauxResponse of global WebRequest (thus allowing our tests to inspect them).
+ * @see CliInvoke::overrideLocalSettings
  * @param string $string
  * @param bool $replace
  * @param null|int $http_response_code
@@ -193,20 +193,6 @@ function wfModerationTestsuiteSetup() {
 	$wgRequest = $request;
 
 	$request->setUploadData( $wgModerationTestsuiteCliUploadData );
-
-	/* Some code in MediaWiki core, e.g. HTTPFileStreamer, calls header()
-		directly (not via $wgRequest->response), but this function
-		is a no-op in CLI mode, so the headers would be silently lost.
-
-		We need to test these headers, so we use the following workaround:
-		[MockAutoLoader.php] replaces header() calls with our function.
-	*/
-	ModerationTestsuiteMockAutoLoader::replaceFunction( 'header',
-		'wfModerationTestsuiteMockedHeader'
-	);
-	ModerationTestsuiteMockAutoLoader::replaceFunction( '( $this->headerFunc )',
-		'wfModerationTestsuiteMockedHeader'
-	);
 
 	/*
 		Install hook to replace ApiMain class
