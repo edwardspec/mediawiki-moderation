@@ -41,6 +41,12 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 	/** @var array [ 'name_of_hook' => postfactum_callback ] */
 	protected $trackedHooks = [];
 
+	/** @var string[] */
+	private $ignoredDeprecations = [
+		// MediaWiki 1.44 only: incorrect deprecation caused by MediaWiki core itself.
+		'Use of MediaWiki\\Skin\\Skin::appendSpecialPagesLinkIfAbsent was deprecated'
+	];
+
 	/**
 	 * Forget the login cookies (if any), thus becoming an anonymous user.
 	 */
@@ -188,18 +194,19 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 			->input( serialize( $descriptor ) )
 			->execute();
 
-		$output = $ret->getStdout();
 		$errorOutput = $ret->getStderr();
-
 		if ( $errorOutput ) {
-			// Allow PHPUnit to complain about this.
-			// @phan-suppress-next-line SecurityCheck-XSS - false positive
-			print "\n" . $errorOutput;
+			$errorOutput = $this->filterDeprecations( $errorOutput );
+			if ( $errorOutput ) {
+				// Allow PHPUnit to complain about this.
+				print "\n" . $errorOutput;
+			}
 		}
 
 		$errorContext = "from $env[REQUEST_METHOD] [$url], postData=[" .
 			wfArrayToCgi( $descriptor['_POST'] ) . ']';
 
+		$output = $ret->getStdout();
 		try {
 			$result = unserialize( $output );
 		} catch ( Exception $_ ) {
@@ -240,8 +247,29 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 
 		return ModerationTestsuiteResponse::newFromFauxResponse(
 			$response,
-			$result['capturedContent']
+			$this->filterDeprecations( $result['capturedContent'] )
 		);
+	}
+
+	/**
+	 * Remove deprecation warnings (if any) from the text of the response.
+	 * @param string $text
+	 * @return string
+	 */
+	protected function filterDeprecations( $text ) {
+		$text = preg_replace_callback( '/^(PHP |)Deprecated:.*$/m', function ( $matches ) {
+			$warning = $matches[0];
+			foreach ( $this->ignoredDeprecations as $ignoredDeprecation ) {
+				if ( strpos( $warning, $ignoredDeprecation ) !== false ) {
+					return '';
+				}
+			}
+
+			print "\nCliEngine: " . $warning;
+			return '';
+		}, $text );
+
+		return trim( $text );
 	}
 
 	/**
