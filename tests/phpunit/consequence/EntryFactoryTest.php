@@ -51,9 +51,6 @@ require_once __DIR__ . "/autoload.php";
 class EntryFactoryTest extends ModerationUnitTestCase {
 	use ModifyDbRowTestTrait;
 
-	/** @var string[] */
-	protected $tablesUsed = [ 'moderation' ];
-
 	/**
 	 * Test that EntryFactory can create ModerationEntryFormatter, ModerationViewableEntry, etc.
 	 * @covers MediaWiki\Moderation\EntryFactory

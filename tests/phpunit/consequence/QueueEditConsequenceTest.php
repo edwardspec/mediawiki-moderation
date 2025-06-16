@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2024 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -42,9 +42,6 @@ require_once __DIR__ . "/autoload.php";
  */
 class QueueEditConsequenceTest extends ModerationUnitTestCase {
 	use MakeEditTestTrait;
-
-	/** @var string[] */
-	protected $tablesUsed = [ 'moderation', 'user' ];
 
 	/**
 	 * Check the secondary consequences of running QueueEditConsequence.

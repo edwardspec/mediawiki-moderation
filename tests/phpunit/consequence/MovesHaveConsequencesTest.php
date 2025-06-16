@@ -41,9 +41,6 @@ class MovesHaveConsequencesTest extends ModerationUnitTestCase {
 	/** @var string */
 	protected $reason;
 
-	/** @var string[] */
-	protected $tablesUsed = [ 'user', 'page', 'logging' ];
-
 	/**
 	 * Test consequences when a move is queued for moderation.
 	 * @covers MediaWiki\Moderation\ModerationMoveHooks::onTitleMove

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -36,9 +36,6 @@ require_once __DIR__ . "/autoload.php";
  * @group medium
  */
 class CreatingNewUserHasConsequencesTest extends ModerationUnitTestCase {
-	/** @var string[] */
-	protected $tablesUsed = [ 'user' ];
-
 	/**
 	 * Test consequences when user who already made some edit creates an account.
 	 * @covers MediaWiki\Moderation\GiveAnonChangesToNewUserConsequence

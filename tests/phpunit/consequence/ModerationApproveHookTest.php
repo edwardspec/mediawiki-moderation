@@ -47,19 +47,6 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 	use MakeEditTestTrait;
 	use UploadTestTrait;
 
-	/** @var string[] */
-	protected $tablesUsed = [ 'revision', 'page', 'user', 'recentchanges',
-		'change_tag', 'logging', 'log_search', 'image', 'oldimage' ];
-
-	public function setUp(): void {
-		parent::setUp();
-
-		if ( ExtensionRegistry::getInstance()->isLoaded( 'CheckUser' ) ) {
-			$this->tablesUsed[] = 'cu_changes';
-			$this->tablesUsed[] = 'cu_log_events';
-		}
-	}
-
 	/**
 	 * Verify that uploading a file adds missing "revid" to LogEntry passed to checkLogEntry().
 	 * @param array $logEntryParams Parameters for ManualLogEntry.

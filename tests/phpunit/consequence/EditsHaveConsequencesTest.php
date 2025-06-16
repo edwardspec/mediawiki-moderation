@@ -65,9 +65,6 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 	/** @var string */
 	protected $summary;
 
-	/** @var string[] */
-	protected $tablesUsed = [ 'user', 'moderation' ];
-
 	/**
 	 * Test consequences when normal edit is queued for moderation.
 	 * @covers MediaWiki\Moderation\ModerationEditHooks::onMultiContentSave
