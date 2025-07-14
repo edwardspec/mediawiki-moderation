@@ -44,5 +44,9 @@
 	"moderation-show": "башха",
 	"moderation-unblock": "Кхин спамер вац(йац)",
 	"right-moderation": "нисдарийн модераци",
+	"tooltip-moderation-merged-link": "Куьйга бина хийцамаш хьажа",
+	"tooltip-moderation-merge": "Куьйга нисйе редакцин конфликт",
+	"tooltip-moderation-rejectall": "ХӀокху декъашхочун массо а хийцамаш йухатоха",
+	"tooltip-moderation-rejected-change": "Хьажа йухатоьхна хийцам",
 	"tooltip-moderation-reject": "Йухадаккха хӀара нисдар"
 }
