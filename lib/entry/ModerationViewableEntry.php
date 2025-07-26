@@ -98,10 +98,10 @@ class ModerationViewableEntry extends ModerationEntry {
 			return false;
 		}
 
-		return wfMessage( 'moderation-rejected-by',
-			Linker::userLink( $row->rejected_by_user, $row->rejected_by_user_text ),
-			$row->rejected_by_user_text // plain username for {{gender:}} syntax
-		)->text();
+		return wfMessage( 'moderation-rejected-by' )
+			->rawParams( Linker::userLink( $row->rejected_by_user, $row->rejected_by_user_text ) )
+			->params( $row->rejected_by_user_text ) // plain username for {{gender:}} syntax
+			->parse();
 	}
 
 	/**
@@ -140,8 +140,8 @@ class ModerationViewableEntry extends ModerationEntry {
 		// TODO: add more information into headers (username, timestamp etc.), as in usual diffs
 
 		return $de->addHeader( $diff,
-			$context->msg( 'moderation-diff-header-before' )->text(),
-			$context->msg( 'moderation-diff-header-after' )->text()
+			$context->msg( 'moderation-diff-header-before' )->parse(),
+			$context->msg( 'moderation-diff-header-after' )->parse()
 		);
 	}
 

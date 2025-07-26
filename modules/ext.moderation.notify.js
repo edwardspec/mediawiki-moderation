@@ -74,14 +74,14 @@
 		/* "Pending review" icon */
 		$div.append( $( '<div>' )
 			.attr( 'id', 'pending-review' )
-			.append( mw.msg( 'moderation-pending-review' ) ) );
+			.text( mw.msg( 'moderation-pending-review' ) ) );
 
 		/* "Success: your edit has been sent to moderation" */
-		$div.append( $( '<p>' ).append(
+		$div.append( $( '<div>' ).addClass( 'plainlinks' ).append(
 			mw.message(
 				'moderation-edit-queued',
 				getEditUrl()
-			).plain()
+			).parse()
 		) );
 
 		/* "To skip moderation in the future, please sign up" */

@@ -1,8 +1,9 @@
 List of changes between releases of Extension:Moderation.
 
-== master branch (1.8.x versions) ==
+== REL1_39 branch (1.8.x versions) ==
 
-No changes since Moderation 1.8.31.
+Security updates:
+* Switched format of i18n messages from raw HTML to wikitext.
 
 == Moderation 1.8.31 ==
 
