@@ -202,13 +202,13 @@ class ModerationEntryFormatter extends ModerationEntry {
 		}
 
 		if ( $row->minor ) {
-			$line .= $this->msg( 'minoreditletter' )->plain();
+			$line .= $this->msg( 'minoreditletter' )->parse();
 		}
 		if ( $row->bot ) {
-			$line .= $this->msg( 'boteditletter' )->plain();
+			$line .= $this->msg( 'boteditletter' )->parse();
 		}
 		if ( $row->new ) {
-			$line .= $this->msg( 'newpageletter' )->plain();
+			$line .= $this->msg( 'newpageletter' )->parse();
 		}
 		$line .= ' ';
 
@@ -220,7 +220,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 			$line .= $this->msg( 'moderation-move' )->rawParams(
 				$pageLink,
 				$page2Link
-			)->plain();
+			)->parse();
 		} else {
 			/* Normal edit (or upload) */
 			$line .= $pageLink;
@@ -267,7 +267,7 @@ class ModerationEntryFormatter extends ModerationEntry {
 					$line .= $actionLinkRenderer->makeLink( 'merge', $row->id );
 				} else {
 					$line .= $this->msg(
-						'moderation-no-merge-link-not-automoderated' )->plain();
+						'moderation-no-merge-link-not-automoderated' )->parse();
 				}
 			} else {
 				if ( !$row->rejected || $this->timestampTools->canReapproveRejected( $row->timestamp ) ) {
@@ -311,16 +311,16 @@ class ModerationEntryFormatter extends ModerationEntry {
 			$line .= ' . . ';
 
 			if ( $row->rejected_by_user ) {
-				$line .= $this->msg( 'moderation-rejected-by',
-					Linker::userLink( $row->rejected_by_user, $row->rejected_by_user_text ),
-					$row->rejected_by_user_text // plain username for {{gender:}} syntax
-				)->text();
+				$line .= $this->msg( 'moderation-rejected-by' )
+					->rawParams( Linker::userLink( $row->rejected_by_user, $row->rejected_by_user_text ) )
+					->params( $row->rejected_by_user_text ) // plain username for {{gender:}} syntax
+					->parse();
 			} elseif ( $row->rejected_auto ) {
-				$line .= $this->msg( 'moderation-rejected-auto' )->plain();
+				$line .= $this->msg( 'moderation-rejected-auto' )->parse();
 			}
 
 			if ( $row->rejected_batch ) {
-				$line .= ' . . ' . $this->msg( 'moderation-rejected-batch' )->plain();
+				$line .= ' . . ' . $this->msg( 'moderation-rejected-batch' )->parse();
 			}
 		}
 
