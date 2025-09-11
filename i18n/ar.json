@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": [
 			"Meno25",
+			"Mohammed Qays",
 			"Sonic N800",
 			"ديفيد"
 		]
@@ -81,7 +82,7 @@
 	"moderation-rejectall": "رفض الكل",
 	"moderation-rejected-auto": "مرفوض تلقائيا",
 	"moderation-rejected-batch": "تم الرفض عبر الزر \"رفض الكل\"",
-	"moderation-rejected-by": "{{GENDER:$2|تم الرفض}} بواسطة $1",
+	"moderation-rejected-by": "{{GENDER:$2|رُفض}} بواسطة $1",
 	"moderation-rejected-long-ago": "تم رفض هذا التعديل منذ فترة طويلة، ولم يعد من الممكن الموافقة عليه.",
 	"moderation-rejected-ok": "تم رفض $1 {{plural:$1|تعديل|تعديلات}}",
 	"moderation-reject": "رفض",
