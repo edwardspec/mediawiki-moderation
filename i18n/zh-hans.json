@@ -56,7 +56,7 @@
 	"moderation-edit-conflict": "编辑冲突（需要手工合并）。",
 	"moderation-editing-your-version": "您正在编辑该条目的您的版本。它目前正在等待版主审核。<br>一经核准，其他用户即可看到。",
 	"moderation-edit-not-found": "未找到编辑。可能已经核准。",
-	"moderation-edit-queued": "成功：您的编辑已送交版主操作。<br>您可以继续编辑<a href='$1'>您的此页面版本</a>。",
+	"moderation-edit-queued": "<p>成功：您的编辑已送交版主操作。</p><p>您可以继续编辑[$1 您的此页面版本]。</p>",
 	"moderation-editchange": "编辑",
 	"moderation-editchange-not-edit": "这不是一次编辑。只有编辑才能修改。",
 	"moderation-editchange-ok": "待定修订版本已更改。",

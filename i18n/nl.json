@@ -49,7 +49,7 @@
 	"moderation-edit-conflict": "Bewerkingsconflict (vereist handmatig samenvoegen).",
 	"moderation-editing-your-version": "U bewerkt momenteel uw versie van dit artikel. Deze versie staat in de wachtrij voor controle.<br>Wanneer deze versie goedgekeurd is, zal het voor alle gebruikers zichtbaar zijn.",
 	"moderation-edit-not-found": "Bewerking niet gevonden. Deze is waarschijnlijk al goedgekeurd.",
-	"moderation-edit-queued": "Geslaagd: uw bewerking is voor controle opgestuurd.<br>U kunt <a href='$1'>uw versie van deze pagina</a> verder bewerken.",
+	"moderation-edit-queued": "<p>Gelukt: uw bewerking is voor controle opgestuurd.</p><p>U kunt [$1 uw versie van deze pagina] verder bewerken.</p>",
 	"moderation-editchange": "bewerken",
 	"moderation-editchange-not-edit": "Dit is geen bewerking. Alleen bewerkingen kunnen worden gewijzigd.",
 	"moderation-editchange-ok": "De openstaande versie is gewijzigd.",
