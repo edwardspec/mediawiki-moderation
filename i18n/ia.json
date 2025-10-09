@@ -45,7 +45,7 @@
 	"moderation-edit-conflict": "Conflicto de modification (necessita fusion manual).",
 	"moderation-editing-your-version": "Tu modifica ora tu version del articulo. Illo actualmente attende moderation.<br>Un vice approbate, illo essera visibile pro altere usatores.",
 	"moderation-edit-not-found": "Modification non trovate. Probabilemente ja approbate.",
-	"moderation-edit-queued": "Successo: tu modification ha essite inviate al moderation.<br>Tu pote continuar a modificar <a href='$1'>tu version de iste pagina</a>.",
+	"moderation-edit-queued": "<p>Successo: tu modification ha essite inviate al moderation.</p><p>Tu pote continuar a modificar [$1 tu version de iste pagina].</p>",
 	"moderation-editchange": "modificar",
 	"moderation-editchange-not-edit": "Isto non es un modification. Solmente le modificationes pote esser modificate.",
 	"moderation-editchange-ok": "Version pendente cambiate.",
