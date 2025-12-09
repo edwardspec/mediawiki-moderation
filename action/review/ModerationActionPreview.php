@@ -24,6 +24,7 @@ namespace MediaWiki\Moderation;
 
 use MediaWiki\MediaWikiServices;
 use OutputPage;
+use ParserOptions;
 
 class ModerationActionPreview extends ModerationAction {
 
@@ -56,7 +57,11 @@ class ModerationActionPreview extends ModerationAction {
 
 		// Remove edit section links.
 		$pipeline = MediaWikiServices::getInstance()->getDefaultOutputPipeline();
-		$pout = $pipeline->run( $pout, null, [ 'enableSectionEditLinks' => false ] );
+		$popts = ParserOptions::newFromUserAndLang(
+			$this->moderator,
+			$this->contentLanguage
+		);
+		$pout = $pipeline->run( $pout, $popts, [ 'enableSectionEditLinks' => false ] );
 
 		return [
 			'title' => $title->getPrefixedText(),

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2024 Edward Chernenko.
+	Copyright (C) 2020-2025 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ use MediaWiki\Request\FauxRequest;
 use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Title\Title;
+use ParserOptions;
 use ParserOutput;
 
 require_once __DIR__ . "/autoload.php";
@@ -71,7 +72,7 @@ class ModerationActionPreviewTest extends ModerationUnitTestCase {
 		$pipeline = $this->createMock( OutputTransformPipeline::class );
 		$pipeline->expects( $this->once() )->method( 'run' )->with(
 			$this->identicalTo( $parserOutput ),
-			$this->isNull(),
+			$this->isInstanceOf( ParserOptions::class ),
 			$this->identicalTo( [ 'enableSectionEditLinks' => false ] )
 		)->willReturn( $processedOutput );
 		$this->setService( 'DefaultOutputPipeline', $pipeline );
