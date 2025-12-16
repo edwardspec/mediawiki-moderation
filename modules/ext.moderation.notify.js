@@ -48,7 +48,16 @@
 		} else {
 			q.action = 'edit';
 		}
-		return mw.util.getUrl( null, q );
+
+		var title = null;
+		if ( mw.config.get( 'wgIsMainPage' ) ) {
+			// In some situations MobileFrontend redirects the user to /w/index.php without a title,
+			// in which case we must determine the title from the Referrer.
+
+			title = new mw.Uri( document.referrer ).query.title || null;
+		}
+
+		return mw.util.getUrl( title, q );
 	}
 
 	/**
