@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"Stefan2255",
 			"WikiPhoenix"
 		]
 	},
@@ -44,7 +45,7 @@
 	"moderation-edit-conflict": "Redigeringskonflikt (kräver manuell sammanfogning).",
 	"moderation-editing-your-version": "Du redigerar din version av denna artikel. Den väntar för tillfället på moderation.<br>När den har godkänts kommer den vara synlig för andra användare.",
 	"moderation-edit-not-found": "Redigering hittades inte. Den är förmodligen redan godkänd.",
-	"moderation-edit-queued": "Färdigt: din redigering skickades för moderation.<br>Du kan fortsätta redigera <a href='$1'>din version av denna sida</a>.",
+	"moderation-edit-queued": "<p>Färdigt: din redigering har skickats till moderering.</p><p> Du kan fortsätta redigera [$1 din version av den här sidan].</p>",
 	"moderation-editchange": "redigera",
 	"moderation-folder-merged": "Sammanfogades",
 	"moderation-folder-pending": "Väntar på moderation",
@@ -85,7 +86,7 @@
 	"moderation-unblock": "Inte längre en spammare",
 	"moderation-unblock-ok": "Användaren [[Special:Contributions/$1|$1]] anses inte längre vara en spammare.",
 	"moderation-unknown-modaction": "Okänd moderationshandling.",
-	"right-moderation-checkuser": "Kan se IP-adresser för skapare i moderationsgränssnittet",
+	"right-moderation-checkuser": "Se redigerarnas IP-adresser i modereringsgränssnittet",
 	"right-moderation": "Moderera redigeringar",
 	"right-skip-moderation": "Låta sina redigeringar kringgå moderation",
 	"right-skip-move-moderation": "Flytta sidor utan moderation",
