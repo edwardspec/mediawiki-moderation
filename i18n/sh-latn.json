@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"Aca",
 			"Winston Sung"
 		]
 	},
@@ -51,7 +52,7 @@
 	"moderation-show": "razl",
 	"moderation-suggest-signup": "Kako biste ubuduće preskočili moderaciju, [[Special:CreateAccount|prijavite se]].",
 	"moderation-text": "Ova posebna stranica navodi sve izmjene koje čekaju moderiranje (odobrenje ili odbijanje).<br>Vidi također: [[Special:Log/moderation|dnevnik moderiranja]].",
-	"right-moderation-checkuser": "Pregled IP adresa urednika u moderacijskom sučelju.",
+	"right-moderation-checkuser": "Pregled IP adresa urednika u moderacijskom interfejsu.",
 	"right-moderation": "Moderacija izmjena",
 	"right-skip-moderation": "Uređivanje sa zaobilaženjem moderacije",
 	"right-skip-move-moderation": "Premještanje stranica bez moderacije",
