@@ -2,7 +2,8 @@
 	"@metadata": {
 		"authors": [
 			"Amire80",
-			"Guycn2"
+			"Guycn2",
+			"Neriah"
 		]
 	},
 	"action-moderation": "לפקח על עריכות",
@@ -46,7 +47,7 @@
 	"moderation-edit-conflict": "התנגשות עריכה (יש למזג באופן ידני).",
 	"moderation-editing-your-version": "זוהי הגרסה שלך בערך הזה. כרגע היא ממתינה לבדיקת מפקח.<br>לאחר שהגרסה תאושר, היא תוצג למשתמשים אחרים.",
 	"moderation-edit-not-found": "העריכה לא נמצאה. כנראה שהיא כבר אושרה.",
-	"moderation-edit-queued": "הפעולה בוצעה: העריכה שלך נשלחה למערכת הפיקוח.<br>באפשרותך להמשיך לערוך את <a href='$1'>הגרסה שלך בדף הזה</a>.",
+	"moderation-edit-queued": "<p>הפעולה בוצעה: העריכה שלך נשלחה למערכת הפיקוח.</p><p>באפשרותך להמשיך לערוך את [$1 הגרסה שלך בדף הזה].</p>",
 	"moderation-editchange": "עריכה",
 	"moderation-editchange-not-edit": "זאת לא עריכה. אפשר לשנו רק עריכות.",
 	"moderation-editchange-ok": "גרסה ממתינה השתנתה.",
