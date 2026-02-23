@@ -4,6 +4,7 @@
 			"Ericliu1912",
 			"Kly",
 			"Lakejason0",
+			"LowensteinYang",
 			"Winston Sung",
 			"捍粵者",
 			"铁桶"
@@ -50,7 +51,7 @@
 	"moderation-edit-conflict": "編輯衝突（需要手動合併）。",
 	"moderation-editing-your-version": "您正在編輯此條目裡您所做出的版本內容，目前正等待協管操作。<br>一旦核准，會讓其他使用者可見。",
 	"moderation-edit-not-found": "查無編輯。可能已被核准。",
-	"moderation-edit-queued": "成功：您的編輯已發送給協管員。<br>您可以繼續編輯<a href='$1'>您在此頁面的版本</a>。",
+	"moderation-edit-queued": "<p>成功：您的編輯已發送給協管員。</p><p>您可以繼續編輯[$1 您在此頁面的版本]</p>。",
 	"moderation-editchange": "編輯",
 	"moderation-editchange-not-edit": "這不是一個編輯。僅有編輯可以被變動。",
 	"moderation-editchange-ok": "待辦修訂已更改。",
