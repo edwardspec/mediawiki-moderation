@@ -46,7 +46,7 @@
 	"moderation-edit-conflict": "Navzkrižje urejanj (zahteva ročno združitev).",
 	"moderation-editing-your-version": "Urejate svojo različico tega članka. Trenutno čaka na moderiranje.<br />Ko bo odobrena, bo vidna drugim uporabnikom.",
 	"moderation-edit-not-found": "Urejanje ni bilo najdeno. Verjetno je že odobreno.",
-	"moderation-edit-queued": "Uspeh: Vaše urejanje je bilo poslano v moderiranje.<br />Lahko nadaljujete z urejanjem <a href='$1'>svoje različice te strani</a>.",
+	"moderation-edit-queued": "<p>Uspeh: Vaše urejanje je bilo poslano v moderiranje.</p><p>Lahko nadaljujete urejanje [$1 svoje različice te strani].</p>",
 	"moderation-editchange": "uredi",
 	"moderation-editchange-not-edit": "To ni urejanje. Spreminjati je mogoče samo urejanja.",
 	"moderation-editchange-ok": "Čakajoča redakcija spremenjena.",
