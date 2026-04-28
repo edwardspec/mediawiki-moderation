@@ -20,6 +20,9 @@ jobs:
         dbtype: [mysql, postgres]
         include:
            - php: 8.3
+             branch: REL1_46
+             dbtype: mysql
+           - php: 8.3
              branch: REL1_43
              dbtype: mysql
            - php: 8.1
