@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2025 Edward Chernenko.
+	Copyright (C) 2020-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -38,11 +38,19 @@ use MediaWiki\Moderation\ModerationCompatTools;
 use MediaWiki\Moderation\QueueEditConsequence;
 use MediaWiki\Moderation\TagRevisionAsMergedConsequence;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\Tests\Mocks\Content\DummyNonTextContent as DummyNonTextContent46;
+use MediaWiki\Tests\Mocks\Content\DummyNonTextContentHandler as DummyNonTextContentHandler46;
 use MediaWiki\Title\Title;
 use RequestContext;
 use Status;
 use User;
 use WikiPage;
+
+if ( !class_exists( 'DummyNonTextContent' ) ) {
+	// MediaWiki 1.46+
+	// @phan-suppress-next-line PhanUndeclaredClassAliasOriginal, PhanUndeclaredClassReference
+	class_alias( DummyNonTextContent46::class, 'DummyNonTextContent' );
+}
 
 require_once __DIR__ . "/autoload.php";
 
@@ -214,8 +222,15 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 				12314 => 'testing-nontext'
 			],
 		] );
+
+		// @phan-suppress-next-line PhanUndeclaredClassReference
+		$dummyHandlerClass = DummyNonTextContentHandler46::class;
+		if ( !class_exists( $dummyHandlerClass ) ) {
+			// MediaWiki 1.43-1.45
+			$dummyHandlerClass = DummyNonTextContentHandler::class;
+		}
 		$this->mergeMwGlobalArrayValue( 'wgContentHandlers', [
-			'testing-nontext' => DummyNonTextContentHandler::class,
+			'testing-nontext' => $dummyHandlerClass
 		] );
 		$this->title = Title::makeTitle( 12314, 'UTPage-' . rand( 0, 100000 ) );
 
