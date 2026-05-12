@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2025 Edward Chernenko.
+	Copyright (C) 2020-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,14 +23,14 @@
 namespace MediaWiki\Moderation\Tests;
 
 use Article;
+use MediaWiki\Context\RequestContext;
 use MediaWiki\EditPage\EditPage;
 use MediaWiki\Moderation\EditFormOptions;
 use MediaWiki\Moderation\WatchOrUnwatchConsequence;
 use MediaWiki\Request\FauxRequest;
+use MediaWiki\SpecialPage\SpecialPage;
 use MediaWiki\Title\Title;
-use RequestContext;
-use SpecialPage;
-use User;
+use MediaWiki\User\User;
 use Wikimedia\TestingAccessWrapper;
 
 require_once __DIR__ . "/autoload.php";
@@ -78,7 +78,8 @@ class EditFormOptionsTest extends ModerationUnitTestCase {
 
 		RequestContext::getMain()->setRequest( new FauxRequest( $requestParams ) );
 
-		$special = new SpecialPage( $specialPageName );
+		$special = new class( $specialPageName ) extends SpecialPage {
+		};
 		$special->run( '' );
 
 		$wrapper = TestingAccessWrapper::newFromObject( $opt );
