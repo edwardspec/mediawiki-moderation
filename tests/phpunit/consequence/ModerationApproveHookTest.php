@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2025 Edward Chernenko.
+	Copyright (C) 2020-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -770,46 +770,80 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 			if ( ExtensionRegistry::getInstance()->isLoaded( 'CheckUser' ) ) {
 				// Verify that ApproveHook has modified fields in cuc_changes table.
-				$expectedRow = [ '127.0.0.1', IPUtils::toHex( '127.0.0.1' ), '', '' ];
+				$expectedIp = '127.0.0.1';
+				$expectedRow = [ IPUtils::toHex( '127.0.0.1' ), '', '' ];
 				if ( $task ) {
+					$expectedIp = $task['ip'];
 					$expectedRow = [
-						$task['ip'],
 						// @phan-suppress-next-line PhanTypeMismatchArgumentNullable - false positive
 						$task['ip'] ? IPUtils::toHex( $task['ip'] ) : null,
-						$task['ua'],
-						$task['xff']
+						$task['xff'],
+						$task['ua']
 					];
 				}
 
+				$cucFields = [
+					'cuc_ip_hex',
+					'cuc_xff'
+				];
+				$culeFields = [
+					'cule_ip_hex',
+					'cule_xff'
+				];
+
+				$legacyIpFieldExists = $this->db->fieldExists( 'cu_changes', 'cuc_ip' );
+				if ( $legacyIpFieldExists ) {
+					// MediaWiki 1.43-1.45
+					$cucFields[] = 'cuc_agent';
+					$cucFields[] = 'cuc_ip';
+
+					$culeFields[] = 'cule_agent';
+					$culeFields[] = 'cule_ip';
+					$expectedRow[] = $expectedIp;
+				} else {
+					// MediaWiki 1.46+
+					$cucFields[] = 'cuua_text';
+					$culeFields[] = 'cuua_text';
+				}
+
 				if ( $type == ModerationNewChange::MOD_TYPE_MOVE ) {
+					$tables = [ 'cu_log_event' ];
+					$joinConds = [];
+
+					if ( !$legacyIpFieldExists ) {
+						// MediaWiki 1.46+
+						$tables[] = 'cu_useragent';
+						$joinConds['cu_useragent'] = [ 'LEFT JOIN', [ 'cuua_id=cule_agent_id' ] ];
+					}
+
+					$tables[] = 'logging';
+					$joinConds['logging'] = [ 'INNER JOIN', [ 'log_id=cule_log_id' ] ];
+
 					$res = $this->db->select(
-						[
-							'cu_log_event',
-							'logging'
-						],
-						[
-							'cule_ip',
-							'cule_ip_hex',
-							'cule_agent',
-							'cule_xff'
-						],
+						$tables,
+						$culeFields,
 						[
 							'cule_actor' => $user->getActorId(),
-							'log_id=cule_log_id',
 							'log_namespace' => $title->getNamespace(),
 							'log_title' => $title->getDBKey()
 						],
-						__METHOD__
+						__METHOD__,
+						[],
+						$joinConds
 					);
 
 					$actualRows = [];
 					foreach ( $res as $row ) {
-						$actualRows[] = [
-							$row->cule_ip,
+						$actualRow = [
 							$row->cule_ip_hex,
-							$row->cule_agent,
-							$row->cule_xff
+							$row->cule_xff,
+							$row->cule_agent ?? $row->cuua_text
 						];
+						if ( $legacyIpFieldExists ) {
+							// MediaWiki 1.43-1.45
+							$actualRow[] = $row->cule_ip;
+						}
+						$actualRows[] = $actualRow;
 					}
 
 					$this->assertSame( [ $expectedRow ], $actualRows );
@@ -821,15 +855,20 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 						'cuc_actor' => $user->getActorId()
 					];
 
-					$this->assertSelect( 'cu_changes',
-						[
-							'cuc_ip',
-							'cuc_ip_hex',
-							'cuc_agent',
-							'cuc_xff'
-						],
+					$tables = [ 'cu_changes' ];
+					$joinConds = [];
+					if ( !$legacyIpFieldExists ) {
+						// MediaWiki 1.46+
+						$tables[] = 'cu_useragent';
+						$joinConds = [ 'cu_useragent' => [ 'LEFT JOIN', [ 'cuua_id=cuc_agent_id' ] ] ];
+					}
+
+					$this->assertSelect( $tables,
+						$cucFields,
 						$cuWhere,
-						[ $expectedRow ]
+						[ $expectedRow ],
+						[],
+						$joinConds
 					);
 				}
 			}
