@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2024 Edward Chernenko.
+	Copyright (C) 2018-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -330,8 +330,18 @@ class ModerationNewChange {
 		$changeTagger = $services->getService( $serviceName );
 
 		// Construct a synthetic RecentChange object for AbuseFilter to determine the "action ID".
-		$recentChange = RecentChange::newLogEntry(
-			wfTimestampNow(), $title, $user, '', '', $action, $action, $title, '', '' );
+		$logEntryParameters = [
+			wfTimestampNow(), $title, $user, '', '', $action, $action, $title, '', ''
+		];
+		if ( $services->hasService( 'RecentChangeFactory' ) ) {
+			// MediaWiki 1.45-1.46+
+			// @phan-suppress-next-line PhanUndeclaredMethod
+			$recentChange = $services->getRecentChangeFactory()->createLogRecentChange( ...$logEntryParameters );
+		} else {
+			// MediaWiki 1.43-1.44
+			$recentChange = RecentChange::newLogEntry( ...$logEntryParameters );
+		}
+
 		return $changeTagger->getTagsForRecentChange( $recentChange, false );
 	}
 
