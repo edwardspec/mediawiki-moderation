@@ -8,7 +8,7 @@
 			"아라"
 		]
 	},
-	"action-moderation": "편집을 조정할",
+	"action-moderation": "편집 조정",
 	"group-automoderated": "자동 조정된 사용자",
 	"group-automoderated-member": "{{GENDER:$1|자동 조정된 사용자}}",
 	"group-moderator-member": "{{GENDER:$1|조정자}}",
