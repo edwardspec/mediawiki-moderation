@@ -91,7 +91,7 @@
 	"moderation-revert-not-allowed": "Alleen automatisch gecontroleerde gebruikers kunnen afbeeldingen terugdraaien naar een vorige versie.",
 	"moderation-show": "wijz",
 	"moderation-suggest-signup": "[[Special:CreateAccount|Maak een account aan]] om bewerkingscontrole in de toekomst over te slaan.",
-	"moderation-text": "Deze speciale pagina toont een lijst met alle bewerkingen die nog gecontroleerd moeten worden (afgekeurd dan wel goedgekeurd).<br>Zie ook het [[Special:Log/moderation|bewerkingscontrole logboek]].",
+	"moderation-text": "Deze speciale pagina geeft een lijst met alle bewerkingen weer die nog gecontroleerd moeten worden (afgekeurd dan wel goedgekeurd).<br>Zie ook het [[Special:Log/moderation|bewerkingscontrole logboek]].",
 	"moderation-unblock": "Niet langer een spammer",
 	"moderation-unblock-ok": "Gebruiker [[Special:Contributions/$1|$1]] wordt niet langer als een spammer beschouwd.",
 	"moderation-unknown-modaction": "Onbekende bewerkingscontrole handeling.",
