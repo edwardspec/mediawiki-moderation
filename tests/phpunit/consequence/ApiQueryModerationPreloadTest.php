@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2025 Edward Chernenko.
+	Copyright (C) 2020-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -106,11 +106,13 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 			} else {
 				$expectedText = '<div class="mw-content-ltr mw-parser-output" lang="en" dir="ltr"><p>' .
 					"$text\n</p></div>";
+				$mwInterfaceParameter = version_compare( MW_VERSION, '1.46-alpha', '<' ) ?
+					'data-mw="interface"' : 'data-mw-interface=""';
 
 				$expectedResult['parsed'] = [
 					'text' => $expectedText,
 					'categorieshtml' => '<div id="catlinks" class="catlinks catlinks-allhidden" ' .
-						'data-mw="interface"></div>',
+						$mwInterfaceParameter . '></div>',
 					'displaytitle' => $title->getFullText()
 				];
 			}
