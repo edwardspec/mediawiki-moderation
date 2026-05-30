@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2014-2024 Edward Chernenko.
+	Copyright (C) 2014-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -93,12 +93,24 @@ class SpecialModeration extends QueryPage {
 		ModerationNotifyModerator $notifyModerator,
 		LinkBatchFactory $linkBatchFactory
 	) {
-		parent::__construct( 'Moderation', 'moderation' );
+		$params = [ 'Moderation' ];
+		if ( version_compare( MW_VERSION, '1.46-alpha', '<' ) ) {
+			// MediaWiki 1.43-1.45
+			$params[] = 'moderation';
+		}
+		parent::__construct( ...$params );
 
 		$this->actionFactory = $actionFactory;
 		$this->entryFactory = $entryFactory;
 		$this->notifyModerator = $notifyModerator;
 		$this->linkBatchFactory = $linkBatchFactory;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getRestriction(): string {
+		return 'moderation';
 	}
 
 	/**
