@@ -1,6 +1,6 @@
 {
 	"name": "Moderation",
-	"version": "1.9.6",
+	"version": "1.9.7",
 	"author": "Edward Chernenko",
 	"url": "https://www.mediawiki.org/wiki/Extension:Moderation",
 	"descriptionmsg": "moderation-desc",
@@ -370,7 +370,7 @@
 		"CheckUserInsertLogEventRow": "approveHook",
 		"CheckUserInsertPrivateEventRow": "approveHook",
 		"EchoCanAbortNewMessagesAlert": "notifyModerator",
-		"EditFilter": "editFormOptions",
+		"EditPage::importFormData": "editFormOptions",
 		"EditFormInitialText": "preload",
 		"EditFormPreloadText": "preload",
 		"EditPage::showEditForm:fields": "edit",

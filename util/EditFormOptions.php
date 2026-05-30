@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2021 Edward Chernenko.
+	Copyright (C) 2020-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,10 +25,10 @@ namespace MediaWiki\Moderation;
 use MediaWiki\EditPage\EditPage;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
-use ReflectionProperty;
 use RequestContext;
 use SpecialPage;
 use User;
+use WebRequest;
 
 class EditFormOptions {
 	/**
@@ -70,30 +70,20 @@ class EditFormOptions {
 	}
 
 	/**
-	 * EditFilter hook handler.
+	 * EditPage::importFormData hook handler.
 	 * Save sections-related information, which will then be used in onMultiContentSave.
 	 * @param EditPage $editor
-	 * @param string $text
-	 * @param string $section
-	 * @param string &$error @phan-unused-param
-	 * @param string $summary @phan-unused-param
+	 * @param WebRequest $request
 	 * @return bool|void
 	 */
-	public function onEditFilter( EditPage $editor, $text, $section, &$error, $summary ) {
-		if ( $section !== '' ) {
-			$this->section = $section;
-			$this->sectionText = $text;
+	// phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName, MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
+	public function onEditPage__importFormData( $editor, $request ) {
+		if ( $editor->section !== '' ) {
+			$this->section = $editor->section;
+			$this->sectionText = $editor->textbox1;
 		}
 
-		// HACK: as much as I dislike using Reflection in production code,
-		// the only alternative is to copy a lot of code that calculates EditPage::$watchlist
-		// from MediaWiki core, since none of this logic is accessible via public methods.
-		// We might still have to do so in the future versions.
-		$reflection = new ReflectionProperty( $editor, 'watchthis' );
-		$reflection->setAccessible( true );
-		$watchthis = $reflection->getValue( $editor );
-
-		$this->watchthis = (bool)$watchthis;
+		$this->watchthis = $request->getCheck( 'wpWatchthis' );
 	}
 
 	/**

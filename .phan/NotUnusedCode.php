@@ -19,7 +19,7 @@ ModerationPageForms::onPageForms__EditFormInitialText();
 ModerationPageForms::onModerationContinueEditingLink();
 ModerationPreload::hookHandlerFactory();
 EditFormOptions::hookHandlerFactory();
-EditFormOptions::onEditFilter();
+EditFormOptions::onEditPage__importFormData();
 EditFormOptions::onSpecialPageBeforeExecute();
 ModerationVersionCheck::invalidateCache();
 

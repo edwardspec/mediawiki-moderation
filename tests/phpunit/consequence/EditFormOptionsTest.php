@@ -108,7 +108,7 @@ class EditFormOptionsTest extends ModerationUnitTestCase {
 	 * Verify that "watch this" checkbox is detected on EditPage form.
 	 * @param bool $isWatch True to test "Watch this" checkbox being checked, false - unchecked.
 	 * @dataProvider dataProviderEditFilterHook
-	 * @covers MediaWiki\Moderation\EditFormOptions::onEditFilter
+	 * @covers MediaWiki\Moderation\EditFormOptions::onEditPage__importFormData
 	 * @covers MediaWiki\Moderation\EditFormOptions::getSectionText
 	 * @covers MediaWiki\Moderation\EditFormOptions::getSection
 	 */
