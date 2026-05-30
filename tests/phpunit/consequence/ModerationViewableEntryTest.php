@@ -93,14 +93,25 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 	public function testRejectedBy() {
 		$username = 'Name of some moderator';
 
-		$this->linkRenderer->expects( $this->once() )->method( 'makeLink' )->will(
-			$this->returnCallback( function ( $linkTarget ) use ( $username ) {
-				$this->assertSame( NS_USER, $linkTarget->getNamespace() );
-				$this->assertSame( $username, $linkTarget->getText() );
+		if ( version_compare( MW_VERSION, '1.46-alpha', '<' ) ) {
+			// MediaWiki 1.43-1.45
+			$this->linkRenderer->expects( $this->once() )->method( 'makeLink' )->will(
+				$this->returnCallback( function ( $linkTarget ) use ( $username ) {
+					$this->assertSame( NS_USER, $linkTarget->getNamespace() );
+					$this->assertSame( $username, $linkTarget->getText() );
 
-				return '{MockedLinkToModerator}';
-			} )
-		);
+					return '{MockedLinkToModerator}';
+				} )
+			);
+		} else {
+			// MediaWiki 1.46+
+			$this->linkRenderer->expects( $this->once() )->method( 'makeUserLink' )->will(
+				$this->returnCallback( function ( $targetUser ) use ( $username ) {
+					$this->assertSame( $username, $targetUser->getName() );
+					return '{MockedLinkToModerator}';
+				} )
+			);
+		}
 		$this->setService( 'LinkRenderer', $this->linkRenderer );
 		$this->overrideConfigValue( 'LanguageCode', 'qqx' );
 
