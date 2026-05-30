@@ -1161,10 +1161,12 @@ class ModerationActionTest extends ModerationTestCase {
 		$rev = $t->getLastRevision( $this->getExpectedTitle() );
 		$this->assertSame( $this->fields['mod_user_text'], $rev['user'] );
 		$this->assertNotSame( $this->fields['mod_text'], $rev['*'] );
-		$this->assertMatchesRegularExpression(
-			'/^#[^ ]+ \[\[' . preg_quote( $newTitle ) . '\]\]\n\(move-redirect-text\)$/',
-			$rev['*']
-		);
+
+		// Expecting (move-redirect-text) in MediaWiki 1.43-1.45
+		// or (move-redirect-text: NewTitleHere) in MediaWiki 1.46+.
+		$expectedRegex = '/^#[^ ]+ \[\[' . preg_quote( $newTitle ) .
+			'\]\]\n\(move-redirect-text(|\: ' . preg_quote( $newTitle ) . ')\)$/';
+		$this->assertMatchesRegularExpression( $expectedRegex, $rev['*'] );
 	}
 
 	/**
