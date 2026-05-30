@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2020 Edward Chernenko.
+	Copyright (C) 2018-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -62,6 +62,7 @@ class ApproveUploadConsequence implements IConsequence {
 	/**
 	 * Execute the consequence.
 	 * @return Status
+	 * @suppress PhanUndeclaredClassCatch
 	 */
 	public function run() {
 		# This is the upload from stash.
@@ -70,7 +71,12 @@ class ApproveUploadConsequence implements IConsequence {
 
 		try {
 			$upload->initialize( $this->stashKey, $this->title->getText() );
-		} catch ( UploadStashFileNotFoundException $_ ) {
+		} catch (
+			// MediaWiki 1.43-1.45
+			UploadStashFileNotFoundException |
+			// MediaWiki 1.46+
+			\MediaWiki\Upload\Exception\UploadStashFileNotFoundException $_
+		) {
 			return Status::newFatal( 'moderation-missing-stashed-image' );
 		}
 

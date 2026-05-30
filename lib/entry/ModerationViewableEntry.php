@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2025 Edward Chernenko.
+	Copyright (C) 2018-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -184,6 +184,8 @@ class ModerationViewableEntry extends ModerationEntry {
 	/**
 	 * Returns false if this file is not an image (e.g. OGG file), true otherwise.
 	 * @return bool
+	 *
+	 * @suppress PhanUndeclaredClassCatch
 	 */
 	protected function isImage() {
 		$row = $this->getRow();
@@ -192,7 +194,12 @@ class ModerationViewableEntry extends ModerationEntry {
 		try {
 			$meta = $stash->getMetadata( $row->stash_key );
 			$type = $meta['us_media_type'];
-		} catch ( UploadStashException $_ ) {
+		} catch (
+			// MediaWiki 1.43-1.45
+			UploadStashException |
+			// MediaWiki 1.46+
+			\MediaWiki\Upload\Exception\UploadStashFileNotFoundException $_
+		) {
 			return false; /* File not found. */
 		}
 
