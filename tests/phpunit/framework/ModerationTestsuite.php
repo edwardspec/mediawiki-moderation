@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2025 Edward Chernenko.
+	Copyright (C) 2015-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -864,45 +864,52 @@ class ModerationTestsuite {
 	}
 
 	/**
-	 * Get cuc_agent of the last entry in "cu_changes" table.
-	 * @return string|null User-agent.
-	 */
-	public function getCUCAgent() {
-		$agents = $this->getCUCAgents( 1 );
-		return array_pop( $agents );
-	}
-
-	/**
-	 * Get cuc_agent of the last entries in "cu_changes" table.
+	 * Get user-agents of the last entries in "cu_changes" table.
 	 * @param int $limit How many entries to select.
 	 * @return string[] List of user-agents.
 	 */
 	public function getCUCAgents( $limit ) {
-		$dbw = $this->getDB();
-		return $dbw->selectFieldValues(
-			'cu_changes', 'cuc_agent', '',
-			__METHOD__,
-			[
-				'ORDER BY' => 'cuc_id DESC',
-				'LIMIT' => $limit
-			]
-		);
+		return $this->getCheckUserAgents( $limit, 'cu_changes', 'cuc' );
 	}
 
 	/**
-	 * Get cule_agent of the last entries in "cu_log_event" table.
+	 * Get user-agents of the last entries in "cu_log_event" table.
 	 * @param int $limit How many entries to select.
 	 * @return string[] List of user-agents.
 	 */
 	public function getCULEAgents( $limit ) {
+		return $this->getCheckUserAgents( $limit, 'cu_log_event', 'cule' );
+	}
+
+	/**
+	 * Find user-agents in a CheckUser table.
+	 * @param int $limit How many entries to select.
+	 * @param string $table Name of the table that has agents, e.g. "cu_changes" or "cu_log_event".
+	 * @param string $tablePrefix Table prefix, e.g. "cuc" or "cule".
+	 * @return string[] List of user-agents.
+	 */
+	protected function getCheckUserAgents( $limit, $table, $tablePrefix ) {
 		$dbw = $this->getDB();
+
+		$tables = [ $table ];
+		$field = $tablePrefix . '_agent';
+		$joinConds = [];
+
+		if ( !$dbw->fieldExists( $table, $field ) ) {
+			// MediaWiki 1.46+
+			$tables[] = 'cu_useragent';
+			$joinConds['cu_useragent'] = [ 'LEFT JOIN', [ "cuua_id={$field}_id" ] ];
+			$field = 'cuua_text';
+		}
+
 		return $dbw->selectFieldValues(
-			'cu_log_event', 'cule_agent', '',
+			$tables, $field, '',
 			__METHOD__,
 			[
-				'ORDER BY' => 'cule_id DESC',
+				'ORDER BY' => $tablePrefix . '_id DESC',
 				'LIMIT' => $limit
-			]
+			],
+			$joinConds
 		);
 	}
 
