@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2025 Edward Chernenko.
+	Copyright (C) 2015-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -60,6 +60,10 @@ class ModerationTestHTML extends DOMDocument {
 			}
 			if ( $message == 'Unexpected end tag : p' ) {
 				// Unneeded "</p>" tag on some pages.
+				continue;
+			}
+			if ( $message == 'Attribute data-mw-interface redefined' ) {
+				// Duplicate HTML attribute on some pages.
 				continue;
 			}
 			if ( preg_match( '/^ID .* already defined$/', $message ) ) {
