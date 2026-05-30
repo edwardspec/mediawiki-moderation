@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2025 Edward Chernenko.
+	Copyright (C) 2020-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -65,21 +65,6 @@ class ModerationCompatTools {
 	 */
 	public static function getActionName( IContextSource $context ) {
 		return MediaWikiServices::getInstance()->getActionFactory()->getActionName( $context );
-	}
-
-	/**
-	 * Use methods of Extension:CheckUser to locate the client IP within the XFF string.
-	 * @param string|bool $xff
-	 * @return array
-	 */
-	public static function getClientIPfromXFF( $xff ) {
-		$services = MediaWikiServices::getInstance();
-		if ( $services->has( 'CheckUserUtilityService' ) ) {
-			return $services->get( 'CheckUserUtilityService' )->getClientIPfromXFF( $xff );
-		}
-
-		// Extension:CheckUser is not installed.
-		return [ null, false, '' ];
 	}
 
 	/**
