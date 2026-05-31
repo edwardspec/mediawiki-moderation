@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2025 Edward Chernenko.
+	Copyright (C) 2018-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -37,8 +37,6 @@ use MediaWiki\Moderation\Tests\ModerationTestsuiteBagOStuff;
 use MediaWiki\Moderation\Tests\ModerationTestsuiteCliApiMain;
 use MediaWiki\Request\FauxRequest;
 use MediaWiki\Request\FauxResponse;
-use MediaWiki\WikiMap\WikiMap;
-use Wikimedia\Rdbms\DatabaseDomain;
 
 # Replace Memcached with our caching class. This is needed for Parallel PHPUnit testing,
 # where "flush_all" Memcached command is not applicable (it would delete keys of another thread).
@@ -66,29 +64,12 @@ foreach ( $wgModerationTestsuiteCliDescriptor['config'] as $name => $value ) {
 	if ( $name == 'DBprefix' && $wgDBtype == 'postgres' ) {
 		// Setting $wgDBprefix with PostgreSQL is not allowed.
 		// So we have to wait for database to be initialized from configs
-		// (e.g. until SetupAfterCache hook, which is called after all configuration is read),
+		// (e.g. until SetupAfterCache hook, which is called after all configuration has been read),
 		// and then redefine the prefix via LoadBalancerFactory.
 
-		$oldDomain = WikiMap::getCurrentWikiDbDomain();
-		$newDomain = new DatabaseDomain(
-			$oldDomain->getDatabase(),
-			$oldDomain->getSchema(),
-			$value // Typically "unittest_"
-		);
-		$GLOBALS['wgCachePrefix'] = $newDomain->getId();
-
-		wfFakeHooksRegister( 'SetupAfterCache', static function () use ( $newDomain ) {
-			$lbFactory = MediaWiki\MediaWikiServices::getInstance()->getDBLoadBalancerFactory();
-			$lbFactory->redefineLocalDomain( $newDomain );
+		wfFakeHooksRegister( 'SetupAfterCache', static function () use ( $value ) {
+			CloneDatabase::changePrefix( $value );
 		} );
-
-		// This approach causes a deprecation warning (which must be suppressed).
-		$reflection = new ReflectionProperty( 'MWDebug', 'deprecationFilters' );
-		$reflection->setAccessible( true );
-		$deprecationFilters = $reflection->getValue();
-
-		$deprecationFilters['/Deprecated cross-wiki access.*/'] = null;
-		$reflection->setValue( null, $deprecationFilters );
 	} else {
 		$GLOBALS["wg$name"] = $value;
 	}
