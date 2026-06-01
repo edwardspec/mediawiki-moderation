@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": [
 			"BaRaN6161 TURK",
+			"HakanIST",
 			"Hedda",
 			"MuratTheTurkish",
 			"Rapsar",
@@ -60,6 +61,7 @@
 	"moderation-folder-rejected": "Reddedildi",
 	"moderation-folder-spam": "Spam",
 	"moderation-image-queued": "Başarıllı: resminiz moderasyona gönderildi.<br>Onaylandıktan sonra diğer kullanıcılar tarafından görülebilecek.",
+	"moderation-imagerotate-not-allowed": "Yalnızca otomatik onaylı kullanıcılar resimleri döndürebilir.",
 	"moderation-log-change": "$1 değiştir",
 	"moderation-log-diff": "$1 değiştir",
 	"moderation-merge": "Onayla (Değişiklik çakışmasını düzelt)",
