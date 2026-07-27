@@ -2,13 +2,14 @@
 	"@metadata": {
 		"authors": [
 			"Eduardo Addad de Oliveira",
-			"Eduardoaddad"
+			"Eduardoaddad",
+			"NenhumaFênix"
 		]
 	},
 	"action-moderation": "moderar edições",
 	"group-automoderated": "Usuários moderados automaticamente",
-	"group-automoderated-member": "{{GENDER:$1|usuário moderado|usuária moderada}} automaticamente",
-	"group-moderator-member": "{{GENDER:$1|moderador|moderadora}}",
+	"group-automoderated-member": "{{GENDER:$1|usuário moderado|usuária moderada|usuário(a) moderado(a)}} automaticamente",
+	"group-moderator-member": "{{GENDER:$1|moderador|moderadora|moderador(a)}}",
 	"group-moderator": "Moderadores",
 	"grouppage-automoderated": "{{ns:project}}:Moderação",
 	"grouppage-moderator": "{{ns:project}}:Moderação",
