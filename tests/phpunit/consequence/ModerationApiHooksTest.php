@@ -59,12 +59,12 @@ class ModerationApiHooksTest extends ModerationUnitTestCase {
 		}
 
 		$preload = $this->createMock( ModerationPreload::class );
-		$preload->expects( $this->any() )->method( 'findPendingEdit' )->will( $this->returnCallback(
+		$preload->expects( $this->any() )->method( 'findPendingEdit' )->willReturnCallback(
 			function ( Title $lookupTitle ) use ( $title, $pendingEdit ) {
 				$this->assertSame( $title->getFullText(), $lookupTitle->getFullText() );
 				return $pendingEdit;
 			}
-		) );
+		);
 		$this->setService( 'Moderation.Preload', $preload );
 
 		// Prepare ApiMain object with input parameters.
@@ -74,7 +74,7 @@ class ModerationApiHooksTest extends ModerationUnitTestCase {
 
 		$processor = new ApiMain( $context, true );
 		if ( $opt['expectedUsageException'] ?? false ) {
-			list( $msg, $code ) = $opt['expectedUsageException'];
+			[ $msg, $code ] = $opt['expectedUsageException'];
 			$this->expectExceptionObject( ApiUsageException::newWithMessage( $processor, $msg, $code ) );
 		}
 

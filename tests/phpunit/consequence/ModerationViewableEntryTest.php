@@ -95,21 +95,21 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 
 		if ( version_compare( MW_VERSION, '1.46-alpha', '<' ) ) {
 			// MediaWiki 1.43-1.45
-			$this->linkRenderer->expects( $this->once() )->method( 'makeLink' )->will(
-				$this->returnCallback( function ( $linkTarget ) use ( $username ) {
+			$this->linkRenderer->expects( $this->once() )->method( 'makeLink' )->willReturnCallback(
+				function ( $linkTarget ) use ( $username ) {
 					$this->assertSame( NS_USER, $linkTarget->getNamespace() );
 					$this->assertSame( $username, $linkTarget->getText() );
 
 					return '{MockedLinkToModerator}';
-				} )
+				}
 			);
 		} else {
 			// MediaWiki 1.46+
-			$this->linkRenderer->expects( $this->once() )->method( 'makeUserLink' )->will(
-				$this->returnCallback( function ( $targetUser ) use ( $username ) {
+			$this->linkRenderer->expects( $this->once() )->method( 'makeUserLink' )->willReturnCallback(
+				function ( $targetUser ) use ( $username ) {
 					$this->assertSame( $username, $targetUser->getName() );
 					return '{MockedLinkToModerator}';
-				} )
+				}
 			);
 		}
 		$this->setService( 'LinkRenderer', $this->linkRenderer );
@@ -385,15 +385,15 @@ class ModerationViewableEntryTest extends ModerationUnitTestCase {
 		$newTitle = Title::newFromText( 'Project:UTPage ' . rand( 0, 100000 ) );
 
 		// Mock LinkRenderer::makeLink() to check that they point to the necessary pages.
-		$this->linkRenderer->expects( $this->exactly( 2 ) )->method( 'makeLink' )->will(
-			$this->returnCallback( static function ( $linkTarget ) use ( $oldTitle, $newTitle ) {
+		$this->linkRenderer->expects( $this->exactly( 2 ) )->method( 'makeLink' )->willReturnCallback(
+			static function ( $linkTarget ) use ( $oldTitle, $newTitle ) {
 				switch ( $linkTarget->getFullText() ) {
 					case $oldTitle->getFullText():
 						return '{OldTitleLink}';
 					case $newTitle->getFullText():
 						return '{NewTitleLink}';
 				}
-			} )
+			}
 		);
 
 		$entry = $this->makeViewableEntry( [

@@ -523,7 +523,7 @@ class ModerationQueueTest extends ModerationTestCase {
 		}
 
 		$this->assertCount( 1, $hooks, "Number of emails that were sent isn't 1." );
-		list( , $to, $from, $subject, $body ) = $hooks[0][1];
+		[ , $to, $from, $subject, $body ] = $hooks[0][1];
 
 		global $wgPasswordSender;
 		$this->assertSame( $wgPasswordSender, $from['address'] );
@@ -563,7 +563,7 @@ class ModerationQueueTest extends ModerationTestCase {
 		$this->assertNotEmpty( $hooks, "ModerationIntercept hook wasn't called." );
 		$this->assertCount( 1, $hooks, "Number of times ModerationIntercept hook was called isn't 1." );
 
-		list( $paramTypes, $params ) = $hooks[0];
+		[ $paramTypes, $params ] = $hooks[0];
 
 		$expectedPageClass = 'MediaWiki\Page\WikiPage'; // MediaWiki 1.44+
 		if ( !class_exists( $expectedPageClass, false ) ) {
@@ -617,11 +617,11 @@ class ModerationQueueTest extends ModerationTestCase {
 		$this->assertNotEmpty( $hooks, "ModerationPending hook wasn't called." );
 		$this->assertCount( 1, $hooks, "Number of times ModerationPending hook was called isn't 1." );
 
-		list( $paramTypes, $params ) = $hooks[0];
+		[ $paramTypes, $params ] = $hooks[0];
 		$this->assertSame( 'array', $paramTypes[0] );
 		$this->assertSame( 'integer', $paramTypes[1] );
 
-		list( $fields, $id ) = $params;
+		[ $fields, $id ] = $params;
 		$this->assertArrayNotHasKey( 'mod_id', $fields );
 
 		// Compare parameters received by ModerationPending hook

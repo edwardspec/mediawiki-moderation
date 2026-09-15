@@ -202,7 +202,7 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 			$mockedLinks
 		) );
 
-		$this->assertCount( count( $mockedLinks ), $mockWrapper->returnTitles,
+		$this->assertSameSize( $mockedLinks, $mockWrapper->returnTitles,
 			'Unexpected number of return links.' );
 
 		// Verify that page was added to "Return to" links.

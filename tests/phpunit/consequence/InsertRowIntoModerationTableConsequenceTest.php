@@ -192,12 +192,12 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 	private function mockRollbackResistantQueryService( $numberOfCalls ) {
 		$rrQuery = $this->createMock( RollbackResistantQuery::class );
 		$rrQuery->expects( $this->exactly( $numberOfCalls ) )
-			->method( 'perform' )->will( $this->returnCallback(
+			->method( 'perform' )->willReturnCallback(
 				static function ( callable $cb ) {
 					// Run it immediately, nothing else.
 					$cb();
 				}
-			) );
+			);
 		$this->setService( 'Moderation.RollbackResistantQuery', $rrQuery );
 	}
 }

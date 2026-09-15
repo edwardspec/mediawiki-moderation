@@ -14,11 +14,6 @@
 		<!-- TODO: should be fixed -->
 		<exclude name="MediaWiki.Commenting.PhpunitAnnotations.WrongDataProviderName" />
 		<exclude name="MediaWiki.PHPUnit.AssertEmpty.AssertEmptyUsed" />
-		<exclude name="Universal.Lists.DisallowLongListSyntax.Found" />
-		<exclude name="MediaWiki.PHPUnit.MockBoilerplate.ConstraintEqualTo" />
-		<exclude name="MediaWiki.PHPUnit.AssertCount.AssertSameSize" />
-		<exclude name="MediaWiki.PHPUnit.MockBoilerplate.returnCallback" />
-		<exclude name="MediaWiki.PHPUnit.MockBoilerplate.returnValueMap" />
 		<exclude name="MediaWiki.PHPUnit.SpecificAssertions.assertNotEmpty" />
 		<exclude name="MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic" />
 	</rule>

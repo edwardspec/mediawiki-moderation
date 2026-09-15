@@ -278,7 +278,7 @@ class ModerationEntryFormatterTest extends ModerationUnitTestCase {
 		);
 		$expectedResult = preg_replace_callback(
 			'/\{UserLink:([^}]+)\}/', static function ( $matches )  {
-				list( $userId, $username ) = explode( '|', $matches[1] );
+				[ $userId, $username ] = explode( '|', $matches[1] );
 				return Linker::userLink( (int)$userId, $username );
 			},
 			$expectedResult

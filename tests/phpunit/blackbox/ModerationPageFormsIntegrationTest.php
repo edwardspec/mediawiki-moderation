@@ -78,7 +78,7 @@ class ModerationPageFormsIntegrationTest extends ModerationTestCase {
 			'target' => $page
 		] ) );
 		$inputs = $html->getElementsByXPath( '//form[@id="pfForm"]//textarea' );
-		$this->assertCount( count( $sections ), $inputs,
+		$this->assertSameSize( $sections, $inputs,
 			'testPageFormsPreload(): this test is outdated (haven\'t found expected ' .
 			'fields on Special:EditForm)'
 		);

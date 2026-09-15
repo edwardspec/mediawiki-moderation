@@ -48,13 +48,13 @@ class WatchOrUnwatchConsequenceTest extends ModerationUnitTestCase {
 		$watchedItemStore = $this->createMock( WatchedItemStore::class );
 		$isWatched = ( $watch && $noop ) || ( !$watch && !$noop );
 
-		$watchedItemStore->expects( $this->once() )->method( 'getWatchedItem' )->will(
-			$this->returnCallback( function ( $hookUser, $hookTitle ) use ( $isWatched, $user, $title ) {
+		$watchedItemStore->expects( $this->once() )->method( 'getWatchedItem' )->willReturnCallback(
+			function ( $hookUser, $hookTitle ) use ( $isWatched, $user, $title ) {
 				$this->assertSame( $user, $hookUser );
 				$this->assertTrue( $hookTitle->isSameLinkAs( $title ) );
 
 				return $isWatched ? new WatchedItem( $user, $title, null ) : false;
-			} )
+			}
 		);
 
 		$watchHookFired = false;

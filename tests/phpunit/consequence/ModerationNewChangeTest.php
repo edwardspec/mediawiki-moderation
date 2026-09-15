@@ -399,10 +399,10 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 
 		// Mock ContentHandlerFactory service to keep track of makeContent() calls.
 		$contentHandler = $this->createMock( ContentHandler::class );
-		$contentHandler->expects( $this->exactly( 2 ) )->method( 'unserializeContent' )->will( $this->returnValueMap( [
+		$contentHandler->expects( $this->exactly( 2 ) )->method( 'unserializeContent' )->willReturnMap( [
 			[ $pendingText, null, $pendingContent ],
 			[ $sectionText, null, $sectionContent ],
-		] ) );
+		] );
 
 		$contentHandlerFactory = $this->createMock( IContentHandlerFactory::class );
 		$contentHandlerFactory->expects( $this->any() )->method( 'getContentHandler' )->with(
@@ -482,7 +482,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 		$expectedTags = [ 'edit-about-cats', 'edit-about-dogs' ];
 
 		$changeTagger = $this->createMock( ChangeTagger::class );
-		$changeTagger->expects( $this->once() )->method( 'getTagsForRecentChange' )->will( $this->returnCallback(
+		$changeTagger->expects( $this->once() )->method( 'getTagsForRecentChange' )->willReturnCallback(
 			function ( RecentChange $rc, bool $clear )
 			use ( $title, $user, $action, $expectedTags ) {
 				$this->assertFalse( $clear );
@@ -494,7 +494,7 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 
 				return $expectedTags;
 			}
-		) );
+		);
 		$this->setService( 'AbuseFilterChangeTagger', $changeTagger );
 
 		$change = $this->makeNewChange( $title, $user );
@@ -596,10 +596,10 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 			[ 'getField', 'sendNotificationEmail' ]
 		);
 
-		$change->method( 'getField' )->will( $this->returnValueMap( [
+		$change->method( 'getField' )->willReturnMap( [
 			[ 'mod_rejected_auto', 0 ],
 			[ 'mod_timestamp', $timestamp ]
-		] ) );
+		] );
 
 		$change->expects( $this->once() )->method( 'sendNotificationEmail' )->with(
 			$this->identicalTo( $modid )
@@ -670,10 +670,10 @@ class ModerationNewChangeTest extends ModerationUnitTestCase {
 			},
 			[ 'getField' ]
 		);
-		$change->expects( $this->any() )->method( 'getField' )->will(
-			$this->returnCallback( static function ( $fieldName ) use ( $fieldValues ) {
+		$change->expects( $this->any() )->method( 'getField' )->willReturnCallback(
+			static function ( $fieldName ) use ( $fieldValues ) {
 				return $fieldValues[$fieldName];
-			} )
+			}
 		);
 
 		'@phan-var ModerationNewChange $change';

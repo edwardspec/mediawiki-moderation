@@ -185,7 +185,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testNewArticlePreloadHook() {
-		list( $title, $preloadedText, $preloadedComment ) = $this->beginShowTest();
+		[ $title, $preloadedText, $preloadedComment ] = $this->beginShowTest();
 		$origTitle = clone $title;
 
 		// Because EditFormPreloadText hook doesn't receive EditPage object as parameter, EditPage
@@ -217,7 +217,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testNewArticlePreloadHookNoEditPage() {
-		list( $title, $preloadedText ) = $this->beginShowTest();
+		[ $title, $preloadedText ] = $this->beginShowTest();
 		$origTitle = clone $title;
 
 		// Call the tested hook.
@@ -239,7 +239,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testExistingArticlePreloadHook() {
-		list( $title, $preloadedText, $preloadedComment ) = $this->beginShowTest();
+		[ $title, $preloadedText, $preloadedComment ] = $this->beginShowTest();
 		$editPage = new EditPage( new Article( $title ) );
 
 		// Call the tested hook.
@@ -263,7 +263,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	 */
 	public function testEditSectionPreloadHook() {
 		$sectionId = 2;
-		list( $title, $preloadedText ) = $this->beginShowTest( false, $sectionId );
+		[ $title, $preloadedText ] = $this->beginShowTest( false, $sectionId );
 		$editPage = new EditPage( new Article( $title ) );
 
 		// Call the tested hook.
@@ -281,7 +281,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testNothingToPreloadNewArticleHook() {
-		list( $title ) = $this->beginShowTest( true );
+		[ $title ] = $this->beginShowTest( true );
 		$origTitle = clone $title;
 		$origText = $text = 'Original text ' . rand( 0, 100000 );
 
@@ -302,7 +302,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 	 * @covers MediaWiki\Moderation\ModerationPreload
 	 */
 	public function testNothingToPreloadExistingArticleHook() {
-		list( $title ) = $this->beginShowTest( true );
+		[ $title ] = $this->beginShowTest( true );
 		$editPage = new EditPage( new Article( $title ) );
 
 		$origText = $editPage->textbox1 = 'Original summary ' . rand( 0, 100000 );
@@ -343,7 +343,7 @@ class ModerationPreloadTest extends ModerationUnitTestCase {
 		if ( !$notFound ) {
 			$pendingEdit = $this->createMock( PendingEdit::class );
 			$pendingEdit->expects( $this->once() )->method( 'getSectionText' )->with(
-				$this->equalTo( $sectionId )
+				$sectionId
 			)->willReturn( $text );
 
 			$pendingEdit->expects( $this->any() )->method( 'getComment' )

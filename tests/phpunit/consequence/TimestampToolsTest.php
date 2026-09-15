@@ -53,27 +53,25 @@ class TimestampToolsTest extends ModerationUnitTestCase {
 		$context->expects( $this->once() )->method( 'getUser' )->willReturn( $user );
 
 		$callIndex = 0;
-		$lang->expects( $this->exactly( 2 ) )->method( 'userAdjust' )->will(
-			$this->returnCallback( function ( $param )
+		$lang->expects( $this->exactly( 2 ) )->method( 'userAdjust' )->willReturnCallback( function ( $param )
 				use ( $timestamp, $mockedAdjustedToday, $mockedAdjustedTimestamp, &$callIndex )
 			{
-				if ( ++$callIndex == 1 ) {
-					// First call to $lang->userAdjust() is used to calculate $today from wfTimestampNow().
-					// Ensure that $param is not too far away from NOW. Allow 2 seconds of difference.
-					$secondsDiff = abs( (int)wfTimestamp( TS_UNIX, 0 ) - (int)wfTimestamp( TS_UNIX, $param ) );
-					$this->assertLessThan( 2, $secondsDiff,
-						'When calculating $today, timestamp passed to userAdjust() was too different from NOW.'
-					);
-					return $mockedAdjustedToday;
-				}
+			if ( ++$callIndex == 1 ) {
+				// First call to $lang->userAdjust() is used to calculate $today from wfTimestampNow().
+				// Ensure that $param is not too far away from NOW. Allow 2 seconds of difference.
+				$secondsDiff = abs( (int)wfTimestamp( TS_UNIX, 0 ) - (int)wfTimestamp( TS_UNIX, $param ) );
+				$this->assertLessThan( 2, $secondsDiff,
+					'When calculating $today, timestamp passed to userAdjust() was too different from NOW.'
+				);
+				return $mockedAdjustedToday;
+			}
 
 				// Second call to $lang->userAdjust() is used on first parameter of format().
 				// Note: format() can accept any format of timestamp (e.g. TS_POSTGRES),
 				// but it MUST be converted, as userAdjust() can only receive TS_MW.
 				$this->assertSame( wfTimestamp( TS_MW, $timestamp ), $param );
 				return $mockedAdjustedTimestamp;
-			} )
-		);
+		} );
 
 		if ( $expectTimeOnly ) {
 			$mockedResult = '{mocked result: time only ' . rand( 0, 100000 ) . '}';

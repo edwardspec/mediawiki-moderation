@@ -64,12 +64,12 @@ class AddLogEntryConsequenceTest extends ModerationUnitTestCase {
 			$approveHook->expects( $this->once() )->method( 'checkLogEntry' )->with(
 				$this->isType( 'int' ),
 				$this->IsInstanceOf( ManualLogEntry::class )
-			)->will( $this->returnCallback(
+			)->willReturnCallback(
 				static function ( $logid, ManualLogEntry $logEntry ) use ( &$checkedLogId, &$checkedLogEntry ) {
 					$checkedLogId = $logid;
 					$checkedLogEntry = $logEntry;
 				}
-			) );
+			);
 		} else {
 			$approveHook->expects( $this->never() )->method( 'checkLogEntry' );
 		}

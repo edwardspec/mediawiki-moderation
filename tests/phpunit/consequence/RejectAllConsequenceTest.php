@@ -45,7 +45,7 @@ class RejectAllConsequenceTest extends ModerationUnitTestCase {
 		$this->authorUser = self::getTestUser()->getUser();
 
 		// Let's reject half of the rows. This allows us to test that other rows are unmodified.
-		list( $idsToReject, $idsToPreserve ) = array_chunk( $this->makeSeveralDbRows( 6 ), 3 );
+		[ $idsToReject, $idsToPreserve ] = array_chunk( $this->makeSeveralDbRows( 6 ), 3 );
 
 		// Make $idsToPreserve ineligible for modification (e.g. due to having another mod_user_text).
 		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );

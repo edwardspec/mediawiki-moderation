@@ -68,7 +68,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 		);
 		$this->assertSame( 1, $isMatched, "Malformed log line." );
 
-		list( , $subtype, $paramLine ) = $matches;
+		[ , $subtype, $paramLine ] = $matches;
 		$this->assertSame( $options['subtype'], $subtype, "Incorrect subtype." );
 
 		// Now check $paramLine for correctness
@@ -273,7 +273,7 @@ class ModerationLogFormatterTest extends ModerationUnitTestCase {
 	protected function assertParamHtml( array $expectedParam, $paramHtml, $idx, Title $target ) {
 		if ( !isset( $expectedParam['query'] ) ) {
 			if ( isset( $expectedParam['userlink'] ) ) {
-				list( $userId, $username ) = $expectedParam['userlink'];
+				[ $userId, $username ] = $expectedParam['userlink'];
 				$title = $userId ?
 					Title::makeTitle( NS_USER, $username ) :
 					SpecialPage::getTitleFor( 'Contributions', $username );

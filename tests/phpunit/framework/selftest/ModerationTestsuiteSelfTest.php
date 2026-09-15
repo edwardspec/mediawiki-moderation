@@ -41,7 +41,7 @@ class ModerationTestsuiteSelfTest extends ModerationTestCase {
 			'meta' => 'siteinfo'
 		] );
 
-		$this->assertNotEmpty( $ret, 'Emptry API response.' );
+		$this->assertNotEmpty( $ret, 'Empty API response.' );
 		$this->assertArrayHasKey( 'query', $ret );
 		$this->assertArrayHasKey( 'general', $ret['query'] );
 		$this->assertArrayHasKey( 'sitename', $ret['query']['general'] );
