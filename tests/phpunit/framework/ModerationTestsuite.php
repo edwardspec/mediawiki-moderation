@@ -247,6 +247,7 @@ class ModerationTestsuite {
 	 */
 	protected function profiler() {
 		return new class() implements Stringable {
+			/** @var float */
 			protected $startTime;
 
 			public function __construct() {
@@ -558,6 +559,10 @@ class ModerationTestsuite {
 		return $this->engine->loggedInAs();
 	}
 
+	/**
+	 * True if logged in as moderator, false otherwise.
+	 * @return bool
+	 */
 	public function isModerator() {
 		return in_array( $this->loggedInAs()->getId(), [
 			$this->moderator->getId(),

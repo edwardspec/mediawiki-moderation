@@ -8,6 +8,19 @@
 		<!-- Don't want to apply this -->
 		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment" />
 
+		<!-- Can't apply until we drop support for PHP 8.3 -->
+		<exclude name="MediaWiki.Usage.NullableType.ExplicitNullableTypes" />
+
+		<!-- TODO: should be fixed -->
+		<exclude name="MediaWiki.Commenting.PhpunitAnnotations.WrongDataProviderName" />
+		<exclude name="MediaWiki.PHPUnit.AssertEmpty.AssertEmptyUsed" />
+		<exclude name="Universal.Lists.DisallowLongListSyntax.Found" />
+		<exclude name="MediaWiki.PHPUnit.MockBoilerplate.ConstraintEqualTo" />
+		<exclude name="MediaWiki.PHPUnit.AssertCount.AssertSameSize" />
+		<exclude name="MediaWiki.PHPUnit.MockBoilerplate.returnCallback" />
+		<exclude name="MediaWiki.PHPUnit.MockBoilerplate.returnValueMap" />
+		<exclude name="MediaWiki.PHPUnit.SpecificAssertions.assertNotEmpty" />
+		<exclude name="MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic" />
 	</rule>
 
 	<rule ref="MediaWiki.Files.ClassMatchesFilename.NotMatch">
@@ -40,7 +53,7 @@
 	<rule ref="MediaWiki.NamingConventions.ValidGlobalName">
 		<properties>
 			<!-- Global variable $IP must be used directly in [ModerationTestsuiteCliEngine.php] -->
-			<property name="ignoreList" type="array" value="$IP" />
+			<property name="ignoreList[]" value="$IP" />
 		</properties>
 	</rule>
 </ruleset>

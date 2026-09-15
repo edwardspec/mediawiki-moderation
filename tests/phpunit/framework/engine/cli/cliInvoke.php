@@ -32,11 +32,10 @@ CliInvoke::singleton()->prepareEverything();
 
 // Actually run MediaWiki. This can't be done from within the class.
 try {
-/*--------------------------------------------------------------*/
-include $wgModerationTestsuiteCliDescriptor['isApi'] ? 'api.php' : 'index.php';
-/*--------------------------------------------------------------*/
-}
-catch ( Exception $e ) {
+	/*--------------------------------------------------------------*/
+	include $wgModerationTestsuiteCliDescriptor['isApi'] ? 'api.php' : 'index.php';
+	/*--------------------------------------------------------------*/
+} catch ( Exception $e ) {
 	CliInvoke::singleton()->handleException( $e );
 }
 
@@ -50,7 +49,6 @@ class CliInvoke {
 	/** @var string */
 	protected $exceptionText = '';
 
-	/** */
 	protected function __construct() {
 	}
 

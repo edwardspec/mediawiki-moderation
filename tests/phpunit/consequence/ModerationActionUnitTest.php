@@ -180,7 +180,6 @@ class ModerationActionUnitTest extends ModerationUnitTestCase {
 	 *
 	 * @covers MediaWiki\Moderation\ModerationAction::addReturnTitle()
 	 * @covers MediaWiki\Moderation\ModerationAction::printReturnLinks()
-	 *
 	 */
 	public function testReturnLinks( ...$pageNames ) {
 		$mock = $this->getModerationActionMock();

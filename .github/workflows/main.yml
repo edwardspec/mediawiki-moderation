@@ -28,7 +28,7 @@ jobs:
            - php: 8.3
              branch: REL1_43
              dbtype: mysql
-           - php: 8.1
+           - php: 8.2
              branch: REL1_43
              dbtype: sqlite
     env:
@@ -89,7 +89,7 @@ jobs:
           chmod 0600 ~/.my.cnf ~/.pgpass
           rsync -a --exclude buildcache --exclude mediawiki --exclude .git . mediawiki/extensions/Moderation/
           cd mediawiki && echo 'DELETE FROM recentchanges;' | php maintenance/sql.php
-          ( cd extensions/AbuseFilter && composer update --no-dev )
+          ( cd extensions/AbuseFilter && COMPOSER_POLICY_ADVISORIES_BLOCK=0 composer update --no-dev )
           WITH_ECHO=1 php maintenance/update.php --quick
           php maintenance/createAndPromote.php "$MEDIAWIKI_USER" "$MEDIAWIKI_PASSWORD" --custom-groups moderator,automoderated
           ( cd extensions/Moderation && composer install )

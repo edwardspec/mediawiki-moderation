@@ -3,7 +3,7 @@
 		"php-parallel-lint/php-parallel-lint": "1.3.1",
 		"php-parallel-lint/php-console-highlighter": "0.5",
 		"mediawiki/minus-x": "0.3.2",
-		"mediawiki/mediawiki-codesniffer": "38.0.0",
+		"mediawiki/mediawiki-codesniffer": "51.0.0",
 		"mediawiki/mediawiki-phan-config": "0.14.0"
 	},
 	"scripts": {
@@ -16,5 +16,16 @@
 			"minus-x fix .",
 			"phpcbf"
 		]
+	},
+	"config": {
+		"allow-plugins": {
+			"composer/installers": true,
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		},
+		"policy": {
+			"advisories": {
+				"ignore-id": [ "PKSA-rdkp-vv9z-mjkg" ]
+			}
+		}
 	}
 }
