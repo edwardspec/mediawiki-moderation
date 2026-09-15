@@ -120,11 +120,11 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 		$mock->expects( $this->once() )->method( 'outputResult' )->with(
 			$this->identicalTo( $mockedResult ),
 			$this->isInstanceOf( OutputPage::class )
-		)->will( $this->returnCallback(
+		)->willReturnCallback(
 			static function ( $result, OutputPage $out ) use ( $mockedHtml ) {
 				$out->addHTML( $mockedHtml );
 			}
-		) );
+		);
 		$mock->expects( $this->once() )->method( 'printReturnLinks' )->willReturnCallback(
 			static function ( OutputPage $out ) {
 				$out->addHTML( '{MockedReturnLinks}' );
@@ -360,12 +360,12 @@ class SpecialModerationTest extends ModerationUnitTestCase {
 			->with(
 				$this->identicalTo( $sampleRow ),
 				$this->identicalTo( $context )
-			)->will( $this->returnCallback( function () use ( $expectedResult ) {
+			)->willReturnCallback( function () use ( $expectedResult ) {
 				$formatter = $this->createMock( ModerationEntryFormatter::class );
 				$formatter->expects( $this->once() )->method( 'getHTML' )
 					->willReturn( $expectedResult );
 				return $formatter;
-			} ) );
+			} );
 		$this->setService( 'Moderation.EntryFactory', $factory );
 
 		'@phan-var Skin $skin';

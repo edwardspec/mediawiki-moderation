@@ -337,13 +337,12 @@ class EditsHaveConsequencesTest extends ModerationUnitTestCase {
 		$content = ContentHandler::makeContent( $fullText, null, CONTENT_MODEL_WIKITEXT );
 
 		$editFormOptions = $this->createMock( EditFormOptions::class );
-		$editFormOptions->expects( $this->once() )->method( 'watchIfNeeded' )->will(
-			$this->returnCallback( function ( $user, array $titles ) {
+		$editFormOptions->expects( $this->once() )->method( 'watchIfNeeded' )
+			->willReturnCallback( function ( $user, array $titles ) {
 				$this->assertSame( $this->user, $user );
 				$this->assertCount( 1, $titles );
 				$this->assertTrue( $titles[0]->isSameLinkAs( $this->title ) );
-			} )
-		);
+			} );
 		$editFormOptions->expects( $this->once() )->method( 'getSection' )->willReturn( $section );
 		$editFormOptions->expects( $this->once() )->method( 'getSectionText' )
 			->willReturn( $sectionText );

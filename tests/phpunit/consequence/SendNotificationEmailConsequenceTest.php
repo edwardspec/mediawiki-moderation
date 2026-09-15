@@ -60,8 +60,8 @@ class SendNotificationEmailConsequenceTest extends ModerationUnitTestCase {
 
 		$emailer = $this->createMock( IEmailer::class );
 		$emailer->expects( $this->once() )->method( 'send' )->with(
-			$this->equalTo( [ $expectedRecipient ] ),
-			$this->equalTo( $expectedSender ),
+			[ $expectedRecipient ],
+			$expectedSender,
 			$this->identicalTo( '(moderation-notification-subject)' ),
 			$this->identicalTo( $expectedContent )
 		);

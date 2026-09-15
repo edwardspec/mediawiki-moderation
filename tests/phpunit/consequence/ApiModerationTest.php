@@ -98,12 +98,12 @@ class ApiModerationTest extends ApiTestCase {
 	 */
 	public function testThrownModerationError() {
 		$mock = $this->addMockedAction( 'reject' );
-		$mock->expects( $this->once() )->method( 'execute' )->will( $this->returnCallback(
+		$mock->expects( $this->once() )->method( 'execute' )->willReturnCallback(
 			/** @return never */
 			static function () {
 				throw new ModerationError( 'error-thrown-by-tested-action' );
 			}
-		) );
+		);
 
 		$exceptionThrown = false;
 		try {
@@ -132,7 +132,7 @@ class ApiModerationTest extends ApiTestCase {
 		$mock = $this->addMockedAction( 'reject' );
 		$mock->expects( $this->once() )->method( 'execute' )->willReturn( $mockedResult );
 
-		list( $result ) = $this->doApiRequestWithToken( [
+		[ $result ] = $this->doApiRequestWithToken( [
 			'action' => 'moderation',
 			'modaction' => 'reject',
 			'modid' => 12345
@@ -159,9 +159,9 @@ class ApiModerationTest extends ApiTestCase {
 		$this->assertArrayHasKey( 'modaction', $allowedParams );
 		$this->assertArrayHasKey( 'modid', $allowedParams );
 
-		$this->assertFalse( empty( $allowedParams['modaction'][ParamValidator::PARAM_REQUIRED] ),
+		$this->assertNotEmpty( $allowedParams['modaction'][ParamValidator::PARAM_REQUIRED],
 			'Parameter modaction= must be required.' );
-		$this->assertFalse( empty( $allowedParams['modid'][ParamValidator::PARAM_REQUIRED] ),
+		$this->assertNotEmpty( $allowedParams['modid'][ParamValidator::PARAM_REQUIRED],
 			'Parameter modid= must be required.' );
 
 		$wrapper = TestingAccessWrapper::newFromObject( $api );

@@ -186,9 +186,9 @@ class ModerationVersionCheckTest extends ModerationUnitTestCase {
 
 		$db->expects( $this->any() )->method( 'fieldExists' )->with(
 			$this->identicalTo( 'moderation' )
-		)->will( $this->returnCallback( static function ( $_, $field ) use ( $fieldExists ) {
+		)->willReturnCallback( static function ( $_, $field ) use ( $fieldExists ) {
 			return $fieldExists[$field] ?? false;
-		} ) );
+		} );
 
 		$loadBalancer = $this->createMock( ILoadBalancer::class );
 		'@phan-var ILoadBalancer $loadBalancer';

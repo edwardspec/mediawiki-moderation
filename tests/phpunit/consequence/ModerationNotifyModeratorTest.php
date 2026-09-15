@@ -192,11 +192,11 @@ class ModerationNotifyModeratorTest extends ModerationUnitTestCase {
 			$linkRenderer->expects( $this->once() )->method( 'makeLink' )->with(
 				$this->IsInstanceOf( Title::class ),
 				$this->identicalTo( '{TextOfNotificationLink}' )
-			)->will( $this->returnCallback( function ( Title $title, $text ) {
+			)->willReturnCallback( function ( Title $title, $text ) {
 				$this->assertTrue( $title->isSpecial( 'Moderation' ),
 					"Link in the notification doesn't point to Special:Moderation." );
 				return '{NotificationLink}';
-			} ) );
+			} );
 
 			$expectedHTML = "{NotificationLink}";
 		}

@@ -121,9 +121,9 @@ class RollbackResistantQueryTest extends ModerationUnitTestCase {
 		$loadBalancer->expects( $this->any() )->method( 'setTransactionListener' )->with(
 			$this->identicalTo( 'moderation-on-rollback-or-commit' ),
 			$this->logicalOr( $this->isType( 'callable' ), $this->isNull() )
-		)->will( $this->returnCallback( function ( $_, $callback ) {
+		)->willReturnCallback( function ( $_, $callback ) {
 			$this->listenerFunc = $callback;
-		} ) );
+		} );
 
 		'@phan-var ILoadBalancer $loadBalancer';
 

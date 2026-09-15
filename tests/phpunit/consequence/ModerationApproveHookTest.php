@@ -683,7 +683,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 		// Step 1: install ApproveHook for edits that will happen later.
 		$approveHook = $this->makeApproveHook();
 		foreach ( $todo as $testParameters ) {
-			list( $title, $user, $type, $task ) = $testParameters;
+			[ $title, $user, $type, $task ] = $testParameters;
 			if ( $task ) {
 				// Install ApproveHook.
 				$approveHook->addTask( $title, $user, $type, $task );
@@ -693,7 +693,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 
 		// Step 2: make new edits and double-check that all changes from $task were applied to them.
 		foreach ( $todo as $testParameters ) {
-			list( $title, $user, $type, $_, $extraInfo ) = $testParameters;
+			[ $title, $user, $type, $_, $extraInfo ] = $testParameters;
 
 			if ( $type == ModerationNewChange::MOD_TYPE_EDIT ) {
 				$this->makeEdit( $title, $user );
@@ -710,7 +710,7 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 		}
 
 		foreach ( $todo as $testParameters ) {
-			list( $title, $user, $type, $task, $extraInfo ) = $testParameters;
+			[ $title, $user, $type, $task, $extraInfo ] = $testParameters;
 
 			$expectedIP = $task ? $task['ip'] : '127.0.0.1';
 

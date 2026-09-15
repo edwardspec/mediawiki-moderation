@@ -100,7 +100,7 @@ function wfModerationTestsuiteMockedHeader( $string, $replace = true, $http_resp
  */
 function wfModerationTestsuiteCliLogin() {
 	global $wgModerationTestsuiteCliDescriptor;
-	list( $expectedId, $expectedName ) = $wgModerationTestsuiteCliDescriptor['expectedUser'];
+	[ $expectedId, $expectedName ] = $wgModerationTestsuiteCliDescriptor['expectedUser'];
 
 	$user = RequestContext::getMain()->getUser();
 	if ( $user->getId() != $expectedId || $user->getName() != $expectedName ) {

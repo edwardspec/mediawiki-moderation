@@ -133,15 +133,15 @@ class QueueMoveConsequenceTest extends ModerationUnitTestCase {
 
 		// Mock HookRunner service to ensure that ModerationPending hook will be called.
 		$hookRunner = $this->createMock( HookRunner::class );
-		$hookRunner->expects( $this->once() )->method( 'onModerationPending' )->will(
-			$this->returnCallback( function ( $hookFields, $hookModid ) use ( $expectedFields, $modid ) {
+		$hookRunner->expects( $this->once() )->method( 'onModerationPending' )->willReturnCallback(
+			function ( $hookFields, $hookModid ) use ( $expectedFields, $modid ) {
 				$this->assertSame( $modid, $hookModid );
 
 				// With the exception of timestamp, all fields must match.
 				unset( $expectedFields['mod_timestamp'] );
 				unset( $hookFields['mod_timestamp'] );
 				$this->assertArrayEquals( $expectedFields, $hookFields, false, true );
-			} )
+			}
 		);
 		$this->setService( 'Moderation.HookRunner', $hookRunner );
 

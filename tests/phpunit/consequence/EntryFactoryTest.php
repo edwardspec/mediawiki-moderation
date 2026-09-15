@@ -309,7 +309,7 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 	 */
 	public function testFindAllApprovableEntries( array $ineligibleFieldValues ) {
 		$this->authorUser = self::getTestUser()->getUser();
-		list( $idsToFind, $idsToSkip ) = array_chunk( $this->makeSeveralDbRows( 7 ), 4 );
+		[ $idsToFind, $idsToSkip ] = array_chunk( $this->makeSeveralDbRows( 7 ), 4 );
 
 		// Make $idsToSkip ineligible for selecting (e.g. due to having another mod_user_text).
 		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
@@ -322,7 +322,7 @@ class EntryFactoryTest extends ModerationUnitTestCase {
 		$factory = $this->makeFactory();
 		$entries = $factory->findAllApprovableEntries( $this->authorUser->getName() );
 
-		$this->assertCount( count( $idsToFind ), $entries );
+		$this->assertSameSize( $idsToFind, $entries );
 		$this->assertContainsOnlyInstancesOf( ModerationApprovableEntry::class, $entries );
 
 		$foundIds = array_map( static function ( $entry ) {

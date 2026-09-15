@@ -143,7 +143,7 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 		// Edits shouldn't be intercepted (including edit caused by approval).
 		$this->setMwGlobals( 'wgModerationEnable', false );
 
-		list( $revid1, $revid2 ) = $this->makeTwoEdits( $title,
+		[ $revid1, $revid2 ] = $this->makeTwoEdits( $title,
 			"Original paragraph about dogs\n\nOriginal paragraph about cats",
 			"Original paragraph about dogs\n\nModified paragraph about cats"
 		);
@@ -182,7 +182,7 @@ class ApproveEditConsequenceTest extends ModerationUnitTestCase {
 		// Edits shouldn't be intercepted (including edit caused by approval).
 		$this->setMwGlobals( 'wgModerationEnable', false );
 
-		list( $revid1, $revid2 ) = $this->makeTwoEdits( $title,
+		[ $revid1, $revid2 ] = $this->makeTwoEdits( $title,
 			"Normal line 1\nNormal line 2\nNormal line 3\n",
 			"Normal line 1\nLine 2 was modified\nNormal line 3\n"
 		);

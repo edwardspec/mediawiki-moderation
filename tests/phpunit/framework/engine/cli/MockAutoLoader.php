@@ -146,7 +146,7 @@ class ModerationTestsuiteMockAutoLoader {
 		}
 
 		return preg_replace_callback( '/^.*\s(' . $functionNameRegex . ')\s*\(/m', function ( $matches ) {
-			list( $line, $functionName ) = $matches;
+			[ $line, $functionName ] = $matches;
 			if ( strpos( $line, 'function' ) !== false ) {
 				// Don't rewrite function definitions, e.g. HttpStatus::header()
 				// when rewriting "header" function.

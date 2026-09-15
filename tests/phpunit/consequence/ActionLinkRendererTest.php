@@ -56,12 +56,12 @@ class ActionLinkRendererTest extends ModerationUnitTestCase {
 		if ( $isTokenNeeded ) {
 			$expectedQueryParameters['token'] = $editToken;
 			$context->expects( $this->once() )->method( 'getUser' )
-				->will( $this->returnCallback( function () use ( $editToken ) {
+				->willReturnCallback( function () use ( $editToken ) {
 					$user = $this->createMock( User::class );
 					$user->method( 'getEditToken' )->willReturn( $editToken );
 
 					return $user;
-				} ) );
+				} );
 		} else {
 			$context->expects( $this->never() )->method( 'getUser' );
 		}

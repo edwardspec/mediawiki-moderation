@@ -961,7 +961,7 @@ class ModerationActionTest extends ModerationTestCase {
 
 		$returnLinks = $html->getElementsByXPath( '//*[@id="mw-returnto"]/a' . '|' .
 			'//*[@class="mw-returnto-extra"]/a' );
-		$this->assertCount( count( $expectedReturnTo ), $returnLinks,
+		$this->assertSameSize( $expectedReturnTo, $returnLinks,
 			'Unexpected number of "Return to" links.' );
 
 		foreach ( $returnLinks as $idx => $link ) {
@@ -1001,13 +1001,13 @@ class ModerationActionTest extends ModerationTestCase {
 
 			if ( isset( $this->expectedImageWidth ) ) {
 				// Determine width/height of image in $req->getContent().
-				list( $width, $height ) = $this->getImageSize( $downloadedFile );
+				[ $width, $height ] = $this->getImageSize( $downloadedFile );
 
 				$this->assertSame( $this->expectedImageWidth, $width,
 					"modaction={$this->modaction}: thumbnail's width doesn't match expected" );
 
 				// Has the ratio been preserved?
-				list( $origWidth, $origHeight ) = $this->getImageSize( $origFile );
+				[ $origWidth, $origHeight ] = $this->getImageSize( $origFile );
 
 				$this->assertSame(
 					round( $origWidth / $origHeight, 2 ),

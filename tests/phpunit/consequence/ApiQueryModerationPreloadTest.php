@@ -58,7 +58,7 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 		if ( !$notFound ) {
 			$pendingEdit = $this->createMock( PendingEdit::class );
 			$pendingEdit->expects( $this->once() )->method( 'getSectionText' )->with(
-				$this->equalTo( $extraParams['mpsection'] ?? '' )
+				$extraParams['mpsection'] ?? ''
 			)->willReturn( $text );
 
 			$pendingEdit->expects( $this->any() )->method( 'getComment' )
@@ -67,11 +67,11 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 
 		// Mock ModerationPreload service.
 		$preload = $this->createMock( ModerationPreload::class );
-		$preload->expects( $this->any() )->method( 'findPendingEdit' )->will(
-			$this->returnCallback( function ( $target ) use ( $title, $pendingEdit ) {
+		$preload->expects( $this->any() )->method( 'findPendingEdit' )->willReturnCallback(
+			function ( $target ) use ( $title, $pendingEdit ) {
 				$this->assertSame( $title->getFullText(), $target->getFullText() );
 				return $pendingEdit;
-			} )
+			}
 		);
 		$this->setService( 'Moderation.Preload', $preload );
 
@@ -80,7 +80,7 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 			'prop' => 'moderationpreload',
 			'mptitle' => $title->getFullText()
 		];
-		list( $result ) = $this->doApiRequest( $query, null, false, $user );
+		[ $result ] = $this->doApiRequest( $query, null, false, $user );
 
 		$this->assertArrayHasKey( 'query', $result );
 		$this->assertArrayHasKey( 'moderationpreload', $result['query'] );

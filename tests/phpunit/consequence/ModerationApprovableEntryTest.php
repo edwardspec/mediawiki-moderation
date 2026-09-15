@@ -98,12 +98,12 @@ class ModerationApprovableEntryTest extends ModerationUnitTestCase {
 						'tags' => $row->tags,
 						'timestamp' => $row->timestamp
 					] )
-				)->will( $this->returnCallback(
+				)->willReturnCallback(
 					function ( Title $approveHookTitle, User $user ) use ( $title, $authorUser ) {
 						$this->assertTrue( $title->equals( $approveHookTitle ), 'ApproveHook: unexpected title' );
 						$this->assertTrue( $authorUser->equals( $user ), 'ApproveHook: unexpected title' );
 					}
-				) );
+				);
 
 				$manager->expects( $this->exactly( 2 ) )->method( 'add' )->withConsecutive(
 					[

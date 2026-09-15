@@ -145,7 +145,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 			$descriptor['_GET'] = wfCgiToArray( $bits['query'] );
 		}
 
-		list( $scriptName, $pathInfo ) = $this->safelyExtractPathInfo( $bits['path'] );
+		[ $scriptName, $pathInfo ] = $this->safelyExtractPathInfo( $bits['path'] );
 
 		$descriptor['isApi'] = ( $scriptName == wfScript( 'api' ) );
 
@@ -238,7 +238,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 		/* Call any postfactum callbacks that were requested by trackHook() */
 		foreach ( $this->trackedHooks as $hook => $callback ) {
 			foreach ( $result['capturedHooks'][$hook] as $invocation ) {
-				list( $paramTypes, $paramsJson ) = $invocation;
+				[ $paramTypes, $paramsJson ] = $invocation;
 				$params = FormatJson::decode( $paramsJson, true );
 
 				$callback( $paramTypes, $params );
@@ -280,7 +280,7 @@ class ModerationTestsuiteCliEngine extends ModerationTestsuiteEngine {
 	protected function safelyExtractPathInfo( $relPath ) {
 		$allowedScripts = array_map( 'wfScript', [ 'index', 'api' ] );
 
-		list( $scriptName, ) = preg_split( '/(?<=\.php)/', $relPath );
+		[ $scriptName, ] = preg_split( '/(?<=\.php)/', $relPath );
 		if ( !in_array( $scriptName, $allowedScripts ) ) {
 			/* If the script isn't whitelisted,
 				whole $relPath is treated as PATH_INFO */
