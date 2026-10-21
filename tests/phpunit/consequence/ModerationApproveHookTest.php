@@ -88,11 +88,11 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 			$expectedParams['revid'] = $title->getLatestRevId( IDBAccessObject::READ_LATEST );
 		}
 
-		$this->assertSelect( 'logging',
-			[ 'log_params' ],
-			[ 'log_action' => 'SomeLogAction' ],
-			[ [ LogEntryBase::makeParamBlob( $expectedParams ) ] ]
-		);
+		$this->newSelectQueryBuilder()
+			->tables( [ 'logging' ] )
+			->fields( [ 'log_params' ] )
+			->conds( [ 'log_action' => 'SomeLogAction' ] )
+			->assertResultSet( [ [ LogEntryBase::makeParamBlob( $expectedParams ) ] ] );
 	}
 
 	/**
@@ -732,12 +732,11 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 			}
 
 			// Verify that ApproveHook has modified recentchanges.rc_ip field.
-			$this->assertSelect(
-				'recentchanges',
-				[ 'rc_ip' ],
-				$rcWhere,
-				[ [ $expectedIP ] ]
-			);
+			$this->newSelectQueryBuilder()
+				->tables( [ 'recentchanges' ] )
+				->fields( [ 'rc_ip' ] )
+				->conds( $rcWhere )
+				->assertResultSet( [ [ $expectedIP ] ] );
 
 			$rc = RecentChange::newFromConds( $rcWhere, __METHOD__, DB_PRIMARY );
 			$rc_id = $rc->mAttribs['rc_id'];
@@ -863,13 +862,12 @@ class ModerationApproveHookTest extends ModerationUnitTestCase {
 						$joinConds = [ 'cu_useragent' => [ 'LEFT JOIN', [ 'cuua_id=cuc_agent_id' ] ] ];
 					}
 
-					$this->assertSelect( $tables,
-						$cucFields,
-						$cuWhere,
-						[ $expectedRow ],
-						[],
-						$joinConds
-					);
+					$this->newSelectQueryBuilder()
+						->tables( $tables )
+						->fields( $cucFields )
+						->conds( $cuWhere )
+						->joinConds( $joinConds )
+						->assertResultSet( [ $expectedRow ] );
 				}
 			}
 

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2025 Edward Chernenko.
+	Copyright (C) 2020-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -111,11 +111,10 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 
 		// Check how many rows were inserted.
 		$expectedNumberOfRows = count( $uniqueFieldChanges ) + 1;
-		$this->assertSelect( 'moderation',
-			[ 'COUNT(*)' ],
-			'',
-			[ [ $expectedNumberOfRows ] ]
-		);
+		$this->newSelectQueryBuilder()
+			->tables( [ 'moderation' ] )
+			->fields( [ 'COUNT(*)' ] )
+			->assertResultSet( [ [ $expectedNumberOfRows ] ] );
 	}
 
 	/**
@@ -136,11 +135,11 @@ class InsertRowIntoModerationTableConsequenceTest extends ModerationUnitTestCase
 			return (string)$val;
 		}, $expectedValues );
 
-		$this->assertSelect( 'moderation',
-			$expectedKeys,
-			[ 'mod_id' => $modid ],
-			[ $expectedValues ]
-		);
+		$this->newSelectQueryBuilder()
+			->tables( [ 'moderation' ] )
+			->fields( $expectedKeys )
+			->conds( [ 'mod_id' => $modid ] )
+			->assertResultSet( [ $expectedValues ] );
 	}
 
 	/**

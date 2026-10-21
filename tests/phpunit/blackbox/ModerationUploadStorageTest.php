@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2019-2024 Edward Chernenko.
+	Copyright (C) 2019-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -94,9 +94,11 @@ class ModerationUploadStorageTest extends ModerationTestCase {
 		$this->assertCount( $numberOfUploads, $keys );
 
 		foreach ( $keys as $stashKey ) {
-			$this->assertSelect( 'uploadstash', 'us_user', [ 'us_key' => $stashKey ],
-				[ [ $stashOwner->getId() ] ] // Expected value of us_user
-			);
+			$this->newSelectQueryBuilder()
+				->tables( [ 'uploadstash' ] )
+				->fields( [ 'us_user' ] )
+				->conds( [ 'us_key' => $stashKey ] )
+				->assertResultSet( [ [ $stashOwner->getId() ] ] );
 		}
 	}
 }

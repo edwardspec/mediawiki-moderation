@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2025 Edward Chernenko.
+	Copyright (C) 2020-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -96,26 +96,25 @@ class RejectAllConsequenceTest extends ModerationUnitTestCase {
 	 */
 	private function assertWereBatchRejected( array $ids, User $moderator ) {
 		foreach ( $ids as $modid ) {
-			$this->assertSelect( 'moderation',
-				[
+			$this->newSelectQueryBuilder()
+				->tables( [ 'moderation' ] )
+				->fields( [
 					'mod_rejected',
 					'mod_rejected_by_user',
 					'mod_rejected_by_user_text',
 					'mod_preloadable',
 					'mod_rejected_batch',
 					'mod_rejected_auto'
-
-				],
-				[ 'mod_id' => $modid ],
-				[ [
+				] )
+				->conds( [ 'mod_id' => $modid ] )
+				->assertResultSet( [ [
 					1,
 					$moderator->getId(),
 					$moderator->getName(),
 					$modid, // mod_preloadable
 					1, // mod_rejected_batch
 					0, // mod_rejected_auto
-				] ]
-			);
+				] ] );
 		}
 	}
 
@@ -124,11 +123,11 @@ class RejectAllConsequenceTest extends ModerationUnitTestCase {
 	 * @param int[] $ids
 	 */
 	private function assertNotRejected( array $ids ) {
-		$this->assertSelect( 'moderation',
-			[ 'mod_rejected' ],
-			[ 'mod_id' => $ids ],
-			array_fill( 0, count( $ids ), [ 0 ] )
-		);
+		$this->newSelectQueryBuilder()
+			->tables( [ 'moderation' ] )
+			->fields( [ 'mod_rejected' ] )
+			->conds( [ 'mod_id' => $ids ] )
+			->assertResultSet( array_fill( 0, count( $ids ), [ 0 ] ) );
 	}
 
 	/**
@@ -136,10 +135,10 @@ class RejectAllConsequenceTest extends ModerationUnitTestCase {
 	 * @param int[] $ids
 	 */
 	private function assertNotRejectedBatch( array $ids ) {
-		$this->assertSelect( 'moderation',
-			[ 'mod_rejected_batch' ],
-			[ 'mod_id' => $ids ],
-			array_fill( 0, count( $ids ), [ 0 ] )
-		);
+		$this->newSelectQueryBuilder()
+			->tables( [ 'moderation' ] )
+			->fields( [ 'mod_rejected_batch' ] )
+			->conds( [ 'mod_id' => $ids ] )
+			->assertResultSet( array_fill( 0, count( $ids ), [ 0 ] ) );
 	}
 }

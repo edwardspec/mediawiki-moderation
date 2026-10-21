@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2025 Edward Chernenko.
+	Copyright (C) 2020-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -108,25 +108,24 @@ class RejectOneConsequenceTest extends ModerationUnitTestCase {
 	 * @param User $moderator
 	 */
 	private function assertWasRejected( $modid, User $moderator ) {
-		$this->assertSelect( 'moderation',
-			[
+		$this->newSelectQueryBuilder()
+			->tables( [ 'moderation' ] )
+			->fields( [
 				'mod_rejected',
 				'mod_rejected_by_user',
 				'mod_rejected_by_user_text',
 				'mod_preloadable',
 				'mod_rejected_batch',
 				'mod_rejected_auto'
-
-			],
-			[ 'mod_id' => $modid ],
-			[ [
+			] )
+			->conds( [ 'mod_id' => $modid ] )
+			->assertResultSet( [ [
 				1,
 				$moderator->getId(),
 				$moderator->getName(),
 				$modid, // mod_preloadable
 				0, // mod_rejected_batch
 				0, // mod_rejected_auto
-			] ]
-		);
+			] ] );
 	}
 }

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2025 Edward Chernenko.
+	Copyright (C) 2020-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -65,36 +65,34 @@ class GiveAnonChangesToNewUserConsequenceTest extends ModerationUnitTestCase {
 		$consequence->run();
 
 		// Assert that $idsToAffect were modified.
-		$this->assertSelect( 'moderation',
-			[
+		$this->newSelectQueryBuilder()
+			->tables( [ 'moderation' ] )
+			->fields( [
 				'mod_user',
 				'mod_user_text',
 				'mod_preload_id'
-
-			],
-			[ 'mod_id' => $idsToAffect ],
-			array_fill( 0, count( $idsToAffect ), [
+			] )
+			->conds( [ 'mod_id' => $idsToAffect ] )
+			->assertResultSet( array_fill( 0, count( $idsToAffect ), [
 				$user->getId(),
 				$user->getName(),
 				$newPreloadId
-			] )
-		);
+			] ) );
 
 		// Assert that $idsToPreserve were NOT changed.
-		$this->assertSelect( 'moderation',
-			[
+		$this->newSelectQueryBuilder()
+			->tables( [ 'moderation' ] )
+			->fields( [
 				'mod_user',
 				'mod_user_text',
 				'mod_preload_id'
-
-			],
-			[ 'mod_id' => $idsToPreserve ],
-			array_fill( 0, count( $idsToPreserve ), [
+			] )
+			->conds( [ 'mod_id' => $idsToPreserve ] )
+			->assertResultSet( array_fill( 0, count( $idsToPreserve ), [
 				$this->authorUser->getId(),
 				$this->authorUser->getName(),
 				$unrelatedPreloadId
-			] )
-		);
+			] ) );
 	}
 
 	/**
@@ -131,35 +129,33 @@ class GiveAnonChangesToNewUserConsequenceTest extends ModerationUnitTestCase {
 		$consequence->run();
 
 		// Assert that $idsToAffect were modified.
-		$this->assertSelect( 'moderation',
-			[
+		$this->newSelectQueryBuilder()
+			->tables( [ 'moderation' ] )
+			->fields( [
 				'mod_user',
 				'mod_user_text',
 				'mod_preload_id'
-
-			],
-			[ 'mod_id' => $idsToAffect ],
-			array_fill( 0, count( $idsToAffect ), [
+			] )
+			->conds( [ 'mod_id' => $idsToAffect ] )
+			->assertResultSet( array_fill( 0, count( $idsToAffect ), [
 				$user->getId(),
 				$user->getName(),
 				$newPreloadId
-			] )
-		);
+			] ) );
 
 		// Assert that $idsToPreserve were NOT changed.
-		$this->assertSelect( 'moderation',
-			[
+		$this->newSelectQueryBuilder()
+			->tables( [ 'moderation' ] )
+			->fields( [
 				'mod_user',
 				'mod_user_text',
 				'mod_preload_id'
-
-			],
-			[ 'mod_id' => $idsToPreserve ],
-			array_fill( 0, count( $idsToPreserve ), [
+			] )
+			->conds( [ 'mod_id' => $idsToPreserve ] )
+			->assertResultSet( array_fill( 0, count( $idsToPreserve ), [
 				$this->authorUser->getId(),
 				$this->authorUser->getName(),
 				$oldPreloadId
-			] )
-		);
+			] ) );
 	}
 }

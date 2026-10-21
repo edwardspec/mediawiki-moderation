@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2025 Edward Chernenko.
+	Copyright (C) 2020-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -48,19 +48,19 @@ class ModifyPendingChangeConsequenceTest extends ModerationUnitTestCase {
 		$consequence->run();
 
 		// Check the state of the database.
-		$this->assertSelect( 'moderation',
-			[
+		$this->newSelectQueryBuilder()
+			->tables( [ 'moderation' ] )
+			->fields( [
 				'mod_text',
 				'mod_comment',
 				'mod_new_len'
-			],
-			[ 'mod_id' => $modid ],
-			[ [
+			] )
+			->conds( [ 'mod_id' => $modid ] )
+			->assertResultSet( [ [
 				$newText,
 				$newComment,
 				$newLen
-			] ]
-		);
+			] ] );
 	}
 
 	/**
@@ -81,18 +81,18 @@ class ModifyPendingChangeConsequenceTest extends ModerationUnitTestCase {
 		$consequence->run();
 
 		// Check the state of the database.
-		$this->assertSelect( 'moderation',
-			[
+		$this->newSelectQueryBuilder()
+			->tables( [ 'moderation' ] )
+			->fields( [
 				'mod_text',
 				'mod_comment',
 				'mod_new_len'
-			],
-			[ 'mod_id' => $modid ],
-			[ [
+			] )
+			->conds( [ 'mod_id' => $modid ] )
+			->assertResultSet( [ [
 				$newText,
 				$expectedComment,
 				$newLen
-			] ]
-		);
+			] ] );
 	}
 }

@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2025 Edward Chernenko.
+	Copyright (C) 2020-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -82,16 +82,16 @@ class MarkAsMergedConsequenceTest extends ModerationUnitTestCase {
 	 * @param int $revid
 	 */
 	protected function assertIsMerged( $modid, $revid ) {
-		$this->assertSelect( 'moderation',
-			[
+		$this->newSelectQueryBuilder()
+			->tables( [ 'moderation' ] )
+			->fields( [
 				'mod_merged_revid',
 				'mod_preloadable'
-			],
-			[ 'mod_id' => $modid ],
-			[ [
+			] )
+			->conds( [ 'mod_id' => $modid ] )
+			->assertResultSet( [ [
 				$revid, // mod_merged_revid
 				$modid // mod_preloadable: when it equals mod_id, it means "NOT preloadable"
-			] ]
-		);
+			] ] );
 	}
 }

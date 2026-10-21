@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2025 Edward Chernenko.
+	Copyright (C) 2020-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -44,10 +44,10 @@ class MarkAsConflictConsequenceTest extends ModerationUnitTestCase {
 		$consequence->run();
 
 		// Check the state of the database.
-		$this->assertSelect( 'moderation',
-			[ 'mod_conflict' ],
-			[ 'mod_id' => $modid ],
-			[ [ 1 ] ]
-		);
+		$this->newSelectQueryBuilder()
+			->tables( [ 'moderation' ] )
+			->fields( [ 'mod_conflict' ], )
+			->conds( [ 'mod_id' => $modid ] )
+			->assertResultSet( [ [ 1 ] ] );
 	}
 }

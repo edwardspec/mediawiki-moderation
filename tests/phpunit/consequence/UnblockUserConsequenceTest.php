@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2025 Edward Chernenko.
+	Copyright (C) 2020-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -78,11 +78,11 @@ class UnblockUserConsequenceTest extends ModerationUnitTestCase {
 	 * @param string $username
 	 */
 	private function assertNotBlocked( $username ) {
-		$this->assertSelect( 'moderation_block',
-			[ 'mb_id' ],
-			[ 'mb_address' => $username ],
-			[] // Expected result: no rows selected.
-		);
+		$this->newSelectQueryBuilder()
+			->tables( [ 'moderation_block' ] )
+			->fields( [ 'mb_id' ] )
+			->conds( [ 'mb_address' => $username ] )
+			->assertResultSet( [] );
 	}
 
 	/**
