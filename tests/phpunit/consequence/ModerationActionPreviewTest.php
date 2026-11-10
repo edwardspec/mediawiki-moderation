@@ -64,7 +64,7 @@ class ModerationActionPreviewTest extends ModerationUnitTestCase {
 			->willReturn( $parserOutput );
 
 		$processedOutput = $this->createMock( ParserOutput::class );
-		$processedOutput->expects( $this->once() )->method( 'getRawText' )
+		$processedOutput->expects( $this->once() )->method( 'getContentHolderText' )
 			->willReturn( $expectedResult['html'] );
 		$processedOutput->expects( $this->once() )->method( 'getCategoryNames' )
 			->willReturn( array_keys( $expectedResult['categories'] ) );
