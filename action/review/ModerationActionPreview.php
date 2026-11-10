@@ -65,7 +65,7 @@ class ModerationActionPreview extends ModerationAction {
 
 		return [
 			'title' => $title->getPrefixedText(),
-			'html' => $pout->getRawText(),
+			'html' => $pout->getContentHolderText(),
 			'categories' => ModerationCompatTools::getParserOutputCategories( $pout )
 		];
 	}
