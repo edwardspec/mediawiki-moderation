@@ -23,6 +23,7 @@
 namespace MediaWiki\Moderation\Tests;
 
 use Article;
+use DerivativeContext;
 use MediaWiki\Context\RequestContext;
 use MediaWiki\EditPage\EditPage;
 use MediaWiki\Moderation\EditFormOptions;
@@ -130,8 +131,22 @@ class EditFormOptionsTest extends ModerationUnitTestCase {
 		}
 		$request = new FauxRequest( $params, true );
 
-		$editPage = new EditPage( new Article( Title::newFromText( 'whatever' ) ) );
-		$editPage->importFormData( $request );
+		$context = new DerivativeContext( RequestContext::getMain() );
+		$context->setRequest( $request );
+
+		$article = new Article( Title::newFromText( 'whatever' ) );
+		$article->setContext( $context );
+
+		$editPage = new EditPage( $article );
+
+		if ( version_compare( MW_VERSION, '1.47-alpha', '<' ) ) {
+			// MediaWiki 1.43-1.46
+			$editPage->importFormData( $request );
+		} else {
+			// MediaWiki 1.47+
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal, PhanTypeNonVarPassByRef
+			$editPage->importFormData( null );
+		}
 
 		// Prevent attemptSave() from actually saving the edit.
 		$this->setTemporaryHook( 'MultiContentSave', static function () {
