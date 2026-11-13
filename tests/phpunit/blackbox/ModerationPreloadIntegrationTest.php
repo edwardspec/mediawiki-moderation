@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2015-2020 Edward Chernenko.
+	Copyright (C) 2015-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -133,8 +133,14 @@ class ModerationPreloadIntegrationTest extends ModerationTestCase {
 		$this->assertArrayHasKey( 'categorieshtml', $parsed );
 		$this->assertArrayHasKey( 'displaytitle', $parsed );
 
-		$this->assertStringContainsString( '<b>' . $boldText . '</b>', $parsed['text'] );
-		$this->assertStringContainsString( '<i>' . $italicText . '</i>', $parsed['text'] );
+		$this->assertMatchesRegularExpression(
+			'@<b[^>]*>' . preg_quote( $boldText ) . '</b>@',
+			$parsed['text']
+		);
+		$this->assertMatchesRegularExpression(
+			'@<i[^>]*>' . preg_quote( $italicText ) . '</i>@',
+			$parsed['text']
+		);
 
 		$this->assertStringContainsString( '(pagecategories: ' . count( $categories ) . ')',
 			$parsed['categorieshtml'] );
