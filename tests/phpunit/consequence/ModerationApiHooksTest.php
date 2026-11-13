@@ -90,6 +90,8 @@ class ModerationApiHooksTest extends ModerationUnitTestCase {
 	 * @return array
 	 */
 	public function dataProviderApiBeforeMain() {
+		global $wgUseParsoidParser;
+
 		return [
 			'not action=edit' => [ [
 				'inputParams' => [ 'action' => 'query' ]
@@ -133,7 +135,13 @@ class ModerationApiHooksTest extends ModerationUnitTestCase {
 					'text' => 'Foxes'
 				],
 				'pendingText' => 'Dogs',
-				'expectedParams' => [ 'text' => "Dogs\n\n== A very new header ==\n\nFoxes" ]
+				'expectedParams' => [
+					'text' => $wgUseParsoidParser ?
+						// MediaWiki 1.47+
+						"Dogs\n\n== A very new header ==\nFoxes" :
+						// MediaWiki 1.43-1.46
+						"Dogs\n\n== A very new header ==\n\nFoxes"
+				]
 			] ],
 			'has section=2 and pending edit, and that pending edit has section #2' => [ [
 				'inputParams' => [ 'section' => '2', 'text' => "==Newheader2==\nNewtext2" ],
