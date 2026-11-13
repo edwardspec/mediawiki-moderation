@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2020-2025 Edward Chernenko.
+	Copyright (C) 2020-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -136,7 +136,9 @@ class ApproveMoveConsequenceTest extends ModerationUnitTestCase {
 
 		$this->assertFalse( $status->isOK(),
 			"ApproveMoveConsequence succeeded for a moderator who is not allowed to move." );
-		$this->assertSame( 'movenotallowed', $status->getMessage()->getKey(),
+
+		$errors = $status->getMessages( 'error' );
+		$this->assertSame( 'movenotallowed', $errors[0]->getKey(),
 			"ApproveMoveConsequence didn't return expected Status." );
 		$this->assertFalse( $hookFired, "PageMoveComplete hook was fired for non-allowed move." );
 	}
