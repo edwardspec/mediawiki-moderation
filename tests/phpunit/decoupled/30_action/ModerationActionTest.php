@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2025 Edward Chernenko.
+	Copyright (C) 2018-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -872,9 +872,15 @@ class ModerationActionTest extends ModerationTestCase {
 		}
 
 		if ( $this->expectedOutputHtml ) {
+			$actualHtml = $html->saveHTML( $html->getMainContent() );
+
+			// Parsoid (used by default in MediaWiki 1.47+) adds random id= parameters to tags like <b>.
+			// We need to strip these id= parameters before comparing the output with expected output.
+			$actualHtml = preg_replace( '/<(b|i) id="[^">]+">/', '<$1>', $actualHtml );
+
 			$this->assertStringContainsString(
 				$this->expectedOutputHtml,
-				$html->saveHTML( $html->getMainContent() ),
+				$actualHtml,
 				"modaction={$this->modaction}: unexpected HTML output."
 			);
 		}
@@ -1078,7 +1084,11 @@ class ModerationActionTest extends ModerationTestCase {
 		$rcQueryFields = [ 'rc_timestamp' ];
 
 		$changeTagsStore = $this->getServiceContainer()->getChangeTagsStore();
-		$rcQueryFields['ts_tags'] = $changeTagsStore->makeTagSummarySubquery( 'recentchanges' );
+		// @phan-suppress-next-line PhanParamTooMany
+		$rcQueryFields['ts_tags'] = $changeTagsStore->makeTagSummarySubquery(
+			'recentchanges',
+			$this->getModerator()
+		);
 
 		$dbw = ModerationCompatTools::getDB( DB_PRIMARY );
 		$rcRow = $dbw->selectRow( 'recentchanges',
