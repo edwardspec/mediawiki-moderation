@@ -53,6 +53,12 @@ $wgSessionPbkdf2Iterations = 1;
 // Sanity check: disallow deprecated session management via session_id(), etc.
 $wgPHPSessionHandling = 'disable';
 
+if ( version_compare( MW_VERSION, '1.47-alpha', '>=' ) ) {
+	// Since MediaWiki 1.47 (see T427462), TestSetup::applyInitialConfig() overwrites $wgMetaNamespace,
+	// so we need to do the same here.
+	$wgMetaNamespace = 'Project';
+}
+
 if ( $wgModerationTestsuiteCliDescriptor['expectedUser'][0] === 0 ) {
 	// Testsuite has requested that we operate as an anonymous user, so we must disable
 	// the temporary accounts (otherwise MediaWiki would automatically register anonymous users).
