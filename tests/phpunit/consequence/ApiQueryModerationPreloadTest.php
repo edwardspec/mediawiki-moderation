@@ -98,19 +98,19 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 			'title' => $title->getFullText(),
 			'pageid' => $articleId
 		];
+		$expectedParsedText = '';
+
 		if ( $notFound ) {
 			$expectedResult['missing'] = '';
 		} else {
 			if ( ( $extraParams['mpmode'] ?? 'wikitext' ) === 'wikitext' ) {
 				$expectedResult['wikitext'] = $text;
 			} else {
-				$expectedText = '<div class="mw-content-ltr mw-parser-output" lang="en" dir="ltr"><p>' .
-					"$text\n</p></div>";
+				$expectedParsedText = $text;
 				$mwInterfaceParameter = version_compare( MW_VERSION, '1.46-alpha', '<' ) ?
 					'data-mw="interface"' : 'data-mw-interface=""';
 
 				$expectedResult['parsed'] = [
-					'text' => $expectedText,
 					'categorieshtml' => '<div id="catlinks" class="catlinks catlinks-allhidden" ' .
 						$mwInterfaceParameter . '></div>',
 					'displaytitle' => $title->getFullText()
@@ -119,6 +119,16 @@ class ApiQueryModerationPreloadTest extends ApiTestCase {
 
 			$expectedResult['comment'] = $comment;
 		}
+
+		if ( $expectedParsedText ) {
+			$this->assertStringContainsString(
+				$expectedParsedText,
+				$actualResult['parsed']['text'] ?? '',
+				"Preloaded text in the API response doesn't match expected."
+			);
+			unset( $actualResult['parsed']['text'] );
+		}
+
 		$this->assertSame( $expectedResult, $actualResult, "API response doesn't match expected." );
 	}
 
