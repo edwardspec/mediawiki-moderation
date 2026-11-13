@@ -2,7 +2,7 @@
 
 /*
 	Extension:Moderation - MediaWiki extension.
-	Copyright (C) 2018-2025 Edward Chernenko.
+	Copyright (C) 2018-2026 Edward Chernenko.
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -693,7 +693,11 @@ class ModerationQueueTest extends ModerationTestCase {
 
 		if ( $this->filename && !$this->viaApi ) {
 			/* Special:Upload prepends InitialText with "== Summary ==" header */
-			$headerText = '== (filedesc) ==';
+			$headerText = version_compare( MW_VERSION, '1.47-alpha', '<' ) ?
+				// MediaWiki 1.43-1.46
+				'== (filedesc) ==' :
+				// MediaWiki 1.47+
+				'(newsectionheaderdefaultlevel: (filedesc))';
 			$expectedText = "$headerText\n$expectedText";
 		}
 
